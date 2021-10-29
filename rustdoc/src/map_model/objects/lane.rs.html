@@ -873,7 +873,7 @@
     <span class="doccomment">/// pt2 will be endpoint</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">end_line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Line</span> {
         <span class="kw">if</span> <span class="ident">i</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">src_i</span> {
-            <span class="self">self</span>.<span class="ident">first_line</span>().<span class="ident">reverse</span>()
+            <span class="self">self</span>.<span class="ident">first_line</span>().<span class="ident">reversed</span>()
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">i</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">dst_i</span> {
             <span class="self">self</span>.<span class="ident">last_line</span>()
         } <span class="kw">else</span> {

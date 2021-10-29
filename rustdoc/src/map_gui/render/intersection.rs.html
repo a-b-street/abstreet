@@ -929,7 +929,7 @@
                     <span class="kw">let</span> <span class="ident">first_line</span> <span class="op">=</span> <span class="ident">l2</span>.<span class="ident">first_line</span>().<span class="ident">shift_either_direction</span>(<span class="ident">width</span>);
                     <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">first_line</span>.<span class="ident">pt1</span>());
                     <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">first_line</span>.<span class="ident">unbounded_dist_along</span>(<span class="ident">thickness</span>));
-                    <span class="kw">let</span> <span class="ident">last_line</span> <span class="op">=</span> <span class="ident">l1</span>.<span class="ident">last_line</span>().<span class="ident">shift_either_direction</span>(<span class="ident">width</span>).<span class="ident">reverse</span>();
+                    <span class="kw">let</span> <span class="ident">last_line</span> <span class="op">=</span> <span class="ident">l1</span>.<span class="ident">last_line</span>().<span class="ident">shift_either_direction</span>(<span class="ident">width</span>).<span class="ident">reversed</span>();
                     <span class="ident">pts</span>.<span class="ident">insert</span>(<span class="number">0</span>, <span class="ident">last_line</span>.<span class="ident">pt1</span>());
                     <span class="ident">pts</span>.<span class="ident">insert</span>(<span class="number">0</span>, <span class="ident">last_line</span>.<span class="ident">unbounded_dist_along</span>(<span class="ident">thickness</span>));
                     <span class="ident">PolyLine::deduping_new</span>(<span class="ident">pts</span>).<span class="ident">ok</span>()
@@ -950,7 +950,7 @@
                     .<span class="ident">first_line</span>()
                     .<span class="ident">shift_either_direction</span>(<span class="ident">direction</span> <span class="op">*</span> <span class="ident">shift</span>(<span class="ident">l2</span>.<span class="ident">width</span>));
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) <span class="op">=</span> <span class="ident">PolyLine::deduping_new</span>(<span class="macro">vec!</span>[
-                    <span class="ident">last_line</span>.<span class="ident">reverse</span>().<span class="ident">unbounded_dist_along</span>(<span class="ident">thickness</span>),
+                    <span class="ident">last_line</span>.<span class="ident">reversed</span>().<span class="ident">unbounded_dist_along</span>(<span class="ident">thickness</span>),
                     <span class="ident">last_line</span>.<span class="ident">pt2</span>(),
                     <span class="ident">first_line</span>.<span class="ident">pt1</span>(),
                     <span class="ident">first_line</span>.<span class="ident">unbounded_dist_along</span>(<span class="ident">thickness</span>),
@@ -984,7 +984,7 @@
     <span class="kw">if</span> <span class="op">!</span><span class="ident">i</span>.<span class="ident">outgoing_lanes</span>.<span class="ident">is_empty</span>() {
         <span class="kw">let</span> (<span class="ident">line</span>, <span class="ident">width</span>) <span class="op">=</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">dst_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i</span>.<span class="ident">id</span> {
             (
-                <span class="ident">center</span>.<span class="ident">last_line</span>().<span class="ident">shift_left</span>(<span class="ident">width_back</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">reverse</span>(),
+                <span class="ident">center</span>.<span class="ident">last_line</span>().<span class="ident">shift_left</span>(<span class="ident">width_back</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">reversed</span>(),
                 <span class="ident">width_back</span>,
             )
         } <span class="kw">else</span> {
@@ -1004,7 +1004,7 @@
     <span class="kw">if</span> <span class="op">!</span><span class="ident">i</span>.<span class="ident">incoming_lanes</span>.<span class="ident">is_empty</span>() {
         <span class="kw">let</span> (<span class="ident">line</span>, <span class="ident">width</span>) <span class="op">=</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">dst_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i</span>.<span class="ident">id</span> {
             (
-                <span class="ident">center</span>.<span class="ident">last_line</span>().<span class="ident">shift_right</span>(<span class="ident">width_fwd</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">reverse</span>(),
+                <span class="ident">center</span>.<span class="ident">last_line</span>().<span class="ident">shift_right</span>(<span class="ident">width_fwd</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">reversed</span>(),
                 <span class="ident">width_fwd</span>,
             )
         } <span class="kw">else</span> {

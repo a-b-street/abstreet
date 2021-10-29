@@ -459,11 +459,10 @@
 <span id="459">459</span>
 <span id="460">460</span>
 <span id="461">461</span>
-<span id="462">462</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">geom::Distance</span>;
-<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">Navigator</span>, <span class="ident">PopupMsg</span>};
+<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">DrawRoadLabels</span>, <span class="ident">Navigator</span>, <span class="ident">PopupMsg</span>};
 <span class="kw">use</span> <span class="ident">map_model::osm::RoadRank</span>;
 <span class="kw">use</span> <span class="ident">map_model::LaneType</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
@@ -475,7 +474,6 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ungap::bike_network</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ungap::bike_network::DrawNetworkLayer</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ungap::labels::DrawRoadLabels</span>;
 
 <span class="doccomment">/// A bottom-right panel for managing a bunch of toggleable layers in the &quot;ungap the map&quot; tool.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Layers</span> {
@@ -499,7 +497,7 @@
             <span class="ident">panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
             <span class="ident">minimized</span>: <span class="bool-val">true</span>,
             <span class="ident">bike_network</span>: <span class="prelude-val">Some</span>(<span class="ident">DrawNetworkLayer::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
-            <span class="ident">labels</span>: <span class="prelude-val">Some</span>(<span class="ident">DrawRoadLabels::new</span>()),
+            <span class="ident">labels</span>: <span class="prelude-val">Some</span>(<span class="ident">DrawRoadLabels::only_major_roads</span>()),
             <span class="ident">elevation</span>: <span class="bool-val">false</span>,
             <span class="ident">steep_streets</span>: <span class="prelude-val">None</span>,
             <span class="ident">road_types</span>: <span class="ident">HashMap::new</span>(),
@@ -597,7 +595,7 @@
                 }
                 <span class="string">&quot;road labels&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;road labels&quot;</span>) {
-                        <span class="self">self</span>.<span class="ident">labels</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">DrawRoadLabels::new</span>());
+                        <span class="self">self</span>.<span class="ident">labels</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">DrawRoadLabels::only_major_roads</span>());
                     } <span class="kw">else</span> {
                         <span class="self">self</span>.<span class="ident">labels</span> <span class="op">=</span> <span class="prelude-val">None</span>;
                     }
