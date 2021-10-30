@@ -573,6 +573,15 @@
 <span id="573">573</span>
 <span id="574">574</span>
 <span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>, <span class="ident">Time</span>, <span class="ident">EPSILON_DIST</span>};
@@ -926,12 +935,21 @@
 
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pl</span>) <span class="op">=</span> (<span class="op">|</span><span class="op">|</span> {
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">turn</span>.<span class="ident">geom</span>.<span class="ident">shift_either_direction</span>(<span class="ident">width</span>).<span class="ident">ok</span>()<span class="question-mark">?</span>.<span class="ident">into_points</span>();
+                    <span class="comment">// TODO Connecting the SharedSidewalkCorner geometry to the curb usually</span>
+                    <span class="comment">// requires adding a few points from the sidewalk on each end. But sometimes</span>
+                    <span class="comment">// this causes &quot;zig-zaggy&quot; artifacts. The approx_eq check helps some (but not</span>
+                    <span class="comment">// all) of those cases, but sometimes introduces visual &quot;gaps&quot;. This still</span>
+                    <span class="comment">// needs more work.</span>
                     <span class="kw">let</span> <span class="ident">first_line</span> <span class="op">=</span> <span class="ident">l2</span>.<span class="ident">first_line</span>().<span class="ident">shift_either_direction</span>(<span class="ident">width</span>);
-                    <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">first_line</span>.<span class="ident">pt1</span>());
-                    <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">first_line</span>.<span class="ident">unbounded_dist_along</span>(<span class="ident">thickness</span>));
+                    <span class="kw">if</span> <span class="op">!</span><span class="ident">pts</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="ident">approx_eq</span>(<span class="ident">first_line</span>.<span class="ident">pt1</span>(), <span class="ident">thickness</span>) {
+                        <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">first_line</span>.<span class="ident">pt1</span>());
+                        <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">first_line</span>.<span class="ident">unbounded_dist_along</span>(<span class="ident">thickness</span>));
+                    }
                     <span class="kw">let</span> <span class="ident">last_line</span> <span class="op">=</span> <span class="ident">l1</span>.<span class="ident">last_line</span>().<span class="ident">shift_either_direction</span>(<span class="ident">width</span>).<span class="ident">reversed</span>();
-                    <span class="ident">pts</span>.<span class="ident">insert</span>(<span class="number">0</span>, <span class="ident">last_line</span>.<span class="ident">pt1</span>());
-                    <span class="ident">pts</span>.<span class="ident">insert</span>(<span class="number">0</span>, <span class="ident">last_line</span>.<span class="ident">unbounded_dist_along</span>(<span class="ident">thickness</span>));
+                    <span class="kw">if</span> <span class="op">!</span><span class="ident">pts</span>[<span class="number">0</span>].<span class="ident">approx_eq</span>(<span class="ident">last_line</span>.<span class="ident">pt1</span>(), <span class="ident">thickness</span>) {
+                        <span class="ident">pts</span>.<span class="ident">insert</span>(<span class="number">0</span>, <span class="ident">last_line</span>.<span class="ident">pt1</span>());
+                        <span class="ident">pts</span>.<span class="ident">insert</span>(<span class="number">0</span>, <span class="ident">last_line</span>.<span class="ident">unbounded_dist_along</span>(<span class="ident">thickness</span>));
+                    }
                     <span class="ident">PolyLine::deduping_new</span>(<span class="ident">pts</span>).<span class="ident">ok</span>()
                 })() {
                     <span class="ident">curbs</span>.<span class="ident">push</span>(<span class="ident">pl</span>.<span class="ident">make_polygons</span>(<span class="ident">thickness</span>));
