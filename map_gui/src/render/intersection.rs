@@ -351,12 +351,21 @@ fn calculate_corner_curbs(i: &Intersection, map: &Map) -> Vec<Polygon> {
 
                 if let Some(pl) = (|| {
                     let mut pts = turn.geom.shift_either_direction(width).ok()?.into_points();
+                    // TODO Connecting the SharedSidewalkCorner geometry to the curb usually
+                    // requires adding a few points from the sidewalk on each end. But sometimes
+                    // this causes "zig-zaggy" artifacts. The approx_eq check helps some (but not
+                    // all) of those cases, but sometimes introduces visual "gaps". This still
+                    // needs more work.
                     let first_line = l2.first_line().shift_either_direction(width);
-                    pts.push(first_line.pt1());
-                    pts.push(first_line.unbounded_dist_along(thickness));
+                    if !pts.last().unwrap().approx_eq(first_line.pt1(), thickness) {
+                        pts.push(first_line.pt1());
+                        pts.push(first_line.unbounded_dist_along(thickness));
+                    }
                     let last_line = l1.last_line().shift_either_direction(width).reversed();
-                    pts.insert(0, last_line.pt1());
-                    pts.insert(0, last_line.unbounded_dist_along(thickness));
+                    if !pts[0].approx_eq(last_line.pt1(), thickness) {
+                        pts.insert(0, last_line.pt1());
+                        pts.insert(0, last_line.unbounded_dist_along(thickness));
+                    }
                     PolyLine::deduping_new(pts).ok()
                 })() {
                     curbs.push(pl.make_polygons(thickness));
