@@ -223,11 +223,13 @@ impl Job {
                         }
                     };
 
+                    // The collision data will only cover one part of London, since we don't have a
+                    // region-wide map there yet
                     if name.city == CityName::new("de", "berlin") {
                         berlin::import_extra_data(&raw, &config, timer).await;
                     } else if name == MapName::new("gb", "leeds", "huge") {
                         uk::import_collision_data(&raw, &config, timer).await;
-                    } else if name.city == CityName::new("gb", "london") {
+                    } else if name == MapName::new("gb", "london", "camden") {
                         uk::import_collision_data(&raw, &config, timer).await;
                     }
                 }

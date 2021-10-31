@@ -996,14 +996,19 @@
       "compressed_size_bytes": 6769846
     },
     "data/input/gb/london/collisions.bin": {
-      "checksum": "4b7a3f48d99c9ed7d49b2e69d6da163b",
-      "uncompressed_size_bytes": 11611,
-      "compressed_size_bytes": 8457
+      "checksum": "b32fb1d59053325b686db7333971cedf",
+      "uncompressed_size_bytes": 87547,
+      "compressed_size_bytes": 57248
     },
     "data/input/gb/london/osm/a5.osm": {
       "checksum": "438ba14566a773a818b8dcdeb8300048",
       "uncompressed_size_bytes": 64552068,
       "compressed_size_bytes": 6487668
+    },
+    "data/input/gb/london/osm/camden.osm": {
+      "checksum": "21fba899deaaa645d2a061bd661d4ab1",
+      "uncompressed_size_bytes": 98442567,
+      "compressed_size_bytes": 10895771
     },
     "data/input/gb/london/osm/greater-london-latest.osm.pbf": {
       "checksum": "ef110d0831b482bb7336c82e36b115ed",
@@ -1019,6 +1024,11 @@
       "checksum": "76bf0221f1ee6139fdef664abf04149b",
       "uncompressed_size_bytes": 18572486,
       "compressed_size_bytes": 3775010
+    },
+    "data/input/gb/london/raw_maps/camden.bin": {
+      "checksum": "e51e5eca74bd7c289a1efca25862f95a",
+      "uncompressed_size_bytes": 28873561,
+      "compressed_size_bytes": 5921529
     },
     "data/input/gb/london/raw_maps/southbank.bin": {
       "checksum": "140bea3f8ad3b9ee53f60cc5601eb801",
@@ -3335,10 +3345,20 @@
       "uncompressed_size_bytes": 44937098,
       "compressed_size_bytes": 15919698
     },
+    "data/system/gb/london/maps/camden.bin": {
+      "checksum": "556ddbe696fd18089e4fc1478adf517b",
+      "uncompressed_size_bytes": 63885296,
+      "compressed_size_bytes": 22601809
+    },
     "data/system/gb/london/maps/southbank.bin": {
       "checksum": "eb5d2bc09e27b32f127f42ccef62567d",
       "uncompressed_size_bytes": 8131653,
       "compressed_size_bytes": 2698946
+    },
+    "data/system/gb/london/scenarios/camden/background.bin": {
+      "checksum": "61325202fb437ef5bf4dfb9a57ea1ac3",
+      "uncompressed_size_bytes": 10209374,
+      "compressed_size_bytes": 2688854
     },
     "data/system/gb/long_marston/maps/center.bin": {
       "checksum": "791fd1af932799555e34c16e36193e4d",
