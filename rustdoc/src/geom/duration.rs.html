@@ -432,6 +432,11 @@
 <span id="432">432</span>
 <span id="433">433</span>
 <span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">cmp</span>, <span class="ident">ops</span>};
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
@@ -484,6 +489,11 @@
     <span class="doccomment">/// Creates a duration in minutes.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">f64_minutes</span>(<span class="ident">mins</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Duration</span> {
         <span class="ident">Duration::seconds</span>(<span class="ident">mins</span> <span class="op">*</span> <span class="number">60.0</span>)
+    }
+
+    <span class="doccomment">/// Creates a duration in milliseconds.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">milliseconds</span>(<span class="ident">value</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Duration</span> {
+        <span class="ident">Duration::seconds</span>(<span class="ident">value</span> <span class="op">/</span> <span class="number">1000.0</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">const_seconds</span>(<span class="ident">value</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Duration</span> {

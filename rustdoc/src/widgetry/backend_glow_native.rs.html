@@ -169,7 +169,7 @@
     <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;load textures&quot;</span>);
 
     (
-        <span class="ident">PrerenderInnards::new</span>(<span class="ident">gl</span>, <span class="ident">program</span>, <span class="ident">WindowAdapter</span>(<span class="ident">windowed_context</span>)),
+        <span class="ident">PrerenderInnards::new</span>(<span class="ident">gl</span>, <span class="ident">program</span>, <span class="prelude-val">Some</span>(<span class="ident">WindowAdapter</span>(<span class="ident">windowed_context</span>))),
         <span class="ident">event_loop</span>,
     )
 }

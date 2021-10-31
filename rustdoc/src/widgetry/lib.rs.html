@@ -231,6 +231,9 @@
 <span id="231">231</span>
 <span id="232">232</span>
 <span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
 </pre><pre class="rust"><code><span class="doccomment">//! # Widgets</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! If none of these do what you need, implementing a new [`WidgetImpl`] isn&#39;t tough.</span>
@@ -339,6 +342,9 @@
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-backend&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;wasm-backend&quot;</span>))]</span>
     <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::backend_glow</span>::<span class="kw-2">*</span>;
 }
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;wasm-backend&quot;</span>)]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::backend_glow_wasm::RenderOnly</span>;
 
 <span class="doccomment">/// Like [`std::include_bytes!`], but also returns its argument, the relative path to the bytes</span>
 <span class="doccomment">///</span>

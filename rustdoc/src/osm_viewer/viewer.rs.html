@@ -733,7 +733,7 @@
                 <span class="comment">// get_obj must succeed, because we can only click static map elements.</span>
                 <span class="kw">let</span> <span class="ident">outline</span> <span class="op">=</span> <span class="ident">app</span>
                     .<span class="ident">draw_map</span>
-                    .<span class="ident">get_obj</span>(<span class="ident">ctx</span>, <span class="ident">id</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map_gui::render::AgentCache::new_state</span>())
+                    .<span class="ident">get_obj</span>(<span class="ident">ctx</span>, <span class="ident">id</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map_gui::render::AgentCache::new</span>())
                     .<span class="ident">unwrap</span>()
                     .<span class="ident">get_outline</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>);
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">perma_selected_object</span>, <span class="ident">outline</span>)]);
