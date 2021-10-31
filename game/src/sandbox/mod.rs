@@ -647,7 +647,7 @@ fn mouseover_unzoomed_agent_circle(ctx: &mut EventCtx, app: &mut App) {
         .primary
         .agents
         .borrow_mut()
-        .calculate_unzoomed_agents(ctx, app)
+        .calculate_unzoomed_agents(ctx, &app.primary.map, &app.primary.sim, &app.cs)
         .query(
             Circle::new(cursor, Distance::meters(3.0))
                 .get_bounds()

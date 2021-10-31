@@ -1,0 +1,180 @@
+<!doctype html>
+<html>
+
+<head>
+	<meta charset="utf-8" />
+	<title>MVP</title>
+	<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+	<link href="https://api.mapbox.com/mapbox-gl-js/v2.5.1/mapbox-gl.css" rel="stylesheet">
+	<script src="https://api.mapbox.com/mapbox-gl-js/v2.5.1/mapbox-gl.js"></script>
+	<style>
+		body {
+			margin: 0px;
+			border: 0px;
+			padding: 0px;
+		}
+
+		#map {
+			/* TODO Fill remaining space. Can't get flexbox working... */
+			height: 800px;
+			width: 90%;
+		}
+	</style>
+</head>
+
+<body>
+	<input type="checkbox" id="show_roads" checked />
+	<label for="show_roads">Show A/B Street roads</label>
+	<span id="traffic_controls"></span>
+	<div id="map"></div>
+	<script type="module">
+		import init, { PiggybackDemo } from './pkg/piggyback.js';
+
+		async function setup() {
+			// Initialize the WASM library.
+			await init();
+
+			// What map should we load?
+			var loadPath = new URL(window.location).searchParams.get('map');
+			if (loadPath == null) {
+				loadPath = 'data/system/us/seattle/maps/montlake.bin';
+			}
+
+			// TODO Ideally we'd load this in the background and let Mapbox run first, but I'm not sure how to make the map.on('load') callback async.
+			console.log(`Fetching ${loadPath}`);
+			const resp = await fetch(loadPath);
+			const mapBytes = await resp.arrayBuffer();
+
+			// TODO I definitely copied this from example code somewhere. Generate my own and restrict its use once we decide how to deploy this demo.
+			mapboxgl.accessToken = 'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw';
+
+			// Create the Mapbox map
+			const map = new mapboxgl.Map({
+				container: 'map',
+				style: 'mapbox://styles/mapbox/satellite-streets-v11',
+				center: [-122.3037, 47.6427],
+				zoom: 16,
+				antialias: true,
+				// TODO This appears to duplicate the parameter as soon as we move...
+				//hash: `map=${loadPath}`
+				hash: true
+			});
+
+			var piggyback = null;
+
+			const abstLayer = {
+				id: 'abst',
+				type: 'custom',
+				onAdd: function (map, gl) {
+					piggyback = PiggybackDemo.create_with_map_bytes(gl, mapBytes);
+					// TODO If the URL didn't specify an initial location, warp to the center of this map?
+					sync_canvas();
+				},
+				render: function (gl, matrix) {
+					if (piggyback == null) {
+						return;
+					}
+					if (map.getZoom() >= 16) {
+						piggyback.draw_zoomed(document.getElementById('show_roads').checked);
+					} else {
+						piggyback.draw_unzoomed();
+					}
+				}
+			};
+
+			map.on('load', () => {
+				map.addLayer(abstLayer);
+			});
+			map.on('move', sync_canvas);
+			map.on('click', (e) => {
+				const debug = piggyback.debug_object_at(e.lngLat.lng, e.lngLat.lat);
+				if (debug != null) {
+					new mapboxgl.Popup()
+						.setLngLat(e.lngLat)
+						.setHTML(`<pre style="overflow-x: scroll; overflow-y: scroll; max-width: 240px; max-height: 300px;">${debug}</pre>`)
+						.addTo(map);
+				}
+			});
+			// We don't have map until here, so set up the handler now
+			document.getElementById('show_roads').onclick = function () {
+				map.triggerRepaint();
+			}
+
+			function sync_canvas() {
+				// If things broke during initialization, don't spam the console trying to call methods on a null object
+				if (piggyback != null) {
+					const bounds = map.getBounds();
+					const ne = bounds.getNorthEast();
+					const sw = bounds.getSouthWest();
+					piggyback.move_canvas(ne.lng, ne.lat, sw.lng, sw.lat);
+				}
+			}
+
+			function traffic_controls_inactive() {
+				const span = document.getElementById('traffic_controls');
+				span.innerHTML = `
+				<button type="button" onclick="start_traffic_sim()">Start traffic simulation</button>
+				`;
+			}
+
+			function traffic_controls_active() {
+				const span = document.getElementById('traffic_controls');
+				span.innerHTML = `
+				<button type="button" onclick="pause_or_resume()">Pause / resume</button>
+				<button type="button" onclick="clear_traffic_sim()">Clear simulation</button>
+				`;
+			}
+
+			var lastTime = performance.now();
+			var animationRequest = null;
+
+			function start_traffic_sim() {
+				traffic_controls_active();
+				lastTime = performance.now();
+				animationRequest = requestAnimationFrame(runSimulation);
+				piggyback.spawn_traffic();
+			}
+
+			function pause_or_resume() {
+				if (animationRequest == null) {
+					lastTime = performance.now();
+					animationRequest = requestAnimationFrame(runSimulation);
+				} else {
+					cancelAnimationFrame(animationRequest);
+					animationRequest = null;
+				}
+			}
+
+			function clear_traffic_sim() {
+				traffic_controls_inactive();
+				cancelAnimationFrame(animationRequest);
+				animationRequest = null;
+				piggyback.clear_traffic();
+				map.triggerRepaint();
+			}
+
+			function runSimulation(timestamp) {
+				const now = performance.now();
+				const dt = now - lastTime;
+				// This is called over 60 times per second or so! Throttle to about 10fps
+				if (dt >= 100) {
+					lastTime = now;
+					piggyback.advance_sim_time(dt);
+					map.triggerRepaint();
+				}
+				animationRequest = requestAnimationFrame(runSimulation);
+			}
+
+			traffic_controls_inactive();
+
+			// Let the onclick handlers reach into this scope. Alternatively, grab the buttons here and set onclick handlers.
+			window.start_traffic_sim = start_traffic_sim;
+			window.pause_or_resume = pause_or_resume;
+			window.clear_traffic_sim = clear_traffic_sim;
+		}
+
+		setup();
+	</script>
+</body>
+
+</html>

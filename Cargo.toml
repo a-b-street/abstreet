@@ -17,6 +17,7 @@ members = [
   "map_model",
   "osm_viewer",
   "parking_mapper",
+  "piggyback",
   "popdat",
   "santa",
   "sim",

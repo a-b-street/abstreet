@@ -52,6 +52,11 @@ impl Duration {
         Duration::seconds(mins * 60.0)
     }
 
+    /// Creates a duration in milliseconds.
+    pub fn milliseconds(value: f64) -> Duration {
+        Duration::seconds(value / 1000.0)
+    }
+
     pub const fn const_seconds(value: f64) -> Duration {
         Duration(value)
     }

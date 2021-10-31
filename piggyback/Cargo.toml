@@ -1,0 +1,25 @@
+[package]
+name = "piggyback"
+version = "0.1.0"
+authors = ["Dustin Carlino <dabreegster@gmail.com>"]
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+
+[features]
+wasm = ["getrandom/js", "js-sys", "map_gui/wasm", "wasm-bindgen", "web-sys", "widgetry/wasm-backend"]
+
+[dependencies]
+abstio = { path = "../abstio" }
+abstutil = { path = "../abstutil" }
+geom = { path = "../geom" }
+getrandom = { version = "0.2.3", optional = true }
+js-sys = { version = "0.3.51", optional = true }
+log = "0.4.14"
+map_gui= { path = "../map_gui" }
+map_model = { path = "../map_model" }
+sim = { path = "../sim" }
+wasm-bindgen = { version = "0.2.70", optional = true }
+web-sys = { version = "0.3.47", optional = true }
+widgetry = { path = "../widgetry" }

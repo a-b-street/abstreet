@@ -73,7 +73,7 @@ pub fn setup(
     timer.stop("load textures");
 
     (
-        PrerenderInnards::new(gl, program, WindowAdapter(windowed_context)),
+        PrerenderInnards::new(gl, program, Some(WindowAdapter(windowed_context))),
         event_loop,
     )
 }

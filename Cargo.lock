@@ -2890,6 +2890,24 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "db8bcd96cb740d03149cbad5518db9fd87126a10ab519c011893b1754134c468"
 
 [[package]]
+name = "piggyback"
+version = "0.1.0"
+dependencies = [
+ "abstio",
+ "abstutil",
+ "geom",
+ "getrandom",
+ "js-sys",
+ "log",
+ "map_gui",
+ "map_model",
+ "sim",
+ "wasm-bindgen",
+ "web-sys",
+ "widgetry",
+]
+
+[[package]]
 name = "pin-project-lite"
 version = "0.2.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"

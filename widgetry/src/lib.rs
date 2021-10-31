@@ -107,6 +107,9 @@ mod backend {
     pub use crate::backend_glow::*;
 }
 
+#[cfg(feature = "wasm-backend")]
+pub use crate::backend_glow_wasm::RenderOnly;
+
 /// Like [`std::include_bytes!`], but also returns its argument, the relative path to the bytes
 ///
 /// returns a `(path, bytes): (&str, &[u8])` tuple

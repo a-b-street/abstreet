@@ -260,7 +260,7 @@ type WindowAdapter = crate::backend_glow_native::WindowAdapter;
 
 pub struct PrerenderInnards {
     gl: Rc<glow::Context>,
-    window_adapter: WindowAdapter,
+    window_adapter: Option<WindowAdapter>,
     program: <glow::Context as glow::HasContext>::Program,
 
     // TODO Prerender doesn't know what things are temporary and permanent. Could make the API more
@@ -272,7 +272,7 @@ impl PrerenderInnards {
     pub fn new(
         gl: glow::Context,
         program: <glow::Context as glow::HasContext>::Program,
-        window_adapter: WindowAdapter,
+        window_adapter: Option<WindowAdapter>,
     ) -> PrerenderInnards {
         PrerenderInnards {
             gl: Rc::new(gl),
@@ -378,7 +378,7 @@ impl PrerenderInnards {
     }
 
     pub(crate) fn window(&self) -> &winit::window::Window {
-        self.window_adapter.window()
+        self.window_adapter.as_ref().expect("no window").window()
     }
 
     pub fn request_redraw(&self) {
@@ -399,7 +399,10 @@ impl PrerenderInnards {
 
     pub fn window_resized(&self, new_size: ScreenDims, scale_factor: f64) {
         let physical_size = winit::dpi::LogicalSize::from(new_size).to_physical(scale_factor);
-        self.window_adapter.window_resized(new_size, scale_factor);
+        self.window_adapter
+            .as_ref()
+            .expect("no window")
+            .window_resized(new_size, scale_factor);
         unsafe {
             self.gl
                 .viewport(0, 0, physical_size.width, physical_size.height);
@@ -421,8 +424,11 @@ impl PrerenderInnards {
         self.window().scale_factor()
     }
 
-    pub fn draw_finished(&self, gfc_ctx_innards: GfxCtxInnards) {
-        self.window_adapter.draw_finished(gfc_ctx_innards)
+    pub fn draw_finished(&self, gfx_ctx_innards: GfxCtxInnards) {
+        self.window_adapter
+            .as_ref()
+            .expect("no window")
+            .draw_finished(gfx_ctx_innards)
     }
 
     pub(crate) fn screencap(&self, dims: ScreenDims, filename: String) -> anyhow::Result<()> {
@@ -454,6 +460,13 @@ impl PrerenderInnards {
             image::ColorType::Rgba8,
         )?;
         Ok(())
+    }
+
+    #[allow(unused)]
+    pub fn use_program_for_renderonly(&self) {
+        unsafe {
+            self.gl.use_program(Some(self.program));
+        }
     }
 }
 
