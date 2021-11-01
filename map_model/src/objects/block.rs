@@ -105,53 +105,101 @@ impl Perimeter {
         perimeters
     }
 
-    /// Merges two perimeters using a road in common. Mutates the current perimeter. Panics if they
-    /// don't have that road in common. Doesn't handle blocks that have multiple roads in common.
-    pub fn merge(&mut self, mut other: Perimeter, common_road: RoadID) {
-        // TODO Alt algorithm would rotate until common is first or last...
-        let idx1 = self
-            .roads
-            .iter()
-            .position(|x| x.road == common_road)
-            .unwrap_or_else(|| panic!("First Perimeter doesn't have {}", common_road));
-        let idx2 = other
-            .roads
-            .iter()
-            .position(|x| x.road == common_road)
-            .unwrap_or_else(|| panic!("Second Perimeter doesn't have {}", common_road));
-
-        // The first element is the common road, now an interior
-        let last_pieces = self.roads.split_off(idx1);
-        let mut middle_pieces = other.roads.split_off(idx2);
-        // We repeat the first and last road, but we don't want that for the middle piece
-        middle_pieces.pop();
-
-        // TODO just operate on self
-        let mut roads = std::mem::take(&mut self.roads);
-        roads.extend(middle_pieces.into_iter().skip(1));
-        roads.append(&mut other.roads);
-        roads.extend(last_pieces.into_iter().skip(1));
-
-        // If the common_road is the first or last, we might wind up not matching here...
-        if roads[0] != *roads.last().unwrap() {
-            roads.push(roads[0]);
+    fn find_common_roads(&self, other: &Perimeter) -> Option<HashSet<RoadID>> {
+        let roads1: HashSet<RoadID> = self.roads.iter().map(|id| id.road).collect();
+        let roads2: HashSet<RoadID> = other.roads.iter().map(|id| id.road).collect();
+        let common: HashSet<RoadID> = roads1.intersection(&roads2).cloned().collect();
+        if common.is_empty() {
+            None
+        } else {
+            Some(common)
         }
-
-        self.roads = roads;
     }
 
-    /// Find an arbitrary road that two perimeters have in common.
-    fn find_common_road(&self, other: &Perimeter) -> Option<RoadID> {
-        let mut roads = HashSet::new();
-        for id in self.roads.iter().skip(1) {
-            roads.insert(id.road);
+    /// Merges two blocks. It's assumed that the output from `find_common_roads` is passed in.
+    /// This has undefined behavior (probably crashing) if the requested merge would create an
+    /// interior "hole".
+    fn merge(&mut self, mut other: Perimeter, common: HashSet<RoadID>) {
+        // A finalized perimeter has the first and last road matching up, but that's confusing to
+        // reason about here
+        assert_eq!(Some(self.roads[0]), self.roads.pop());
+        assert_eq!(Some(other.roads[0]), other.roads.pop());
+
+        // It should be impossible for ALL roads to be in common, without some kind of exotic "one
+        // perimeter envelops another". We're not handling holes or anything like that!
+        assert_ne!(self.roads.len(), common.len());
+        assert_ne!(other.roads.len(), common.len());
+
+        // "Rotate" the order of roads, so that all of the overlapping roads are at the end of the
+        // list.
+        while common.contains(&self.roads[0].road)
+            || !common.contains(&self.roads.last().unwrap().road)
+        {
+            self.roads.rotate_left(1);
         }
-        for id in &other.roads {
-            if roads.contains(&id.road) {
-                return Some(id.road);
+        // Same thing with the other
+        while common.contains(&other.roads[0].road)
+            || !common.contains(&other.roads.last().unwrap().road)
+        {
+            other.roads.rotate_left(1);
+        }
+
+        if false {
+            println!("\nCommon: {:?}", common);
+            self.debug();
+            other.debug();
+        }
+
+        // Be careful here. Make sure the entirety of the common roads is at the end of each,
+        // so we can "blindly" do this snipping.
+        for id in self.roads.iter().rev().take(common.len()) {
+            assert!(common.contains(&id.road));
+        }
+        for id in other.roads.iter().rev().take(common.len()) {
+            assert!(common.contains(&id.road));
+        }
+
+        // Very straightforward snipping now
+        for _ in 0..common.len() {
+            self.roads.pop().unwrap();
+            other.roads.pop().unwrap();
+        }
+
+        // This order assumes everything is clockwise to start with.
+        self.roads.append(&mut other.roads);
+
+        // Restore the first=last invariant
+        self.roads.push(self.roads[0]);
+
+        // Make sure we didn't wind up with any internal dead-ends
+        self.collapse_deadends();
+    }
+
+    /// If the perimeter follows any dead-end roads, "collapse" them and instead make the perimeter
+    /// contain the dead-end.
+    pub fn collapse_deadends(&mut self) {
+        // Undo the first=last bit temporarily...
+        assert_eq!(Some(self.roads[0]), self.roads.pop());
+
+        // If the dead-end straddles the loop, it's confusing. Just rotate until that's not true.
+        while self.roads[0].road == self.roads.last().unwrap().road {
+            self.roads.rotate_left(1);
+        }
+
+        // TODO This won't handle a deadend that's more than 1 segment long
+        let mut roads: Vec<RoadSideID> = Vec::new();
+        for id in self.roads.drain(..) {
+            if Some(id.road) == roads.last().map(|id| id.road) {
+                roads.pop();
+            } else {
+                roads.push(id);
             }
         }
-        None
+
+        // Restore the first=last invariant
+        roads.push(roads[0]);
+
+        self.roads = roads;
     }
 
     /// Consider the perimeters as a graph, with adjacency determined by sharing any road in common.
@@ -260,6 +308,13 @@ impl Perimeter {
     pub fn to_block(self, map: &Map) -> Result<Block> {
         Block::from_perimeter(map, self)
     }
+
+    fn debug(&self) {
+        println!("Perimeter:");
+        for id in &self.roads {
+            println!("- {:?} of {}", id.side, id.road);
+        }
+    }
 }
 
 impl Block {
@@ -354,10 +409,15 @@ impl Block {
 
     /// Try to merge all given blocks. If successful, only one block will be returned. Blocks are
     /// never "destroyed" -- if not merged, they'll appear in the results.
-    /// TODO This may not handle all possible merges yet, the order is brittle...
     pub fn merge_all(map: &Map, list: Vec<Block>) -> Vec<Block> {
         let mut results: Vec<Perimeter> = Vec::new();
-        let input: Vec<Perimeter> = list.into_iter().map(|x| x.perimeter).collect();
+        let mut input: Vec<Perimeter> = list.into_iter().map(|x| x.perimeter).collect();
+
+        // Internal dead-ends break merging, so first collapse of those. Do this before even
+        // looking for neighbors, since find_common_roads doesn't understand dead-ends.
+        for p in &mut input {
+            p.collapse_deadends();
+        }
 
         // To debug, return after any single change
         let mut debug = false;
@@ -369,14 +429,14 @@ impl Block {
 
             let mut partner = None;
             for (idx, adjacent) in results.iter().enumerate() {
-                if let Some(r) = perimeter.find_common_road(adjacent) {
-                    partner = Some((idx, r));
+                if let Some(common) = perimeter.find_common_roads(adjacent) {
+                    partner = Some((idx, common));
                     break;
                 }
             }
 
-            if let Some((idx, r)) = partner {
-                results[idx].merge(perimeter, r);
+            if let Some((idx, common)) = partner {
+                results[idx].merge(perimeter, common);
                 debug = true;
             } else {
                 results.push(perimeter);

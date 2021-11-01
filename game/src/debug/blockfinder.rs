@@ -133,6 +133,18 @@ impl State<App> for Blockfinder {
                     }
                     return Transition::Keep;
                 }
+                "Collapse dead-ends" => {
+                    for id in self.to_merge.drain().collect::<Vec<_>>() {
+                        let mut perimeter = self.blocks.remove(&id).unwrap().perimeter;
+                        perimeter.collapse_deadends();
+                        let block = perimeter
+                            .to_block(&app.primary.map)
+                            .expect("collapsing deadends broke the polygon shape");
+                        self.world.delete_before_replacement(id);
+                        // We'll lose the original coloring, oh well
+                        self.add_block(ctx, id, MODIFIED, block);
+                    }
+                }
                 "Auto-merge all neighborhoods" => {
                     let perimeters: Vec<Perimeter> =
                         self.blocks.drain().map(|(_, b)| b.perimeter).collect();
@@ -278,6 +290,11 @@ fn make_panel(ctx: &mut EventCtx) -> Panel {
             .btn_outline
             .text("Merge")
             .hotkey(Key::M)
+            .build_def(ctx),
+        ctx.style()
+            .btn_outline
+            .text("Collapse dead-ends")
+            .hotkey(Key::C)
             .build_def(ctx),
         ctx.style()
             .btn_outline
