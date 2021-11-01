@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeSet, HashMap, HashSet};
 
 use anyhow::Result;
 
@@ -105,30 +105,44 @@ impl Perimeter {
         perimeters
     }
 
-    fn find_common_roads(&self, other: &Perimeter) -> Option<HashSet<RoadID>> {
+    /// A perimeter has the first and last road matching up, but that's confusing to
+    /// work with. Temporarily undo that.
+    fn undo_invariant(&mut self) {
+        assert_eq!(Some(self.roads[0]), self.roads.pop());
+    }
+
+    /// Restore the first=last invariant. Methods may temporarily break this, but must restore it
+    /// before returning.
+    fn restore_invariant(&mut self) {
+        self.roads.push(self.roads[0]);
+    }
+
+    /// Try to merge two blocks. Returns true if this is successful, which will only be when the
+    /// blocks are adjacent, but the merge wouldn't create an interior "hole".
+    ///
+    /// Note this may modify both perimeters and still return `false`. The modification is just to
+    /// rotate the order of the road loop; this doesn't logically change the perimeter.
+    fn try_to_merge(&mut self, other: &mut Perimeter) -> bool {
+        self.undo_invariant();
+        other.undo_invariant();
+
+        // Calculate common roads
         let roads1: HashSet<RoadID> = self.roads.iter().map(|id| id.road).collect();
         let roads2: HashSet<RoadID> = other.roads.iter().map(|id| id.road).collect();
         let common: HashSet<RoadID> = roads1.intersection(&roads2).cloned().collect();
         if common.is_empty() {
-            None
-        } else {
-            Some(common)
+            self.restore_invariant();
+            other.restore_invariant();
+            return false;
         }
-    }
-
-    /// Merges two blocks. It's assumed that the output from `find_common_roads` is passed in.
-    /// This has undefined behavior (probably crashing) if the requested merge would create an
-    /// interior "hole".
-    fn merge(&mut self, mut other: Perimeter, common: HashSet<RoadID>) {
-        // A finalized perimeter has the first and last road matching up, but that's confusing to
-        // reason about here
-        assert_eq!(Some(self.roads[0]), self.roads.pop());
-        assert_eq!(Some(other.roads[0]), other.roads.pop());
 
         // It should be impossible for ALL roads to be in common, without some kind of exotic "one
         // perimeter envelops another". We're not handling holes or anything like that!
-        assert_ne!(self.roads.len(), common.len());
-        assert_ne!(other.roads.len(), common.len());
+        if self.roads.len() == common.len() || other.roads.len() == common.len() {
+            self.restore_invariant();
+            other.restore_invariant();
+            return false;
+        }
 
         // "Rotate" the order of roads, so that all of the overlapping roads are at the end of the
         // list.
@@ -150,13 +164,27 @@ impl Perimeter {
             other.debug();
         }
 
-        // Be careful here. Make sure the entirety of the common roads is at the end of each,
-        // so we can "blindly" do this snipping.
+        // Check if all of the common roads are at the end of each perimeter,
+        // so we can "blindly" do this snipping. If this isn't true, then the overlapping portions
+        // are split by non-overlapping roads. This happens when merging the two blocks would
+        // result in a "hole."
+        let mut ok = true;
         for id in self.roads.iter().rev().take(common.len()) {
-            assert!(common.contains(&id.road));
+            if !common.contains(&id.road) {
+                ok = false;
+                break;
+            }
         }
         for id in other.roads.iter().rev().take(common.len()) {
-            assert!(common.contains(&id.road));
+            if !common.contains(&id.road) {
+                ok = false;
+                break;
+            }
+        }
+        if !ok {
+            self.restore_invariant();
+            other.restore_invariant();
+            return false;
         }
 
         // Very straightforward snipping now
@@ -169,10 +197,12 @@ impl Perimeter {
         self.roads.append(&mut other.roads);
 
         // Restore the first=last invariant
-        self.roads.push(self.roads[0]);
+        self.restore_invariant();
 
         // Make sure we didn't wind up with any internal dead-ends
         self.collapse_deadends();
+
+        true
     }
 
     /// Try to merge all given perimeters. If successful, only one perimeter will be returned.
@@ -188,37 +218,31 @@ impl Perimeter {
         }
 
         let mut debug = false;
-        for perimeter in input {
+        'INPUT: for mut perimeter in input {
             if debug {
                 results.push(perimeter);
                 continue;
             }
 
-            let mut partner = None;
-            for (idx, adjacent) in results.iter().enumerate() {
-                if let Some(common) = perimeter.find_common_roads(adjacent) {
-                    partner = Some((idx, common));
-                    break;
+            for other in &mut results {
+                if other.try_to_merge(&mut perimeter) {
+                    // To debug, return after any single change
+                    debug = stepwise_debug;
+                    continue 'INPUT;
                 }
             }
 
-            if let Some((idx, common)) = partner {
-                results[idx].merge(perimeter, common);
-                // To debug, return after any single change
-                debug = stepwise_debug;
-            } else {
-                results.push(perimeter);
-            }
+            // No match
+            results.push(perimeter);
         }
-        // TODO Fixpoint...
+        // TODO Do we need to repeat in a fixpoint?
         results
     }
 
     /// If the perimeter follows any dead-end roads, "collapse" them and instead make the perimeter
     /// contain the dead-end.
     pub fn collapse_deadends(&mut self) {
-        // Undo the first=last bit temporarily...
-        assert_eq!(Some(self.roads[0]), self.roads.pop());
+        self.undo_invariant();
 
         // If the dead-end straddles the loop, it's confusing. Just rotate until that's not true.
         while self.roads[0].road == self.roads.last().unwrap().road {
@@ -235,10 +259,8 @@ impl Perimeter {
             }
         }
 
-        // Restore the first=last invariant
-        roads.push(roads[0]);
-
         self.roads = roads;
+        self.restore_invariant();
     }
 
     /// Consider the perimeters as a graph, with adjacency determined by sharing any road in common.
@@ -260,8 +282,8 @@ impl Perimeter {
 
         // Start at one perimeter, floodfill to adjacent perimeters, subject to the predicate.
         // Returns the indices of everything in that component.
-        let floodfill = |start: usize| -> HashSet<usize> {
-            let mut visited = HashSet::new();
+        let floodfill = |start: usize| -> BTreeSet<usize> {
+            let mut visited = BTreeSet::new();
             let mut queue = vec![start];
             while !queue.is_empty() {
                 let current = queue.pop().unwrap();
@@ -278,7 +300,7 @@ impl Perimeter {
             visited
         };
 
-        let mut partitions: Vec<HashSet<usize>> = Vec::new();
+        let mut partitions: Vec<BTreeSet<usize>> = Vec::new();
         let mut finished: HashSet<usize> = HashSet::new();
         for start in 0..input.len() {
             if finished.contains(&start) {

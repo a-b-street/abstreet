@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet};
 
 use abstutil::Timer;
 use geom::Distance;
@@ -27,12 +27,12 @@ const TO_MERGE: Color = Color::CYAN;
 pub struct Blockfinder {
     panel: Panel,
     id_counter: usize,
-    blocks: HashMap<Obj, Block>,
+    blocks: BTreeMap<Obj, Block>,
     world: World<Obj>,
-    to_merge: HashSet<Obj>,
+    to_merge: BTreeSet<Obj>,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 struct Obj(usize);
 impl ObjectID for Obj {}
 
@@ -41,9 +41,9 @@ impl Blockfinder {
         let mut state = Blockfinder {
             panel: make_panel(ctx),
             id_counter: 0,
-            blocks: HashMap::new(),
+            blocks: BTreeMap::new(),
             world: World::bounded(app.primary.map.get_bounds()),
-            to_merge: HashSet::new(),
+            to_merge: BTreeSet::new(),
         };
 
         ctx.loading_screen("calculate all blocks", |ctx, timer| {
@@ -120,7 +120,7 @@ impl State<App> for Blockfinder {
                 "Merge" => {
                     // TODO We could update the panel, but meh
                     let mut perimeters = Vec::new();
-                    for id in self.to_merge.drain() {
+                    for id in std::mem::take(&mut self.to_merge) {
                         perimeters.push(self.blocks.remove(&id).unwrap().perimeter);
                         // TODO If we happen to be hovering on one, uh oh! It's going to change
                         // ID...
@@ -145,7 +145,7 @@ impl State<App> for Blockfinder {
                     return Transition::Keep;
                 }
                 "Collapse dead-ends" => {
-                    for id in self.to_merge.drain().collect::<Vec<_>>() {
+                    for id in std::mem::take(&mut self.to_merge) {
                         let mut perimeter = self.blocks.remove(&id).unwrap().perimeter;
                         perimeter.collapse_deadends();
                         let block = perimeter
@@ -157,8 +157,10 @@ impl State<App> for Blockfinder {
                     }
                 }
                 "Auto-merge all neighborhoods" => {
-                    let perimeters: Vec<Perimeter> =
-                        self.blocks.drain().map(|(_, b)| b.perimeter).collect();
+                    let perimeters: Vec<Perimeter> = std::mem::take(&mut self.blocks)
+                        .into_iter()
+                        .map(|(_, b)| b.perimeter)
+                        .collect();
                     let map = &app.primary.map;
                     let partitions = Perimeter::partition_by_predicate(perimeters, |r| {
                         // "Interior" roads of a neighborhood aren't classified as arterial and are
@@ -177,7 +179,7 @@ impl State<App> for Blockfinder {
                     self.to_merge.clear();
 
                     // TODO Fix all the crashes, then enable!
-                    if false {
+                    if true {
                         // Actually merge the partitions
                         let mut merged = Vec::new();
                         for perimeters in partitions {
