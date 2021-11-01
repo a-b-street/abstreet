@@ -43,8 +43,8 @@ Measure the effects:
   - [UX design](https://yuwen-li.com/work/abstreet)
 - [Presentations](https://a-b-street.github.io/docs/project/presentations.html)
 - Project
-  - [Roadmap](https://a-b-street.github.io/docs/project/roadmap.html)
-  - [Motivations](https://a-b-street.github.io/docs/project/motivations.html)
+  - [Roadmap](https://a-b-street.github.io/docs/software/ungap_the_map/plan.html#future-directions)
+  - [Motivations](https://a-b-street.github.io/docs/software/ungap_the_map/motivation.html)
   - [History](https://a-b-street.github.io/docs/project/history/index.html)
 
 ## Roadmap and contributing
