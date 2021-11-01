@@ -50,7 +50,7 @@ rm -fv data/input/us/seattle/raw_maps/huge_seattle.bin data/input/us/seattle/pop
 sudo ./target/release/cli regenerate-everything --shard-num=$WORKER_NUM --num-shards=$NUM_WORKERS
 
 # Upload the results
-./target/release/updater --inc_upload --version=$EXPERIMENT_TAG
+./target/release/updater incremental-upload --version=$EXPERIMENT_TAG
 
 # Indicate this VM is done by deleting ourselves. We can't use suspend or stop
 # with a local SSD, so just nuke ourselves instead.

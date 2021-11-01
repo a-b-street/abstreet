@@ -4,12 +4,59 @@ use std::io::{BufReader, Read};
 use std::process::Command;
 
 use anyhow::Result;
+use structopt::StructOpt;
 use walkdir::WalkDir;
 
 use abstio::{DataPacks, Entry, Manifest};
-use abstutil::{must_run_cmd, prettyprint_usize, CmdArgs, Timer};
+use abstutil::{must_run_cmd, prettyprint_usize, Timer};
 
 const MD5_BUF_READ_SIZE: usize = 4096;
+
+#[derive(StructOpt)]
+#[structopt(
+    name = "updater",
+    about = "Download the latest version of per-city data"
+)]
+enum Task {
+    /// Synchronize the source-of-truth in S3 with data in the local directory. Based on current
+    /// permissions, only Dustin runs this.
+    Upload,
+    /// This uploads to S3 from cloud VMs that import maps. This never deletes files from S3, only
+    /// updates or creates ne ones.
+    IncrementalUpload {
+        /// Upload data to a temporary version managed by the cloud scripts.
+        #[structopt(long)]
+        version: String,
+    },
+    /// Just compare data in the current directory with the manifest, and describe any new,
+    /// deleted, or modified files.
+    DryRun {
+        /// Just check if one file has changed.
+        #[structopt(long)]
+        single_file: Option<String>,
+    },
+    /// Print the JSON list of all possible city data packs to download. You can write this output
+    /// to `data/player/data.json`, then download everything.
+    OptIntoAll,
+    /// Synchronize the local `data` directory with the source-of-truth in S3.
+    Download {
+        /// The Github Actions build uses this to include only a few files for the release to be
+        /// usable. People can use the UI to open another map and download more data. The UI will
+        #[structopt(long)]
+        minimal: bool,
+        /// Only update files from the manifest. Leave extra files alone.
+        #[structopt(long)]
+        dont_delete: bool,
+        /// Only useful for Dustin. "Download" from my local S3 source-of-truth, not from the
+        /// network.
+        #[structopt(long)]
+        dl_from_local: bool,
+        /// Download data tied to a named release. See
+        /// https://a-b-street.github.io/docs/tech/dev/data.html.
+        #[structopt(long, default_value = "dev")]
+        version: String,
+    },
+}
 
 #[tokio::main]
 async fn main() {
@@ -17,53 +64,43 @@ async fn main() {
         panic!("Your current directory doesn't have the data/ directory. Run from the git root: cd ../; cargo run --bin updater -- args");
     }
 
-    let mut args = CmdArgs::new();
-    let version = args
-        .optional("--version")
-        .unwrap_or_else(|| "dev".to_string());
-    if args.enabled("--upload") {
-        assert_eq!(version, "dev");
-        args.done();
-        upload(version);
-    } else if args.enabled("--inc_upload") {
-        // The main use of --inc_upload is to upload files produced from a batch Docker job. We
-        // DON'T want to override the main data immediately. If running locally, can temporarily
-        // disable this assertion.
-        assert_ne!(version, "dev");
-        args.done();
-        incremental_upload(version);
-    } else if args.enabled("--dry") {
-        let single_file = args.optional_free();
-        args.done();
-        if let Some(path) = single_file {
-            let local = md5sum(&path);
-            let truth = Manifest::load()
-                .entries
-                .remove(&path)
-                .unwrap_or_else(|| panic!("{} not in data/MANIFEST.txt", path))
-                .checksum;
-            if local != truth {
-                println!("{} has changed", path);
-            }
-        } else {
-            just_compare();
+    abstutil::logger::setup();
+    match Task::from_args() {
+        Task::Upload => {
+            upload("dev");
         }
-    } else if args.enabled("--opt-into-all") {
-        args.done();
-        println!("{}", abstutil::to_json(&DataPacks::all_data_packs()));
-    } else if args.enabled("--opt-into-all-input") {
-        args.done();
-        let mut data_packs = DataPacks::all_data_packs();
-        data_packs.runtime.clear();
-        println!("{}", abstutil::to_json(&data_packs));
-    } else {
-        let minimal = args.enabled("--minimal");
-        // If true, only update files from the manifest. Leave extra files alone.
-        let dont_delete = args.enabled("--dont_delete");
-        // "Download" from my local S3 source-of-truth
-        let dl_from_local = args.enabled("--dl_from_local");
-        args.done();
-        download_updates(version, minimal, !dont_delete, dl_from_local).await;
+        Task::IncrementalUpload { version } => {
+            // We DON'T want to override the main data immediately from the batch Docker jobs. If
+            // running locally, can temporarily disable this assertion.
+            assert_ne!(version, "dev");
+            incremental_upload(version);
+        }
+        Task::DryRun { single_file } => {
+            if let Some(path) = single_file {
+                let local = md5sum(&path);
+                let truth = Manifest::load()
+                    .entries
+                    .remove(&path)
+                    .unwrap_or_else(|| panic!("{} not in data/MANIFEST.txt", path))
+                    .checksum;
+                if local != truth {
+                    println!("{} has changed", path);
+                }
+            } else {
+                just_compare();
+            }
+        }
+        Task::OptIntoAll => {
+            println!("{}", abstutil::to_json(&DataPacks::all_data_packs()));
+        }
+        Task::Download {
+            minimal,
+            dont_delete,
+            dl_from_local,
+            version,
+        } => {
+            download_updates(version, minimal, !dont_delete, dl_from_local).await;
+        }
     }
 }
 
@@ -85,8 +122,6 @@ async fn download_updates(version: String, minimal: bool, delete_local: bool, dl
     let mut failed = Vec::new();
     for (path, entry) in truth.entries {
         if local.entries.get(&path).map(|x| &x.checksum) != Some(&entry.checksum) {
-            // For the Github Actions build, only include a few files to get started. The UI will
-            // download more data when the player tries to open another map.
             if minimal && !path.contains("montlake") && path != "data/system/us/seattle/city.bin" {
                 continue;
             }
@@ -154,7 +189,7 @@ fn just_compare() {
     }
 }
 
-fn upload(version: String) {
+fn upload(version: &str) {
     let remote_base = format!("/home/dabreegster/s3_abst_data/{}", version);
 
     let remote: Manifest = abstio::maybe_read_json(
@@ -217,8 +252,6 @@ fn upload(version: String) {
     );
 }
 
-// Like upload(), but for running not on Dustin's main machine. It never deletes files from S3,
-// only updates or creates new ones.
 fn incremental_upload(version: String) {
     let remote_base = "tmp_incremental_upload";
 

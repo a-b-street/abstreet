@@ -12,5 +12,6 @@ flate2 = "1.0.20"
 futures-channel = { version = "0.3.12"}
 geom = { path = "../geom" }
 md5 = "0.7.0"
+structopt = "0.3.23"
 tokio = { version = "1.1.1", features = ["full"] }
 walkdir = "2.3.1"

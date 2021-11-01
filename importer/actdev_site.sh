@@ -39,4 +39,4 @@ fi
 ./importer/actdev_scenario.sh $CITY
 
 echo "You have to manually update .gitignore, map_gui/src/tools/mod.rs, release/deploy_actdev.sh"
-echo "And after uploading, probably want to: cargo run --bin updater -- --opt-into-all > data/player/data.json"
+echo "And after uploading, probably want to: cargo run --bin updater -- opt-into-all > data/player/data.json"

@@ -18,4 +18,4 @@ aws s3 cp --recursive s3://abstreet/$EXPERIMENT_TAG/data/ data/
 # gunzip all of the changed files, overwriting the local copies
 find data/ -path data/system/assets -prune -o -name '*.gz' -print -exec gunzip -f '{}' ';'
 
-echo "Done! Validate the files, run updater --upload as usual, and don't forget to clean up s3://abstreet/$EXPERIMENT_TAG"
+echo "Done! Validate the files, run 'updater upload' as usual, and don't forget to clean up s3://abstreet/$EXPERIMENT_TAG"

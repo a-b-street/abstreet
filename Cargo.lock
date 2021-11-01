@@ -4107,6 +4107,7 @@ dependencies = [
  "futures-channel",
  "geom",
  "md5",
+ "structopt",
  "tokio",
  "walkdir",
 ]

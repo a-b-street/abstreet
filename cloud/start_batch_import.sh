@@ -38,7 +38,7 @@ PROJECT=aorta-routes
 function build_payload {
 	# It's a faster workflow to copy the local binaries into the VMs, rather than
 	# build them there.
-	cargo build --release --bin updater
+	cargo build --release --bin updater -- download
 	# This is needed to regenerate popdat.bin for Seattle. It requires the
 	# VMs to have a matching GDAL version. Since the VM runs the same
 	# version of Ubuntu as I do locally, this works out fine.

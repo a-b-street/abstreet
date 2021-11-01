@@ -64,7 +64,7 @@ jobs:
         run: cargo build --release --bin cli
 
       - name: Download system data
-        run: cargo run --release --bin updater -- --minimal
+        run: cargo run --release --bin updater -- download --minimal
 
       - name: Package release
         run: ./release/build.sh ${{ matrix.os }}
