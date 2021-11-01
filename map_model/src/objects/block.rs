@@ -175,6 +175,45 @@ impl Perimeter {
         self.collapse_deadends();
     }
 
+    /// Try to merge all given perimeters. If successful, only one perimeter will be returned.
+    /// Perimeters are never "destroyed" -- if not merged, they'll appear in the results. If
+    /// `stepwise_debug` is true, returns after performing just one merge.
+    pub fn merge_all(mut input: Vec<Perimeter>, stepwise_debug: bool) -> Vec<Perimeter> {
+        let mut results: Vec<Perimeter> = Vec::new();
+
+        // Internal dead-ends break merging, so first collapse of those. Do this before even
+        // looking for neighbors, since find_common_roads doesn't understand dead-ends.
+        for p in &mut input {
+            p.collapse_deadends();
+        }
+
+        let mut debug = false;
+        for perimeter in input {
+            if debug {
+                results.push(perimeter);
+                continue;
+            }
+
+            let mut partner = None;
+            for (idx, adjacent) in results.iter().enumerate() {
+                if let Some(common) = perimeter.find_common_roads(adjacent) {
+                    partner = Some((idx, common));
+                    break;
+                }
+            }
+
+            if let Some((idx, common)) = partner {
+                results[idx].merge(perimeter, common);
+                // To debug, return after any single change
+                debug = stepwise_debug;
+            } else {
+                results.push(perimeter);
+            }
+        }
+        // TODO Fixpoint...
+        results
+    }
+
     /// If the perimeter follows any dead-end roads, "collapse" them and instead make the perimeter
     /// contain the dead-end.
     pub fn collapse_deadends(&mut self) {
@@ -269,7 +308,7 @@ impl Perimeter {
 
     /// Assign each perimeter one of `num_colors`, such that no two adjacent perimeters share the
     /// same color. May fail. The resulting colors are expressed as `[0, num_colors)`.
-    pub fn calculate_coloring(input: Vec<&Perimeter>, num_colors: usize) -> Option<Vec<usize>> {
+    pub fn calculate_coloring(input: &[Perimeter], num_colors: usize) -> Option<Vec<usize>> {
         let mut road_to_perimeters: HashMap<RoadID, Vec<usize>> = HashMap::new();
         for (idx, perimeter) in input.iter().enumerate() {
             for id in &perimeter.roads {
@@ -405,48 +444,5 @@ impl Block {
         let polygon = Ring::new(pts)?.into_polygon();
 
         Ok(Block { perimeter, polygon })
-    }
-
-    /// Try to merge all given blocks. If successful, only one block will be returned. Blocks are
-    /// never "destroyed" -- if not merged, they'll appear in the results.
-    pub fn merge_all(map: &Map, list: Vec<Block>) -> Vec<Block> {
-        let mut results: Vec<Perimeter> = Vec::new();
-        let mut input: Vec<Perimeter> = list.into_iter().map(|x| x.perimeter).collect();
-
-        // Internal dead-ends break merging, so first collapse of those. Do this before even
-        // looking for neighbors, since find_common_roads doesn't understand dead-ends.
-        for p in &mut input {
-            p.collapse_deadends();
-        }
-
-        // To debug, return after any single change
-        let mut debug = false;
-        for perimeter in input {
-            if debug {
-                results.push(perimeter);
-                continue;
-            }
-
-            let mut partner = None;
-            for (idx, adjacent) in results.iter().enumerate() {
-                if let Some(common) = perimeter.find_common_roads(adjacent) {
-                    partner = Some((idx, common));
-                    break;
-                }
-            }
-
-            if let Some((idx, common)) = partner {
-                results[idx].merge(perimeter, common);
-                debug = true;
-            } else {
-                results.push(perimeter);
-            }
-        }
-        // TODO Fixpoint...
-        // TODO Shouldn't be any new errors, right?
-        results
-            .into_iter()
-            .map(|x| Block::from_perimeter(map, x).unwrap())
-            .collect()
     }
 }

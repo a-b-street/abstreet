@@ -1,5 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
+use abstutil::Timer;
 use geom::Distance;
 use map_model::osm::RoadRank;
 use map_model::{Block, PathConstraints, Perimeter};
@@ -49,30 +50,7 @@ impl Blockfinder {
             timer.start("find single blocks");
             let perimeters = Perimeter::find_all_single_blocks(&app.primary.map);
             timer.stop("find single blocks");
-            timer.start_iter("blockify", perimeters.len());
-            let mut blocks = Vec::new();
-            for perimeter in perimeters {
-                timer.next();
-                match perimeter.to_block(&app.primary.map) {
-                    Ok(block) => {
-                        blocks.push(block);
-                    }
-                    Err(err) => {
-                        warn!("Failed to make a block from a perimeter: {}", err);
-                    }
-                }
-            }
-
-            let colors = Perimeter::calculate_coloring(
-                blocks.iter().map(|x| &x.perimeter).collect(),
-                COLORS.len(),
-            )
-            .unwrap_or_else(|| (0..blocks.len()).collect());
-
-            for (block, color_idx) in blocks.into_iter().zip(colors.into_iter()) {
-                let id = state.new_id();
-                state.add_block(ctx, id, COLORS[color_idx % COLORS.len()], block);
-            }
+            state.add_blocks_with_coloring(ctx, app, perimeters, timer);
         });
         state.world.initialize_hover(ctx);
         Box::new(state)
@@ -100,6 +78,36 @@ impl Blockfinder {
         obj.build(ctx);
         self.blocks.insert(id, block);
     }
+
+    fn add_blocks_with_coloring(
+        &mut self,
+        ctx: &mut EventCtx,
+        app: &App,
+        perimeters: Vec<Perimeter>,
+        timer: &mut Timer,
+    ) {
+        let colors = Perimeter::calculate_coloring(&perimeters, COLORS.len())
+            .unwrap_or_else(|| (0..perimeters.len()).collect());
+
+        timer.start_iter("blockify", perimeters.len());
+        let mut blocks = Vec::new();
+        for perimeter in perimeters {
+            timer.next();
+            match perimeter.to_block(&app.primary.map) {
+                Ok(block) => {
+                    blocks.push(block);
+                }
+                Err(err) => {
+                    warn!("Failed to make a block from a perimeter: {}", err);
+                }
+            }
+        }
+
+        for (block, color_idx) in blocks.into_iter().zip(colors.into_iter()) {
+            let id = self.new_id();
+            self.add_block(ctx, id, COLORS[color_idx % COLORS.len()], block);
+        }
+    }
 }
 
 impl State<App> for Blockfinder {
@@ -111,17 +119,20 @@ impl State<App> for Blockfinder {
                 }
                 "Merge" => {
                     // TODO We could update the panel, but meh
-                    let mut blocks = Vec::new();
+                    let mut perimeters = Vec::new();
                     for id in self.to_merge.drain() {
-                        blocks.push(self.blocks.remove(&id).unwrap());
+                        perimeters.push(self.blocks.remove(&id).unwrap().perimeter);
                         // TODO If we happen to be hovering on one, uh oh! It's going to change
                         // ID...
                         self.world.delete(id);
                     }
-                    let results = Block::merge_all(&app.primary.map, blocks);
+                    let results = Perimeter::merge_all(perimeters, true);
                     let debug = results.len() > 1;
-                    for block in results {
+                    for perimeter in results {
                         let id = self.new_id();
+                        let block = perimeter
+                            .to_block(&app.primary.map)
+                            .expect("Merged perimeter broke the polygon");
                         // To make the one-merge-at-a-time debugging easier, keep these in the
                         // merge set
                         if debug {
@@ -165,13 +176,25 @@ impl State<App> for Blockfinder {
                     self.world = World::bounded(app.primary.map.get_bounds());
                     self.to_merge.clear();
 
-                    // Until we can actually do the merge, just color the partition to show results
-                    for (color_idx, perimeters) in partitions.into_iter().enumerate() {
-                        let color = COLORS[color_idx % COLORS.len()];
-                        for perimeter in perimeters {
-                            if let Ok(block) = perimeter.to_block(map) {
-                                let id = self.new_id();
-                                self.add_block(ctx, id, color, block);
+                    // TODO Fix all the crashes, then enable!
+                    if false {
+                        // Actually merge the partitions
+                        let mut merged = Vec::new();
+                        for perimeters in partitions {
+                            // If we got more than one result back, merging partially failed. Oh
+                            // well?
+                            merged.extend(Perimeter::merge_all(perimeters, false));
+                        }
+                        self.add_blocks_with_coloring(ctx, app, merged, &mut Timer::throwaway());
+                    } else {
+                        // Until we can actually do the merge, just color the partition to show results
+                        for (color_idx, perimeters) in partitions.into_iter().enumerate() {
+                            let color = COLORS[color_idx % COLORS.len()];
+                            for perimeter in perimeters {
+                                if let Ok(block) = perimeter.to_block(map) {
+                                    let id = self.new_id();
+                                    self.add_block(ctx, id, color, block);
+                                }
                             }
                         }
                     }
