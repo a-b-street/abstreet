@@ -139,29 +139,22 @@ impl Perimeter {
             return false;
         }
 
-        // It should be impossible for ALL roads to be in common, without some kind of exotic "one
-        // perimeter envelops another". We're not handling holes or anything like that!
-        if self.roads.len() == common.len() || other.roads.len() == common.len() {
-            self.restore_invariant();
-            other.restore_invariant();
-            if debug_failures {
-                warn!("All roads of a perimeter are in common");
-            }
-            return false;
-        }
-
         // "Rotate" the order of roads, so that all of the overlapping roads are at the end of the
-        // list.
-        while common.contains(&self.roads[0].road)
-            || !common.contains(&self.roads.last().unwrap().road)
-        {
-            self.roads.rotate_left(1);
+        // list. If the entire perimeter is surrounded by the other, then no rotation needed.
+        if self.roads.len() != common.len() {
+            while common.contains(&self.roads[0].road)
+                || !common.contains(&self.roads.last().unwrap().road)
+            {
+                self.roads.rotate_left(1);
+            }
         }
         // Same thing with the other
-        while common.contains(&other.roads[0].road)
-            || !common.contains(&other.roads.last().unwrap().road)
-        {
-            other.roads.rotate_left(1);
+        if other.roads.len() != common.len() {
+            while common.contains(&other.roads[0].road)
+                || !common.contains(&other.roads.last().unwrap().road)
+            {
+                other.roads.rotate_left(1);
+            }
         }
 
         if debug_failures {
