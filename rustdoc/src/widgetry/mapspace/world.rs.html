@@ -527,6 +527,12 @@
 <span id="527">527</span>
 <span id="528">528</span>
 <span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 <span class="kw">use</span> <span class="ident">std::fmt::Debug</span>;
 <span class="kw">use</span> <span class="ident">std::hash::Hash</span>;
@@ -701,6 +707,12 @@
             .<span class="ident">to_outline</span>(<span class="ident">thickness</span>)
         {
             <span class="ident">draw</span> <span class="op">=</span> <span class="ident">draw</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">p</span>);
+        } <span class="kw">else</span> {
+            <span class="macro">warn!</span>(
+                <span class="string">&quot;Can&#39;t hover_outline for {:?}. Falling back to a colored polygon&quot;</span>,
+                <span class="self">self</span>.<span class="ident">id</span>
+            );
+            <span class="ident">draw</span> <span class="op">=</span> <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(<span class="ident">color</span>, <span class="self">self</span>.<span class="ident">hitbox</span>.<span class="ident">clone</span>().<span class="ident">unwrap</span>())]).<span class="ident">into</span>();
         }
         <span class="self">self</span>.<span class="ident">draw_hovered</span>(<span class="ident">draw</span>)
     }
