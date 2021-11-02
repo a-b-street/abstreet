@@ -209,34 +209,41 @@ impl Perimeter {
     /// Perimeters are never "destroyed" -- if not merged, they'll appear in the results. If
     /// `stepwise_debug` is true, returns after performing just one merge.
     pub fn merge_all(mut input: Vec<Perimeter>, stepwise_debug: bool) -> Vec<Perimeter> {
-        let mut results: Vec<Perimeter> = Vec::new();
-
         // Internal dead-ends break merging, so first collapse of those. Do this before even
         // looking for neighbors, since find_common_roads doesn't understand dead-ends.
         for p in &mut input {
             p.collapse_deadends();
         }
 
-        let mut debug = false;
-        'INPUT: for mut perimeter in input {
-            if debug {
+        loop {
+            let mut debug = false;
+            let mut results: Vec<Perimeter> = Vec::new();
+            let num_input = input.len();
+            'INPUT: for mut perimeter in input {
+                if debug {
+                    results.push(perimeter);
+                    continue;
+                }
+
+                for other in &mut results {
+                    if other.try_to_merge(&mut perimeter) {
+                        // To debug, return after any single change
+                        debug = stepwise_debug;
+                        continue 'INPUT;
+                    }
+                }
+
+                // No match
                 results.push(perimeter);
+            }
+
+            // Should we try merging again?
+            if results.len() > 1 && results.len() < num_input && !stepwise_debug {
+                input = results;
                 continue;
             }
-
-            for other in &mut results {
-                if other.try_to_merge(&mut perimeter) {
-                    // To debug, return after any single change
-                    debug = stepwise_debug;
-                    continue 'INPUT;
-                }
-            }
-
-            // No match
-            results.push(perimeter);
+            return results;
         }
-        // TODO Do we need to repeat in a fixpoint?
-        results
     }
 
     /// If the perimeter follows any dead-end roads, "collapse" them and instead make the perimeter

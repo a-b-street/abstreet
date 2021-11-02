@@ -156,7 +156,7 @@ impl State<App> for Blockfinder {
                         self.add_block(ctx, id, MODIFIED, block);
                     }
                 }
-                "Auto-merge all neighborhoods" => {
+                "Classify neighborhoods" | "Auto-merge all neighborhoods" => {
                     let perimeters: Vec<Perimeter> = std::mem::take(&mut self.blocks)
                         .into_iter()
                         .map(|(_, b)| b.perimeter)
@@ -178,8 +178,7 @@ impl State<App> for Blockfinder {
                     self.world = World::bounded(app.primary.map.get_bounds());
                     self.to_merge.clear();
 
-                    // TODO Fix all the crashes, then enable!
-                    if true {
+                    if x == "Auto-merge all neighborhoods" {
                         // Actually merge the partitions
                         let mut merged = Vec::new();
                         for perimeters in partitions {
@@ -200,6 +199,9 @@ impl State<App> for Blockfinder {
                             }
                         }
                     }
+                }
+                "Reset" => {
+                    return Transition::Replace(Blockfinder::new_state(ctx, app));
                 }
                 _ => unreachable!(),
             }
@@ -323,8 +325,16 @@ fn make_panel(ctx: &mut EventCtx) -> Panel {
             .build_def(ctx),
         ctx.style()
             .btn_outline
+            .text("Classify neighborhoods")
+            .build_def(ctx),
+        ctx.style()
+            .btn_outline
             .text("Auto-merge all neighborhoods")
             .hotkey(Key::A)
+            .build_def(ctx),
+        ctx.style()
+            .btn_solid_destructive
+            .text("Reset")
             .build_def(ctx),
     ]))
     .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
