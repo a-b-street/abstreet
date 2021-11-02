@@ -86,7 +86,7 @@ impl Blockfinder {
         perimeters: Vec<Perimeter>,
         timer: &mut Timer,
     ) {
-        let colors = Perimeter::calculate_coloring(&perimeters, COLORS.len())
+        let mut colors = Perimeter::calculate_coloring(&perimeters, COLORS.len())
             .unwrap_or_else(|| (0..perimeters.len()).collect());
 
         timer.start_iter("blockify", perimeters.len());
@@ -99,6 +99,8 @@ impl Blockfinder {
                 }
                 Err(err) => {
                     warn!("Failed to make a block from a perimeter: {}", err);
+                    // We assigned a color, so don't let the indices get out of sync!
+                    colors.remove(blocks.len());
                 }
             }
         }
