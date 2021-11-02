@@ -330,6 +330,16 @@
 <span id="330">330</span>
 <span id="331">331</span>
 <span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
@@ -488,7 +498,7 @@
                         <span class="self">self</span>.<span class="ident">add_block</span>(<span class="ident">ctx</span>, <span class="ident">id</span>, <span class="ident">MODIFIED</span>, <span class="ident">block</span>);
                     }
                 }
-                <span class="string">&quot;Auto-merge all neighborhoods&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;Classify neighborhoods&quot;</span> <span class="op">|</span> <span class="string">&quot;Auto-merge all neighborhoods&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">perimeters</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Perimeter</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">std::mem::take</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">blocks</span>)
                         .<span class="ident">into_iter</span>()
                         .<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">b</span>)<span class="op">|</span> <span class="ident">b</span>.<span class="ident">perimeter</span>)
@@ -510,8 +520,7 @@
                     <span class="self">self</span>.<span class="ident">world</span> <span class="op">=</span> <span class="ident">World::bounded</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>());
                     <span class="self">self</span>.<span class="ident">to_merge</span>.<span class="ident">clear</span>();
 
-                    <span class="comment">// TODO Fix all the crashes, then enable!</span>
-                    <span class="kw">if</span> <span class="bool-val">true</span> {
+                    <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;Auto-merge all neighborhoods&quot;</span> {
                         <span class="comment">// Actually merge the partitions</span>
                         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">merged</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
                         <span class="kw">for</span> <span class="ident">perimeters</span> <span class="kw">in</span> <span class="ident">partitions</span> {
@@ -532,6 +541,9 @@
                             }
                         }
                     }
+                }
+                <span class="string">&quot;Reset&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">Blockfinder::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
                 }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
             }
@@ -655,8 +667,16 @@
             .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         <span class="ident">ctx</span>.<span class="ident">style</span>()
             .<span class="ident">btn_outline</span>
+            .<span class="ident">text</span>(<span class="string">&quot;Classify neighborhoods&quot;</span>)
+            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+        <span class="ident">ctx</span>.<span class="ident">style</span>()
+            .<span class="ident">btn_outline</span>
             .<span class="ident">text</span>(<span class="string">&quot;Auto-merge all neighborhoods&quot;</span>)
             .<span class="ident">hotkey</span>(<span class="ident">Key::A</span>)
+            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+        <span class="ident">ctx</span>.<span class="ident">style</span>()
+            .<span class="ident">btn_solid_destructive</span>
+            .<span class="ident">text</span>(<span class="string">&quot;Reset&quot;</span>)
             .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
     ]))
     .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Left</span>, <span class="ident">VerticalAlignment::Top</span>)
