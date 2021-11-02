@@ -6,8 +6,8 @@ use map_model::osm::RoadRank;
 use map_model::{Block, PathConstraints, Perimeter};
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::{
-    Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, SimpleState, State,
-    TextExt, VerticalAlignment, Widget,
+    Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
+    SimpleState, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -62,13 +62,32 @@ impl Blockfinder {
         id
     }
 
-    fn add_block(&mut self, ctx: &mut EventCtx, id: Obj, color: Color, block: Block) {
+    fn add_block(&mut self, ctx: &mut EventCtx, app: &App, id: Obj, color: Color, block: Block) {
+        // Label the order of the perimeter roads while hovering
+        let mut hovered = GeomBatch::from(vec![(color.alpha(0.5), block.polygon.clone())]);
+        if let Ok(outline) = block.polygon.to_outline(Distance::meters(5.0)) {
+            hovered.push(Color::BLACK, outline);
+        }
+        for (idx, id) in block.perimeter.roads.iter().enumerate().skip(1) {
+            hovered.append(
+                Text::from(Line(format!("{}", idx)).fg(Color::RED))
+                    .bg(Color::BLACK)
+                    .render_autocropped(ctx)
+                    .scale(1.0)
+                    .centered_on(
+                        id.get_outermost_lane(&app.primary.map)
+                            .lane_center_pts
+                            .middle(),
+                    ),
+            );
+        }
+
         let mut obj = self
             .world
             .add(id)
             .hitbox(block.polygon.clone())
             .draw_color(color.alpha(0.5))
-            .hover_outline(Color::BLACK, Distance::meters(5.0))
+            .draw_hovered(hovered)
             .clickable();
         if self.to_merge.contains(&id) {
             obj = obj.hotkey(Key::Space, "remove from merge set")
@@ -107,7 +126,7 @@ impl Blockfinder {
 
         for (block, color_idx) in blocks.into_iter().zip(colors.into_iter()) {
             let id = self.new_id();
-            self.add_block(ctx, id, COLORS[color_idx % COLORS.len()], block);
+            self.add_block(ctx, app, id, COLORS[color_idx % COLORS.len()], block);
         }
     }
 }
@@ -139,9 +158,9 @@ impl State<App> for Blockfinder {
                         // merge set
                         if debug {
                             self.to_merge.insert(id);
-                            self.add_block(ctx, id, TO_MERGE, block);
+                            self.add_block(ctx, app, id, TO_MERGE, block);
                         } else {
-                            self.add_block(ctx, id, MODIFIED, block);
+                            self.add_block(ctx, app, id, MODIFIED, block);
                         }
                     }
                     return Transition::Keep;
@@ -155,7 +174,7 @@ impl State<App> for Blockfinder {
                             .expect("collapsing deadends broke the polygon shape");
                         self.world.delete_before_replacement(id);
                         // We'll lose the original coloring, oh well
-                        self.add_block(ctx, id, MODIFIED, block);
+                        self.add_block(ctx, app, id, MODIFIED, block);
                     }
                 }
                 "Classify neighborhoods" | "Auto-merge all neighborhoods" => {
@@ -196,7 +215,7 @@ impl State<App> for Blockfinder {
                             for perimeter in perimeters {
                                 if let Ok(block) = perimeter.to_block(map) {
                                     let id = self.new_id();
-                                    self.add_block(ctx, id, color, block);
+                                    self.add_block(ctx, app, id, color, block);
                                 }
                             }
                         }
@@ -214,14 +233,14 @@ impl State<App> for Blockfinder {
                 self.to_merge.insert(id);
                 let block = self.blocks.remove(&id).unwrap();
                 self.world.delete_before_replacement(id);
-                self.add_block(ctx, id, TO_MERGE, block);
+                self.add_block(ctx, app, id, TO_MERGE, block);
             }
             WorldOutcome::Keypress("remove from merge set", id) => {
                 self.to_merge.remove(&id);
                 let block = self.blocks.remove(&id).unwrap();
                 self.world.delete_before_replacement(id);
                 // We'll lose the original coloring, oh well
-                self.add_block(ctx, id, MODIFIED, block);
+                self.add_block(ctx, app, id, MODIFIED, block);
             }
             WorldOutcome::ClickedObject(id) => {
                 return Transition::Push(OneBlock::new_state(ctx, self.blocks[&id].clone()));

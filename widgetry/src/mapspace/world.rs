@@ -172,6 +172,12 @@ impl<'a, ID: ObjectID> ObjectBuilder<'a, ID> {
             .to_outline(thickness)
         {
             draw = draw.push(color, p);
+        } else {
+            warn!(
+                "Can't hover_outline for {:?}. Falling back to a colored polygon",
+                self.id
+            );
+            draw = GeomBatch::from(vec![(color, self.hitbox.clone().unwrap())]).into();
         }
         self.draw_hovered(draw)
     }
