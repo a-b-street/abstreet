@@ -252,8 +252,13 @@ impl OneBlock {
             ctx.style()
                 .btn_outline
                 .text("Show perimeter in order")
+                .hotkey(Key::O)
                 .build_def(ctx),
-            ctx.style().btn_outline.text("Debug polygon").build_def(ctx),
+            ctx.style()
+                .btn_outline
+                .text("Debug polygon")
+                .hotkey(Key::D)
+                .build_def(ctx),
         ]))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx);

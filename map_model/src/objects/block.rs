@@ -122,7 +122,7 @@ impl Perimeter {
     ///
     /// Note this may modify both perimeters and still return `false`. The modification is just to
     /// rotate the order of the road loop; this doesn't logically change the perimeter.
-    fn try_to_merge(&mut self, other: &mut Perimeter) -> bool {
+    fn try_to_merge(&mut self, other: &mut Perimeter, debug_failures: bool) -> bool {
         self.undo_invariant();
         other.undo_invariant();
 
@@ -133,6 +133,9 @@ impl Perimeter {
         if common.is_empty() {
             self.restore_invariant();
             other.restore_invariant();
+            if debug_failures {
+                warn!("No common roads");
+            }
             return false;
         }
 
@@ -141,6 +144,9 @@ impl Perimeter {
         if self.roads.len() == common.len() || other.roads.len() == common.len() {
             self.restore_invariant();
             other.restore_invariant();
+            if debug_failures {
+                warn!("All roads of a perimeter are in common");
+            }
             return false;
         }
 
@@ -158,7 +164,7 @@ impl Perimeter {
             other.roads.rotate_left(1);
         }
 
-        if false {
+        if debug_failures {
             println!("\nCommon: {:?}", common);
             self.debug();
             other.debug();
@@ -171,12 +177,24 @@ impl Perimeter {
         let mut ok = true;
         for id in self.roads.iter().rev().take(common.len()) {
             if !common.contains(&id.road) {
+                if debug_failures {
+                    warn!(
+                        "The common roads on the first aren't consecutive, near {:?}",
+                        id
+                    );
+                }
                 ok = false;
                 break;
             }
         }
         for id in other.roads.iter().rev().take(common.len()) {
             if !common.contains(&id.road) {
+                if debug_failures {
+                    warn!(
+                        "The common roads on the second aren't consecutive, near {:?}",
+                        id
+                    );
+                }
                 ok = false;
                 break;
             }
@@ -226,7 +244,7 @@ impl Perimeter {
                 }
 
                 for other in &mut results {
-                    if other.try_to_merge(&mut perimeter) {
+                    if other.try_to_merge(&mut perimeter, stepwise_debug) {
                         // To debug, return after any single change
                         debug = stepwise_debug;
                         continue 'INPUT;
