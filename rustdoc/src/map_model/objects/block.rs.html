@@ -475,6 +475,24 @@
 <span id="475">475</span>
 <span id="476">476</span>
 <span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
@@ -599,7 +617,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Note this may modify both perimeters and still return `false`. The modification is just to</span>
     <span class="doccomment">/// rotate the order of the road loop; this doesn&#39;t logically change the perimeter.</span>
-    <span class="kw">fn</span> <span class="ident">try_to_merge</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Perimeter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">try_to_merge</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Perimeter</span>, <span class="ident">debug_failures</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">undo_invariant</span>();
         <span class="ident">other</span>.<span class="ident">undo_invariant</span>();
 
@@ -610,6 +628,9 @@
         <span class="kw">if</span> <span class="ident">common</span>.<span class="ident">is_empty</span>() {
             <span class="self">self</span>.<span class="ident">restore_invariant</span>();
             <span class="ident">other</span>.<span class="ident">restore_invariant</span>();
+            <span class="kw">if</span> <span class="ident">debug_failures</span> {
+                <span class="macro">warn!</span>(<span class="string">&quot;No common roads&quot;</span>);
+            }
             <span class="kw">return</span> <span class="bool-val">false</span>;
         }
 
@@ -618,6 +639,9 @@
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">common</span>.<span class="ident">len</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">other</span>.<span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">common</span>.<span class="ident">len</span>() {
             <span class="self">self</span>.<span class="ident">restore_invariant</span>();
             <span class="ident">other</span>.<span class="ident">restore_invariant</span>();
+            <span class="kw">if</span> <span class="ident">debug_failures</span> {
+                <span class="macro">warn!</span>(<span class="string">&quot;All roads of a perimeter are in common&quot;</span>);
+            }
             <span class="kw">return</span> <span class="bool-val">false</span>;
         }
 
@@ -635,7 +659,7 @@
             <span class="ident">other</span>.<span class="ident">roads</span>.<span class="ident">rotate_left</span>(<span class="number">1</span>);
         }
 
-        <span class="kw">if</span> <span class="bool-val">false</span> {
+        <span class="kw">if</span> <span class="ident">debug_failures</span> {
             <span class="macro">println!</span>(<span class="string">&quot;\nCommon: {:?}&quot;</span>, <span class="ident">common</span>);
             <span class="self">self</span>.<span class="ident">debug</span>();
             <span class="ident">other</span>.<span class="ident">debug</span>();
@@ -648,12 +672,24 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ok</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">iter</span>().<span class="ident">rev</span>().<span class="ident">take</span>(<span class="ident">common</span>.<span class="ident">len</span>()) {
             <span class="kw">if</span> <span class="op">!</span><span class="ident">common</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>.<span class="ident">road</span>) {
+                <span class="kw">if</span> <span class="ident">debug_failures</span> {
+                    <span class="macro">warn!</span>(
+                        <span class="string">&quot;The common roads on the first aren&#39;t consecutive, near {:?}&quot;</span>,
+                        <span class="ident">id</span>
+                    );
+                }
                 <span class="ident">ok</span> <span class="op">=</span> <span class="bool-val">false</span>;
                 <span class="kw">break</span>;
             }
         }
         <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="ident">other</span>.<span class="ident">roads</span>.<span class="ident">iter</span>().<span class="ident">rev</span>().<span class="ident">take</span>(<span class="ident">common</span>.<span class="ident">len</span>()) {
             <span class="kw">if</span> <span class="op">!</span><span class="ident">common</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>.<span class="ident">road</span>) {
+                <span class="kw">if</span> <span class="ident">debug_failures</span> {
+                    <span class="macro">warn!</span>(
+                        <span class="string">&quot;The common roads on the second aren&#39;t consecutive, near {:?}&quot;</span>,
+                        <span class="ident">id</span>
+                    );
+                }
                 <span class="ident">ok</span> <span class="op">=</span> <span class="bool-val">false</span>;
                 <span class="kw">break</span>;
             }
@@ -703,7 +739,7 @@
                 }
 
                 <span class="kw">for</span> <span class="ident">other</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">results</span> {
-                    <span class="kw">if</span> <span class="ident">other</span>.<span class="ident">try_to_merge</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">perimeter</span>) {
+                    <span class="kw">if</span> <span class="ident">other</span>.<span class="ident">try_to_merge</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">perimeter</span>, <span class="ident">stepwise_debug</span>) {
                         <span class="comment">// To debug, return after any single change</span>
                         <span class="ident">debug</span> <span class="op">=</span> <span class="ident">stepwise_debug</span>;
                         <span class="kw">continue</span> <span class="lifetime">&#39;INPUT</span>;
