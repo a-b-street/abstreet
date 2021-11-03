@@ -3,7 +3,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use abstutil::Timer;
 use geom::Distance;
 use map_model::osm::RoadRank;
-use map_model::{Block, PathConstraints, Perimeter};
+use map_model::{Block, Perimeter};
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::{
     Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
@@ -184,14 +184,9 @@ impl State<App> for Blockfinder {
                         .collect();
                     let map = &app.primary.map;
                     let partitions = Perimeter::partition_by_predicate(perimeters, |r| {
-                        // "Interior" roads of a neighborhood aren't classified as arterial and are
-                        // driveable (so existing bike-only connections induce a split)
+                        // "Interior" roads of a neighborhood aren't classified as arterial
                         let road = map.get_r(r);
                         road.get_rank() == RoadRank::Local
-                            && road
-                                .lanes
-                                .iter()
-                                .any(|l| PathConstraints::Car.can_use(l, map))
                     });
 
                     // Reset pretty much all of our state
