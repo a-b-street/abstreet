@@ -31,10 +31,6 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
 
     // TODO Hacks to override OSM data. There's no problem upstream, but we want to accomplish
     // various things for A/B Street.
-    if let Some(way) = doc.ways.get_mut(&WayID(881403608)) {
-        // https://www.openstreetmap.org/way/881403608 is a roundabout that keeps causing gridlock
-        way.tags.insert("highway", "construction");
-    }
     for id in [380902156, 380902155, 568612970] {
         if let Some(way) = doc.ways.get_mut(&WayID(id)) {
             // https://www.openstreetmap.org/way/380902156 and friends look like a separate

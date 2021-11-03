@@ -4,7 +4,7 @@ set -e
 
 rm -fv data/input/us/seattle/raw_maps/huge_seattle.bin data/system/us/seattle/maps/huge_seattle.bin data/input/us/seattle/popdat.bin
 
-cargo run --release --bin cli regenerate-everything
+cargo run --release --bin cli --features importer/scenarios -- regenerate-everything
 
 # If a map changes that has external JSON scenarios, enable this!
 # importer/external_scenarios.sh

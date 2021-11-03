@@ -256,12 +256,13 @@ fn dedupe_angles(pts: Vec<Pt2D>) -> Vec<Pt2D> {
 }
 
 /// Many "roundabouts" like https://www.openstreetmap.org/way/427144965 are so tiny that they wind
-/// up with ridiculous geometry and cause constant gridlock.
+/// up with ridiculous geometry, cause constant gridlock, and prevent merging adjacent blocks.
 ///
 /// Note https://www.openstreetmap.org/way/394991047 is an example of something that shouldn't get
 /// modified. The only distinction, currently, is length -- but I'd love a better definition.
+/// Possibly the number of connecting roads.
 fn should_collapse_roundabout(r: &RawRoad) -> bool {
     r.osm_tags.is("junction", "roundabout")
         && r.center_points[0] == *r.center_points.last().unwrap()
-        && r.length() < Distance::meters(30.0)
+        && r.length() < Distance::meters(50.0)
 }
