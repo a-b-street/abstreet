@@ -17,7 +17,6 @@ pub struct Block {
     pub perimeter: Perimeter,
     /// The polygon covers the interior of the block.
     pub polygon: Polygon,
-    // TODO Track interior buildings and roads
 }
 
 /// A sequence of roads in order, beginning and ending at the same place. No "crossings" -- tracing
@@ -27,6 +26,8 @@ pub struct Block {
 #[derive(Clone)]
 pub struct Perimeter {
     pub roads: Vec<RoadSideID>,
+    /// These roads exist entirely within the perimeter
+    pub interior: BTreeSet<RoadID>,
 }
 
 impl Perimeter {
@@ -73,7 +74,10 @@ impl Perimeter {
             }
         }
         assert_eq!(roads[0], *roads.last().unwrap());
-        Ok(Perimeter { roads })
+        Ok(Perimeter {
+            roads,
+            interior: BTreeSet::new(),
+        })
     }
 
     /// This calculates all single block perimeters for the entire map. The resulting list does not
@@ -207,6 +211,9 @@ impl Perimeter {
         // This order assumes everything is clockwise to start with.
         self.roads.append(&mut other.roads);
 
+        self.interior.extend(common);
+        self.interior.append(&mut other.interior);
+
         // Restore the first=last invariant
         self.restore_invariant();
 
@@ -272,6 +279,7 @@ impl Perimeter {
         for id in self.roads.drain(..) {
             if Some(id.road) == roads.last().map(|id| id.road) {
                 roads.pop();
+                self.interior.insert(id.road);
             } else {
                 roads.push(id);
             }

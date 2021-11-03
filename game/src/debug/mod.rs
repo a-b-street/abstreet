@@ -794,7 +794,7 @@ impl ContextualActions for Actions {
                     match Perimeter::single_block(&app.primary.map, l)
                         .and_then(|perim| perim.to_block(&app.primary.map))
                     {
-                        Ok(block) => blockfinder::OneBlock::new_state(ctx, block),
+                        Ok(block) => blockfinder::OneBlock::new_state(ctx, app, block),
                         Err(err) => {
                             // Rendering the error message is breaking
                             error!("Blockfinding failed: {}", err);

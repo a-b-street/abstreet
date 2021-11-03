@@ -6,7 +6,7 @@ use map_model::osm::RoadRank;
 use map_model::{Block, Perimeter};
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::{
-    Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
     SimpleState, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
@@ -238,7 +238,7 @@ impl State<App> for Blockfinder {
                 self.add_block(ctx, app, id, MODIFIED, block);
             }
             WorldOutcome::ClickedObject(id) => {
-                return Transition::Push(OneBlock::new_state(ctx, self.blocks[&id].clone()));
+                return Transition::Push(OneBlock::new_state(ctx, app, self.blocks[&id].clone()));
             }
             _ => {}
         }
@@ -254,10 +254,20 @@ impl State<App> for Blockfinder {
 
 pub struct OneBlock {
     block: Block,
+    draw: Drawable,
 }
 
 impl OneBlock {
-    pub fn new_state(ctx: &mut EventCtx, block: Block) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &App, block: Block) -> Box<dyn State<App>> {
+        let mut batch = GeomBatch::new();
+        batch.push(Color::RED.alpha(0.5), block.polygon.clone());
+        for r in &block.perimeter.interior {
+            batch.push(
+                Color::CYAN.alpha(0.5),
+                app.primary.map.get_r(*r).get_thick_polygon(),
+            );
+        }
+
         let panel = Panel::new_builder(Widget::col(vec![
             Widget::row(vec![
                 Line("Blockfinder").small_heading().into_widget(ctx),
@@ -276,7 +286,13 @@ impl OneBlock {
         ]))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx);
-        <dyn SimpleState<_>>::new_state(panel, Box::new(OneBlock { block }))
+        <dyn SimpleState<_>>::new_state(
+            panel,
+            Box::new(OneBlock {
+                block,
+                draw: batch.upload(ctx),
+            }),
+        )
     }
 }
 
@@ -322,7 +338,7 @@ impl SimpleState<App> for OneBlock {
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &App) {
-        g.draw_polygon(Color::RED.alpha(0.8), self.block.polygon.clone());
+        g.redraw(&self.draw);
     }
 }
 
