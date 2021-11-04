@@ -124,6 +124,7 @@ impl RawMap {
                 bikes_can_use_bus_lanes: true,
                 inferred_sidewalks: true,
                 street_parking_spot_length: Distance::meters(8.0),
+                turn_on_red: true,
             },
         }
     }
