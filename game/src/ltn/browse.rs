@@ -7,8 +7,8 @@ use map_model::osm::RoadRank;
 use map_model::{Block, Perimeter};
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::{
-    Color, EventCtx, GfxCtx, HorizontalAlignment, Line, Outcome, Panel, State, TextExt,
-    VerticalAlignment, Widget,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Outcome, Panel, State,
+    TextExt, VerticalAlignment, Widget,
 };
 
 use super::viewer::Viewer;
@@ -41,12 +41,7 @@ impl BrowseNeighborhoods {
         });
 
         let panel = Panel::new_builder(Widget::col(vec![
-            Widget::row(vec![
-                Line("LTN tool").small_heading().into_widget(ctx),
-                map_gui::tools::change_map_btn(ctx, app)
-                    .centered_vert()
-                    .align_right(),
-            ]),
+            map_gui::tools::app_header(ctx, app, "Low traffic neighborhoods"),
             "Click a neighborhood".text_widget(ctx),
         ]))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
@@ -64,6 +59,9 @@ impl State<App> for BrowseNeighborhoods {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         if let Outcome::Clicked(x) = self.panel.event(ctx) {
             match x.as_ref() {
+                "Home" => {
+                    return Transition::Pop;
+                }
                 "change map" => {
                     return Transition::Push(CityPicker::new_state(
                         ctx,

@@ -54,10 +54,7 @@ impl Viewer {
         biz_search_panel: Option<Widget>,
     ) {
         let top_panel = Panel::new_builder(Widget::col(vec![
-            Line("OpenStreetMap viewer")
-                .small_heading()
-                .into_widget(ctx),
-            map_gui::tools::change_map_btn(ctx, app),
+            map_gui::tools::app_header(ctx, app, "OpenStreetMap viewer"),
             Widget::row(vec![
                 ctx.style()
                     .btn_plain
@@ -281,6 +278,9 @@ impl State<App> for Viewer {
 
         match self.top_panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
+                "Home" => {
+                    return Transition::Pop;
+                }
                 "change map" => {
                     return Transition::Push(CityPicker::new_state(
                         ctx,

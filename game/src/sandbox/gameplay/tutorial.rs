@@ -56,8 +56,8 @@ impl TutorialPointer {
 
 impl Tutorial {
     /// Launches the tutorial gameplay along with its cutscene
-    pub fn start(ctx: &mut EventCtx, app: &mut App) -> Transition {
-        Transition::Push(MapLoader::new_state(
+    pub fn start(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
+        MapLoader::new_state(
             ctx,
             app,
             MapName::seattle("montlake"),
@@ -79,7 +79,7 @@ impl Tutorial {
                     Transition::Push(intro_story(ctx)),
                 ])
             }),
-        ))
+        )
     }
 
     /// Idempotent. This must be called before `make_gameplay` or `scenario`. The current map must

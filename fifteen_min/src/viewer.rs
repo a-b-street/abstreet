@@ -131,6 +131,9 @@ impl State<App> for Viewer {
 
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
+                "Home" => {
+                    return Transition::Pop;
+                }
                 "change map" => {
                     return Transition::Push(CityPicker::new_state(
                         ctx,
@@ -283,44 +286,32 @@ pub fn draw_star(ctx: &mut EventCtx, b: &Building) -> GeomBatch {
 }
 
 fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isochrone) -> Panel {
-    let mut rows = vec![Line("15-minute neighborhood explorer")
-        .small_heading()
-        .into_widget(ctx)];
-
-    rows.push(map_gui::tools::change_map_btn(ctx, app));
-
-    rows.push(
+    let mut rows = vec![
+        map_gui::tools::app_header(ctx, app, "15-minute neighborhood explorer"),
         Text::from_all(vec![
             Line("Starting from: ").secondary(),
             Line(&start.address),
         ])
         .into_widget(ctx),
-    );
-
-    rows.push(
         Text::from_all(vec![
             Line("Estimated population: ").secondary(),
             Line(prettyprint_usize(isochrone.population)),
         ])
         .into_widget(ctx),
-    );
-
-    rows.push(
         Text::from_all(vec![
             Line("Estimated street parking spots: ").secondary(),
             Line(prettyprint_usize(isochrone.onstreet_parking_spots)),
         ])
         .into_widget(ctx),
-    );
-
-    rows.push(ColorLegend::categories(
-        ctx,
-        vec![
-            (Color::GREEN, "5 mins"),
-            (Color::ORANGE, "10 mins"),
-            (Color::RED, "15 mins"),
-        ],
-    ));
+        ColorLegend::categories(
+            ctx,
+            vec![
+                (Color::GREEN, "5 mins"),
+                (Color::ORANGE, "10 mins"),
+                (Color::RED, "15 mins"),
+            ],
+        ),
+    ];
 
     for (amenity, buildings) in isochrone.amenities_reachable.borrow() {
         rows.push(

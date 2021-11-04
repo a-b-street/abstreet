@@ -31,7 +31,7 @@ impl DevToolsMode {
         Box::new(DevToolsMode {
             panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
-                    Line("Internal dev tools").small_heading().into_widget(ctx),
+                    Line("Advanced tools").small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 map_gui::tools::change_map_btn(ctx, app),
@@ -74,6 +74,20 @@ impl DevToolsMode {
                     },
                 ])
                 .flex_wrap(ctx, Percent::int(60)),
+                Widget::row(vec![
+                    ctx.style()
+                        .btn_solid_primary
+                        .text("OpenStreetMap viewer")
+                        .build_def(ctx),
+                    if cfg!(not(target_arch = "wasm32")) {
+                        ctx.style()
+                            .btn_solid_primary
+                            .text("Parking mapper")
+                            .build_def(ctx)
+                    } else {
+                        Widget::nothing()
+                    },
+                ]),
             ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
@@ -84,12 +98,10 @@ impl DevToolsMode {
 impl State<App> for DevToolsMode {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         if let Outcome::Clicked(x) = self.panel.event(ctx) {
-            match x.as_ref() {
-                "close" => {
-                    return Transition::Pop;
-                }
+            return match x.as_ref() {
+                "close" => Transition::Pop,
                 "edit a polygon" => {
-                    return Transition::Push(ChooseSomething::new_state(
+                    Transition::Push(ChooseSomething::new_state(
                         ctx,
                         "Choose a polygon",
                         // This directory won't exist on the web or for binary releases, only for
@@ -116,57 +128,51 @@ impl State<App> for DevToolsMode {
                                 Transition::Pop
                             }
                         }),
-                    ));
+                    ))
                 }
-                "draw a polygon" => {
-                    return Transition::Push(polygon::PolygonEditor::new_state(
-                        ctx,
-                        app,
-                        "name goes here".to_string(),
-                        Vec::new(),
-                    ));
+                "draw a polygon" => Transition::Push(polygon::PolygonEditor::new_state(
+                    ctx,
+                    app,
+                    "name goes here".to_string(),
+                    Vec::new(),
+                )),
+                "load scenario" => Transition::Push(ChooseSomething::new_state(
+                    ctx,
+                    "Choose a scenario",
+                    Choice::strings(abstio::list_all_objects(abstio::path_all_scenarios(
+                        app.primary.map.get_name(),
+                    ))),
+                    Box::new(|s, ctx, app| {
+                        let scenario = abstio::read_binary(
+                            abstio::path_scenario(app.primary.map.get_name(), &s),
+                            &mut Timer::throwaway(),
+                        );
+                        Transition::Replace(scenario::ScenarioManager::new_state(
+                            scenario, ctx, app,
+                        ))
+                    }),
+                )),
+                "view KML" => Transition::Push(kml::ViewKML::new_state(ctx, app, None)),
+                "story maps" => Transition::Push(story::StoryMapEditor::new_state(ctx, app)),
+                "collisions" => Transition::Push(collisions::CollisionsViewer::new_state(ctx, app)),
+                "OpenStreetMap viewer" => {
+                    map_gui::tools::Executable::OSMViewer.replace_process(ctx, app, vec![])
                 }
-                "load scenario" => {
-                    return Transition::Push(ChooseSomething::new_state(
-                        ctx,
-                        "Choose a scenario",
-                        Choice::strings(abstio::list_all_objects(abstio::path_all_scenarios(
-                            app.primary.map.get_name(),
-                        ))),
-                        Box::new(|s, ctx, app| {
-                            let scenario = abstio::read_binary(
-                                abstio::path_scenario(app.primary.map.get_name(), &s),
-                                &mut Timer::throwaway(),
-                            );
-                            Transition::Replace(scenario::ScenarioManager::new_state(
-                                scenario, ctx, app,
-                            ))
-                        }),
-                    ));
+                "Parking mapper" => {
+                    map_gui::tools::Executable::ParkingMapper.replace_process(ctx, app, vec![])
                 }
-                "view KML" => {
-                    return Transition::Push(kml::ViewKML::new_state(ctx, app, None));
-                }
-                "story maps" => {
-                    return Transition::Push(story::StoryMapEditor::new_state(ctx, app));
-                }
-                "collisions" => {
-                    return Transition::Push(collisions::CollisionsViewer::new_state(ctx, app));
-                }
-                "change map" => {
-                    return Transition::Push(CityPicker::new_state(
-                        ctx,
-                        app,
-                        Box::new(|ctx, app| {
-                            Transition::Multi(vec![
-                                Transition::Pop,
-                                Transition::Replace(DevToolsMode::new_state(ctx, app)),
-                            ])
-                        }),
-                    ));
-                }
+                "change map" => Transition::Push(CityPicker::new_state(
+                    ctx,
+                    app,
+                    Box::new(|ctx, app| {
+                        Transition::Multi(vec![
+                            Transition::Pop,
+                            Transition::Replace(DevToolsMode::new_state(ctx, app)),
+                        ])
+                    }),
+                )),
                 _ => unreachable!(),
-            }
+            };
         }
 
         Transition::Keep

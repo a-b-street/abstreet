@@ -265,10 +265,7 @@ impl State<App> for ChallengesPicker {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "back" => Transition::Pop,
-                "Introduction and tutorial" => {
-                    // Slightly inconsistent: pushes twice and leaves this challenge picker open
-                    Tutorial::start(ctx, app)
-                }
+                "Introduction and tutorial" => Transition::Replace(Tutorial::start(ctx, app)),
                 "Start!" => {
                     #[cfg(not(target_arch = "wasm32"))]
                     {
