@@ -7,10 +7,10 @@ mod quick_sketch;
 mod trip;
 
 use geom::CornerRadii;
-use map_gui::tools::{grey_out_map, open_browser, CityPicker};
+use map_gui::tools::CityPicker;
 use widgetry::{
-    EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Panel, ScreenDims, SimpleState, State, Text,
-    VerticalAlignment, Widget, DEFAULT_CORNER_RADIUS,
+    EventCtx, HorizontalAlignment, Key, Line, Panel, ScreenDims, State, VerticalAlignment, Widget,
+    DEFAULT_CORNER_RADIUS,
 };
 
 pub use self::explore::ExploreMap;
@@ -39,13 +39,10 @@ impl Tab {
 
         let mut contents = Some(contents.section(ctx));
 
+        // map_gui::tools::app_header uses 2 rows, but we've tuned the horizontal space here. It's
+        // nicer to fit on one row.
         let header = Widget::row(vec![
-            ctx.style()
-                .btn_plain
-                .btn()
-                .image_path("system/assets/pregame/logo.svg")
-                .image_dims(50.0)
-                .build_widget(ctx, "about A/B Street"),
+            map_gui::tools::home_btn(ctx),
             Line("Ungap the Map")
                 .small_heading()
                 .into_widget(ctx)
@@ -141,7 +138,7 @@ impl Tab {
         action: &str,
     ) -> Option<Transition> {
         match action {
-            "about A/B Street" => Some(Transition::Push(About::new_state(ctx))),
+            "Home" => Some(Transition::Pop),
             "change map" => {
                 Some(Transition::Push(CityPicker::new_state(
                     ctx,
@@ -191,41 +188,5 @@ impl Tab {
             }))),
             _ => None,
         }
-    }
-}
-
-struct About;
-
-impl About {
-    fn new_state(ctx: &mut EventCtx) -> Box<dyn State<App>> {
-        let panel = Panel::new_builder(Widget::col(vec![
-            Widget::row(vec![
-                Line("About A/B Street").small_heading().into_widget(ctx),
-                ctx.style().btn_close_widget(ctx),
-            ]),
-            Text::from_multiline(vec![
-                Line("Created by Dustin Carlino, Yuwen Li, & Michael Kirk").small(),
-                Line("Data from OpenStreetMap, King County GIS, King County LIDAR").small(),
-            ])
-            .into_widget(ctx),
-            ctx.style().btn_outline.text("Read more").build_def(ctx),
-        ]))
-        .build(ctx);
-        <dyn SimpleState<_>>::new_state(panel, Box::new(About))
-    }
-}
-
-impl SimpleState<App> for About {
-    fn on_click(&mut self, _: &mut EventCtx, _: &mut App, x: &str, _: &Panel) -> Transition {
-        if x == "close" {
-            return Transition::Pop;
-        } else if x == "Read more" {
-            open_browser("https://a-b-street.github.io/docs/software/ungap_the_map/index.html");
-        }
-        Transition::Keep
-    }
-
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
-        grey_out_map(g, app);
     }
 }

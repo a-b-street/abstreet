@@ -27,6 +27,23 @@ pub fn cli_args() -> impl Iterator<Item = OsString> {
     }
 }
 
+/// Transforms some command-line arguments into URL query parameters, using `&` as the separator
+/// between arguments. The string returned starts with `?`, unless the arguments are all empty.
+pub fn args_to_query_string(args: Vec<String>) -> String {
+    // TODO Similar to parse_args forgoing a URL decoding crate, just handle this one
+    // transformation
+    let result = args
+        .into_iter()
+        .map(|x| x.replace(" ", "%20"))
+        .collect::<Vec<_>>()
+        .join("&");
+    if result.is_empty() {
+        result
+    } else {
+        format!("?{}", result)
+    }
+}
+
 /// Yet another barebones command-line flag parsing library.
 pub struct CmdArgs {
     kv: HashMap<String, String>,

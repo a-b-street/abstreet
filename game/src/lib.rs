@@ -49,8 +49,21 @@ struct Setup {
     start_time: Option<Duration>,
     load_kml: Option<String>,
     diff_map: Option<String>,
-    ungap: bool,
-    ltn: bool,
+    // TODO Fold more of Setup into the mutually exclusive Mode. load_kml, maybe_mode, and
+    // savestate are good candidates...
+    mode: Mode,
+}
+
+#[derive(PartialEq)]
+enum Mode {
+    SomethingElse,
+    TutorialIntro,
+    Challenges,
+    Sandbox,
+    Proposals,
+    Ungap,
+    Ltn,
+    Devtools,
 }
 
 fn run(mut settings: Settings) {
@@ -81,8 +94,23 @@ fn run(mut settings: Settings) {
         start_time: args.optional_parse("--time", |t| Duration::parse(t)),
         load_kml: args.optional("--kml"),
         diff_map: args.optional("--diff"),
-        ungap: args.enabled("--ungap"),
-        ltn: args.enabled("--ltn"),
+        mode: if args.enabled("--tutorial-intro") {
+            Mode::TutorialIntro
+        } else if args.enabled("--challenges") {
+            Mode::Challenges
+        } else if args.enabled("--sandbox") {
+            Mode::Sandbox
+        } else if args.enabled("--proposals") {
+            Mode::Proposals
+        } else if args.enabled("--ungap") {
+            Mode::Ungap
+        } else if args.enabled("--ltn") {
+            Mode::Ltn
+        } else if args.enabled("--devtools") {
+            Mode::Devtools
+        } else {
+            Mode::SomethingElse
+        },
     };
 
     setup.opts.toggle_day_night_colors = true;
@@ -161,8 +189,7 @@ fn setup_app(ctx: &mut EventCtx, mut setup: Setup) -> (App, Vec<Box<dyn State<Ap
         && !setup.flags.sim_flags.load.contains("player/save")
         && !setup.flags.sim_flags.load.contains("/scenarios/")
         && setup.maybe_mode.is_none()
-        && !setup.ungap
-        && !setup.ltn;
+        && setup.mode == Mode::SomethingElse;
 
     // Load the map used previously if we're starting on the title screen without any overrides.
     if title && setup.flags.sim_flags.load == MapName::seattle("montlake").path() {
@@ -188,7 +215,7 @@ fn setup_app(ctx: &mut EventCtx, mut setup: Setup) -> (App, Vec<Box<dyn State<Ap
     if title {
         setup.opts.color_scheme = map_gui::colors::ColorSchemeChoice::Pregame;
     }
-    if setup.ungap || setup.ltn {
+    if setup.mode != Mode::SomethingElse {
         setup.opts.color_scheme = map_gui::colors::ColorSchemeChoice::DayMode;
     }
     let cs = map_gui::colors::ColorScheme::new(ctx, setup.opts.color_scheme);
@@ -391,7 +418,7 @@ fn finish_app_setup(
     edits: Option<MapEdits>,
     setup: Setup,
 ) -> Vec<Box<dyn State<App>>> {
-    if setup.ungap {
+    if setup.mode == Mode::Ungap {
         app.store_unedited_map_in_secondary = true;
     }
     if let Some(edits) = edits {
@@ -408,60 +435,66 @@ fn finish_app_setup(
         crate::sandbox::gameplay::Tutorial::initialize(ctx, app);
     }
 
-    let states: Vec<Box<dyn State<App>>> = if let Some(path) = setup.load_kml {
-        vec![
-            Box::new(TitleScreen::new(ctx, app)),
-            crate::devtools::kml::ViewKML::new_state(ctx, app, Some(path)),
-        ]
-    } else if title {
-        vec![Box::new(TitleScreen::new(ctx, app))]
+    if title {
+        return vec![TitleScreen::new_state(ctx, app)];
+    }
+
+    let state = if let Some(path) = setup.load_kml {
+        crate::devtools::kml::ViewKML::new_state(ctx, app, Some(path))
     } else if let Some(ss) = savestate {
         app.primary.sim = ss;
-        vec![SandboxMode::start_from_savestate(app)]
+        SandboxMode::start_from_savestate(app)
     } else if let Some(mode) = setup.maybe_mode {
         if let GameplayMode::Actdev(_, _, _) = mode {
-            vec![SandboxMode::async_new(
-                app,
-                mode,
-                jump_to_time_upon_startup(Duration::hours(8)),
-            )]
+            SandboxMode::async_new(app, mode, jump_to_time_upon_startup(Duration::hours(8)))
         } else if let Some(t) = setup.start_time {
-            vec![SandboxMode::async_new(
-                app,
-                mode,
-                jump_to_time_upon_startup(t),
-            )]
+            SandboxMode::async_new(app, mode, jump_to_time_upon_startup(t))
         } else {
-            vec![SandboxMode::simple_new(app, mode)]
+            SandboxMode::simple_new(app, mode)
         }
-    } else if setup.ungap {
-        let layers = ungap::Layers::new(ctx, app);
-        vec![ungap::ExploreMap::new_state(ctx, app, layers)]
-    } else if setup.ltn {
-        vec![ltn::BrowseNeighborhoods::new_state(ctx, app)]
     } else {
-        // Not attempting to keep the primary and secondary simulations synchronized at the same
-        // time yet. Just handle this one startup case, so we can switch maps without constantly
-        // flopping day/night mode.
-        if let Some(ref mut secondary) = app.secondary {
-            secondary.sim.timed_step(
-                &secondary.map,
-                Duration::hours(6),
-                &mut None,
-                &mut Timer::throwaway(),
-            );
+        match setup.mode {
+            Mode::SomethingElse => {
+                // Not attempting to keep the primary and secondary simulations synchronized at the
+                // same time yet. Just handle this one startup case, so we can switch maps without
+                // constantly flopping day/night mode.
+                if let Some(ref mut secondary) = app.secondary {
+                    secondary.sim.timed_step(
+                        &secondary.map,
+                        Duration::hours(6),
+                        &mut None,
+                        &mut Timer::throwaway(),
+                    );
+                }
+
+                // We got here by just passing --dev and a map as flags; we're just looking at an
+                // empty map. Start in the daytime.
+                SandboxMode::async_new(
+                    app,
+                    GameplayMode::Freeform(app.primary.map.get_name().clone()),
+                    jump_to_time_upon_startup(Duration::hours(6)),
+                )
+            }
+            Mode::TutorialIntro => sandbox::gameplay::Tutorial::start(ctx, app),
+            Mode::Challenges => challenges::ChallengesPicker::new_state(ctx, app),
+            Mode::Sandbox => SandboxMode::simple_new(
+                app,
+                GameplayMode::PlayScenario(
+                    app.primary.map.get_name().clone(),
+                    pregame::default_scenario_for_map(app.primary.map.get_name()),
+                    Vec::new(),
+                ),
+            ),
+            Mode::Proposals => pregame::proposals::Proposals::new_state(ctx, app, None),
+            Mode::Ungap => {
+                let layers = ungap::Layers::new(ctx, app);
+                ungap::ExploreMap::new_state(ctx, app, layers)
+            }
+            Mode::Ltn => ltn::BrowseNeighborhoods::new_state(ctx, app),
+            Mode::Devtools => devtools::DevToolsMode::new_state(ctx, app),
         }
-
-        // We got here by just passing --dev and a map as flags; we're just looking at an empty
-        // map. Start in the daytime.
-        vec![SandboxMode::async_new(
-            app,
-            GameplayMode::Freeform(app.primary.map.get_name().clone()),
-            jump_to_time_upon_startup(Duration::hours(6)),
-        )]
     };
-
-    states
+    vec![TitleScreen::new_state(ctx, app), state]
 }
 
 #[cfg(target_arch = "wasm32")]

@@ -28,7 +28,7 @@ impl TitleScreen {
                     .into_widget(ctx)
                     .container()
                     .padding(16)
-                    .bg(app.cs.fade_map_dark)
+                    .bg(Color::BLACK.alpha(0.8))
                     .centered_horiz(),
                 Text::from(
                     Line(
@@ -44,23 +44,24 @@ impl TitleScreen {
                 .into_widget(ctx)
                 .container()
                 .padding(16)
-                .bg(app.cs.fade_map_dark)
+                .bg(Color::BLACK.alpha(0.8))
                 .centered_horiz(),
                 Widget::custom_row(level_buttons).flex_wrap(ctx, Percent::int(80)),
                 Widget::row(vec![
-                    ctx.style().btn_outline.text("Credits").build_def(ctx),
+                    map_gui::tools::home_btn(ctx),
+                    ctx.style()
+                        .btn_outline
+                        .text("Credits")
+                        .build_def(ctx)
+                        .centered_vert(),
                     "Created by Dustin Carlino, Yuwen Li, & Michael Kirk"
                         .text_widget(ctx)
-                        .container()
-                        .padding(6)
-                        // cheat this to lineup with button text
-                        .padding_bottom(2)
-                        .bg(app.cs.fade_map_dark),
+                        .centered_vert(),
                 ])
                 .centered_horiz()
-                .align_bottom(),
+                .align_bottom()
+                .bg(Color::BLACK.alpha(0.8)),
             ]))
-            .exact_size_percent(90, 85)
             .build_custom(ctx),
             Box::new(TitleScreen),
         )
@@ -70,6 +71,7 @@ impl TitleScreen {
 impl SimpleState<App> for TitleScreen {
     fn on_click(&mut self, ctx: &mut EventCtx, app: &mut App, x: &str, _: &Panel) -> Transition {
         match x {
+            "Home" => Transition::Pop,
             "Credits" => Transition::Push(Credits::new_state(ctx)),
             x => {
                 for level in &app.session.levels {

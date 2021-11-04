@@ -123,8 +123,7 @@ impl ParkingMapper {
             draw_layer: ctx.upload(batch),
             show,
             panel: Panel::new_builder(Widget::col(vec![
-                Line("Parking mapper").small_heading().into_widget(ctx),
-                map_gui::tools::change_map_btn(ctx, app),
+                map_gui::tools::app_header(ctx, app, "Parking mapper"),
                 format!(
                     "{} / {} ways done (you've mapped {})",
                     prettyprint_usize(done.len()),
@@ -327,6 +326,9 @@ impl State<App> for ParkingMapper {
                             vec![format!("{}", err)],
                         )),
                     };
+                }
+                "Home" => {
+                    return Transition::Pop;
                 }
                 "change map" => {
                     return Transition::Push(CityPicker::new_state(

@@ -12,6 +12,7 @@ pub use self::icons::{goal_marker, start_marker};
 pub use self::labels::DrawRoadLabels;
 pub use self::minimap::{Minimap, MinimapControls};
 pub use self::navigate::Navigator;
+pub use self::title_screen::{Executable, TitleScreen};
 pub use self::turn_explorer::TurnExplorer;
 pub use self::ui::{ChooseSomething, FilePicker, PopupMsg, PromptInput};
 pub use self::url::URLManager;
@@ -34,6 +35,7 @@ mod importer;
 mod labels;
 mod minimap;
 mod navigate;
+mod title_screen;
 mod turn_explorer;
 mod ui;
 #[cfg(not(target_arch = "wasm32"))]
@@ -292,10 +294,14 @@ pub fn open_browser<I: AsRef<str>>(url: I) {
 /// Returns the path to an executable. Native-only.
 pub fn find_exe(cmd: &str) -> String {
     for dir in [
-        // When running from source
+        // When running from source, prefer release builds, but fallback to debug. This might be
+        // confusing when developing and not recompiling in release mode.
         "./target/release",
         "../target/release",
         "../../target/release",
+        "./target/debug",
+        "../target/debug",
+        "../../target/debug",
         // When running from the .zip release
         ".",
         "..",
@@ -323,4 +329,26 @@ pub fn change_map_btn(ctx: &EventCtx, app: &dyn AppLike) -> Widget {
         )
         .hotkey(lctrl(Key::L))
         .build_widget(ctx, "change map")
+}
+
+/// A button to return to the title screen
+pub fn home_btn(ctx: &EventCtx) -> Widget {
+    ctx.style()
+        .btn_plain
+        .btn()
+        .image_path("system/assets/pregame/logo.svg")
+        .image_dims(50.0)
+        .build_widget(ctx, "Home")
+}
+
+/// A standard way to group a home button back to the title screen, the title of the current app,
+/// and a button to change maps. Callers must handle the `change map` and `home` click events.
+pub fn app_header(ctx: &EventCtx, app: &dyn AppLike, title: &str) -> Widget {
+    Widget::col(vec![
+        Widget::row(vec![
+            home_btn(ctx),
+            Line(title).small_heading().into_widget(ctx).centered_vert(),
+        ]),
+        change_map_btn(ctx, app),
+    ])
 }

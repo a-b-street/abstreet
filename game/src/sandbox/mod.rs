@@ -25,7 +25,7 @@ use crate::edit::{
 use crate::info::ContextualActions;
 use crate::layer::favorites::{Favorites, ShowFavorites};
 use crate::layer::PickLayer;
-use crate::pregame::MainMenu;
+use crate::pregame::TitleScreen;
 
 pub mod dashboards;
 pub mod gameplay;
@@ -265,7 +265,7 @@ pub fn maybe_exit_sandbox(ctx: &mut EventCtx) -> Transition {
 
             if app.primary.map.unsaved_edits() {
                 return Transition::Multi(vec![
-                    Transition::Push(Box::new(BackToMainMenu)),
+                    Transition::Push(Box::new(BackToTitleScreen)),
                     Transition::Push(SaveEdits::new_state(
                         ctx,
                         app,
@@ -276,18 +276,18 @@ pub fn maybe_exit_sandbox(ctx: &mut EventCtx) -> Transition {
                     )),
                 ]);
             }
-            Transition::Replace(Box::new(BackToMainMenu))
+            Transition::Replace(Box::new(BackToTitleScreen))
         }),
     ))
 }
 
-struct BackToMainMenu;
+struct BackToTitleScreen;
 
-impl State<App> for BackToMainMenu {
+impl State<App> for BackToTitleScreen {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         app.change_color_scheme(ctx, ColorSchemeChoice::Pregame);
         app.clear_everything(ctx);
-        Transition::Clear(vec![MainMenu::new_state(ctx)])
+        Transition::Clear(vec![TitleScreen::new_state(ctx, app)])
     }
 
     fn draw(&self, _: &mut GfxCtx, _: &App) {}
