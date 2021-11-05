@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["algorithms",""],["browse",""]],"struct":[["Neighborhood",""],["RatRun",""],["Viewer",""]]});
+initSidebarItems({"fn":[["find_cells",""],["floodfill",""]],"mod":[["browse",""],["viewer",""]],"struct":[["Neighborhood",""]]});
