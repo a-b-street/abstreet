@@ -1,24 +1,45 @@
-use std::collections::BTreeSet;
+use std::collections::BTreeMap;
 
+use abstutil::Timer;
+use geom::Distance;
 use map_gui::tools::{CityPicker, DrawRoadLabels};
-use map_gui::ID;
+use map_model::osm::RoadRank;
+use map_model::{Block, Perimeter};
+use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome, Panel, State,
-    TextExt, VerticalAlignment, Widget,
+    Color, EventCtx, GfxCtx, HorizontalAlignment, Line, Outcome, Panel, State, TextExt,
+    VerticalAlignment, Widget,
 };
 
-use super::{Neighborhood, Viewer};
+use super::viewer::Viewer;
 use crate::app::{App, Transition};
-use crate::common::intersections_from_roads;
+
+const COLORS: [Color; 6] = [
+    Color::BLUE,
+    Color::YELLOW,
+    Color::GREEN,
+    Color::PURPLE,
+    Color::PINK,
+    Color::ORANGE,
+];
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+struct Obj(usize);
+impl ObjectID for Obj {}
 
 pub struct BrowseNeighborhoods {
     panel: Panel,
-    draw_neighborhoods: Drawable,
+    neighborhoods: BTreeMap<Obj, Block>,
+    world: World<Obj>,
     labels: DrawRoadLabels,
 }
 
 impl BrowseNeighborhoods {
     pub fn new_state(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+        let (neighborhoods, world) = ctx.loading_screen("calculate neighborhoods", |ctx, timer| {
+            detect_neighborhoods(ctx, app, timer)
+        });
+
         let panel = Panel::new_builder(Widget::col(vec![
             Widget::row(vec![
                 Line("LTN tool").small_heading().into_widget(ctx),
@@ -30,10 +51,10 @@ impl BrowseNeighborhoods {
         ]))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
         .build(ctx);
-        let draw_neighborhoods = calculate_neighborhoods(app).upload(ctx);
         Box::new(BrowseNeighborhoods {
             panel,
-            draw_neighborhoods,
+            neighborhoods,
+            world,
             labels: DrawRoadLabels::only_major_roads(),
         })
     }
@@ -41,21 +62,6 @@ impl BrowseNeighborhoods {
 
 impl State<App> for BrowseNeighborhoods {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        ctx.canvas_movement();
-        if ctx.redo_mouseover() {
-            app.primary.current_selection =
-                match app.mouseover_unzoomed_roads_and_intersections(ctx) {
-                    x @ Some(ID::Road(_)) => x,
-                    Some(ID::Lane(l)) => Some(ID::Road(l.road)),
-                    _ => None,
-                };
-        }
-        if let Some(ID::Road(r)) = app.primary.current_selection {
-            if Neighborhood::is_interior_road(r, &app.primary.map) && ctx.normal_left_click() {
-                return Transition::Replace(Viewer::start_from_road(ctx, app, r));
-            }
-        }
-
         if let Outcome::Clicked(x) = self.panel.event(ctx) {
             match x.as_ref() {
                 "change map" => {
@@ -70,53 +76,81 @@ impl State<App> for BrowseNeighborhoods {
                 _ => unreachable!(),
             }
         }
+
+        match self.world.event(ctx) {
+            WorldOutcome::ClickedObject(id) => {
+                return Transition::Push(Viewer::new_state(ctx, app, &self.neighborhoods[&id]));
+            }
+            _ => {}
+        }
+
         Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
-        g.redraw(&self.draw_neighborhoods);
+        self.world.draw(g);
         self.labels.draw(g, app);
     }
 }
 
-fn calculate_neighborhoods(app: &App) -> GeomBatch {
-    let map = &app.primary.map;
-    let mut unvisited = BTreeSet::new();
+fn detect_neighborhoods(
+    ctx: &mut EventCtx,
+    app: &App,
+    timer: &mut Timer,
+) -> (BTreeMap<Obj, Block>, World<Obj>) {
+    timer.start("find single blocks");
+    let mut single_blocks = Perimeter::find_all_single_blocks(&app.primary.map);
+    // TODO Ew! Expensive! But the merged neighborhoods differ widely from blockfinder if we don't.
+    single_blocks.retain(|x| x.clone().to_block(&app.primary.map).is_ok());
+    timer.stop("find single blocks");
 
-    let mut batch = GeomBatch::new();
-    let colors = [
-        Color::BLUE,
-        Color::ORANGE,
-        Color::PURPLE,
-        Color::RED,
-        Color::GREEN,
-        Color::CYAN,
-    ];
-    let mut num_neighborhoods = 0;
+    timer.start("partition");
+    let partitions = Perimeter::partition_by_predicate(single_blocks, |r| {
+        // "Interior" roads of a neighborhood aren't classified as arterial
+        let road = app.primary.map.get_r(r);
+        road.get_rank() == RoadRank::Local
+    });
 
-    for r in map.all_roads() {
-        if Neighborhood::is_interior_road(r.id, map) {
-            unvisited.insert(r.id);
+    let mut merged = Vec::new();
+    for perimeters in partitions {
+        // If we got more than one result back, merging partially failed. Oh well?
+        merged.extend(Perimeter::merge_all(perimeters, false));
+    }
+
+    let mut colors = Perimeter::calculate_coloring(&merged, COLORS.len())
+        .unwrap_or_else(|| (0..merged.len()).collect());
+    timer.stop("partition");
+
+    timer.start_iter("blockify", merged.len());
+    let mut blocks = Vec::new();
+    for perimeter in merged {
+        timer.next();
+        match perimeter.to_block(&app.primary.map) {
+            Ok(block) => {
+                blocks.push(block);
+            }
+            Err(err) => {
+                warn!("Failed to make a block from a perimeter: {}", err);
+                // We assigned a color, so don't let the indices get out of sync!
+                colors.remove(blocks.len());
+            }
         }
     }
 
-    while !unvisited.is_empty() {
-        let start = *unvisited.iter().next().unwrap();
-        let neighborhood = Neighborhood::from_road(map, start);
-
-        // TODO Either use that 4-color theorem and actually guarantee no adjacent same-color ones,
-        // or change the style to have a clear outline around each
-        let color = colors[num_neighborhoods % colors.len()];
-        num_neighborhoods += 1;
-        for i in intersections_from_roads(&neighborhood.interior, map) {
-            batch.push(color, map.get_i(i).polygon.clone());
-        }
-        for r in neighborhood.interior {
-            batch.push(color, map.get_r(r).get_thick_polygon());
-            unvisited.remove(&r);
-        }
+    let mut world = World::bounded(app.primary.map.get_bounds());
+    let mut neighborhoods = BTreeMap::new();
+    for (block, color_idx) in blocks.into_iter().zip(colors.into_iter()) {
+        let id = Obj(neighborhoods.len());
+        let color = COLORS[color_idx % COLORS.len()];
+        world
+            .add(id)
+            .hitbox(block.polygon.clone())
+            .draw_color(color.alpha(0.5))
+            .hover_outline(Color::BLACK, Distance::meters(5.0))
+            .clickable()
+            .build(ctx);
+        neighborhoods.insert(id, block);
     }
-
-    batch
+    (neighborhoods, world)
 }

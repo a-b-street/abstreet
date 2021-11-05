@@ -1,311 +1,163 @@
 use std::collections::BTreeSet;
 
-use geom::{Distance, Line, PolyLine, Polygon};
-use map_gui::tools::{CityPicker, ColorDiscrete, DrawRoadLabels};
-use map_gui::ID;
-use map_model::{IntersectionID, Map, Road, RoadID};
-use widgetry::mapspace::ToggleZoomed;
-use widgetry::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    State, Text, TextExt, VerticalAlignment, Widget,
-};
+use geom::{Circle, Distance, Line, Polygon};
+use map_model::{IntersectionID, Map, Perimeter, RoadID};
+use widgetry::{Color, Drawable, EventCtx, GeomBatch};
 
-use crate::app::{App, Transition};
-use crate::common::intersections_from_roads;
+use crate::app::App;
+
 pub use browse::BrowseNeighborhoods;
 
-mod algorithms;
 mod browse;
-
-pub struct Viewer {
-    panel: Panel,
-    neighborhood: Neighborhood,
-    draw_neighborhood: ToggleZoomed,
-    // Rat runs and modal filters
-    draw_dynamic_stuff: Drawable,
-    labels: DrawRoadLabels,
-
-    current_rat_run_idx: usize,
-}
+mod viewer;
 
 struct Neighborhood {
-    interior: BTreeSet<RoadID>,
+    // These're fixed
+    orig_perimeter: Perimeter,
     perimeter: BTreeSet<RoadID>,
     borders: BTreeSet<IntersectionID>,
 
+    // The cells change as a result of modal filters
     modal_filters: BTreeSet<RoadID>,
-    rat_runs: Vec<RatRun>,
+    cells: Vec<BTreeSet<RoadID>>,
+
+    fade_irrelevant: Drawable,
+    draw_filters: Drawable,
 }
 
-struct RatRun {
-    // TODO Use PathV2, actually look at directed roads, etc
-    path: Vec<IntersectionID>,
-    // length of the rat run / length of the shortest path between the endpoints. Lower is a more
-    // likely rat run to be observed.
-    length_ratio: f64,
-}
-
-impl Viewer {
-    fn start_from_road(ctx: &mut EventCtx, app: &App, start: RoadID) -> Box<dyn State<App>> {
-        let mut neighborhood = Neighborhood::from_road(&app.primary.map, start);
-        neighborhood.calculate_rat_runs(&app.primary.map);
-        let (draw_neighborhood, legend) = neighborhood.render(ctx, app);
-        let panel = Panel::new_builder(Widget::col(vec![
-            Widget::row(vec![
-                Line("LTN tool").small_heading().into_widget(ctx),
-                map_gui::tools::change_map_btn(ctx, app)
-                    .centered_vert()
-                    .align_right(),
-            ]),
-            ctx.style()
-                .btn_outline
-                .text("Browse neighborhoods")
-                .hotkey(Key::B)
-                .build_def(ctx),
-            legend,
-            Text::new().into_widget(ctx).named("rat runs"),
-        ]))
-        .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
-        .build(ctx);
-
-        let mut label_roads = neighborhood.interior.clone();
-        label_roads.extend(neighborhood.perimeter.clone());
-
-        let mut viewer = Viewer {
-            panel,
-            neighborhood,
-            draw_neighborhood,
-            current_rat_run_idx: 0,
-            draw_dynamic_stuff: Drawable::empty(ctx),
-            // We could try to share with browse mode, but we include different roads here
-            labels: DrawRoadLabels::new(Box::new(move |r| label_roads.contains(&r.id))),
-        };
-        viewer.recalculate(ctx, app);
-        Box::new(viewer)
-    }
-
-    fn recalculate(&mut self, ctx: &mut EventCtx, app: &App) {
-        let mut col = Vec::new();
-        let mut batch = GeomBatch::new();
+impl Neighborhood {
+    fn new(
+        ctx: &EventCtx,
+        app: &App,
+        orig_perimeter: Perimeter,
+        modal_filters: BTreeSet<RoadID>,
+    ) -> Neighborhood {
         let map = &app.primary.map;
 
-        if self.neighborhood.rat_runs.is_empty() {
-            col.push("No rat runs!".text_widget(ctx));
-        } else {
-            let run = &self.neighborhood.rat_runs[self.current_rat_run_idx];
+        let cells = find_cells(map, &orig_perimeter, &modal_filters);
+        let mut n = Neighborhood {
+            orig_perimeter,
+            perimeter: BTreeSet::new(),
+            borders: BTreeSet::new(),
 
-            col.extend(vec![
-                Widget::row(vec![
-                    "Rat runs:".text_widget(ctx).centered_vert(),
-                    ctx.style()
-                        .btn_prev()
-                        .disabled(self.current_rat_run_idx == 0)
-                        .hotkey(Key::LeftArrow)
-                        .build_widget(ctx, "previous rat run"),
-                    Text::from(
-                        Line(format!(
-                            "{}/{}",
-                            self.current_rat_run_idx + 1,
-                            self.neighborhood.rat_runs.len()
-                        ))
-                        .secondary(),
-                    )
-                    .into_widget(ctx)
-                    .centered_vert(),
-                    ctx.style()
-                        .btn_next()
-                        .disabled(self.current_rat_run_idx == self.neighborhood.rat_runs.len() - 1)
-                        .hotkey(Key::RightArrow)
-                        .build_widget(ctx, "next rat run"),
-                ]),
-                format!(
-                    "This run has a length ratio of {:.2} vs the shortest path",
-                    run.length_ratio
-                )
-                .text_widget(ctx),
-            ]);
+            modal_filters,
+            cells,
 
-            for i in &run.path {
-                batch.push(Color::RED.alpha(0.8), map.get_i(*i).polygon.clone());
-            }
-            for road in run.roads(map) {
-                batch.push(Color::RED.alpha(0.8), road.get_thick_polygon());
-            }
+            fade_irrelevant: Drawable::empty(ctx),
+            draw_filters: Drawable::empty(ctx),
+        };
+
+        let mut holes = Vec::new();
+        for id in &n.orig_perimeter.roads {
+            n.perimeter.insert(id.road);
+            let road = map.get_r(id.road);
+            n.borders.insert(road.src_i);
+            n.borders.insert(road.dst_i);
+            holes.push(road.get_thick_polygon());
         }
-
-        col.push(
-            format!(
-                "{} modal filters currently added",
-                self.neighborhood.modal_filters.len()
-            )
-            .text_widget(ctx),
+        for i in &n.borders {
+            holes.push(map.get_i(*i).polygon.clone());
+        }
+        // TODO The original block's polygon is nice, but we want to include the perimeter. Adding
+        // more holes seems to break. But the convex hull of a bunch of holes looks really messy.
+        let fade_area = Polygon::with_holes(
+            map.get_boundary_polygon().clone().into_ring(),
+            if true {
+                vec![n
+                    .orig_perimeter
+                    .clone()
+                    .to_block(map)
+                    .unwrap()
+                    .polygon
+                    .into_ring()]
+            } else {
+                vec![Polygon::convex_hull(holes).into_ring()]
+            },
         );
-        for r in &self.neighborhood.modal_filters {
+        n.fade_irrelevant = GeomBatch::from(vec![(app.cs.fade_map_dark, fade_area)]).upload(ctx);
+
+        let mut batch = GeomBatch::new();
+        for r in &n.modal_filters {
             let road = map.get_r(*r);
             // If this road touches a border, place it closer to that intersection. If it's an
             // inner neighborhood split, then stick to the middle of that road.
-            let pct_along = if self.neighborhood.borders.contains(&road.src_i) {
+            let pct_along = if n.borders.contains(&road.src_i) {
                 0.1
-            } else if self.neighborhood.borders.contains(&road.dst_i) {
+            } else if n.borders.contains(&road.dst_i) {
                 0.9
             } else {
                 0.5
             };
             if let Ok((pt, angle)) = road.center_pts.dist_along(pct_along * road.length()) {
                 let filter_len = road.get_width();
+                batch.push(Color::RED, Circle::new(pt, filter_len).to_polygon());
                 let barrier = Line::must_new(
-                    pt.project_away(filter_len, angle.rotate_degs(90.0)),
-                    pt.project_away(filter_len, angle.rotate_degs(-90.0)),
+                    pt.project_away(0.8 * filter_len, angle.rotate_degs(90.0)),
+                    pt.project_away(0.8 * filter_len, angle.rotate_degs(-90.0)),
                 )
-                .make_polygons(Distance::meters(10.0));
-                batch.push(Color::GREEN, barrier.clone());
-                if let Ok(outline) = barrier.to_outline(Distance::meters(2.0)) {
-                    batch.push(Color::BLACK, outline);
-                }
+                .make_polygons(Distance::meters(7.0));
+                batch.push(Color::WHITE, barrier.clone());
             }
         }
+        n.draw_filters = batch.upload(ctx);
 
-        self.panel.replace(ctx, "rat runs", Widget::col(col));
-        self.draw_dynamic_stuff = batch.upload(ctx);
+        n
     }
 }
 
-impl State<App> for Viewer {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        ctx.canvas_movement();
-        if ctx.redo_mouseover() {
-            app.primary.current_selection =
-                match app.mouseover_unzoomed_roads_and_intersections(ctx) {
-                    x @ Some(ID::Road(_)) => x,
-                    Some(ID::Lane(l)) => Some(ID::Road(l.road)),
-                    _ => None,
-                };
-        }
-        if let Some(ID::Road(r)) = app.primary.current_selection {
-            if ctx.normal_left_click() {
-                if self.neighborhood.interior.contains(&r) {
-                    self.neighborhood.toggle_modal_filter(&app.primary.map, r);
-                    self.current_rat_run_idx = 0;
-                    self.recalculate(ctx, app);
-                } else if Neighborhood::is_interior_road(r, &app.primary.map) {
-                    return Transition::Replace(Viewer::start_from_road(ctx, app, r));
-                }
-            }
-        }
+// Find all of the disconnected "cells" of reachable areas, bounded by a perimeter. This is with
+// respect to driving.
+fn find_cells(
+    map: &Map,
+    perimeter: &Perimeter,
+    modal_filters: &BTreeSet<RoadID>,
+) -> Vec<BTreeSet<RoadID>> {
+    let mut cells = Vec::new();
+    let mut visited = BTreeSet::new();
 
-        if let Outcome::Clicked(x) = self.panel.event(ctx) {
-            match x.as_ref() {
-                "change map" => {
-                    return Transition::Push(CityPicker::new_state(
-                        ctx,
-                        app,
-                        Box::new(|ctx, app| {
-                            Transition::Replace(BrowseNeighborhoods::new_state(ctx, app))
-                        }),
-                    ));
-                }
-                "previous rat run" => {
-                    self.current_rat_run_idx -= 1;
-                    self.recalculate(ctx, app);
-                }
-                "next rat run" => {
-                    self.current_rat_run_idx += 1;
-                    self.recalculate(ctx, app);
-                }
-                "Browse neighborhoods" => {
-                    return Transition::Replace(BrowseNeighborhoods::new_state(ctx, app));
-                }
-                _ => unreachable!(),
-            }
+    for start in &perimeter.interior {
+        if visited.contains(start) {
+            continue;
         }
-        Transition::Keep
+        let cell = floodfill(map, *start, perimeter, modal_filters);
+        cells.push(cell.clone());
+        visited.extend(cell);
     }
 
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.panel.draw(g);
-        self.draw_neighborhood.draw(g);
-        g.redraw(&self.draw_dynamic_stuff);
-        // TODO Since we cover such a small area, treating multiple segments of one road as the
-        // same might be nice. And we should seed the quadtree with the locations of filters and
-        // arrows, possibly.
-        if g.canvas.is_unzoomed() {
-            self.labels.draw(g, app);
-        }
-
-        if let Some(ID::Road(r)) = app.primary.current_selection {
-            if self.neighborhood.interior.contains(&r) {
-                if self.neighborhood.modal_filters.contains(&r) {
-                    g.draw_mouse_tooltip(Text::from(Line("Click to remove this modal filter")));
-                } else {
-                    g.draw_mouse_tooltip(Text::from(Line("Click to add a modal filter here")));
-                }
-            } else if Neighborhood::is_interior_road(r, &app.primary.map) {
-                g.draw_mouse_tooltip(Text::from(Line("Click to analyze this neighborhood")));
-            }
-        }
-    }
+    cells
 }
 
-impl Neighborhood {
-    // Also a legend
-    fn render(&self, ctx: &mut EventCtx, app: &App) -> (ToggleZoomed, Widget) {
-        let mut colorer = ColorDiscrete::no_fading(
-            app,
-            vec![
-                ("interior", Color::BLUE.alpha(0.8)),
-                ("perimeter", Color::hex("#40B5AD").alpha(0.8)),
-                ("rat-run", Color::RED.alpha(0.8)),
-                ("modal filter", Color::GREEN),
-            ],
-        );
-        for r in &self.interior {
-            colorer.add_r(*r, "interior");
-        }
-        for i in intersections_from_roads(&self.interior, &app.primary.map) {
-            colorer.add_i(i, "interior");
-        }
-        for r in &self.perimeter {
-            colorer.add_r(*r, "perimeter");
-        }
-        for i in &self.borders {
-            // TODO These should have a higher z-order than rat runs
-            let arrow = self.border_arrow(&app.primary.map, *i);
-            colorer.unzoomed.push(Color::PURPLE, arrow.clone());
-            colorer.zoomed.push(Color::PURPLE, arrow.clone());
-        }
-        colorer.build(ctx)
+fn floodfill(
+    map: &Map,
+    start: RoadID,
+    perimeter: &Perimeter,
+    modal_filters: &BTreeSet<RoadID>,
+) -> BTreeSet<RoadID> {
+    // We don't need a priority queue
+    let mut visited = BTreeSet::new();
+    let mut queue = vec![start];
+
+    // TODO For now, each road with a filter is its own tiny cell. That's not really what we
+    // want...
+    if modal_filters.contains(&start) {
+        visited.insert(start);
+        return visited;
     }
 
-    fn border_arrow(&self, map: &Map, i: IntersectionID) -> Polygon {
-        assert!(self.borders.contains(&i));
-        // Multiple interior roads could connect to one border, but let's just use one (the common
-        // case anyway)
-        let road = map.get_r(
-            *map.get_i(i)
-                .roads
-                .iter()
-                .find(|r| self.interior.contains(r))
-                .unwrap(),
-        );
-        let line = if road.dst_i == i {
-            road.center_pts.last_line()
-        } else {
-            road.center_pts.first_line().reversed()
-        };
-        PolyLine::must_new(vec![
-            line.pt2(),
-            line.pt2()
-                .project_away(Distance::meters(30.0), line.angle()),
-        ])
-        .make_double_arrow(Distance::meters(5.0), geom::ArrowCap::Triangle)
+    while !queue.is_empty() {
+        let current = map.get_r(queue.pop().unwrap());
+        if visited.contains(&current.id) {
+            continue;
+        }
+        visited.insert(current.id);
+        for i in [current.src_i, current.dst_i] {
+            for next in &map.get_i(i).roads {
+                if perimeter.interior.contains(next) && !modal_filters.contains(next) {
+                    queue.push(*next);
+                }
+            }
+        }
     }
-}
 
-impl RatRun {
-    fn roads<'a>(&'a self, map: &'a Map) -> impl Iterator<Item = &'a Road> {
-        // TODO Find the neighborhoods that aren't being defined right, instead of flat_map here
-        self.path
-            .windows(2)
-            .flat_map(move |pair| map.get_i(pair[0]).find_road_between(pair[1], map))
-    }
+    visited
 }
