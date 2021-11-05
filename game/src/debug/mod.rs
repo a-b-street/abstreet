@@ -1077,7 +1077,7 @@ fn reimport_map(
             "--map".to_string(),
             app.primary.map.get_name().map.clone(),
             format!("--city={}", app.primary.map.get_name().city.to_path()),
-            "--skip_ch".to_string(),
+            "--skip-ch".to_string(),
         ],
         Box::new(|ctx, app, success, _| {
             if !success {
