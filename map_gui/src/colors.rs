@@ -61,7 +61,6 @@ pub struct ColorScheme {
     pub perma_selected_object: Color,
     pub fade_map_dark: Color,
     gui_style: Style,
-    pub dialog_bg: Color,
     pub minimap_cursor_border: Color,
     pub minimap_cursor_bg: Option<Color>,
 
@@ -181,7 +180,6 @@ impl ColorScheme {
             current_object: Color::WHITE,
             perma_selected_object: Color::BLUE,
             fade_map_dark: Color::BLACK.alpha(0.6),
-            dialog_bg: hex("#94C84A"),
             minimap_cursor_border: Color::BLACK,
             minimap_cursor_bg: None,
             gui_style,

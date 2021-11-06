@@ -344,7 +344,7 @@ fn final_score(
     } else {
         "Wow, you managed to fix the signals. Great job!".to_string()
     };
-    FinalScore::new_state(ctx, app, msg, mode, None)
+    FinalScore::new_state(ctx, msg, mode, None)
 }
 
 // TODO Can we automatically transform text and SVG colors?

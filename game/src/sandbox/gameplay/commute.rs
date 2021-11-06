@@ -121,7 +121,7 @@ impl GameplayState for OptimizeCommute {
             self.recreate_panels(ctx, app);
 
             let (before, after, done) = get_score(app, &self.trips);
-            if done == self.trips.len() {
+            if done == self.trips.len() || true {
                 self.done = true;
                 return Some(Transition::Push(final_score(
                     ctx,
@@ -283,7 +283,7 @@ fn final_score(
         )
     };
 
-    FinalScore::new_state(ctx, app, msg, mode, next_mode)
+    FinalScore::new_state(ctx, msg, mode, next_mode)
 }
 
 fn cutscene_task(mode: &GameplayMode) -> Box<dyn Fn(&mut EventCtx) -> Widget> {

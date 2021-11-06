@@ -4,24 +4,19 @@ use geom::Percent;
 use map_gui::load::MapLoader;
 use map_gui::tools::{open_browser, PopupMsg};
 use map_model::PermanentMapEdits;
-use widgetry::{DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text, Widget};
+use widgetry::{EventCtx, Key, Line, Panel, SimpleState, State, Text, Widget};
 
 use crate::app::{App, Transition};
 use crate::edit::apply_map_edits;
 use crate::sandbox::{GameplayMode, SandboxMode};
 
 pub struct Proposals {
-    panel: Panel,
     proposals: HashMap<String, PermanentMapEdits>,
     current: Option<String>,
 }
 
 impl Proposals {
-    pub fn new_state(
-        ctx: &mut EventCtx,
-        app: &App,
-        current: Option<String>,
-    ) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, current: Option<String>) -> Box<dyn State<App>> {
         let mut proposals = HashMap::new();
         let mut tab_buttons = Vec::new();
         let mut current_tab_rows = Vec::new();
@@ -88,20 +83,11 @@ impl Proposals {
             proposals.insert(name, edits);
         }
 
-        let header = Widget::row(vec![
-            ctx.style()
-                .btn_back("Home")
-                .hotkey(Key::Escape)
-                .build_widget(ctx, "back")
-                .align_bottom(),
-            {
-                let mut txt = Text::from(Line("A/B STREET").display_title());
-                txt.add_line(Line("PROPOSALS").big_heading_styled());
-                txt.into_widget(ctx).centered_horiz().fill_width()
-            },
-        ]);
-
-        let body = Widget::col(vec![
+        let panel = Panel::new_builder(Widget::col(vec![
+            Widget::row(vec![
+                Line("Community proposals").small_heading().into_widget(ctx),
+                ctx.style().btn_close_widget(ctx),
+            ]),
             {
                 let mut txt =
                     Text::from("These are proposed changes to Seattle made by community members.");
@@ -112,62 +98,32 @@ impl Proposals {
                 .flex_wrap(ctx, Percent::int(80))
                 .margin_above(60),
             Widget::col(current_tab_rows),
-        ])
-        .bg(app.cs.panel_bg)
-        .padding(16);
-
-        Box::new(Proposals {
-            proposals,
-            panel: Panel::new_builder(Widget::custom_col(vec![Widget::col(vec![header, body])]))
-                .exact_size_percent(90, 85)
-                .build_custom(ctx),
-            current,
-        })
+        ]))
+        .build(ctx);
+        <dyn SimpleState<_>>::new_state(panel, Box::new(Proposals { proposals, current }))
     }
 }
 
-impl State<App> for Proposals {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        if let Outcome::Clicked(x) = self.panel.event(ctx) {
-            match x.as_ref() {
-                "back" => {
-                    return Transition::Pop;
-                }
-                "Try out this proposal" => {
-                    return launch(
-                        ctx,
-                        app,
-                        self.proposals[self.current.as_ref().unwrap()].clone(),
-                    );
-                }
-                "Read detailed write-up" => {
-                    open_browser(
-                        self.proposals[self.current.as_ref().unwrap()]
-                            .proposal_link
-                            .clone()
-                            .unwrap(),
-                    );
-                }
-                x => {
-                    return Transition::Replace(Proposals::new_state(
-                        ctx,
-                        app,
-                        Some(x.to_string()),
-                    ));
-                }
+impl SimpleState<App> for Proposals {
+    fn on_click(&mut self, ctx: &mut EventCtx, app: &mut App, x: &str, _: &Panel) -> Transition {
+        match x {
+            "close" => Transition::Pop,
+            "Try out this proposal" => launch(
+                ctx,
+                app,
+                self.proposals[self.current.as_ref().unwrap()].clone(),
+            ),
+            "Read detailed write-up" => {
+                open_browser(
+                    self.proposals[self.current.as_ref().unwrap()]
+                        .proposal_link
+                        .clone()
+                        .unwrap(),
+                );
+                Transition::Keep
             }
+            x => Transition::Replace(Proposals::new_state(ctx, Some(x.to_string()))),
         }
-
-        Transition::Keep
-    }
-
-    fn draw_baselayer(&self) -> DrawBaselayer {
-        DrawBaselayer::Custom
-    }
-
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
-        g.clear(app.cs.dialog_bg);
-        self.panel.draw(g);
     }
 }
 

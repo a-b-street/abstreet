@@ -7,8 +7,8 @@ use map_model::osm::RoadRank;
 use map_model::{Block, Perimeter};
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Outcome, Panel, State,
-    TextExt, VerticalAlignment, Widget,
+    Color, EventCtx, GfxCtx, HorizontalAlignment, Outcome, Panel, State, TextExt,
+    VerticalAlignment, Widget,
 };
 
 use super::viewer::Viewer;

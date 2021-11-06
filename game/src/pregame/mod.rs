@@ -33,7 +33,7 @@ fn enter_state(ctx: &mut EventCtx, app: &mut App, args: Vec<&str>) -> Box<dyn St
                 Vec::new(),
             ),
         ),
-        "--proposals" => proposals::Proposals::new_state(ctx, app, None),
+        "--proposals" => proposals::Proposals::new_state(ctx, None),
         "--ungap" => {
             let layers = crate::ungap::Layers::new(ctx, app);
             crate::ungap::ExploreMap::new_state(ctx, app, layers)
