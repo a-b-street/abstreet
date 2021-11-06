@@ -1,5 +1,5 @@
 use std::cell::RefCell;
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use anyhow::Result;
 use maplit::btreemap;
@@ -14,7 +14,7 @@ use map_gui::render::{unzoomed_agent_radius, AgentCache, DrawMap, DrawOptions, R
 use map_gui::tools::CameraState;
 use map_gui::ID;
 use map_model::AreaType;
-use map_model::{BufferType, IntersectionID, LaneType, Map, Traversable};
+use map_model::{BufferType, IntersectionID, LaneType, Map, RoadID, Traversable};
 use sim::{AgentID, Analytics, Scenario, Sim, SimCallback, SimFlags, VehicleType};
 use widgetry::mapspace::ToggleZoomed;
 use widgetry::{Cached, Canvas, EventCtx, GfxCtx, Prerender, SharedAppState, State};
@@ -756,6 +756,9 @@ pub struct SessionState {
     pub ungap_current_trip_name: Option<String>,
     // Map and edit change key
     pub mode_shift: Cached<(MapName, usize), crate::ungap::ModeShiftData>,
+
+    // Specific to LTN
+    pub modal_filters: BTreeSet<RoadID>,
 }
 
 impl SessionState {
@@ -778,6 +781,8 @@ impl SessionState {
             routing_preferences: crate::ungap::RoutingPreferences::default(),
             ungap_current_trip_name: None,
             mode_shift: Cached::new(),
+
+            modal_filters: BTreeSet::new(),
         }
     }
 }

@@ -17,8 +17,8 @@ struct Neighborhood {
     perimeter: BTreeSet<RoadID>,
     borders: BTreeSet<IntersectionID>,
 
-    // The cells change as a result of modal filters
-    modal_filters: BTreeSet<RoadID>,
+    // The cells change as a result of modal filters, which're stored for all neighborhoods in
+    // app.session.
     cells: Vec<BTreeSet<RoadID>>,
 
     fade_irrelevant: Drawable,
@@ -26,21 +26,15 @@ struct Neighborhood {
 }
 
 impl Neighborhood {
-    fn new(
-        ctx: &EventCtx,
-        app: &App,
-        orig_perimeter: Perimeter,
-        modal_filters: BTreeSet<RoadID>,
-    ) -> Neighborhood {
+    fn new(ctx: &EventCtx, app: &App, orig_perimeter: Perimeter) -> Neighborhood {
         let map = &app.primary.map;
 
-        let cells = find_cells(map, &orig_perimeter, &modal_filters);
+        let cells = find_cells(map, &orig_perimeter, &app.session.modal_filters);
         let mut n = Neighborhood {
             orig_perimeter,
             perimeter: BTreeSet::new(),
             borders: BTreeSet::new(),
 
-            modal_filters,
             cells,
 
             fade_irrelevant: Drawable::empty(ctx),
@@ -77,7 +71,11 @@ impl Neighborhood {
         n.fade_irrelevant = GeomBatch::from(vec![(app.cs.fade_map_dark, fade_area)]).upload(ctx);
 
         let mut batch = GeomBatch::new();
-        for r in &n.modal_filters {
+        for r in &app.session.modal_filters {
+            if !n.orig_perimeter.interior.contains(r) {
+                continue;
+            }
+
             let road = map.get_r(*r);
             // If this road touches a border, place it closer to that intersection. If it's an
             // inner neighborhood split, then stick to the middle of that road.

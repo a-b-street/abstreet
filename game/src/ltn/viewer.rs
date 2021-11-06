@@ -1,5 +1,3 @@
-use std::collections::BTreeSet;
-
 use geom::Distance;
 use map_gui::tools::{CityPicker, DrawRoadLabels};
 use map_model::{Block, RoadID};
@@ -43,8 +41,7 @@ impl Viewer {
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
         .build(ctx);
 
-        let modal_filters = BTreeSet::new();
-        let neighborhood = Neighborhood::new(ctx, app, block.perimeter.clone(), modal_filters);
+        let neighborhood = Neighborhood::new(ctx, app, block.perimeter.clone());
 
         let mut label_roads = neighborhood.perimeter.clone();
         label_roads.extend(neighborhood.orig_perimeter.interior.clone());
@@ -82,19 +79,15 @@ impl State<App> for Viewer {
 
         match self.world.event(ctx) {
             WorldOutcome::ClickedObject(Obj::InteriorRoad(r)) => {
-                if self.neighborhood.modal_filters.contains(&r) {
-                    self.neighborhood.modal_filters.remove(&r);
+                if app.session.modal_filters.contains(&r) {
+                    app.session.modal_filters.remove(&r);
                 } else {
-                    self.neighborhood.modal_filters.insert(r);
+                    app.session.modal_filters.insert(r);
                 }
                 // TODO The cell coloring changes quite spuriously just by toggling a filter, even
                 // when it doesn't matter
-                self.neighborhood = Neighborhood::new(
-                    ctx,
-                    app,
-                    self.neighborhood.orig_perimeter.clone(),
-                    std::mem::take(&mut self.neighborhood.modal_filters),
-                );
+                self.neighborhood =
+                    Neighborhood::new(ctx, app, self.neighborhood.orig_perimeter.clone());
                 self.world = make_world(ctx, app, &self.neighborhood);
             }
             _ => {}
