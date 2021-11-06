@@ -23,8 +23,6 @@ fn run(mut settings: Settings) {
     // TODO The demo loads a .svg file, so to make it work on both native and web, for now we use
     // read_svg. But we should have a more minimal example of how to do that here.
     widgetry::run(settings, |ctx| {
-        // TODO: remove Style::pregame and make light_bg the default.
-        ctx.set_style(widgetry::Style::light_bg());
         // TODO: Add a toggle to switch theme in demo (and recreate UI in that new theme)
         // ctx.set_style(widgetry::Style::dark_bg());
 
