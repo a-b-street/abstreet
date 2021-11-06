@@ -664,6 +664,8 @@
 <span id="664">664</span>
 <span id="665">665</span>
 <span id="666">666</span>
+<span id="667">667</span>
+<span id="668">668</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashSet</span>};
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
@@ -789,8 +791,7 @@
             <span class="ident">draw_layer</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>),
             <span class="ident">show</span>,
             <span class="ident">panel</span>: <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                <span class="ident">Line</span>(<span class="string">&quot;Parking mapper&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">map_gui::tools::change_map_btn</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+                <span class="ident">map_gui::tools::app_header</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="string">&quot;Parking mapper&quot;</span>),
                 <span class="macro">format!</span>(
                     <span class="string">&quot;{} / {} ways done (you&#39;ve mapped {})&quot;</span>,
                     <span class="ident">prettyprint_usize</span>(<span class="ident">done</span>.<span class="ident">len</span>()),
@@ -993,6 +994,9 @@
                             <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">err</span>)],
                         )),
                     };
+                }
+                <span class="string">&quot;Home&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
                 }
                 <span class="string">&quot;change map&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">CityPicker::new_state</span>(

@@ -644,8 +644,6 @@
 <span id="644">644</span>
 <span id="645">645</span>
 <span id="646">646</span>
-<span id="647">647</span>
-<span id="648">648</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">rand::SeedableRng</span>;
 <span class="kw">use</span> <span class="ident">rand_xorshift::XorShiftRng</span>;
 
@@ -671,8 +669,6 @@
     <span class="comment">// TODO The demo loads a .svg file, so to make it work on both native and web, for now we use</span>
     <span class="comment">// read_svg. But we should have a more minimal example of how to do that here.</span>
     <span class="ident">widgetry::run</span>(<span class="ident">settings</span>, <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> {
-        <span class="comment">// TODO: remove Style::pregame and make light_bg the default.</span>
-        <span class="ident">ctx</span>.<span class="ident">set_style</span>(<span class="ident">widgetry::Style::light_bg</span>());
         <span class="comment">// TODO: Add a toggle to switch theme in demo (and recreate UI in that new theme)</span>
         <span class="comment">// ctx.set_style(widgetry::Style::dark_bg());</span>
 

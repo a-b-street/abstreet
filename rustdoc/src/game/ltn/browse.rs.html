@@ -152,8 +152,6 @@
 <span id="152">152</span>
 <span id="153">153</span>
 <span id="154">154</span>
-<span id="155">155</span>
-<span id="156">156</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
@@ -163,7 +161,7 @@
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Block</span>, <span class="ident">Perimeter</span>};
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ObjectID</span>, <span class="ident">World</span>, <span class="ident">WorldOutcome</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">TextExt</span>,
+    <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">TextExt</span>,
     <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
@@ -197,12 +195,7 @@
         });
 
         <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">Line</span>(<span class="string">&quot;LTN tool&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">map_gui::tools::change_map_btn</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)
-                    .<span class="ident">centered_vert</span>()
-                    .<span class="ident">align_right</span>(),
-            ]),
+            <span class="ident">map_gui::tools::app_header</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="string">&quot;Low traffic neighborhoods&quot;</span>),
             <span class="string">&quot;Click a neighborhood&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
         ]))
         .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Left</span>, <span class="ident">VerticalAlignment::Top</span>)
@@ -220,6 +213,9 @@
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
+                <span class="string">&quot;Home&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
+                }
                 <span class="string">&quot;change map&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">CityPicker::new_state</span>(
                         <span class="ident">ctx</span>,

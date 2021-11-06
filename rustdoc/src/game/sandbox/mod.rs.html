@@ -745,7 +745,7 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::info::ContextualActions</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::layer::favorites</span>::{<span class="ident">Favorites</span>, <span class="ident">ShowFavorites</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::layer::PickLayer</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pregame::MainMenu</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pregame::TitleScreen</span>;
 
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">dashboards</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">gameplay</span>;
@@ -985,7 +985,7 @@
 
             <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">unsaved_edits</span>() {
                 <span class="kw">return</span> <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Transition::Push</span>(<span class="ident">Box::new</span>(<span class="ident">BackToMainMenu</span>)),
+                    <span class="ident">Transition::Push</span>(<span class="ident">Box::new</span>(<span class="ident">BackToTitleScreen</span>)),
                     <span class="ident">Transition::Push</span>(<span class="ident">SaveEdits::new_state</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">app</span>,
@@ -996,18 +996,18 @@
                     )),
                 ]);
             }
-            <span class="ident">Transition::Replace</span>(<span class="ident">Box::new</span>(<span class="ident">BackToMainMenu</span>))
+            <span class="ident">Transition::Replace</span>(<span class="ident">Box::new</span>(<span class="ident">BackToTitleScreen</span>))
         }),
     ))
 }
 
-<span class="kw">struct</span> <span class="ident">BackToMainMenu</span>;
+<span class="kw">struct</span> <span class="ident">BackToTitleScreen</span>;
 
-<span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">BackToMainMenu</span> {
+<span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">BackToTitleScreen</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
-        <span class="ident">app</span>.<span class="ident">change_color_scheme</span>(<span class="ident">ctx</span>, <span class="ident">ColorSchemeChoice::Pregame</span>);
+        <span class="ident">app</span>.<span class="ident">change_color_scheme</span>(<span class="ident">ctx</span>, <span class="ident">ColorSchemeChoice::DayMode</span>);
         <span class="ident">app</span>.<span class="ident">clear_everything</span>(<span class="ident">ctx</span>);
-        <span class="ident">Transition::Clear</span>(<span class="macro">vec!</span>[<span class="ident">MainMenu::new_state</span>(<span class="ident">ctx</span>)])
+        <span class="ident">Transition::Clear</span>(<span class="macro">vec!</span>[<span class="ident">TitleScreen::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)])
     }
 
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {}

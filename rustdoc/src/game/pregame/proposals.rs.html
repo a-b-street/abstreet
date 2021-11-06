@@ -173,74 +173,25 @@
 <span id="173">173</span>
 <span id="174">174</span>
 <span id="175">175</span>
-<span id="176">176</span>
-<span id="177">177</span>
-<span id="178">178</span>
-<span id="179">179</span>
-<span id="180">180</span>
-<span id="181">181</span>
-<span id="182">182</span>
-<span id="183">183</span>
-<span id="184">184</span>
-<span id="185">185</span>
-<span id="186">186</span>
-<span id="187">187</span>
-<span id="188">188</span>
-<span id="189">189</span>
-<span id="190">190</span>
-<span id="191">191</span>
-<span id="192">192</span>
-<span id="193">193</span>
-<span id="194">194</span>
-<span id="195">195</span>
-<span id="196">196</span>
-<span id="197">197</span>
-<span id="198">198</span>
-<span id="199">199</span>
-<span id="200">200</span>
-<span id="201">201</span>
-<span id="202">202</span>
-<span id="203">203</span>
-<span id="204">204</span>
-<span id="205">205</span>
-<span id="206">206</span>
-<span id="207">207</span>
-<span id="208">208</span>
-<span id="209">209</span>
-<span id="210">210</span>
-<span id="211">211</span>
-<span id="212">212</span>
-<span id="213">213</span>
-<span id="214">214</span>
-<span id="215">215</span>
-<span id="216">216</span>
-<span id="217">217</span>
-<span id="218">218</span>
-<span id="219">219</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">geom::Percent</span>;
 <span class="kw">use</span> <span class="ident">map_gui::load::MapLoader</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">open_browser</span>, <span class="ident">PopupMsg</span>};
 <span class="kw">use</span> <span class="ident">map_model::PermanentMapEdits</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">DrawBaselayer</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>};
+<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">EventCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">SimpleState</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::edit::apply_map_edits</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sandbox</span>::{<span class="ident">GameplayMode</span>, <span class="ident">SandboxMode</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Proposals</span> {
-    <span class="ident">panel</span>: <span class="ident">Panel</span>,
     <span class="ident">proposals</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">PermanentMapEdits</span><span class="op">&gt;</span>,
     <span class="ident">current</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Proposals</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-        <span class="ident">current</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">current</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">proposals</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tab_buttons</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current_tab_rows</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
@@ -307,20 +258,11 @@
             <span class="ident">proposals</span>.<span class="ident">insert</span>(<span class="ident">name</span>, <span class="ident">edits</span>);
         }
 
-        <span class="kw">let</span> <span class="ident">header</span> <span class="op">=</span> <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_back</span>(<span class="string">&quot;Home&quot;</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">Key::Escape</span>)
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;back&quot;</span>)
-                .<span class="ident">align_bottom</span>(),
-            {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="string">&quot;A/B STREET&quot;</span>).<span class="ident">display_title</span>());
-                <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="string">&quot;PROPOSALS&quot;</span>).<span class="ident">big_heading_styled</span>());
-                <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_horiz</span>().<span class="ident">fill_width</span>()
-            },
-        ]);
-
-        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+                <span class="ident">Line</span>(<span class="string">&quot;Community proposals&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+                <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
+            ]),
             {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span>
                     <span class="ident">Text::from</span>(<span class="string">&quot;These are proposed changes to Seattle made by community members.&quot;</span>);
@@ -331,62 +273,32 @@
                 .<span class="ident">flex_wrap</span>(<span class="ident">ctx</span>, <span class="ident">Percent::int</span>(<span class="number">80</span>))
                 .<span class="ident">margin_above</span>(<span class="number">60</span>),
             <span class="ident">Widget::col</span>(<span class="ident">current_tab_rows</span>),
-        ])
-        .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">panel_bg</span>)
-        .<span class="ident">padding</span>(<span class="number">16</span>);
-
-        <span class="ident">Box::new</span>(<span class="ident">Proposals</span> {
-            <span class="ident">proposals</span>,
-            <span class="ident">panel</span>: <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::custom_col</span>(<span class="macro">vec!</span>[<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[<span class="ident">header</span>, <span class="ident">body</span>])]))
-                .<span class="ident">exact_size_percent</span>(<span class="number">90</span>, <span class="number">85</span>)
-                .<span class="ident">build_custom</span>(<span class="ident">ctx</span>),
-            <span class="ident">current</span>,
-        })
+        ]))
+        .<span class="ident">build</span>(<span class="ident">ctx</span>);
+        <span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new_state</span>(<span class="ident">panel</span>, <span class="ident">Box::new</span>(<span class="ident">Proposals</span> { <span class="ident">proposals</span>, <span class="ident">current</span> }))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Proposals</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;back&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
-                }
-                <span class="string">&quot;Try out this proposal&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">return</span> <span class="ident">launch</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">app</span>,
-                        <span class="self">self</span>.<span class="ident">proposals</span>[<span class="self">self</span>.<span class="ident">current</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>()].<span class="ident">clone</span>(),
-                    );
-                }
-                <span class="string">&quot;Read detailed write-up&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">open_browser</span>(
-                        <span class="self">self</span>.<span class="ident">proposals</span>[<span class="self">self</span>.<span class="ident">current</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>()]
-                            .<span class="ident">proposal_link</span>
-                            .<span class="ident">clone</span>()
-                            .<span class="ident">unwrap</span>(),
-                    );
-                }
-                <span class="ident">x</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">Proposals::new_state</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">app</span>,
-                        <span class="prelude-val">Some</span>(<span class="ident">x</span>.<span class="ident">to_string</span>()),
-                    ));
-                }
+<span class="kw">impl</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Proposals</span> {
+    <span class="kw">fn</span> <span class="ident">on_click</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
+        <span class="kw">match</span> <span class="ident">x</span> {
+            <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition::Pop</span>,
+            <span class="string">&quot;Try out this proposal&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">launch</span>(
+                <span class="ident">ctx</span>,
+                <span class="ident">app</span>,
+                <span class="self">self</span>.<span class="ident">proposals</span>[<span class="self">self</span>.<span class="ident">current</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>()].<span class="ident">clone</span>(),
+            ),
+            <span class="string">&quot;Read detailed write-up&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">open_browser</span>(
+                    <span class="self">self</span>.<span class="ident">proposals</span>[<span class="self">self</span>.<span class="ident">current</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>()]
+                        .<span class="ident">proposal_link</span>
+                        .<span class="ident">clone</span>()
+                        .<span class="ident">unwrap</span>(),
+                );
+                <span class="ident">Transition::Keep</span>
             }
+            <span class="ident">x</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition::Replace</span>(<span class="ident">Proposals::new_state</span>(<span class="ident">ctx</span>, <span class="prelude-val">Some</span>(<span class="ident">x</span>.<span class="ident">to_string</span>()))),
         }
-
-        <span class="ident">Transition::Keep</span>
-    }
-
-    <span class="kw">fn</span> <span class="ident">draw_baselayer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DrawBaselayer</span> {
-        <span class="ident">DrawBaselayer::Custom</span>
-    }
-
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="ident">g</span>.<span class="ident">clear</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">dialog_bg</span>);
-        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
     }
 }
 

@@ -1484,8 +1484,8 @@
 
 <span class="kw">impl</span> <span class="ident">Tutorial</span> {
     <span class="doccomment">/// Launches the tutorial gameplay along with its cutscene</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">start</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
-        <span class="ident">Transition::Push</span>(<span class="ident">MapLoader::new_state</span>(
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">start</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="ident">MapLoader::new_state</span>(
             <span class="ident">ctx</span>,
             <span class="ident">app</span>,
             <span class="ident">MapName::seattle</span>(<span class="string">&quot;montlake&quot;</span>),
@@ -1507,7 +1507,7 @@
                     <span class="ident">Transition::Push</span>(<span class="ident">intro_story</span>(<span class="ident">ctx</span>)),
                 ])
             }),
-        ))
+        )
     }
 
     <span class="doccomment">/// Idempotent. This must be called before `make_gameplay` or `scenario`. The current map must</span>

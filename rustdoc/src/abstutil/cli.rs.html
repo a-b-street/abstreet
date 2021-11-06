@@ -187,6 +187,23 @@
 <span id="187">187</span>
 <span id="188">188</span>
 <span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 <span class="kw">use</span> <span class="ident">std::ffi::OsString</span>;
 
@@ -213,6 +230,23 @@
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
     {
         <span class="ident">std::env::args_os</span>()
+    }
+}
+
+<span class="doccomment">/// Transforms some command-line arguments into URL query parameters, using `&amp;` as the separator</span>
+<span class="doccomment">/// between arguments. The string returned starts with `?`, unless the arguments are all empty.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">args_to_query_string</span>(<span class="ident">args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="comment">// TODO Similar to parse_args forgoing a URL decoding crate, just handle this one</span>
+    <span class="comment">// transformation</span>
+    <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">args</span>
+        .<span class="ident">into_iter</span>()
+        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">replace</span>(<span class="string">&quot; &quot;</span>, <span class="string">&quot;%20&quot;</span>))
+        .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()
+        .<span class="ident">join</span>(<span class="string">&quot;&amp;&quot;</span>);
+    <span class="kw">if</span> <span class="ident">result</span>.<span class="ident">is_empty</span>() {
+        <span class="ident">result</span>
+    } <span class="kw">else</span> {
+        <span class="macro">format!</span>(<span class="string">&quot;?{}&quot;</span>, <span class="ident">result</span>)
     }
 }
 

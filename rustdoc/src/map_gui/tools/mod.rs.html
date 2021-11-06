@@ -324,6 +324,34 @@
 <span id="324">324</span>
 <span id="325">325</span>
 <span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Assorted tools and UI states that&#39;re useful for applications built to display maps.</span>
 
 <span class="kw">use</span> <span class="ident">abstio::MapName</span>;
@@ -338,6 +366,7 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::labels::DrawRoadLabels</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::minimap</span>::{<span class="ident">Minimap</span>, <span class="ident">MinimapControls</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::navigate::Navigator</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::title_screen</span>::{<span class="ident">Executable</span>, <span class="ident">TitleScreen</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::turn_explorer::TurnExplorer</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::ui</span>::{<span class="ident">ChooseSomething</span>, <span class="ident">FilePicker</span>, <span class="ident">PopupMsg</span>, <span class="ident">PromptInput</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::url::URLManager</span>;
@@ -360,6 +389,7 @@
 <span class="kw">mod</span> <span class="ident">labels</span>;
 <span class="kw">mod</span> <span class="ident">minimap</span>;
 <span class="kw">mod</span> <span class="ident">navigate</span>;
+<span class="kw">mod</span> <span class="ident">title_screen</span>;
 <span class="kw">mod</span> <span class="ident">turn_explorer</span>;
 <span class="kw">mod</span> <span class="ident">ui</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
@@ -618,10 +648,14 @@
 <span class="doccomment">/// Returns the path to an executable. Native-only.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find_exe</span>(<span class="ident">cmd</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
     <span class="kw">for</span> <span class="ident">dir</span> <span class="kw">in</span> [
-        <span class="comment">// When running from source</span>
+        <span class="comment">// When running from source, prefer release builds, but fallback to debug. This might be</span>
+        <span class="comment">// confusing when developing and not recompiling in release mode.</span>
         <span class="string">&quot;./target/release&quot;</span>,
         <span class="string">&quot;../target/release&quot;</span>,
         <span class="string">&quot;../../target/release&quot;</span>,
+        <span class="string">&quot;./target/debug&quot;</span>,
+        <span class="string">&quot;../target/debug&quot;</span>,
+        <span class="string">&quot;../../target/debug&quot;</span>,
         <span class="comment">// When running from the .zip release</span>
         <span class="string">&quot;.&quot;</span>,
         <span class="string">&quot;..&quot;</span>,
@@ -649,6 +683,28 @@
         )
         .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::L</span>))
         .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;change map&quot;</span>)
+}
+
+<span class="doccomment">/// A button to return to the title screen</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">home_btn</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+    <span class="ident">ctx</span>.<span class="ident">style</span>()
+        .<span class="ident">btn_plain</span>
+        .<span class="ident">btn</span>()
+        .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/pregame/logo.svg&quot;</span>)
+        .<span class="ident">image_dims</span>(<span class="number">50.0</span>)
+        .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;Home&quot;</span>)
+}
+
+<span class="doccomment">/// A standard way to group a home button back to the title screen, the title of the current app,</span>
+<span class="doccomment">/// and a button to change maps. Callers must handle the `change map` and `home` click events.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">app_header</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>, <span class="ident">title</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+    <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+            <span class="ident">home_btn</span>(<span class="ident">ctx</span>),
+            <span class="ident">Line</span>(<span class="ident">title</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
+        ]),
+        <span class="ident">change_map_btn</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+    ])
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_gui" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>

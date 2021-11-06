@@ -477,6 +477,36 @@
 <span id="477">477</span>
 <span id="478">478</span>
 <span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
 </pre><pre class="rust"><code><span class="comment">// Disable some noisy lints</span>
 <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::too_many_arguments</span>, <span class="ident">clippy::type_complexity</span>)]</span>
 
@@ -528,8 +558,21 @@
     <span class="ident">start_time</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
     <span class="ident">load_kml</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="ident">diff_map</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="ident">ungap</span>: <span class="ident">bool</span>,
-    <span class="ident">ltn</span>: <span class="ident">bool</span>,
+    <span class="comment">// TODO Fold more of Setup into the mutually exclusive Mode. load_kml, maybe_mode, and</span>
+    <span class="comment">// savestate are good candidates...</span>
+    <span class="ident">mode</span>: <span class="ident">Mode</span>,
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>)]</span>
+<span class="kw">enum</span> <span class="ident">Mode</span> {
+    <span class="ident">SomethingElse</span>,
+    <span class="ident">TutorialIntro</span>,
+    <span class="ident">Challenges</span>,
+    <span class="ident">Sandbox</span>,
+    <span class="ident">Proposals</span>,
+    <span class="ident">Ungap</span>,
+    <span class="ident">Ltn</span>,
+    <span class="ident">Devtools</span>,
 }
 
 <span class="kw">fn</span> <span class="ident">run</span>(<span class="kw-2">mut</span> <span class="ident">settings</span>: <span class="ident">Settings</span>) {
@@ -560,8 +603,23 @@
         <span class="ident">start_time</span>: <span class="ident">args</span>.<span class="ident">optional_parse</span>(<span class="string">&quot;--time&quot;</span>, <span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">Duration::parse</span>(<span class="ident">t</span>)),
         <span class="ident">load_kml</span>: <span class="ident">args</span>.<span class="ident">optional</span>(<span class="string">&quot;--kml&quot;</span>),
         <span class="ident">diff_map</span>: <span class="ident">args</span>.<span class="ident">optional</span>(<span class="string">&quot;--diff&quot;</span>),
-        <span class="ident">ungap</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--ungap&quot;</span>),
-        <span class="ident">ltn</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--ltn&quot;</span>),
+        <span class="ident">mode</span>: <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--tutorial-intro&quot;</span>) {
+            <span class="ident">Mode::TutorialIntro</span>
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--challenges&quot;</span>) {
+            <span class="ident">Mode::Challenges</span>
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--sandbox&quot;</span>) {
+            <span class="ident">Mode::Sandbox</span>
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--proposals&quot;</span>) {
+            <span class="ident">Mode::Proposals</span>
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--ungap&quot;</span>) {
+            <span class="ident">Mode::Ungap</span>
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--ltn&quot;</span>) {
+            <span class="ident">Mode::Ltn</span>
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--devtools&quot;</span>) {
+            <span class="ident">Mode::Devtools</span>
+        } <span class="kw">else</span> {
+            <span class="ident">Mode::SomethingElse</span>
+        },
     };
 
     <span class="ident">setup</span>.<span class="ident">opts</span>.<span class="ident">toggle_day_night_colors</span> <span class="op">=</span> <span class="bool-val">true</span>;
@@ -640,8 +698,7 @@
         <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">setup</span>.<span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span>.<span class="ident">contains</span>(<span class="string">&quot;player/save&quot;</span>)
         <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">setup</span>.<span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span>.<span class="ident">contains</span>(<span class="string">&quot;/scenarios/&quot;</span>)
         <span class="op">&amp;&amp;</span> <span class="ident">setup</span>.<span class="ident">maybe_mode</span>.<span class="ident">is_none</span>()
-        <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">setup</span>.<span class="ident">ungap</span>
-        <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">setup</span>.<span class="ident">ltn</span>;
+        <span class="op">&amp;&amp;</span> <span class="ident">setup</span>.<span class="ident">mode</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Mode::SomethingElse</span>;
 
     <span class="comment">// Load the map used previously if we&#39;re starting on the title screen without any overrides.</span>
     <span class="kw">if</span> <span class="ident">title</span> <span class="op">&amp;&amp;</span> <span class="ident">setup</span>.<span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span> <span class="op">=</span><span class="op">=</span> <span class="ident">MapName::seattle</span>(<span class="string">&quot;montlake&quot;</span>).<span class="ident">path</span>() {
@@ -664,10 +721,7 @@
     {
         <span class="ident">setup</span>.<span class="ident">opts</span>.<span class="ident">color_scheme</span> <span class="op">=</span> <span class="ident">map_gui::colors::ColorSchemeChoice::NightMode</span>;
     }
-    <span class="kw">if</span> <span class="ident">title</span> {
-        <span class="ident">setup</span>.<span class="ident">opts</span>.<span class="ident">color_scheme</span> <span class="op">=</span> <span class="ident">map_gui::colors::ColorSchemeChoice::Pregame</span>;
-    }
-    <span class="kw">if</span> <span class="ident">setup</span>.<span class="ident">ungap</span> <span class="op">|</span><span class="op">|</span> <span class="ident">setup</span>.<span class="ident">ltn</span> {
+    <span class="kw">if</span> <span class="ident">setup</span>.<span class="ident">mode</span> <span class="op">!</span><span class="op">=</span> <span class="ident">Mode::SomethingElse</span> {
         <span class="ident">setup</span>.<span class="ident">opts</span>.<span class="ident">color_scheme</span> <span class="op">=</span> <span class="ident">map_gui::colors::ColorSchemeChoice::DayMode</span>;
     }
     <span class="kw">let</span> <span class="ident">cs</span> <span class="op">=</span> <span class="ident">map_gui::colors::ColorScheme::new</span>(<span class="ident">ctx</span>, <span class="ident">setup</span>.<span class="ident">opts</span>.<span class="ident">color_scheme</span>);
@@ -870,7 +924,7 @@
     <span class="ident">edits</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MapEdits</span><span class="op">&gt;</span>,
     <span class="ident">setup</span>: <span class="ident">Setup</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="ident">setup</span>.<span class="ident">ungap</span> {
+    <span class="kw">if</span> <span class="ident">setup</span>.<span class="ident">mode</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Mode::Ungap</span> {
         <span class="ident">app</span>.<span class="ident">store_unedited_map_in_secondary</span> <span class="op">=</span> <span class="bool-val">true</span>;
     }
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">edits</span>) <span class="op">=</span> <span class="ident">edits</span> {
@@ -887,60 +941,66 @@
         <span class="ident"><span class="kw">crate</span>::sandbox::gameplay::Tutorial::initialize</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
     }
 
-    <span class="kw">let</span> <span class="ident">states</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">setup</span>.<span class="ident">load_kml</span> {
-        <span class="macro">vec!</span>[
-            <span class="ident">Box::new</span>(<span class="ident">TitleScreen::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
-            <span class="ident"><span class="kw">crate</span>::devtools::kml::ViewKML::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">Some</span>(<span class="ident">path</span>)),
-        ]
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">title</span> {
-        <span class="macro">vec!</span>[<span class="ident">Box::new</span>(<span class="ident">TitleScreen::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))]
+    <span class="kw">if</span> <span class="ident">title</span> {
+        <span class="kw">return</span> <span class="macro">vec!</span>[<span class="ident">TitleScreen::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)];
+    }
+
+    <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">setup</span>.<span class="ident">load_kml</span> {
+        <span class="ident"><span class="kw">crate</span>::devtools::kml::ViewKML::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">Some</span>(<span class="ident">path</span>))
     } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ss</span>) <span class="op">=</span> <span class="ident">savestate</span> {
         <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span> <span class="op">=</span> <span class="ident">ss</span>;
-        <span class="macro">vec!</span>[<span class="ident">SandboxMode::start_from_savestate</span>(<span class="ident">app</span>)]
+        <span class="ident">SandboxMode::start_from_savestate</span>(<span class="ident">app</span>)
     } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">mode</span>) <span class="op">=</span> <span class="ident">setup</span>.<span class="ident">maybe_mode</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">GameplayMode::Actdev</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">mode</span> {
-            <span class="macro">vec!</span>[<span class="ident">SandboxMode::async_new</span>(
-                <span class="ident">app</span>,
-                <span class="ident">mode</span>,
-                <span class="ident">jump_to_time_upon_startup</span>(<span class="ident">Duration::hours</span>(<span class="number">8</span>)),
-            )]
+            <span class="ident">SandboxMode::async_new</span>(<span class="ident">app</span>, <span class="ident">mode</span>, <span class="ident">jump_to_time_upon_startup</span>(<span class="ident">Duration::hours</span>(<span class="number">8</span>)))
         } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">setup</span>.<span class="ident">start_time</span> {
-            <span class="macro">vec!</span>[<span class="ident">SandboxMode::async_new</span>(
-                <span class="ident">app</span>,
-                <span class="ident">mode</span>,
-                <span class="ident">jump_to_time_upon_startup</span>(<span class="ident">t</span>),
-            )]
+            <span class="ident">SandboxMode::async_new</span>(<span class="ident">app</span>, <span class="ident">mode</span>, <span class="ident">jump_to_time_upon_startup</span>(<span class="ident">t</span>))
         } <span class="kw">else</span> {
-            <span class="macro">vec!</span>[<span class="ident">SandboxMode::simple_new</span>(<span class="ident">app</span>, <span class="ident">mode</span>)]
+            <span class="ident">SandboxMode::simple_new</span>(<span class="ident">app</span>, <span class="ident">mode</span>)
         }
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">setup</span>.<span class="ident">ungap</span> {
-        <span class="kw">let</span> <span class="ident">layers</span> <span class="op">=</span> <span class="ident">ungap::Layers::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-        <span class="macro">vec!</span>[<span class="ident">ungap::ExploreMap::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">layers</span>)]
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">setup</span>.<span class="ident">ltn</span> {
-        <span class="macro">vec!</span>[<span class="ident">ltn::BrowseNeighborhoods::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)]
     } <span class="kw">else</span> {
-        <span class="comment">// Not attempting to keep the primary and secondary simulations synchronized at the same</span>
-        <span class="comment">// time yet. Just handle this one startup case, so we can switch maps without constantly</span>
-        <span class="comment">// flopping day/night mode.</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">secondary</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">secondary</span> {
-            <span class="ident">secondary</span>.<span class="ident">sim</span>.<span class="ident">timed_step</span>(
-                <span class="kw-2">&amp;</span><span class="ident">secondary</span>.<span class="ident">map</span>,
-                <span class="ident">Duration::hours</span>(<span class="number">6</span>),
-                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-val">None</span>,
-                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer::throwaway</span>(),
-            );
+        <span class="kw">match</span> <span class="ident">setup</span>.<span class="ident">mode</span> {
+            <span class="ident">Mode::SomethingElse</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="comment">// Not attempting to keep the primary and secondary simulations synchronized at the</span>
+                <span class="comment">// same time yet. Just handle this one startup case, so we can switch maps without</span>
+                <span class="comment">// constantly flopping day/night mode.</span>
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">secondary</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">secondary</span> {
+                    <span class="ident">secondary</span>.<span class="ident">sim</span>.<span class="ident">timed_step</span>(
+                        <span class="kw-2">&amp;</span><span class="ident">secondary</span>.<span class="ident">map</span>,
+                        <span class="ident">Duration::hours</span>(<span class="number">6</span>),
+                        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-val">None</span>,
+                        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer::throwaway</span>(),
+                    );
+                }
+
+                <span class="comment">// We got here by just passing --dev and a map as flags; we&#39;re just looking at an</span>
+                <span class="comment">// empty map. Start in the daytime.</span>
+                <span class="ident">SandboxMode::async_new</span>(
+                    <span class="ident">app</span>,
+                    <span class="ident">GameplayMode::Freeform</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">clone</span>()),
+                    <span class="ident">jump_to_time_upon_startup</span>(<span class="ident">Duration::hours</span>(<span class="number">6</span>)),
+                )
+            }
+            <span class="ident">Mode::TutorialIntro</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">sandbox::gameplay::Tutorial::start</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+            <span class="ident">Mode::Challenges</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">challenges::ChallengesPicker::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+            <span class="ident">Mode::Sandbox</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SandboxMode::simple_new</span>(
+                <span class="ident">app</span>,
+                <span class="ident">GameplayMode::PlayScenario</span>(
+                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">clone</span>(),
+                    <span class="ident">pregame::default_scenario_for_map</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()),
+                    <span class="ident">Vec::new</span>(),
+                ),
+            ),
+            <span class="ident">Mode::Proposals</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">pregame::proposals::Proposals::new_state</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
+            <span class="ident">Mode::Ungap</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">let</span> <span class="ident">layers</span> <span class="op">=</span> <span class="ident">ungap::Layers::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                <span class="ident">ungap::ExploreMap::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">layers</span>)
+            }
+            <span class="ident">Mode::Ltn</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ltn::BrowseNeighborhoods::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+            <span class="ident">Mode::Devtools</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">devtools::DevToolsMode::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
         }
-
-        <span class="comment">// We got here by just passing --dev and a map as flags; we&#39;re just looking at an empty</span>
-        <span class="comment">// map. Start in the daytime.</span>
-        <span class="macro">vec!</span>[<span class="ident">SandboxMode::async_new</span>(
-            <span class="ident">app</span>,
-            <span class="ident">GameplayMode::Freeform</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">clone</span>()),
-            <span class="ident">jump_to_time_upon_startup</span>(<span class="ident">Duration::hours</span>(<span class="number">6</span>)),
-        )]
     };
-
-    <span class="ident">states</span>
+    <span class="macro">vec!</span>[<span class="ident">TitleScreen::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>), <span class="ident">state</span>]
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>

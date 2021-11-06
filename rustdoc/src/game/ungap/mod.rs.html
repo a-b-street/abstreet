@@ -190,45 +190,6 @@
 <span id="190">190</span>
 <span id="191">191</span>
 <span id="192">192</span>
-<span id="193">193</span>
-<span id="194">194</span>
-<span id="195">195</span>
-<span id="196">196</span>
-<span id="197">197</span>
-<span id="198">198</span>
-<span id="199">199</span>
-<span id="200">200</span>
-<span id="201">201</span>
-<span id="202">202</span>
-<span id="203">203</span>
-<span id="204">204</span>
-<span id="205">205</span>
-<span id="206">206</span>
-<span id="207">207</span>
-<span id="208">208</span>
-<span id="209">209</span>
-<span id="210">210</span>
-<span id="211">211</span>
-<span id="212">212</span>
-<span id="213">213</span>
-<span id="214">214</span>
-<span id="215">215</span>
-<span id="216">216</span>
-<span id="217">217</span>
-<span id="218">218</span>
-<span id="219">219</span>
-<span id="220">220</span>
-<span id="221">221</span>
-<span id="222">222</span>
-<span id="223">223</span>
-<span id="224">224</span>
-<span id="225">225</span>
-<span id="226">226</span>
-<span id="227">227</span>
-<span id="228">228</span>
-<span id="229">229</span>
-<span id="230">230</span>
-<span id="231">231</span>
 </pre><pre class="rust"><code><span class="kw">mod</span> <span class="ident">bike_network</span>;
 <span class="kw">mod</span> <span class="ident">explore</span>;
 <span class="kw">mod</span> <span class="ident">layers</span>;
@@ -238,10 +199,10 @@
 <span class="kw">mod</span> <span class="ident">trip</span>;
 
 <span class="kw">use</span> <span class="ident">geom::CornerRadii</span>;
-<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">grey_out_map</span>, <span class="ident">open_browser</span>, <span class="ident">CityPicker</span>};
+<span class="kw">use</span> <span class="ident">map_gui::tools::CityPicker</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">ScreenDims</span>, <span class="ident">SimpleState</span>, <span class="ident">State</span>, <span class="ident">Text</span>,
-    <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>, <span class="ident">DEFAULT_CORNER_RADIUS</span>,
+    <span class="ident">EventCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">ScreenDims</span>, <span class="ident">State</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">DEFAULT_CORNER_RADIUS</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::explore::ExploreMap</span>;
@@ -270,13 +231,10 @@
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">contents</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">contents</span>.<span class="ident">section</span>(<span class="ident">ctx</span>));
 
+        <span class="comment">// map_gui::tools::app_header uses 2 rows, but we&#39;ve tuned the horizontal space here. It&#39;s</span>
+        <span class="comment">// nicer to fit on one row.</span>
         <span class="kw">let</span> <span class="ident">header</span> <span class="op">=</span> <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain</span>
-                .<span class="ident">btn</span>()
-                .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/pregame/logo.svg&quot;</span>)
-                .<span class="ident">image_dims</span>(<span class="number">50.0</span>)
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;about A/B Street&quot;</span>),
+            <span class="ident">map_gui::tools::home_btn</span>(<span class="ident">ctx</span>),
             <span class="ident">Line</span>(<span class="string">&quot;Ungap the Map&quot;</span>)
                 .<span class="ident">small_heading</span>()
                 .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
@@ -372,7 +330,7 @@
         <span class="ident">action</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">action</span> {
-            <span class="string">&quot;about A/B Street&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">About::new_state</span>(<span class="ident">ctx</span>))),
+            <span class="string">&quot;Home&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Pop</span>),
             <span class="string">&quot;change map&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">CityPicker::new_state</span>(
                     <span class="ident">ctx</span>,
@@ -422,42 +380,6 @@
             }))),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
         }
-    }
-}
-
-<span class="kw">struct</span> <span class="ident">About</span>;
-
-<span class="kw">impl</span> <span class="ident">About</span> {
-    <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">Line</span>(<span class="string">&quot;About A/B Street&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
-            ]),
-            <span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
-                <span class="ident">Line</span>(<span class="string">&quot;Created by Dustin Carlino, Yuwen Li, &amp; Michael Kirk&quot;</span>).<span class="ident">small</span>(),
-                <span class="ident">Line</span>(<span class="string">&quot;Data from OpenStreetMap, King County GIS, King County LIDAR&quot;</span>).<span class="ident">small</span>(),
-            ])
-            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;Read more&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-        ]))
-        .<span class="ident">build</span>(<span class="ident">ctx</span>);
-        <span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new_state</span>(<span class="ident">panel</span>, <span class="ident">Box::new</span>(<span class="ident">About</span>))
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">About</span> {
-    <span class="kw">fn</span> <span class="ident">on_click</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
-        <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;close&quot;</span> {
-            <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;Read more&quot;</span> {
-            <span class="ident">open_browser</span>(<span class="string">&quot;https://a-b-street.github.io/docs/software/ungap_the_map/index.html&quot;</span>);
-        }
-        <span class="ident">Transition::Keep</span>
-    }
-
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="ident">grey_out_map</span>(<span class="ident">g</span>, <span class="ident">app</span>);
     }
 }
 </code></pre></div>

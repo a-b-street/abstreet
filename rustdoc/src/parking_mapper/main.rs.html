@@ -15,6 +15,14 @@
 <span id="15">15</span>
 <span id="16">16</span>
 <span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
 </pre><pre class="rust"><code><span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
 
@@ -28,7 +36,15 @@
         .<span class="ident">canvas_settings</span>(<span class="ident">options</span>.<span class="ident">canvas_settings</span>.<span class="ident">clone</span>());
     <span class="ident">widgetry::run</span>(<span class="ident">settings</span>, <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> {
         <span class="ident">map_gui::SimpleApp::new</span>(<span class="ident">ctx</span>, <span class="ident">options</span>, (), <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-            <span class="macro">vec!</span>[<span class="ident">mapper::ParkingMapper::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)]
+            <span class="macro">vec!</span>[
+                <span class="ident">map_gui::tools::TitleScreen::new_state</span>(
+                    <span class="ident">ctx</span>,
+                    <span class="ident">app</span>,
+                    <span class="ident">map_gui::tools::Executable::ParkingMapper</span>,
+                    <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw">_</span><span class="op">|</span> <span class="ident">mapper::ParkingMapper::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
+                ),
+                <span class="ident">mapper::ParkingMapper::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+            ]
         })
     });
 }
