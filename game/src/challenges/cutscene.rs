@@ -1,7 +1,7 @@
 use map_gui::tools::grey_out_map;
 use widgetry::{
-    hotkeys, ButtonStyle, Color, ControlState, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Image,
-    Key, Line, Outcome, Panel, State, Text, Widget,
+    hotkeys, ButtonStyle, Color, ControlState, EventCtx, GeomBatch, GfxCtx, Image, Key, Line,
+    Outcome, Panel, State, Text, Widget,
 };
 
 use crate::app::App;
@@ -126,13 +126,7 @@ impl State<App> for CutscenePlayer {
         Transition::Keep
     }
 
-    fn draw_baselayer(&self) -> DrawBaselayer {
-        DrawBaselayer::Custom
-    }
-
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
-        // Happens to be a nice background color too ;)
-        g.clear(app.cs.dialog_bg);
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.panel.draw(g);
     }
 }
@@ -242,13 +236,15 @@ fn make_panel(
     };
 
     let col = vec![
-        // TODO Can't get this to alignment to work
-        Widget::custom_row(vec![
+        Widget::row(vec![
+            Line(name).small_heading().into_widget(ctx),
+            // TODO This is the only use of btn_back now. Having the escape key of btn_close is
+            // confusing here, since some people might press it to mean "skip cutscene." But maybe
+            // some other sub-menus should use btn_back as well.
             ctx.style()
                 .btn_back("Home")
                 .build_widget(ctx, "quit")
-                .margin_right(100),
-            Line(name).big_heading_styled().into_widget(ctx),
+                .align_right(),
         ])
         .margin_below(40),
         inner
@@ -258,9 +254,7 @@ fn make_panel(
             .outline(ctx.style().btn_solid.outline),
     ];
 
-    Panel::new_builder(Widget::custom_col(col))
-        .exact_size_percent(80, 80)
-        .build_custom(ctx)
+    Panel::new_builder(Widget::col(col)).build(ctx)
 }
 
 pub struct ShowMessage {

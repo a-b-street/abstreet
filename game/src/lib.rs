@@ -482,7 +482,7 @@ fn finish_app_setup(
                     Vec::new(),
                 ),
             ),
-            Mode::Proposals => pregame::proposals::Proposals::new_state(ctx, app, None),
+            Mode::Proposals => pregame::proposals::Proposals::new_state(ctx, None),
             Mode::Ungap => {
                 let layers = ungap::Layers::new(ctx, app);
                 ungap::ExploreMap::new_state(ctx, app, layers)

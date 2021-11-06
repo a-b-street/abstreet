@@ -10,7 +10,7 @@ use geom::Duration;
 use map_model::{EditCmd, EditIntersection, MapEdits};
 use sim::{OrigPersonID, Scenario, ScenarioGenerator, ScenarioModifier};
 use widgetry::{
-    lctrl, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, State, TextExt, Widget,
+    lctrl, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, State, TextExt, Widget,
 };
 
 pub use self::freeform::spawn_agents_around;
@@ -249,48 +249,42 @@ pub struct FinalScore {
 impl FinalScore {
     pub fn new_state(
         ctx: &mut EventCtx,
-        app: &App,
         msg: String,
         mode: GameplayMode,
         next_mode: Option<GameplayMode>,
     ) -> Box<dyn State<App>> {
         Box::new(FinalScore {
-            panel: Panel::new_builder(
-                Widget::custom_row(vec![
-                    GeomBatch::load_svg(ctx, "system/assets/characters/boss.svg.gz")
-                        .scale(0.75)
-                        .autocrop()
-                        .into_widget(ctx)
-                        .container()
-                        .outline((10.0, Color::BLACK))
-                        .padding(10),
-                    Widget::col(vec![
-                        msg.text_widget(ctx),
-                        // TODO Adjust wording
+            panel: Panel::new_builder(Widget::row(vec![
+                GeomBatch::load_svg(ctx, "system/assets/characters/boss.svg.gz")
+                    .scale(0.75)
+                    .autocrop()
+                    .into_widget(ctx)
+                    .container()
+                    .section(ctx),
+                Widget::col(vec![
+                    msg.text_widget(ctx),
+                    // TODO Adjust wording
+                    ctx.style()
+                        .btn_outline
+                        .text("Keep simulating")
+                        .build_def(ctx),
+                    ctx.style().btn_outline.text("Try again").build_def(ctx),
+                    if next_mode.is_some() {
                         ctx.style()
-                            .btn_outline
-                            .text("Keep simulating")
-                            .build_def(ctx),
-                        ctx.style().btn_outline.text("Try again").build_def(ctx),
-                        if next_mode.is_some() {
-                            ctx.style()
-                                .btn_solid_primary
-                                .text("Next challenge")
-                                .build_def(ctx)
-                        } else {
-                            Widget::nothing()
-                        },
-                        ctx.style()
-                            .btn_outline
-                            .text("Back to challenges")
-                            .build_def(ctx),
-                    ])
-                    .outline((10.0, Color::BLACK))
-                    .padding(10),
+                            .btn_solid_primary
+                            .text("Next challenge")
+                            .build_def(ctx)
+                    } else {
+                        Widget::nothing()
+                    },
+                    ctx.style()
+                        .btn_outline
+                        .text("Back to challenges")
+                        .build_def(ctx),
                 ])
-                .bg(app.cs.panel_bg),
-            )
-            .build_custom(ctx),
+                .section(ctx),
+            ]))
+            .build(ctx),
             retry: mode,
             next_mode,
             chose_next: false,
@@ -367,9 +361,7 @@ impl State<App> for FinalScore {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
-        // Happens to be a nice background color too ;)
-        g.clear(app.cs.dialog_bg);
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.panel.draw(g);
     }
 }

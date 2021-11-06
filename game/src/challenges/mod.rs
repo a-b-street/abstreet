@@ -2,9 +2,7 @@ use std::collections::BTreeMap;
 
 use geom::{Duration, Percent};
 use sim::OrigPersonID;
-use widgetry::{
-    DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text, TextExt, Widget,
-};
+use widgetry::{EventCtx, Key, Line, Panel, SimpleState, State, Text, TextExt, Widget};
 
 use crate::app::App;
 use crate::app::Transition;
@@ -114,7 +112,6 @@ impl Challenge {
 }
 
 pub struct ChallengesPicker {
-    panel: Panel,
     links: BTreeMap<String, (String, usize)>,
     challenge: Option<Challenge>,
 }
@@ -131,25 +128,16 @@ impl ChallengesPicker {
     ) -> Box<dyn State<App>> {
         let mut links = BTreeMap::new();
         let mut master_col = vec![
-            ctx.style()
-                .btn_back("Home")
-                .hotkey(Key::Escape)
-                .build_widget(ctx, "back")
-                .align_left(),
-            Text::from_multiline(vec![
-                Line("A/B STREET").display_title(),
-                Line("CHALLENGES").big_heading_styled(),
-            ])
-            .into_widget(ctx)
-            .centered_horiz(),
+            Widget::row(vec![
+                Line("Challenges").small_heading().into_widget(ctx),
+                ctx.style().btn_close_widget(ctx),
+            ]),
             ctx.style()
                 .btn_outline
                 .text("Introduction and tutorial")
                 .build_def(ctx)
-                .centered_horiz()
-                .bg(app.cs.panel_bg)
-                .padding(16)
-                .outline(ctx.style().btn_solid.outline),
+                .container()
+                .section(ctx),
         ];
 
         // First list challenges
@@ -172,9 +160,7 @@ impl ChallengesPicker {
         master_col.push(
             Widget::custom_row(flex_row)
                 .flex_wrap(ctx, Percent::int(80))
-                .bg(app.cs.panel_bg)
-                .padding(16)
-                .outline(ctx.style().btn_solid.outline),
+                .section(ctx),
         );
 
         let mut main_row = Vec::new();
@@ -197,12 +183,7 @@ impl ChallengesPicker {
                 );
                 links.insert(stage.title, (name.to_string(), idx));
             }
-            main_row.push(
-                Widget::col(col)
-                    .bg(app.cs.panel_bg)
-                    .padding(16)
-                    .outline(ctx.style().btn_solid.outline),
-            );
+            main_row.push(Widget::col(col).section(ctx));
         }
 
         // Describe the specific stage
@@ -239,76 +220,54 @@ impl ChallengesPicker {
                 inner_col.push("No attempts yet".text_widget(ctx));
             }
 
-            main_row.push(
-                Widget::col(inner_col)
-                    .bg(app.cs.panel_bg)
-                    .padding(16)
-                    .outline(ctx.style().btn_solid.outline),
-            );
+            main_row.push(Widget::col(inner_col).section(ctx));
             current_challenge = Some(challenge);
         }
 
         master_col.push(Widget::row(main_row));
 
-        Box::new(ChallengesPicker {
-            panel: Panel::new_builder(Widget::col(master_col))
-                .exact_size_percent(90, 85)
-                .build_custom(ctx),
-            links,
-            challenge: current_challenge,
-        })
+        let panel = Panel::new_builder(Widget::col(master_col)).build(ctx);
+        <dyn SimpleState<_>>::new_state(
+            panel,
+            Box::new(ChallengesPicker {
+                links,
+                challenge: current_challenge,
+            }),
+        )
     }
 }
 
-impl State<App> for ChallengesPicker {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
-                "back" => Transition::Pop,
-                "Introduction and tutorial" => Transition::Replace(Tutorial::start(ctx, app)),
-                "Start!" => {
-                    #[cfg(not(target_arch = "wasm32"))]
-                    {
-                        let map_name = self
-                            .challenge
-                            .as_ref()
-                            .map(|c| c.gameplay.map_name())
-                            .unwrap();
-                        if !abstio::file_exists(map_name.path()) {
-                            return map_gui::tools::prompt_to_download_missing_data(ctx, map_name);
-                        }
+impl SimpleState<App> for ChallengesPicker {
+    fn on_click(&mut self, ctx: &mut EventCtx, app: &mut App, x: &str, _: &Panel) -> Transition {
+        match x {
+            "close" => Transition::Pop,
+            "Introduction and tutorial" => Transition::Replace(Tutorial::start(ctx, app)),
+            "Start!" => {
+                #[cfg(not(target_arch = "wasm32"))]
+                {
+                    let map_name = self
+                        .challenge
+                        .as_ref()
+                        .map(|c| c.gameplay.map_name())
+                        .unwrap();
+                    if !abstio::file_exists(map_name.path()) {
+                        return map_gui::tools::prompt_to_download_missing_data(ctx, map_name);
                     }
+                }
 
-                    let challenge = self.challenge.take().unwrap();
-                    // Constructing the cutscene doesn't require the map/scenario to be loaded
-                    let sandbox = SandboxMode::simple_new(app, challenge.gameplay.clone());
-                    if let Some(cutscene) = challenge.cutscene {
-                        Transition::Multi(vec![
-                            Transition::Replace(sandbox),
-                            Transition::Push(cutscene(ctx, app, &challenge.gameplay)),
-                        ])
-                    } else {
-                        Transition::Replace(sandbox)
-                    }
+                let challenge = self.challenge.take().unwrap();
+                // Constructing the cutscene doesn't require the map/scenario to be loaded
+                let sandbox = SandboxMode::simple_new(app, challenge.gameplay.clone());
+                if let Some(cutscene) = challenge.cutscene {
+                    Transition::Multi(vec![
+                        Transition::Replace(sandbox),
+                        Transition::Push(cutscene(ctx, app, &challenge.gameplay)),
+                    ])
+                } else {
+                    Transition::Replace(sandbox)
                 }
-                x => {
-                    return Transition::Replace(ChallengesPicker::make(
-                        ctx,
-                        app,
-                        self.links.remove(x),
-                    ));
-                }
-            },
-            _ => Transition::Keep,
+            }
+            x => Transition::Replace(ChallengesPicker::make(ctx, app, self.links.remove(x))),
         }
-    }
-
-    fn draw_baselayer(&self) -> DrawBaselayer {
-        DrawBaselayer::Custom
-    }
-
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
-        g.clear(app.cs.dialog_bg);
-        self.panel.draw(g);
     }
 }
