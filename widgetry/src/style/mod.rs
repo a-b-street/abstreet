@@ -187,40 +187,6 @@ impl Style {
         }
     }
 
-    pub fn pregame() -> Style {
-        Style {
-            panel_bg: Color::grey(0.4),
-            field_bg: Color::grey(0.3),
-            dropdown_border: Color::WHITE,
-            section_bg: Color::grey(0.5),
-            section_outline: (2.0, Color::WHITE),
-            loading_tips: Text::new(),
-            icon_fg: Color::WHITE,
-            primary_fg: AB_ORANGE_1,
-            text_primary_color: Color::WHITE,
-            text_secondary_color: Color::WHITE.shade(0.2),
-            text_hotkey_color: Color::GREEN,
-            text_tooltip_color: Color::WHITE,
-            text_destructive_color: hex("#EB3223"),
-            btn_tab: ButtonStyle {
-                fg: hex("#4C4C4C").tint(0.2),
-                fg_disabled: hex("#4C4C4C"),
-                bg: Color::CLEAR,
-                bg_hover: hex("#4C4C4C").alpha(0.1),
-                bg_disabled: Color::WHITE,
-                outline: (0.0, Color::CLEAR),
-            },
-            btn_outline: ButtonStyle::outline_light_fg(),
-            btn_solid: ButtonStyle::solid_dark_fg(),
-            btn_plain: ButtonStyle::plain_light_fg(),
-            btn_floating: ButtonStyle::solid_light_fg(),
-            btn_solid_destructive: ButtonStyle::solid_destructive(),
-            btn_plain_destructive: ButtonStyle::plain_destructive(),
-            btn_solid_primary: ButtonStyle::solid_primary(),
-            btn_plain_primary: ButtonStyle::plain_primary(),
-        }
-    }
-
     pub fn dark_bg() -> Style {
         let navy = hex("#003046");
         Style {

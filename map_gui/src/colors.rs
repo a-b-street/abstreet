@@ -28,7 +28,6 @@ use crate::tools::{loading_tips, ColorScale};
 pub enum ColorSchemeChoice {
     DayMode,
     NightMode,
-    Pregame,
     Textured,
     ClassicDayMode,
 }
@@ -38,7 +37,6 @@ impl ColorSchemeChoice {
         vec![
             Choice::new("day mode", ColorSchemeChoice::DayMode),
             Choice::new("night mode", ColorSchemeChoice::NightMode),
-            Choice::new("pregame", ColorSchemeChoice::Pregame),
             Choice::new("textured", ColorSchemeChoice::Textured),
             Choice::new("classic", ColorSchemeChoice::ClassicDayMode),
         ]
@@ -153,19 +151,11 @@ impl ColorScheme {
         let mut cs = match scheme {
             ColorSchemeChoice::DayMode => ColorScheme::day_mode(),
             ColorSchemeChoice::NightMode => ColorScheme::night_mode(),
-            ColorSchemeChoice::Pregame => ColorScheme::pregame(),
             ColorSchemeChoice::Textured => ColorScheme::textured(),
             ColorSchemeChoice::ClassicDayMode => ColorScheme::classic(),
         };
         cs.scheme = scheme;
         ctx.set_style(cs.gui_style.clone());
-        cs
-    }
-
-    // TODO This is still based on classic
-    fn pregame() -> ColorScheme {
-        let mut cs = Self::light_background(Style::pregame());
-        cs.scheme = ColorSchemeChoice::Pregame;
         cs
     }
 

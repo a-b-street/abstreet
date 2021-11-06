@@ -285,7 +285,7 @@ struct BackToTitleScreen;
 
 impl State<App> for BackToTitleScreen {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        app.change_color_scheme(ctx, ColorSchemeChoice::Pregame);
+        app.change_color_scheme(ctx, ColorSchemeChoice::DayMode);
         app.clear_everything(ctx);
         Transition::Clear(vec![TitleScreen::new_state(ctx, app)])
     }
