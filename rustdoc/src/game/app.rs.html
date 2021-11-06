@@ -894,8 +894,13 @@
 <span id="894">894</span>
 <span id="895">895</span>
 <span id="896">896</span>
+<span id="897">897</span>
+<span id="898">898</span>
+<span id="899">899</span>
+<span id="900">900</span>
+<span id="901">901</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
-<span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
+<span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">maplit::btreemap</span>;
@@ -910,7 +915,7 @@
 <span class="kw">use</span> <span class="ident">map_gui::tools::CameraState</span>;
 <span class="kw">use</span> <span class="ident">map_gui::ID</span>;
 <span class="kw">use</span> <span class="ident">map_model::AreaType</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BufferType</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">Traversable</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BufferType</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">RoadID</span>, <span class="ident">Traversable</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">AgentID</span>, <span class="ident">Analytics</span>, <span class="ident">Scenario</span>, <span class="ident">Sim</span>, <span class="ident">SimCallback</span>, <span class="ident">SimFlags</span>, <span class="ident">VehicleType</span>};
 <span class="kw">use</span> <span class="ident">widgetry::mapspace::ToggleZoomed</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Cached</span>, <span class="ident">Canvas</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Prerender</span>, <span class="ident">SharedAppState</span>, <span class="ident">State</span>};
@@ -1652,6 +1657,9 @@
     <span class="kw">pub</span> <span class="ident">ungap_current_trip_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="comment">// Map and edit change key</span>
     <span class="kw">pub</span> <span class="ident">mode_shift</span>: <span class="ident">Cached</span><span class="op">&lt;</span>(<span class="ident">MapName</span>, <span class="ident">usize</span>), <span class="ident"><span class="kw">crate</span>::ungap::ModeShiftData</span><span class="op">&gt;</span>,
+
+    <span class="comment">// Specific to LTN</span>
+    <span class="kw">pub</span> <span class="ident">modal_filters</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">SessionState</span> {
@@ -1674,6 +1682,8 @@
             <span class="ident">routing_preferences</span>: <span class="ident"><span class="kw">crate</span>::ungap::RoutingPreferences::default</span>(),
             <span class="ident">ungap_current_trip_name</span>: <span class="prelude-val">None</span>,
             <span class="ident">mode_shift</span>: <span class="ident">Cached::new</span>(),
+
+            <span class="ident">modal_filters</span>: <span class="ident">BTreeSet::new</span>(),
         }
     }
 }
