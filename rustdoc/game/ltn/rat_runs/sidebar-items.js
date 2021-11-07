@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["find_rat_runs","Ideally this returns every possible path through the neighborhood between two borders. Doesn’t work correctly yet."],["find_rat_runs_from",""]],"struct":[["BrowseRatRuns",""],["Item",""],["RatRun",""]]});
