@@ -465,7 +465,7 @@
             <span class="self">self</span>.<span class="ident">recreate_panels</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
 
             <span class="kw">let</span> (<span class="ident">before</span>, <span class="ident">after</span>, <span class="ident">done</span>) <span class="op">=</span> <span class="ident">get_score</span>(<span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">trips</span>);
-            <span class="kw">if</span> <span class="ident">done</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">len</span>() <span class="op">|</span><span class="op">|</span> <span class="bool-val">true</span> {
+            <span class="kw">if</span> <span class="ident">done</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">len</span>() {
                 <span class="self">self</span>.<span class="ident">done</span> <span class="op">=</span> <span class="bool-val">true</span>;
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">final_score</span>(
                     <span class="ident">ctx</span>,
