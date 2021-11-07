@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["COLORS",""]],"enum":[["Obj",""]],"fn":[["make_world",""]],"struct":[["Viewer",""]]});
+initSidebarItems({"enum":[["Obj",""]],"fn":[["make_world",""]],"struct":[["Viewer",""]]});

@@ -159,6 +159,7 @@
 <span id="159">159</span>
 <span id="160">160</span>
 <span id="161">161</span>
+<span id="162">162</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Line</span>, <span class="ident">Polygon</span>};
@@ -170,9 +171,10 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">browse::BrowseNeighborhoods</span>;
 
 <span class="kw">mod</span> <span class="ident">browse</span>;
+<span class="kw">mod</span> <span class="ident">draw_cells</span>;
 <span class="kw">mod</span> <span class="ident">viewer</span>;
 
-<span class="kw">struct</span> <span class="ident">Neighborhood</span> {
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Neighborhood</span> {
     <span class="comment">// These&#39;re fixed</span>
     <span class="ident">orig_perimeter</span>: <span class="ident">Perimeter</span>,
     <span class="ident">perimeter</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>,
