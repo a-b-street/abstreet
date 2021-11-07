@@ -9,7 +9,7 @@ use petgraph::graphmap::DiGraphMap;
 use geom::Duration;
 
 pub use self::walking::{all_walking_costs_from, WalkingOptions};
-use crate::pathfind::zone_cost;
+pub use crate::pathfind::zone_cost;
 pub use crate::pathfind::{vehicle_cost, WalkingNode};
 use crate::{BuildingID, DirectedRoadID, IntersectionID, LaneID, Map, PathConstraints};
 

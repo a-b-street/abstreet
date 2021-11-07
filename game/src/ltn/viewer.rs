@@ -3,8 +3,8 @@ use map_gui::tools::{CityPicker, DrawRoadLabels};
 use map_model::{Block, RoadID};
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::{
-    Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State,
-    TextExt, Toggle, VerticalAlignment, Widget,
+    Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, State, TextExt,
+    Toggle, VerticalAlignment, Widget,
 };
 
 use super::{BrowseNeighborhoods, Neighborhood};
@@ -26,21 +26,24 @@ impl ObjectID for Obj {}
 impl Viewer {
     pub fn new_state(ctx: &mut EventCtx, app: &App, block: &Block) -> Box<dyn State<App>> {
         let panel = Panel::new_builder(Widget::col(vec![
-            Widget::row(vec![
-                Line("LTN tool").small_heading().into_widget(ctx),
-                map_gui::tools::change_map_btn(ctx, app)
-                    .centered_vert()
-                    .align_right(),
-            ]),
+            map_gui::tools::app_header(ctx, app, "LTN tool"),
             ctx.style()
                 .btn_outline
                 .text("Browse neighborhoods")
                 .hotkey(Key::Escape)
                 .build_def(ctx),
+            ctx.style()
+                .btn_outline
+                .text("Browse rat-runs")
+                .disabled(true)
+                .disabled_tooltip("Currently broken, coming soon...")
+                .hotkey(Key::R)
+                .build_def(ctx),
             Widget::row(vec![
                 "Draw traffic cells as".text_widget(ctx).centered_vert(),
                 Toggle::choice(ctx, "draw cells", "areas", "streets", Key::C, true),
             ]),
+            "Click a road to add or remove a modal filter".text_widget(ctx),
         ]))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
         .build(ctx);
@@ -65,6 +68,11 @@ impl State<App> for Viewer {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
+                "Home" => {
+                    return Transition::Clear(vec![crate::pregame::TitleScreen::new_state(
+                        ctx, app,
+                    )]);
+                }
                 "change map" => {
                     return Transition::Push(CityPicker::new_state(
                         ctx,
@@ -76,6 +84,13 @@ impl State<App> for Viewer {
                 }
                 "Browse neighborhoods" => {
                     return Transition::Pop;
+                }
+                "Browse rat-runs" => {
+                    return Transition::Push(super::rat_runs::BrowseRatRuns::new_state(
+                        ctx,
+                        app,
+                        &self.neighborhood,
+                    ));
                 }
                 _ => unreachable!(),
             },

@@ -6,7 +6,10 @@ use serde::{Deserialize, Serialize};
 
 use geom::{Distance, Duration, PolyLine, Speed, EPSILON_DIST};
 
-use crate::{BuildingID, LaneID, Map, PathConstraints, Position, Traversable, TurnID, UberTurn};
+use crate::{
+    BuildingID, DirectedRoadID, LaneID, Map, PathConstraints, Position, Traversable, TurnID,
+    UberTurn,
+};
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum PathStep {
@@ -642,6 +645,24 @@ impl PathRequest {
             constraints,
             alt_start,
         }
+    }
+
+    /// Create a request from the beginning of one road to the end of another. Picks an arbitrary
+    /// start and end lane from the available ones.
+    pub fn between_directed_roads(
+        map: &Map,
+        from: DirectedRoadID,
+        to: DirectedRoadID,
+        constraints: PathConstraints,
+    ) -> Option<PathRequest> {
+        let start = Position::start(from.lanes(constraints, map).pop()?);
+        let end = Position::end(to.lanes(constraints, map).pop()?, map);
+        Some(PathRequest {
+            start,
+            end,
+            constraints,
+            alt_start: None,
+        })
     }
 }
 

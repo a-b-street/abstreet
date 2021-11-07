@@ -54,7 +54,7 @@ impl PathV2 {
 
     /// Vehicle implementations often just calculate the sequence of roads. Turn that into
     /// PathStepV2 here.
-    pub(crate) fn from_roads(
+    pub fn from_roads(
         mut roads: Vec<DirectedRoadID>,
         req: PathRequest,
         cost: Duration,
