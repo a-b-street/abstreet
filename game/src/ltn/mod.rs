@@ -9,9 +9,10 @@ use crate::app::App;
 pub use browse::BrowseNeighborhoods;
 
 mod browse;
+mod draw_cells;
 mod viewer;
 
-struct Neighborhood {
+pub struct Neighborhood {
     // These're fixed
     orig_perimeter: Perimeter,
     perimeter: BTreeSet<RoadID>,
