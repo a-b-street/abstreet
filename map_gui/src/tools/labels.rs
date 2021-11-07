@@ -55,7 +55,7 @@ impl DrawRoadLabels {
     fn render(
         g: &mut GfxCtx,
         app: &dyn AppLike,
-        include_roads: &Box<dyn Fn(&Road) -> bool>,
+        include_roads: &dyn Fn(&Road) -> bool,
         zoom: f64,
     ) -> Drawable {
         let mut batch = GeomBatch::new();

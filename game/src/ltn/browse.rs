@@ -75,11 +75,8 @@ impl State<App> for BrowseNeighborhoods {
             }
         }
 
-        match self.world.event(ctx) {
-            WorldOutcome::ClickedObject(id) => {
-                return Transition::Push(Viewer::new_state(ctx, app, &self.neighborhoods[&id]));
-            }
-            _ => {}
+        if let WorldOutcome::ClickedObject(id) = self.world.event(ctx) {
+            return Transition::Push(Viewer::new_state(ctx, app, &self.neighborhoods[&id]));
         }
 
         Transition::Keep

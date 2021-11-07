@@ -105,25 +105,22 @@ impl State<App> for Viewer {
             _ => {}
         }
 
-        match self.world.event(ctx) {
-            WorldOutcome::ClickedObject(Obj::InteriorRoad(r)) => {
-                if app.session.modal_filters.contains(&r) {
-                    app.session.modal_filters.remove(&r);
-                } else {
-                    app.session.modal_filters.insert(r);
-                }
-                // TODO The cell coloring changes quite spuriously just by toggling a filter, even
-                // when it doesn't matter
-                self.neighborhood =
-                    Neighborhood::new(ctx, app, self.neighborhood.orig_perimeter.clone());
-                self.world = make_world(
-                    ctx,
-                    app,
-                    &self.neighborhood,
-                    self.panel.is_checked("draw cells"),
-                );
+        if let WorldOutcome::ClickedObject(Obj::InteriorRoad(r)) = self.world.event(ctx) {
+            if app.session.modal_filters.contains(&r) {
+                app.session.modal_filters.remove(&r);
+            } else {
+                app.session.modal_filters.insert(r);
             }
-            _ => {}
+            // TODO The cell coloring changes quite spuriously just by toggling a filter, even
+            // when it doesn't matter
+            self.neighborhood =
+                Neighborhood::new(ctx, app, self.neighborhood.orig_perimeter.clone());
+            self.world = make_world(
+                ctx,
+                app,
+                &self.neighborhood,
+                self.panel.is_checked("draw cells"),
+            );
         }
 
         Transition::Keep

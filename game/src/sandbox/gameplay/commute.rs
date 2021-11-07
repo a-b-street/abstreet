@@ -121,7 +121,7 @@ impl GameplayState for OptimizeCommute {
             self.recreate_panels(ctx, app);
 
             let (before, after, done) = get_score(app, &self.trips);
-            if done == self.trips.len() || true {
+            if done == self.trips.len() {
                 self.done = true;
                 return Some(Transition::Push(final_score(
                     ctx,

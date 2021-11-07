@@ -59,7 +59,7 @@ pub fn draw_cells(map: &Map, neighborhood: &Neighborhood) -> GeomBatch {
     // area. The grid covers the rectangular bounds of the polygon. Rather than make an enum with 3
     // cases, just assign a new index to mean "boundary."
     let boundary_marker = neighborhood.cells.len();
-    for (pt, _) in geom::PolyLine::unchecked_new(boundary_polygon.clone().into_ring().into_points())
+    for (pt, _) in geom::PolyLine::unchecked_new(boundary_polygon.into_ring().into_points())
         .step_along(Distance::meters(resolution_m / 2.0), Distance::ZERO)
     {
         // TODO Refactor helpers to transform between map-space and the grid tiles. Possibly Grid
