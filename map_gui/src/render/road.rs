@@ -102,7 +102,7 @@ impl DrawRoad {
                         txt.render_autocropped(prerender)
                             .scale(0.1)
                             .centered_on(pt)
-                            .rotate(angle.reorient()),
+                            .rotate_around_batch_center(angle.reorient()),
                     );
                 }
             }
