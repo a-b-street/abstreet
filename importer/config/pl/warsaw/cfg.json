@@ -16,5 +16,6 @@
     "FixedPerBldg": 3
   },
   "include_railroads": true,
-  "extra_buildings": null
+  "extra_buildings": null,
+  "filter_crosswalks": false
 }

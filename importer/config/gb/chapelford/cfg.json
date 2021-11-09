@@ -12,5 +12,6 @@
     "FixedPerBldg": 3
   },
   "include_railroads": true,
-  "extra_buildings": "data/input/gb/chapelford/procgen_houses.json"
+  "extra_buildings": "data/input/gb/chapelford/procgen_houses.json",
+  "filter_crosswalks": false
 }

@@ -560,6 +560,9 @@ pub struct RawRoad {
     /// (via, to). For turn restrictions where 'via' is an entire road. Only BanTurns.
     pub complicated_turn_restrictions: Vec<(OriginalRoad, OriginalRoad)>,
     pub percent_incline: f64,
+    /// Is there a tagged crosswalk near each end of the road?
+    pub crosswalk_forward: bool,
+    pub crosswalk_backward: bool,
 }
 
 impl RawRoad {

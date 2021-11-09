@@ -118,6 +118,7 @@ pub fn oneshot(
             include_railroads: true,
             extra_buildings: None,
             skip_local_roads: false,
+            filter_crosswalks: false,
         },
         &mut timer,
     );

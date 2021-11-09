@@ -153,6 +153,8 @@ impl Map {
                 zorder: raw_road.get_zorder(),
                 access_restrictions: AccessRestrictions::new(),
                 percent_incline: raw_road.percent_incline,
+                crosswalk_forward: raw_road.crosswalk_forward,
+                crosswalk_backward: raw_road.crosswalk_backward,
             };
             road.speed_limit = road.speed_limit_from_osm();
             road.access_restrictions = road.access_restrictions_from_osm();

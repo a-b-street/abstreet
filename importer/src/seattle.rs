@@ -156,6 +156,7 @@ pub async fn osm_to_raw(name: &str, timer: &mut Timer<'_>, config: &ImporterConf
             include_railroads: false,
             extra_buildings: None,
             skip_local_roads: false,
+            filter_crosswalks: false,
         },
         timer,
     );

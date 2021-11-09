@@ -6,7 +6,10 @@ use serde::{Deserialize, Serialize};
 use geom::{Angle, PolyLine};
 
 use crate::raw::RestrictionType;
-use crate::{Intersection, IntersectionID, LaneID, Map, MovementID, PathConstraints};
+use crate::{
+    DirectedRoadID, Direction, Intersection, IntersectionID, LaneID, Map, MovementID,
+    PathConstraints,
+};
 
 /// Turns are uniquely identified by their (src, dst) lanes and their parent intersection.
 /// Intersection is needed to distinguish crosswalks that exist at two ends of a sidewalk.
@@ -238,6 +241,26 @@ impl Turn {
         }
 
         true
+    }
+
+    /// If this turn is a crosswalk over a single road, return that road and which end of the road
+    /// is crossed.
+    pub fn crosswalk_over_road(&self, map: &Map) -> Option<DirectedRoadID> {
+        if self.turn_type != TurnType::Crosswalk {
+            return None;
+        }
+        // We cross multiple roads
+        if self.id.src.road != self.id.dst.road {
+            return None;
+        }
+        Some(DirectedRoadID {
+            id: self.id.src.road,
+            dir: if map.get_r(self.id.src.road).dst_i == self.id.parent {
+                Direction::Fwd
+            } else {
+                Direction::Back
+            },
+        })
     }
 }
 

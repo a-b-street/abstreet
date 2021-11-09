@@ -173,6 +173,8 @@ pub fn make_walking_turns(map: &Map, i: &Intersection) -> Vec<Turn> {
 
 /// Filter out crosswalks on really short roads. In reality, these roads are usually located within
 /// an intersection, which isn't a valid place for a pedestrian crossing.
+///
+/// And if the road is marked as having no crosswalks at an end, remove crosswalks there.
 pub fn filter_turns(mut input: Vec<Turn>, map: &Map, i: &Intersection) -> Vec<Turn> {
     for r in &i.roads {
         if map.get_r(*r).is_extremely_short() {
@@ -181,6 +183,19 @@ pub fn filter_turns(mut input: Vec<Turn>, map: &Map, i: &Intersection) -> Vec<Tu
             });
         }
     }
+
+    input.retain(|turn| {
+        if let Some(dr) = turn.crosswalk_over_road(map) {
+            let road = map.get_r(dr.id);
+            if dr.dir == Direction::Fwd {
+                road.crosswalk_forward
+            } else {
+                road.crosswalk_backward
+            }
+        } else {
+            true
+        }
+    });
 
     input
 }

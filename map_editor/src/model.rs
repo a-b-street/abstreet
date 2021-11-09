@@ -305,6 +305,8 @@ impl Model {
                 turn_restrictions: Vec::new(),
                 complicated_turn_restrictions: Vec::new(),
                 percent_incline: 0.0,
+                crosswalk_forward: true,
+                crosswalk_backward: true,
             },
         );
         self.road_added(ctx, id);

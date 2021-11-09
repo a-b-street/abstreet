@@ -182,6 +182,9 @@ pub struct Road {
     pub untrimmed_center_pts: PolyLine,
     pub src_i: IntersectionID,
     pub dst_i: IntersectionID,
+    /// Is there a tagged crosswalk near each end of the road?
+    pub crosswalk_forward: bool,
+    pub crosswalk_backward: bool,
 }
 
 impl Road {

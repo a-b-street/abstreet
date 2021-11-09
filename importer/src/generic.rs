@@ -29,6 +29,8 @@ pub struct GenericCityImporter {
     pub include_railroads: bool,
     /// If provided, read polygons from this GeoJSON file and add them to the RawMap as buildings.
     pub extra_buildings: Option<String>,
+    /// Only include crosswalks that match a `highway=crossing` OSM node.
+    pub filter_crosswalks: bool,
 }
 
 impl GenericCityImporter {
@@ -81,6 +83,7 @@ impl GenericCityImporter {
                 extra_buildings: self.extra_buildings.clone(),
                 // TODO Total hack! Need to figure out how to express per-map config overrides
                 skip_local_roads: name == MapName::new("us", "phoenix", "loop101"),
+                filter_crosswalks: self.filter_crosswalks,
             },
             timer,
         );

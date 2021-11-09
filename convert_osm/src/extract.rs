@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use osm::{NodeID, OsmID, RelationID, WayID};
 
@@ -24,6 +24,8 @@ pub struct OsmExtract {
     pub complicated_turn_restrictions: Vec<(RelationID, WayID, WayID, WayID)>,
     /// (location, amenity)
     pub amenities: Vec<(Pt2D, Amenity)>,
+    /// Crosswalks located at these points, which should be on a RawRoad's center line
+    pub crosswalks: HashSet<HashablePt2D>,
 }
 
 pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmExtract {
@@ -55,6 +57,7 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
         simple_turn_restrictions: Vec::new(),
         complicated_turn_restrictions: Vec::new(),
         amenities: Vec::new(),
+        crosswalks: HashSet::new(),
     };
 
     timer.start_iter("processing OSM nodes", doc.nodes.len());
@@ -69,6 +72,9 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
                 Direction::Fwd
             };
             out.traffic_signals.insert(node.pt.to_hashable(), dir);
+        }
+        if node.tags.is(osm::HIGHWAY, "crossing") {
+            out.crosswalks.insert(node.pt.to_hashable());
         }
         for amenity in get_bldg_amenities(&node.tags) {
             out.amenities.push((node.pt, amenity));
@@ -103,6 +109,10 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
                     turn_restrictions: Vec::new(),
                     complicated_turn_restrictions: Vec::new(),
                     percent_incline: 0.0,
+                    // Start assuming there's a crosswalk everywhere, and maybe filter it down
+                    // later
+                    crosswalk_forward: true,
+                    crosswalk_backward: true,
                 },
             ));
             continue;

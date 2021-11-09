@@ -64,6 +64,7 @@ fn import_map(path: String) -> Map {
             include_railroads: true,
             extra_buildings: None,
             skip_local_roads: false,
+            filter_crosswalks: false,
         },
         &mut timer,
     );

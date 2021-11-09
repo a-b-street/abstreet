@@ -3,11 +3,13 @@ extern crate anyhow;
 #[macro_use]
 extern crate log;
 
+use std::collections::HashSet;
+
 use anyhow::Result;
 
 use abstio::MapName;
 use abstutil::{Tags, Timer};
-use geom::{Distance, FindClosest, GPSBounds, LonLat, Polygon, Pt2D, Ring};
+use geom::{Distance, FindClosest, GPSBounds, HashablePt2D, LonLat, PolyLine, Polygon, Pt2D, Ring};
 use map_model::raw::RawMap;
 use map_model::{osm, raw, Amenity, MapConfig};
 use serde::{Deserialize, Serialize};
@@ -39,6 +41,8 @@ pub struct Options {
     /// Only include highways and arterials. This may make sense for some region-wide maps for
     /// particular use cases.
     pub skip_local_roads: bool,
+    /// Only include crosswalks that match a `highway=crossing` OSM node.
+    pub filter_crosswalks: bool,
 }
 
 /// What roads will have on-street parking lanes? Data from
@@ -86,7 +90,7 @@ pub fn convert(opts: Options, timer: &mut abstutil::Timer) -> RawMap {
     }
 
     let extract = extract::extract_osm(&mut map, &opts, timer);
-    let (amenities, pt_to_road) = split_ways::split_up_roads(&mut map, extract, timer);
+    let (amenities, crosswalks, pt_to_road) = split_ways::split_up_roads(&mut map, extract, timer);
     clip::clip_map(&mut map, timer);
 
     // Need to do a first pass of removing cul-de-sacs here, or we wind up with loop PolyLines when
@@ -120,6 +124,10 @@ pub fn convert(opts: Options, timer: &mut abstutil::Timer) -> RawMap {
     timer.stop("add elevation data");
     if let Some(ref path) = opts.extra_buildings {
         add_extra_buildings(&mut map, path).unwrap();
+    }
+
+    if opts.filter_crosswalks {
+        filter_crosswalks(&mut map, crosswalks, timer);
     }
 
     map.config = opts.map_config;
@@ -168,4 +176,39 @@ fn add_extra_buildings(map: &mut RawMap, path: &str) -> Result<()> {
         id -= -1;
     }
     Ok(())
+}
+
+fn filter_crosswalks(map: &mut RawMap, crosswalks: HashSet<HashablePt2D>, timer: &mut Timer) {
+    timer.start_iter("filter crosswalks", map.roads.len());
+    for road in map.roads.values_mut() {
+        timer.next();
+        // Normally we assume every road has a crosswalk, but since this map is configured to use
+        // OSM crossing nodes, let's reverse that assumption.
+        road.crosswalk_forward = false;
+        road.crosswalk_backward = false;
+
+        // TODO Support cul-de-sacs and other loop roads
+        if let Ok(pl) = PolyLine::new(road.center_points.clone()) {
+            // Crossing nodes are somewhere on the road center line, but not right at the endpoint. So
+            // just walk all the points in the road center line, and see if that node happens to be a
+            // crossing.
+            for pt in &road.center_points {
+                if crosswalks.contains(&pt.to_hashable()) {
+                    // Crossings aren't right at an intersection. Where is this point along the
+                    // center line?
+                    let (dist, _) = pl.dist_along_of_point(*pt).unwrap();
+                    let pct = dist / pl.length();
+                    // Don't throw away any crossings. If it occurs in the first half of the road,
+                    // snap to the first intersection. If there's a mid-block crossing mapped,
+                    // that'll likely not be correctly interpreted, unless an intersection is there
+                    // anyway.
+                    if pct <= 0.5 {
+                        road.crosswalk_backward = true;
+                    } else {
+                        road.crosswalk_forward = true;
+                    }
+                }
+            }
+        }
+    }
 }

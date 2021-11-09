@@ -8,7 +8,7 @@
   },
   "onstreet_parking": {
     "SomeAdditionalWhereNoData": {
-        "pct": 50
+      "pct": 50
     }
   },
   "public_offstreet_parking": "None",
@@ -16,5 +16,6 @@
     "FixedPerBldg": 3
   },
   "include_railroads": true,
-  "extra_buildings": null
+  "extra_buildings": null,
+  "filter_crosswalks": false
 }
