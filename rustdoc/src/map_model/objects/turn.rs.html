@@ -530,7 +530,7 @@
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
         <span class="prelude-val">Some</span>(<span class="ident">DirectedRoadID</span> {
-            <span class="ident">id</span>: <span class="self">self</span>.<span class="ident">id</span>.<span class="ident">src</span>.<span class="ident">road</span>,
+            <span class="ident">road</span>: <span class="self">self</span>.<span class="ident">id</span>.<span class="ident">src</span>.<span class="ident">road</span>,
             <span class="ident">dir</span>: <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">id</span>.<span class="ident">src</span>.<span class="ident">road</span>).<span class="ident">dst_i</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">id</span>.<span class="ident">parent</span> {
                 <span class="ident">Direction::Fwd</span>
             } <span class="kw">else</span> {

@@ -169,8 +169,6 @@
 <span id="169">169</span>
 <span id="170">170</span>
 <span id="171">171</span>
-<span id="172">172</span>
-<span id="173">173</span>
 </pre><pre class="rust"><code><span class="comment">// TODO Possibly these should be methods on Map.</span>
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
@@ -182,7 +180,6 @@
 <span class="kw">use</span> <span class="ident">geom::Duration</span>;
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::walking</span>::{<span class="ident">all_walking_costs_from</span>, <span class="ident">WalkingOptions</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pathfind::zone_cost</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pathfind</span>::{<span class="ident">vehicle_cost</span>, <span class="ident">WalkingNode</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">BuildingID</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>};
 
@@ -307,8 +304,7 @@
         <span class="kw">for</span> <span class="ident">mvmnt</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">get_movements_for</span>(<span class="ident">current</span>.<span class="ident">node</span>, <span class="ident">constraints</span>) {
             <span class="ident">queue</span>.<span class="ident">push</span>(<span class="ident">Item</span> {
                 <span class="ident">cost</span>: <span class="ident">current</span>.<span class="ident">cost</span>
-                    <span class="op">+</span> <span class="ident">vehicle_cost</span>(<span class="ident">mvmnt</span>.<span class="ident">from</span>, <span class="ident">mvmnt</span>, <span class="ident">constraints</span>, <span class="ident">map</span>.<span class="ident">routing_params</span>(), <span class="ident">map</span>)
-                    <span class="op">+</span> <span class="ident">zone_cost</span>(<span class="ident">mvmnt</span>, <span class="ident">constraints</span>, <span class="ident">map</span>),
+                    <span class="op">+</span> <span class="ident">vehicle_cost</span>(<span class="ident">mvmnt</span>.<span class="ident">from</span>, <span class="ident">mvmnt</span>, <span class="ident">constraints</span>, <span class="ident">map</span>.<span class="ident">routing_params</span>(), <span class="ident">map</span>),
                 <span class="ident">node</span>: <span class="ident">mvmnt</span>.<span class="ident">to</span>,
             });
         }

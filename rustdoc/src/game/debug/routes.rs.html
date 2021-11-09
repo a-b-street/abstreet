@@ -1148,7 +1148,7 @@
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">p</span>) <span class="op">=</span> <span class="ident">app</span>
                     .<span class="ident">primary</span>
                     .<span class="ident">map</span>
-                    .<span class="ident">get_r</span>(<span class="ident">dr</span>.<span class="ident">id</span>)
+                    .<span class="ident">get_r</span>(<span class="ident">dr</span>.<span class="ident">road</span>)
                     .<span class="ident">get_half_polygon</span>(<span class="ident">dr</span>.<span class="ident">dir</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>)
                 {
                     <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::BLUE</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="ident">p</span>);
@@ -1184,7 +1184,7 @@
                 <span class="comment">// TODO In lieu of mousing over each half of a road, just show both costs.</span>
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
                 <span class="kw">for</span> <span class="ident">dir</span> <span class="kw">in</span> [<span class="ident">Direction::Fwd</span>, <span class="ident">Direction::Back</span>] {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">cost</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">costs</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">DirectedRoadID</span> { <span class="ident">id</span>: <span class="ident">r</span>, <span class="ident">dir</span> }) {
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">cost</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">costs</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">DirectedRoadID</span> { <span class="ident">road</span>: <span class="ident">r</span>, <span class="ident">dir</span> }) {
                         <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format!</span>(<span class="string">&quot;Cost {:?}: {}&quot;</span>, <span class="ident">dir</span>, <span class="ident">cost</span>));
                     } <span class="kw">else</span> {
                         <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format!</span>(<span class="string">&quot;No cost {:?}&quot;</span>, <span class="ident">dir</span>));

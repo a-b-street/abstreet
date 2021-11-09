@@ -346,10 +346,6 @@
 <span id="346">346</span>
 <span id="347">347</span>
 <span id="348">348</span>
-<span id="349">349</span>
-<span id="350">350</span>
-<span id="351">351</span>
-<span id="352">352</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Pathfinding for cars, bikes, buses, and trains using contraction hierarchies</span>
 
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
@@ -409,11 +405,11 @@
             <span class="comment">// Regardless of current lane types or even directions, add both. These could change</span>
             <span class="comment">// later, and we want the node IDs to match up.</span>
             <span class="ident">nodes</span>.<span class="ident">get_or_insert</span>(<span class="ident">Node::Road</span>(<span class="ident">DirectedRoadID</span> {
-                <span class="ident">id</span>: <span class="ident">r</span>.<span class="ident">id</span>,
+                <span class="ident">road</span>: <span class="ident">r</span>.<span class="ident">id</span>,
                 <span class="ident">dir</span>: <span class="ident">Direction::Fwd</span>,
             }));
             <span class="ident">nodes</span>.<span class="ident">get_or_insert</span>(<span class="ident">Node::Road</span>(<span class="ident">DirectedRoadID</span> {
-                <span class="ident">id</span>: <span class="ident">r</span>.<span class="ident">id</span>,
+                <span class="ident">road</span>: <span class="ident">r</span>.<span class="ident">id</span>,
                 <span class="ident">dir</span>: <span class="ident">Direction::Back</span>,
             }));
         }
@@ -584,10 +580,7 @@
                         <span class="ident">input_graph</span>.<span class="ident">add_edge</span>(
                             <span class="ident">from</span>,
                             <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">Node::Road</span>(<span class="ident">mvmnt</span>.<span class="ident">to</span>)),
-                            <span class="ident">round</span>(
-                                <span class="ident">vehicle_cost</span>(<span class="ident">mvmnt</span>.<span class="ident">from</span>, <span class="ident">mvmnt</span>, <span class="ident">constraints</span>, <span class="ident">params</span>, <span class="ident">map</span>)
-                                    <span class="op">+</span> <span class="ident">zone_cost</span>(<span class="ident">mvmnt</span>, <span class="ident">constraints</span>, <span class="ident">map</span>),
-                            ),
+                            <span class="ident">round</span>(<span class="ident">vehicle_cost</span>(<span class="ident">mvmnt</span>.<span class="ident">from</span>, <span class="ident">mvmnt</span>, <span class="ident">constraints</span>, <span class="ident">params</span>, <span class="ident">map</span>)),
                         );
                     }
                 } <span class="kw">else</span> {
@@ -597,7 +590,6 @@
                         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sum_cost</span> <span class="op">=</span> <span class="ident">Duration::ZERO</span>;
                         <span class="kw">for</span> <span class="ident">mvmnt</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">ut</span>.<span class="ident">path</span> {
                             <span class="ident">sum_cost</span> <span class="op">+</span><span class="op">=</span> <span class="ident">vehicle_cost</span>(<span class="ident">mvmnt</span>.<span class="ident">from</span>, <span class="kw-2">*</span><span class="ident">mvmnt</span>, <span class="ident">constraints</span>, <span class="ident">params</span>, <span class="ident">map</span>)
-                                <span class="op">+</span> <span class="ident">zone_cost</span>(<span class="kw-2">*</span><span class="ident">mvmnt</span>, <span class="ident">constraints</span>, <span class="ident">map</span>);
                         }
                         <span class="ident">input_graph</span>.<span class="ident">add_edge</span>(
                             <span class="ident">from</span>,
@@ -637,7 +629,7 @@
         <span class="ident">PathConstraints::Bike</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident"><span class="kw">crate</span>::MAX_BIKE_SPEED</span>),
         <span class="ident">PathConstraints::Pedestrian</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
     };
-    <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">dr</span>.<span class="ident">id</span>).<span class="ident">length</span>()
+    <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">dr</span>.<span class="ident">road</span>).<span class="ident">length</span>()
         <span class="op">/</span> <span class="ident">Traversable::max_speed_along_road</span>(<span class="ident">dr</span>, <span class="ident">max_speed</span>, <span class="ident">constraints</span>, <span class="ident">map</span>).<span class="number">0</span>;
     <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="ident">movement</span>.<span class="ident">geom</span>.<span class="ident">length</span>()
         <span class="op">/</span> <span class="ident">Traversable::max_speed_along_movement</span>(<span class="ident">mvmnt</span>, <span class="ident">max_speed</span>, <span class="ident">constraints</span>, <span class="ident">map</span>);
@@ -676,7 +668,7 @@
     <span class="kw">if</span> <span class="ident">constraints</span> <span class="op">=</span><span class="op">=</span> <span class="ident">PathConstraints::Bike</span>
         <span class="op">&amp;&amp;</span> (<span class="ident">params</span>.<span class="ident">avoid_steep_incline_penalty</span> <span class="op">-</span> <span class="number">1.0</span>).<span class="ident">abs</span>() <span class="op">&gt;</span> <span class="ident">f64::EPSILON</span>
     {
-        <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">dr</span>.<span class="ident">id</span>);
+        <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">dr</span>.<span class="ident">road</span>);
         <span class="kw">let</span> <span class="ident">percent_incline</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">dr</span>.<span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction::Fwd</span> {
             <span class="ident">road</span>.<span class="ident">percent_incline</span>
         } <span class="kw">else</span> {
@@ -689,14 +681,14 @@
 
     <span class="kw">if</span> <span class="ident">constraints</span> <span class="op">=</span><span class="op">=</span> <span class="ident">PathConstraints::Bike</span>
         <span class="op">&amp;&amp;</span> (<span class="ident">params</span>.<span class="ident">avoid_high_stress</span> <span class="op">-</span> <span class="number">1.0</span>).<span class="ident">abs</span>() <span class="op">&gt;</span> <span class="ident">f64::EPSILON</span>
-        <span class="op">&amp;&amp;</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">dr</span>.<span class="ident">id</span>).<span class="ident">high_stress_for_bikes</span>(<span class="ident">map</span>, <span class="ident">dr</span>.<span class="ident">dir</span>)
+        <span class="op">&amp;&amp;</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">dr</span>.<span class="ident">road</span>).<span class="ident">high_stress_for_bikes</span>(<span class="ident">map</span>, <span class="ident">dr</span>.<span class="ident">dir</span>)
     {
         <span class="ident">multiplier</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">params</span>.<span class="ident">avoid_high_stress</span>;
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">extra</span> <span class="op">=</span> <span class="ident">Duration::ZERO</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">extra</span> <span class="op">=</span> <span class="ident">zone_cost</span>(<span class="ident">mvmnt</span>, <span class="ident">constraints</span>, <span class="ident">map</span>);
     <span class="comment">// Penalize unprotected turns at a stop sign from smaller to larger roads.</span>
-    <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">is_unprotected_turn</span>(<span class="ident">dr</span>.<span class="ident">id</span>, <span class="ident">mvmnt</span>.<span class="ident">to</span>.<span class="ident">id</span>, <span class="ident">movement</span>.<span class="ident">turn_type</span>) {
+    <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">is_unprotected_turn</span>(<span class="ident">dr</span>.<span class="ident">road</span>, <span class="ident">mvmnt</span>.<span class="ident">to</span>.<span class="ident">road</span>, <span class="ident">movement</span>.<span class="ident">turn_type</span>) {
         <span class="ident">extra</span> <span class="op">+</span><span class="op">=</span> <span class="ident">params</span>.<span class="ident">unprotected_turn_penalty</span>
     }
 

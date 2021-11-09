@@ -645,7 +645,7 @@
                 <span class="comment">// No Contraflow steps for bike paths</span>
                 <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PathStepV2::Along</span>(<span class="ident">dr</span>) <span class="op">=</span> <span class="ident">step</span> {
                     <span class="kw">if</span> <span class="ident">high_stress</span>.<span class="ident">contains</span>(<span class="ident">dr</span>) {
-                        <span class="ident">road_counter</span>.<span class="ident">inc</span>(<span class="ident">dr</span>.<span class="ident">id</span>);
+                        <span class="ident">road_counter</span>.<span class="ident">inc</span>(<span class="ident">dr</span>.<span class="ident">road</span>);
                     }
                 }
             }

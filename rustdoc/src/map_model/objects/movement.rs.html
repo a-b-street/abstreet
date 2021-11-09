@@ -329,7 +329,7 @@
 
     <span class="doccomment">/// Polyline points FROM intersection</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">src_center_and_width</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">PolyLine</span>, <span class="ident">Distance</span>) {
-        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">id</span>.<span class="ident">from</span>.<span class="ident">id</span>);
+        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">id</span>.<span class="ident">from</span>.<span class="ident">road</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">leftmost</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">99999.0</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rightmost</span> <span class="op">=</span> <span class="ident">Distance::ZERO</span>;

@@ -187,8 +187,6 @@
 <span id="187">187</span>
 <span id="188">188</span>
 <span id="189">189</span>
-<span id="190">190</span>
-<span id="191">191</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom::Distance</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">CityPicker</span>, <span class="ident">DrawRoadLabels</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Block</span>, <span class="ident">RoadID</span>};
@@ -226,8 +224,6 @@
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_outline</span>
                 .<span class="ident">text</span>(<span class="string">&quot;Browse rat-runs&quot;</span>)
-                .<span class="ident">disabled</span>(<span class="bool-val">true</span>)
-                .<span class="ident">disabled_tooltip</span>(<span class="string">&quot;Currently broken, coming soon...&quot;</span>)
                 .<span class="ident">hotkey</span>(<span class="ident">Key::R</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
@@ -277,7 +273,7 @@
                     <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
                 }
                 <span class="string">&quot;Browse rat-runs&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident"><span class="kw">super</span>::rat_runs::BrowseRatRuns::new_state</span>(
+                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident"><span class="kw">super</span>::rat_run_viewer::BrowseRatRuns::new_state</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">app</span>,
                         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">neighborhood</span>,
