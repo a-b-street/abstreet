@@ -380,6 +380,8 @@
 <span id="380">380</span>
 <span id="381">381</span>
 <span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
 </pre><pre class="rust"><code><span class="doccomment">//! See &lt;https://a-b-street.github.io/docs/tech/map/importing/index.html&gt; for an overview. This module</span>
 <span class="doccomment">//! covers the RawMap-&gt;Map stage.</span>
 
@@ -535,6 +537,8 @@
                 <span class="ident">zorder</span>: <span class="ident">raw_road</span>.<span class="ident">get_zorder</span>(),
                 <span class="ident">access_restrictions</span>: <span class="ident">AccessRestrictions::new</span>(),
                 <span class="ident">percent_incline</span>: <span class="ident">raw_road</span>.<span class="ident">percent_incline</span>,
+                <span class="ident">crosswalk_forward</span>: <span class="ident">raw_road</span>.<span class="ident">crosswalk_forward</span>,
+                <span class="ident">crosswalk_backward</span>: <span class="ident">raw_road</span>.<span class="ident">crosswalk_backward</span>,
             };
             <span class="ident">road</span>.<span class="ident">speed_limit</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">speed_limit_from_osm</span>();
             <span class="ident">road</span>.<span class="ident">access_restrictions</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">access_restrictions_from_osm</span>();

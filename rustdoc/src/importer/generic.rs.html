@@ -88,6 +88,9 @@
 <span id="88">88</span>
 <span id="89">89</span>
 <span id="90">90</span>
+<span id="91">91</span>
+<span id="92">92</span>
+<span id="93">93</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="ident">abstio::MapName</span>;
@@ -119,6 +122,8 @@
     <span class="kw">pub</span> <span class="ident">include_railroads</span>: <span class="ident">bool</span>,
     <span class="doccomment">/// If provided, read polygons from this GeoJSON file and add them to the RawMap as buildings.</span>
     <span class="kw">pub</span> <span class="ident">extra_buildings</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Only include crosswalks that match a `highway=crossing` OSM node.</span>
+    <span class="kw">pub</span> <span class="ident">filter_crosswalks</span>: <span class="ident">bool</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">GenericCityImporter</span> {
@@ -171,6 +176,7 @@
                 <span class="ident">extra_buildings</span>: <span class="self">self</span>.<span class="ident">extra_buildings</span>.<span class="ident">clone</span>(),
                 <span class="comment">// TODO Total hack! Need to figure out how to express per-map config overrides</span>
                 <span class="ident">skip_local_roads</span>: <span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="ident">MapName::new</span>(<span class="string">&quot;us&quot;</span>, <span class="string">&quot;phoenix&quot;</span>, <span class="string">&quot;loop101&quot;</span>),
+                <span class="ident">filter_crosswalks</span>: <span class="self">self</span>.<span class="ident">filter_crosswalks</span>,
             },
             <span class="ident">timer</span>,
         );

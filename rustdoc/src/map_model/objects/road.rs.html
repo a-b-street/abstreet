@@ -684,6 +684,9 @@
 <span id="684">684</span>
 <span id="685">685</span>
 <span id="686">686</span>
+<span id="687">687</span>
+<span id="688">688</span>
+<span id="689">689</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
@@ -868,6 +871,9 @@
     <span class="kw">pub</span> <span class="ident">untrimmed_center_pts</span>: <span class="ident">PolyLine</span>,
     <span class="kw">pub</span> <span class="ident">src_i</span>: <span class="ident">IntersectionID</span>,
     <span class="kw">pub</span> <span class="ident">dst_i</span>: <span class="ident">IntersectionID</span>,
+    <span class="doccomment">/// Is there a tagged crosswalk near each end of the road?</span>
+    <span class="kw">pub</span> <span class="ident">crosswalk_forward</span>: <span class="ident">bool</span>,
+    <span class="kw">pub</span> <span class="ident">crosswalk_backward</span>: <span class="ident">bool</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Road</span> {

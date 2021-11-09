@@ -744,6 +744,9 @@
 <span id="744">744</span>
 <span id="745">745</span>
 <span id="746">746</span>
+<span id="747">747</span>
+<span id="748">748</span>
+<span id="749">749</span>
 </pre><pre class="rust"><code><span class="doccomment">//! The convert_osm crate produces a RawMap from OSM and other data. Storing this intermediate</span>
 <span class="doccomment">//! structure is useful to iterate quickly on parts of the map importing pipeline without having to</span>
 <span class="doccomment">//! constantly read .osm files, and to visualize the intermediate state with map_editor.</span>
@@ -1306,6 +1309,9 @@
     <span class="doccomment">/// (via, to). For turn restrictions where &#39;via&#39; is an entire road. Only BanTurns.</span>
     <span class="kw">pub</span> <span class="ident">complicated_turn_restrictions</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">OriginalRoad</span>, <span class="ident">OriginalRoad</span>)<span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">percent_incline</span>: <span class="ident">f64</span>,
+    <span class="doccomment">/// Is there a tagged crosswalk near each end of the road?</span>
+    <span class="kw">pub</span> <span class="ident">crosswalk_forward</span>: <span class="ident">bool</span>,
+    <span class="kw">pub</span> <span class="ident">crosswalk_backward</span>: <span class="ident">bool</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">RawRoad</span> {

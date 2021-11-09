@@ -348,6 +348,7 @@
 <span id="348">348</span>
 <span id="349">349</span>
 <span id="350">350</span>
+<span id="351">351</span>
 </pre><pre class="rust"><code><span class="doccomment">//! It&#39;s assumed that the importer is run with the current directory as the project repository; aka</span>
 <span class="doccomment">//! `./data/` and `./importer/config` must exist.</span>
 
@@ -468,6 +469,7 @@
             <span class="ident">include_railroads</span>: <span class="bool-val">true</span>,
             <span class="ident">extra_buildings</span>: <span class="prelude-val">None</span>,
             <span class="ident">skip_local_roads</span>: <span class="bool-val">false</span>,
+            <span class="ident">filter_crosswalks</span>: <span class="bool-val">false</span>,
         },
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>,
     );

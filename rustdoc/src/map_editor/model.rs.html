@@ -629,6 +629,8 @@
 <span id="629">629</span>
 <span id="630">630</span>
 <span id="631">631</span>
+<span id="632">632</span>
+<span id="633">633</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>};
 <span class="kw">use</span> <span class="ident">std::io::Write</span>;
 
@@ -936,6 +938,8 @@
                 <span class="ident">turn_restrictions</span>: <span class="ident">Vec::new</span>(),
                 <span class="ident">complicated_turn_restrictions</span>: <span class="ident">Vec::new</span>(),
                 <span class="ident">percent_incline</span>: <span class="number">0.0</span>,
+                <span class="ident">crosswalk_forward</span>: <span class="bool-val">true</span>,
+                <span class="ident">crosswalk_backward</span>: <span class="bool-val">true</span>,
             },
         );
         <span class="self">self</span>.<span class="ident">road_added</span>(<span class="ident">ctx</span>, <span class="ident">id</span>);
