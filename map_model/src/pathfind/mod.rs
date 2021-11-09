@@ -131,7 +131,7 @@ impl PathConstraints {
 }
 
 /// Heavily penalize crossing into an access-restricted zone that doesn't allow this mode.
-pub fn zone_cost(mvmnt: MovementID, constraints: PathConstraints, map: &Map) -> Duration {
+pub(crate) fn zone_cost(mvmnt: MovementID, constraints: PathConstraints, map: &Map) -> Duration {
     // Detect when we cross into a new zone that doesn't allow constraints.
     if map
         .get_r(mvmnt.from.id)

@@ -9,7 +9,6 @@ use petgraph::graphmap::DiGraphMap;
 use geom::Duration;
 
 pub use self::walking::{all_walking_costs_from, WalkingOptions};
-pub use crate::pathfind::zone_cost;
 pub use crate::pathfind::{vehicle_cost, WalkingNode};
 use crate::{BuildingID, DirectedRoadID, IntersectionID, LaneID, Map, PathConstraints};
 
@@ -134,8 +133,7 @@ pub fn all_vehicle_costs_from(
         for mvmnt in map.get_movements_for(current.node, constraints) {
             queue.push(Item {
                 cost: current.cost
-                    + vehicle_cost(mvmnt.from, mvmnt, constraints, map.routing_params(), map)
-                    + zone_cost(mvmnt, constraints, map),
+                    + vehicle_cost(mvmnt.from, mvmnt, constraints, map.routing_params(), map),
                 node: mvmnt.to,
             });
         }

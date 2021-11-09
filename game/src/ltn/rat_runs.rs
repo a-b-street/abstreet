@@ -99,8 +99,7 @@ fn find_rat_runs_from(
                         PathConstraints::Car,
                         map.routing_params(),
                         map,
-                    )
-                    + connectivity::zone_cost(mvmnt, PathConstraints::Car, map),
+                    ),
                 node: mvmnt.to,
             });
             back_refs.insert(mvmnt.to, mvmnt.from);

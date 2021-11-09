@@ -232,10 +232,7 @@ fn make_input_graph(
                         input_graph.add_edge(
                             from,
                             nodes.get(Node::Road(mvmnt.to)),
-                            round(
-                                vehicle_cost(mvmnt.from, mvmnt, constraints, params, map)
-                                    + zone_cost(mvmnt, constraints, map),
-                            ),
+                            round(vehicle_cost(mvmnt.from, mvmnt, constraints, params, map)),
                         );
                     }
                 } else {
@@ -245,7 +242,6 @@ fn make_input_graph(
                         let mut sum_cost = Duration::ZERO;
                         for mvmnt in &ut.path {
                             sum_cost += vehicle_cost(mvmnt.from, *mvmnt, constraints, params, map)
-                                + zone_cost(*mvmnt, constraints, map);
                         }
                         input_graph.add_edge(
                             from,
@@ -342,7 +338,7 @@ pub fn vehicle_cost(
         multiplier *= params.avoid_high_stress;
     }
 
-    let mut extra = Duration::ZERO;
+    let mut extra = zone_cost(mvmnt, constraints, map);
     // Penalize unprotected turns at a stop sign from smaller to larger roads.
     if map.is_unprotected_turn(dr.id, mvmnt.to.id, movement.turn_type) {
         extra += params.unprotected_turn_penalty
