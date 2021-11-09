@@ -446,11 +446,11 @@ impl ModeShiftData {
                 // No Contraflow steps for bike paths
                 if let PathStepV2::Along(dr) = step {
                     if high_stress.contains(dr) {
-                        count_per_road.inc(dr.id);
+                        count_per_road.inc(dr.road);
 
                         // TODO Assumes the edits have made the road stop being high stress!
                         if !crosses_edited_road
-                            && app.primary.map.get_edits().changed_roads.contains(&dr.id)
+                            && app.primary.map.get_edits().changed_roads.contains(&dr.road)
                         {
                             crosses_edited_road = true;
                         }

@@ -186,7 +186,7 @@ pub fn filter_turns(mut input: Vec<Turn>, map: &Map, i: &Intersection) -> Vec<Tu
 
     input.retain(|turn| {
         if let Some(dr) = turn.crosswalk_over_road(map) {
-            let road = map.get_r(dr.id);
+            let road = map.get_r(dr.road);
             if dr.dir == Direction::Fwd {
                 road.crosswalk_forward
             } else {

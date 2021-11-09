@@ -254,7 +254,7 @@ impl Turn {
             return None;
         }
         Some(DirectedRoadID {
-            id: self.id.src.road,
+            road: self.id.src.road,
             dir: if map.get_r(self.id.src.road).dst_i == self.id.parent {
                 Direction::Fwd
             } else {

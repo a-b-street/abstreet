@@ -316,7 +316,7 @@ fn show_route_gaps(ctx: &mut EventCtx, app: &App, table: &Table<App, Entry, Filt
                 // No Contraflow steps for bike paths
                 if let PathStepV2::Along(dr) = step {
                     if high_stress.contains(dr) {
-                        road_counter.inc(dr.id);
+                        road_counter.inc(dr.road);
                     }
                 }
             }

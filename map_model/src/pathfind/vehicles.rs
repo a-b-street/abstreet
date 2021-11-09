@@ -57,11 +57,11 @@ impl VehiclePathfinder {
             // Regardless of current lane types or even directions, add both. These could change
             // later, and we want the node IDs to match up.
             nodes.get_or_insert(Node::Road(DirectedRoadID {
-                id: r.id,
+                road: r.id,
                 dir: Direction::Fwd,
             }));
             nodes.get_or_insert(Node::Road(DirectedRoadID {
-                id: r.id,
+                road: r.id,
                 dir: Direction::Back,
             }));
         }
@@ -281,7 +281,7 @@ pub fn vehicle_cost(
         PathConstraints::Bike => Some(crate::MAX_BIKE_SPEED),
         PathConstraints::Pedestrian => unreachable!(),
     };
-    let t1 = map.get_r(dr.id).length()
+    let t1 = map.get_r(dr.road).length()
         / Traversable::max_speed_along_road(dr, max_speed, constraints, map).0;
     let t2 = movement.geom.length()
         / Traversable::max_speed_along_movement(mvmnt, max_speed, constraints, map);
@@ -320,7 +320,7 @@ pub fn vehicle_cost(
     if constraints == PathConstraints::Bike
         && (params.avoid_steep_incline_penalty - 1.0).abs() > f64::EPSILON
     {
-        let road = map.get_r(dr.id);
+        let road = map.get_r(dr.road);
         let percent_incline = if dr.dir == Direction::Fwd {
             road.percent_incline
         } else {
@@ -333,14 +333,14 @@ pub fn vehicle_cost(
 
     if constraints == PathConstraints::Bike
         && (params.avoid_high_stress - 1.0).abs() > f64::EPSILON
-        && map.get_r(dr.id).high_stress_for_bikes(map, dr.dir)
+        && map.get_r(dr.road).high_stress_for_bikes(map, dr.dir)
     {
         multiplier *= params.avoid_high_stress;
     }
 
     let mut extra = zone_cost(mvmnt, constraints, map);
     // Penalize unprotected turns at a stop sign from smaller to larger roads.
-    if map.is_unprotected_turn(dr.id, mvmnt.to.id, movement.turn_type) {
+    if map.is_unprotected_turn(dr.road, mvmnt.to.road, movement.turn_type) {
         extra += params.unprotected_turn_penalty
     }
 

@@ -27,7 +27,8 @@ pub fn find_rat_runs(
         let mut started_from: HashSet<DirectedRoadID> = HashSet::new();
         for l in map.get_i(*i).get_outgoing_lanes(map, PathConstraints::Car) {
             let dr = map.get_l(l).get_directed_parent();
-            if !started_from.contains(&dr) && neighborhood.orig_perimeter.interior.contains(&dr.id)
+            if !started_from.contains(&dr)
+                && neighborhood.orig_perimeter.interior.contains(&dr.road)
             {
                 started_from.insert(dr);
                 results.extend(find_rat_runs_from(
@@ -50,7 +51,7 @@ fn find_rat_runs_from(
     modal_filters: &BTreeSet<RoadID>,
 ) -> Vec<RatRun> {
     // If there's a filter where we're starting, we can't go anywhere
-    if modal_filters.contains(&start.id) {
+    if modal_filters.contains(&start.road) {
         return Vec::new();
     }
 
@@ -87,7 +88,7 @@ fn find_rat_runs_from(
 
         for mvmnt in map.get_movements_for(current.node, PathConstraints::Car) {
             // Can't cross filters
-            if modal_filters.contains(&mvmnt.to.id) {
+            if modal_filters.contains(&mvmnt.to.road) {
                 continue;
             }
 
@@ -182,7 +183,7 @@ fn cheap_entry(map: &Map, to: DirectedRoadID) -> DirectedRoadID {
         .get_i(to.src_i(map))
         .turns
         .iter()
-        .filter(|t| t.id.dst.road == to.id)
+        .filter(|t| t.id.dst.road == to.road)
         .min_by_key(|t| {
             if t.turn_type == cheap_turn_type {
                 0
@@ -208,7 +209,7 @@ fn cheap_exit(map: &Map, from: DirectedRoadID) -> DirectedRoadID {
         .get_i(from.dst_i(map))
         .turns
         .iter()
-        .filter(|t| t.id.src.road == from.id)
+        .filter(|t| t.id.src.road == from.road)
         .min_by_key(|t| {
             if t.turn_type == cheap_turn_type {
                 0

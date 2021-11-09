@@ -507,7 +507,7 @@ impl State<App> for TrafficSignalEditor {
                     "Crosswalk across {}",
                     app.primary
                         .map
-                        .get_r(id.from.id)
+                        .get_r(id.from.road)
                         .get_name(app.opts.language.as_ref())
                 ))
             } else {
@@ -515,11 +515,11 @@ impl State<App> for TrafficSignalEditor {
                     "Turn from {} to {}",
                     app.primary
                         .map
-                        .get_r(id.from.id)
+                        .get_r(id.from.road)
                         .get_name(app.opts.language.as_ref()),
                     app.primary
                         .map
-                        .get_r(id.to.id)
+                        .get_r(id.to.road)
                         .get_name(app.opts.language.as_ref())
                 ))
             };

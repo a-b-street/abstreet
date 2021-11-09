@@ -134,14 +134,14 @@ fn multi_way_stages(i: &Intersection) -> Option<ControlTrafficSignal> {
     for m in &one_way {
         let mut stage = Stage::new();
         stage.protected_movements.insert(*m);
-        for t in turns(&m.from.id, &right) {
+        for t in turns(&m.from.road, &right) {
             stage.protected_movements.insert(t);
         }
-        for t in turns(&m.from.id, &left) {
+        for t in turns(&m.from.road, &left) {
             stage.protected_movements.insert(t);
         }
         add_stage(&mut ts, stage);
-        roads.remove(&m.from.id);
+        roads.remove(&m.from.road);
     }
     for (m1, m2) in &two_way {
         let mut stage1 = Stage::new();
@@ -151,15 +151,15 @@ fn multi_way_stages(i: &Intersection) -> Option<ControlTrafficSignal> {
         stage1.protected_movements.insert(*m2);
         stage1
             .protected_movements
-            .extend(turns(&m1.from.id, &right));
+            .extend(turns(&m1.from.road, &right));
         stage1
             .protected_movements
-            .extend(turns(&m2.from.id, &right));
-        for t in turns(&m1.from.id, &left) {
+            .extend(turns(&m2.from.road, &right));
+        for t in turns(&m1.from.road, &left) {
             stage1.yield_movements.insert(t);
             stage2.protected_movements.insert(t);
         }
-        for t in turns(&m2.from.id, &left) {
+        for t in turns(&m2.from.road, &left) {
             stage1.yield_movements.insert(t);
             stage2.protected_movements.insert(t);
         }
@@ -171,8 +171,8 @@ fn multi_way_stages(i: &Intersection) -> Option<ControlTrafficSignal> {
         } else {
             add_stage(&mut ts, stage2);
         }
-        roads.remove(&m1.from.id);
-        roads.remove(&m2.from.id);
+        roads.remove(&m1.from.road);
+        roads.remove(&m2.from.road);
     }
     // We may be done assigning, or we may have some roads we haven't dealt with yet.
     let mut vec: Vec<_> = roads.into_iter().collect();
@@ -231,12 +231,13 @@ fn add_stage(ts: &mut ControlTrafficSignal, stage: Stage) {
     }
 }
 
-fn turns(from: &RoadID, turns: &[MovementID]) -> Vec<MovementID> {
-    turns
+// TODO Should be named 'movements_from' or something, and stop taking &RoadID everywhere here!
+fn turns(from: &RoadID, movements: &[MovementID]) -> Vec<MovementID> {
+    movements
         .iter()
-        .filter_map(|turn| {
-            if from.0 == turn.from.id.0 {
-                Some(*turn)
+        .filter_map(|mvmnt| {
+            if *from == mvmnt.from.road {
+                Some(*mvmnt)
             } else {
                 None
             }
@@ -247,10 +248,10 @@ fn turns(from: &RoadID, turns: &[MovementID]) -> Vec<MovementID> {
 fn remove_movement(from: &RoadID, to: &RoadID, turns: &mut Vec<MovementID>) -> Option<MovementID> {
     let result = turns
         .iter()
-        .find(|turn| from.0 == turn.from.id.0 && to.0 == turn.to.id.0)
+        .find(|turn| *from == turn.from.road && *to == turn.to.road)
         .copied();
     if result.is_some() {
-        turns.retain(|turn| from.0 != turn.from.id.0 || to.0 != turn.to.id.0);
+        turns.retain(|turn| *from != turn.from.road || *to != turn.to.road);
     }
     result
 }
@@ -267,7 +268,7 @@ fn three_way_three_stage(i: &Intersection, map: &Map) -> Option<ControlTrafficSi
         .movements
         .values()
         .find(|g| g.turn_type == TurnType::Straight)?;
-    let (north, south) = (straight.id.from.id, straight.id.to.id);
+    let (north, south) = (straight.id.from.road, straight.id.to.road);
     let east = roads
         .into_iter()
         .find(|r| *r != north && *r != south)
@@ -363,7 +364,7 @@ fn movements(
                 TurnType::Straight => straight.push(*id),
                 _ => (),
             }
-            set.insert(id.from.id);
+            set.insert(id.from.road);
         }
     }
     (right, left, straight, set)
@@ -375,7 +376,7 @@ fn straight_types(movements: &[MovementID]) -> (Vec<MovementID>, Vec<(MovementID
     for m in movements {
         if let Some(other) = movements
             .iter()
-            .find(|&other| m.from.id == other.to.id && m.to.id == other.from.id)
+            .find(|&other| m.from.road == other.to.road && m.to.road == other.from.road)
         {
             two_way.push((*m, *other));
         } else {

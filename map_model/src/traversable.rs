@@ -202,7 +202,7 @@ impl Traversable {
         constraints: PathConstraints,
         map: &Map,
     ) -> (Speed, f64) {
-        let road = map.get_r(dr.id);
+        let road = map.get_r(dr.road);
         let percent_incline = if dr.dir == Direction::Fwd {
             road.percent_incline
         } else {
@@ -239,9 +239,9 @@ impl Traversable {
     ) -> Speed {
         // TODO Ignore elevation on turns?
         let base = map
-            .get_r(mvmnt.from.id)
+            .get_r(mvmnt.from.road)
             .speed_limit
-            .min(map.get_r(mvmnt.to.id).speed_limit);
+            .min(map.get_r(mvmnt.to.road).speed_limit);
         if let Some(s) = max_speed_on_flat_ground {
             base.min(s)
         } else {

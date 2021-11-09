@@ -193,7 +193,7 @@ fn three_way(map: &Map, i: &Intersection) -> Option<ControlTrafficSignal> {
         .movements
         .values()
         .find(|g| g.turn_type == TurnType::Straight)?;
-    let (north, south) = (straight.id.from.id, straight.id.to.id);
+    let (north, south) = (straight.id.from.road, straight.id.to.road);
     let east = roads
         .into_iter()
         .find(|r| *r != north && *r != south)
@@ -325,10 +325,10 @@ fn stage_per_road(map: &Map, i: &Intersection) -> ControlTrafficSignal {
         let mut stage = Stage::new();
         for movement in i.movements.values() {
             if movement.turn_type == TurnType::Crosswalk {
-                if movement.id.from.id == adj1 || movement.id.from.id == adj2 {
+                if movement.id.from.road == adj1 || movement.id.from.road == adj2 {
                     stage.protected_movements.insert(movement.id);
                 }
-            } else if movement.id.from.id == r {
+            } else if movement.id.from.road == r {
                 stage.yield_movements.insert(movement.id);
             }
         }
@@ -378,7 +378,7 @@ fn make_stages(
             }
 
             for movement in i.movements.values() {
-                if !roads.contains(&movement.id.from.id) || turn_type != movement.turn_type {
+                if !roads.contains(&movement.id.from.road) || turn_type != movement.turn_type {
                     continue;
                 }
 

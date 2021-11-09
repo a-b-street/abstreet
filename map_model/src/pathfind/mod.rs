@@ -134,12 +134,12 @@ impl PathConstraints {
 pub(crate) fn zone_cost(mvmnt: MovementID, constraints: PathConstraints, map: &Map) -> Duration {
     // Detect when we cross into a new zone that doesn't allow constraints.
     if map
-        .get_r(mvmnt.from.id)
+        .get_r(mvmnt.from.road)
         .access_restrictions
         .allow_through_traffic
         .contains(constraints)
         && !map
-            .get_r(mvmnt.to.id)
+            .get_r(mvmnt.to.road)
             .access_restrictions
             .allow_through_traffic
             .contains(constraints)

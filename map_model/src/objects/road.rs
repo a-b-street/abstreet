@@ -33,11 +33,11 @@ impl RoadID {
     pub fn both_directions(self) -> Vec<DirectedRoadID> {
         vec![
             DirectedRoadID {
-                id: self,
+                road: self,
                 dir: Direction::Fwd,
             },
             DirectedRoadID {
-                id: self,
+                road: self,
                 dir: Direction::Back,
             },
         ]
@@ -70,19 +70,19 @@ impl fmt::Display for Direction {
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct DirectedRoadID {
-    pub id: RoadID,
+    pub road: RoadID,
     pub dir: Direction,
 }
 
 impl fmt::Display for DirectedRoadID {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "DirectedRoadID({}, {})", self.id.0, self.dir,)
+        write!(f, "DirectedRoadID({}, {})", self.road.0, self.dir,)
     }
 }
 
 impl DirectedRoadID {
     pub fn src_i(self, map: &Map) -> IntersectionID {
-        let r = map.get_r(self.id);
+        let r = map.get_r(self.road);
         if self.dir == Direction::Fwd {
             r.src_i
         } else {
@@ -91,7 +91,7 @@ impl DirectedRoadID {
     }
 
     pub fn dst_i(self, map: &Map) -> IntersectionID {
-        let r = map.get_r(self.id);
+        let r = map.get_r(self.road);
         if self.dir == Direction::Fwd {
             r.dst_i
         } else {
@@ -101,14 +101,14 @@ impl DirectedRoadID {
 
     /// Strict for bikes. If there are bike lanes, not allowed to use other lanes.
     pub fn lanes(self, constraints: PathConstraints, map: &Map) -> Vec<LaneID> {
-        let r = map.get_r(self.id);
+        let r = map.get_r(self.road);
         constraints.filter_lanes(r.children(self.dir).iter().map(|(l, _)| *l).collect(), map)
     }
 
     /// Get the only sidewalk or shoulder on this side of the road, and panic otherwise.
     pub fn must_get_sidewalk(self, map: &Map) -> LaneID {
         let mut found = Vec::new();
-        for (l, lt) in map.get_r(self.id).children(self.dir) {
+        for (l, lt) in map.get_r(self.road).children(self.dir) {
             if lt.is_walkable() {
                 found.push(l);
             }
@@ -121,7 +121,7 @@ impl DirectedRoadID {
 
     /// Does this directed road have any lanes of a certain type?
     pub fn has_lanes(self, lane_type: LaneType, map: &Map) -> bool {
-        for (_, lt) in map.get_r(self.id).children(self.dir) {
+        for (_, lt) in map.get_r(self.road).children(self.dir) {
             if lt == lane_type {
                 return true;
             }
@@ -514,7 +514,7 @@ impl Road {
     /// endpoint.
     pub fn directed_id_from(&self, i: IntersectionID) -> DirectedRoadID {
         DirectedRoadID {
-            id: self.id,
+            road: self.id,
             dir: if self.src_i == i {
                 Direction::Fwd
             } else if self.dst_i == i {

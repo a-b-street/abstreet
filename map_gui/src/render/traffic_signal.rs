@@ -32,8 +32,8 @@ pub fn draw_signal_stage(
                     dont_walk.insert(m);
                     // TODO This is incorrect; some crosswalks hop over intermediate roads. How do
                     // we detect or plumb that?
-                    crossed_roads.insert((m.from.id, m.parent));
-                    crossed_roads.insert((m.to.id, m.parent));
+                    crossed_roads.insert((m.from.road, m.parent));
+                    crossed_roads.insert((m.to.road, m.parent));
                 }
             }
 
@@ -99,12 +99,12 @@ pub fn draw_signal_stage(
             for m in &stage.protected_movements {
                 if !m.crosswalk {
                     // TODO Maybe less if shoulders meet
-                    let slice_start = if crossed_roads.contains(&(m.from.id, m.parent)) {
+                    let slice_start = if crossed_roads.contains(&(m.from.road, m.parent)) {
                         SIDEWALK_THICKNESS
                     } else {
                         Distance::ZERO
                     };
-                    let slice_end = if crossed_roads.contains(&(m.to.id, m.parent)) {
+                    let slice_end = if crossed_roads.contains(&(m.to.road, m.parent)) {
                         SIDEWALK_THICKNESS
                     } else {
                         Distance::ZERO

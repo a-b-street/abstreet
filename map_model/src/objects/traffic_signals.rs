@@ -251,7 +251,7 @@ impl ControlTrafficSignal {
             if stage
                 .protected_movements
                 .iter()
-                .any(|m| !m.crosswalk && highest_rank == rank_per_road[&m.from.id])
+                .any(|m| !m.crosswalk && highest_rank == rank_per_road[&m.from.road])
             {
                 stage.stage_type = StageType::Fixed(major);
             } else {
@@ -489,8 +489,8 @@ impl ControlTrafficSignal {
 }
 
 fn export_movement(id: &MovementID, map: &Map) -> traffic_signal_data::Turn {
-    let from = map.get_r(id.from.id).orig_id;
-    let to = map.get_r(id.to.id).orig_id;
+    let from = map.get_r(id.from.road).orig_id;
+    let to = map.get_r(id.to.road).orig_id;
 
     traffic_signal_data::Turn {
         from: traffic_signal_data::DirectedRoad {
@@ -521,7 +521,7 @@ fn import_movement(id: traffic_signal_data::Turn, map: &Map) -> Result<MovementI
 
 fn find_r(id: traffic_signal_data::DirectedRoad, map: &Map) -> Result<DirectedRoadID> {
     Ok(DirectedRoadID {
-        id: map.find_r_by_osm_id(OriginalRoad::new(
+        road: map.find_r_by_osm_id(OriginalRoad::new(
             id.osm_way_id,
             (id.osm_node1, id.osm_node2),
         ))?,

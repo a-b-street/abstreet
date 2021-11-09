@@ -119,7 +119,7 @@ pub fn all_walking_costs_from(
         let mut shoulder_endpoint = Vec::new();
         for q in &queue {
             if let WalkingNode::SidewalkEndpoint(dir_r, _) = q.node {
-                for lane in &map.get_r(dir_r.id).lanes {
+                for lane in &map.get_r(dir_r.road).lanes {
                     shoulder_endpoint.push(lane.lane_type == LaneType::Shoulder);
                 }
             }

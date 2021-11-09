@@ -540,7 +540,7 @@ impl PathCostDebugger {
                 if let Ok(p) = app
                     .primary
                     .map
-                    .get_r(dr.id)
+                    .get_r(dr.road)
                     .get_half_polygon(dr.dir, &app.primary.map)
                 {
                     batch.push(Color::BLUE.alpha(0.5), p);
@@ -576,7 +576,7 @@ impl State<App> for PathCostDebugger {
                 // TODO In lieu of mousing over each half of a road, just show both costs.
                 let mut txt = Text::new();
                 for dir in [Direction::Fwd, Direction::Back] {
-                    if let Some(cost) = self.costs.get(&DirectedRoadID { id: r, dir }) {
+                    if let Some(cost) = self.costs.get(&DirectedRoadID { road: r, dir }) {
                         txt.add_line(format!("Cost {:?}: {}", dir, cost));
                     } else {
                         txt.add_line(format!("No cost {:?}", dir));

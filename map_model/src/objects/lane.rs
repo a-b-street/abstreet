@@ -361,7 +361,7 @@ impl Lane {
 
     pub fn get_directed_parent(&self) -> DirectedRoadID {
         DirectedRoadID {
-            id: self.id.road,
+            road: self.id.road,
             dir: self.dir,
         }
     }

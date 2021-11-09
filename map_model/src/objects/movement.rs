@@ -118,7 +118,7 @@ impl Movement {
 
     /// Polyline points FROM intersection
     pub fn src_center_and_width(&self, map: &Map) -> (PolyLine, Distance) {
-        let r = map.get_r(self.id.from.id);
+        let r = map.get_r(self.id.from.road);
 
         let mut leftmost = Distance::meters(99999.0);
         let mut rightmost = Distance::ZERO;
