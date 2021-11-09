@@ -4,10 +4,10 @@ use std::collections::{BTreeSet, BinaryHeap, HashMap, HashSet};
 use geom::Duration;
 use map_model::{
     connectivity, DirectedRoadID, DrivingSide, IntersectionID, Map, MovementID, PathConstraints,
-    PathRequest, PathV2, RoadID, TurnType,
+    PathRequest, PathV2, TurnType,
 };
 
-use super::Neighborhood;
+use super::{ModalFilters, Neighborhood};
 
 pub struct RatRun {
     pub shortcut_path: PathV2,
@@ -20,7 +20,7 @@ pub struct RatRun {
 pub fn find_rat_runs(
     map: &Map,
     neighborhood: &Neighborhood,
-    modal_filters: &BTreeSet<RoadID>,
+    modal_filters: &ModalFilters,
 ) -> Vec<RatRun> {
     let mut results: Vec<RatRun> = Vec::new();
     for i in &neighborhood.borders {
@@ -48,10 +48,10 @@ fn find_rat_runs_from(
     map: &Map,
     start: DirectedRoadID,
     borders: &BTreeSet<IntersectionID>,
-    modal_filters: &BTreeSet<RoadID>,
+    modal_filters: &ModalFilters,
 ) -> Vec<RatRun> {
     // If there's a filter where we're starting, we can't go anywhere
-    if modal_filters.contains(&start.road) {
+    if modal_filters.roads.contains_key(&start.road) {
         return Vec::new();
     }
 
@@ -88,7 +88,7 @@ fn find_rat_runs_from(
 
         for mvmnt in map.get_movements_for(current.node, PathConstraints::Car) {
             // Can't cross filters
-            if modal_filters.contains(&mvmnt.to.road) {
+            if modal_filters.roads.contains_key(&mvmnt.to.road) {
                 continue;
             }
             // If we've already visited the destination, don't add it again. We don't want to

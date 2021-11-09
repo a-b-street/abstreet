@@ -1,4 +1,4 @@
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 
 use geom::{Circle, Distance, Line, Polygon};
 use map_model::{IntersectionID, Map, Perimeter, RoadID};
@@ -26,6 +26,12 @@ pub struct Neighborhood {
 
     fade_irrelevant: Drawable,
     draw_filters: Drawable,
+}
+
+#[derive(Default)]
+pub struct ModalFilters {
+    /// For filters placed along a road, where is the filter located?
+    pub roads: BTreeMap<RoadID, Distance>,
 }
 
 impl Neighborhood {
@@ -74,22 +80,13 @@ impl Neighborhood {
         n.fade_irrelevant = GeomBatch::from(vec![(app.cs.fade_map_dark, fade_area)]).upload(ctx);
 
         let mut batch = GeomBatch::new();
-        for r in &app.session.modal_filters {
+        for (r, dist) in &app.session.modal_filters.roads {
             if !n.orig_perimeter.interior.contains(r) {
                 continue;
             }
 
             let road = map.get_r(*r);
-            // If this road touches a border, place it closer to that intersection. If it's an
-            // inner neighborhood split, then stick to the middle of that road.
-            let pct_along = if n.borders.contains(&road.src_i) {
-                0.1
-            } else if n.borders.contains(&road.dst_i) {
-                0.9
-            } else {
-                0.5
-            };
-            if let Ok((pt, angle)) = road.center_pts.dist_along(pct_along * road.length()) {
+            if let Ok((pt, angle)) = road.center_pts.dist_along(*dist) {
                 let filter_len = road.get_width();
                 batch.push(Color::RED, Circle::new(pt, filter_len).to_polygon());
                 let barrier = Line::must_new(
@@ -111,7 +108,7 @@ impl Neighborhood {
 fn find_cells(
     map: &Map,
     perimeter: &Perimeter,
-    modal_filters: &BTreeSet<RoadID>,
+    modal_filters: &ModalFilters,
 ) -> Vec<BTreeSet<RoadID>> {
     let mut cells = Vec::new();
     let mut visited = BTreeSet::new();
@@ -132,7 +129,7 @@ fn floodfill(
     map: &Map,
     start: RoadID,
     perimeter: &Perimeter,
-    modal_filters: &BTreeSet<RoadID>,
+    modal_filters: &ModalFilters,
 ) -> BTreeSet<RoadID> {
     // We don't need a priority queue
     let mut visited = BTreeSet::new();
@@ -140,7 +137,7 @@ fn floodfill(
 
     // TODO For now, each road with a filter is its own tiny cell. That's not really what we
     // want...
-    if modal_filters.contains(&start) {
+    if modal_filters.roads.contains_key(&start) {
         visited.insert(start);
         return visited;
     }
@@ -153,7 +150,7 @@ fn floodfill(
         visited.insert(current.id);
         for i in [current.src_i, current.dst_i] {
             for next in &map.get_i(i).roads {
-                if perimeter.interior.contains(next) && !modal_filters.contains(next) {
+                if perimeter.interior.contains(next) && !modal_filters.roads.contains_key(next) {
                     queue.push(*next);
                 }
             }

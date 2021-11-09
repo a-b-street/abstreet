@@ -104,10 +104,23 @@ impl State<App> for Viewer {
         }
 
         if let WorldOutcome::ClickedObject(Obj::InteriorRoad(r)) = self.world.event(ctx) {
-            if app.session.modal_filters.contains(&r) {
-                app.session.modal_filters.remove(&r);
+            if app.session.modal_filters.roads.contains_key(&r) {
+                app.session.modal_filters.roads.remove(&r);
             } else {
-                app.session.modal_filters.insert(r);
+                let road = app.primary.map.get_r(r);
+                // If this road touches a border, place it closer to that intersection. If it's an
+                // inner neighborhood split, then stick to the middle of that road.
+                let pct_along = if self.neighborhood.borders.contains(&road.src_i) {
+                    0.1
+                } else if self.neighborhood.borders.contains(&road.dst_i) {
+                    0.9
+                } else {
+                    0.5
+                };
+                app.session
+                    .modal_filters
+                    .roads
+                    .insert(r, pct_along * road.length());
             }
             // TODO The cell coloring changes quite spuriously just by toggling a filter, even
             // when it doesn't matter
