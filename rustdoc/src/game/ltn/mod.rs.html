@@ -159,10 +159,7 @@
 <span id="159">159</span>
 <span id="160">160</span>
 <span id="161">161</span>
-<span id="162">162</span>
-<span id="163">163</span>
-<span id="164">164</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Line</span>, <span class="ident">Polygon</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">Perimeter</span>, <span class="ident">RoadID</span>};
@@ -190,6 +187,12 @@
 
     <span class="ident">fade_irrelevant</span>: <span class="ident">Drawable</span>,
     <span class="ident">draw_filters</span>: <span class="ident">Drawable</span>,
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ModalFilters</span> {
+    <span class="doccomment">/// For filters placed along a road, where is the filter located?</span>
+    <span class="kw">pub</span> <span class="ident">roads</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">RoadID</span>, <span class="ident">Distance</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Neighborhood</span> {
@@ -238,22 +241,13 @@
         <span class="ident">n</span>.<span class="ident">fade_irrelevant</span> <span class="op">=</span> <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">fade_map_dark</span>, <span class="ident">fade_area</span>)]).<span class="ident">upload</span>(<span class="ident">ctx</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span> {
+        <span class="kw">for</span> (<span class="ident">r</span>, <span class="ident">dist</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">roads</span> {
             <span class="kw">if</span> <span class="op">!</span><span class="ident">n</span>.<span class="ident">orig_perimeter</span>.<span class="ident">interior</span>.<span class="ident">contains</span>(<span class="ident">r</span>) {
                 <span class="kw">continue</span>;
             }
 
             <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
-            <span class="comment">// If this road touches a border, place it closer to that intersection. If it&#39;s an</span>
-            <span class="comment">// inner neighborhood split, then stick to the middle of that road.</span>
-            <span class="kw">let</span> <span class="ident">pct_along</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">n</span>.<span class="ident">borders</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">road</span>.<span class="ident">src_i</span>) {
-                <span class="number">0.1</span>
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">n</span>.<span class="ident">borders</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">road</span>.<span class="ident">dst_i</span>) {
-                <span class="number">0.9</span>
-            } <span class="kw">else</span> {
-                <span class="number">0.5</span>
-            };
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>((<span class="ident">pt</span>, <span class="ident">angle</span>)) <span class="op">=</span> <span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">dist_along</span>(<span class="ident">pct_along</span> <span class="op">*</span> <span class="ident">road</span>.<span class="ident">length</span>()) {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>((<span class="ident">pt</span>, <span class="ident">angle</span>)) <span class="op">=</span> <span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">dist_along</span>(<span class="kw-2">*</span><span class="ident">dist</span>) {
                 <span class="kw">let</span> <span class="ident">filter_len</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">get_width</span>();
                 <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::RED</span>, <span class="ident">Circle::new</span>(<span class="ident">pt</span>, <span class="ident">filter_len</span>).<span class="ident">to_polygon</span>());
                 <span class="kw">let</span> <span class="ident">barrier</span> <span class="op">=</span> <span class="ident">Line::must_new</span>(
@@ -275,7 +269,7 @@
 <span class="kw">fn</span> <span class="ident">find_cells</span>(
     <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
     <span class="ident">perimeter</span>: <span class="kw-2">&amp;</span><span class="ident">Perimeter</span>,
-    <span class="ident">modal_filters</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>,
+    <span class="ident">modal_filters</span>: <span class="kw-2">&amp;</span><span class="ident">ModalFilters</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cells</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">visited</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
@@ -296,7 +290,7 @@
     <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
     <span class="ident">start</span>: <span class="ident">RoadID</span>,
     <span class="ident">perimeter</span>: <span class="kw-2">&amp;</span><span class="ident">Perimeter</span>,
-    <span class="ident">modal_filters</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>,
+    <span class="ident">modal_filters</span>: <span class="kw-2">&amp;</span><span class="ident">ModalFilters</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span> {
     <span class="comment">// We don&#39;t need a priority queue</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">visited</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
@@ -304,7 +298,7 @@
 
     <span class="comment">// TODO For now, each road with a filter is its own tiny cell. That&#39;s not really what we</span>
     <span class="comment">// want...</span>
-    <span class="kw">if</span> <span class="ident">modal_filters</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">start</span>) {
+    <span class="kw">if</span> <span class="ident">modal_filters</span>.<span class="ident">roads</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">start</span>) {
         <span class="ident">visited</span>.<span class="ident">insert</span>(<span class="ident">start</span>);
         <span class="kw">return</span> <span class="ident">visited</span>;
     }
@@ -317,7 +311,7 @@
         <span class="ident">visited</span>.<span class="ident">insert</span>(<span class="ident">current</span>.<span class="ident">id</span>);
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> [<span class="ident">current</span>.<span class="ident">src_i</span>, <span class="ident">current</span>.<span class="ident">dst_i</span>] {
             <span class="kw">for</span> <span class="ident">next</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">roads</span> {
-                <span class="kw">if</span> <span class="ident">perimeter</span>.<span class="ident">interior</span>.<span class="ident">contains</span>(<span class="ident">next</span>) <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">modal_filters</span>.<span class="ident">contains</span>(<span class="ident">next</span>) {
+                <span class="kw">if</span> <span class="ident">perimeter</span>.<span class="ident">interior</span>.<span class="ident">contains</span>(<span class="ident">next</span>) <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">modal_filters</span>.<span class="ident">roads</span>.<span class="ident">contains_key</span>(<span class="ident">next</span>) {
                     <span class="ident">queue</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">next</span>);
                 }
             }
