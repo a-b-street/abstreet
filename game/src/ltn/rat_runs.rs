@@ -2,29 +2,22 @@ use std::cmp::Ordering;
 use std::collections::{BTreeSet, BinaryHeap, HashMap, HashSet};
 
 use geom::Duration;
-use map_gui::tools::PopupMsg;
 use map_model::{
-    connectivity, DirectedRoadID, IntersectionID, Map, PathConstraints, PathRequest, PathV2,
-    RoadID, NORMAL_LANE_THICKNESS,
-};
-use widgetry::mapspace::ToggleZoomed;
-use widgetry::{
-    Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, Text, TextExt,
-    VerticalAlignment, Widget,
+    connectivity, DirectedRoadID, DrivingSide, IntersectionID, Map, PathConstraints, PathRequest,
+    PathV2, RoadID, TurnType,
 };
 
 use super::Neighborhood;
-use crate::app::{App, Transition};
 
-struct RatRun {
-    shortcut_path: PathV2,
+pub struct RatRun {
+    pub shortcut_path: PathV2,
     /// May be the same as the shortcut
-    fastest_path: PathV2,
+    pub fastest_path: PathV2,
 }
 
 /// Ideally this returns every possible path through the neighborhood between two borders. Doesn't
 /// work correctly yet.
-fn find_rat_runs(
+pub fn find_rat_runs(
     map: &Map,
     neighborhood: &Neighborhood,
     modal_filters: &BTreeSet<RoadID>,
@@ -140,16 +133,15 @@ impl Ord for Item {
 }
 
 impl RatRun {
-    fn new(map: &Map, path: Vec<DirectedRoadID>, cost: Duration) -> RatRun {
-        // TODO This is flat out wrong. We need to find a "reasonable" from/to road, just outside
-        // the neighborhood. Ideally on the perimeter, in a direction not forcing a U-turn.
-        let req = PathRequest::between_directed_roads(
-            map,
-            path[0],
-            *path.last().unwrap(),
-            PathConstraints::Car,
-        )
-        .unwrap();
+    fn new(map: &Map, mut path: Vec<DirectedRoadID>, cost: Duration) -> RatRun {
+        let entry = cheap_entry(map, path[0]);
+        let exit = cheap_exit(map, *path.last().unwrap());
+        path.insert(0, entry);
+        path.push(exit);
+        // TODO Adjust the cost!
+
+        let req =
+            PathRequest::between_directed_roads(map, entry, exit, PathConstraints::Car).unwrap();
         let shortcut_path = PathV2::from_roads(
             path,
             req.clone(),
@@ -170,7 +162,7 @@ impl RatRun {
 
     /// The ratio of the shortcut's time to the fastest path's time. Smaller values mean the
     /// shortcut is more desirable.
-    fn time_ratio(&self) -> f64 {
+    pub fn time_ratio(&self) -> f64 {
         // TODO Not sure why yet, just avoid crashing
         if self.fastest_path.get_cost() == Duration::ZERO {
             return 1.0;
@@ -180,127 +172,53 @@ impl RatRun {
     }
 }
 
-pub struct BrowseRatRuns {
-    panel: Panel,
-    rat_runs: Vec<RatRun>,
-    current_idx: usize,
-
-    draw_paths: ToggleZoomed,
+/// Find a road that leads into the neighborhood at a particular intersection.
+fn cheap_entry(map: &Map, to: DirectedRoadID) -> DirectedRoadID {
+    let cheap_turn_type = if map.get_config().driving_side == DrivingSide::Right {
+        TurnType::Right
+    } else {
+        TurnType::Left
+    };
+    let cheap_turn = map
+        .get_i(to.src_i(map))
+        .turns
+        .iter()
+        .filter(|t| t.id.dst.road == to.id)
+        .min_by_key(|t| {
+            if t.turn_type == cheap_turn_type {
+                0
+            } else if t.turn_type == TurnType::Straight {
+                1
+            } else {
+                2
+            }
+        })
+        .unwrap();
+    // TODO We're assuming this source road also leads somewhere else on the perimeter
+    map.get_l(cheap_turn.id.src).get_directed_parent()
 }
 
-impl BrowseRatRuns {
-    pub fn new_state(
-        ctx: &mut EventCtx,
-        app: &App,
-        neighborhood: &Neighborhood,
-    ) -> Box<dyn State<App>> {
-        let rat_runs = find_rat_runs(&app.primary.map, neighborhood, &app.session.modal_filters);
-        if rat_runs.is_empty() {
-            return PopupMsg::new_state(ctx, "No rat runs detected", vec![""]);
-        }
-
-        let mut state = BrowseRatRuns {
-            panel: Panel::empty(ctx),
-            rat_runs,
-            current_idx: 0,
-            draw_paths: ToggleZoomed::empty(ctx),
-        };
-        state.recalculate(ctx, app);
-        Box::new(state)
-    }
-
-    fn recalculate(&mut self, ctx: &mut EventCtx, app: &App) {
-        let current = &self.rat_runs[self.current_idx];
-
-        self.panel = Panel::new_builder(Widget::col(vec![
-            ctx.style()
-                .btn_outline
-                .text("Back to editing modal filters")
-                .hotkey(Key::Escape)
-                .build_def(ctx),
-            Line("Warning: placeholder results")
-                .fg(Color::RED)
-                .into_widget(ctx),
-            Widget::row(vec![
-                "Rat runs:".text_widget(ctx).centered_vert(),
-                ctx.style()
-                    .btn_prev()
-                    .disabled(self.current_idx == 0)
-                    .hotkey(Key::LeftArrow)
-                    .build_widget(ctx, "previous rat run"),
-                Text::from(
-                    Line(format!("{}/{}", self.current_idx + 1, self.rat_runs.len())).secondary(),
-                )
-                .into_widget(ctx)
-                .centered_vert(),
-                ctx.style()
-                    .btn_next()
-                    .disabled(self.current_idx == self.rat_runs.len() - 1)
-                    .hotkey(Key::RightArrow)
-                    .build_widget(ctx, "next rat run"),
-            ]),
-            Text::from_multiline(vec![
-                Line(format!("Ratio: {:.2}", current.time_ratio())),
-                Line(format!(
-                    "Shortcut takes: {}",
-                    current.shortcut_path.get_cost()
-                )),
-                Line(format!(
-                    "Fastest path takes: {}",
-                    current.fastest_path.get_cost()
-                )),
-            ])
-            .into_widget(ctx),
-        ]))
-        .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
-        .build(ctx);
-
-        // TODO Transforming into PathV1 seems like a particularly unnecessary step. Time to come
-        // up with a native v2 drawing?
-        let mut draw_paths = ToggleZoomed::builder();
-        for (path, color) in [
-            (current.shortcut_path.clone(), Color::RED),
-            (current.fastest_path.clone(), Color::BLUE),
-        ] {
-            if let Ok(path) = path.into_v1(&app.primary.map) {
-                if let Some(pl) = path.trace(&app.primary.map) {
-                    let shape = pl.make_polygons(5.0 * NORMAL_LANE_THICKNESS);
-                    draw_paths.unzoomed.push(color.alpha(0.8), shape.clone());
-                    draw_paths.zoomed.push(color.alpha(0.5), shape);
-                }
+/// Find a road that leads out of the neighborhood at a particular intersection.
+fn cheap_exit(map: &Map, from: DirectedRoadID) -> DirectedRoadID {
+    let cheap_turn_type = if map.get_config().driving_side == DrivingSide::Right {
+        TurnType::Right
+    } else {
+        TurnType::Left
+    };
+    let cheap_turn = map
+        .get_i(from.dst_i(map))
+        .turns
+        .iter()
+        .filter(|t| t.id.src.road == from.id)
+        .min_by_key(|t| {
+            if t.turn_type == cheap_turn_type {
+                0
+            } else if t.turn_type == TurnType::Straight {
+                1
+            } else {
+                2
             }
-        }
-        self.draw_paths = draw_paths.build(ctx);
-    }
-}
-
-impl State<App> for BrowseRatRuns {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        ctx.canvas_movement();
-
-        if let Outcome::Clicked(x) = self.panel.event(ctx) {
-            match x.as_ref() {
-                "Back to editing modal filters" => {
-                    return Transition::Pop;
-                }
-                "previous rat run" => {
-                    self.current_idx -= 1;
-                    self.recalculate(ctx, app);
-                }
-                "next rat run" => {
-                    self.current_idx += 1;
-                    self.recalculate(ctx, app);
-                }
-                _ => unreachable!(),
-            }
-        }
-
-        Transition::Keep
-    }
-
-    fn draw(&self, g: &mut GfxCtx, _: &App) {
-        self.panel.draw(g);
-        self.draw_paths.draw(g);
-        // TODO Draw everything from the previous state too... fade, the cells, filters, labels
-    }
+        })
+        .unwrap();
+    map.get_l(cheap_turn.id.dst).get_directed_parent()
 }

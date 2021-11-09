@@ -10,6 +10,7 @@ pub use browse::BrowseNeighborhoods;
 
 mod browse;
 mod draw_cells;
+mod rat_run_viewer;
 mod rat_runs;
 mod viewer;
 

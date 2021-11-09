@@ -35,8 +35,6 @@ impl Viewer {
             ctx.style()
                 .btn_outline
                 .text("Browse rat-runs")
-                .disabled(true)
-                .disabled_tooltip("Currently broken, coming soon...")
                 .hotkey(Key::R)
                 .build_def(ctx),
             Widget::row(vec![
@@ -86,7 +84,7 @@ impl State<App> for Viewer {
                     return Transition::Pop;
                 }
                 "Browse rat-runs" => {
-                    return Transition::Push(super::rat_runs::BrowseRatRuns::new_state(
+                    return Transition::Push(super::rat_run_viewer::BrowseRatRuns::new_state(
                         ctx,
                         app,
                         &self.neighborhood,
