@@ -215,7 +215,7 @@
 <span class="kw">impl</span> <span class="ident">Viewer</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">block</span>: <span class="kw-2">&amp;</span><span class="ident">Block</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="ident">map_gui::tools::app_header</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="string">&quot;LTN tool&quot;</span>),
+            <span class="ident">map_gui::tools::app_header</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="string">&quot;Low traffic neighborhoods&quot;</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_outline</span>
                 .<span class="ident">text</span>(<span class="string">&quot;Browse neighborhoods&quot;</span>)
