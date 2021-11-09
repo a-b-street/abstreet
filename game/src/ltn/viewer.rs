@@ -26,7 +26,7 @@ impl ObjectID for Obj {}
 impl Viewer {
     pub fn new_state(ctx: &mut EventCtx, app: &App, block: &Block) -> Box<dyn State<App>> {
         let panel = Panel::new_builder(Widget::col(vec![
-            map_gui::tools::app_header(ctx, app, "LTN tool"),
+            map_gui::tools::app_header(ctx, app, "Low traffic neighborhoods"),
             ctx.style()
                 .btn_outline
                 .text("Browse neighborhoods")

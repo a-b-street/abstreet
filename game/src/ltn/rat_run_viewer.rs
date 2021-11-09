@@ -95,6 +95,7 @@ impl BrowseRatRuns {
         ] {
             if let Ok(path) = path.into_v1(&app.primary.map) {
                 if let Some(pl) = path.trace(&app.primary.map) {
+                    // TODO This produces a really buggy shape sometimes!
                     let shape = pl.make_arrow(3.0 * NORMAL_LANE_THICKNESS, ArrowCap::Triangle);
                     draw_paths.unzoomed.push(color.alpha(0.8), shape.clone());
                     draw_paths.zoomed.push(color.alpha(0.5), shape);

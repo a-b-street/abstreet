@@ -3,8 +3,8 @@ use std::collections::{BTreeSet, BinaryHeap, HashMap, HashSet};
 
 use geom::Duration;
 use map_model::{
-    connectivity, DirectedRoadID, DrivingSide, IntersectionID, Map, PathConstraints, PathRequest,
-    PathV2, RoadID, TurnType,
+    connectivity, DirectedRoadID, DrivingSide, IntersectionID, Map, MovementID, PathConstraints,
+    PathRequest, PathV2, RoadID, TurnType,
 };
 
 use super::Neighborhood;
@@ -82,13 +82,19 @@ fn find_rat_runs_from(
             path.push(start);
             path.reverse();
             results.push(RatRun::new(map, path, current.cost));
-            // TODO Keep searching for more, but infinite loop currently
-            return results;
+            // Keep searching for more
+            continue;
         }
 
         for mvmnt in map.get_movements_for(current.node, PathConstraints::Car) {
             // Can't cross filters
             if modal_filters.contains(&mvmnt.to.road) {
+                continue;
+            }
+            // If we've already visited the destination, don't add it again. We don't want to
+            // update back_refs -- because this must be a higher-cost path to a place we've already
+            // visited.
+            if visited.contains(&mvmnt.to) {
                 continue;
             }
 
@@ -133,15 +139,37 @@ impl Ord for Item {
 }
 
 impl RatRun {
-    fn new(map: &Map, mut path: Vec<DirectedRoadID>, cost: Duration) -> RatRun {
+    fn new(map: &Map, mut path: Vec<DirectedRoadID>, mut cost: Duration) -> RatRun {
+        // The rat run starts and ends at a road just inside the neighborhood. To "motivate" using
+        // the shortcut, find an entry and exit road just outside the neighborhood to calculate a
+        // fastest path.
         let entry = cheap_entry(map, path[0]);
         let exit = cheap_exit(map, *path.last().unwrap());
-        path.insert(0, entry);
-        path.push(exit);
-        // TODO Adjust the cost!
+        path.insert(0, entry.from);
+        path.push(exit.to);
+
+        // Adjust the cost for the new roads
+        // TODO Or just make a PathV2 method to do this?
+        cost += connectivity::vehicle_cost(
+            entry.from,
+            entry,
+            PathConstraints::Car,
+            map.routing_params(),
+            map,
+        );
+        cost += connectivity::vehicle_cost(
+            // TODO This is an abuse of vehicle_cost! It should just take the MovementID and always
+            // use from... and something else should add the cost of the final road
+            exit.to,
+            exit,
+            PathConstraints::Car,
+            map.routing_params(),
+            map,
+        );
 
         let req =
-            PathRequest::between_directed_roads(map, entry, exit, PathConstraints::Car).unwrap();
+            PathRequest::between_directed_roads(map, entry.from, exit.to, PathConstraints::Car)
+                .unwrap();
         let shortcut_path = PathV2::from_roads(
             path,
             req.clone(),
@@ -172,53 +200,50 @@ impl RatRun {
     }
 }
 
-/// Find a road that leads into the neighborhood at a particular intersection.
-fn cheap_entry(map: &Map, to: DirectedRoadID) -> DirectedRoadID {
+/// Find a movement that leads into the neighborhood at the first road in a rat-run
+fn cheap_entry(map: &Map, to: DirectedRoadID) -> MovementID {
     let cheap_turn_type = if map.get_config().driving_side == DrivingSide::Right {
         TurnType::Right
     } else {
         TurnType::Left
     };
-    let cheap_turn = map
-        .get_i(to.src_i(map))
-        .turns
-        .iter()
-        .filter(|t| t.id.dst.road == to.road)
-        .min_by_key(|t| {
-            if t.turn_type == cheap_turn_type {
+    map.get_i(to.src_i(map))
+        .movements
+        .values()
+        .filter(|mvmnt| mvmnt.id.to == to)
+        .min_by_key(|mvmnt| {
+            if mvmnt.turn_type == cheap_turn_type {
                 0
-            } else if t.turn_type == TurnType::Straight {
+            } else if mvmnt.turn_type == TurnType::Straight {
                 1
             } else {
                 2
             }
         })
-        .unwrap();
-    // TODO We're assuming this source road also leads somewhere else on the perimeter
-    map.get_l(cheap_turn.id.src).get_directed_parent()
+        .unwrap()
+        .id
 }
 
-/// Find a road that leads out of the neighborhood at a particular intersection.
-fn cheap_exit(map: &Map, from: DirectedRoadID) -> DirectedRoadID {
+/// Find a movement that leads out of the neighborhood at the last road in a rat-run
+fn cheap_exit(map: &Map, from: DirectedRoadID) -> MovementID {
     let cheap_turn_type = if map.get_config().driving_side == DrivingSide::Right {
         TurnType::Right
     } else {
         TurnType::Left
     };
-    let cheap_turn = map
-        .get_i(from.dst_i(map))
-        .turns
-        .iter()
-        .filter(|t| t.id.src.road == from.road)
-        .min_by_key(|t| {
-            if t.turn_type == cheap_turn_type {
+    map.get_i(from.dst_i(map))
+        .movements
+        .values()
+        .filter(|mvmnt| mvmnt.id.from == from)
+        .min_by_key(|mvmnt| {
+            if mvmnt.turn_type == cheap_turn_type {
                 0
-            } else if t.turn_type == TurnType::Straight {
+            } else if mvmnt.turn_type == TurnType::Straight {
                 1
             } else {
                 2
             }
         })
-        .unwrap();
-    map.get_l(cheap_turn.id.dst).get_directed_parent()
+        .unwrap()
+        .id
 }
