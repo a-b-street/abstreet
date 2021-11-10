@@ -12,6 +12,7 @@ mod browse;
 mod draw_cells;
 mod rat_run_viewer;
 mod rat_runs;
+mod route;
 mod viewer;
 
 pub struct Neighborhood {

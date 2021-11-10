@@ -39,6 +39,11 @@ impl Viewer {
                 .text("Browse rat-runs")
                 .hotkey(Key::R)
                 .build_def(ctx),
+            ctx.style()
+                .btn_outline
+                .text("Pathfind")
+                .hotkey(Key::P)
+                .build_def(ctx),
             Widget::row(vec![
                 "Draw traffic cells as".text_widget(ctx).centered_vert(),
                 Toggle::choice(ctx, "draw cells", "areas", "streets", Key::C, true),
@@ -91,6 +96,9 @@ impl State<App> for Viewer {
                         app,
                         &self.neighborhood,
                     ));
+                }
+                "Pathfind" => {
+                    return Transition::Push(super::route::RoutePlanner::new_state(ctx, app));
                 }
                 _ => unreachable!(),
             },
