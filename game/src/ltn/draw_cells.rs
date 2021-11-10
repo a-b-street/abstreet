@@ -36,13 +36,14 @@ pub fn draw_cells(map: &Map, neighborhood: &Neighborhood) -> GeomBatch {
     );
 
     // Initially fill out the grid based on the roads in each cell
-    for (cell_idx, roads) in neighborhood.cells.iter().enumerate() {
-        for r in roads {
+    for (cell_idx, cell) in neighborhood.cells.iter().enumerate() {
+        for (r, interval) in &cell.roads {
             let road = map.get_r(*r);
             // Walk along the center line. We could look at the road's thickness and fill out
             // points based on that, but the diffusion should take care of it.
             for (pt, _) in road
                 .center_pts
+                .exact_slice(interval.start, interval.end)
                 .step_along(Distance::meters(resolution_m / 2.0), Distance::ZERO)
             {
                 let grid_idx = grid.idx(

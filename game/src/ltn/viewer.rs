@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use geom::Distance;
 use map_gui::tools::{CityPicker, DrawRoadLabels};
 use map_model::{Block, RoadID};
@@ -109,10 +111,13 @@ impl State<App> for Viewer {
             } else {
                 let road = app.primary.map.get_r(r);
                 // If this road touches a border, place it closer to that intersection. If it's an
-                // inner neighborhood split, then stick to the middle of that road.
-                let pct_along = if self.neighborhood.borders.contains(&road.src_i) {
+                // inner neighborhood split, then stick to the middle of that road. If it touches
+                // two borders, also choose the middle.
+                let near_start = self.neighborhood.borders.contains(&road.src_i);
+                let near_end = self.neighborhood.borders.contains(&road.dst_i);
+                let pct_along = if near_start && !near_end {
                     0.1
-                } else if self.neighborhood.borders.contains(&road.dst_i) {
+                } else if near_end && !near_start {
                     0.9
                 } else {
                     0.5
@@ -163,24 +168,31 @@ fn make_world(
     // Could refactor this, but I suspect we'll settle on one drawing style or another. Toggling
     // between the two is temporary.
     if draw_cells_as_areas {
-        for (_, cells) in neighborhood.cells.iter().enumerate() {
-            for r in cells {
-                world
-                    .add(Obj::InteriorRoad(*r))
-                    .hitbox(map.get_r(*r).get_thick_polygon())
-                    .drawn_in_master_batch()
-                    .hover_outline(Color::BLACK, Distance::meters(5.0))
-                    .clickable()
-                    .build(ctx);
-            }
+        for r in &neighborhood.orig_perimeter.interior {
+            world
+                .add(Obj::InteriorRoad(*r))
+                .hitbox(map.get_r(*r).get_thick_polygon())
+                .drawn_in_master_batch()
+                .hover_outline(Color::BLACK, Distance::meters(5.0))
+                .clickable()
+                .build(ctx);
         }
 
         world.draw_master_batch(ctx, super::draw_cells::draw_cells(map, neighborhood));
     } else {
         let mut draw_intersections = GeomBatch::new();
-        for (idx, cells) in neighborhood.cells.iter().enumerate() {
+        let mut seen_roads = HashSet::new();
+        for (idx, cell) in neighborhood.cells.iter().enumerate() {
             let color = super::draw_cells::COLORS[idx % super::draw_cells::COLORS.len()].alpha(0.9);
-            for r in cells {
+            for r in cell.roads.keys() {
+                // TODO Roads with a filter belong to two cells. Avoid adding them to the world
+                // twice. But the drawn form (and the intersections included) needs to be adjusted
+                // to use two colors.
+                if seen_roads.contains(r) {
+                    continue;
+                }
+                seen_roads.insert(*r);
+
                 world
                     .add(Obj::InteriorRoad(*r))
                     .hitbox(map.get_r(*r).get_thick_polygon())
@@ -189,7 +201,9 @@ fn make_world(
                     .clickable()
                     .build(ctx);
             }
-            for i in crate::common::intersections_from_roads(cells, map) {
+            for i in
+                crate::common::intersections_from_roads(&cell.roads.keys().cloned().collect(), map)
+            {
                 draw_intersections.push(color, map.get_i(i).polygon.clone());
             }
         }

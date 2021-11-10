@@ -22,7 +22,7 @@ pub struct Neighborhood {
 
     // The cells change as a result of modal filters, which're stored for all neighborhoods in
     // app.session.
-    cells: Vec<BTreeSet<RoadID>>,
+    cells: Vec<Cell>,
 
     fade_irrelevant: Drawable,
     draw_filters: Drawable,
@@ -34,17 +34,30 @@ pub struct ModalFilters {
     pub roads: BTreeMap<RoadID, Distance>,
 }
 
+/// A partitioning of the interior of a neighborhood based on driving connectivity
+pub struct Cell {
+    /// Most roads are fully in one cell. Roads with modal filters on them are split between two
+    /// cells, and the DistanceInterval indicates the split. The distances are over the road's
+    /// center line length.
+    pub roads: BTreeMap<RoadID, DistanceInterval>,
+}
+
+/// An interval along a road's length, with start < end.
+pub struct DistanceInterval {
+    pub start: Distance,
+    pub end: Distance,
+}
+
 impl Neighborhood {
     fn new(ctx: &EventCtx, app: &App, orig_perimeter: Perimeter) -> Neighborhood {
         let map = &app.primary.map;
 
-        let cells = find_cells(map, &orig_perimeter, &app.session.modal_filters);
         let mut n = Neighborhood {
             orig_perimeter,
             perimeter: BTreeSet::new(),
             borders: BTreeSet::new(),
 
-            cells,
+            cells: Vec::new(),
 
             fade_irrelevant: Drawable::empty(ctx),
             draw_filters: Drawable::empty(ctx),
@@ -79,6 +92,13 @@ impl Neighborhood {
         );
         n.fade_irrelevant = GeomBatch::from(vec![(app.cs.fade_map_dark, fade_area)]).upload(ctx);
 
+        n.cells = find_cells(
+            map,
+            &n.orig_perimeter,
+            &n.borders,
+            &app.session.modal_filters,
+        );
+
         let mut batch = GeomBatch::new();
         for (r, dist) in &app.session.modal_filters.roads {
             if !n.orig_perimeter.interior.contains(r) {
@@ -108,18 +128,50 @@ impl Neighborhood {
 fn find_cells(
     map: &Map,
     perimeter: &Perimeter,
+    borders: &BTreeSet<IntersectionID>,
     modal_filters: &ModalFilters,
-) -> Vec<BTreeSet<RoadID>> {
+) -> Vec<Cell> {
     let mut cells = Vec::new();
     let mut visited = BTreeSet::new();
 
     for start in &perimeter.interior {
-        if visited.contains(start) {
+        if visited.contains(start) || modal_filters.roads.contains_key(start) {
             continue;
         }
         let cell = floodfill(map, *start, perimeter, modal_filters);
-        cells.push(cell.clone());
-        visited.extend(cell);
+        visited.extend(cell.roads.keys().cloned());
+        cells.push(cell);
+    }
+
+    // Filtered roads right along the perimeter have a tiny cell
+    for (r, filter_dist) in &modal_filters.roads {
+        let road = map.get_r(*r);
+        if borders.contains(&road.src_i) {
+            let mut cell = Cell {
+                roads: BTreeMap::new(),
+            };
+            cell.roads.insert(
+                road.id,
+                DistanceInterval {
+                    start: Distance::ZERO,
+                    end: *filter_dist,
+                },
+            );
+            cells.push(cell);
+        }
+        if borders.contains(&road.dst_i) {
+            let mut cell = Cell {
+                roads: BTreeMap::new(),
+            };
+            cell.roads.insert(
+                road.id,
+                DistanceInterval {
+                    start: *filter_dist,
+                    end: road.length(),
+                },
+            );
+            cells.push(cell);
+        }
     }
 
     cells
@@ -130,32 +182,56 @@ fn floodfill(
     start: RoadID,
     perimeter: &Perimeter,
     modal_filters: &ModalFilters,
-) -> BTreeSet<RoadID> {
+) -> Cell {
     // We don't need a priority queue
-    let mut visited = BTreeSet::new();
+    let mut visited_roads: BTreeMap<RoadID, DistanceInterval> = BTreeMap::new();
     let mut queue = vec![start];
 
-    // TODO For now, each road with a filter is its own tiny cell. That's not really what we
-    // want...
-    if modal_filters.roads.contains_key(&start) {
-        visited.insert(start);
-        return visited;
-    }
+    // The caller should handle this case
+    assert!(!modal_filters.roads.contains_key(&start));
 
     while !queue.is_empty() {
         let current = map.get_r(queue.pop().unwrap());
-        if visited.contains(&current.id) {
+        if visited_roads.contains_key(&current.id) {
             continue;
         }
-        visited.insert(current.id);
+        visited_roads.insert(
+            current.id,
+            DistanceInterval {
+                start: Distance::ZERO,
+                end: map.get_r(current.id).length(),
+            },
+        );
         for i in [current.src_i, current.dst_i] {
             for next in &map.get_i(i).roads {
-                if perimeter.interior.contains(next) && !modal_filters.roads.contains_key(next) {
+                if !perimeter.interior.contains(next) {
+                    continue;
+                }
+                if let Some(filter_dist) = modal_filters.roads.get(next) {
+                    // Which end of the filtered road have we reached?
+                    let next_road = map.get_r(*next);
+                    visited_roads.insert(
+                        *next,
+                        if next_road.src_i == i {
+                            DistanceInterval {
+                                start: Distance::ZERO,
+                                end: *filter_dist,
+                            }
+                        } else {
+                            DistanceInterval {
+                                start: *filter_dist,
+                                end: next_road.length(),
+                            }
+                        },
+                    );
+                } else {
                     queue.push(*next);
                 }
             }
         }
     }
 
-    visited
+    Cell {
+        roads: visited_roads,
+    }
 }
