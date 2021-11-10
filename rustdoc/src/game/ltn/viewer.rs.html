@@ -200,7 +200,23 @@
 <span id="200">200</span>
 <span id="201">201</span>
 <span id="202">202</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom::Distance</span>;
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
+
+<span class="kw">use</span> <span class="ident">geom::Distance</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">CityPicker</span>, <span class="ident">DrawRoadLabels</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Block</span>, <span class="ident">RoadID</span>};
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ObjectID</span>, <span class="ident">World</span>, <span class="ident">WorldOutcome</span>};
@@ -311,10 +327,13 @@
             } <span class="kw">else</span> {
                 <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>);
                 <span class="comment">// If this road touches a border, place it closer to that intersection. If it&#39;s an</span>
-                <span class="comment">// inner neighborhood split, then stick to the middle of that road.</span>
-                <span class="kw">let</span> <span class="ident">pct_along</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">neighborhood</span>.<span class="ident">borders</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">road</span>.<span class="ident">src_i</span>) {
+                <span class="comment">// inner neighborhood split, then stick to the middle of that road. If it touches</span>
+                <span class="comment">// two borders, also choose the middle.</span>
+                <span class="kw">let</span> <span class="ident">near_start</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">neighborhood</span>.<span class="ident">borders</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">road</span>.<span class="ident">src_i</span>);
+                <span class="kw">let</span> <span class="ident">near_end</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">neighborhood</span>.<span class="ident">borders</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">road</span>.<span class="ident">dst_i</span>);
+                <span class="kw">let</span> <span class="ident">pct_along</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">near_start</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">near_end</span> {
                     <span class="number">0.1</span>
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">neighborhood</span>.<span class="ident">borders</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">road</span>.<span class="ident">dst_i</span>) {
+                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">near_end</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">near_start</span> {
                     <span class="number">0.9</span>
                 } <span class="kw">else</span> {
                     <span class="number">0.5</span>
@@ -365,24 +384,31 @@
     <span class="comment">// Could refactor this, but I suspect we&#39;ll settle on one drawing style or another. Toggling</span>
     <span class="comment">// between the two is temporary.</span>
     <span class="kw">if</span> <span class="ident">draw_cells_as_areas</span> {
-        <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">cells</span>) <span class="kw">in</span> <span class="ident">neighborhood</span>.<span class="ident">cells</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-            <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">cells</span> {
-                <span class="ident">world</span>
-                    .<span class="ident">add</span>(<span class="ident">Obj::InteriorRoad</span>(<span class="kw-2">*</span><span class="ident">r</span>))
-                    .<span class="ident">hitbox</span>(<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">get_thick_polygon</span>())
-                    .<span class="ident">drawn_in_master_batch</span>()
-                    .<span class="ident">hover_outline</span>(<span class="ident">Color::BLACK</span>, <span class="ident">Distance::meters</span>(<span class="number">5.0</span>))
-                    .<span class="ident">clickable</span>()
-                    .<span class="ident">build</span>(<span class="ident">ctx</span>);
-            }
+        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">neighborhood</span>.<span class="ident">orig_perimeter</span>.<span class="ident">interior</span> {
+            <span class="ident">world</span>
+                .<span class="ident">add</span>(<span class="ident">Obj::InteriorRoad</span>(<span class="kw-2">*</span><span class="ident">r</span>))
+                .<span class="ident">hitbox</span>(<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">get_thick_polygon</span>())
+                .<span class="ident">drawn_in_master_batch</span>()
+                .<span class="ident">hover_outline</span>(<span class="ident">Color::BLACK</span>, <span class="ident">Distance::meters</span>(<span class="number">5.0</span>))
+                .<span class="ident">clickable</span>()
+                .<span class="ident">build</span>(<span class="ident">ctx</span>);
         }
 
         <span class="ident">world</span>.<span class="ident">draw_master_batch</span>(<span class="ident">ctx</span>, <span class="ident"><span class="kw">super</span>::draw_cells::draw_cells</span>(<span class="ident">map</span>, <span class="ident">neighborhood</span>));
     } <span class="kw">else</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw_intersections</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">cells</span>) <span class="kw">in</span> <span class="ident">neighborhood</span>.<span class="ident">cells</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seen_roads</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
+        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">cell</span>) <span class="kw">in</span> <span class="ident">neighborhood</span>.<span class="ident">cells</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
             <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident"><span class="kw">super</span>::draw_cells::COLORS</span>[<span class="ident">idx</span> <span class="op">%</span> <span class="ident"><span class="kw">super</span>::draw_cells::COLORS</span>.<span class="ident">len</span>()].<span class="ident">alpha</span>(<span class="number">0.9</span>);
-            <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">cells</span> {
+            <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">cell</span>.<span class="ident">roads</span>.<span class="ident">keys</span>() {
+                <span class="comment">// TODO Roads with a filter belong to two cells. Avoid adding them to the world</span>
+                <span class="comment">// twice. But the drawn form (and the intersections included) needs to be adjusted</span>
+                <span class="comment">// to use two colors.</span>
+                <span class="kw">if</span> <span class="ident">seen_roads</span>.<span class="ident">contains</span>(<span class="ident">r</span>) {
+                    <span class="kw">continue</span>;
+                }
+                <span class="ident">seen_roads</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">r</span>);
+
                 <span class="ident">world</span>
                     .<span class="ident">add</span>(<span class="ident">Obj::InteriorRoad</span>(<span class="kw-2">*</span><span class="ident">r</span>))
                     .<span class="ident">hitbox</span>(<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">get_thick_polygon</span>())
@@ -391,7 +417,9 @@
                     .<span class="ident">clickable</span>()
                     .<span class="ident">build</span>(<span class="ident">ctx</span>);
             }
-            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident"><span class="kw">crate</span>::common::intersections_from_roads</span>(<span class="ident">cells</span>, <span class="ident">map</span>) {
+            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span>
+                <span class="ident"><span class="kw">crate</span>::common::intersections_from_roads</span>(<span class="kw-2">&amp;</span><span class="ident">cell</span>.<span class="ident">roads</span>.<span class="ident">keys</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>(), <span class="ident">map</span>)
+            {
                 <span class="ident">draw_intersections</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>());
             }
         }

@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["find_cells",""],["floodfill",""]],"mod":[["browse",""],["draw_cells",""],["rat_run_viewer",""],["rat_runs",""],["viewer",""]],"struct":[["ModalFilters",""],["Neighborhood",""]]});
+initSidebarItems({"fn":[["find_cells",""],["floodfill",""]],"mod":[["browse",""],["draw_cells",""],["rat_run_viewer",""],["rat_runs",""],["viewer",""]],"struct":[["Cell","A partitioning of the interior of a neighborhood based on driving connectivity"],["DistanceInterval","An interval along a road’s length, with start < end."],["ModalFilters",""],["Neighborhood",""]]});
