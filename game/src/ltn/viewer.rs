@@ -1,8 +1,8 @@
 use std::collections::HashSet;
 
 use geom::Distance;
-use map_gui::tools::{CityPicker, DrawRoadLabels};
-use map_model::{Block, RoadID};
+use map_gui::tools::CityPicker;
+use map_model::RoadID;
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::{
     Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, State, TextExt,
@@ -16,7 +16,6 @@ pub struct Viewer {
     panel: Panel,
     neighborhood: Neighborhood,
     world: World<Obj>,
-    labels: DrawRoadLabels,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -26,7 +25,11 @@ enum Obj {
 impl ObjectID for Obj {}
 
 impl Viewer {
-    pub fn new_state(ctx: &mut EventCtx, app: &App, block: &Block) -> Box<dyn State<App>> {
+    pub fn new_state(
+        ctx: &mut EventCtx,
+        app: &App,
+        neighborhood: Neighborhood,
+    ) -> Box<dyn State<App>> {
         let panel = Panel::new_builder(Widget::col(vec![
             map_gui::tools::app_header(ctx, app, "Low traffic neighborhoods"),
             ctx.style()
@@ -53,18 +56,12 @@ impl Viewer {
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
         .build(ctx);
 
-        let neighborhood = Neighborhood::new(ctx, app, block.perimeter.clone());
-
-        let mut label_roads = neighborhood.perimeter.clone();
-        label_roads.extend(neighborhood.orig_perimeter.interior.clone());
-
         let world = make_world(ctx, app, &neighborhood, panel.is_checked("draw cells"));
 
         Box::new(Viewer {
             panel,
             neighborhood,
             world,
-            labels: DrawRoadLabels::new(Box::new(move |r| label_roads.contains(&r.id))),
         })
     }
 }
@@ -91,14 +88,24 @@ impl State<App> for Viewer {
                     return Transition::Pop;
                 }
                 "Browse rat-runs" => {
-                    return Transition::Push(super::rat_run_viewer::BrowseRatRuns::new_state(
-                        ctx,
-                        app,
-                        &self.neighborhood,
-                    ));
+                    return Transition::ConsumeState(Box::new(|state, ctx, app| {
+                        let state = state.downcast::<Viewer>().ok().unwrap();
+                        vec![super::rat_run_viewer::BrowseRatRuns::new_state(
+                            ctx,
+                            app,
+                            state.neighborhood,
+                        )]
+                    }));
                 }
                 "Pathfind" => {
-                    return Transition::Push(super::route::RoutePlanner::new_state(ctx, app));
+                    return Transition::ConsumeState(Box::new(|state, ctx, app| {
+                        let state = state.downcast::<Viewer>().ok().unwrap();
+                        vec![super::route::RoutePlanner::new_state(
+                            ctx,
+                            app,
+                            state.neighborhood,
+                        )]
+                    }));
                 }
                 _ => unreachable!(),
             },
@@ -159,7 +166,7 @@ impl State<App> for Viewer {
         // same might be nice. And we should seed the quadtree with the locations of filters and
         // arrows, possibly.
         if g.canvas.is_unzoomed() {
-            self.labels.draw(g, app);
+            self.neighborhood.labels.draw(g, app);
         }
     }
 }

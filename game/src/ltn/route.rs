@@ -7,6 +7,7 @@ use widgetry::{
     Widget,
 };
 
+use super::Neighborhood;
 use crate::app::{App, Transition};
 use crate::common::{InputWaypoints, WaypointID};
 
@@ -14,6 +15,8 @@ pub struct RoutePlanner {
     panel: Panel,
     waypoints: InputWaypoints,
     world: World<ID>,
+
+    neighborhood: Neighborhood,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
@@ -24,11 +27,16 @@ enum ID {
 impl ObjectID for ID {}
 
 impl RoutePlanner {
-    pub fn new_state(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
+    pub fn new_state(
+        ctx: &mut EventCtx,
+        app: &mut App,
+        neighborhood: Neighborhood,
+    ) -> Box<dyn State<App>> {
         let mut rp = RoutePlanner {
             panel: Panel::empty(ctx),
             waypoints: InputWaypoints::new(app),
             world: World::bounded(app.primary.map.get_bounds()),
+            neighborhood,
         };
         rp.update(ctx, app);
         Box::new(rp)
@@ -97,7 +105,14 @@ impl State<App> for RoutePlanner {
         let panel_outcome = self.panel.event(ctx);
         if let Outcome::Clicked(ref x) = panel_outcome {
             if x == "Back to editing modal filters" {
-                return Transition::Pop;
+                return Transition::ConsumeState(Box::new(|state, ctx, app| {
+                    let state = state.downcast::<RoutePlanner>().ok().unwrap();
+                    vec![super::viewer::Viewer::new_state(
+                        ctx,
+                        app,
+                        state.neighborhood,
+                    )]
+                }));
             }
         }
 
@@ -111,8 +126,15 @@ impl State<App> for RoutePlanner {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &App) {
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
+
+        g.redraw(&self.neighborhood.fade_irrelevant);
+        g.redraw(&self.neighborhood.draw_filters);
+        if g.canvas.is_unzoomed() {
+            self.neighborhood.labels.draw(g, app);
+        }
+
         self.world.draw(g);
     }
 }

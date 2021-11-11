@@ -1,6 +1,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use geom::{Circle, Distance, Line, Polygon};
+use map_gui::tools::DrawRoadLabels;
 use map_model::{IntersectionID, Map, Perimeter, RoadID};
 use widgetry::{Color, Drawable, EventCtx, GeomBatch};
 
@@ -27,6 +28,7 @@ pub struct Neighborhood {
 
     fade_irrelevant: Drawable,
     draw_filters: Drawable,
+    labels: DrawRoadLabels,
 }
 
 #[derive(Default)]
@@ -62,6 +64,8 @@ impl Neighborhood {
 
             fade_irrelevant: Drawable::empty(ctx),
             draw_filters: Drawable::empty(ctx),
+            // Temporary value
+            labels: DrawRoadLabels::only_major_roads(),
         };
 
         let mut holes = Vec::new();
@@ -119,6 +123,10 @@ impl Neighborhood {
             }
         }
         n.draw_filters = batch.upload(ctx);
+
+        let mut label_roads = n.perimeter.clone();
+        label_roads.extend(n.orig_perimeter.interior.clone());
+        n.labels = DrawRoadLabels::new(Box::new(move |r| label_roads.contains(&r.id)));
 
         n
     }

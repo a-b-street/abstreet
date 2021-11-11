@@ -11,7 +11,7 @@ use widgetry::{
     VerticalAlignment, Widget,
 };
 
-use super::viewer::Viewer;
+use super::Neighborhood;
 use crate::app::{App, Transition};
 
 const COLORS: [Color; 6] = [
@@ -76,7 +76,11 @@ impl State<App> for BrowseNeighborhoods {
         }
 
         if let WorldOutcome::ClickedObject(id) = self.world.event(ctx) {
-            return Transition::Push(Viewer::new_state(ctx, app, &self.neighborhoods[&id]));
+            return Transition::Push(super::viewer::Viewer::new_state(
+                ctx,
+                app,
+                Neighborhood::new(ctx, app, self.neighborhoods[&id].perimeter.clone()),
+            ));
         }
 
         Transition::Keep

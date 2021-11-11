@@ -1,5 +1,4 @@
 use geom::ArrowCap;
-use map_gui::tools::PopupMsg;
 use map_model::NORMAL_LANE_THICKNESS;
 use widgetry::mapspace::ToggleZoomed;
 use widgetry::{
@@ -17,30 +16,42 @@ pub struct BrowseRatRuns {
     current_idx: usize,
 
     draw_paths: ToggleZoomed,
+    neighborhood: Neighborhood,
 }
 
 impl BrowseRatRuns {
     pub fn new_state(
         ctx: &mut EventCtx,
         app: &App,
-        neighborhood: &Neighborhood,
+        neighborhood: Neighborhood,
     ) -> Box<dyn State<App>> {
-        let rat_runs = find_rat_runs(&app.primary.map, neighborhood, &app.session.modal_filters);
-        if rat_runs.is_empty() {
-            return PopupMsg::new_state(ctx, "No rat runs detected", vec![""]);
-        }
-
+        let rat_runs = find_rat_runs(&app.primary.map, &neighborhood, &app.session.modal_filters);
         let mut state = BrowseRatRuns {
             panel: Panel::empty(ctx),
             rat_runs,
             current_idx: 0,
             draw_paths: ToggleZoomed::empty(ctx),
+            neighborhood,
         };
         state.recalculate(ctx, app);
         Box::new(state)
     }
 
     fn recalculate(&mut self, ctx: &mut EventCtx, app: &App) {
+        if self.rat_runs.is_empty() {
+            self.panel = Panel::new_builder(Widget::col(vec![
+                ctx.style()
+                    .btn_outline
+                    .text("Back to editing modal filters")
+                    .hotkey(Key::Escape)
+                    .build_def(ctx),
+                "No rat runs detected".text_widget(ctx),
+            ]))
+            .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
+            .build(ctx);
+            return;
+        }
+
         let current = &self.rat_runs[self.current_idx];
 
         self.panel = Panel::new_builder(Widget::col(vec![
@@ -113,7 +124,14 @@ impl State<App> for BrowseRatRuns {
         if let Outcome::Clicked(x) = self.panel.event(ctx) {
             match x.as_ref() {
                 "Back to editing modal filters" => {
-                    return Transition::Pop;
+                    return Transition::ConsumeState(Box::new(|state, ctx, app| {
+                        let state = state.downcast::<BrowseRatRuns>().ok().unwrap();
+                        vec![super::viewer::Viewer::new_state(
+                            ctx,
+                            app,
+                            state.neighborhood,
+                        )]
+                    }));
                 }
                 "previous rat run" => {
                     self.current_idx -= 1;
@@ -130,9 +148,15 @@ impl State<App> for BrowseRatRuns {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &App) {
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
+
+        g.redraw(&self.neighborhood.fade_irrelevant);
+        g.redraw(&self.neighborhood.draw_filters);
+        if g.canvas.is_unzoomed() {
+            self.neighborhood.labels.draw(g, app);
+        }
+
         self.draw_paths.draw(g);
-        // TODO Draw everything from the previous state too... fade, the cells, filters, labels
     }
 }
