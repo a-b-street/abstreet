@@ -149,6 +149,10 @@
 <span id="149">149</span>
 <span id="150">150</span>
 <span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
@@ -162,7 +166,7 @@
     <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::viewer::Viewer</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::Neighborhood</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
 
 <span class="kw">const</span> <span class="ident">COLORS</span>: [<span class="ident">Color</span>; <span class="number">6</span>] <span class="op">=</span> [
@@ -227,7 +231,11 @@
         }
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">WorldOutcome::ClickedObject</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">Viewer::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">neighborhoods</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>]));
+            <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident"><span class="kw">super</span>::viewer::Viewer::new_state</span>(
+                <span class="ident">ctx</span>,
+                <span class="ident">app</span>,
+                <span class="ident">Neighborhood::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">neighborhoods</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>].<span class="ident">perimeter</span>.<span class="ident">clone</span>()),
+            ));
         }
 
         <span class="ident">Transition::Keep</span>
