@@ -582,10 +582,13 @@
 <span id="582">582</span>
 <span id="583">583</span>
 <span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::fs::File</span>;
 <span class="kw">use</span> <span class="ident">std::io</span>::{<span class="ident">stdout</span>, <span class="ident">BufReader</span>, <span class="ident">ErrorKind</span>, <span class="ident">Read</span>, <span class="ident">Write</span>};
 
-<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
+<span class="kw">use</span> <span class="ident">anyhow</span>::{<span class="ident">Context</span>, <span class="prelude-ty">Result</span>};
 <span class="kw">use</span> <span class="ident">instant::Instant</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">PROGRESS_FREQUENCY_SECONDS</span>};
@@ -1056,16 +1059,19 @@
 
 <span class="kw">impl</span> <span class="ident">TimedFileReader</span> {
     <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TimedFileReader</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">File::open</span>(<span class="ident">path</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">total_bytes</span> <span class="op">=</span> <span class="ident">file</span>.<span class="ident">metadata</span>()<span class="question-mark">?</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">usize</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">TimedFileReader</span> {
-            <span class="ident">inner</span>: <span class="ident">BufReader::new</span>(<span class="ident">file</span>),
-            <span class="ident">path</span>: <span class="ident">path</span>.<span class="ident">to_string</span>(),
-            <span class="ident">processed_bytes</span>: <span class="number">0</span>,
-            <span class="ident">total_bytes</span>,
-            <span class="ident">started_at</span>: <span class="ident">Instant::now</span>(),
-            <span class="ident">last_printed_at</span>: <span class="prelude-val">None</span>,
-        })
+        <span class="op">|</span><span class="op">|</span> <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TimedFileReader</span><span class="op">&gt;</span> {
+            <span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">File::open</span>(<span class="ident">path</span>)<span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">total_bytes</span> <span class="op">=</span> <span class="ident">file</span>.<span class="ident">metadata</span>()<span class="question-mark">?</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">usize</span>;
+            <span class="prelude-val">Ok</span>(<span class="ident">TimedFileReader</span> {
+                <span class="ident">inner</span>: <span class="ident">BufReader::new</span>(<span class="ident">file</span>),
+                <span class="ident">path</span>: <span class="ident">path</span>.<span class="ident">to_string</span>(),
+                <span class="ident">processed_bytes</span>: <span class="number">0</span>,
+                <span class="ident">total_bytes</span>,
+                <span class="ident">started_at</span>: <span class="ident">Instant::now</span>(),
+                <span class="ident">last_printed_at</span>: <span class="prelude-val">None</span>,
+            })
+        }()
+        .<span class="ident">with_context</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">path</span>.<span class="ident">to_string</span>())
     }
 }
 
