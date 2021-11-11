@@ -1,7 +1,6 @@
 // This file has a jumbled mess of queries, setup, and mutating methods.
 
 use std::collections::{BTreeSet, HashSet};
-use std::panic;
 
 use anyhow::Result;
 use instant::Instant;
@@ -11,7 +10,7 @@ use serde::{Deserialize, Serialize};
 use structopt::StructOpt;
 
 use abstio::{CityName, MapName};
-use abstutil::{prettyprint_usize, serialized_size_bytes, CmdArgs, Timer};
+use abstutil::{prettyprint_usize, serialized_size_bytes, Timer};
 use geom::{Distance, Duration, Speed, Time};
 use map_model::{
     BuildingID, BusRoute, IntersectionID, LaneID, Map, ParkingLotID, Path, PathConstraints,
@@ -140,37 +139,6 @@ impl SimOptions {
             infinite_parking: false,
             disable_turn_conflicts: false,
             skip_analytics: false,
-        }
-    }
-
-    // TODO Remove
-    pub fn from_args(args: &mut CmdArgs, rng_seed: u64) -> SimOptions {
-        SimOptions {
-            run_name: args
-                .optional("--run_name")
-                .unwrap_or_else(|| "unnamed".to_string()),
-            use_freeform_policy_everywhere: args.enabled("--freeform_policy"),
-            allow_block_the_box: args.enabled("--disable_block_the_box"),
-            dont_recalc_lanechanging: args.enabled("--disable_recalc_lc"),
-            dont_break_turn_conflict_cycles: args.enabled("--disable_break_turn_conflict_cycles"),
-            dont_handle_uber_turns: args.enabled("--disable_handle_uber_turns"),
-            enable_pandemic_model: if args.enabled("--pandemic") {
-                Some(XorShiftRng::seed_from_u64(rng_seed))
-            } else {
-                None
-            },
-            alerts: args
-                .optional("--alerts")
-                .map(|x| match x.as_ref() {
-                    "print" => AlertHandler::Print,
-                    "block" => AlertHandler::Block,
-                    "silence" => AlertHandler::Silence,
-                    _ => panic!("Bad --alerts={}. Must be print|block|silence", x),
-                })
-                .unwrap_or(AlertHandler::Print),
-            infinite_parking: args.enabled("--infinite_parking"),
-            disable_turn_conflicts: args.enabled("--disable_turn_conflicts"),
-            skip_analytics: args.enabled("--skip_analytics"),
         }
     }
 }

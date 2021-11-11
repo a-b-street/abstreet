@@ -4,7 +4,6 @@ use rand_xorshift::XorShiftRng;
 use structopt::StructOpt;
 
 use abstio::MapName;
-use abstutil::CmdArgs;
 use map_model::{Map, MapEdits};
 
 use crate::{Scenario, ScenarioModifier, Sim, SimOptions};
@@ -52,27 +51,6 @@ impl SimFlags {
             .load_path
             .clone()
             .unwrap_or_else(|| MapName::seattle("montlake").path());
-    }
-
-    // TODO Remove
-    pub fn from_args(args: &mut CmdArgs) -> SimFlags {
-        let rng_seed = args
-            .optional_parse("--rng_seed", |s| s.parse())
-            .unwrap_or(SimFlags::RNG_SEED);
-        let scenario_modifiers: Vec<ScenarioModifier> = args
-            .optional_parse("--scenario_modifiers", |s| {
-                abstutil::from_json(&s.to_string().into_bytes())
-            })
-            .unwrap_or_else(Vec::new);
-        let mut flags = SimFlags {
-            load_path: args.optional_free(),
-            load: String::new(),
-            scenario_modifiers,
-            rng_seed,
-            opts: SimOptions::from_args(args, rng_seed),
-        };
-        flags.initialize();
-        flags
     }
 
     // TODO rename seattle_test
