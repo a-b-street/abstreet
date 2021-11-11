@@ -68,9 +68,10 @@ pub async fn regenerate_everything(shard_num: usize, num_shards: usize) {
 }
 
 /// Regenerate all maps from RawMaps in parallel.
+///
+/// Omit Seattle and Berlin, because they have special follow-up actions (GTFS, minifying some
+/// maps, and distributing residents)
 pub fn regenerate_all_maps() {
-    // Omit Seattle and Berlin, because they have special follow-up actions (GTFS, minifying some
-    // maps, and distributing residents)
     let all_maps: Vec<MapName> = CityName::list_all_cities_from_importer_config()
         .into_iter()
         .flat_map(|city| city.list_all_maps_in_city_from_importer_config())

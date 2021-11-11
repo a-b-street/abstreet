@@ -184,7 +184,7 @@ enum Command {
         #[structopt(long, default_value = "1")]
         num_shards: usize,
     },
-    /// Regenerate all maps from RawMaps in parallel.
+    /// Regenerate all maps from RawMaps in parallel. Note this excludes Berlin and Seattle!
     RegenerateAllMaps,
     /// Import RawMaps, maps, scenarios, and city overviews for a single city.
     Import {
