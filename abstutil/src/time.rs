@@ -1,7 +1,7 @@
 use std::fs::File;
 use std::io::{stdout, BufReader, ErrorKind, Read, Write};
 
-use anyhow::Result;
+use anyhow::{Context, Result};
 use instant::Instant;
 
 use crate::{prettyprint_usize, PROGRESS_FREQUENCY_SECONDS};
@@ -472,16 +472,19 @@ struct TimedFileReader {
 
 impl TimedFileReader {
     fn new(path: &str) -> Result<TimedFileReader> {
-        let file = File::open(path)?;
-        let total_bytes = file.metadata()?.len() as usize;
-        Ok(TimedFileReader {
-            inner: BufReader::new(file),
-            path: path.to_string(),
-            processed_bytes: 0,
-            total_bytes,
-            started_at: Instant::now(),
-            last_printed_at: None,
-        })
+        || -> Result<TimedFileReader> {
+            let file = File::open(path)?;
+            let total_bytes = file.metadata()?.len() as usize;
+            Ok(TimedFileReader {
+                inner: BufReader::new(file),
+                path: path.to_string(),
+                processed_bytes: 0,
+                total_bytes,
+                started_at: Instant::now(),
+                last_printed_at: None,
+            })
+        }()
+        .with_context(|| path.to_string())
     }
 }
 

@@ -1,12 +1,17 @@
-use anyhow::Result;
+use anyhow::{Context, Result};
 
 /// Performs an HTTP POST request and returns the response.
 pub async fn http_post<I: AsRef<str>>(url: I, body: String) -> Result<String> {
     let url = url.as_ref();
     info!("HTTP POST to {}", url);
-    let resp = reqwest::Client::new().post(url).body(body).send().await?;
+    let resp = reqwest::Client::new()
+        .post(url)
+        .body(body)
+        .send()
+        .await
+        .with_context(|| url.to_string())?;
     let status = resp.status();
-    let text = resp.text().await?;
+    let text = resp.text().await.with_context(|| url.to_string())?;
     // With error_for_status{_ref}, it's unclear how to propagate errors and also get the error
     // message from the body, so do this
     if status.is_client_error() || status.is_server_error() {

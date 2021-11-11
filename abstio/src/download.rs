@@ -25,7 +25,7 @@ pub async fn download_bytes<I: AsRef<str>>(
         reqwest::get(url).await.unwrap()
     };
     resp.error_for_status_ref()
-        .with_context(|| format!("downloading {}", url))?;
+        .with_context(|| url.to_string())?;
 
     let total_size = resp.content_length().map(|x| x as usize);
     let mut bytes = Vec::new();
@@ -66,10 +66,13 @@ pub async fn download_to_file<I1: AsRef<str>, I2: AsRef<str>>(
     print_download_progress(rx);
     let bytes = download_bytes(url, post_body, &mut tx).await?;
     let path = path.as_ref();
-    std::fs::create_dir_all(std::path::Path::new(path).parent().unwrap())?;
-    let mut file = std::fs::File::create(path)?;
-    file.write_all(&bytes)?;
-    Ok(())
+    || -> Result<()> {
+        std::fs::create_dir_all(std::path::Path::new(path).parent().unwrap())?;
+        let mut file = std::fs::File::create(path)?;
+        file.write_all(&bytes)?;
+        Ok(())
+    }()
+    .with_context(|| path.to_string())
 }
 
 /// Print download progress to STDOUT. Pass this the receiver, then call download_to_file or

@@ -4,7 +4,7 @@ use std::fs::File;
 use std::io::{stdout, BufReader, BufWriter, Read, Write};
 use std::path::Path;
 
-use anyhow::Result;
+use anyhow::{Context, Result};
 use instant::Instant;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
@@ -38,10 +38,13 @@ pub fn slurp_file<I: AsRef<str>>(path: I) -> Result<Vec<u8>> {
     inner_slurp_file(path.as_ref())
 }
 fn inner_slurp_file(path: &str) -> Result<Vec<u8>> {
-    let mut file = File::open(path)?;
-    let mut buffer = Vec::new();
-    file.read_to_end(&mut buffer)?;
-    Ok(buffer)
+    || -> Result<Vec<u8>> {
+        let mut file = File::open(path)?;
+        let mut buffer = Vec::new();
+        file.read_to_end(&mut buffer)?;
+        Ok(buffer)
+    }()
+    .with_context(|| path.to_string())
 }
 
 pub fn maybe_read_binary<T: DeserializeOwned>(path: String, timer: &mut Timer) -> Result<T> {
