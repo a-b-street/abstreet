@@ -1,11 +1,13 @@
+use structopt::StructOpt;
+
 use abstio::MapName;
-use abstutil::{CmdArgs, Timer};
+use abstutil::Timer;
 use geom::{Circle, Distance, Duration, Pt2D, Time};
 use map_model::{IntersectionID, Map};
 use sim::Sim;
 use widgetry::{Canvas, EventCtx, GfxCtx, SharedAppState, State, Transition, Warper};
 
-use crate::colors::ColorScheme;
+use crate::colors::{ColorScheme, ColorSchemeChoice};
 use crate::load::MapLoader;
 use crate::options::Options;
 use crate::render::DrawMap;
@@ -26,6 +28,30 @@ pub struct SimpleApp<T> {
     pub time: Time,
 }
 
+// Don't give a name and description. If an app cares enough to override, they can't use SimpleApp
+// (or refactor to plumb through options themselves)
+#[derive(StructOpt)]
+struct Args {
+    /// Path to a map to initially load. If not provided, load the last map used or a fixed
+    /// default.
+    #[structopt()]
+    map_path: Option<String>,
+    /// Initially position the camera here. The format is an OSM-style `zoom/lat/lon` string
+    /// (https://wiki.openstreetmap.org/wiki/Browsing#Other_URL_tricks).
+    #[structopt(long)]
+    cam: Option<String>,
+    /// Dev mode exposes experimental tools useful for debugging, but that'd likely confuse most
+    /// players.
+    #[structopt(long)]
+    dev: bool,
+    /// The color scheme for map elements, agents, and the UI.
+    #[structopt(long, parse(try_from_str = ColorSchemeChoice::parse))]
+    color_scheme: Option<ColorSchemeChoice>,
+    /// When making a screen recording, enable this option to hide some UI elements
+    #[structopt(long)]
+    minimal_controls: bool,
+}
+
 impl<T: 'static> SimpleApp<T> {
     pub fn new<
         F: 'static + Fn(&mut EventCtx, &mut SimpleApp<T>) -> Vec<Box<dyn State<SimpleApp<T>>>>,
@@ -35,11 +61,19 @@ impl<T: 'static> SimpleApp<T> {
         session: T,
         init_states: F,
     ) -> (SimpleApp<T>, Vec<Box<dyn State<SimpleApp<T>>>>) {
-        let mut args = CmdArgs::new();
-        opts.update_from_args(&mut args);
+        let args = Args::from_args();
+        // Options are passed in by each app, usually seeded with defaults or from a config file.
+        // For the few options that we allow to be specified by command-line, overwrite the values.
+        opts.dev = args.dev;
+        opts.minimal_controls = args.minimal_controls;
+        if let Some(cs) = args.color_scheme {
+            opts.color_scheme = cs;
+            opts.toggle_day_night_colors = false;
+        }
+
         ctx.canvas.settings = opts.canvas_settings.clone();
         let map_name = args
-            .optional_free()
+            .map_path
             .map(|path| {
                 MapName::from_path(&path).unwrap_or_else(|| panic!("bad map path: {}", path))
             })
@@ -52,8 +86,6 @@ impl<T: 'static> SimpleApp<T> {
                 .map(|x| x.last_map)
             })
             .unwrap_or_else(|| MapName::seattle("montlake"));
-        let center_camera = args.optional("--cam");
-        args.done();
 
         let cs = ColorScheme::new(ctx, opts.color_scheme);
         // Start with a blank map
@@ -74,7 +106,7 @@ impl<T: 'static> SimpleApp<T> {
             &app,
             map_name,
             Box::new(move |ctx, app| {
-                URLManager::change_camera(ctx, center_camera.as_ref(), app.map().get_gps_bounds());
+                URLManager::change_camera(ctx, args.cam.as_ref(), app.map().get_gps_bounds());
                 Transition::Clear(init_states(ctx, app))
             }),
         )];

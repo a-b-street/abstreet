@@ -34,6 +34,7 @@ regex = "1.5.4"
 rfd = "0.4.0"
 serde = "1.0.123"
 sim = { path = "../sim" }
+structopt = "0.3.23"
 subprocess = { git = "https://github.com/hniksic/rust-subprocess", optional = true }
 tokio = { version ="1.1.1", features=["full"], optional = true }
 wasm-bindgen = { version = "0.2.70", optional = true }

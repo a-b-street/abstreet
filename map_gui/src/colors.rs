@@ -41,6 +41,21 @@ impl ColorSchemeChoice {
             Choice::new("classic", ColorSchemeChoice::ClassicDayMode),
         ]
     }
+
+    pub fn parse(x: &str) -> Result<ColorSchemeChoice> {
+        let mut options = Vec::new();
+        for c in ColorSchemeChoice::choices() {
+            options.push(c.label.clone());
+            if c.label == x {
+                return Ok(c.data);
+            }
+        }
+        bail!(
+            "Invalid --color_scheme={}. Choices: {}",
+            x,
+            options.join(", ")
+        );
+    }
 }
 
 pub struct ColorScheme {

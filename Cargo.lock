@@ -2215,6 +2215,7 @@ dependencies = [
  "rfd",
  "serde",
  "sim",
+ "structopt",
  "subprocess",
  "tokio",
  "wasm-bindgen",
