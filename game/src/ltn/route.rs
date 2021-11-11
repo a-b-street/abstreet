@@ -56,16 +56,30 @@ impl RoutePlanner {
         .ignore_initial_events()
         .build(ctx);
 
+        let mut world = self.calculate_paths(ctx, app);
+        self.waypoints
+            .rebuild_world(ctx, &mut world, ID::Waypoint, 1);
+        world.initialize_hover(ctx);
+        world.rebuilt_during_drag(&self.world);
+        self.world = world;
+    }
+
+    fn calculate_paths(&self, ctx: &mut EventCtx, app: &App) -> World<ID> {
         let map = &app.primary.map;
 
         let mut world = World::bounded(map.get_bounds());
 
-        // Actually calculate paths
+        let mut params = map.routing_params().clone();
+        params
+            .avoid_roads
+            .extend(app.session.modal_filters.roads.keys().cloned());
+        let cache_custom = true;
+
         let mut draw_route = ToggleZoomed::builder();
         let mut hitbox_pieces = Vec::new();
         for pair in self.waypoints.get_waypoints().windows(2) {
             if let Some(pl) = TripEndpoint::path_req(pair[0], pair[1], TripMode::Drive, map)
-                .and_then(|req| map.pathfind(req).ok())
+                .and_then(|req| map.pathfind_with_params(req, &params, cache_custom).ok())
                 .and_then(|path| path.trace(map))
             {
                 let shape = pl.make_polygons(5.0 * NORMAL_LANE_THICKNESS);
@@ -85,11 +99,7 @@ impl RoutePlanner {
                 .build(ctx);
         }
 
-        self.waypoints
-            .rebuild_world(ctx, &mut world, ID::Waypoint, 1);
-        world.initialize_hover(ctx);
-        world.rebuilt_during_drag(&self.world);
-        self.world = world;
+        world
     }
 }
 

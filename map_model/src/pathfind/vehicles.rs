@@ -344,5 +344,10 @@ pub fn vehicle_cost(
         extra += params.unprotected_turn_penalty
     }
 
+    if params.avoid_roads.contains(&dr.road) {
+        // Similar to the zone_cost trick, just add an outrageous penalty here
+        extra += Duration::hours(3);
+    }
+
     multiplier * base + extra
 }

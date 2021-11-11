@@ -1,5 +1,7 @@
 //! Everything related to pathfinding through a map for different types of agents.
 
+use std::collections::BTreeSet;
+
 use enumset::EnumSetType;
 use serde::{Deserialize, Serialize};
 
@@ -11,7 +13,7 @@ pub use self::v1::{Path, PathRequest, PathStep};
 pub use self::v2::{PathStepV2, PathV2};
 pub use self::vehicles::vehicle_cost;
 pub use self::walking::WalkingNode;
-use crate::{osm, Lane, LaneID, LaneType, Map, MovementID, TurnType};
+use crate::{osm, Lane, LaneID, LaneType, Map, MovementID, RoadID, TurnType};
 
 mod engine;
 mod node_map;
@@ -175,6 +177,12 @@ pub struct RoutingParams {
     pub avoid_steep_incline_penalty: f64,
     // If the road is `high_stress_for_bikes`, multiply by the base cost.
     pub avoid_high_stress: f64,
+
+    /// Don't cross these roads unless absolutely necessary to reach the destination. Only affects
+    /// vehicle routing, not pedestrian.
+    // TODO Include in serde during the next full map importing
+    #[serde(skip_serializing, skip_deserializing)]
+    pub avoid_roads: BTreeSet<RoadID>,
 }
 
 impl Default for RoutingParams {
@@ -190,6 +198,8 @@ impl Default for RoutingParams {
 
             avoid_steep_incline_penalty: 1.0,
             avoid_high_stress: 1.0,
+
+            avoid_roads: BTreeSet::new(),
         }
     }
 }
