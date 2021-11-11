@@ -158,6 +158,10 @@ enum Command {
         /// Use Geofabrik to grab OSM input if true, or Overpass if false. Overpass is faster.
         #[structopt(long)]
         use_geofabrik: bool,
+        /// Filter out auto-generated crosswalks based on OpenStreetMap crossing tags.
+        /// Experimental, will likely disconnect the pedestrian network.
+        #[structopt(long)]
+        filter_crosswalks: bool,
     },
     /// Imports a one-shot A/B Street map from an .osm file in a single command.
     OneshotImport {
@@ -170,6 +174,10 @@ enum Command {
         /// Do people drive on the left side of the road in this map?
         #[structopt(long)]
         drive_on_left: bool,
+        /// Filter out auto-generated crosswalks based on OpenStreetMap crossing tags.
+        /// Experimental, will likely disconnect the pedestrian network.
+        #[structopt(long)]
+        filter_crosswalks: bool,
         #[structopt(flatten)]
         opts: map_model::RawToMapOptions,
     },
@@ -248,13 +256,24 @@ async fn main() -> Result<()> {
             map_name,
             drive_on_left,
             use_geofabrik,
-        } => one_step_import::run(geojson_path, map_name, drive_on_left, use_geofabrik).await?,
+            filter_crosswalks,
+        } => {
+            one_step_import::run(
+                geojson_path,
+                map_name,
+                drive_on_left,
+                use_geofabrik,
+                filter_crosswalks,
+            )
+            .await?
+        }
         Command::OneshotImport {
             osm_input,
             clip_path,
             drive_on_left,
+            filter_crosswalks,
             opts,
-        } => importer::oneshot(osm_input, clip_path, drive_on_left, opts),
+        } => importer::oneshot(osm_input, clip_path, drive_on_left, filter_crosswalks, opts),
         Command::RegenerateEverything {
             shard_num,
             num_shards,

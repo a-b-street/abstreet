@@ -57,7 +57,6 @@ impl<A: AppLike + 'static> ImportCity<A> {
                     None,
                     false,
                 ),
-                Toggle::choice(ctx, "source", "GeoFabrik", "Overpass (faster)", None, false),
                 Widget::row(vec![
                     "Name the map:".text_widget(ctx).centered_vert(),
                     TextBox::widget(ctx, "new_map_name", generate_new_map_name(), true, 20),
@@ -72,6 +71,22 @@ impl<A: AppLike + 'static> ImportCity<A> {
                     .btn()
                     .label_underlined_text("Alternate instructions")
                     .build_def(ctx),
+                Widget::col(vec![
+                    Line("Advanced settings").secondary().into_widget(ctx),
+                    Widget::row(vec![
+                        "Import data from:".text_widget(ctx).centered_vert(),
+                        Toggle::choice(
+                            ctx,
+                            "source",
+                            "GeoFabrik",
+                            "Overpass (faster)",
+                            None,
+                            false,
+                        ),
+                    ]),
+                    Toggle::switch(ctx, "Filter crosswalks", None, false),
+                ])
+                .section(ctx),
             ])
             .section(ctx),
         ]))
@@ -110,6 +125,9 @@ impl<A: AppLike + 'static> State<A> for ImportCity<A> {
                     }
                     if self.panel.is_checked("source") {
                         args.push("--use-geofabrik".to_string());
+                    }
+                    if self.panel.is_checked("Filter crosswalks") {
+                        args.push("--filter-crosswalks".to_string());
                     }
                     match grab_geojson_from_clipboard() {
                         Ok(()) => Transition::Push(crate::tools::RunCommand::new_state(

@@ -90,6 +90,7 @@ pub fn oneshot(
     osm_path: String,
     clip: Option<String>,
     drive_on_right: bool,
+    filter_crosswalks: bool,
     opts: RawToMapOptions,
 ) {
     let mut timer = abstutil::Timer::new("oneshot");
@@ -118,7 +119,7 @@ pub fn oneshot(
             include_railroads: true,
             extra_buildings: None,
             skip_local_roads: false,
-            filter_crosswalks: false,
+            filter_crosswalks,
         },
         &mut timer,
     );

@@ -10,6 +10,7 @@ pub async fn run(
     name: String,
     drive_on_left: bool,
     use_geofabrik: bool,
+    filter_crosswalks: bool,
 ) -> Result<()> {
     if name.contains(' ') || name.is_empty() {
         panic!(
@@ -81,6 +82,7 @@ pub async fn run(
         osm,
         Some("boundary0.poly".to_string()),
         !drive_on_left,
+        filter_crosswalks,
         map_model::RawToMapOptions::default(),
     );
 
