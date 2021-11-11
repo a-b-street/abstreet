@@ -485,16 +485,6 @@
 <span id="485">485</span>
 <span id="486">486</span>
 <span id="487">487</span>
-<span id="488">488</span>
-<span id="489">489</span>
-<span id="490">490</span>
-<span id="491">491</span>
-<span id="492">492</span>
-<span id="493">493</span>
-<span id="494">494</span>
-<span id="495">495</span>
-<span id="496">496</span>
-<span id="497">497</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cell::Cell</span>;
 <span class="kw">use</span> <span class="ident">std::panic</span>;
 
@@ -971,20 +961,10 @@
                     <span class="ident">running</span> <span class="op">=</span> <span class="bool-val">true</span>;
                 }
                 <span class="ident">UpdateType::Pan</span> <span class="op">=</span><span class="op">&gt;</span> {}
-                <span class="ident">UpdateType::ScreenCaptureEverything</span> {
-                    <span class="ident">dir</span>,
-                    <span class="ident">zoom</span>,
-                    <span class="ident">dims</span>,
-                    <span class="ident">leaflet_naming</span>,
-                } <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">screenshot_everything</span>(
-                        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">state</span>,
-                        <span class="kw-2">&amp;</span><span class="ident">dir</span>,
-                        <span class="kw-2">&amp;</span><span class="ident">prerender</span>,
-                        <span class="ident">zoom</span>,
-                        <span class="ident">dims</span>,
-                        <span class="ident">leaflet_naming</span>,
-                    ) {
+                <span class="ident">UpdateType::ScreenCaptureEverything</span> { <span class="ident">dir</span>, <span class="ident">zoom</span>, <span class="ident">dims</span> } <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span>
+                        <span class="ident">screenshot_everything</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">state</span>, <span class="kw-2">&amp;</span><span class="ident">dir</span>, <span class="kw-2">&amp;</span><span class="ident">prerender</span>, <span class="ident">zoom</span>, <span class="ident">dims</span>)
+                    {
                         <span class="macro">error!</span>(<span class="string">&quot;Couldn&#39;t screenshot everything: {}&quot;</span>, <span class="ident">err</span>);
                     }
                 }
