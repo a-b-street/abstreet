@@ -202,7 +202,19 @@
 <span id="202">202</span>
 <span id="203">203</span>
 <span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Everything related to pathfinding through a map for different types of agents.</span>
+
+<span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
 <span class="kw">use</span> <span class="ident">enumset::EnumSetType</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
@@ -215,7 +227,7 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::v2</span>::{<span class="ident">PathStepV2</span>, <span class="ident">PathV2</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::vehicles::vehicle_cost</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::walking::WalkingNode</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">osm</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">MovementID</span>, <span class="ident">TurnType</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">osm</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">MovementID</span>, <span class="ident">RoadID</span>, <span class="ident">TurnType</span>};
 
 <span class="kw">mod</span> <span class="ident">engine</span>;
 <span class="kw">mod</span> <span class="ident">node_map</span>;
@@ -379,6 +391,12 @@
     <span class="kw">pub</span> <span class="ident">avoid_steep_incline_penalty</span>: <span class="ident">f64</span>,
     <span class="comment">// If the road is `high_stress_for_bikes`, multiply by the base cost.</span>
     <span class="kw">pub</span> <span class="ident">avoid_high_stress</span>: <span class="ident">f64</span>,
+
+    <span class="doccomment">/// Don&#39;t cross these roads unless absolutely necessary to reach the destination. Only affects</span>
+    <span class="doccomment">/// vehicle routing, not pedestrian.</span>
+    <span class="comment">// TODO Include in serde during the next full map importing</span>
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>, <span class="ident">skip_deserializing</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">avoid_roads</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">RoutingParams</span> {
@@ -394,6 +412,8 @@
 
             <span class="ident">avoid_steep_incline_penalty</span>: <span class="number">1.0</span>,
             <span class="ident">avoid_high_stress</span>: <span class="number">1.0</span>,
+
+            <span class="ident">avoid_roads</span>: <span class="ident">BTreeSet::new</span>(),
         }
     }
 }

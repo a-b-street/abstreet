@@ -346,6 +346,11 @@
 <span id="346">346</span>
 <span id="347">347</span>
 <span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Pathfinding for cars, bikes, buses, and trains using contraction hierarchies</span>
 
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
@@ -690,6 +695,11 @@
     <span class="comment">// Penalize unprotected turns at a stop sign from smaller to larger roads.</span>
     <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">is_unprotected_turn</span>(<span class="ident">dr</span>.<span class="ident">road</span>, <span class="ident">mvmnt</span>.<span class="ident">to</span>.<span class="ident">road</span>, <span class="ident">movement</span>.<span class="ident">turn_type</span>) {
         <span class="ident">extra</span> <span class="op">+</span><span class="op">=</span> <span class="ident">params</span>.<span class="ident">unprotected_turn_penalty</span>
+    }
+
+    <span class="kw">if</span> <span class="ident">params</span>.<span class="ident">avoid_roads</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">dr</span>.<span class="ident">road</span>) {
+        <span class="comment">// Similar to the zone_cost trick, just add an outrageous penalty here</span>
+        <span class="ident">extra</span> <span class="op">+</span><span class="op">=</span> <span class="ident">Duration::hours</span>(<span class="number">3</span>);
     }
 
     <span class="ident">multiplier</span> <span class="op">*</span> <span class="ident">base</span> <span class="op">+</span> <span class="ident">extra</span>
