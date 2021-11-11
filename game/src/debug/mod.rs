@@ -16,7 +16,7 @@ use map_model::{
 use sim::{Sim, TripEndpoint};
 use widgetry::{
     lctrl, Cached, Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Panel, ScreenDims, State, Text, Toggle, UpdateType,
+    HorizontalAlignment, Key, Line, Outcome, Panel, State, Text, Toggle, UpdateType,
     VerticalAlignment, Widget,
 };
 
@@ -78,10 +78,6 @@ impl DebugMode {
                         .btn_outline
                         .text("unhide everything")
                         .hotkey(lctrl(Key::H))
-                        .build_def(ctx),
-                    ctx.style()
-                        .btn_outline
-                        .text("screenshot everything (for leaflet)")
                         .build_def(ctx),
                     ctx.style()
                         .btn_outline
@@ -317,11 +313,6 @@ impl State<App> for DebugMode {
                 "clear OSM search results" => {
                     self.search_results = None;
                     self.reset_info(ctx);
-                }
-                "screenshot everything (for leaflet)" => {
-                    app.change_color_scheme(ctx, ColorSchemeChoice::DayMode);
-                    export_for_leaflet(ctx, app);
-                    return Transition::Keep;
                 }
                 "screenshot all of the everything" => {
                     return Transition::Push(ScreenshotTest::new_state(
@@ -984,35 +975,12 @@ impl State<App> for ScreenshotTest {
                 ),
                 zoom: 3.0,
                 dims: ctx.canvas.get_window_dims(),
-                leaflet_naming: false,
             });
             // TODO Sometimes this still gets stuck and needs a mouse wiggle for input event?
             Transition::Keep
         }
     }
     fn draw(&self, _: &mut GfxCtx, _: &App) {}
-}
-
-fn export_for_leaflet(ctx: &mut EventCtx, app: &App) {
-    let name = app.primary.map.get_name();
-    let bounds = app.primary.map.get_bounds();
-    let map_length = bounds.width().max(bounds.height());
-
-    // At zoom level N, the entire map fits into (N + 1) * (N + 1) tiles
-    for zoom_level in 0..=25 {
-        let num_tiles = zoom_level + 1;
-        // How do we fit the entire map_length into this many tiles?
-        let zoom = 256.0 * (num_tiles as f64) / map_length;
-        ctx.request_update(UpdateType::ScreenCaptureEverything {
-            dir: format!(
-                "screenshots/{}/{}/{}/{}",
-                name.city.country, name.city.city, name.map, zoom_level
-            ),
-            zoom,
-            dims: ScreenDims::new(256.0, 256.0),
-            leaflet_naming: true,
-        });
-    }
 }
 
 fn draw_banned_turns(ctx: &mut EventCtx, app: &App) -> Drawable {

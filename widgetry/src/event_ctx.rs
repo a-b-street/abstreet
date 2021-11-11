@@ -19,9 +19,6 @@ pub enum UpdateType {
         dir: String,
         zoom: f64,
         dims: ScreenDims,
-        /// If true, name files in a simple scheme intended for Leaflet. If false, include the
-        /// optional drawing suffix returned by the app.
-        leaflet_naming: bool,
     },
 }
 

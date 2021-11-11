@@ -474,20 +474,10 @@ pub fn run<
                     running = true;
                 }
                 UpdateType::Pan => {}
-                UpdateType::ScreenCaptureEverything {
-                    dir,
-                    zoom,
-                    dims,
-                    leaflet_naming,
-                } => {
-                    if let Err(err) = screenshot_everything(
-                        &mut state,
-                        &dir,
-                        &prerender,
-                        zoom,
-                        dims,
-                        leaflet_naming,
-                    ) {
+                UpdateType::ScreenCaptureEverything { dir, zoom, dims } => {
+                    if let Err(err) =
+                        screenshot_everything(&mut state, &dir, &prerender, zoom, dims)
+                    {
                         error!("Couldn't screenshot everything: {}", err);
                     }
                 }

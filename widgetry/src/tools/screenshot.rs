@@ -10,7 +10,6 @@ pub(crate) fn screenshot_everything<A: SharedAppState>(
     prerender: &Prerender,
     zoom: f64,
     dims: ScreenDims,
-    leaflet_naming: bool,
 ) -> anyhow::Result<()> {
     if dims.width > state.canvas.window_width || dims.height > state.canvas.window_height {
         bail!(
@@ -56,17 +55,13 @@ pub(crate) fn screenshot_everything<A: SharedAppState>(
                 state.draw(prerender, true);
             }
 
-            let filename = if leaflet_naming {
-                format!("{}/{}_{}.png", dir_path, tile_x, tile_y)
-            } else {
-                format!(
-                    "{}/{:02}x{:02}{}.png",
-                    dir_path,
-                    tile_x + 1,
-                    tile_y + 1,
-                    suffix
-                )
-            };
+            let filename = format!(
+                "{}/{:02}x{:02}{}.png",
+                dir_path,
+                tile_x + 1,
+                tile_y + 1,
+                suffix
+            );
             prerender.inner.screencap(dims, filename.clone())?;
         }
     }
