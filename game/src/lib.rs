@@ -78,26 +78,10 @@ struct Args {
     #[structopt(long)]
     minimal_controls: bool,
 
-    /// Start by showing this KMl file in a debug viewer
-    #[structopt(long = "kml")]
-    load_kml: Option<String>,
     /// Run a configured set of simulations and record prebaked data.
     #[structopt(long)]
     prebake: bool,
-    /// Start playing a particular challenge
-    #[structopt(long)]
-    challenge: Option<String>,
-    /// Start on a particular tutorial stage
-    #[structopt(long)]
-    tutorial: Option<usize>,
-    /// Start in ActDev mode for a particular site name.
-    #[structopt(long)]
-    actdev: Option<String>,
-    /// Start by showing an ActDev scenario. Either "base" or "go_active".
-    #[structopt(long)]
-    actdev_scenario: Option<String>,
 
-    // TODO Not sure how to do this more nicely
     /// Start at the tutorial intro screen
     #[structopt(long)]
     tutorial_intro: bool,
@@ -119,23 +103,36 @@ struct Args {
     /// Start by listing internal developer tools
     #[structopt(long)]
     devtools: bool,
+    /// Start by showing this KMl file in a debug viewer
+    #[structopt(long = "kml")]
+    load_kml: Option<String>,
+    /// Start playing a particular challenge
+    #[structopt(long)]
+    challenge: Option<String>,
+    /// Start on a particular tutorial stage
+    #[structopt(long)]
+    tutorial: Option<usize>,
+    /// Start in ActDev mode for a particular site name.
+    #[structopt(long)]
+    actdev: Option<String>,
+    /// Start by showing an ActDev scenario. Either "base" or "go_active".
+    #[structopt(long)]
+    actdev_scenario: Option<String>,
 }
 
 struct Setup {
     flags: Flags,
     opts: Options,
     start_with_edits: Option<String>,
-    maybe_mode: Option<GameplayMode>,
     initialize_tutorial: bool,
     center_camera: Option<String>,
     start_time: Option<Duration>,
-    load_kml: Option<String>,
     diff_map: Option<String>,
-    // TODO Fold more of Setup into the mutually exclusive Mode. load_kml, maybe_mode, and
-    // savestate are good candidates...
     mode: Mode,
 }
 
+// TODO Switch to explicit enum subcommands, each of which includes precisely the set of common
+// flags that're valid for that mode
 #[derive(PartialEq)]
 enum Mode {
     SomethingElse,
@@ -146,6 +143,8 @@ enum Mode {
     Ungap,
     Ltn,
     Devtools,
+    LoadKML(String),
+    Gameplay(GameplayMode),
 }
 
 fn run(mut settings: Settings) {
@@ -170,11 +169,9 @@ fn run(mut settings: Settings) {
         flags: args.flags,
         opts: Options::load_or_default(),
         start_with_edits: args.start_with_edits,
-        maybe_mode: None,
         initialize_tutorial: false,
         center_camera: args.cam,
         start_time: args.start_time,
-        load_kml: args.load_kml,
         diff_map: args.diff_map,
         mode: if args.tutorial_intro {
             Mode::TutorialIntro
@@ -190,6 +187,8 @@ fn run(mut settings: Settings) {
             Mode::Ltn
         } else if args.devtools {
             Mode::Devtools
+        } else if let Some(kml) = args.load_kml {
+            Mode::LoadKML(kml)
         } else {
             Mode::SomethingElse
         },
@@ -214,25 +213,27 @@ fn run(mut settings: Settings) {
     }
 
     if let Some(x) = args.challenge {
+        // TODO This is a weak form of mutual exclusion; just use subcommands
+        assert!(setup.mode == Mode::SomethingElse);
         let mut aliases = Vec::new();
         'OUTER: for (_, stages) in challenges::Challenge::all() {
             for challenge in stages {
                 if challenge.alias == x {
                     setup.flags.sim_flags.load = challenge.gameplay.map_name().path();
-                    setup.maybe_mode = Some(challenge.gameplay);
+                    setup.mode = Mode::Gameplay(challenge.gameplay);
                     break 'OUTER;
                 } else {
                     aliases.push(challenge.alias);
                 }
             }
         }
-        if setup.maybe_mode.is_none() {
+        if setup.mode == Mode::SomethingElse {
             panic!("Invalid --challenge={}. Choices: {}", x, aliases.join(", "));
         }
     }
     if let Some(n) = args.tutorial {
         setup.initialize_tutorial = true;
-        setup.maybe_mode = Some(sandbox::GameplayMode::Tutorial(
+        setup.mode = Mode::Gameplay(sandbox::GameplayMode::Tutorial(
             sandbox::TutorialPointer::new(n - 1, 0),
         ));
     }
@@ -241,10 +242,10 @@ fn run(mut settings: Settings) {
     // other scenarios loaed in the UI later.
     let modifiers = setup.flags.sim_flags.scenario_modifiers.drain(..).collect();
 
-    if setup.maybe_mode.is_none() && setup.flags.sim_flags.load.contains("scenarios/") {
+    if setup.mode == Mode::SomethingElse && setup.flags.sim_flags.load.contains("scenarios/") {
         let (map_name, scenario) = abstio::parse_scenario_path(&setup.flags.sim_flags.load);
         setup.flags.sim_flags.load = map_name.path();
-        setup.maybe_mode = Some(sandbox::GameplayMode::PlayScenario(
+        setup.mode = Mode::Gameplay(sandbox::GameplayMode::PlayScenario(
             map_name, scenario, modifiers,
         ));
     }
@@ -265,7 +266,7 @@ fn run(mut settings: Settings) {
         } else {
             "base".to_string()
         };
-        setup.maybe_mode = Some(sandbox::GameplayMode::Actdev(name, scenario, false));
+        setup.mode = Mode::Gameplay(sandbox::GameplayMode::Actdev(name, scenario, false));
     }
 
     widgetry::run(settings, |ctx| setup_app(ctx, setup))
@@ -275,7 +276,6 @@ fn setup_app(ctx: &mut EventCtx, mut setup: Setup) -> (App, Vec<Box<dyn State<Ap
     let title = !setup.opts.dev
         && !setup.flags.sim_flags.load.contains("player/save")
         && !setup.flags.sim_flags.load.contains("/scenarios/")
-        && setup.maybe_mode.is_none()
         && setup.mode == Mode::SomethingElse;
 
     // Load the map used previously if we're starting on the title screen without any overrides.
@@ -292,10 +292,12 @@ fn setup_app(ctx: &mut EventCtx, mut setup: Setup) -> (App, Vec<Box<dyn State<Ap
     // usually time is midnight, so save some effort and start with the correct color scheme. If
     // we're loading a savestate and it's actually daytime, we'll pay a small penalty to switch
     // colors.
-    if let Some(GameplayMode::PlayScenario(_, _, _))
-    | Some(GameplayMode::FixTrafficSignals)
-    | Some(GameplayMode::OptimizeCommute(_, _))
-    | Some(GameplayMode::Tutorial(_)) = setup.maybe_mode
+    if let Mode::Gameplay(
+        GameplayMode::PlayScenario(_, _, _)
+        | GameplayMode::FixTrafficSignals
+        | GameplayMode::OptimizeCommute(_, _)
+        | GameplayMode::Tutorial(_),
+    ) = setup.mode
     {
         setup.opts.color_scheme = map_gui::colors::ColorSchemeChoice::NightMode;
     }
@@ -330,7 +332,7 @@ fn setup_app(ctx: &mut EventCtx, mut setup: Setup) -> (App, Vec<Box<dyn State<Ap
     // case, all we're creating there is a map. If so, use the proper async interface.
     //
     // Note if we started with a scenario, main() rewrote it to be the appropriate map, along with
-    // maybe_mode.
+    // mode.
     if setup.flags.sim_flags.load.contains("/maps/") {
         // Get App created with a dummy blank map
         let map = Map::blank();
@@ -421,7 +423,7 @@ fn continue_app_setup(
         .load
         .contains("player/saves/")
     {
-        assert!(setup.maybe_mode.is_none());
+        assert!(setup.mode == Mode::SomethingElse);
         Some(app.primary.clear_sim())
     } else {
         None
@@ -523,21 +525,24 @@ fn finish_app_setup(
         return vec![TitleScreen::new_state(ctx, app)];
     }
 
-    let state = if let Some(path) = setup.load_kml {
-        crate::devtools::kml::ViewKML::new_state(ctx, app, Some(path))
-    } else if let Some(ss) = savestate {
+    let state = if let Some(ss) = savestate {
         app.primary.sim = ss;
         SandboxMode::start_from_savestate(app)
-    } else if let Some(mode) = setup.maybe_mode {
-        if let GameplayMode::Actdev(_, _, _) = mode {
-            SandboxMode::async_new(app, mode, jump_to_time_upon_startup(Duration::hours(8)))
-        } else if let Some(t) = setup.start_time {
-            SandboxMode::async_new(app, mode, jump_to_time_upon_startup(t))
-        } else {
-            SandboxMode::simple_new(app, mode)
-        }
     } else {
         match setup.mode {
+            Mode::Gameplay(gameplay) => {
+                if let GameplayMode::Actdev(_, _, _) = gameplay {
+                    SandboxMode::async_new(
+                        app,
+                        gameplay,
+                        jump_to_time_upon_startup(Duration::hours(8)),
+                    )
+                } else if let Some(t) = setup.start_time {
+                    SandboxMode::async_new(app, gameplay, jump_to_time_upon_startup(t))
+                } else {
+                    SandboxMode::simple_new(app, gameplay)
+                }
+            }
             Mode::SomethingElse => {
                 // Not attempting to keep the primary and secondary simulations synchronized at the
                 // same time yet. Just handle this one startup case, so we can switch maps without
@@ -576,6 +581,7 @@ fn finish_app_setup(
             }
             Mode::Ltn => ltn::BrowseNeighborhoods::new_state(ctx, app),
             Mode::Devtools => devtools::DevToolsMode::new_state(ctx, app),
+            Mode::LoadKML(path) => crate::devtools::kml::ViewKML::new_state(ctx, app, Some(path)),
         }
     };
     vec![TitleScreen::new_state(ctx, app), state]
