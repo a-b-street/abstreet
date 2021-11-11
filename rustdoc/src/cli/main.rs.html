@@ -315,6 +315,25 @@
 <span id="315">315</span>
 <span id="316">316</span>
 <span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
 </pre><pre class="rust"><code><span class="doccomment">//! A collection of tools, mostly related to importing maps and scenarios. These are bundled as a</span>
 <span class="doccomment">//! single executable to reduce the cost of static linking in the release&#39;s file size.</span>
 
@@ -475,6 +494,10 @@
         <span class="doccomment">/// Use Geofabrik to grab OSM input if true, or Overpass if false. Overpass is faster.</span>
         <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
         <span class="ident">use_geofabrik</span>: <span class="ident">bool</span>,
+        <span class="doccomment">/// Filter out auto-generated crosswalks based on OpenStreetMap crossing tags.</span>
+        <span class="doccomment">/// Experimental, will likely disconnect the pedestrian network.</span>
+        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
+        <span class="ident">filter_crosswalks</span>: <span class="ident">bool</span>,
     },
     <span class="doccomment">/// Imports a one-shot A/B Street map from an .osm file in a single command.</span>
     <span class="ident">OneshotImport</span> {
@@ -487,6 +510,10 @@
         <span class="doccomment">/// Do people drive on the left side of the road in this map?</span>
         <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
         <span class="ident">drive_on_left</span>: <span class="ident">bool</span>,
+        <span class="doccomment">/// Filter out auto-generated crosswalks based on OpenStreetMap crossing tags.</span>
+        <span class="doccomment">/// Experimental, will likely disconnect the pedestrian network.</span>
+        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
+        <span class="ident">filter_crosswalks</span>: <span class="ident">bool</span>,
         <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">flatten</span>)]</span>
         <span class="ident">opts</span>: <span class="ident">map_model::RawToMapOptions</span>,
     },
@@ -565,13 +592,24 @@
             <span class="ident">map_name</span>,
             <span class="ident">drive_on_left</span>,
             <span class="ident">use_geofabrik</span>,
-        } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">one_step_import::run</span>(<span class="ident">geojson_path</span>, <span class="ident">map_name</span>, <span class="ident">drive_on_left</span>, <span class="ident">use_geofabrik</span>).<span class="kw">await</span><span class="question-mark">?</span>,
+            <span class="ident">filter_crosswalks</span>,
+        } <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">one_step_import::run</span>(
+                <span class="ident">geojson_path</span>,
+                <span class="ident">map_name</span>,
+                <span class="ident">drive_on_left</span>,
+                <span class="ident">use_geofabrik</span>,
+                <span class="ident">filter_crosswalks</span>,
+            )
+            .<span class="kw">await</span><span class="question-mark">?</span>
+        }
         <span class="ident">Command::OneshotImport</span> {
             <span class="ident">osm_input</span>,
             <span class="ident">clip_path</span>,
             <span class="ident">drive_on_left</span>,
+            <span class="ident">filter_crosswalks</span>,
             <span class="ident">opts</span>,
-        } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">importer::oneshot</span>(<span class="ident">osm_input</span>, <span class="ident">clip_path</span>, <span class="ident">drive_on_left</span>, <span class="ident">opts</span>),
+        } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">importer::oneshot</span>(<span class="ident">osm_input</span>, <span class="ident">clip_path</span>, <span class="ident">drive_on_left</span>, <span class="ident">filter_crosswalks</span>, <span class="ident">opts</span>),
         <span class="ident">Command::RegenerateEverything</span> {
             <span class="ident">shard_num</span>,
             <span class="ident">num_shards</span>,

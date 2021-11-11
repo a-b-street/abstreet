@@ -189,6 +189,24 @@
 <span id="189">189</span>
 <span id="190">190</span>
 <span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::io::Write</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
@@ -248,7 +266,6 @@
                     <span class="prelude-val">None</span>,
                     <span class="bool-val">false</span>,
                 ),
-                <span class="ident">Toggle::choice</span>(<span class="ident">ctx</span>, <span class="string">&quot;source&quot;</span>, <span class="string">&quot;GeoFabrik&quot;</span>, <span class="string">&quot;Overpass (faster)&quot;</span>, <span class="prelude-val">None</span>, <span class="bool-val">false</span>),
                 <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                     <span class="string">&quot;Name the map:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
                     <span class="ident">TextBox::widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;new_map_name&quot;</span>, <span class="ident">generate_new_map_name</span>(), <span class="bool-val">true</span>, <span class="number">20</span>),
@@ -263,6 +280,22 @@
                     .<span class="ident">btn</span>()
                     .<span class="ident">label_underlined_text</span>(<span class="string">&quot;Alternate instructions&quot;</span>)
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+                    <span class="ident">Line</span>(<span class="string">&quot;Advanced settings&quot;</span>).<span class="ident">secondary</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+                    <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+                        <span class="string">&quot;Import data from:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
+                        <span class="ident">Toggle::choice</span>(
+                            <span class="ident">ctx</span>,
+                            <span class="string">&quot;source&quot;</span>,
+                            <span class="string">&quot;GeoFabrik&quot;</span>,
+                            <span class="string">&quot;Overpass (faster)&quot;</span>,
+                            <span class="prelude-val">None</span>,
+                            <span class="bool-val">false</span>,
+                        ),
+                    ]),
+                    <span class="ident">Toggle::switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;Filter crosswalks&quot;</span>, <span class="prelude-val">None</span>, <span class="bool-val">false</span>),
+                ])
+                .<span class="ident">section</span>(<span class="ident">ctx</span>),
             ])
             .<span class="ident">section</span>(<span class="ident">ctx</span>),
         ]))
@@ -301,6 +334,9 @@
                     }
                     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;source&quot;</span>) {
                         <span class="ident">args</span>.<span class="ident">push</span>(<span class="string">&quot;--use-geofabrik&quot;</span>.<span class="ident">to_string</span>());
+                    }
+                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;Filter crosswalks&quot;</span>) {
+                        <span class="ident">args</span>.<span class="ident">push</span>(<span class="string">&quot;--filter-crosswalks&quot;</span>.<span class="ident">to_string</span>());
                     }
                     <span class="kw">match</span> <span class="ident">grab_geojson_from_clipboard</span>() {
                         <span class="prelude-val">Ok</span>(()) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition::Push</span>(<span class="ident"><span class="kw">crate</span>::tools::RunCommand::new_state</span>(
