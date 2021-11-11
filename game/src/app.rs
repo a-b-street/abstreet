@@ -4,6 +4,7 @@ use std::collections::BTreeMap;
 use anyhow::Result;
 use maplit::btreemap;
 use rand::seq::{IteratorRandom, SliceRandom};
+use structopt::StructOpt;
 
 use abstio::MapName;
 use abstutil::Timer;
@@ -597,14 +598,17 @@ impl ShowObject for ShowEverything {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, StructOpt)]
 pub struct Flags {
+    #[structopt(flatten)]
     pub sim_flags: SimFlags,
     /// If true, all map edits immediately apply to the live simulation. Otherwise, most edits
     /// require resetting to midnight.
+    #[structopt(long)]
     pub live_map_edits: bool,
     /// Display an extra area with this name on the map. This gets applied to every map loaded, if
     /// the area is within map bounds.
+    #[structopt(long)]
     pub study_area: Option<String>,
 }
 

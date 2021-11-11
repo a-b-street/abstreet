@@ -1265,6 +1265,7 @@ dependencies = [
  "serde",
  "serde_json",
  "sim",
+ "structopt",
  "svg_face",
  "wasm-bindgen",
  "widgetry",

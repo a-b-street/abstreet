@@ -6,14 +6,17 @@ extern crate anyhow;
 #[macro_use]
 extern crate log;
 
+use structopt::StructOpt;
+
 use abstio::MapName;
-use abstutil::{CmdArgs, Timer};
+use abstutil::Timer;
 use geom::Duration;
+use map_gui::colors::ColorSchemeChoice;
 use map_gui::load::FutureLoader;
 use map_gui::options::Options;
 use map_gui::tools::{PopupMsg, URLManager};
 use map_model::{Map, MapEdits};
-use sim::{Sim, SimFlags};
+use sim::Sim;
 use widgetry::{EventCtx, Settings, State, Transition};
 
 use crate::app::{App, Flags, PerMap};
@@ -37,6 +40,85 @@ mod ungap;
 pub fn main() {
     let settings = Settings::new("A/B Street");
     run(settings);
+}
+
+#[derive(StructOpt)]
+#[structopt(name = "abstreet", about = "The A/B Street traffic simulator")]
+struct Args {
+    #[structopt(flatten)]
+    flags: Flags,
+    /// Start with these map edits loaded. This should be the name of edits, not a full path.
+    #[structopt(long = "edits")]
+    start_with_edits: Option<String>,
+    /// Initially position the camera here. The format is an OSM-style `zoom/lat/lon` string
+    /// (https://wiki.openstreetmap.org/wiki/Browsing#Other_URL_tricks).
+    #[structopt(long)]
+    cam: Option<String>,
+    /// Start the simulation at this time
+    #[structopt(long = "time", parse(try_from_str = Duration::parse))]
+    start_time: Option<Duration>,
+    /// Load the map at this path as a secondary debug map to compare to the main one
+    #[structopt(long = "diff")]
+    diff_map: Option<String>,
+    /// Print raw widgetry events to the console for debugging
+    #[structopt(long)]
+    dump_raw_events: bool,
+    /// Override the monitor's auto-detected scale factor
+    #[structopt(long)]
+    scale_factor: Option<f64>,
+
+    /// Dev mode exposes experimental tools useful for debugging, but that'd likely confuse most
+    /// players.
+    #[structopt(long)]
+    dev: bool,
+    /// The color scheme for map elements, agents, and the UI.
+    #[structopt(long, parse(try_from_str = ColorSchemeChoice::parse))]
+    color_scheme: Option<ColorSchemeChoice>,
+    /// When making a screen recording, enable this option to hide some UI elements
+    #[structopt(long)]
+    minimal_controls: bool,
+
+    /// Start by showing this KMl file in a debug viewer
+    #[structopt(long = "kml")]
+    load_kml: Option<String>,
+    /// Run a configured set of simulations and record prebaked data.
+    #[structopt(long)]
+    prebake: bool,
+    /// Start playing a particular challenge
+    #[structopt(long)]
+    challenge: Option<String>,
+    /// Start on a particular tutorial stage
+    #[structopt(long)]
+    tutorial: Option<usize>,
+    /// Start in ActDev mode for a particular site name.
+    #[structopt(long)]
+    actdev: Option<String>,
+    /// Start by showing an ActDev scenario. Either "base" or "go_active".
+    #[structopt(long)]
+    actdev_scenario: Option<String>,
+
+    // TODO Not sure how to do this more nicely
+    /// Start at the tutorial intro screen
+    #[structopt(long)]
+    tutorial_intro: bool,
+    /// Start by listing gameplay challenges
+    #[structopt(long)]
+    challenges: bool,
+    /// Start in the simulation sandbox mode
+    #[structopt(long)]
+    sandbox: bool,
+    /// Start by showing community proposals
+    #[structopt(long)]
+    proposals: bool,
+    /// Launch Ungap the Map, a bike network planning tool
+    #[structopt(long)]
+    ungap: bool,
+    /// Start a low-traffic neighborhood planner
+    #[structopt(long)]
+    ltn: bool,
+    /// Start by listing internal developer tools
+    #[structopt(long)]
+    devtools: bool,
 }
 
 struct Setup {
@@ -67,6 +149,8 @@ enum Mode {
 }
 
 fn run(mut settings: Settings) {
+    abstutil::logger::setup();
+
     settings = settings
         .read_svg(Box::new(abstio::slurp_bytes))
         .window_icon(abstio::path("system/assets/pregame/icon.png"))
@@ -74,39 +158,37 @@ fn run(mut settings: Settings) {
         // This is approximately how much the 3 top panels in sandbox mode require.
         .require_minimum_width(1500.0);
 
-    let mut args = CmdArgs::new();
-    if args.enabled("--prebake") {
+    let mut args = Args::from_args();
+    args.flags.sim_flags.initialize();
+
+    if args.prebake {
         challenges::prebake::prebake_all();
         return;
     }
 
     let mut setup = Setup {
-        flags: Flags {
-            sim_flags: SimFlags::from_args(&mut args),
-            live_map_edits: args.enabled("--live_map_edits"),
-            study_area: args.optional("--study_area"),
-        },
+        flags: args.flags,
         opts: Options::load_or_default(),
-        start_with_edits: args.optional("--edits"),
+        start_with_edits: args.start_with_edits,
         maybe_mode: None,
         initialize_tutorial: false,
-        center_camera: args.optional("--cam"),
-        start_time: args.optional_parse("--time", |t| Duration::parse(t)),
-        load_kml: args.optional("--kml"),
-        diff_map: args.optional("--diff"),
-        mode: if args.enabled("--tutorial-intro") {
+        center_camera: args.cam,
+        start_time: args.start_time,
+        load_kml: args.load_kml,
+        diff_map: args.diff_map,
+        mode: if args.tutorial_intro {
             Mode::TutorialIntro
-        } else if args.enabled("--challenges") {
+        } else if args.challenges {
             Mode::Challenges
-        } else if args.enabled("--sandbox") {
+        } else if args.sandbox {
             Mode::Sandbox
-        } else if args.enabled("--proposals") {
+        } else if args.proposals {
             Mode::Proposals
-        } else if args.enabled("--ungap") {
+        } else if args.ungap {
             Mode::Ungap
-        } else if args.enabled("--ltn") {
+        } else if args.ltn {
             Mode::Ltn
-        } else if args.enabled("--devtools") {
+        } else if args.devtools {
             Mode::Devtools
         } else {
             Mode::SomethingElse
@@ -114,17 +196,24 @@ fn run(mut settings: Settings) {
     };
 
     setup.opts.toggle_day_night_colors = true;
-    setup.opts.update_from_args(&mut args);
+    // Update options from CLI flags
+    setup.opts.dev = args.dev;
+    setup.opts.minimal_controls = args.minimal_controls;
+    if let Some(cs) = args.color_scheme {
+        setup.opts.color_scheme = cs;
+        setup.opts.toggle_day_night_colors = false;
+    }
+
     settings = settings.canvas_settings(setup.opts.canvas_settings.clone());
 
-    if args.enabled("--dump_raw_events") {
+    if args.dump_raw_events {
         settings = settings.dump_raw_events();
     }
-    if let Some(s) = args.optional_parse("--scale_factor", |s| s.parse::<f64>()) {
+    if let Some(s) = args.scale_factor {
         settings = settings.scale_factor(s);
     }
 
-    if let Some(x) = args.optional("--challenge") {
+    if let Some(x) = args.challenge {
         let mut aliases = Vec::new();
         'OUTER: for (_, stages) in challenges::Challenge::all() {
             for challenge in stages {
@@ -141,7 +230,7 @@ fn run(mut settings: Settings) {
             panic!("Invalid --challenge={}. Choices: {}", x, aliases.join(", "));
         }
     }
-    if let Some(n) = args.optional_parse("--tutorial", |s| s.parse::<usize>()) {
+    if let Some(n) = args.tutorial {
         setup.initialize_tutorial = true;
         setup.maybe_mode = Some(sandbox::GameplayMode::Tutorial(
             sandbox::TutorialPointer::new(n - 1, 0),
@@ -160,7 +249,7 @@ fn run(mut settings: Settings) {
         ));
     }
 
-    if let Some(site) = args.optional("--actdev") {
+    if let Some(site) = args.actdev {
         // Handle if the site was accidentally passed in with underscores. Otherwise, some study
         // areas won't be found!
         let site = site.replace("_", "-");
@@ -171,15 +260,13 @@ fn run(mut settings: Settings) {
         // Parking data in the actdev maps is nonexistent, so many people have convoluted walking
         // routes just to fetch their car. Just disable parking entirely.
         setup.flags.sim_flags.opts.infinite_parking = true;
-        let scenario = if args.optional("--actdev_scenario") == Some("go_active".to_string()) {
+        let scenario = if args.actdev_scenario == Some("go_active".to_string()) {
             "go_active".to_string()
         } else {
             "base".to_string()
         };
         setup.maybe_mode = Some(sandbox::GameplayMode::Actdev(name, scenario, false));
     }
-
-    args.done();
 
     widgetry::run(settings, |ctx| setup_app(ctx, setup))
 }
