@@ -594,6 +594,12 @@
 <span id="594">594</span>
 <span id="595">595</span>
 <span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
 </pre><pre class="rust"><code><span class="comment">// Disable some noisy lints</span>
 <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::too_many_arguments</span>, <span class="ident">clippy::type_complexity</span>)]</span>
 
@@ -674,26 +680,10 @@
     <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
     <span class="ident">minimal_controls</span>: <span class="ident">bool</span>,
 
-    <span class="doccomment">/// Start by showing this KMl file in a debug viewer</span>
-    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span> <span class="op">=</span> <span class="string">&quot;kml&quot;</span>)]</span>
-    <span class="ident">load_kml</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="doccomment">/// Run a configured set of simulations and record prebaked data.</span>
     <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
     <span class="ident">prebake</span>: <span class="ident">bool</span>,
-    <span class="doccomment">/// Start playing a particular challenge</span>
-    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
-    <span class="ident">challenge</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Start on a particular tutorial stage</span>
-    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
-    <span class="ident">tutorial</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Start in ActDev mode for a particular site name.</span>
-    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
-    <span class="ident">actdev</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Start by showing an ActDev scenario. Either &quot;base&quot; or &quot;go_active&quot;.</span>
-    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
-    <span class="ident">actdev_scenario</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 
-    <span class="comment">// TODO Not sure how to do this more nicely</span>
     <span class="doccomment">/// Start at the tutorial intro screen</span>
     <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
     <span class="ident">tutorial_intro</span>: <span class="ident">bool</span>,
@@ -715,23 +705,36 @@
     <span class="doccomment">/// Start by listing internal developer tools</span>
     <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
     <span class="ident">devtools</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// Start by showing this KMl file in a debug viewer</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span> <span class="op">=</span> <span class="string">&quot;kml&quot;</span>)]</span>
+    <span class="ident">load_kml</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Start playing a particular challenge</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
+    <span class="ident">challenge</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Start on a particular tutorial stage</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
+    <span class="ident">tutorial</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Start in ActDev mode for a particular site name.</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
+    <span class="ident">actdev</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Start by showing an ActDev scenario. Either &quot;base&quot; or &quot;go_active&quot;.</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
+    <span class="ident">actdev_scenario</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">struct</span> <span class="ident">Setup</span> {
     <span class="ident">flags</span>: <span class="ident">Flags</span>,
     <span class="ident">opts</span>: <span class="ident">Options</span>,
     <span class="ident">start_with_edits</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="ident">maybe_mode</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">GameplayMode</span><span class="op">&gt;</span>,
     <span class="ident">initialize_tutorial</span>: <span class="ident">bool</span>,
     <span class="ident">center_camera</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="ident">start_time</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
-    <span class="ident">load_kml</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="ident">diff_map</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="comment">// TODO Fold more of Setup into the mutually exclusive Mode. load_kml, maybe_mode, and</span>
-    <span class="comment">// savestate are good candidates...</span>
     <span class="ident">mode</span>: <span class="ident">Mode</span>,
 }
 
+<span class="comment">// TODO Switch to explicit enum subcommands, each of which includes precisely the set of common</span>
+<span class="comment">// flags that&#39;re valid for that mode</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>)]</span>
 <span class="kw">enum</span> <span class="ident">Mode</span> {
     <span class="ident">SomethingElse</span>,
@@ -742,6 +745,8 @@
     <span class="ident">Ungap</span>,
     <span class="ident">Ltn</span>,
     <span class="ident">Devtools</span>,
+    <span class="ident">LoadKML</span>(<span class="ident">String</span>),
+    <span class="ident">Gameplay</span>(<span class="ident">GameplayMode</span>),
 }
 
 <span class="kw">fn</span> <span class="ident">run</span>(<span class="kw-2">mut</span> <span class="ident">settings</span>: <span class="ident">Settings</span>) {
@@ -766,11 +771,9 @@
         <span class="ident">flags</span>: <span class="ident">args</span>.<span class="ident">flags</span>,
         <span class="ident">opts</span>: <span class="ident">Options::load_or_default</span>(),
         <span class="ident">start_with_edits</span>: <span class="ident">args</span>.<span class="ident">start_with_edits</span>,
-        <span class="ident">maybe_mode</span>: <span class="prelude-val">None</span>,
         <span class="ident">initialize_tutorial</span>: <span class="bool-val">false</span>,
         <span class="ident">center_camera</span>: <span class="ident">args</span>.<span class="ident">cam</span>,
         <span class="ident">start_time</span>: <span class="ident">args</span>.<span class="ident">start_time</span>,
-        <span class="ident">load_kml</span>: <span class="ident">args</span>.<span class="ident">load_kml</span>,
         <span class="ident">diff_map</span>: <span class="ident">args</span>.<span class="ident">diff_map</span>,
         <span class="ident">mode</span>: <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">tutorial_intro</span> {
             <span class="ident">Mode::TutorialIntro</span>
@@ -786,6 +789,8 @@
             <span class="ident">Mode::Ltn</span>
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">devtools</span> {
             <span class="ident">Mode::Devtools</span>
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">kml</span>) <span class="op">=</span> <span class="ident">args</span>.<span class="ident">load_kml</span> {
+            <span class="ident">Mode::LoadKML</span>(<span class="ident">kml</span>)
         } <span class="kw">else</span> {
             <span class="ident">Mode::SomethingElse</span>
         },
@@ -810,25 +815,27 @@
     }
 
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">args</span>.<span class="ident">challenge</span> {
+        <span class="comment">// TODO This is a weak form of mutual exclusion; just use subcommands</span>
+        <span class="macro">assert!</span>(<span class="ident">setup</span>.<span class="ident">mode</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Mode::SomethingElse</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">aliases</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="lifetime">&#39;OUTER</span>: <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">stages</span>) <span class="kw">in</span> <span class="ident">challenges::Challenge::all</span>() {
             <span class="kw">for</span> <span class="ident">challenge</span> <span class="kw">in</span> <span class="ident">stages</span> {
                 <span class="kw">if</span> <span class="ident">challenge</span>.<span class="ident">alias</span> <span class="op">=</span><span class="op">=</span> <span class="ident">x</span> {
                     <span class="ident">setup</span>.<span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span> <span class="op">=</span> <span class="ident">challenge</span>.<span class="ident">gameplay</span>.<span class="ident">map_name</span>().<span class="ident">path</span>();
-                    <span class="ident">setup</span>.<span class="ident">maybe_mode</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">challenge</span>.<span class="ident">gameplay</span>);
+                    <span class="ident">setup</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::Gameplay</span>(<span class="ident">challenge</span>.<span class="ident">gameplay</span>);
                     <span class="kw">break</span> <span class="lifetime">&#39;OUTER</span>;
                 } <span class="kw">else</span> {
                     <span class="ident">aliases</span>.<span class="ident">push</span>(<span class="ident">challenge</span>.<span class="ident">alias</span>);
                 }
             }
         }
-        <span class="kw">if</span> <span class="ident">setup</span>.<span class="ident">maybe_mode</span>.<span class="ident">is_none</span>() {
+        <span class="kw">if</span> <span class="ident">setup</span>.<span class="ident">mode</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Mode::SomethingElse</span> {
             <span class="macro">panic!</span>(<span class="string">&quot;Invalid --challenge={}. Choices: {}&quot;</span>, <span class="ident">x</span>, <span class="ident">aliases</span>.<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>));
         }
     }
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="op">=</span> <span class="ident">args</span>.<span class="ident">tutorial</span> {
         <span class="ident">setup</span>.<span class="ident">initialize_tutorial</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="ident">setup</span>.<span class="ident">maybe_mode</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">sandbox::GameplayMode::Tutorial</span>(
+        <span class="ident">setup</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::Gameplay</span>(<span class="ident">sandbox::GameplayMode::Tutorial</span>(
             <span class="ident">sandbox::TutorialPointer::new</span>(<span class="ident">n</span> <span class="op">-</span> <span class="number">1</span>, <span class="number">0</span>),
         ));
     }
@@ -837,10 +844,10 @@
     <span class="comment">// other scenarios loaed in the UI later.</span>
     <span class="kw">let</span> <span class="ident">modifiers</span> <span class="op">=</span> <span class="ident">setup</span>.<span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">scenario_modifiers</span>.<span class="ident">drain</span>(..).<span class="ident">collect</span>();
 
-    <span class="kw">if</span> <span class="ident">setup</span>.<span class="ident">maybe_mode</span>.<span class="ident">is_none</span>() <span class="op">&amp;&amp;</span> <span class="ident">setup</span>.<span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span>.<span class="ident">contains</span>(<span class="string">&quot;scenarios/&quot;</span>) {
+    <span class="kw">if</span> <span class="ident">setup</span>.<span class="ident">mode</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Mode::SomethingElse</span> <span class="op">&amp;&amp;</span> <span class="ident">setup</span>.<span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span>.<span class="ident">contains</span>(<span class="string">&quot;scenarios/&quot;</span>) {
         <span class="kw">let</span> (<span class="ident">map_name</span>, <span class="ident">scenario</span>) <span class="op">=</span> <span class="ident">abstio::parse_scenario_path</span>(<span class="kw-2">&amp;</span><span class="ident">setup</span>.<span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span>);
         <span class="ident">setup</span>.<span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span> <span class="op">=</span> <span class="ident">map_name</span>.<span class="ident">path</span>();
-        <span class="ident">setup</span>.<span class="ident">maybe_mode</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">sandbox::GameplayMode::PlayScenario</span>(
+        <span class="ident">setup</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::Gameplay</span>(<span class="ident">sandbox::GameplayMode::PlayScenario</span>(
             <span class="ident">map_name</span>, <span class="ident">scenario</span>, <span class="ident">modifiers</span>,
         ));
     }
@@ -861,7 +868,7 @@
         } <span class="kw">else</span> {
             <span class="string">&quot;base&quot;</span>.<span class="ident">to_string</span>()
         };
-        <span class="ident">setup</span>.<span class="ident">maybe_mode</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">sandbox::GameplayMode::Actdev</span>(<span class="ident">name</span>, <span class="ident">scenario</span>, <span class="bool-val">false</span>));
+        <span class="ident">setup</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::Gameplay</span>(<span class="ident">sandbox::GameplayMode::Actdev</span>(<span class="ident">name</span>, <span class="ident">scenario</span>, <span class="bool-val">false</span>));
     }
 
     <span class="ident">widgetry::run</span>(<span class="ident">settings</span>, <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> <span class="ident">setup_app</span>(<span class="ident">ctx</span>, <span class="ident">setup</span>))
@@ -871,7 +878,6 @@
     <span class="kw">let</span> <span class="ident">title</span> <span class="op">=</span> <span class="op">!</span><span class="ident">setup</span>.<span class="ident">opts</span>.<span class="ident">dev</span>
         <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">setup</span>.<span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span>.<span class="ident">contains</span>(<span class="string">&quot;player/save&quot;</span>)
         <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">setup</span>.<span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span>.<span class="ident">contains</span>(<span class="string">&quot;/scenarios/&quot;</span>)
-        <span class="op">&amp;&amp;</span> <span class="ident">setup</span>.<span class="ident">maybe_mode</span>.<span class="ident">is_none</span>()
         <span class="op">&amp;&amp;</span> <span class="ident">setup</span>.<span class="ident">mode</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Mode::SomethingElse</span>;
 
     <span class="comment">// Load the map used previously if we&#39;re starting on the title screen without any overrides.</span>
@@ -888,10 +894,12 @@
     <span class="comment">// usually time is midnight, so save some effort and start with the correct color scheme. If</span>
     <span class="comment">// we&#39;re loading a savestate and it&#39;s actually daytime, we&#39;ll pay a small penalty to switch</span>
     <span class="comment">// colors.</span>
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">GameplayMode::PlayScenario</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>))
-    <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">GameplayMode::FixTrafficSignals</span>)
-    <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">GameplayMode::OptimizeCommute</span>(<span class="kw">_</span>, <span class="kw">_</span>))
-    <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">GameplayMode::Tutorial</span>(<span class="kw">_</span>)) <span class="op">=</span> <span class="ident">setup</span>.<span class="ident">maybe_mode</span>
+    <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Mode::Gameplay</span>(
+        <span class="ident">GameplayMode::PlayScenario</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>)
+        <span class="op">|</span> <span class="ident">GameplayMode::FixTrafficSignals</span>
+        <span class="op">|</span> <span class="ident">GameplayMode::OptimizeCommute</span>(<span class="kw">_</span>, <span class="kw">_</span>)
+        <span class="op">|</span> <span class="ident">GameplayMode::Tutorial</span>(<span class="kw">_</span>),
+    ) <span class="op">=</span> <span class="ident">setup</span>.<span class="ident">mode</span>
     {
         <span class="ident">setup</span>.<span class="ident">opts</span>.<span class="ident">color_scheme</span> <span class="op">=</span> <span class="ident">map_gui::colors::ColorSchemeChoice::NightMode</span>;
     }
@@ -926,7 +934,7 @@
     <span class="comment">// case, all we&#39;re creating there is a map. If so, use the proper async interface.</span>
     <span class="comment">//</span>
     <span class="comment">// Note if we started with a scenario, main() rewrote it to be the appropriate map, along with</span>
-    <span class="comment">// maybe_mode.</span>
+    <span class="comment">// mode.</span>
     <span class="kw">if</span> <span class="ident">setup</span>.<span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span>.<span class="ident">contains</span>(<span class="string">&quot;/maps/&quot;</span>) {
         <span class="comment">// Get App created with a dummy blank map</span>
         <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">Map::blank</span>();
@@ -1017,7 +1025,7 @@
         .<span class="ident">load</span>
         .<span class="ident">contains</span>(<span class="string">&quot;player/saves/&quot;</span>)
     {
-        <span class="macro">assert!</span>(<span class="ident">setup</span>.<span class="ident">maybe_mode</span>.<span class="ident">is_none</span>());
+        <span class="macro">assert!</span>(<span class="ident">setup</span>.<span class="ident">mode</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Mode::SomethingElse</span>);
         <span class="prelude-val">Some</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">clear_sim</span>())
     } <span class="kw">else</span> {
         <span class="prelude-val">None</span>
@@ -1119,21 +1127,24 @@
         <span class="kw">return</span> <span class="macro">vec!</span>[<span class="ident">TitleScreen::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)];
     }
 
-    <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">setup</span>.<span class="ident">load_kml</span> {
-        <span class="ident"><span class="kw">crate</span>::devtools::kml::ViewKML::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">Some</span>(<span class="ident">path</span>))
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ss</span>) <span class="op">=</span> <span class="ident">savestate</span> {
+    <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ss</span>) <span class="op">=</span> <span class="ident">savestate</span> {
         <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span> <span class="op">=</span> <span class="ident">ss</span>;
         <span class="ident">SandboxMode::start_from_savestate</span>(<span class="ident">app</span>)
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">mode</span>) <span class="op">=</span> <span class="ident">setup</span>.<span class="ident">maybe_mode</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">GameplayMode::Actdev</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">mode</span> {
-            <span class="ident">SandboxMode::async_new</span>(<span class="ident">app</span>, <span class="ident">mode</span>, <span class="ident">jump_to_time_upon_startup</span>(<span class="ident">Duration::hours</span>(<span class="number">8</span>)))
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">setup</span>.<span class="ident">start_time</span> {
-            <span class="ident">SandboxMode::async_new</span>(<span class="ident">app</span>, <span class="ident">mode</span>, <span class="ident">jump_to_time_upon_startup</span>(<span class="ident">t</span>))
-        } <span class="kw">else</span> {
-            <span class="ident">SandboxMode::simple_new</span>(<span class="ident">app</span>, <span class="ident">mode</span>)
-        }
     } <span class="kw">else</span> {
         <span class="kw">match</span> <span class="ident">setup</span>.<span class="ident">mode</span> {
+            <span class="ident">Mode::Gameplay</span>(<span class="ident">gameplay</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">GameplayMode::Actdev</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">gameplay</span> {
+                    <span class="ident">SandboxMode::async_new</span>(
+                        <span class="ident">app</span>,
+                        <span class="ident">gameplay</span>,
+                        <span class="ident">jump_to_time_upon_startup</span>(<span class="ident">Duration::hours</span>(<span class="number">8</span>)),
+                    )
+                } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">setup</span>.<span class="ident">start_time</span> {
+                    <span class="ident">SandboxMode::async_new</span>(<span class="ident">app</span>, <span class="ident">gameplay</span>, <span class="ident">jump_to_time_upon_startup</span>(<span class="ident">t</span>))
+                } <span class="kw">else</span> {
+                    <span class="ident">SandboxMode::simple_new</span>(<span class="ident">app</span>, <span class="ident">gameplay</span>)
+                }
+            }
             <span class="ident">Mode::SomethingElse</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// Not attempting to keep the primary and secondary simulations synchronized at the</span>
                 <span class="comment">// same time yet. Just handle this one startup case, so we can switch maps without</span>
@@ -1172,6 +1183,7 @@
             }
             <span class="ident">Mode::Ltn</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ltn::BrowseNeighborhoods::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
             <span class="ident">Mode::Devtools</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">devtools::DevToolsMode::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+            <span class="ident">Mode::LoadKML</span>(<span class="ident">path</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::devtools::kml::ViewKML::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">Some</span>(<span class="ident">path</span>)),
         }
     };
     <span class="macro">vec!</span>[<span class="ident">TitleScreen::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>), <span class="ident">state</span>]
