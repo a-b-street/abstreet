@@ -1026,42 +1026,9 @@
 <span id="1026">1026</span>
 <span id="1027">1027</span>
 <span id="1028">1028</span>
-<span id="1029">1029</span>
-<span id="1030">1030</span>
-<span id="1031">1031</span>
-<span id="1032">1032</span>
-<span id="1033">1033</span>
-<span id="1034">1034</span>
-<span id="1035">1035</span>
-<span id="1036">1036</span>
-<span id="1037">1037</span>
-<span id="1038">1038</span>
-<span id="1039">1039</span>
-<span id="1040">1040</span>
-<span id="1041">1041</span>
-<span id="1042">1042</span>
-<span id="1043">1043</span>
-<span id="1044">1044</span>
-<span id="1045">1045</span>
-<span id="1046">1046</span>
-<span id="1047">1047</span>
-<span id="1048">1048</span>
-<span id="1049">1049</span>
-<span id="1050">1050</span>
-<span id="1051">1051</span>
-<span id="1052">1052</span>
-<span id="1053">1053</span>
-<span id="1054">1054</span>
-<span id="1055">1055</span>
-<span id="1056">1056</span>
-<span id="1057">1057</span>
-<span id="1058">1058</span>
-<span id="1059">1059</span>
-<span id="1060">1060</span>
 </pre><pre class="rust"><code><span class="comment">// This file has a jumbled mess of queries, setup, and mutating methods.</span>
 
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashSet</span>};
-<span class="kw">use</span> <span class="ident">std::panic</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">instant::Instant</span>;
@@ -1071,7 +1038,7 @@
 <span class="kw">use</span> <span class="ident">structopt::StructOpt</span>;
 
 <span class="kw">use</span> <span class="ident">abstio</span>::{<span class="ident">CityName</span>, <span class="ident">MapName</span>};
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">serialized_size_bytes</span>, <span class="ident">CmdArgs</span>, <span class="ident">Timer</span>};
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">serialized_size_bytes</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Speed</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{
     <span class="ident">BuildingID</span>, <span class="ident">BusRoute</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">ParkingLotID</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>,
@@ -1200,37 +1167,6 @@
             <span class="ident">infinite_parking</span>: <span class="bool-val">false</span>,
             <span class="ident">disable_turn_conflicts</span>: <span class="bool-val">false</span>,
             <span class="ident">skip_analytics</span>: <span class="bool-val">false</span>,
-        }
-    }
-
-    <span class="comment">// TODO Remove</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_args</span>(<span class="ident">args</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CmdArgs</span>, <span class="ident">rng_seed</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SimOptions</span> {
-        <span class="ident">SimOptions</span> {
-            <span class="ident">run_name</span>: <span class="ident">args</span>
-                .<span class="ident">optional</span>(<span class="string">&quot;--run_name&quot;</span>)
-                .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="string">&quot;unnamed&quot;</span>.<span class="ident">to_string</span>()),
-            <span class="ident">use_freeform_policy_everywhere</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--freeform_policy&quot;</span>),
-            <span class="ident">allow_block_the_box</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--disable_block_the_box&quot;</span>),
-            <span class="ident">dont_recalc_lanechanging</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--disable_recalc_lc&quot;</span>),
-            <span class="ident">dont_break_turn_conflict_cycles</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--disable_break_turn_conflict_cycles&quot;</span>),
-            <span class="ident">dont_handle_uber_turns</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--disable_handle_uber_turns&quot;</span>),
-            <span class="ident">enable_pandemic_model</span>: <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--pandemic&quot;</span>) {
-                <span class="prelude-val">Some</span>(<span class="ident">XorShiftRng::seed_from_u64</span>(<span class="ident">rng_seed</span>))
-            } <span class="kw">else</span> {
-                <span class="prelude-val">None</span>
-            },
-            <span class="ident">alerts</span>: <span class="ident">args</span>
-                .<span class="ident">optional</span>(<span class="string">&quot;--alerts&quot;</span>)
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                    <span class="string">&quot;print&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">AlertHandler::Print</span>,
-                    <span class="string">&quot;block&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">AlertHandler::Block</span>,
-                    <span class="string">&quot;silence&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">AlertHandler::Silence</span>,
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;Bad --alerts={}. Must be print|block|silence&quot;</span>, <span class="ident">x</span>),
-                })
-                .<span class="ident">unwrap_or</span>(<span class="ident">AlertHandler::Print</span>),
-            <span class="ident">infinite_parking</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--infinite_parking&quot;</span>),
-            <span class="ident">disable_turn_conflicts</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--disable_turn_conflicts&quot;</span>),
-            <span class="ident">skip_analytics</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--skip_analytics&quot;</span>),
         }
     }
 }

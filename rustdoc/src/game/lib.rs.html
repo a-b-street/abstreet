@@ -507,6 +507,93 @@
 <span id="507">507</span>
 <span id="508">508</span>
 <span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
 </pre><pre class="rust"><code><span class="comment">// Disable some noisy lints</span>
 <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::too_many_arguments</span>, <span class="ident">clippy::type_complexity</span>)]</span>
 
@@ -515,14 +602,17 @@
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
 
+<span class="kw">use</span> <span class="ident">structopt::StructOpt</span>;
+
 <span class="kw">use</span> <span class="ident">abstio::MapName</span>;
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">CmdArgs</span>, <span class="ident">Timer</span>};
+<span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
 <span class="kw">use</span> <span class="ident">geom::Duration</span>;
+<span class="kw">use</span> <span class="ident">map_gui::colors::ColorSchemeChoice</span>;
 <span class="kw">use</span> <span class="ident">map_gui::load::FutureLoader</span>;
 <span class="kw">use</span> <span class="ident">map_gui::options::Options</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">PopupMsg</span>, <span class="ident">URLManager</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Map</span>, <span class="ident">MapEdits</span>};
-<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">Sim</span>, <span class="ident">SimFlags</span>};
+<span class="kw">use</span> <span class="ident">sim::Sim</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">EventCtx</span>, <span class="ident">Settings</span>, <span class="ident">State</span>, <span class="ident">Transition</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app</span>::{<span class="ident">App</span>, <span class="ident">Flags</span>, <span class="ident">PerMap</span>};
@@ -546,6 +636,85 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">main</span>() {
     <span class="kw">let</span> <span class="ident">settings</span> <span class="op">=</span> <span class="ident">Settings::new</span>(<span class="string">&quot;A/B Street&quot;</span>);
     <span class="ident">run</span>(<span class="ident">settings</span>);
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">StructOpt</span>)]</span>
+<span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">name</span> <span class="op">=</span> <span class="string">&quot;abstreet&quot;</span>, <span class="ident">about</span> <span class="op">=</span> <span class="string">&quot;The A/B Street traffic simulator&quot;</span>)]</span>
+<span class="kw">struct</span> <span class="ident">Args</span> {
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">flatten</span>)]</span>
+    <span class="ident">flags</span>: <span class="ident">Flags</span>,
+    <span class="doccomment">/// Start with these map edits loaded. This should be the name of edits, not a full path.</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span> <span class="op">=</span> <span class="string">&quot;edits&quot;</span>)]</span>
+    <span class="ident">start_with_edits</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Initially position the camera here. The format is an OSM-style `zoom/lat/lon` string</span>
+    <span class="doccomment">/// (https://wiki.openstreetmap.org/wiki/Browsing#Other_URL_tricks).</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
+    <span class="ident">cam</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Start the simulation at this time</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span> <span class="op">=</span> <span class="string">&quot;time&quot;</span>, <span class="ident">parse</span>(<span class="ident">try_from_str</span> <span class="op">=</span> <span class="ident">Duration::parse</span>))]</span>
+    <span class="ident">start_time</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Load the map at this path as a secondary debug map to compare to the main one</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span> <span class="op">=</span> <span class="string">&quot;diff&quot;</span>)]</span>
+    <span class="ident">diff_map</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Print raw widgetry events to the console for debugging</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
+    <span class="ident">dump_raw_events</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// Override the monitor&#39;s auto-detected scale factor</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
+    <span class="ident">scale_factor</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>,
+
+    <span class="doccomment">/// Dev mode exposes experimental tools useful for debugging, but that&#39;d likely confuse most</span>
+    <span class="doccomment">/// players.</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
+    <span class="ident">dev</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// The color scheme for map elements, agents, and the UI.</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>, <span class="ident">parse</span>(<span class="ident">try_from_str</span> <span class="op">=</span> <span class="ident">ColorSchemeChoice::parse</span>))]</span>
+    <span class="ident">color_scheme</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ColorSchemeChoice</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// When making a screen recording, enable this option to hide some UI elements</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
+    <span class="ident">minimal_controls</span>: <span class="ident">bool</span>,
+
+    <span class="doccomment">/// Start by showing this KMl file in a debug viewer</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span> <span class="op">=</span> <span class="string">&quot;kml&quot;</span>)]</span>
+    <span class="ident">load_kml</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Run a configured set of simulations and record prebaked data.</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
+    <span class="ident">prebake</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// Start playing a particular challenge</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
+    <span class="ident">challenge</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Start on a particular tutorial stage</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
+    <span class="ident">tutorial</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Start in ActDev mode for a particular site name.</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
+    <span class="ident">actdev</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Start by showing an ActDev scenario. Either &quot;base&quot; or &quot;go_active&quot;.</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
+    <span class="ident">actdev_scenario</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+
+    <span class="comment">// TODO Not sure how to do this more nicely</span>
+    <span class="doccomment">/// Start at the tutorial intro screen</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
+    <span class="ident">tutorial_intro</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// Start by listing gameplay challenges</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
+    <span class="ident">challenges</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// Start in the simulation sandbox mode</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
+    <span class="ident">sandbox</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// Start by showing community proposals</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
+    <span class="ident">proposals</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// Launch Ungap the Map, a bike network planning tool</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
+    <span class="ident">ungap</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// Start a low-traffic neighborhood planner</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
+    <span class="ident">ltn</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// Start by listing internal developer tools</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
+    <span class="ident">devtools</span>: <span class="ident">bool</span>,
 }
 
 <span class="kw">struct</span> <span class="ident">Setup</span> {
@@ -576,6 +745,8 @@
 }
 
 <span class="kw">fn</span> <span class="ident">run</span>(<span class="kw-2">mut</span> <span class="ident">settings</span>: <span class="ident">Settings</span>) {
+    <span class="ident">abstutil::logger::setup</span>();
+
     <span class="ident">settings</span> <span class="op">=</span> <span class="ident">settings</span>
         .<span class="ident">read_svg</span>(<span class="ident">Box::new</span>(<span class="ident">abstio::slurp_bytes</span>))
         .<span class="ident">window_icon</span>(<span class="ident">abstio::path</span>(<span class="string">&quot;system/assets/pregame/icon.png&quot;</span>))
@@ -583,39 +754,37 @@
         <span class="comment">// This is approximately how much the 3 top panels in sandbox mode require.</span>
         .<span class="ident">require_minimum_width</span>(<span class="number">1500.0</span>);
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">CmdArgs::new</span>();
-    <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--prebake&quot;</span>) {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">Args::from_args</span>();
+    <span class="ident">args</span>.<span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">initialize</span>();
+
+    <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">prebake</span> {
         <span class="ident">challenges::prebake::prebake_all</span>();
         <span class="kw">return</span>;
     }
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">setup</span> <span class="op">=</span> <span class="ident">Setup</span> {
-        <span class="ident">flags</span>: <span class="ident">Flags</span> {
-            <span class="ident">sim_flags</span>: <span class="ident">SimFlags::from_args</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">args</span>),
-            <span class="ident">live_map_edits</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--live_map_edits&quot;</span>),
-            <span class="ident">study_area</span>: <span class="ident">args</span>.<span class="ident">optional</span>(<span class="string">&quot;--study_area&quot;</span>),
-        },
+        <span class="ident">flags</span>: <span class="ident">args</span>.<span class="ident">flags</span>,
         <span class="ident">opts</span>: <span class="ident">Options::load_or_default</span>(),
-        <span class="ident">start_with_edits</span>: <span class="ident">args</span>.<span class="ident">optional</span>(<span class="string">&quot;--edits&quot;</span>),
+        <span class="ident">start_with_edits</span>: <span class="ident">args</span>.<span class="ident">start_with_edits</span>,
         <span class="ident">maybe_mode</span>: <span class="prelude-val">None</span>,
         <span class="ident">initialize_tutorial</span>: <span class="bool-val">false</span>,
-        <span class="ident">center_camera</span>: <span class="ident">args</span>.<span class="ident">optional</span>(<span class="string">&quot;--cam&quot;</span>),
-        <span class="ident">start_time</span>: <span class="ident">args</span>.<span class="ident">optional_parse</span>(<span class="string">&quot;--time&quot;</span>, <span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">Duration::parse</span>(<span class="ident">t</span>)),
-        <span class="ident">load_kml</span>: <span class="ident">args</span>.<span class="ident">optional</span>(<span class="string">&quot;--kml&quot;</span>),
-        <span class="ident">diff_map</span>: <span class="ident">args</span>.<span class="ident">optional</span>(<span class="string">&quot;--diff&quot;</span>),
-        <span class="ident">mode</span>: <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--tutorial-intro&quot;</span>) {
+        <span class="ident">center_camera</span>: <span class="ident">args</span>.<span class="ident">cam</span>,
+        <span class="ident">start_time</span>: <span class="ident">args</span>.<span class="ident">start_time</span>,
+        <span class="ident">load_kml</span>: <span class="ident">args</span>.<span class="ident">load_kml</span>,
+        <span class="ident">diff_map</span>: <span class="ident">args</span>.<span class="ident">diff_map</span>,
+        <span class="ident">mode</span>: <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">tutorial_intro</span> {
             <span class="ident">Mode::TutorialIntro</span>
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--challenges&quot;</span>) {
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">challenges</span> {
             <span class="ident">Mode::Challenges</span>
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--sandbox&quot;</span>) {
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">sandbox</span> {
             <span class="ident">Mode::Sandbox</span>
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--proposals&quot;</span>) {
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">proposals</span> {
             <span class="ident">Mode::Proposals</span>
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--ungap&quot;</span>) {
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">ungap</span> {
             <span class="ident">Mode::Ungap</span>
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--ltn&quot;</span>) {
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">ltn</span> {
             <span class="ident">Mode::Ltn</span>
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--devtools&quot;</span>) {
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">devtools</span> {
             <span class="ident">Mode::Devtools</span>
         } <span class="kw">else</span> {
             <span class="ident">Mode::SomethingElse</span>
@@ -623,17 +792,24 @@
     };
 
     <span class="ident">setup</span>.<span class="ident">opts</span>.<span class="ident">toggle_day_night_colors</span> <span class="op">=</span> <span class="bool-val">true</span>;
-    <span class="ident">setup</span>.<span class="ident">opts</span>.<span class="ident">update_from_args</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">args</span>);
+    <span class="comment">// Update options from CLI flags</span>
+    <span class="ident">setup</span>.<span class="ident">opts</span>.<span class="ident">dev</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">dev</span>;
+    <span class="ident">setup</span>.<span class="ident">opts</span>.<span class="ident">minimal_controls</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">minimal_controls</span>;
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">cs</span>) <span class="op">=</span> <span class="ident">args</span>.<span class="ident">color_scheme</span> {
+        <span class="ident">setup</span>.<span class="ident">opts</span>.<span class="ident">color_scheme</span> <span class="op">=</span> <span class="ident">cs</span>;
+        <span class="ident">setup</span>.<span class="ident">opts</span>.<span class="ident">toggle_day_night_colors</span> <span class="op">=</span> <span class="bool-val">false</span>;
+    }
+
     <span class="ident">settings</span> <span class="op">=</span> <span class="ident">settings</span>.<span class="ident">canvas_settings</span>(<span class="ident">setup</span>.<span class="ident">opts</span>.<span class="ident">canvas_settings</span>.<span class="ident">clone</span>());
 
-    <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--dump_raw_events&quot;</span>) {
+    <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">dump_raw_events</span> {
         <span class="ident">settings</span> <span class="op">=</span> <span class="ident">settings</span>.<span class="ident">dump_raw_events</span>();
     }
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">s</span>) <span class="op">=</span> <span class="ident">args</span>.<span class="ident">optional_parse</span>(<span class="string">&quot;--scale_factor&quot;</span>, <span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>()) {
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">s</span>) <span class="op">=</span> <span class="ident">args</span>.<span class="ident">scale_factor</span> {
         <span class="ident">settings</span> <span class="op">=</span> <span class="ident">settings</span>.<span class="ident">scale_factor</span>(<span class="ident">s</span>);
     }
 
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">args</span>.<span class="ident">optional</span>(<span class="string">&quot;--challenge&quot;</span>) {
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">args</span>.<span class="ident">challenge</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">aliases</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="lifetime">&#39;OUTER</span>: <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">stages</span>) <span class="kw">in</span> <span class="ident">challenges::Challenge::all</span>() {
             <span class="kw">for</span> <span class="ident">challenge</span> <span class="kw">in</span> <span class="ident">stages</span> {
@@ -650,7 +826,7 @@
             <span class="macro">panic!</span>(<span class="string">&quot;Invalid --challenge={}. Choices: {}&quot;</span>, <span class="ident">x</span>, <span class="ident">aliases</span>.<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>));
         }
     }
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="op">=</span> <span class="ident">args</span>.<span class="ident">optional_parse</span>(<span class="string">&quot;--tutorial&quot;</span>, <span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>()) {
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="op">=</span> <span class="ident">args</span>.<span class="ident">tutorial</span> {
         <span class="ident">setup</span>.<span class="ident">initialize_tutorial</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="ident">setup</span>.<span class="ident">maybe_mode</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">sandbox::GameplayMode::Tutorial</span>(
             <span class="ident">sandbox::TutorialPointer::new</span>(<span class="ident">n</span> <span class="op">-</span> <span class="number">1</span>, <span class="number">0</span>),
@@ -669,7 +845,7 @@
         ));
     }
 
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">site</span>) <span class="op">=</span> <span class="ident">args</span>.<span class="ident">optional</span>(<span class="string">&quot;--actdev&quot;</span>) {
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">site</span>) <span class="op">=</span> <span class="ident">args</span>.<span class="ident">actdev</span> {
         <span class="comment">// Handle if the site was accidentally passed in with underscores. Otherwise, some study</span>
         <span class="comment">// areas won&#39;t be found!</span>
         <span class="kw">let</span> <span class="ident">site</span> <span class="op">=</span> <span class="ident">site</span>.<span class="ident">replace</span>(<span class="string">&quot;_&quot;</span>, <span class="string">&quot;-&quot;</span>);
@@ -680,15 +856,13 @@
         <span class="comment">// Parking data in the actdev maps is nonexistent, so many people have convoluted walking</span>
         <span class="comment">// routes just to fetch their car. Just disable parking entirely.</span>
         <span class="ident">setup</span>.<span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">opts</span>.<span class="ident">infinite_parking</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="kw">let</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">optional</span>(<span class="string">&quot;--actdev_scenario&quot;</span>) <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="string">&quot;go_active&quot;</span>.<span class="ident">to_string</span>()) {
+        <span class="kw">let</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">actdev_scenario</span> <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="string">&quot;go_active&quot;</span>.<span class="ident">to_string</span>()) {
             <span class="string">&quot;go_active&quot;</span>.<span class="ident">to_string</span>()
         } <span class="kw">else</span> {
             <span class="string">&quot;base&quot;</span>.<span class="ident">to_string</span>()
         };
         <span class="ident">setup</span>.<span class="ident">maybe_mode</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">sandbox::GameplayMode::Actdev</span>(<span class="ident">name</span>, <span class="ident">scenario</span>, <span class="bool-val">false</span>));
     }
-
-    <span class="ident">args</span>.<span class="ident">done</span>();
 
     <span class="ident">widgetry::run</span>(<span class="ident">settings</span>, <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> <span class="ident">setup_app</span>(<span class="ident">ctx</span>, <span class="ident">setup</span>))
 }

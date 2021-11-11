@@ -477,6 +477,21 @@
 <span id="477">477</span>
 <span id="478">478</span>
 <span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
 </pre><pre class="rust"><code><span class="doccomment">//! A color scheme groups colors used for different map, dynamic, and UI elements in one place, to</span>
 <span class="doccomment">//! encourage deduplication. The player can also switch between different color schemes.</span>
 
@@ -519,6 +534,21 @@
             <span class="ident">Choice::new</span>(<span class="string">&quot;textured&quot;</span>, <span class="ident">ColorSchemeChoice::Textured</span>),
             <span class="ident">Choice::new</span>(<span class="string">&quot;classic&quot;</span>, <span class="ident">ColorSchemeChoice::ClassicDayMode</span>),
         ]
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ColorSchemeChoice</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">for</span> <span class="ident">c</span> <span class="kw">in</span> <span class="ident">ColorSchemeChoice::choices</span>() {
+            <span class="ident">options</span>.<span class="ident">push</span>(<span class="ident">c</span>.<span class="ident">label</span>.<span class="ident">clone</span>());
+            <span class="kw">if</span> <span class="ident">c</span>.<span class="ident">label</span> <span class="op">=</span><span class="op">=</span> <span class="ident">x</span> {
+                <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">c</span>.<span class="ident">data</span>);
+            }
+        }
+        <span class="macro">bail!</span>(
+            <span class="string">&quot;Invalid --color_scheme={}. Choices: {}&quot;</span>,
+            <span class="ident">x</span>,
+            <span class="ident">options</span>.<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>)
+        );
     }
 }
 
