@@ -115,6 +115,10 @@ impl State<App> for RoutePlanner {
         let panel_outcome = self.panel.event(ctx);
         if let Outcome::Clicked(ref x) = panel_outcome {
             if x == "Back to editing modal filters" {
+                // We'll cache a custom pathfinder per set of avoided roads. Avoid leaking memory
+                // by clearing this out
+                app.primary.map.clear_custom_pathfinder_cache();
+
                 return Transition::ConsumeState(Box::new(|state, ctx, app| {
                     let state = state.downcast::<RoutePlanner>().ok().unwrap();
                     vec![super::viewer::Viewer::new_state(

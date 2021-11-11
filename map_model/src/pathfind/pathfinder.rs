@@ -213,6 +213,13 @@ impl Pathfinder {
         result
     }
 
+    pub fn clear_custom_pathfinder_cache(&self) {
+        self.cached_alternatives
+            .get_or(|| RefCell::new(VecMap::new()))
+            .borrow_mut()
+            .clear();
+    }
+
     pub fn all_costs_from(
         &self,
         req: PathRequest,

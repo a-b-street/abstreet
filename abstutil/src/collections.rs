@@ -230,6 +230,10 @@ impl<K: Clone + PartialEq, V> VecMap<K, V> {
     pub fn is_empty(&self) -> bool {
         self.inner.is_empty()
     }
+
+    pub fn clear(&mut self) {
+        self.inner.clear();
+    }
 }
 
 impl<K: Clone + PartialEq, V> Default for VecMap<K, V> {
