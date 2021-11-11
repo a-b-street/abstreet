@@ -892,6 +892,11 @@
 <span id="892">892</span>
 <span id="893">893</span>
 <span id="894">894</span>
+<span id="895">895</span>
+<span id="896">896</span>
+<span id="897">897</span>
+<span id="898">898</span>
+<span id="899">899</span>
 </pre><pre class="rust"><code><span class="doccomment">//! A bunch of (mostly read-only) queries on a Map.</span>
 
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
@@ -1497,6 +1502,11 @@
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">BusStopID</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BusStopID</span><span class="op">&gt;</span>, <span class="ident">BusRouteID</span>)<span class="op">&gt;</span> {
         <span class="macro">assert!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">pathfinder_dirty</span>);
         <span class="self">self</span>.<span class="ident">pathfinder</span>.<span class="ident">should_use_transit</span>(<span class="self">self</span>, <span class="ident">start</span>, <span class="ident">end</span>)
+    }
+
+    <span class="doccomment">/// Clear any pathfinders with custom RoutingParams, created previously with `cache_custom`</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_custom_pathfinder_cache</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">pathfinder</span>.<span class="ident">clear_custom_pathfinder_cache</span>();
     }
 
     <span class="doccomment">/// Return the cost of a single path, and also a mapping from every directed road to the cost</span>

@@ -266,6 +266,13 @@
 <span id="266">266</span>
 <span id="267">267</span>
 <span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
@@ -479,6 +486,13 @@
                 .<span class="ident">push</span>((<span class="ident">constraints</span>, <span class="ident">params</span>.<span class="ident">clone</span>()), <span class="ident">tmp_pathfinder</span>);
         }
         <span class="ident">result</span>
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_custom_pathfinder_cache</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">cached_alternatives</span>
+            .<span class="ident">get_or</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">RefCell::new</span>(<span class="ident">VecMap::new</span>()))
+            .<span class="ident">borrow_mut</span>()
+            .<span class="ident">clear</span>();
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_costs_from</span>(
