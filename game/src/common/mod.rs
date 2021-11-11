@@ -1,6 +1,7 @@
+use std::cmp::Ordering;
 use std::collections::BTreeSet;
 
-use geom::{Duration, Polygon, Time};
+use geom::{Distance, Duration, Polygon, Time};
 use map_gui::ID;
 use map_model::{IntersectionID, Map, RoadID};
 use sim::{AgentType, TripMode, TripPhaseType};
@@ -366,6 +367,55 @@ pub fn cmp_duration_shorter(app: &App, after: Duration, before: Duration) -> Vec
         ]
     } else {
         unreachable!()
+    }
+}
+
+/// Shorter is better
+pub fn cmp_dist(txt: &mut Text, app: &App, dist: Distance, shorter: &str, longer: &str) {
+    match dist.cmp(&Distance::ZERO) {
+        Ordering::Less => {
+            txt.add_line(
+                Line(format!(
+                    "{} {}",
+                    (-dist).to_string(&app.opts.units),
+                    shorter
+                ))
+                .fg(Color::GREEN),
+            );
+        }
+        Ordering::Greater => {
+            txt.add_line(
+                Line(format!("{} {}", dist.to_string(&app.opts.units), longer)).fg(Color::RED),
+            );
+        }
+        Ordering::Equal => {}
+    }
+}
+
+/// Shorter is better
+pub fn cmp_duration(txt: &mut Text, app: &App, duration: Duration, shorter: &str, longer: &str) {
+    match duration.cmp(&Duration::ZERO) {
+        Ordering::Less => {
+            txt.add_line(
+                Line(format!(
+                    "{} {}",
+                    (-duration).to_string(&app.opts.units),
+                    shorter
+                ))
+                .fg(Color::GREEN),
+            );
+        }
+        Ordering::Greater => {
+            txt.add_line(
+                Line(format!(
+                    "{} {}",
+                    duration.to_string(&app.opts.units),
+                    longer
+                ))
+                .fg(Color::RED),
+            );
+        }
+        Ordering::Equal => {}
     }
 }
 

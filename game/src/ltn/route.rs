@@ -1,15 +1,15 @@
-use geom::{Distance, Polygon};
+use geom::{Distance, Duration, Polygon};
 use map_model::NORMAL_LANE_THICKNESS;
 use sim::{TripEndpoint, TripMode};
 use widgetry::mapspace::{ObjectID, ToggleZoomed, World};
 use widgetry::{
-    Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, State, VerticalAlignment,
-    Widget,
+    Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, Text,
+    VerticalAlignment, Widget,
 };
 
 use super::Neighborhood;
 use crate::app::{App, Transition};
-use crate::common::{InputWaypoints, WaypointID};
+use crate::common::{cmp_dist, cmp_duration, InputWaypoints, WaypointID};
 
 pub struct RoutePlanner {
     panel: Panel,
@@ -21,7 +21,8 @@ pub struct RoutePlanner {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 enum ID {
-    MainRoute,
+    RouteAfterFilters,
+    RouteBeforeFilters,
     Waypoint(WaypointID),
 }
 impl ObjectID for ID {}
@@ -49,6 +50,9 @@ impl RoutePlanner {
                 .text("Back to editing modal filters")
                 .hotkey(Key::Escape)
                 .build_def(ctx),
+            Line("Warning: Time estimates assume freeflow conditions (no traffic)")
+                .fg(Color::RED)
+                .into_widget(ctx),
             self.waypoints.get_panel_widget(ctx),
         ]))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
@@ -58,7 +62,7 @@ impl RoutePlanner {
 
         let mut world = self.calculate_paths(ctx, app);
         self.waypoints
-            .rebuild_world(ctx, &mut world, ID::Waypoint, 1);
+            .rebuild_world(ctx, &mut world, ID::Waypoint, 2);
         world.initialize_hover(ctx);
         world.rebuilt_during_drag(&self.world);
         self.world = world;
@@ -66,37 +70,124 @@ impl RoutePlanner {
 
     fn calculate_paths(&self, ctx: &mut EventCtx, app: &App) -> World<ID> {
         let map = &app.primary.map;
-
         let mut world = World::bounded(map.get_bounds());
 
-        let mut params = map.routing_params().clone();
-        params
-            .avoid_roads
-            .extend(app.session.modal_filters.roads.keys().cloned());
-        let cache_custom = true;
+        // First the route respecting the filters
+        let (total_time_after, total_dist_after) = {
+            let mut params = map.routing_params().clone();
+            params
+                .avoid_roads
+                .extend(app.session.modal_filters.roads.keys().cloned());
+            let cache_custom = true;
 
-        let mut draw_route = ToggleZoomed::builder();
-        let mut hitbox_pieces = Vec::new();
-        for pair in self.waypoints.get_waypoints().windows(2) {
-            if let Some(pl) = TripEndpoint::path_req(pair[0], pair[1], TripMode::Drive, map)
-                .and_then(|req| map.pathfind_with_params(req, &params, cache_custom).ok())
-                .and_then(|path| path.trace(map))
-            {
-                let shape = pl.make_polygons(5.0 * NORMAL_LANE_THICKNESS);
-                draw_route
-                    .unzoomed
-                    .push(Color::RED.alpha(0.8), shape.clone());
-                draw_route.zoomed.push(Color::RED.alpha(0.5), shape.clone());
-                hitbox_pieces.push(shape);
+            let mut draw_route = ToggleZoomed::builder();
+            let mut hitbox_pieces = Vec::new();
+            let mut total_time = Duration::ZERO;
+            let mut total_dist = Distance::ZERO;
+            for pair in self.waypoints.get_waypoints().windows(2) {
+                if let Some((path, pl)) =
+                    TripEndpoint::path_req(pair[0], pair[1], TripMode::Drive, map)
+                        .and_then(|req| map.pathfind_with_params(req, &params, cache_custom).ok())
+                        .and_then(|path| path.trace(map).map(|pl| (path, pl)))
+                {
+                    let shape = pl.make_polygons(5.0 * NORMAL_LANE_THICKNESS);
+                    draw_route
+                        .unzoomed
+                        .push(Color::RED.alpha(0.8), shape.clone());
+                    draw_route.zoomed.push(Color::RED.alpha(0.5), shape.clone());
+                    hitbox_pieces.push(shape);
+
+                    // Use estimate_duration and not the original cost from pathfinding, since that
+                    // includes huge penalties when the route is forced to cross a filter
+                    total_time += path.estimate_duration(map, None);
+                    total_dist += path.total_length();
+                }
             }
-        }
-        if !hitbox_pieces.is_empty() {
-            world
-                .add(ID::MainRoute)
-                .hitbox(Polygon::union_all(hitbox_pieces))
-                .draw(draw_route)
-                .hover_outline(Color::BLACK, Distance::meters(2.0))
-                .build(ctx);
+            if !hitbox_pieces.is_empty() {
+                let mut txt = Text::new();
+                txt.add_line(Line("Route respecting the new modal filters"));
+                txt.add_line(Line(format!("Time: {}", total_time)));
+                txt.add_line(Line(format!("Distance: {}", total_dist)));
+
+                world
+                    .add(ID::RouteAfterFilters)
+                    .hitbox(Polygon::union_all(hitbox_pieces))
+                    .zorder(0)
+                    .draw(draw_route)
+                    .hover_outline(Color::BLACK, Distance::meters(2.0))
+                    .tooltip(txt)
+                    .build(ctx);
+            }
+
+            (total_time, total_dist)
+        };
+
+        // Then the one ignoring filters
+        {
+            let mut draw_route = ToggleZoomed::builder();
+            let mut hitbox_pieces = Vec::new();
+            let mut total_time = Duration::ZERO;
+            let mut total_dist = Distance::ZERO;
+            for pair in self.waypoints.get_waypoints().windows(2) {
+                if let Some((path, pl)) =
+                    TripEndpoint::path_req(pair[0], pair[1], TripMode::Drive, map)
+                        .and_then(|req| map.pathfind(req).ok())
+                        .and_then(|path| path.trace(map).map(|pl| (path, pl)))
+                {
+                    let shape = pl.make_polygons(5.0 * NORMAL_LANE_THICKNESS);
+                    draw_route
+                        .unzoomed
+                        .push(Color::BLUE.alpha(0.8), shape.clone());
+                    draw_route
+                        .zoomed
+                        .push(Color::BLUE.alpha(0.5), shape.clone());
+                    hitbox_pieces.push(shape);
+
+                    total_time += path.estimate_duration(map, None);
+                    total_dist += path.total_length();
+                }
+            }
+            if !hitbox_pieces.is_empty() {
+                let mut txt = Text::new();
+                // If these two stats are the same, assume the two paths are equivalent
+                if total_time == total_time_after && total_dist == total_dist_after {
+                    world.delete(ID::RouteAfterFilters);
+                    txt.add_line(Line(
+                        "The route is the same before/after the new modal filters",
+                    ));
+                    txt.add_line(Line(format!("Time: {}", total_time)));
+                    txt.add_line(Line(format!("Distance: {}", total_dist)));
+                } else {
+                    txt.add_line(Line("Route before the new modal filters"));
+                    txt.add_line(Line(format!("Time: {}", total_time)));
+                    txt.add_line(Line(format!("Distance: {}", total_dist)));
+                    cmp_duration(
+                        &mut txt,
+                        app,
+                        total_time - total_time_after,
+                        "shorter",
+                        "longer",
+                    );
+                    cmp_dist(
+                        &mut txt,
+                        app,
+                        total_dist - total_dist_after,
+                        "shorter",
+                        "longer",
+                    );
+                }
+
+                world
+                    .add(ID::RouteBeforeFilters)
+                    .hitbox(Polygon::union_all(hitbox_pieces))
+                    // If the two routes partly overlap, put the "before" on top, since it has
+                    // the comparison stats.
+                    .zorder(1)
+                    .draw(draw_route)
+                    .hover_outline(Color::BLACK, Distance::meters(2.0))
+                    .tooltip(txt)
+                    .build(ctx);
+            }
         }
 
         world
