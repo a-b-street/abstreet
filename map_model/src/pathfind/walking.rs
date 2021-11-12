@@ -14,7 +14,7 @@ use crate::pathfind::zone_cost;
 use crate::pathfind::{round, unround};
 use crate::{
     BusRoute, BusRouteID, BusStopID, DirectedRoadID, IntersectionID, Map, MovementID,
-    PathConstraints, PathRequest, PathStep, PathStepV2, PathV2, Position,
+    PathConstraints, PathRequest, PathStep, PathStepV2, PathV2, Position, TurnType,
 };
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -302,8 +302,13 @@ fn make_input_graph(
                 WalkingNode::SidewalkEndpoint(src.get_directed_parent(), src.dst_i == t.id.parent);
             let to =
                 WalkingNode::SidewalkEndpoint(dst.get_directed_parent(), dst.dst_i == t.id.parent);
-            let cost = t.geom.length()
+            let mut cost = t.geom.length()
                 / PathStep::Turn(t.id).max_speed_along(max_speed, PathConstraints::Pedestrian, map);
+            if t.turn_type == TurnType::UnmarkedCrossing {
+                // TODO Add to RoutingParams
+                cost = 3.0 * cost;
+            }
+
             input_graph.add_edge(
                 nodes.get(from),
                 nodes.get(to),

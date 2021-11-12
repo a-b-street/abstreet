@@ -30,13 +30,27 @@ impl fmt::Display for TurnID {
 
 #[derive(Clone, Copy, Debug, Eq, PartialOrd, Ord, PartialEq, Serialize, Deserialize)]
 pub enum TurnType {
+    /// A marked zebra crossing, where pedestrians usually have priority
     Crosswalk,
+    /// The corner where two sidewalks meet. Pedestrians can cross this without conflicting with
+    /// any vehicle traffic
     SharedSidewalkCorner,
     // These are for vehicle turns
     Straight,
     Right,
     Left,
     UTurn,
+    /// An unmarked crossing, where pedestrians may cross without priority over vehicles
+    // TODO During the next map regeneration, sort this list to be next to crosswalk. I want to
+    // avoid binary incompatibility in the meantime.
+    UnmarkedCrossing,
+}
+
+impl TurnType {
+    /// Is the turn a crosswalk or unmarked crossing?
+    pub fn pedestrian_crossing(self) -> bool {
+        self == TurnType::Crosswalk || self == TurnType::UnmarkedCrossing
+    }
 }
 
 // TODO This concept may be dated, now that Movements exist. Within a movement, the lane-changing
@@ -65,8 +79,8 @@ pub struct Turn {
     // TODO Some turns might not actually have geometry. Currently encoded by two equal points.
     // Represent more directly?
     pub geom: PolyLine,
-    /// Empty except for TurnType::Crosswalk. Usually just one other ID, except for the case of 4
-    /// duplicates at a degenerate intersection.
+    /// Empty except for TurnType::Crosswalk and UnmarkedCrossing. Usually just one other ID,
+    /// except for the case of 4 duplicates at a degenerate intersection.
     pub other_crosswalk_ids: BTreeSet<TurnID>,
 }
 
@@ -100,7 +114,9 @@ impl Turn {
     }
 
     pub fn between_sidewalks(&self) -> bool {
-        self.turn_type == TurnType::SharedSidewalkCorner || self.turn_type == TurnType::Crosswalk
+        self.turn_type == TurnType::SharedSidewalkCorner
+            || self.turn_type == TurnType::Crosswalk
+            || self.turn_type == TurnType::UnmarkedCrossing
     }
 
     // TODO Maybe precompute this.
@@ -187,7 +203,7 @@ impl Turn {
 
     pub fn is_crossing_arterial_intersection(&self, map: &Map) -> bool {
         use crate::osm::RoadRank;
-        if self.turn_type != TurnType::Crosswalk {
+        if !self.turn_type.pedestrian_crossing() {
             return false;
         }
         // Distance-only metric has many false positives and negatives
@@ -246,7 +262,7 @@ impl Turn {
     /// If this turn is a crosswalk over a single road, return that road and which end of the road
     /// is crossed.
     pub fn crosswalk_over_road(&self, map: &Map) -> Option<DirectedRoadID> {
-        if self.turn_type != TurnType::Crosswalk {
+        if !self.turn_type.pedestrian_crossing() {
             return None;
         }
         // We cross multiple roads

@@ -34,8 +34,6 @@ mod turn;
 
 pub const BIG_ARROW_THICKNESS: Distance = Distance::const_meters(0.5);
 
-pub const CROSSWALK_LINE_THICKNESS: Distance = Distance::const_meters(0.15);
-
 pub const OUTLINE_THICKNESS: Distance = Distance::const_meters(0.5);
 
 // Does something belong here or as a method on ID? If it ONLY applies to renderable things, then

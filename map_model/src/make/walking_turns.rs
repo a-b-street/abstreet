@@ -8,7 +8,9 @@ use crate::{
     TurnID, TurnType,
 };
 
-/// Generate Crosswalk and SharedSidewalkCorner (places where two sidewalks directly meet) turns
+/// Generate Crosswalk and SharedSidewalkCorner (places where two sidewalks directly meet) turns.
+/// UnmarkedCrossings are not generated here; another process later "downgrades" crosswalks to
+/// unmarked.
 pub fn make_walking_turns(map: &Map, i: &Intersection) -> Vec<Turn> {
     if i.merged {
         return make_walking_turns_v2(map, i);
@@ -174,28 +176,30 @@ pub fn make_walking_turns(map: &Map, i: &Intersection) -> Vec<Turn> {
 /// Filter out crosswalks on really short roads. In reality, these roads are usually located within
 /// an intersection, which isn't a valid place for a pedestrian crossing.
 ///
-/// And if the road is marked as having no crosswalks at an end, remove crosswalks there.
+/// And if the road is marked as having no crosswalks at an end, downgrade them to unmarked
+/// crossings.
 pub fn filter_turns(mut input: Vec<Turn>, map: &Map, i: &Intersection) -> Vec<Turn> {
     for r in &i.roads {
         if map.get_r(*r).is_extremely_short() {
             input.retain(|t| {
-                !(t.id.src.road == *r && t.id.dst.road == *r && t.turn_type == TurnType::Crosswalk)
+                !(t.id.src.road == *r && t.id.dst.road == *r && t.turn_type.pedestrian_crossing())
             });
         }
     }
 
-    input.retain(|turn| {
+    for turn in &mut input {
         if let Some(dr) = turn.crosswalk_over_road(map) {
             let road = map.get_r(dr.road);
-            if dr.dir == Direction::Fwd {
+            let keep = if dr.dir == Direction::Fwd {
                 road.crosswalk_forward
             } else {
                 road.crosswalk_backward
+            };
+            if !keep {
+                turn.turn_type = TurnType::UnmarkedCrossing;
             }
-        } else {
-            true
         }
-    });
+    }
 
     input
 }

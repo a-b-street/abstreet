@@ -17,6 +17,7 @@ pub struct MovementID {
     pub from: DirectedRoadID,
     pub to: DirectedRoadID,
     pub parent: IntersectionID,
+    /// Could be a Crosswalk or UnmarkedCrossing
     pub crosswalk: bool,
 }
 
@@ -50,7 +51,7 @@ impl Movement {
             let to = map.get_l(turn.id.dst).get_directed_parent();
             match turn.turn_type {
                 TurnType::SharedSidewalkCorner => {}
-                TurnType::Crosswalk => {
+                TurnType::Crosswalk | TurnType::UnmarkedCrossing => {
                     let id = MovementID {
                         from,
                         to,
@@ -61,7 +62,7 @@ impl Movement {
                         id,
                         Movement {
                             id,
-                            turn_type: TurnType::Crosswalk,
+                            turn_type: turn.turn_type,
                             members: vec![turn.id],
                             geom: turn.geom.clone(),
                             angle: turn.angle(),
@@ -152,19 +153,19 @@ impl Movement {
         if self.id == other.id {
             return false;
         }
-        if self.turn_type == TurnType::Crosswalk && other.turn_type == TurnType::Crosswalk {
+        if self.turn_type.pedestrian_crossing() && other.turn_type.pedestrian_crossing() {
             return false;
         }
 
         if self.id.from == other.id.from
-            && self.turn_type != TurnType::Crosswalk
-            && other.turn_type != TurnType::Crosswalk
+            && !self.turn_type.pedestrian_crossing()
+            && !other.turn_type.pedestrian_crossing()
         {
             return false;
         }
         if self.id.to == other.id.to
-            && self.turn_type != TurnType::Crosswalk
-            && other.turn_type != TurnType::Crosswalk
+            && !self.turn_type.pedestrian_crossing()
+            && !other.turn_type.pedestrian_crossing()
         {
             return true;
         }

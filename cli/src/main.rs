@@ -158,8 +158,7 @@ enum Command {
         /// Use Geofabrik to grab OSM input if true, or Overpass if false. Overpass is faster.
         #[structopt(long)]
         use_geofabrik: bool,
-        /// Filter out auto-generated crosswalks based on OpenStreetMap crossing tags.
-        /// Experimental, will likely disconnect the pedestrian network.
+        /// Downgrade crosswalks not matching a `highway=crossing` OSM node into unmarked crossings.
         #[structopt(long)]
         filter_crosswalks: bool,
     },
@@ -174,8 +173,7 @@ enum Command {
         /// Do people drive on the left side of the road in this map?
         #[structopt(long)]
         drive_on_left: bool,
-        /// Filter out auto-generated crosswalks based on OpenStreetMap crossing tags.
-        /// Experimental, will likely disconnect the pedestrian network.
+        /// Downgrade crosswalks not matching a `highway=crossing` OSM node into unmarked crossings.
         #[structopt(long)]
         filter_crosswalks: bool,
         #[structopt(flatten)]

@@ -211,6 +211,8 @@ fn three_way(map: &Map, i: &Intersection) -> Option<ControlTrafficSignal> {
                 (vec![north, south], TurnType::Left, YIELD),
                 (vec![east], TurnType::Right, YIELD),
                 (vec![east], TurnType::Crosswalk, PROTECTED),
+                // TODO Maybe UnmarkedCrossing should yield
+                (vec![east], TurnType::UnmarkedCrossing, PROTECTED),
             ],
             vec![
                 (vec![east], TurnType::Straight, PROTECTED),
@@ -218,6 +220,7 @@ fn three_way(map: &Map, i: &Intersection) -> Option<ControlTrafficSignal> {
                 (vec![east], TurnType::Left, YIELD),
                 (vec![north, south], TurnType::Right, YIELD),
                 (vec![north, south], TurnType::Crosswalk, PROTECTED),
+                (vec![north, south], TurnType::UnmarkedCrossing, PROTECTED),
             ],
         ],
     );
@@ -299,13 +302,10 @@ fn all_walk_all_yield(i: &Intersection) -> ControlTrafficSignal {
     let mut all_yield = Stage::new();
 
     for movement in i.movements.values() {
-        match movement.turn_type {
-            TurnType::Crosswalk => {
-                all_walk.protected_movements.insert(movement.id);
-            }
-            _ => {
-                all_yield.yield_movements.insert(movement.id);
-            }
+        if movement.turn_type.pedestrian_crossing() {
+            all_walk.protected_movements.insert(movement.id);
+        } else {
+            all_yield.yield_movements.insert(movement.id);
         }
     }
 
@@ -324,7 +324,7 @@ fn stage_per_road(map: &Map, i: &Intersection) -> ControlTrafficSignal {
 
         let mut stage = Stage::new();
         for movement in i.movements.values() {
-            if movement.turn_type == TurnType::Crosswalk {
+            if movement.turn_type.pedestrian_crossing() {
                 if movement.id.from.road == adj1 || movement.id.from.road == adj2 {
                     stage.protected_movements.insert(movement.id);
                 }
@@ -373,7 +373,7 @@ fn make_stages(
                     turn_type = TurnType::Right;
                 }
             }
-            if turn_type == TurnType::Crosswalk {
+            if turn_type.pedestrian_crossing() {
                 explicit_crosswalks = true;
             }
 
@@ -401,7 +401,7 @@ fn make_stages(
             // stages in a pretty weird way. It'd be better to add to just one stage -- the one
             // with the least conflicting yields.
             for movement in i.movements.values() {
-                if movement.turn_type == TurnType::Crosswalk
+                if movement.turn_type.pedestrian_crossing()
                     && stage.could_be_protected(movement.id, i)
                 {
                     stage.edit_movement(movement, TurnPriority::Protected);

@@ -9,7 +9,7 @@ use crate::make::traffic_signals::get_possible_policies;
 use crate::raw::OriginalRoad;
 use crate::{
     osm, DirectedRoadID, Direction, Intersection, IntersectionID, Map, Movement, MovementID,
-    RoadID, TurnID, TurnPriority, TurnType,
+    RoadID, TurnID, TurnPriority,
 };
 
 // The pace to use for crosswalk pace in m/s
@@ -134,7 +134,8 @@ impl ControlTrafficSignal {
 
             // Do any of the crosswalks yield?
             for m in stage.yield_movements.iter().map(|m| &i.movements[m]) {
-                assert!(m.turn_type != TurnType::Crosswalk);
+                // TODO Maybe make UnmarkedCrossing yield
+                assert!(!m.turn_type.pedestrian_crossing())
             }
             // Is there enough time in each stage to walk across the crosswalk
             let min_crossing_time = self.get_min_crossing_time(stage_index, i);
@@ -172,12 +173,12 @@ impl ControlTrafficSignal {
 
         let mut all_walk_stage = Stage::new();
         for m in i.movements.values() {
-            if m.turn_type == TurnType::Crosswalk {
+            if m.turn_type.pedestrian_crossing() {
                 all_walk_stage.edit_movement(m, TurnPriority::Protected);
             }
         }
 
-        // Remove Crosswalk movements from existing stages.
+        // Remove Crosswalk and UnmarkedCrossing movements from existing stages.
         let mut replaced = std::mem::take(&mut self.stages);
         let mut has_all_walk = false;
         for stage in replaced.iter_mut() {
@@ -189,7 +190,7 @@ impl ControlTrafficSignal {
             // Crosswalks are only in protected_movements.
             stage
                 .protected_movements
-                .retain(|m| i.movements[m].turn_type != TurnType::Crosswalk);
+                .retain(|m| !i.movements[m].turn_type.pedestrian_crossing());
             if promote_yield_to_protected {
                 // Blindly try to promote yield movements to protected, now that crosswalks are
                 // gone.
@@ -329,7 +330,7 @@ impl Stage {
 
     pub fn edit_movement(&mut self, g: &Movement, pri: TurnPriority) {
         let mut ids = vec![g.id];
-        if g.turn_type == TurnType::Crosswalk {
+        if g.turn_type.pedestrian_crossing() {
             ids.push(MovementID {
                 from: g.id.to,
                 to: g.id.from,

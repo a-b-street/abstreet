@@ -155,12 +155,11 @@ impl ControlStopSign {
 
     /// Get the priority of a turn according to the stop sign -- either protected or yield, never
     /// banned.
-    // TODO Or cache
     pub fn get_priority(&self, turn: TurnID, map: &Map) -> TurnPriority {
         match map.get_t(turn).turn_type {
             TurnType::SharedSidewalkCorner => TurnPriority::Protected,
-            // TODO This actually feels like a policy bit that should be flippable.
             TurnType::Crosswalk => TurnPriority::Protected,
+            TurnType::UnmarkedCrossing => TurnPriority::Yield,
             _ => {
                 if self.roads[&turn.src.road].must_stop {
                     TurnPriority::Yield

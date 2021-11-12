@@ -8,9 +8,7 @@ use map_model::{
 use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Prerender, RewriteColor, Text};
 
 use crate::colors::ColorScheme;
-use crate::render::{
-    traffic_signal, DrawOptions, Renderable, CROSSWALK_LINE_THICKNESS, OUTLINE_THICKNESS,
-};
+use crate::render::{traffic_signal, DrawOptions, Renderable, OUTLINE_THICKNESS};
 use crate::{AppLike, ID};
 
 pub struct DrawIntersection {
@@ -58,7 +56,7 @@ impl DrawIntersection {
 
         for turn in &i.turns {
             // Avoid double-rendering
-            if turn.turn_type == TurnType::Crosswalk
+            if turn.turn_type.pedestrian_crossing()
                 && !turn.other_crosswalk_ids.iter().any(|id| *id < turn.id)
             {
                 make_crosswalk(&mut default_geom, turn, map, app.cs());
@@ -466,7 +464,13 @@ fn make_octagon(center: Pt2D, radius: Distance, facing: Angle) -> Polygon {
     .into_polygon()
 }
 
+/// Draws both zebra crosswalks and unmarked crossings
 pub fn make_crosswalk(batch: &mut GeomBatch, turn: &Turn, map: &Map, cs: &ColorScheme) {
+    if turn.turn_type == TurnType::UnmarkedCrossing {
+        make_unmarked_crossing(batch, turn, map, cs);
+        return;
+    }
+
     if make_rainbow_crosswalk(batch, turn, map) {
         return;
     }
@@ -477,23 +481,13 @@ pub fn make_crosswalk(batch: &mut GeomBatch, turn: &Turn, map: &Map, cs: &ColorS
     // crosswalk line itself. Center the lines inside these two boundaries.
     let boundary = width;
     let tile_every = width * 0.6;
-    let line = {
-        // The middle line in the crosswalk geometry is the main crossing line.
-        let pts = turn.geom.points();
-        if pts.len() < 3 {
-            println!(
-                "Not rendering crosswalk for {}; its geometry was squished earlier",
-                turn.id
-            );
-            return;
-        }
-        match Line::new(pts[1], pts[2]) {
-            Some(l) => l,
-            None => {
-                return;
-            }
-        }
+    let line = if let Some(l) = crosswalk_line(turn) {
+        l
+    } else {
+        return;
     };
+
+    const CROSSWALK_LINE_THICKNESS: Distance = Distance::const_meters(0.15);
 
     let available_length = line.length() - (boundary * 2.0);
     if available_length > Distance::ZERO {
@@ -561,6 +555,7 @@ fn make_rainbow_crosswalk(batch: &mut GeomBatch, turn: &Turn, map: &Map) -> bool
         Color::WHITE,
     ];
     let band_width = total_width / (colors.len() as f64);
+    let total_width = map.get_l(turn.id.src).width;
     let slice = turn
         .geom
         .exact_slice(total_width, turn.geom.length() - total_width)
@@ -574,6 +569,42 @@ fn make_rainbow_crosswalk(batch: &mut GeomBatch, turn: &Turn, map: &Map) -> bool
         );
     }
     true
+}
+
+fn make_unmarked_crossing(batch: &mut GeomBatch, turn: &Turn, map: &Map, cs: &ColorScheme) {
+    let color = cs.general_road_marking.alpha(0.5);
+    let band_width = Distance::meters(0.1);
+    let total_width = map.get_l(turn.id.src).width;
+    if let Some(line) = crosswalk_line(turn) {
+        if let Some(slice) = line.slice(total_width, line.length() - total_width) {
+            batch.push(
+                color,
+                slice
+                    .shift_left(total_width / 2.0 - band_width / 2.0)
+                    .make_polygons(band_width),
+            );
+            batch.push(
+                color,
+                slice
+                    .shift_right(total_width / 2.0 - band_width / 2.0)
+                    .make_polygons(band_width),
+            );
+        }
+    }
+}
+
+// The geometry of crosswalks will first cross part of a sidewalk corner, then actually enter the
+// road. Extract the piece that's in the road.
+fn crosswalk_line(turn: &Turn) -> Option<Line> {
+    let pts = turn.geom.points();
+    if pts.len() < 3 {
+        warn!(
+            "Not rendering crosswalk for {}; its geometry was squished earlier",
+            turn.id
+        );
+        return None;
+    }
+    Line::new(pts[1], pts[2])
 }
 
 // TODO copied from DrawLane

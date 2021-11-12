@@ -147,7 +147,9 @@ impl DrawCar {
                         );
                     }
                     TurnType::Straight => {}
-                    TurnType::Crosswalk | TurnType::SharedSidewalkCorner => unreachable!(),
+                    TurnType::Crosswalk
+                    | TurnType::UnmarkedCrossing
+                    | TurnType::SharedSidewalkCorner => unreachable!(),
                 }
 
                 // Always draw the brake light

@@ -29,7 +29,7 @@ pub struct GenericCityImporter {
     pub include_railroads: bool,
     /// If provided, read polygons from this GeoJSON file and add them to the RawMap as buildings.
     pub extra_buildings: Option<String>,
-    /// Only include crosswalks that match a `highway=crossing` OSM node.
+    /// Downgrade crosswalks not matching a `highway=crossing` OSM node into unmarked crossings.
     pub filter_crosswalks: bool,
 }
 

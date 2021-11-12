@@ -146,6 +146,11 @@ impl TurnExplorer {
                 ));
                 col.push(ColorLegend::row(
                     ctx,
+                    TurnExplorer::color_turn_type(TurnType::UnmarkedCrossing),
+                    "unmarked crossing",
+                ));
+                col.push(ColorLegend::row(
+                    ctx,
                     TurnExplorer::color_turn_type(TurnType::SharedSidewalkCorner),
                     "sidewalk connection",
                 ));
@@ -198,6 +203,7 @@ impl TurnExplorer {
         match t {
             TurnType::SharedSidewalkCorner => Color::BLACK,
             TurnType::Crosswalk => Color::WHITE,
+            TurnType::UnmarkedCrossing => Color::grey(0.5),
             TurnType::Straight => Color::BLUE,
             TurnType::Right => Color::GREEN,
             TurnType::Left => Color::RED,
