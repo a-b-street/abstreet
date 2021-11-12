@@ -175,7 +175,6 @@
 <span id="175">175</span>
 <span id="176">176</span>
 <span id="177">177</span>
-<span id="178">178</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>};
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
@@ -333,12 +332,11 @@
 
     <span class="doccomment">/// Get the priority of a turn according to the stop sign -- either protected or yield, never</span>
     <span class="doccomment">/// banned.</span>
-    <span class="comment">// TODO Or cache</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_priority</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">turn</span>: <span class="ident">TurnID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TurnPriority</span> {
         <span class="kw">match</span> <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="ident">turn</span>).<span class="ident">turn_type</span> {
             <span class="ident">TurnType::SharedSidewalkCorner</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TurnPriority::Protected</span>,
-            <span class="comment">// TODO This actually feels like a policy bit that should be flippable.</span>
             <span class="ident">TurnType::Crosswalk</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TurnPriority::Protected</span>,
+            <span class="ident">TurnType::UnmarkedCrossing</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TurnPriority::Yield</span>,
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">roads</span>[<span class="kw-2">&amp;</span><span class="ident">turn</span>.<span class="ident">src</span>.<span class="ident">road</span>].<span class="ident">must_stop</span> {
                     <span class="ident">TurnPriority::Yield</span>

@@ -122,7 +122,7 @@
     <span class="kw">pub</span> <span class="ident">include_railroads</span>: <span class="ident">bool</span>,
     <span class="doccomment">/// If provided, read polygons from this GeoJSON file and add them to the RawMap as buildings.</span>
     <span class="kw">pub</span> <span class="ident">extra_buildings</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Only include crosswalks that match a `highway=crossing` OSM node.</span>
+    <span class="doccomment">/// Downgrade crosswalks not matching a `highway=crossing` OSM node into unmarked crossings.</span>
     <span class="kw">pub</span> <span class="ident">filter_crosswalks</span>: <span class="ident">bool</span>,
 }
 

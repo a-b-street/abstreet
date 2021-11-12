@@ -509,6 +509,11 @@
 <span id="509">509</span>
 <span id="510">510</span>
 <span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Pathfinding for pedestrians, as well as figuring out if somebody should use public transit.</span>
 
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
@@ -525,7 +530,7 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pathfind</span>::{<span class="ident">round</span>, <span class="ident">unround</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">BusRoute</span>, <span class="ident">BusRouteID</span>, <span class="ident">BusStopID</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">MovementID</span>,
-    <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">PathStep</span>, <span class="ident">PathStepV2</span>, <span class="ident">PathV2</span>, <span class="ident">Position</span>,
+    <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">PathStep</span>, <span class="ident">PathStepV2</span>, <span class="ident">PathV2</span>, <span class="ident">Position</span>, <span class="ident">TurnType</span>,
 };
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
@@ -813,8 +818,13 @@
                 <span class="ident">WalkingNode::SidewalkEndpoint</span>(<span class="ident">src</span>.<span class="ident">get_directed_parent</span>(), <span class="ident">src</span>.<span class="ident">dst_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">parent</span>);
             <span class="kw">let</span> <span class="ident">to</span> <span class="op">=</span>
                 <span class="ident">WalkingNode::SidewalkEndpoint</span>(<span class="ident">dst</span>.<span class="ident">get_directed_parent</span>(), <span class="ident">dst</span>.<span class="ident">dst_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">parent</span>);
-            <span class="kw">let</span> <span class="ident">cost</span> <span class="op">=</span> <span class="ident">t</span>.<span class="ident">geom</span>.<span class="ident">length</span>()
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cost</span> <span class="op">=</span> <span class="ident">t</span>.<span class="ident">geom</span>.<span class="ident">length</span>()
                 <span class="op">/</span> <span class="ident">PathStep::Turn</span>(<span class="ident">t</span>.<span class="ident">id</span>).<span class="ident">max_speed_along</span>(<span class="ident">max_speed</span>, <span class="ident">PathConstraints::Pedestrian</span>, <span class="ident">map</span>);
+            <span class="kw">if</span> <span class="ident">t</span>.<span class="ident">turn_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TurnType::UnmarkedCrossing</span> {
+                <span class="comment">// TODO Add to RoutingParams</span>
+                <span class="ident">cost</span> <span class="op">=</span> <span class="number">3.0</span> <span class="op">*</span> <span class="ident">cost</span>;
+            }
+
             <span class="ident">input_graph</span>.<span class="ident">add_edge</span>(
                 <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">from</span>),
                 <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">to</span>),

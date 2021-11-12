@@ -253,6 +253,8 @@
 <span id="253">253</span>
 <span id="254">254</span>
 <span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Map</span>, <span class="ident">TurnType</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">CarID</span>, <span class="ident">CarStatus</span>, <span class="ident">DrawCarInput</span>, <span class="ident">Intent</span>, <span class="ident">Sim</span>, <span class="ident">VehicleType</span>};
@@ -402,7 +404,9 @@
                         );
                     }
                     <span class="ident">TurnType::Straight</span> <span class="op">=</span><span class="op">&gt;</span> {}
-                    <span class="ident">TurnType::Crosswalk</span> <span class="op">|</span> <span class="ident">TurnType::SharedSidewalkCorner</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+                    <span class="ident">TurnType::Crosswalk</span>
+                    <span class="op">|</span> <span class="ident">TurnType::UnmarkedCrossing</span>
+                    <span class="op">|</span> <span class="ident">TurnType::SharedSidewalkCorner</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
                 }
 
                 <span class="comment">// Always draw the brake light</span>

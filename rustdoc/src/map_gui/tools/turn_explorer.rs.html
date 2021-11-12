@@ -208,6 +208,12 @@
 <span id="208">208</span>
 <span id="209">209</span>
 <span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Distance</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">LaneID</span>, <span class="ident">PathConstraints</span>, <span class="ident">TurnType</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
@@ -356,6 +362,11 @@
                 ));
                 <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">ColorLegend::row</span>(
                     <span class="ident">ctx</span>,
+                    <span class="ident">TurnExplorer::color_turn_type</span>(<span class="ident">TurnType::UnmarkedCrossing</span>),
+                    <span class="string">&quot;unmarked crossing&quot;</span>,
+                ));
+                <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">ColorLegend::row</span>(
+                    <span class="ident">ctx</span>,
                     <span class="ident">TurnExplorer::color_turn_type</span>(<span class="ident">TurnType::SharedSidewalkCorner</span>),
                     <span class="string">&quot;sidewalk connection&quot;</span>,
                 ));
@@ -408,6 +419,7 @@
         <span class="kw">match</span> <span class="ident">t</span> {
             <span class="ident">TurnType::SharedSidewalkCorner</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Color::BLACK</span>,
             <span class="ident">TurnType::Crosswalk</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Color::WHITE</span>,
+            <span class="ident">TurnType::UnmarkedCrossing</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Color::grey</span>(<span class="number">0.5</span>),
             <span class="ident">TurnType::Straight</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Color::BLUE</span>,
             <span class="ident">TurnType::Right</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Color::GREEN</span>,
             <span class="ident">TurnType::Left</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Color::RED</span>,

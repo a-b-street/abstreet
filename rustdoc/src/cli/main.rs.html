@@ -332,8 +332,6 @@
 <span id="332">332</span>
 <span id="333">333</span>
 <span id="334">334</span>
-<span id="335">335</span>
-<span id="336">336</span>
 </pre><pre class="rust"><code><span class="doccomment">//! A collection of tools, mostly related to importing maps and scenarios. These are bundled as a</span>
 <span class="doccomment">//! single executable to reduce the cost of static linking in the release&#39;s file size.</span>
 
@@ -494,8 +492,7 @@
         <span class="doccomment">/// Use Geofabrik to grab OSM input if true, or Overpass if false. Overpass is faster.</span>
         <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
         <span class="ident">use_geofabrik</span>: <span class="ident">bool</span>,
-        <span class="doccomment">/// Filter out auto-generated crosswalks based on OpenStreetMap crossing tags.</span>
-        <span class="doccomment">/// Experimental, will likely disconnect the pedestrian network.</span>
+        <span class="doccomment">/// Downgrade crosswalks not matching a `highway=crossing` OSM node into unmarked crossings.</span>
         <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
         <span class="ident">filter_crosswalks</span>: <span class="ident">bool</span>,
     },
@@ -510,8 +507,7 @@
         <span class="doccomment">/// Do people drive on the left side of the road in this map?</span>
         <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
         <span class="ident">drive_on_left</span>: <span class="ident">bool</span>,
-        <span class="doccomment">/// Filter out auto-generated crosswalks based on OpenStreetMap crossing tags.</span>
-        <span class="doccomment">/// Experimental, will likely disconnect the pedestrian network.</span>
+        <span class="doccomment">/// Downgrade crosswalks not matching a `highway=crossing` OSM node into unmarked crossings.</span>
         <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
         <span class="ident">filter_crosswalks</span>: <span class="ident">bool</span>,
         <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">flatten</span>)]</span>

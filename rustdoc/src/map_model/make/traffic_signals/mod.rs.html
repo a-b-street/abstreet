@@ -703,6 +703,8 @@
                 (<span class="macro">vec!</span>[<span class="ident">north</span>, <span class="ident">south</span>], <span class="ident">TurnType::Left</span>, <span class="ident">YIELD</span>),
                 (<span class="macro">vec!</span>[<span class="ident">east</span>], <span class="ident">TurnType::Right</span>, <span class="ident">YIELD</span>),
                 (<span class="macro">vec!</span>[<span class="ident">east</span>], <span class="ident">TurnType::Crosswalk</span>, <span class="ident">PROTECTED</span>),
+                <span class="comment">// TODO Maybe UnmarkedCrossing should yield</span>
+                (<span class="macro">vec!</span>[<span class="ident">east</span>], <span class="ident">TurnType::UnmarkedCrossing</span>, <span class="ident">PROTECTED</span>),
             ],
             <span class="macro">vec!</span>[
                 (<span class="macro">vec!</span>[<span class="ident">east</span>], <span class="ident">TurnType::Straight</span>, <span class="ident">PROTECTED</span>),
@@ -710,6 +712,7 @@
                 (<span class="macro">vec!</span>[<span class="ident">east</span>], <span class="ident">TurnType::Left</span>, <span class="ident">YIELD</span>),
                 (<span class="macro">vec!</span>[<span class="ident">north</span>, <span class="ident">south</span>], <span class="ident">TurnType::Right</span>, <span class="ident">YIELD</span>),
                 (<span class="macro">vec!</span>[<span class="ident">north</span>, <span class="ident">south</span>], <span class="ident">TurnType::Crosswalk</span>, <span class="ident">PROTECTED</span>),
+                (<span class="macro">vec!</span>[<span class="ident">north</span>, <span class="ident">south</span>], <span class="ident">TurnType::UnmarkedCrossing</span>, <span class="ident">PROTECTED</span>),
             ],
         ],
     );
@@ -791,13 +794,10 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all_yield</span> <span class="op">=</span> <span class="ident">Stage::new</span>();
 
     <span class="kw">for</span> <span class="ident">movement</span> <span class="kw">in</span> <span class="ident">i</span>.<span class="ident">movements</span>.<span class="ident">values</span>() {
-        <span class="kw">match</span> <span class="ident">movement</span>.<span class="ident">turn_type</span> {
-            <span class="ident">TurnType::Crosswalk</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">all_walk</span>.<span class="ident">protected_movements</span>.<span class="ident">insert</span>(<span class="ident">movement</span>.<span class="ident">id</span>);
-            }
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">all_yield</span>.<span class="ident">yield_movements</span>.<span class="ident">insert</span>(<span class="ident">movement</span>.<span class="ident">id</span>);
-            }
+        <span class="kw">if</span> <span class="ident">movement</span>.<span class="ident">turn_type</span>.<span class="ident">pedestrian_crossing</span>() {
+            <span class="ident">all_walk</span>.<span class="ident">protected_movements</span>.<span class="ident">insert</span>(<span class="ident">movement</span>.<span class="ident">id</span>);
+        } <span class="kw">else</span> {
+            <span class="ident">all_yield</span>.<span class="ident">yield_movements</span>.<span class="ident">insert</span>(<span class="ident">movement</span>.<span class="ident">id</span>);
         }
     }
 
@@ -816,7 +816,7 @@
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stage</span> <span class="op">=</span> <span class="ident">Stage::new</span>();
         <span class="kw">for</span> <span class="ident">movement</span> <span class="kw">in</span> <span class="ident">i</span>.<span class="ident">movements</span>.<span class="ident">values</span>() {
-            <span class="kw">if</span> <span class="ident">movement</span>.<span class="ident">turn_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TurnType::Crosswalk</span> {
+            <span class="kw">if</span> <span class="ident">movement</span>.<span class="ident">turn_type</span>.<span class="ident">pedestrian_crossing</span>() {
                 <span class="kw">if</span> <span class="ident">movement</span>.<span class="ident">id</span>.<span class="ident">from</span>.<span class="ident">road</span> <span class="op">=</span><span class="op">=</span> <span class="ident">adj1</span> <span class="op">|</span><span class="op">|</span> <span class="ident">movement</span>.<span class="ident">id</span>.<span class="ident">from</span>.<span class="ident">road</span> <span class="op">=</span><span class="op">=</span> <span class="ident">adj2</span> {
                     <span class="ident">stage</span>.<span class="ident">protected_movements</span>.<span class="ident">insert</span>(<span class="ident">movement</span>.<span class="ident">id</span>);
                 }
@@ -865,7 +865,7 @@
                     <span class="ident">turn_type</span> <span class="op">=</span> <span class="ident">TurnType::Right</span>;
                 }
             }
-            <span class="kw">if</span> <span class="ident">turn_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TurnType::Crosswalk</span> {
+            <span class="kw">if</span> <span class="ident">turn_type</span>.<span class="ident">pedestrian_crossing</span>() {
                 <span class="ident">explicit_crosswalks</span> <span class="op">=</span> <span class="bool-val">true</span>;
             }
 
@@ -893,7 +893,7 @@
             <span class="comment">// stages in a pretty weird way. It&#39;d be better to add to just one stage -- the one</span>
             <span class="comment">// with the least conflicting yields.</span>
             <span class="kw">for</span> <span class="ident">movement</span> <span class="kw">in</span> <span class="ident">i</span>.<span class="ident">movements</span>.<span class="ident">values</span>() {
-                <span class="kw">if</span> <span class="ident">movement</span>.<span class="ident">turn_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TurnType::Crosswalk</span>
+                <span class="kw">if</span> <span class="ident">movement</span>.<span class="ident">turn_type</span>.<span class="ident">pedestrian_crossing</span>()
                     <span class="op">&amp;&amp;</span> <span class="ident">stage</span>.<span class="ident">could_be_protected</span>(<span class="ident">movement</span>.<span class="ident">id</span>, <span class="ident">i</span>)
                 {
                     <span class="ident">stage</span>.<span class="ident">edit_movement</span>(<span class="ident">movement</span>, <span class="ident">TurnPriority::Protected</span>);
