@@ -134,10 +134,10 @@ fn multi_way_stages(i: &Intersection) -> Option<ControlTrafficSignal> {
     for m in &one_way {
         let mut stage = Stage::new();
         stage.protected_movements.insert(*m);
-        for t in turns(&m.from.road, &right) {
+        for t in movements_from(m.from.road, &right) {
             stage.protected_movements.insert(t);
         }
-        for t in turns(&m.from.road, &left) {
+        for t in movements_from(m.from.road, &left) {
             stage.protected_movements.insert(t);
         }
         add_stage(&mut ts, stage);
@@ -151,15 +151,15 @@ fn multi_way_stages(i: &Intersection) -> Option<ControlTrafficSignal> {
         stage1.protected_movements.insert(*m2);
         stage1
             .protected_movements
-            .extend(turns(&m1.from.road, &right));
+            .extend(movements_from(m1.from.road, &right));
         stage1
             .protected_movements
-            .extend(turns(&m2.from.road, &right));
-        for t in turns(&m1.from.road, &left) {
+            .extend(movements_from(m2.from.road, &right));
+        for t in movements_from(m1.from.road, &left) {
             stage1.yield_movements.insert(t);
             stage2.protected_movements.insert(t);
         }
-        for t in turns(&m2.from.road, &left) {
+        for t in movements_from(m2.from.road, &left) {
             stage1.yield_movements.insert(t);
             stage2.protected_movements.insert(t);
         }
@@ -183,27 +183,31 @@ fn multi_way_stages(i: &Intersection) -> Option<ControlTrafficSignal> {
         let mut stage2 = Stage::new();
         if let Some(r2) = vec.pop() {
             // dual stage, with lagging left turns
-            if let Some(m) = remove_movement(&r1, &r2, &mut right) {
+            if let Some(m) = remove_movement(r1, r2, &mut right) {
                 stage1.protected_movements.insert(m);
-            } else if let Some(m) = remove_movement(&r1, &r2, &mut left) {
+            } else if let Some(m) = remove_movement(r1, r2, &mut left) {
                 stage1.protected_movements.insert(m);
             }
-            if let Some(m) = remove_movement(&r2, &r1, &mut right) {
+            if let Some(m) = remove_movement(r2, r1, &mut right) {
                 stage1.protected_movements.insert(m);
-            } else if let Some(m) = remove_movement(&r2, &r1, &mut left) {
+            } else if let Some(m) = remove_movement(r2, r1, &mut left) {
                 stage1.protected_movements.insert(m);
             }
 
             // add right turns
-            stage1.protected_movements.extend(turns(&r1, &right));
-            stage1.protected_movements.extend(turns(&r2, &right));
+            stage1
+                .protected_movements
+                .extend(movements_from(r1, &right));
+            stage1
+                .protected_movements
+                .extend(movements_from(r2, &right));
 
             // add left turns
-            for t in turns(&r1, &left) {
+            for t in movements_from(r1, &left) {
                 stage1.yield_movements.insert(t);
                 stage2.protected_movements.insert(t);
             }
-            for t in turns(&r2, &left) {
+            for t in movements_from(r2, &left) {
                 stage1.yield_movements.insert(t);
                 stage2.protected_movements.insert(t);
             }
@@ -212,8 +216,10 @@ fn multi_way_stages(i: &Intersection) -> Option<ControlTrafficSignal> {
             add_stage(&mut ts, stage2);
         } else {
             // single stage without lagging left turns
-            stage1.protected_movements.extend(turns(&r1, &right));
-            stage1.protected_movements.extend(turns(&r1, &left));
+            stage1
+                .protected_movements
+                .extend(movements_from(r1, &right));
+            stage1.protected_movements.extend(movements_from(r1, &left));
             add_stage(&mut ts, stage1);
         }
     }
@@ -231,29 +237,28 @@ fn add_stage(ts: &mut ControlTrafficSignal, stage: Stage) {
     }
 }
 
-// TODO Should be named 'movements_from' or something, and stop taking &RoadID everywhere here!
-fn turns(from: &RoadID, movements: &[MovementID]) -> Vec<MovementID> {
+fn movements_from(from: RoadID, movements: &[MovementID]) -> Vec<MovementID> {
     movements
         .iter()
         .filter_map(|mvmnt| {
-            if *from == mvmnt.from.road {
+            if from == mvmnt.from.road {
                 Some(*mvmnt)
             } else {
                 None
             }
         })
-        .collect::<Vec<_>>()
+        .collect()
 }
 
-fn remove_movement(from: &RoadID, to: &RoadID, turns: &mut Vec<MovementID>) -> Option<MovementID> {
-    let result = turns
+fn remove_movement(
+    from: RoadID,
+    to: RoadID,
+    movements: &mut Vec<MovementID>,
+) -> Option<MovementID> {
+    let idx = movements
         .iter()
-        .find(|turn| *from == turn.from.road && *to == turn.to.road)
-        .copied();
-    if result.is_some() {
-        turns.retain(|turn| *from != turn.from.road || *to != turn.to.road);
-    }
-    result
+        .position(|mvmnt| mvmnt.from.road == from && mvmnt.to.road == to)?;
+    Some(movements.remove(idx))
 }
 
 fn three_way_three_stage(i: &Intersection, map: &Map) -> Option<ControlTrafficSignal> {
