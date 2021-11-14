@@ -1,68 +1,52 @@
 # A/B Street
 
 Ever been stuck in traffic on a bus, wondering why is there legal street parking
-instead of a dedicated bus lane? A/B Street is a game exploring how small
-changes to a city affect the movement of drivers, cyclists, transit users, and
-pedestrians. It works anywhere in the world, thanks to
+instead of a dedicated bus lane? A/B Street is a project to plan, simulate, and
+communicate visions for making cities friendlier to people walking, biking, and
+taking public transit. We create software to
+[simulate traffic, edit streets and intersections](https://a-b-street.github.io/docs/software/abstreet.html),
+[plan bike networks](https://a-b-street.github.io/docs/software/ungap_the_map/index.html),
+create
+[low-traffic neighborhoods](https://a-b-street.github.io/docs/software/ltn/index.html),
+and educate the public about
+[15-minute neighborhoods through games](https://a-b-street.github.io/docs/software/santa.html).
+The project works anywhere in the world, thanks to
 [OpenStreetMap](https://www.openstreetmap.org/about).
 
-- Play on
+- Run it on [your web browser](http://play.abstreet.org/0.2.65/abstreet.html),
   [Windows](https://github.com/a-b-street/abstreet/releases/download/v0.2.65/abstreet_windows_v0_2_65.zip),
   [Mac](https://github.com/a-b-street/abstreet/releases/download/v0.2.65/abstreet_mac_v0_2_65.zip),
   [Linux](https://github.com/a-b-street/abstreet/releases/download/v0.2.65/abstreet_linux_v0_2_65.zip),
-  [FreeBSD](https://www.freshports.org/games/abstreet/),
-  [your web browser](http://play.abstreet.org/0.2.65/abstreet.html),
-  or [read all instructions](https://a-b-street.github.io/docs/user/index.html)
-  (new releases every Sunday)
+  [FreeBSD](https://www.freshports.org/games/abstreet/), or
+  [read all instructions](https://a-b-street.github.io/docs/user/index.html)
 - [build from source](https://a-b-street.github.io/docs/tech/dev/index.html)
-  (new changes daily)
-- Try the Dec 2020 surprise:
-  [15-minute Santa](https://a-b-street.github.io/docs/software/santa.html)
 
-## Show, don't tell
+## Videos
 
-[Alpha release trailer](https://www.youtube.com/watch?v=LxPD4n_1-LU)
+- [Alpha release trailer](https://www.youtube.com/watch?v=LxPD4n_1-LU)
+- [Presentations](https://a-b-street.github.io/docs/project/presentations.html)
 
-Find a problem:
-
-![exploring_traffic](videos/exploring_traffic.gif)
-
-Make some changes:
-
-![editing_map](videos/editing_map.gif)
-
-Measure the effects:
-
-![evaluating_impacts](videos/evaluating_impacts.gif)
+![](https://a-b-street.github.io/docs/project/history/retrospective/traffic_sim.gif)
 
 ## Documentation
 
+- [User guide](https://a-b-street.github.io/docs/user/index.html)
 - Technical
   - [Developer guide](https://a-b-street.github.io/docs/tech/dev/index.html)
-  - [Running A/B Street in a new city](https://a-b-street.github.io/docs/user/new_city.html)
-  - [UX design](https://yuwen-li.com/work/abstreet)
-- [Presentations](https://a-b-street.github.io/docs/project/presentations.html)
+  - [How the traffic simulation works](https://a-b-street.github.io/docs/tech/trafficsim/discrete_event/index.html)
+  - [Intersection geometry](https://a-b-street.github.io/docs/tech/map/geometry/index.html)
 - Project
   - [Roadmap](https://a-b-street.github.io/docs/software/ungap_the_map/plan.html#future-directions)
-  - [Motivations](https://a-b-street.github.io/docs/software/ungap_the_map/motivation.html)
-  - [History](https://a-b-street.github.io/docs/project/history/index.html)
-
-## Roadmap and contributing
-
-See the [roadmap](https://a-b-street.github.io/docs/project/roadmap.html) for
-current work, and all of the ways to
-[contribute](https://a-b-street.github.io/docs//project/contributing.html).
-Follow [@CarlinoDustin](https://twitter.com/CarlinoDustin) for occasional
-videos of recent progress.
+  - [Getting involved](https://a-b-street.github.io/docs/project/contributing.html)
+  - [Accomplishments & challenges](https://a-b-street.github.io/docs/project/history/retrospective/index.html)
 
 ## Project mission
 
-If you fix some traffic problem while playing A/B Street, my ultimate goal is
-for your changes to become a real proposal for adjusting Seattle's
-infrastructure. A/B Street is of course a game, using a simplified approach to
-traffic modeling, so city governments still have to evaluate proposals using
-their existing methods. A/B Street is intended as a conversation starter and
-tool to communicate ideas with interactive visualizations.
+We amplify the efforts of individuals and advocacy groups who campaign to
+transition cities away from private motor vehicles. We believe in transparent
+and reproducible analysis, so all of our work is open source and based on public
+data. We believe everybody should have a voice in shaping their city, so our
+software aims to be easy to use.
 
 Why not leave city planning to professionals? People are local experts on the
 small slice of the city they interact with daily -- the one left turn lane that
@@ -88,3 +72,6 @@ Core team:
 - [Michael Kirk](https://github.com/michaelkirk)
 
 [See full credits](https://a-b-street.github.io/docs/project/team.html)
+
+Contact <dabreegster@gmail.com> or follow
+[@CarlinoDustin](https://twitter.com/CarlinoDustin) for updates.
