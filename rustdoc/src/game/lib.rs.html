@@ -759,7 +759,7 @@
         <span class="comment">// This is approximately how much the 3 top panels in sandbox mode require.</span>
         .<span class="ident">require_minimum_width</span>(<span class="number">1500.0</span>);
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">Args::from_args</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">Args::from_iter</span>(<span class="ident">abstutil::cli_args</span>());
     <span class="ident">args</span>.<span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">initialize</span>();
 
     <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">prebake</span> {

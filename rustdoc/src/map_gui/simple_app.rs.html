@@ -421,7 +421,7 @@
         <span class="ident">init_states</span>: <span class="ident">F</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">SimpleApp</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">SimpleApp</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
         <span class="ident">abstutil::logger::setup</span>();
-        <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">Args::from_args</span>();
+        <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">Args::from_iter</span>(<span class="ident">abstutil::cli_args</span>());
         <span class="comment">// Options are passed in by each app, usually seeded with defaults or from a config file.</span>
         <span class="comment">// For the few options that we allow to be specified by command-line, overwrite the values.</span>
         <span class="ident">opts</span>.<span class="ident">dev</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">dev</span>;
