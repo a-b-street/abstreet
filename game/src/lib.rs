@@ -157,7 +157,7 @@ fn run(mut settings: Settings) {
         // This is approximately how much the 3 top panels in sandbox mode require.
         .require_minimum_width(1500.0);
 
-    let mut args = Args::from_args();
+    let mut args = Args::from_iter(abstutil::cli_args());
     args.flags.sim_flags.initialize();
 
     if args.prebake {

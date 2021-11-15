@@ -62,7 +62,7 @@ impl<T: 'static> SimpleApp<T> {
         init_states: F,
     ) -> (SimpleApp<T>, Vec<Box<dyn State<SimpleApp<T>>>>) {
         abstutil::logger::setup();
-        let args = Args::from_args();
+        let args = Args::from_iter(abstutil::cli_args());
         // Options are passed in by each app, usually seeded with defaults or from a config file.
         // For the few options that we allow to be specified by command-line, overwrite the values.
         opts.dev = args.dev;
