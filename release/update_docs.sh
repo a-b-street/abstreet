@@ -4,7 +4,7 @@
 set -e
 
 OLD_MAJOR=0
-OLD_MINOR=2	# TODO Update this
+OLD_MINOR=3
 OLD_PATCH=$1
 
 NEW_MAJOR=0
