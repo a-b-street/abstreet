@@ -387,7 +387,7 @@ fn make_stages(
                 if !map_config.turn_on_red
                     && !specs.iter().any(|(other_roads, _, other_protected)|
                         *other_protected
-                        && other_roads.contains(&movement.id.from.id))
+                        && other_roads.contains(&movement.id.from.road))
                 {
                     continue;
                 }
