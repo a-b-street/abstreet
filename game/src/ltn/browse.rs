@@ -2,12 +2,12 @@ use std::collections::BTreeMap;
 
 use abstutil::Timer;
 use geom::Distance;
-use map_gui::tools::{CityPicker, DrawRoadLabels};
+use map_gui::tools::{CityPicker, DrawRoadLabels, Navigator};
 use map_model::osm::RoadRank;
 use map_model::{Block, Perimeter};
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::{
-    Color, EventCtx, GfxCtx, HorizontalAlignment, Outcome, Panel, State, TextExt,
+    Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, State, TextExt,
     VerticalAlignment, Widget,
 };
 
@@ -42,7 +42,15 @@ impl BrowseNeighborhoods {
 
         let panel = Panel::new_builder(Widget::col(vec![
             map_gui::tools::app_header(ctx, app, "Low traffic neighborhoods"),
-            "Click a neighborhood".text_widget(ctx),
+            Widget::row(vec![
+                "Click a neighborhood".text_widget(ctx).centered_vert(),
+                ctx.style()
+                    .btn_plain
+                    .icon("system/assets/tools/search.svg")
+                    .hotkey(Key::K)
+                    .build_widget(ctx, "search")
+                    .align_right(),
+            ]),
         ]))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
         .build(ctx);
@@ -70,6 +78,9 @@ impl State<App> for BrowseNeighborhoods {
                             Transition::Replace(BrowseNeighborhoods::new_state(ctx, app))
                         }),
                     ));
+                }
+                "search" => {
+                    return Transition::Push(Navigator::new_state(ctx, app));
                 }
                 _ => unreachable!(),
             }
