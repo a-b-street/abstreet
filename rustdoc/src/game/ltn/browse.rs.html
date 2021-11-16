@@ -153,16 +153,27 @@
 <span id="153">153</span>
 <span id="154">154</span>
 <span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
 <span class="kw">use</span> <span class="ident">geom::Distance</span>;
-<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">CityPicker</span>, <span class="ident">DrawRoadLabels</span>};
+<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">CityPicker</span>, <span class="ident">DrawRoadLabels</span>, <span class="ident">Navigator</span>};
 <span class="kw">use</span> <span class="ident">map_model::osm::RoadRank</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Block</span>, <span class="ident">Perimeter</span>};
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ObjectID</span>, <span class="ident">World</span>, <span class="ident">WorldOutcome</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">TextExt</span>,
+    <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">TextExt</span>,
     <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
@@ -197,7 +208,15 @@
 
         <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
             <span class="ident">map_gui::tools::app_header</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="string">&quot;Low traffic neighborhoods&quot;</span>),
-            <span class="string">&quot;Click a neighborhood&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
+            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+                <span class="string">&quot;Click a neighborhood&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
+                    .<span class="ident">btn_plain</span>
+                    .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/search.svg&quot;</span>)
+                    .<span class="ident">hotkey</span>(<span class="ident">Key::K</span>)
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;search&quot;</span>)
+                    .<span class="ident">align_right</span>(),
+            ]),
         ]))
         .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Left</span>, <span class="ident">VerticalAlignment::Top</span>)
         .<span class="ident">build</span>(<span class="ident">ctx</span>);
@@ -225,6 +244,9 @@
                             <span class="ident">Transition::Replace</span>(<span class="ident">BrowseNeighborhoods::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))
                         }),
                     ));
+                }
+                <span class="string">&quot;search&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">Navigator::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
                 }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
             }
