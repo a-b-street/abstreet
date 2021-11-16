@@ -11,6 +11,7 @@ mod geojson_to_osmosis;
 mod import_grid2demand;
 mod import_scenario;
 mod one_step_import;
+mod osm2lanes;
 mod pick_geofabrik;
 
 use anyhow::Result;
@@ -197,6 +198,13 @@ enum Command {
         #[structopt(flatten)]
         job: importer::Job,
     },
+    /// Generates JSON test cases for osm2lanes.
+    #[structopt(name = "osm2lanes")]
+    OSM2Lanes {
+        /// The path to a map file
+        #[structopt()]
+        map_path: String,
+    },
 }
 
 #[tokio::main]
@@ -278,6 +286,7 @@ async fn main() -> Result<()> {
         } => importer::regenerate_everything(shard_num, num_shards).await,
         Command::RegenerateAllMaps => importer::regenerate_all_maps(),
         Command::Import { job } => job.run(&mut Timer::new("import one city")).await,
+        Command::OSM2Lanes { map_path } => osm2lanes::run(map_path),
     }
     Ok(())
 }

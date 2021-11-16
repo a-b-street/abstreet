@@ -295,6 +295,10 @@ impl Tags {
         &self.0
     }
 
+    pub fn into_inner(self) -> BTreeMap<String, String> {
+        self.0
+    }
+
     /// Find all values that differ. Returns (key, value1, value2). If one set of tags is missing a
     /// value, return a blank string.
     pub fn diff(&self, other: &Tags) -> Vec<(String, String, String)> {
