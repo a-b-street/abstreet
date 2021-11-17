@@ -5,7 +5,7 @@
     "bikes_can_use_bus_lanes": true,
     "inferred_sidewalks": true,
     "street_parking_spot_length": 65000,
-    "turn_on_red": true
+    "turn_on_red": false
   },
   "onstreet_parking": {
     "SomeAdditionalWhereNoData": {
