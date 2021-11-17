@@ -34,6 +34,8 @@ pub struct MapConfig {
     /// value can be smaller than the hardcoded maximum car length; cars may render on top of each
     /// other, but otherwise the simulation doesn't care.
     pub street_parking_spot_length: Distance,
+    /// If true, turns on red which do not conflict crossing traffic ('right on red') are allowed 
+    pub turn_on_red: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
@@ -173,6 +175,7 @@ impl Map {
                 bikes_can_use_bus_lanes: true,
                 inferred_sidewalks: true,
                 street_parking_spot_length: Distance::meters(8.0),
+                turn_on_red: true,
             },
             pathfinder: Pathfinder::empty(),
             pathfinder_dirty: false,

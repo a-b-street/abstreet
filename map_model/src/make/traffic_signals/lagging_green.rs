@@ -282,7 +282,7 @@ fn three_way_three_stage(i: &Intersection, map: &Map) -> Option<ControlTrafficSi
     // Three-stage with protected lefts, right turn on red
     make_stages(
         &mut ts,
-        map.config.driving_side,
+        &map.config,
         i,
         vec![
             vec![
@@ -320,7 +320,7 @@ fn four_way_four_stage(i: &Intersection, map: &Map) -> Option<ControlTrafficSign
     let mut ts = new(i.id);
     make_stages(
         &mut ts,
-        map.config.driving_side,
+        &map.config,
         i,
         vec![
             vec![

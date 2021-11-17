@@ -4,7 +4,8 @@
     "driving_side": "Right",
     "bikes_can_use_bus_lanes": true,
     "inferred_sidewalks": true,
-    "street_parking_spot_length": 80000
+    "street_parking_spot_length": 80000,
+    "turn_on_red": true
   },
   "onstreet_parking": {
     "SomeAdditionalWhereNoData": {

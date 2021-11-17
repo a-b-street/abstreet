@@ -9,7 +9,7 @@ use std::collections::{BTreeSet, HashSet};
 
 use crate::{
     ControlTrafficSignal, DrivingSide, Intersection, IntersectionCluster, IntersectionID, Map,
-    MovementID, RoadID, Stage, StageType, TurnPriority, TurnType,
+    MovementID, RoadID, Stage, StageType, TurnPriority, TurnType, MapConfig
 };
 use geom::Duration;
 
@@ -152,7 +152,7 @@ fn degenerate(map: &Map, i: &Intersection) -> Option<ControlTrafficSignal> {
     let mut ts = new(i.id);
     make_stages(
         &mut ts,
-        map.config.driving_side,
+        &map.config,
         i,
         vec![vec![(vec![r1, r2], TurnType::Straight, PROTECTED)]],
     );
@@ -202,7 +202,7 @@ fn three_way(map: &Map, i: &Intersection) -> Option<ControlTrafficSignal> {
     // Two-stage with no protected lefts, right turn on red, turning cars yield to peds
     make_stages(
         &mut ts,
-        map.config.driving_side,
+        &map.config,
         i,
         vec![
             vec![
@@ -242,7 +242,7 @@ fn four_way_four_stage(map: &Map, i: &Intersection) -> Option<ControlTrafficSign
     let mut ts = new(i.id);
     make_stages(
         &mut ts,
-        map.config.driving_side,
+        &map.config,
         i,
         vec![
             vec![
@@ -275,7 +275,7 @@ fn four_way_two_stage(map: &Map, i: &Intersection) -> Option<ControlTrafficSigna
     let mut ts = new(i.id);
     make_stages(
         &mut ts,
-        map.config.driving_side,
+        &map.config,
         i,
         vec![
             vec![
@@ -356,17 +356,17 @@ const YIELD: bool = false;
 
 fn make_stages(
     ts: &mut ControlTrafficSignal,
-    driving_side: DrivingSide,
+    map_config: &MapConfig,
     i: &Intersection,
     stage_specs: Vec<Vec<(Vec<RoadID>, TurnType, bool)>>,
 ) {
     for specs in stage_specs {
         let mut stage = Stage::new();
         let mut explicit_crosswalks = false;
-        for (roads, mut turn_type, protected) in specs.into_iter() {
+        for (roads, mut turn_type, protected) in specs.iter() {
             // The heuristics are written assuming right turns are easy and lefts are hard, so
             // invert in the UK.
-            if driving_side == DrivingSide::Left {
+            if map_config.driving_side == DrivingSide::Left {
                 if turn_type == TurnType::Right {
                     turn_type = TurnType::Left;
                 } else if turn_type == TurnType::Left {
@@ -382,9 +382,19 @@ fn make_stages(
                     continue;
                 }
 
+                // If turn on red is banned, ignore movements when the stage has
+                // no protected (green) movement from that road
+                if !map_config.turn_on_red
+                    && !specs.iter().any(|(other_roads, _, other_protected)|
+                        *other_protected
+                        && other_roads.contains(&movement.id.from.road))
+                {
+                    continue;
+                }
+
                 stage.edit_movement(
                     movement,
-                    if protected {
+                    if *protected {
                         TurnPriority::Protected
                     } else {
                         TurnPriority::Yield
