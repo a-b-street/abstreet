@@ -9,7 +9,7 @@ use std::collections::{BTreeSet, HashSet};
 
 use crate::{
     ControlTrafficSignal, DrivingSide, Intersection, IntersectionCluster, IntersectionID, Map,
-    MovementID, RoadID, Stage, StageType, TurnPriority, TurnType, MapConfig
+    MapConfig, MovementID, RoadID, Stage, StageType, TurnPriority, TurnType,
 };
 use geom::Duration;
 
@@ -385,9 +385,9 @@ fn make_stages(
                 // If turn on red is banned, ignore movements when the stage has
                 // no protected (green) movement from that road
                 if !map_config.turn_on_red
-                    && !specs.iter().any(|(other_roads, _, other_protected)|
-                        *other_protected
-                        && other_roads.contains(&movement.id.from.road))
+                    && !specs.iter().any(|(other_roads, _, other_protected)| {
+                        *other_protected && other_roads.contains(&movement.id.from.road)
+                    })
                 {
                     continue;
                 }

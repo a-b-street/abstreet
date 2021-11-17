@@ -3,6 +3,7 @@ use std::process::Command;
 
 use abstio::MapName;
 use abstutil::{must_run_cmd, Timer};
+use map_model::raw::RawMap;
 use map_model::RawToMapOptions;
 
 use crate::configuration::ImporterConfiguration;
@@ -84,7 +85,7 @@ pub async fn download_kml(
 
 /// Uses osmconvert to clip the input .osm (or .pbf) against a polygon and produce some output.
 /// Skips if the output exists.
-pub fn osmconvert(
+fn osmconvert(
     input: String,
     clipping_polygon: String,
     output: String,
@@ -111,10 +112,53 @@ pub fn osmconvert(
     );
 }
 
+/// Creates a RawMap from OSM and other input data.
+pub async fn osm_to_raw(
+    name: MapName,
+    timer: &mut abstutil::Timer<'_>,
+    config: &ImporterConfiguration,
+) -> RawMap {
+    let boundary_polygon = format!(
+        "importer/config/{}/{}/{}.poly",
+        name.city.country, name.city.city, name.map
+    );
+    let osm_url = crate::pick_geofabrik(boundary_polygon.clone())
+        .await
+        .unwrap();
+
+    let local_osm_file = name.city.input_path(format!(
+        "osm/{}",
+        std::path::Path::new(&osm_url)
+            .file_name()
+            .unwrap()
+            .to_os_string()
+            .into_string()
+            .unwrap()
+    ));
+    download(config, local_osm_file.clone(), &osm_url).await;
+
+    osmconvert(
+        local_osm_file,
+        boundary_polygon.clone(),
+        name.city.input_path(format!("osm/{}.osm", name.map)),
+        config,
+    );
+
+    let map = convert_osm::convert(
+        name.city.input_path(format!("osm/{}.osm", name.map)),
+        name.clone(),
+        Some(boundary_polygon),
+        crate::map_config::config_for_map(&name),
+        timer,
+    );
+    map.save();
+    map
+}
+
 /// Converts a RawMap to a Map.
 pub fn raw_to_map(name: &MapName, opts: RawToMapOptions, timer: &mut Timer) -> map_model::Map {
     timer.start(format!("Raw->Map for {}", name.describe()));
-    let raw: map_model::raw::RawMap = abstio::read_binary(abstio::path_raw_map(name), timer);
+    let raw: RawMap = abstio::read_binary(abstio::path_raw_map(name), timer);
     let map = map_model::Map::create_from_raw(raw, opts, timer);
     timer.start("save map");
     map.save();

@@ -13,6 +13,7 @@ use map_model::{IntersectionID, Map};
 use sim::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
 
 fn main() -> Result<()> {
+    abstutil::logger::setup();
     test_lane_changing(&import_map(abstio::path(
         "../tests/input/lane_selection.osm",
     )))?;
@@ -47,11 +48,13 @@ fn test_map_importer() -> Result<()> {
 /// Run the contents of a .osm through the full map importer with default options.
 fn import_map(path: String) -> Map {
     let mut timer = Timer::new("convert synthetic map");
+    let name = MapName::new("zz", "oneshot", &abstutil::basename(&path));
+    let clip = None;
     let raw = convert_osm::convert(
+        path,
+        name,
+        clip,
         convert_osm::Options {
-            name: MapName::new("zz", "oneshot", &abstutil::basename(&path)),
-            osm_input: path,
-            clip: None,
             map_config: map_model::MapConfig {
                 driving_side: map_model::DrivingSide::Right,
                 bikes_can_use_bus_lanes: true,

@@ -16,11 +16,13 @@ use abstutil::Timer;
 use geom::Distance;
 use map_model::RawToMapOptions;
 
-use configuration::{load_configuration, ImporterConfiguration};
+use self::configuration::{load_configuration, ImporterConfiguration};
+pub use self::pick_geofabrik::pick_geofabrik;
 
 mod berlin;
 mod configuration;
-mod generic;
+mod map_config;
+mod pick_geofabrik;
 mod seattle;
 mod soundcast;
 mod uk;
@@ -97,11 +99,10 @@ pub fn oneshot(
     println!("- Running convert_osm on {}", osm_path);
     let name = abstutil::basename(&osm_path);
     let raw = convert_osm::convert(
+        osm_path,
+        MapName::new("zz", "oneshot", &name),
+        clip,
         convert_osm::Options {
-            osm_input: osm_path,
-            name: MapName::new("zz", "oneshot", &name),
-
-            clip,
             map_config: map_model::MapConfig {
                 driving_side: if drive_on_right {
                     map_model::DrivingSide::Right
@@ -207,24 +208,12 @@ impl Job {
         for name in names {
             timer.start(name.describe());
             if self.osm_to_raw {
-                // Still special-cased
                 if name.city == CityName::seattle() {
-                    if !built_raw_huge_seattle || name.map != "huge_seattle" {
-                        seattle::osm_to_raw(&name.map, timer, &config).await;
-                    }
-                } else {
-                    let raw = match abstio::maybe_read_json::<generic::GenericCityImporter>(
-                        format!(
-                            "importer/config/{}/{}/cfg.json",
-                            self.city.country, self.city.city
-                        ),
-                        timer,
-                    ) {
-                        Ok(city_cfg) => city_cfg.osm_to_raw(name.clone(), timer, &config).await,
-                        Err(err) => {
-                            panic!("Can't import {}: {}", name.describe(), err);
-                        }
-                    };
+                    seattle::input(&config, timer).await;
+                }
+
+                if !built_raw_huge_seattle || name != MapName::seattle("huge_seattle") {
+                    let raw = utils::osm_to_raw(name.clone(), timer, &config).await;
 
                     // The collision data will only cover one part of London, since we don't have a
                     // region-wide map there yet

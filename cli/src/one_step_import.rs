@@ -57,7 +57,7 @@ pub async fn run(
             .await?;
     } else {
         println!("Figuring out what Geofabrik file contains your boundary");
-        let url = crate::pick_geofabrik::run("boundary0.poly".to_string()).await?;
+        let url = importer::pick_geofabrik("boundary0.poly".to_string()).await?;
 
         let pbf = city.input_path(format!("osm/{}.pbf", abstutil::basename(&url)));
         osm = city.input_path(format!("osm/{}.osm", name));

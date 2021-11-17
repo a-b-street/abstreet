@@ -28,8 +28,14 @@ pub struct OsmExtract {
     pub crosswalks: HashSet<HashablePt2D>,
 }
 
-pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmExtract {
-    let mut doc = crate::reader::read(&opts.osm_input, &map.gps_bounds, timer).unwrap();
+pub fn extract_osm(
+    map: &mut RawMap,
+    osm_input_path: &str,
+    clip_path: Option<String>,
+    opts: &Options,
+    timer: &mut Timer,
+) -> OsmExtract {
+    let mut doc = crate::reader::read(osm_input_path, &map.gps_bounds, timer).unwrap();
 
     // TODO Hacks to override OSM data. There's no problem upstream, but we want to accomplish
     // various things for A/B Street.
@@ -44,7 +50,7 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
         way.tags.insert("junction", "intersection");
     }
 
-    if opts.clip.is_none() {
+    if clip_path.is_none() {
         // Use the boundary from .osm.
         map.gps_bounds = doc.gps_bounds.clone();
         map.boundary_polygon = map.gps_bounds.to_bounds().get_rectangle();
