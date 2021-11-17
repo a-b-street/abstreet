@@ -13,6 +13,7 @@ use map_model::{IntersectionID, Map};
 use sim::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
 
 fn main() -> Result<()> {
+    abstutil::logger::setup();
     test_lane_changing(&import_map(abstio::path(
         "../tests/input/lane_selection.osm",
     )))?;
