@@ -897,6 +897,9 @@
 <span id="897">897</span>
 <span id="898">898</span>
 <span id="899">899</span>
+<span id="900">900</span>
+<span id="901">901</span>
+<span id="902">902</span>
 </pre><pre class="rust"><code><span class="doccomment">//! A bunch of (mostly read-only) queries on a Map.</span>
 
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
@@ -933,6 +936,8 @@
     <span class="doccomment">/// value can be smaller than the hardcoded maximum car length; cars may render on top of each</span>
     <span class="doccomment">/// other, but otherwise the simulation doesn&#39;t care.</span>
     <span class="kw">pub</span> <span class="ident">street_parking_spot_length</span>: <span class="ident">Distance</span>,
+    <span class="doccomment">/// If true, turns on red which do not conflict crossing traffic (&#39;right on red&#39;) are allowed </span>
+    <span class="kw">pub</span> <span class="ident">turn_on_red</span>: <span class="ident">bool</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>)]</span>
@@ -1072,6 +1077,7 @@
                 <span class="ident">bikes_can_use_bus_lanes</span>: <span class="bool-val">true</span>,
                 <span class="ident">inferred_sidewalks</span>: <span class="bool-val">true</span>,
                 <span class="ident">street_parking_spot_length</span>: <span class="ident">Distance::meters</span>(<span class="number">8.0</span>),
+                <span class="ident">turn_on_red</span>: <span class="bool-val">true</span>,
             },
             <span class="ident">pathfinder</span>: <span class="ident">Pathfinder::empty</span>(),
             <span class="ident">pathfinder_dirty</span>: <span class="bool-val">false</span>,
