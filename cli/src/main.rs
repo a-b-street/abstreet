@@ -12,7 +12,6 @@ mod import_grid2demand;
 mod import_scenario;
 mod one_step_import;
 mod osm2lanes;
-mod pick_geofabrik;
 
 use anyhow::Result;
 use structopt::StructOpt;
@@ -255,7 +254,7 @@ async fn main() -> Result<()> {
             output,
         } => generate_houses::run(map, num_required, rng_seed, output),
         Command::PickGeofabrik { input } => {
-            println!("{}", pick_geofabrik::run(input).await?)
+            println!("{}", importer::pick_geofabrik(input).await?)
         }
         Command::OneStepImport {
             geojson_path,

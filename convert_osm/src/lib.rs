@@ -23,12 +23,8 @@ pub mod reader;
 mod split_ways;
 mod transit;
 
+/// Configures the creation of a RawMap from OSM and other input data.
 pub struct Options {
-    pub osm_input: String,
-    pub name: MapName,
-
-    /// The path to an osmosis boundary polygon. Highly recommended.
-    pub clip: Option<String>,
     pub map_config: MapConfig,
 
     pub onstreet_parking: OnstreetParking,
@@ -80,16 +76,23 @@ pub enum PrivateOffstreetParking {
     // TODO Based on the number of residents?
 }
 
-pub fn convert(opts: Options, timer: &mut abstutil::Timer) -> RawMap {
-    let mut map = RawMap::blank(opts.name.clone());
-    if let Some(ref path) = opts.clip {
+/// Create a RawMap from OSM and other input data.
+pub fn convert(
+    osm_input_path: String,
+    name: MapName,
+    clip_path: Option<String>,
+    opts: Options,
+    timer: &mut Timer,
+) -> RawMap {
+    let mut map = RawMap::blank(name.clone());
+    if let Some(ref path) = clip_path {
         let pts = LonLat::read_osmosis_polygon(path).unwrap();
         let gps_bounds = GPSBounds::from(pts.clone());
         map.boundary_polygon = Ring::must_new(gps_bounds.convert(&pts)).into_polygon();
         map.gps_bounds = gps_bounds;
     }
 
-    let extract = extract::extract_osm(&mut map, &opts, timer);
+    let extract = extract::extract_osm(&mut map, &osm_input_path, clip_path, &opts, timer);
     let (amenities, crosswalks, pt_to_road) = split_ways::split_up_roads(&mut map, extract, timer);
     clip::clip_map(&mut map, timer);
 

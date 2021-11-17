@@ -6,23 +6,17 @@ use serde::Deserialize;
 
 use abstio::{CityName, MapName};
 use abstutil::{MultiMap, Timer};
-use geom::{Distance, Duration, Polygon, Ring, Time};
+use geom::{Duration, Polygon, Ring, Time};
 use kml::ExtraShapes;
 use map_model::{BuildingID, BuildingType, BusRouteID, Map};
 use sim::Scenario;
 
 use crate::configuration::ImporterConfiguration;
-use crate::utils::{download, download_kml, osmconvert};
+use crate::utils::{download, download_kml};
 
-async fn input(config: &ImporterConfiguration, timer: &mut Timer<'_>) {
+pub async fn input(config: &ImporterConfiguration, timer: &mut Timer<'_>) {
     let city = CityName::seattle();
 
-    download(
-        config,
-        city.input_path("osm/washington-latest.osm.pbf"),
-        "http://download.geofabrik.de/north-america/us/washington-latest.osm.pbf",
-    )
-    .await;
     // Soundcast data was originally retrieved from staff at PSRC via a download link that didn't
     // last long. From that original 2014 .zip (possibly still available from
     // https://github.com/psrc/soundcast/releases), two files were extracted --
@@ -111,65 +105,12 @@ async fn input(config: &ImporterConfiguration, timer: &mut Timer<'_>) {
     .await;
 }
 
-pub async fn osm_to_raw(name: &str, timer: &mut Timer<'_>, config: &ImporterConfiguration) {
-    let city = CityName::seattle();
-
-    input(config, timer).await;
-    osmconvert(
-        city.input_path("osm/washington-latest.osm.pbf"),
-        format!("importer/config/us/seattle/{}.poly", name),
-        city.input_path(format!("osm/{}.osm", name)),
-        config,
-    );
-
-    let map = convert_osm::convert(
-        convert_osm::Options {
-            osm_input: city.input_path(format!("osm/{}.osm", name)),
-            name: MapName::seattle(name),
-
-            clip: Some(format!("importer/config/us/seattle/{}.poly", name)),
-            map_config: map_model::MapConfig {
-                driving_side: map_model::DrivingSide::Right,
-                bikes_can_use_bus_lanes: true,
-                inferred_sidewalks: true,
-                street_parking_spot_length: Distance::meters(8.0),
-                turn_on_red: true,
-            },
-
-            onstreet_parking: convert_osm::OnstreetParking::Blockface(
-                city.input_path("blockface.bin"),
-            ),
-            public_offstreet_parking: convert_osm::PublicOffstreetParking::Gis(
-                city.input_path("offstreet_parking.bin"),
-            ),
-            private_offstreet_parking: convert_osm::PrivateOffstreetParking::FixedPerBldg(
-                // TODO Utter guesses or in response to gridlock
-                match name {
-                    "downtown" => 5,
-                    "lakeslice" => 5,
-                    "qa" => 5,
-                    "south_seattle" => 5,
-                    "wallingford" => 5,
-                    _ => 1,
-                },
-            ),
-            // They mess up 16th and E Marginal badly enough to cause gridlock.
-            include_railroads: false,
-            extra_buildings: None,
-            skip_local_roads: false,
-            filter_crosswalks: false,
-        },
-        timer,
-    );
-    map.save();
-}
-
 /// Download and pre-process data needed to generate Seattle scenarios.
 pub async fn ensure_popdat_exists(
     timer: &mut Timer<'_>,
     config: &ImporterConfiguration,
-    build_raw_huge_seattle: &mut bool,
-    build_map_huge_seattle: &mut bool,
+    built_raw_huge_seattle: &mut bool,
+    built_map_huge_seattle: &mut bool,
 ) -> (crate::soundcast::PopDat, map_model::Map) {
     let huge_name = MapName::seattle("huge_seattle");
 
@@ -182,13 +123,14 @@ pub async fn ensure_popdat_exists(
     }
 
     if !abstio::file_exists(abstio::path_raw_map(&huge_name)) {
-        osm_to_raw("huge_seattle", timer, config).await;
-        *build_raw_huge_seattle = true;
+        input(config, timer).await;
+        crate::utils::osm_to_raw(MapName::seattle("huge_seattle"), timer, config).await;
+        *built_raw_huge_seattle = true;
     }
     let huge_map = if abstio::file_exists(huge_name.path()) {
         map_model::Map::load_synchronously(huge_name.path(), timer)
     } else {
-        *build_map_huge_seattle = true;
+        *built_map_huge_seattle = true;
         crate::utils::raw_to_map(&huge_name, map_model::RawToMapOptions::default(), timer)
     };
 
