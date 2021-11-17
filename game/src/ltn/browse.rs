@@ -100,7 +100,9 @@ impl State<App> for BrowseNeighborhoods {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
         self.world.draw(g);
-        self.labels.draw(g, app);
+        if g.canvas.is_unzoomed() {
+            self.labels.draw(g, app);
+        }
     }
 }
 
