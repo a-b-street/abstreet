@@ -198,6 +198,17 @@ pub fn filter_turns(mut input: Vec<Turn>, map: &Map, i: &Intersection) -> Vec<Tu
             if !keep {
                 turn.turn_type = TurnType::UnmarkedCrossing;
             }
+        } else if turn.turn_type.pedestrian_crossing() {
+            // We have a crosswalk over multiple roads (or sometimes, just one road that only has a
+            // walkable lane on one side of it). We can't yet detect all the roads crossed. So for
+            // now, it's more often correct to assume that if any nearby roads don't have a
+            // crossing snapped to both ends, then there's probably no crosswalk here.
+            for l in [turn.id.src, turn.id.dst] {
+                let road = map.get_parent(l);
+                if !road.crosswalk_forward || !road.crosswalk_backward {
+                    turn.turn_type = TurnType::UnmarkedCrossing;
+                }
+            }
         }
     }
 
