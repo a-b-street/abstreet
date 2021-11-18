@@ -720,34 +720,6 @@
 <span id="720">720</span>
 <span id="721">721</span>
 <span id="722">722</span>
-<span id="723">723</span>
-<span id="724">724</span>
-<span id="725">725</span>
-<span id="726">726</span>
-<span id="727">727</span>
-<span id="728">728</span>
-<span id="729">729</span>
-<span id="730">730</span>
-<span id="731">731</span>
-<span id="732">732</span>
-<span id="733">733</span>
-<span id="734">734</span>
-<span id="735">735</span>
-<span id="736">736</span>
-<span id="737">737</span>
-<span id="738">738</span>
-<span id="739">739</span>
-<span id="740">740</span>
-<span id="741">741</span>
-<span id="742">742</span>
-<span id="743">743</span>
-<span id="744">744</span>
-<span id="745">745</span>
-<span id="746">746</span>
-<span id="747">747</span>
-<span id="748">748</span>
-<span id="749">749</span>
-<span id="750">750</span>
 </pre><pre class="rust"><code><span class="doccomment">//! The convert_osm crate produces a RawMap from OSM and other data. Storing this intermediate</span>
 <span class="doccomment">//! structure is useful to iterate quickly on parts of the map importing pipeline without having to</span>
 <span class="doccomment">//! constantly read .osm files, and to visualize the intermediate state with map_editor.</span>
@@ -786,7 +758,6 @@
         <span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;deserialize_btreemap&quot;</span>
     )]</span>
     <span class="kw">pub</span> <span class="ident">buildings</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">osm::OsmID</span>, <span class="ident">RawBuilding</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">bus_routes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RawBusRoute</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">areas</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RawArea</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">parking_lots</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RawParkingLot</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">parking_aisles</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">osm::WayID</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
@@ -862,7 +833,6 @@
             <span class="ident">roads</span>: <span class="ident">BTreeMap::new</span>(),
             <span class="ident">intersections</span>: <span class="ident">BTreeMap::new</span>(),
             <span class="ident">buildings</span>: <span class="ident">BTreeMap::new</span>(),
-            <span class="ident">bus_routes</span>: <span class="ident">Vec::new</span>(),
             <span class="ident">areas</span>: <span class="ident">Vec::new</span>(),
             <span class="ident">parking_lots</span>: <span class="ident">Vec::new</span>(),
             <span class="ident">parking_aisles</span>: <span class="ident">Vec::new</span>(),
@@ -1471,32 +1441,6 @@
             <span class="prelude-val">None</span>
         }
     }
-}
-
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RawBusRoute</span> {
-    <span class="kw">pub</span> <span class="ident">full_name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">short_name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">osm_rel_id</span>: <span class="ident">osm::RelationID</span>,
-    <span class="kw">pub</span> <span class="ident">gtfs_trip_marker</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// If not, light rail</span>
-    <span class="kw">pub</span> <span class="ident">is_bus</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">stops</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RawBusStop</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">border_start</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">osm::NodeID</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">border_end</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">osm::NodeID</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// This is guaranteed to be in order and contiguous.</span>
-    <span class="kw">pub</span> <span class="ident">all_pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">osm::NodeID</span>, <span class="ident">Pt2D</span>)<span class="op">&gt;</span>,
-}
-
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RawBusStop</span> {
-    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="doccomment">/// Probably not an intersection, but this type is more convenient.</span>
-    <span class="kw">pub</span> <span class="ident">vehicle_pos</span>: (<span class="ident">osm::NodeID</span>, <span class="ident">Pt2D</span>),
-    <span class="doccomment">/// Guaranteed to be filled out when RawMap is fully written.</span>
-    <span class="kw">pub</span> <span class="ident">matched_road</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">OriginalRoad</span>, <span class="ident">Direction</span>)<span class="op">&gt;</span>,
-    <span class="doccomment">/// If it&#39;s not explicitly mapped, we&#39;ll do equiv_pos.</span>
-    <span class="kw">pub</span> <span class="ident">ped_pos</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>,
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="map_model" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>

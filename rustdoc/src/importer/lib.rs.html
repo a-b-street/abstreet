@@ -330,16 +330,6 @@
 <span id="330">330</span>
 <span id="331">331</span>
 <span id="332">332</span>
-<span id="333">333</span>
-<span id="334">334</span>
-<span id="335">335</span>
-<span id="336">336</span>
-<span id="337">337</span>
-<span id="338">338</span>
-<span id="339">339</span>
-<span id="340">340</span>
-<span id="341">341</span>
-<span id="342">342</span>
 </pre><pre class="rust"><code><span class="doccomment">//! It&#39;s assumed that the importer is run with the current directory as the project repository; aka</span>
 <span class="doccomment">//! `./data/` and `./importer/config` must exist.</span>
 
@@ -413,8 +403,8 @@
 
 <span class="doccomment">/// Regenerate all maps from RawMaps in parallel.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">regenerate_all_maps</span>() {
-    <span class="comment">// Omit Seattle and Berlin, because they have special follow-up actions (GTFS, minifying some</span>
-    <span class="comment">// maps, and distributing residents)</span>
+    <span class="comment">// Omit Seattle and Berlin, because they have special follow-up actions (minifying some maps</span>
+    <span class="comment">// and distributing residents)</span>
     <span class="kw">let</span> <span class="ident">all_maps</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">MapName</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">CityName::list_all_cities_from_importer_config</span>()
         .<span class="ident">into_iter</span>()
         .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">city</span><span class="op">|</span> <span class="ident">city</span>.<span class="ident">list_all_maps_in_city_from_importer_config</span>())
@@ -588,16 +578,6 @@
                         <span class="string">&quot;distribute residents from planning areas for {}&quot;</span>,
                         <span class="ident">name</span>.<span class="ident">describe</span>()
                     ));
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">name</span>.<span class="ident">city</span> <span class="op">=</span><span class="op">=</span> <span class="ident">CityName::seattle</span>() {
-                    <span class="comment">// TODO Slightly misleading, but hijack --skip_ch to also skip GTFS. The</span>
-                    <span class="comment">// intention of --skip_ch is usually to quickly iterate on the map importer,</span>
-                    <span class="comment">// not in release mode. This import is broken/unused right now anyway and takes</span>
-                    <span class="comment">// way too much time in debug mode.</span>
-                    <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">opts</span>.<span class="ident">skip_ch</span> {
-                        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="macro">format!</span>(<span class="string">&quot;add GTFS schedules for {}&quot;</span>, <span class="ident">name</span>.<span class="ident">describe</span>()));
-                        <span class="ident">seattle::add_gtfs_schedules</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map</span>);
-                        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="macro">format!</span>(<span class="string">&quot;add GTFS schedules for {}&quot;</span>, <span class="ident">name</span>.<span class="ident">describe</span>()));
-                    }
                 }
 
                 <span class="prelude-val">Some</span>(<span class="ident">map</span>)
