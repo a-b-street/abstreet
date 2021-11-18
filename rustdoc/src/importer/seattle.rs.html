@@ -280,64 +280,6 @@
 <span id="280">280</span>
 <span id="281">281</span>
 <span id="282">282</span>
-<span id="283">283</span>
-<span id="284">284</span>
-<span id="285">285</span>
-<span id="286">286</span>
-<span id="287">287</span>
-<span id="288">288</span>
-<span id="289">289</span>
-<span id="290">290</span>
-<span id="291">291</span>
-<span id="292">292</span>
-<span id="293">293</span>
-<span id="294">294</span>
-<span id="295">295</span>
-<span id="296">296</span>
-<span id="297">297</span>
-<span id="298">298</span>
-<span id="299">299</span>
-<span id="300">300</span>
-<span id="301">301</span>
-<span id="302">302</span>
-<span id="303">303</span>
-<span id="304">304</span>
-<span id="305">305</span>
-<span id="306">306</span>
-<span id="307">307</span>
-<span id="308">308</span>
-<span id="309">309</span>
-<span id="310">310</span>
-<span id="311">311</span>
-<span id="312">312</span>
-<span id="313">313</span>
-<span id="314">314</span>
-<span id="315">315</span>
-<span id="316">316</span>
-<span id="317">317</span>
-<span id="318">318</span>
-<span id="319">319</span>
-<span id="320">320</span>
-<span id="321">321</span>
-<span id="322">322</span>
-<span id="323">323</span>
-<span id="324">324</span>
-<span id="325">325</span>
-<span id="326">326</span>
-<span id="327">327</span>
-<span id="328">328</span>
-<span id="329">329</span>
-<span id="330">330</span>
-<span id="331">331</span>
-<span id="332">332</span>
-<span id="333">333</span>
-<span id="334">334</span>
-<span id="335">335</span>
-<span id="336">336</span>
-<span id="337">337</span>
-<span id="338">338</span>
-<span id="339">339</span>
-<span id="340">340</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashSet</span>};
 <span class="kw">use</span> <span class="ident">std::fs::File</span>;
 
@@ -346,23 +288,17 @@
 
 <span class="kw">use</span> <span class="ident">abstio</span>::{<span class="ident">CityName</span>, <span class="ident">MapName</span>};
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">MultiMap</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Polygon</span>, <span class="ident">Ring</span>, <span class="ident">Time</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Polygon</span>, <span class="ident">Ring</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">kml::ExtraShapes</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BuildingID</span>, <span class="ident">BuildingType</span>, <span class="ident">BusRouteID</span>, <span class="ident">Map</span>};
 <span class="kw">use</span> <span class="ident">sim::Scenario</span>;
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::configuration::ImporterConfiguration</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::utils</span>::{<span class="ident">download</span>, <span class="ident">download_kml</span>, <span class="ident">osmconvert</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::utils</span>::{<span class="ident">download</span>, <span class="ident">download_kml</span>};
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">input</span>(<span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">ImporterConfiguration</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) {
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">input</span>(<span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">ImporterConfiguration</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) {
     <span class="kw">let</span> <span class="ident">city</span> <span class="op">=</span> <span class="ident">CityName::seattle</span>();
 
-    <span class="ident">download</span>(
-        <span class="ident">config</span>,
-        <span class="ident">city</span>.<span class="ident">input_path</span>(<span class="string">&quot;osm/washington-latest.osm.pbf&quot;</span>),
-        <span class="string">&quot;http://download.geofabrik.de/north-america/us/washington-latest.osm.pbf&quot;</span>,
-    )
-    .<span class="kw">await</span>;
     <span class="comment">// Soundcast data was originally retrieved from staff at PSRC via a download link that didn&#39;t</span>
     <span class="comment">// last long. From that original 2014 .zip (possibly still available from</span>
     <span class="comment">// https://github.com/psrc/soundcast/releases), two files were extracted --</span>
@@ -451,65 +387,12 @@
     .<span class="kw">await</span>;
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">osm_to_raw</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">ImporterConfiguration</span>) {
-    <span class="kw">let</span> <span class="ident">city</span> <span class="op">=</span> <span class="ident">CityName::seattle</span>();
-
-    <span class="ident">input</span>(<span class="ident">config</span>, <span class="ident">timer</span>).<span class="kw">await</span>;
-    <span class="ident">osmconvert</span>(
-        <span class="ident">city</span>.<span class="ident">input_path</span>(<span class="string">&quot;osm/washington-latest.osm.pbf&quot;</span>),
-        <span class="macro">format!</span>(<span class="string">&quot;importer/config/us/seattle/{}.poly&quot;</span>, <span class="ident">name</span>),
-        <span class="ident">city</span>.<span class="ident">input_path</span>(<span class="macro">format!</span>(<span class="string">&quot;osm/{}.osm&quot;</span>, <span class="ident">name</span>)),
-        <span class="ident">config</span>,
-    );
-
-    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">convert_osm::convert</span>(
-        <span class="ident">convert_osm::Options</span> {
-            <span class="ident">osm_input</span>: <span class="ident">city</span>.<span class="ident">input_path</span>(<span class="macro">format!</span>(<span class="string">&quot;osm/{}.osm&quot;</span>, <span class="ident">name</span>)),
-            <span class="ident">name</span>: <span class="ident">MapName::seattle</span>(<span class="ident">name</span>),
-
-            <span class="ident">clip</span>: <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">&quot;importer/config/us/seattle/{}.poly&quot;</span>, <span class="ident">name</span>)),
-            <span class="ident">map_config</span>: <span class="ident">map_model::MapConfig</span> {
-                <span class="ident">driving_side</span>: <span class="ident">map_model::DrivingSide::Right</span>,
-                <span class="ident">bikes_can_use_bus_lanes</span>: <span class="bool-val">true</span>,
-                <span class="ident">inferred_sidewalks</span>: <span class="bool-val">true</span>,
-                <span class="ident">street_parking_spot_length</span>: <span class="ident">Distance::meters</span>(<span class="number">8.0</span>),
-                <span class="ident">turn_on_red</span>: <span class="bool-val">true</span>,
-            },
-
-            <span class="ident">onstreet_parking</span>: <span class="ident">convert_osm::OnstreetParking::Blockface</span>(
-                <span class="ident">city</span>.<span class="ident">input_path</span>(<span class="string">&quot;blockface.bin&quot;</span>),
-            ),
-            <span class="ident">public_offstreet_parking</span>: <span class="ident">convert_osm::PublicOffstreetParking::Gis</span>(
-                <span class="ident">city</span>.<span class="ident">input_path</span>(<span class="string">&quot;offstreet_parking.bin&quot;</span>),
-            ),
-            <span class="ident">private_offstreet_parking</span>: <span class="ident">convert_osm::PrivateOffstreetParking::FixedPerBldg</span>(
-                <span class="comment">// TODO Utter guesses or in response to gridlock</span>
-                <span class="kw">match</span> <span class="ident">name</span> {
-                    <span class="string">&quot;downtown&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">5</span>,
-                    <span class="string">&quot;lakeslice&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">5</span>,
-                    <span class="string">&quot;qa&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">5</span>,
-                    <span class="string">&quot;south_seattle&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">5</span>,
-                    <span class="string">&quot;wallingford&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">5</span>,
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">1</span>,
-                },
-            ),
-            <span class="comment">// They mess up 16th and E Marginal badly enough to cause gridlock.</span>
-            <span class="ident">include_railroads</span>: <span class="bool-val">false</span>,
-            <span class="ident">extra_buildings</span>: <span class="prelude-val">None</span>,
-            <span class="ident">skip_local_roads</span>: <span class="bool-val">false</span>,
-            <span class="ident">filter_crosswalks</span>: <span class="bool-val">false</span>,
-        },
-        <span class="ident">timer</span>,
-    );
-    <span class="ident">map</span>.<span class="ident">save</span>();
-}
-
 <span class="doccomment">/// Download and pre-process data needed to generate Seattle scenarios.</span>
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">ensure_popdat_exists</span>(
     <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
     <span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">ImporterConfiguration</span>,
-    <span class="ident">build_raw_huge_seattle</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
-    <span class="ident">build_map_huge_seattle</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
+    <span class="ident">built_raw_huge_seattle</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
+    <span class="ident">built_map_huge_seattle</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident"><span class="kw">crate</span>::soundcast::PopDat</span>, <span class="ident">map_model::Map</span>) {
     <span class="kw">let</span> <span class="ident">huge_name</span> <span class="op">=</span> <span class="ident">MapName::seattle</span>(<span class="string">&quot;huge_seattle&quot;</span>);
 
@@ -522,13 +405,14 @@
     }
 
     <span class="kw">if</span> <span class="op">!</span><span class="ident">abstio::file_exists</span>(<span class="ident">abstio::path_raw_map</span>(<span class="kw-2">&amp;</span><span class="ident">huge_name</span>)) {
-        <span class="ident">osm_to_raw</span>(<span class="string">&quot;huge_seattle&quot;</span>, <span class="ident">timer</span>, <span class="ident">config</span>).<span class="kw">await</span>;
-        <span class="kw-2">*</span><span class="ident">build_raw_huge_seattle</span> <span class="op">=</span> <span class="bool-val">true</span>;
+        <span class="ident">input</span>(<span class="ident">config</span>, <span class="ident">timer</span>).<span class="kw">await</span>;
+        <span class="ident"><span class="kw">crate</span>::utils::osm_to_raw</span>(<span class="ident">MapName::seattle</span>(<span class="string">&quot;huge_seattle&quot;</span>), <span class="ident">timer</span>, <span class="ident">config</span>).<span class="kw">await</span>;
+        <span class="kw-2">*</span><span class="ident">built_raw_huge_seattle</span> <span class="op">=</span> <span class="bool-val">true</span>;
     }
     <span class="kw">let</span> <span class="ident">huge_map</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">abstio::file_exists</span>(<span class="ident">huge_name</span>.<span class="ident">path</span>()) {
         <span class="ident">map_model::Map::load_synchronously</span>(<span class="ident">huge_name</span>.<span class="ident">path</span>(), <span class="ident">timer</span>)
     } <span class="kw">else</span> {
-        <span class="kw-2">*</span><span class="ident">build_map_huge_seattle</span> <span class="op">=</span> <span class="bool-val">true</span>;
+        <span class="kw-2">*</span><span class="ident">built_map_huge_seattle</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="ident"><span class="kw">crate</span>::utils::raw_to_map</span>(<span class="kw-2">&amp;</span><span class="ident">huge_name</span>, <span class="ident">map_model::RawToMapOptions::default</span>(), <span class="ident">timer</span>)
     };
 

@@ -340,7 +340,6 @@
 <span id="340">340</span>
 <span id="341">341</span>
 <span id="342">342</span>
-<span id="343">343</span>
 </pre><pre class="rust"><code><span class="doccomment">//! A collection of tools, mostly related to importing maps and scenarios. These are bundled as a</span>
 <span class="doccomment">//! single executable to reduce the cost of static linking in the release&#39;s file size.</span>
 
@@ -355,7 +354,6 @@
 <span class="kw">mod</span> <span class="ident">import_scenario</span>;
 <span class="kw">mod</span> <span class="ident">one_step_import</span>;
 <span class="kw">mod</span> <span class="ident">osm2lanes</span>;
-<span class="kw">mod</span> <span class="ident">pick_geofabrik</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">structopt::StructOpt</span>;
@@ -598,7 +596,7 @@
             <span class="ident">output</span>,
         } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">generate_houses::run</span>(<span class="ident">map</span>, <span class="ident">num_required</span>, <span class="ident">rng_seed</span>, <span class="ident">output</span>),
         <span class="ident">Command::PickGeofabrik</span> { <span class="ident">input</span> } <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">pick_geofabrik::run</span>(<span class="ident">input</span>).<span class="kw">await</span><span class="question-mark">?</span>)
+            <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">importer::pick_geofabrik</span>(<span class="ident">input</span>).<span class="kw">await</span><span class="question-mark">?</span>)
         }
         <span class="ident">Command::OneStepImport</span> {
             <span class="ident">geojson_path</span>,

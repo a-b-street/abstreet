@@ -239,6 +239,9 @@
 <span id="239">239</span>
 <span id="240">240</span>
 <span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Integration tests</span>
 
 <span class="kw">use</span> <span class="ident">std::fs::File</span>;
@@ -254,6 +257,7 @@
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">IndividTrip</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>, <span class="ident">TripPurpose</span>};
 
 <span class="kw">fn</span> <span class="ident">main</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="ident">abstutil::logger::setup</span>();
     <span class="ident">test_lane_changing</span>(<span class="kw-2">&amp;</span><span class="ident">import_map</span>(<span class="ident">abstio::path</span>(
         <span class="string">&quot;../tests/input/lane_selection.osm&quot;</span>,
     )))<span class="question-mark">?</span>;
@@ -288,11 +292,13 @@
 <span class="doccomment">/// Run the contents of a .osm through the full map importer with default options.</span>
 <span class="kw">fn</span> <span class="ident">import_map</span>(<span class="ident">path</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Map</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer::new</span>(<span class="string">&quot;convert synthetic map&quot;</span>);
+    <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">MapName::new</span>(<span class="string">&quot;zz&quot;</span>, <span class="string">&quot;oneshot&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">abstutil::basename</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>));
+    <span class="kw">let</span> <span class="ident">clip</span> <span class="op">=</span> <span class="prelude-val">None</span>;
     <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="ident">convert_osm::convert</span>(
+        <span class="ident">path</span>,
+        <span class="ident">name</span>,
+        <span class="ident">clip</span>,
         <span class="ident">convert_osm::Options</span> {
-            <span class="ident">name</span>: <span class="ident">MapName::new</span>(<span class="string">&quot;zz&quot;</span>, <span class="string">&quot;oneshot&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">abstutil::basename</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>)),
-            <span class="ident">osm_input</span>: <span class="ident">path</span>,
-            <span class="ident">clip</span>: <span class="prelude-val">None</span>,
             <span class="ident">map_config</span>: <span class="ident">map_model::MapConfig</span> {
                 <span class="ident">driving_side</span>: <span class="ident">map_model::DrivingSide::Right</span>,
                 <span class="ident">bikes_can_use_bus_lanes</span>: <span class="bool-val">true</span>,

@@ -656,6 +656,12 @@
 <span id="656">656</span>
 <span id="657">657</span>
 <span id="658">658</span>
+<span id="659">659</span>
+<span id="660">660</span>
+<span id="661">661</span>
+<span id="662">662</span>
+<span id="663">663</span>
+<span id="664">664</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
 <span class="kw">use</span> <span class="ident">osm</span>::{<span class="ident">NodeID</span>, <span class="ident">OsmID</span>, <span class="ident">RelationID</span>, <span class="ident">WayID</span>};
@@ -686,8 +692,14 @@
     <span class="kw">pub</span> <span class="ident">crosswalks</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">HashablePt2D</span><span class="op">&gt;</span>,
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extract_osm</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RawMap</span>, <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">Options</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OsmExtract</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">doc</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::reader::read</span>(<span class="kw-2">&amp;</span><span class="ident">opts</span>.<span class="ident">osm_input</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">gps_bounds</span>, <span class="ident">timer</span>).<span class="ident">unwrap</span>();
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extract_osm</span>(
+    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RawMap</span>,
+    <span class="ident">osm_input_path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
+    <span class="ident">clip_path</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">Options</span>,
+    <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OsmExtract</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">doc</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::reader::read</span>(<span class="ident">osm_input_path</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">gps_bounds</span>, <span class="ident">timer</span>).<span class="ident">unwrap</span>();
 
     <span class="comment">// TODO Hacks to override OSM data. There&#39;s no problem upstream, but we want to accomplish</span>
     <span class="comment">// various things for A/B Street.</span>
@@ -702,7 +714,7 @@
         <span class="ident">way</span>.<span class="ident">tags</span>.<span class="ident">insert</span>(<span class="string">&quot;junction&quot;</span>, <span class="string">&quot;intersection&quot;</span>);
     }
 
-    <span class="kw">if</span> <span class="ident">opts</span>.<span class="ident">clip</span>.<span class="ident">is_none</span>() {
+    <span class="kw">if</span> <span class="ident">clip_path</span>.<span class="ident">is_none</span>() {
         <span class="comment">// Use the boundary from .osm.</span>
         <span class="ident">map</span>.<span class="ident">gps_bounds</span> <span class="op">=</span> <span class="ident">doc</span>.<span class="ident">gps_bounds</span>.<span class="ident">clone</span>();
         <span class="ident">map</span>.<span class="ident">boundary_polygon</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">gps_bounds</span>.<span class="ident">to_bounds</span>().<span class="ident">get_rectangle</span>();

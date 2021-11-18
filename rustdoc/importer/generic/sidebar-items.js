@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["GenericCityImporter","Importing a new city can be done just by filling out this config file and specifying some polygon boundaries. Most fields are directly from `convert_osm::Options`."]]});
