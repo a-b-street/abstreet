@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 
 use abstutil::Timer;
-use geom::{Distance, PolyLine, Ring};
+use geom::{PolyLine, Ring};
 use map_model::raw::{OriginalRoad, RawMap};
 use map_model::{osm, IntersectionType};
 
@@ -163,74 +163,6 @@ pub fn clip_map(map: &mut RawMap, timer: &mut Timer) {
 
     if map.roads.is_empty() {
         panic!("There are no roads inside the clipping polygon");
-    }
-
-    let all_routes = map.bus_routes.drain(..).collect::<Vec<_>>();
-    for mut r in all_routes {
-        if r.stops[0].vehicle_pos == r.stops.last().unwrap().vehicle_pos {
-            // A loop?
-            map.bus_routes.push(r);
-            continue;
-        }
-
-        let mut borders: Vec<osm::NodeID> = Vec::new();
-        for (node, _) in &r.all_pts {
-            if let Some(i) = map.intersections.get(node) {
-                if i.intersection_type == IntersectionType::Border {
-                    borders.push(*node);
-                }
-            }
-            if let Some(i) = extra_borders.get(node) {
-                borders.push(*i);
-            }
-        }
-
-        // Guess which border is for the beginning and end of the route.
-        let start_i = map.closest_intersection(r.stops[0].vehicle_pos.1);
-        let end_i = map.closest_intersection(r.stops.last().unwrap().vehicle_pos.1);
-        let mut best_start: Option<(osm::NodeID, Distance)> = None;
-        let mut best_end: Option<(osm::NodeID, Distance)> = None;
-        for i in borders {
-            // closest_intersection might snap to the wrong end, so try both directions
-            if let Some(d1) = map
-                .path_dist_to(i, start_i)
-                .or_else(|| map.path_dist_to(start_i, i))
-            {
-                if best_start.map(|(_, d2)| d1 < d2).unwrap_or(true) {
-                    best_start = Some((i, d1));
-                }
-            }
-            if let Some(d1) = map.path_dist_to(end_i, i) {
-                if best_end.map(|(_, d2)| d1 < d2).unwrap_or(true) {
-                    best_end = Some((i, d1));
-                }
-            }
-        }
-
-        // If both matched to the same border, probably the route properly starts or ends inside
-        // the map. (If it was both, then we shouldn't have even had any borders at all.)
-        match (best_start, best_end) {
-            (Some((i1, d1)), Some((i2, d2))) => {
-                if i1 == i2 {
-                    if d1 < d2 {
-                        r.border_start = Some(i1);
-                    } else {
-                        r.border_end = Some(i2);
-                    }
-                } else {
-                    r.border_start = Some(i1);
-                    r.border_end = Some(i2);
-                }
-            }
-            (Some((i1, _)), None) => {
-                r.border_start = Some(i1);
-            }
-            (None, Some((i2, _))) => {
-                r.border_end = Some(i2);
-            }
-            (None, None) => {}
-        }
-        map.bus_routes.push(r);
     }
 
     timer.stop("clipping map to boundary");

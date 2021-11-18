@@ -10,7 +10,7 @@ use map_model::raw::{RawArea, RawBuilding, RawMap, RawParkingLot, RawRoad, Restr
 use map_model::{osm, Amenity, AreaType, Direction, DrivingSide, NamePerLanguage};
 
 use crate::osm_geom::{get_multipolygon_members, glue_multipolygon, multipoly_geometry};
-use crate::{transit, Options};
+use crate::Options;
 
 pub struct OsmExtract {
     /// Unsplit roads
@@ -186,8 +186,6 @@ pub fn extract_osm(
     let boundary = map.boundary_polygon.clone().into_ring();
 
     let mut amenity_areas: Vec<(Polygon, Amenity)> = Vec::new();
-    // Vehicle position (stop) -> pedestrian position (platform)
-    let mut stop_areas: Vec<((osm::NodeID, Pt2D), Pt2D)> = Vec::new();
 
     // TODO Fill this out in a separate loop to keep a mutable borrow short. Maybe do this in
     // reader, or stop doing this entirely.
@@ -285,9 +283,6 @@ pub fn extract_osm(
                     osm_tags: rel.tags.clone(),
                 });
             }
-        } else if rel.tags.is("type", "route") {
-            map.bus_routes
-                .extend(transit::extract_route(id, rel, &doc, &map.boundary_polygon));
         } else if rel.tags.is("type", "multipolygon") && rel.tags.contains_key("amenity") {
             let amenity = Amenity {
                 names: NamePerLanguage::new(&rel.tags).unwrap_or_else(NamePerLanguage::unnamed),
@@ -302,28 +297,6 @@ pub fn extract_osm(
                     if let Ok(ring) = Ring::new(doc.ways[w].pts.clone()) {
                         amenity_areas.push((ring.into_polygon(), amenity.clone()));
                     }
-                }
-            }
-        } else if rel.tags.is("public_transport", "stop_area") {
-            let mut stops = Vec::new();
-            let mut platform: Option<Pt2D> = None;
-            for (role, member) in &rel.members {
-                if let OsmID::Node(n) = member {
-                    let pt = doc.nodes[n].pt;
-                    if role == "stop" {
-                        stops.push((*n, pt));
-                    } else if role == "platform" {
-                        platform = Some(pt);
-                    }
-                } else if let OsmID::Way(w) = member {
-                    if role == "platform" {
-                        platform = Some(Pt2D::center(&doc.ways[w].pts));
-                    }
-                }
-            }
-            if let Some(ped_pos) = platform {
-                for vehicle_pos in stops {
-                    stop_areas.push((vehicle_pos, ped_pos));
                 }
             }
         }
@@ -360,18 +333,6 @@ pub fn extract_osm(
         for b in map.buildings.values_mut() {
             if poly.contains_pt(b.polygon.center()) {
                 b.amenities.push(amenity.clone());
-            }
-        }
-    }
-
-    // Match platforms from stop_areas. Not sure what order routes and stop_areas will appear in
-    // relations, so do this after reading all of them.
-    for (vehicle_pos, ped_pos) in stop_areas {
-        for route in &mut map.bus_routes {
-            for stop in &mut route.stops {
-                if stop.vehicle_pos == vehicle_pos {
-                    stop.ped_pos = Some(ped_pos);
-                }
             }
         }
     }

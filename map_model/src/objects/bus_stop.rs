@@ -1,5 +1,6 @@
 //! Bus stops and routes.
 // TODO Rename public transit -- these also cover light rail now.
+// TODO No code creates any of these structures right now.
 
 use std::fmt;
 

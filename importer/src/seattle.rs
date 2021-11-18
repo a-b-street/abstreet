@@ -1,14 +1,12 @@
-use std::collections::{BTreeMap, HashSet};
-use std::fs::File;
+use std::collections::HashSet;
 
 use aabb_quadtree::QuadTree;
-use serde::Deserialize;
 
 use abstio::{CityName, MapName};
-use abstutil::{MultiMap, Timer};
-use geom::{Duration, Polygon, Ring, Time};
+use abstutil::Timer;
+use geom::{Polygon, Ring};
 use kml::ExtraShapes;
-use map_model::{BuildingID, BuildingType, BusRouteID, Map};
+use map_model::{BuildingID, BuildingType, Map};
 use sim::Scenario;
 
 use crate::configuration::ImporterConfiguration;
@@ -56,13 +54,6 @@ pub async fn input(config: &ImporterConfiguration, timer: &mut Timer<'_>) {
         true,
         timer
     ).await;
-
-    download(
-        config,
-        city.input_path("google_transit/"),
-        "http://metro.kingcounty.gov/gtfs/google_transit.zip",
-    )
-    .await;
 
     // From
     // https://data-seattlecitygis.opendata.arcgis.com/datasets/5b5c745e0f1f48e7a53acec63a0022ab_0
@@ -142,83 +133,6 @@ pub fn adjust_private_parking(map: &mut Map, scenario: &Scenario) {
         map.hack_override_offstreet_spots_individ(b, count);
     }
     map.save();
-}
-
-/// This import from GTFS:
-/// - is specific to Seattle, whose files don't seem to match https://developers.google.com/transit/gtfs/reference
-/// - is probably wrong
-pub fn add_gtfs_schedules(map: &mut Map) {
-    let city = CityName::seattle();
-    // https://www.openstreetmap.org/relation/8616968 as an example, mapping to
-    // https://kingcounty.gov/depts/transportation/metro/schedules-maps/route/048.aspx
-
-    let mut trip_marker_to_route: BTreeMap<String, BusRouteID> = BTreeMap::new();
-    for br in map.all_bus_routes() {
-        if let Some(ref m) = br.gtfs_trip_marker {
-            // Dunno what the :0 thing is
-            trip_marker_to_route.insert(m.split(':').next().unwrap().to_string(), br.id);
-        }
-    }
-
-    // Each route has a bunch of trips throughout the day
-    let mut trip_marker_to_trips: MultiMap<String, String> = MultiMap::new();
-    for rec in
-        csv::Reader::from_reader(File::open(city.input_path("google_transit/trips.txt")).unwrap())
-            .deserialize()
-    {
-        let rec: TripRecord = rec.unwrap();
-        if trip_marker_to_route.contains_key(&rec.shape_id) {
-            trip_marker_to_trips.insert(rec.shape_id, rec.trip_id);
-        }
-    }
-
-    // For every trip, find the earliest arrival time. That should be the spawn time.
-    let mut trip_to_earliest_time: BTreeMap<String, Time> = BTreeMap::new();
-    for rec in csv::Reader::from_reader(
-        File::open(city.input_path("google_transit/stop_times.txt")).unwrap(),
-    )
-    .deserialize()
-    {
-        let rec: StopTimeRecord = rec.unwrap();
-        let mut time = Time::parse(&rec.arrival_time).unwrap();
-        // Maybe we should duplicate these to handle beginning and end of the simulation
-        if time > Time::START_OF_DAY + Duration::hours(24) {
-            time = time - Duration::hours(24);
-        }
-        if trip_to_earliest_time
-            .get(&rec.trip_id)
-            .map(|t| time < *t)
-            .unwrap_or(true)
-        {
-            trip_to_earliest_time.insert(rec.trip_id, time);
-        }
-    }
-
-    // Collect the spawn times per route
-    for (marker, trips) in trip_marker_to_trips.consume() {
-        let mut times = Vec::new();
-        for trip_id in trips {
-            times.push(trip_to_earliest_time.remove(&trip_id).unwrap());
-        }
-        times.sort();
-        times.dedup();
-
-        let br = trip_marker_to_route.remove(&marker).unwrap();
-        map.hack_override_orig_spawn_times(br, times);
-    }
-    map.save();
-}
-
-#[derive(Debug, Deserialize)]
-struct TripRecord {
-    shape_id: String,
-    trip_id: String,
-}
-
-#[derive(Debug, Deserialize)]
-struct StopTimeRecord {
-    trip_id: String,
-    arrival_time: String,
 }
 
 /// Match OSM buildings to parcels, scraping the number of housing units.

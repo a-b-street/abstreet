@@ -36,7 +36,6 @@ pub struct RawMap {
         deserialize_with = "deserialize_btreemap"
     )]
     pub buildings: BTreeMap<osm::OsmID, RawBuilding>,
-    pub bus_routes: Vec<RawBusRoute>,
     pub areas: Vec<RawArea>,
     pub parking_lots: Vec<RawParkingLot>,
     pub parking_aisles: Vec<(osm::WayID, Vec<Pt2D>)>,
@@ -112,7 +111,6 @@ impl RawMap {
             roads: BTreeMap::new(),
             intersections: BTreeMap::new(),
             buildings: BTreeMap::new(),
-            bus_routes: Vec::new(),
             areas: Vec::new(),
             parking_lots: Vec::new(),
             parking_aisles: Vec::new(),
@@ -721,30 +719,4 @@ impl RestrictionType {
             None
         }
     }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct RawBusRoute {
-    pub full_name: String,
-    pub short_name: String,
-    pub osm_rel_id: osm::RelationID,
-    pub gtfs_trip_marker: Option<String>,
-    /// If not, light rail
-    pub is_bus: bool,
-    pub stops: Vec<RawBusStop>,
-    pub border_start: Option<osm::NodeID>,
-    pub border_end: Option<osm::NodeID>,
-    /// This is guaranteed to be in order and contiguous.
-    pub all_pts: Vec<(osm::NodeID, Pt2D)>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct RawBusStop {
-    pub name: String,
-    /// Probably not an intersection, but this type is more convenient.
-    pub vehicle_pos: (osm::NodeID, Pt2D),
-    /// Guaranteed to be filled out when RawMap is fully written.
-    pub matched_road: Option<(OriginalRoad, Direction)>,
-    /// If it's not explicitly mapped, we'll do equiv_pos.
-    pub ped_pos: Option<Pt2D>,
 }

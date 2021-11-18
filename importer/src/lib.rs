@@ -71,8 +71,8 @@ pub async fn regenerate_everything(shard_num: usize, num_shards: usize) {
 
 /// Regenerate all maps from RawMaps in parallel.
 pub fn regenerate_all_maps() {
-    // Omit Seattle and Berlin, because they have special follow-up actions (GTFS, minifying some
-    // maps, and distributing residents)
+    // Omit Seattle and Berlin, because they have special follow-up actions (minifying some maps
+    // and distributing residents)
     let all_maps: Vec<MapName> = CityName::list_all_cities_from_importer_config()
         .into_iter()
         .flat_map(|city| city.list_all_maps_in_city_from_importer_config())
@@ -246,16 +246,6 @@ impl Job {
                         "distribute residents from planning areas for {}",
                         name.describe()
                     ));
-                } else if name.city == CityName::seattle() {
-                    // TODO Slightly misleading, but hijack --skip_ch to also skip GTFS. The
-                    // intention of --skip_ch is usually to quickly iterate on the map importer,
-                    // not in release mode. This import is broken/unused right now anyway and takes
-                    // way too much time in debug mode.
-                    if !self.opts.skip_ch {
-                        timer.start(format!("add GTFS schedules for {}", name.describe()));
-                        seattle::add_gtfs_schedules(&mut map);
-                        timer.stop(format!("add GTFS schedules for {}", name.describe()));
-                    }
                 }
 
                 Some(map)
