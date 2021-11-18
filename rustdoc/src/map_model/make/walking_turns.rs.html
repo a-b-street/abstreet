@@ -586,6 +586,17 @@
 <span id="586">586</span>
 <span id="587">587</span>
 <span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil::wraparound_get</span>;
@@ -785,6 +796,17 @@
             };
             <span class="kw">if</span> <span class="op">!</span><span class="ident">keep</span> {
                 <span class="ident">turn</span>.<span class="ident">turn_type</span> <span class="op">=</span> <span class="ident">TurnType::UnmarkedCrossing</span>;
+            }
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">turn</span>.<span class="ident">turn_type</span>.<span class="ident">pedestrian_crossing</span>() {
+            <span class="comment">// We have a crosswalk over multiple roads (or sometimes, just one road that only has a</span>
+            <span class="comment">// walkable lane on one side of it). We can&#39;t yet detect all the roads crossed. So for</span>
+            <span class="comment">// now, it&#39;s more often correct to assume that if any nearby roads don&#39;t have a</span>
+            <span class="comment">// crossing snapped to both ends, then there&#39;s probably no crosswalk here.</span>
+            <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> [<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">src</span>, <span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>] {
+                <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">l</span>);
+                <span class="kw">if</span> <span class="op">!</span><span class="ident">road</span>.<span class="ident">crosswalk_forward</span> <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="ident">road</span>.<span class="ident">crosswalk_backward</span> {
+                    <span class="ident">turn</span>.<span class="ident">turn_type</span> <span class="op">=</span> <span class="ident">TurnType::UnmarkedCrossing</span>;
+                }
             }
         }
     }
