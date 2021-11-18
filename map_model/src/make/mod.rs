@@ -26,7 +26,6 @@ mod parking_lots;
 pub mod remove_disconnected;
 pub mod snappy;
 pub mod traffic_signals;
-mod transit;
 pub mod turns;
 mod walking_turns;
 
@@ -284,19 +283,6 @@ impl Map {
         }
 
         traffic_signals::synchronize(&mut map);
-
-        // Initialization order is tricky. We have to create the slower Dijkstra pathfinding so we
-        // can validate routes.
-        map.pathfinder = Pathfinder::new(
-            &map,
-            map.routing_params().clone(),
-            CreateEngine::Dijkstra,
-            timer,
-        );
-        transit::make_stops_and_routes(&mut map, &raw.bus_routes, timer);
-        for id in map.bus_stops.keys() {
-            assert!(!map.get_routes_serving_stop(*id).is_empty());
-        }
 
         timer.start("setup pathfinding");
         let engine = if opts.skip_ch {
