@@ -3,14 +3,14 @@ extern crate anyhow;
 #[macro_use]
 extern crate log;
 
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 use anyhow::Result;
 
 use abstio::MapName;
 use abstutil::{Tags, Timer};
 use geom::{Distance, FindClosest, GPSBounds, HashablePt2D, LonLat, PolyLine, Polygon, Pt2D, Ring};
-use map_model::raw::RawMap;
+use map_model::raw::{OriginalRoad, RawMap};
 use map_model::{osm, raw, Amenity, MapConfig};
 use serde::{Deserialize, Serialize};
 
@@ -92,7 +92,7 @@ pub fn convert(
     }
 
     let extract = extract::extract_osm(&mut map, &osm_input_path, clip_path, &opts, timer);
-    let (amenities, crosswalks) = split_ways::split_up_roads(&mut map, extract, timer);
+    let (amenities, crosswalks, pt_to_road) = split_ways::split_up_roads(&mut map, extract, timer);
     clip::clip_map(&mut map, timer);
 
     // Need to do a first pass of removing cul-de-sacs here, or we wind up with loop PolyLines when
@@ -114,7 +114,7 @@ pub fn convert(
     }
 
     if opts.filter_crosswalks {
-        filter_crosswalks(&mut map, crosswalks, timer);
+        filter_crosswalks(&mut map, crosswalks, pt_to_road, timer);
     }
 
     map.config = opts.map_config;
@@ -165,25 +165,31 @@ fn add_extra_buildings(map: &mut RawMap, path: &str) -> Result<()> {
     Ok(())
 }
 
-fn filter_crosswalks(map: &mut RawMap, crosswalks: HashSet<HashablePt2D>, timer: &mut Timer) {
-    timer.start_iter("filter crosswalks", map.roads.len());
+fn filter_crosswalks(
+    map: &mut RawMap,
+    crosswalks: HashSet<HashablePt2D>,
+    pt_to_road: HashMap<HashablePt2D, OriginalRoad>,
+    timer: &mut Timer,
+) {
+    // Normally we assume every road has a crosswalk, but since this map is configured to use OSM
+    // crossing nodes, let's reverse that assumption.
     for road in map.roads.values_mut() {
-        timer.next();
-        // Normally we assume every road has a crosswalk, but since this map is configured to use
-        // OSM crossing nodes, let's reverse that assumption.
         road.crosswalk_forward = false;
         road.crosswalk_backward = false;
+    }
 
-        // TODO Support cul-de-sacs and other loop roads
-        if let Ok(pl) = PolyLine::new(road.center_points.clone()) {
-            // Crossing nodes are somewhere on the road center line, but not right at the endpoint. So
-            // just walk all the points in the road center line, and see if that node happens to be a
-            // crossing.
-            for pt in &road.center_points {
-                if crosswalks.contains(&pt.to_hashable()) {
-                    // Crossings aren't right at an intersection. Where is this point along the
-                    // center line?
-                    let (dist, _) = pl.dist_along_of_point(*pt).unwrap();
+    // Match each crosswalk node to a road
+    timer.start_iter("filter crosswalks", crosswalks.len());
+    for pt in crosswalks {
+        timer.next();
+        // Some crossing nodes are outside the map boundary or otherwise not on a road that we
+        // retained
+        if let Some(road) = pt_to_road.get(&pt).and_then(|r| map.roads.get_mut(r)) {
+            // TODO Support cul-de-sacs and other loop roads
+            if let Ok(pl) = PolyLine::new(road.center_points.clone()) {
+                // Crossings aren't right at an intersection. Where is this point along the center
+                // line?
+                if let Some((dist, _)) = pl.dist_along_of_point(pt.to_pt2d()) {
                     let pct = dist / pl.length();
                     // Don't throw away any crossings. If it occurs in the first half of the road,
                     // snap to the first intersection. If there's a mid-block crossing mapped,
@@ -194,6 +200,10 @@ fn filter_crosswalks(map: &mut RawMap, crosswalks: HashSet<HashablePt2D>, timer:
                     } else {
                         road.crosswalk_forward = true;
                     }
+
+                    // TODO Some crosswalks incorrectly snap to the intersection near a short
+                    // service road, which later gets trimmed. So the crosswalk effectively
+                    // disappears.
                 }
             }
         }

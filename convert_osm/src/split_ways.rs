@@ -7,12 +7,17 @@ use map_model::{osm, Amenity, Direction, IntersectionType};
 
 use crate::extract::OsmExtract;
 
-/// Returns amenities and a set of crosswalk locations.
+/// Returns amenities, a set of crosswalk locations, and a mapping of all points to the split road.
+/// (Some internal points on roads get removed in this call, so this mapping isn't redundant.)
 pub fn split_up_roads(
     map: &mut RawMap,
     mut input: OsmExtract,
     timer: &mut Timer,
-) -> (Vec<(Pt2D, Amenity)>, HashSet<HashablePt2D>) {
+) -> (
+    Vec<(Pt2D, Amenity)>,
+    HashSet<HashablePt2D>,
+    HashMap<HashablePt2D, OriginalRoad>,
+) {
     timer.start("splitting up roads");
 
     let mut roundabout_centers: HashMap<osm::NodeID, Pt2D> = HashMap::new();
@@ -223,7 +228,7 @@ pub fn split_up_roads(
     timer.stop("match traffic signals to intersections");
 
     timer.stop("splitting up roads");
-    (input.amenities, input.crosswalks)
+    (input.amenities, input.crosswalks, pt_to_road)
 }
 
 // TODO Consider doing this in PolyLine::new always. extend() there does this too.
