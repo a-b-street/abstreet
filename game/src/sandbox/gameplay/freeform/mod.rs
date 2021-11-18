@@ -335,7 +335,7 @@ impl SimpleState<App> for ChangeScenario {
     }
 }
 
-pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
+pub fn spawn_agents_around(app: &mut App, i: IntersectionID) {
     let map = &app.primary.map;
     let mut rng = app.primary.current_flags.sim_flags.make_rng();
     let mut scenario = Scenario::empty(map, "one-shot");
@@ -417,7 +417,7 @@ pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: &str) -> Trans
             Transition::Push(spawner::AgentSpawner::new_state(ctx, app, Some(b)))
         }
         (ID::Intersection(id), "spawn agents here") => {
-            spawn_agents_around(id, app);
+            spawn_agents_around(app, id);
             Transition::Keep
         }
         _ => unreachable!(),

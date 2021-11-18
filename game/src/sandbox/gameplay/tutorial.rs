@@ -1111,11 +1111,11 @@ impl TutorialState {
 
                     // And add some noise
                     spawn_agents_around(
+                        app,
                         app.primary
                             .map
                             .find_i_by_osm_id(osm::NodeID(1709145066))
                             .unwrap(),
-                        app,
                     );
                 }))
                 .msg(Message::new(Text::from(

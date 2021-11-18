@@ -298,6 +298,8 @@ impl TripSpec {
 #[derive(Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Debug, Clone, Copy)]
 pub enum TripEndpoint {
     Bldg(BuildingID),
+    // TODO Does this have to be a border intersection on the map, or can we treat any regular
+    // intersection as one?
     Border(IntersectionID),
     /// Used for interactive spawning, tests, etc. For now, only valid as a trip's start.
     SuddenlyAppear(Position),

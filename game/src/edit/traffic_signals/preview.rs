@@ -106,7 +106,7 @@ pub fn make_previewer(
                         );
                     }
 
-                    spawn_agents_around(i, app);
+                    spawn_agents_around(app, i);
                 }
             } else {
                 app.primary.sim = app.primary.suspended_sim.as_ref().unwrap().clone();

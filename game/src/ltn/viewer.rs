@@ -47,6 +47,11 @@ impl Viewer {
                 .text("Pathfind")
                 .hotkey(Key::P)
                 .build_def(ctx),
+            ctx.style()
+                .btn_outline
+                .text("Simulate traffic")
+                .hotkey(Key::T)
+                .build_def(ctx),
             Widget::row(vec![
                 "Draw traffic cells as".text_widget(ctx).centered_vert(),
                 Toggle::choice(ctx, "draw cells", "areas", "streets", Key::C, true),
@@ -101,6 +106,16 @@ impl State<App> for Viewer {
                     return Transition::ConsumeState(Box::new(|state, ctx, app| {
                         let state = state.downcast::<Viewer>().ok().unwrap();
                         vec![super::route::RoutePlanner::new_state(
+                            ctx,
+                            app,
+                            state.neighborhood,
+                        )]
+                    }));
+                }
+                "Simulate traffic" => {
+                    return Transition::ConsumeState(Box::new(|state, ctx, app| {
+                        let state = state.downcast::<Viewer>().ok().unwrap();
+                        vec![super::traffic_sim::TrafficSim::new_state(
                             ctx,
                             app,
                             state.neighborhood,
