@@ -38,6 +38,8 @@ pub struct Options {
     pub skip_local_roads: bool,
     /// Only include crosswalks that match a `highway=crossing` OSM node.
     pub filter_crosswalks: bool,
+    /// Configure public transit using this URL to a static GTFS feed in .zip format.
+    pub gtfs_url: Option<String>,
 }
 
 /// What roads will have on-street parking lanes? Data from

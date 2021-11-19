@@ -69,6 +69,7 @@ fn import_map(path: String) -> Map {
             extra_buildings: None,
             skip_local_roads: false,
             filter_crosswalks: false,
+            gtfs_url: None,
         },
         &mut timer,
     );

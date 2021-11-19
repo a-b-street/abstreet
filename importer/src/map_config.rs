@@ -70,5 +70,13 @@ pub fn config_for_map(name: &MapName) -> convert_osm::Options {
         extra_buildings,
         skip_local_roads: name == &MapName::new("us", "phoenix", "loop101"),
         filter_crosswalks: false,
+        // https://www.transit.land is a great place to find the static GTFS URLs
+        gtfs_url: if name.city == CityName::seattle() {
+            Some("http://metro.kingcounty.gov/GTFS/google_transit.zip".to_string())
+        } else if name.city == CityName::new("us", "san_francisco") {
+            Some("https://gtfs.sfmta.com/transitdata/google_transit.zip".to_string())
+        } else {
+            None
+        },
     }
 }

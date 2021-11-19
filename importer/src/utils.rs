@@ -1,7 +1,7 @@
 use std::path::Path;
 use std::process::Command;
 
-use abstio::MapName;
+use abstio::{CityName, MapName};
 use abstutil::{must_run_cmd, Timer};
 use map_model::raw::RawMap;
 use map_model::RawToMapOptions;
@@ -118,6 +118,14 @@ pub async fn osm_to_raw(
     timer: &mut abstutil::Timer<'_>,
     config: &ImporterConfiguration,
 ) -> RawMap {
+    if name.city == CityName::seattle() {
+        crate::seattle::input(config, timer).await;
+    }
+    let opts = crate::map_config::config_for_map(&name);
+    if let Some(ref url) = opts.gtfs_url {
+        download(config, name.city.input_path("gtfs/"), url).await;
+    }
+
     let boundary_polygon = format!(
         "importer/config/{}/{}/{}.poly",
         name.city.country, name.city.city, name.map
@@ -148,7 +156,7 @@ pub async fn osm_to_raw(
         name.city.input_path(format!("osm/{}.osm", name.map)),
         name.clone(),
         Some(boundary_polygon),
-        crate::map_config::config_for_map(&name),
+        opts,
         timer,
     );
     map.save();

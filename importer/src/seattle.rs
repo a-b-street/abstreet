@@ -114,7 +114,6 @@ pub async fn ensure_popdat_exists(
     }
 
     if !abstio::file_exists(abstio::path_raw_map(&huge_name)) {
-        input(config, timer).await;
         crate::utils::osm_to_raw(MapName::seattle("huge_seattle"), timer, config).await;
         *built_raw_huge_seattle = true;
     }

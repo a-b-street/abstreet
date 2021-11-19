@@ -122,6 +122,7 @@ pub fn oneshot(
             extra_buildings: None,
             skip_local_roads: false,
             filter_crosswalks,
+            gtfs_url: None,
         },
         &mut timer,
     );
@@ -208,10 +209,6 @@ impl Job {
         for name in names {
             timer.start(name.describe());
             if self.osm_to_raw {
-                if name.city == CityName::seattle() {
-                    seattle::input(&config, timer).await;
-                }
-
                 if !built_raw_huge_seattle || name != MapName::seattle("huge_seattle") {
                     let raw = utils::osm_to_raw(name.clone(), timer, &config).await;
 
