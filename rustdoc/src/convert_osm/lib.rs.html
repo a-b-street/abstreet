@@ -209,6 +209,8 @@
 <span id="209">209</span>
 <span id="210">210</span>
 <span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
 </pre><pre class="rust"><code><span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">anyhow</span>;
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
@@ -249,6 +251,8 @@
     <span class="kw">pub</span> <span class="ident">skip_local_roads</span>: <span class="ident">bool</span>,
     <span class="doccomment">/// Only include crosswalks that match a `highway=crossing` OSM node.</span>
     <span class="kw">pub</span> <span class="ident">filter_crosswalks</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// Configure public transit using this URL to a static GTFS feed in .zip format.</span>
+    <span class="kw">pub</span> <span class="ident">gtfs_url</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 }
 
 <span class="doccomment">/// What roads will have on-street parking lanes? Data from</span>

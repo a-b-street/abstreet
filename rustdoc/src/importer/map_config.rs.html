@@ -72,6 +72,14 @@
 <span id="72">72</span>
 <span id="73">73</span>
 <span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">abstio</span>::{<span class="ident">CityName</span>, <span class="ident">MapName</span>};
 <span class="kw">use</span> <span class="ident">geom::Distance</span>;
 <span class="kw">use</span> <span class="ident">map_model::DrivingSide</span>;
@@ -144,6 +152,14 @@
         <span class="ident">extra_buildings</span>,
         <span class="ident">skip_local_roads</span>: <span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">MapName::new</span>(<span class="string">&quot;us&quot;</span>, <span class="string">&quot;phoenix&quot;</span>, <span class="string">&quot;loop101&quot;</span>),
         <span class="ident">filter_crosswalks</span>: <span class="bool-val">false</span>,
+        <span class="comment">// https://www.transit.land is a great place to find the static GTFS URLs</span>
+        <span class="ident">gtfs_url</span>: <span class="kw">if</span> <span class="ident">name</span>.<span class="ident">city</span> <span class="op">=</span><span class="op">=</span> <span class="ident">CityName::seattle</span>() {
+            <span class="prelude-val">Some</span>(<span class="string">&quot;http://metro.kingcounty.gov/GTFS/google_transit.zip&quot;</span>.<span class="ident">to_string</span>())
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">name</span>.<span class="ident">city</span> <span class="op">=</span><span class="op">=</span> <span class="ident">CityName::new</span>(<span class="string">&quot;us&quot;</span>, <span class="string">&quot;san_francisco&quot;</span>) {
+            <span class="prelude-val">Some</span>(<span class="string">&quot;https://gtfs.sfmta.com/transitdata/google_transit.zip&quot;</span>.<span class="ident">to_string</span>())
+        } <span class="kw">else</span> {
+            <span class="prelude-val">None</span>
+        },
     }
 }
 </code></pre></div>
