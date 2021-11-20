@@ -1,3 +1,4 @@
+mod area_spawner;
 #[cfg(not(target_arch = "wasm32"))]
 mod importers;
 mod spawner;
@@ -84,6 +85,9 @@ impl GameplayState for Freeform {
                 "Start a new trip" => Some(Transition::Push(spawner::AgentSpawner::new_state(
                     ctx, app, None,
                 ))),
+                "Spawn area traffic" => {
+                    Some(Transition::Push(area_spawner::AreaSpawner::new_state(ctx)))
+                }
                 "Record trips as a scenario" => Some(Transition::Push(PromptInput::new_state(
                     ctx,
                     "Name this scenario",
@@ -146,6 +150,11 @@ impl GameplayState for Freeform {
                 ctx.style()
                     .btn_outline
                     .text("Start a new trip")
+                    .build_def(ctx),
+                ctx.style()
+                    .btn_outline
+                    .text("Spawn area traffic")
+                    .hotkey(Key::A)
                     .build_def(ctx),
                 ctx.style()
                     .btn_outline
