@@ -124,23 +124,16 @@ impl State<App> for Viewer {
             if app.session.modal_filters.roads.contains_key(&r) {
                 app.session.modal_filters.roads.remove(&r);
             } else {
+                // Place the filter on the part of the road that was clicked
                 let road = app.primary.map.get_r(r);
-                // If this road touches a border, place it closer to that intersection. If it's an
-                // inner neighborhood split, then stick to the middle of that road. If it touches
-                // two borders, also choose the middle.
-                let near_start = self.neighborhood.borders.contains(&road.src_i);
-                let near_end = self.neighborhood.borders.contains(&road.dst_i);
-                let pct_along = if near_start && !near_end {
-                    0.1
-                } else if near_end && !near_start {
-                    0.9
-                } else {
-                    0.5
-                };
-                app.session
-                    .modal_filters
-                    .roads
-                    .insert(r, pct_along * road.length());
+                // These calls shouldn't fail -- since we clicked a road, the cursor must be in
+                // map-space. And project_pt returns a point that's guaranteed to be on the
+                // polyline.
+                let cursor_pt = ctx.canvas.get_cursor_in_map_space().unwrap();
+                let pt_on_line = road.center_pts.project_pt(cursor_pt);
+                let (distance, _) = road.center_pts.dist_along_of_point(pt_on_line).unwrap();
+
+                app.session.modal_filters.roads.insert(r, distance);
             }
             // TODO The cell coloring changes quite spuriously just by toggling a filter, even
             // when it doesn't matter
