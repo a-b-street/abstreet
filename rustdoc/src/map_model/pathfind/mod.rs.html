@@ -212,6 +212,12 @@
 <span id="212">212</span>
 <span id="213">213</span>
 <span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Everything related to pathfinding through a map for different types of agents.</span>
 
 <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
@@ -392,6 +398,10 @@
     <span class="comment">// If the road is `high_stress_for_bikes`, multiply by the base cost.</span>
     <span class="kw">pub</span> <span class="ident">avoid_high_stress</span>: <span class="ident">f64</span>,
 
+    <span class="comment">// How much to avoid main roads</span>
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>, <span class="ident">skip_deserializing</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">main_road_penalty</span>: <span class="ident">f64</span>,
+
     <span class="doccomment">/// Don&#39;t cross these roads unless absolutely necessary to reach the destination. Only affects</span>
     <span class="doccomment">/// vehicle routing, not pedestrian.</span>
     <span class="comment">// TODO Include in serde during the next full map importing</span>
@@ -412,6 +422,8 @@
 
             <span class="ident">avoid_steep_incline_penalty</span>: <span class="number">1.0</span>,
             <span class="ident">avoid_high_stress</span>: <span class="number">1.0</span>,
+
+            <span class="ident">main_road_penalty</span>: <span class="number">1.0</span>,
 
             <span class="ident">avoid_roads</span>: <span class="ident">BTreeSet::new</span>(),
         }

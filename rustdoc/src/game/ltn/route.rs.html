@@ -243,13 +243,36 @@
 <span id="243">243</span>
 <span id="244">244</span>
 <span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Polygon</span>};
 <span class="kw">use</span> <span class="ident">map_model::NORMAL_LANE_THICKNESS</span>;
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>};
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ObjectID</span>, <span class="ident">ToggleZoomed</span>, <span class="ident">World</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>,
-    <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RoundedF64</span>, <span class="ident">Spinner</span>,
+    <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::Neighborhood</span>;
@@ -289,12 +312,16 @@
     }
 
     <span class="kw">fn</span> <span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_outline</span>
                 .<span class="ident">text</span>(<span class="string">&quot;Back to editing modal filters&quot;</span>)
                 .<span class="ident">hotkey</span>(<span class="ident">Key::Escape</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+                <span class="ident">Line</span>(<span class="string">&quot;Main Road Penalty&quot;</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+                <span class="ident">Spinner::f64_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;main road penalty&quot;</span>, (<span class="number">1.0</span>, <span class="number">10.0</span>), <span class="number">1.0</span>, <span class="number">0.5</span>),
+            ]),
             <span class="ident">Line</span>(<span class="string">&quot;Warning: Time estimates assume freeflow conditions (no traffic)&quot;</span>)
                 .<span class="ident">fg</span>(<span class="ident">Color::RED</span>)
                 .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
@@ -304,6 +331,9 @@
         <span class="comment">// Hovering on waypoint cards</span>
         .<span class="ident">ignore_initial_events</span>()
         .<span class="ident">build</span>(<span class="ident">ctx</span>);
+
+        <span class="ident">new</span>.<span class="ident">restore</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>);
+        <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">new</span>;
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">world</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">calculate_paths</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
         <span class="self">self</span>.<span class="ident">waypoints</span>
@@ -323,6 +353,7 @@
             <span class="ident">params</span>
                 .<span class="ident">avoid_roads</span>
                 .<span class="ident">extend</span>(<span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">roads</span>.<span class="ident">keys</span>().<span class="ident">cloned</span>());
+            <span class="ident">params</span>.<span class="ident">main_road_penalty</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">spinner</span>::<span class="op">&lt;</span><span class="ident">RoundedF64</span><span class="op">&gt;</span>(<span class="string">&quot;main road penalty&quot;</span>).<span class="number">0</span>;
             <span class="kw">let</span> <span class="ident">cache_custom</span> <span class="op">=</span> <span class="bool-val">true</span>;
 
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw_route</span> <span class="op">=</span> <span class="ident">ToggleZoomed::builder</span>();
@@ -373,10 +404,13 @@
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hitbox_pieces</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_time</span> <span class="op">=</span> <span class="ident">Duration::ZERO</span>;
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_dist</span> <span class="op">=</span> <span class="ident">Distance::ZERO</span>;
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">routing_params</span>().<span class="ident">clone</span>();
+            <span class="ident">params</span>.<span class="ident">main_road_penalty</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">spinner</span>::<span class="op">&lt;</span><span class="ident">RoundedF64</span><span class="op">&gt;</span>(<span class="string">&quot;main road penalty&quot;</span>).<span class="number">0</span>;
+            <span class="kw">let</span> <span class="ident">cache_custom</span> <span class="op">=</span> <span class="bool-val">true</span>;
             <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>().<span class="ident">windows</span>(<span class="number">2</span>) {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">path</span>, <span class="ident">pl</span>)) <span class="op">=</span>
                     <span class="ident">TripEndpoint::path_req</span>(<span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>], <span class="ident">TripMode::Drive</span>, <span class="ident">map</span>)
-                        .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>).<span class="ident">ok</span>())
+                        .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">pathfind_with_params</span>(<span class="ident">req</span>, <span class="kw-2">&amp;</span><span class="ident">params</span>, <span class="ident">cache_custom</span>).<span class="ident">ok</span>())
                         .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> <span class="ident">path</span>.<span class="ident">trace</span>(<span class="ident">map</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">pl</span><span class="op">|</span> (<span class="ident">path</span>, <span class="ident">pl</span>)))
                 {
                     <span class="kw">let</span> <span class="ident">shape</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">make_polygons</span>(<span class="number">5.0</span> <span class="op">*</span> <span class="ident">NORMAL_LANE_THICKNESS</span>);
@@ -463,6 +497,18 @@
                         <span class="ident">state</span>.<span class="ident">neighborhood</span>,
                     )]
                 }));
+            }
+        }
+
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Changed</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) <span class="op">=</span> <span class="ident">panel_outcome</span> {
+            <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;main road penalty&quot;</span> {
+                <span class="comment">// Recompute paths</span>
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">world</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">calculate_paths</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                <span class="self">self</span>.<span class="ident">waypoints</span>
+                    .<span class="ident">rebuild_world</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">world</span>, <span class="ident">ID::Waypoint</span>, <span class="number">2</span>);
+                <span class="ident">world</span>.<span class="ident">initialize_hover</span>(<span class="ident">ctx</span>);
+                <span class="ident">world</span>.<span class="ident">rebuilt_during_drag</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">world</span>);
+                <span class="self">self</span>.<span class="ident">world</span> <span class="op">=</span> <span class="ident">world</span>;
             }
         }
 

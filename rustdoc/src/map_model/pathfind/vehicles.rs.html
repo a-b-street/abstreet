@@ -351,6 +351,14 @@
 <span id="351">351</span>
 <span id="352">352</span>
 <span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Pathfinding for cars, bikes, buses, and trains using contraction hierarchies</span>
 
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
@@ -367,8 +375,8 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pathfind::zone_cost</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pathfind</span>::{<span class="ident">round</span>, <span class="ident">unround</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">MovementID</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">PathV2</span>,
-    <span class="ident">Position</span>, <span class="ident">RoutingParams</span>, <span class="ident">Traversable</span>,
+    <span class="ident">osm</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">MovementID</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>,
+    <span class="ident">PathV2</span>, <span class="ident">Position</span>, <span class="ident">RoutingParams</span>, <span class="ident">Traversable</span>,
 };
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
@@ -636,6 +644,7 @@
     };
     <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">dr</span>.<span class="ident">road</span>).<span class="ident">length</span>()
         <span class="op">/</span> <span class="ident">Traversable::max_speed_along_road</span>(<span class="ident">dr</span>, <span class="ident">max_speed</span>, <span class="ident">constraints</span>, <span class="ident">map</span>).<span class="number">0</span>;
+
     <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="ident">movement</span>.<span class="ident">geom</span>.<span class="ident">length</span>()
         <span class="op">/</span> <span class="ident">Traversable::max_speed_along_movement</span>(<span class="ident">mvmnt</span>, <span class="ident">max_speed</span>, <span class="ident">constraints</span>, <span class="ident">map</span>);
 
@@ -644,7 +653,6 @@
         <span class="ident">PathConstraints::Bike</span> <span class="op">=</span><span class="op">&gt;</span> {
             <span class="comment">// TODO If we&#39;re on a driving lane, higher speed limit is worse.</span>
             <span class="comment">// TODO Bike lanes next to parking is dangerous.</span>
-
             <span class="comment">// TODO Prefer bike lanes, then bus lanes, then driving lanes. For now, express that by</span>
             <span class="comment">// multiplying the base cost.</span>
             <span class="kw">let</span> <span class="ident">lt_penalty</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">dr</span>.<span class="ident">has_lanes</span>(<span class="ident">LaneType::Biking</span>, <span class="ident">map</span>) {
@@ -695,6 +703,14 @@
     <span class="comment">// Penalize unprotected turns at a stop sign from smaller to larger roads.</span>
     <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">is_unprotected_turn</span>(<span class="ident">dr</span>.<span class="ident">road</span>, <span class="ident">mvmnt</span>.<span class="ident">to</span>.<span class="ident">road</span>, <span class="ident">movement</span>.<span class="ident">turn_type</span>) {
         <span class="ident">extra</span> <span class="op">+</span><span class="op">=</span> <span class="ident">params</span>.<span class="ident">unprotected_turn_penalty</span>
+    }
+
+    <span class="comment">// Slowdown factor, how much slower the traffic is compared to the</span>
+    <span class="comment">// original estimate.</span>
+    <span class="kw">if</span> (<span class="ident">params</span>.<span class="ident">main_road_penalty</span> <span class="op">-</span> <span class="number">1.0</span>).<span class="ident">abs</span>() <span class="op">&gt;</span> <span class="ident">f64::EPSILON</span> {
+        <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">dr</span>.<span class="ident">road</span>).<span class="ident">get_rank</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">osm::RoadRank::Local</span> {
+            <span class="ident">multiplier</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">params</span>.<span class="ident">main_road_penalty</span>;
+        }
     }
 
     <span class="kw">if</span> <span class="ident">params</span>.<span class="ident">avoid_roads</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">dr</span>.<span class="ident">road</span>) {
