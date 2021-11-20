@@ -12,7 +12,7 @@ use crate::pathfind::vehicles::VehiclePathfinder;
 use crate::pathfind::walking::SidewalkPathfinder;
 use crate::{
     BusRouteID, BusStopID, DirectedRoadID, Map, PathConstraints, PathRequest, PathV2, Position,
-    RoutingParams, 
+    RoutingParams,
 };
 
 #[derive(Serialize, Deserialize)]

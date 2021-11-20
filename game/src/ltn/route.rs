@@ -3,8 +3,8 @@ use map_model::NORMAL_LANE_THICKNESS;
 use sim::{TripEndpoint, TripMode};
 use widgetry::mapspace::{ObjectID, ToggleZoomed, World};
 use widgetry::{
-    Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, Text,
-    VerticalAlignment, Widget, RoundedF64, Spinner,
+    Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, RoundedF64, Spinner,
+    State, Text, VerticalAlignment, Widget,
 };
 
 use super::Neighborhood;
@@ -51,15 +51,8 @@ impl RoutePlanner {
                 .hotkey(Key::Escape)
                 .build_def(ctx),
             Widget::row(vec![
-                Line("Main Road Penalty")
-                    .into_widget(ctx),
-                Spinner::f64_widget(
-                    ctx,
-                    "main road penalty",
-                    (1.0, 10.0),
-                    1.0,
-                    0.5,
-                ),
+                Line("Main Road Penalty").into_widget(ctx),
+                Spinner::f64_widget(ctx, "main road penalty", (1.0, 10.0), 1.0, 0.5),
             ]),
             Line("Warning: Time estimates assume freeflow conditions (no traffic)")
                 .fg(Color::RED)
@@ -241,7 +234,7 @@ impl State<App> for RoutePlanner {
 
         if let Outcome::Changed(ref x) = panel_outcome {
             if x == "main road penalty" {
-                // Recompute paths 
+                // Recompute paths
                 let mut world = self.calculate_paths(ctx, app);
                 self.waypoints
                     .rebuild_world(ctx, &mut world, ID::Waypoint, 2);

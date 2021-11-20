@@ -14,8 +14,8 @@ use crate::pathfind::uber_turns::{IntersectionCluster, UberTurnV2};
 use crate::pathfind::zone_cost;
 use crate::pathfind::{round, unround};
 use crate::{
-    DirectedRoadID, Direction, LaneType, Map, MovementID, PathConstraints, PathRequest, PathV2,
-    Position, RoutingParams, Traversable, osm
+    osm, DirectedRoadID, Direction, LaneType, Map, MovementID, PathConstraints, PathRequest,
+    PathV2, Position, RoutingParams, Traversable,
 };
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -345,8 +345,8 @@ pub fn vehicle_cost(
     }
 
     // Slowdown factor, how much slower the traffic is compared to the
-    // original estimate. 
-    if params.main_road_penalty > f64::EPSILON {
+    // original estimate.
+    if (params.main_road_penalty - 1.0).abs() > f64::EPSILON {
         if map.get_r(dr.road).get_rank() != osm::RoadRank::Local {
             multiplier *= params.main_road_penalty;
         }

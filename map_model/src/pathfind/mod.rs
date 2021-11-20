@@ -202,7 +202,7 @@ impl Default for RoutingParams {
 
             avoid_steep_incline_penalty: 1.0,
             avoid_high_stress: 1.0,
-            
+
             main_road_penalty: 0.0,
 
             avoid_roads: BTreeSet::new(),
