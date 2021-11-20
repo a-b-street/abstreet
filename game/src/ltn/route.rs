@@ -4,7 +4,7 @@ use sim::{TripEndpoint, TripMode};
 use widgetry::mapspace::{ObjectID, ToggleZoomed, World};
 use widgetry::{
     Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, Text,
-    VerticalAlignment, Widget,
+    VerticalAlignment, Widget, RoundedF64, Spinner,
 };
 
 use super::Neighborhood;
@@ -44,12 +44,23 @@ impl RoutePlanner {
     }
 
     fn update(&mut self, ctx: &mut EventCtx, app: &App) {
-        self.panel = Panel::new_builder(Widget::col(vec![
+        let new = Panel::new_builder(Widget::col(vec![
             ctx.style()
                 .btn_outline
                 .text("Back to editing modal filters")
                 .hotkey(Key::Escape)
                 .build_def(ctx),
+            Widget::row(vec![
+                Line("Main Road Penalty")
+                    .into_widget(ctx),
+                Spinner::f64_widget(
+                    ctx,
+                    "main road penalty",
+                    (0.5, 10.0),
+                    1.0,
+                    0.5,
+                ),
+            ]),
             Line("Warning: Time estimates assume freeflow conditions (no traffic)")
                 .fg(Color::RED)
                 .into_widget(ctx),
@@ -59,6 +70,9 @@ impl RoutePlanner {
         // Hovering on waypoint cards
         .ignore_initial_events()
         .build(ctx);
+
+        new.restore(ctx, &self.panel);
+        self.panel = new;
 
         let mut world = self.calculate_paths(ctx, app);
         self.waypoints
@@ -78,6 +92,7 @@ impl RoutePlanner {
             params
                 .avoid_roads
                 .extend(app.session.modal_filters.roads.keys().cloned());
+            params.main_road_penalty = self.panel.spinner::<RoundedF64>("main road penalty").0;
             let cache_custom = true;
 
             let mut draw_route = ToggleZoomed::builder();
@@ -128,10 +143,13 @@ impl RoutePlanner {
             let mut hitbox_pieces = Vec::new();
             let mut total_time = Duration::ZERO;
             let mut total_dist = Distance::ZERO;
+            let mut params = map.routing_params().clone();
+            params.main_road_penalty = self.panel.spinner::<RoundedF64>("main road penalty").0;
+            let cache_custom = true;
             for pair in self.waypoints.get_waypoints().windows(2) {
                 if let Some((path, pl)) =
                     TripEndpoint::path_req(pair[0], pair[1], TripMode::Drive, map)
-                        .and_then(|req| map.pathfind(req).ok())
+                        .and_then(|req| map.pathfind_with_params(req, &params, cache_custom).ok())
                         .and_then(|path| path.trace(map).map(|pl| (path, pl)))
                 {
                     let shape = pl.make_polygons(5.0 * NORMAL_LANE_THICKNESS);
@@ -218,6 +236,18 @@ impl State<App> for RoutePlanner {
                         state.neighborhood,
                     )]
                 }));
+            }
+        }
+
+        if let Outcome::Changed(ref x) = panel_outcome {
+            if x == "main road penalty" {
+                // Recompute paths 
+                let mut world = self.calculate_paths(ctx, app);
+                self.waypoints
+                    .rebuild_world(ctx, &mut world, ID::Waypoint, 2);
+                world.initialize_hover(ctx);
+                world.rebuilt_during_drag(&self.world);
+                self.world = world;
             }
         }
 
