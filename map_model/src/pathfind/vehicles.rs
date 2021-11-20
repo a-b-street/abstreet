@@ -14,8 +14,8 @@ use crate::pathfind::uber_turns::{IntersectionCluster, UberTurnV2};
 use crate::pathfind::zone_cost;
 use crate::pathfind::{round, unround};
 use crate::{
-    DirectedRoadID, Direction, LaneType, Map, MovementID, PathConstraints, PathRequest, PathV2,
-    Position, RoutingParams, Traversable,
+    osm, DirectedRoadID, Direction, LaneType, Map, MovementID, PathConstraints, PathRequest,
+    PathV2, Position, RoutingParams, Traversable,
 };
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -283,6 +283,7 @@ pub fn vehicle_cost(
     };
     let t1 = map.get_r(dr.road).length()
         / Traversable::max_speed_along_road(dr, max_speed, constraints, map).0;
+
     let t2 = movement.geom.length()
         / Traversable::max_speed_along_movement(mvmnt, max_speed, constraints, map);
 
@@ -291,7 +292,6 @@ pub fn vehicle_cost(
         PathConstraints::Bike => {
             // TODO If we're on a driving lane, higher speed limit is worse.
             // TODO Bike lanes next to parking is dangerous.
-
             // TODO Prefer bike lanes, then bus lanes, then driving lanes. For now, express that by
             // multiplying the base cost.
             let lt_penalty = if dr.has_lanes(LaneType::Biking, map) {
@@ -342,6 +342,14 @@ pub fn vehicle_cost(
     // Penalize unprotected turns at a stop sign from smaller to larger roads.
     if map.is_unprotected_turn(dr.road, mvmnt.to.road, movement.turn_type) {
         extra += params.unprotected_turn_penalty
+    }
+
+    // Slowdown factor, how much slower the traffic is compared to the
+    // original estimate.
+    if (params.main_road_penalty - 1.0).abs() > f64::EPSILON {
+        if map.get_r(dr.road).get_rank() != osm::RoadRank::Local {
+            multiplier *= params.main_road_penalty;
+        }
     }
 
     if params.avoid_roads.contains(&dr.road) {

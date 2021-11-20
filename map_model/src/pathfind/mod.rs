@@ -178,6 +178,10 @@ pub struct RoutingParams {
     // If the road is `high_stress_for_bikes`, multiply by the base cost.
     pub avoid_high_stress: f64,
 
+    // How much to avoid main roads
+    #[serde(skip_serializing, skip_deserializing)]
+    pub main_road_penalty: f64,
+
     /// Don't cross these roads unless absolutely necessary to reach the destination. Only affects
     /// vehicle routing, not pedestrian.
     // TODO Include in serde during the next full map importing
@@ -198,6 +202,8 @@ impl Default for RoutingParams {
 
             avoid_steep_incline_penalty: 1.0,
             avoid_high_stress: 1.0,
+
+            main_road_penalty: 1.0,
 
             avoid_roads: BTreeSet::new(),
         }
