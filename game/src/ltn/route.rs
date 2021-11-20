@@ -44,7 +44,7 @@ impl RoutePlanner {
     }
 
     fn update(&mut self, ctx: &mut EventCtx, app: &App) {
-        let new = Panel::new_builder(Widget::col(vec![
+        let mut new = Panel::new_builder(Widget::col(vec![
             ctx.style()
                 .btn_outline
                 .text("Back to editing modal filters")
@@ -56,7 +56,7 @@ impl RoutePlanner {
                 Spinner::f64_widget(
                     ctx,
                     "main road penalty",
-                    (0.5, 10.0),
+                    (1.0, 10.0),
                     1.0,
                     0.5,
                 ),
