@@ -274,6 +274,15 @@ impl<T: 'static + SpinnerValue> WidgetImpl for Spinner<T> {
         self.up.draw(g);
         self.down.draw(g);
     }
+
+    fn can_restore(&self) -> bool {
+        true
+    }
+    fn restore(&mut self, ctx: &mut EventCtx, prev: &dyn WidgetImpl) {
+        let prev = prev.downcast_ref::<Spinner<T>>().unwrap();
+        self.current = prev.current;
+        self.drawable = self.drawable(ctx.prerender, ctx.style());
+    }
 }
 
 /// An f64 rounded to 4 decimal places. Useful with Spinners, to avoid values accumulating small
