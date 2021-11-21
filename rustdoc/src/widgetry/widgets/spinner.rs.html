@@ -333,6 +333,15 @@
 <span id="333">333</span>
 <span id="334">334</span>
 <span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::ops</span>;
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">trim_f64</span>, <span class="ident">CornerRadii</span>, <span class="ident">Distance</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
@@ -608,6 +617,15 @@
 
         <span class="self">self</span>.<span class="ident">up</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="self">self</span>.<span class="ident">down</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+    }
+
+    <span class="kw">fn</span> <span class="ident">can_restore</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="bool-val">true</span>
+    }
+    <span class="kw">fn</span> <span class="ident">restore</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">prev</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">WidgetImpl</span>) {
+        <span class="kw">let</span> <span class="ident">prev</span> <span class="op">=</span> <span class="ident">prev</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">Spinner</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
+        <span class="self">self</span>.<span class="ident">current</span> <span class="op">=</span> <span class="ident">prev</span>.<span class="ident">current</span>;
+        <span class="self">self</span>.<span class="ident">drawable</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">drawable</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>, <span class="ident">ctx</span>.<span class="ident">style</span>());
     }
 }
 
