@@ -151,11 +151,11 @@ impl GameplayState for Freeform {
                     .btn_outline
                     .text("Start a new trip")
                     .build_def(ctx),
-                ctx.style()
-                    .btn_outline
-                    .text("Spawn area traffic")
-                    .hotkey(Key::A)
-                    .build_def(ctx),
+                /*ctx.style()
+                .btn_outline
+                .text("Spawn area traffic")
+                .hotkey(Key::A)
+                .build_def(ctx),*/
                 ctx.style()
                     .btn_outline
                     .text("Record trips as a scenario")

@@ -142,8 +142,8 @@ impl State<App> for AreaSpawner {
                     self.panel.replace(ctx, "instructions", label);
                 }
             }
-            Mode::PickingDestination { source } => {
-                if let WorldOutcome::ClickedObject(Obj(destination)) = self.world.event(ctx) {
+            Mode::PickingDestination { .. } => {
+                if let WorldOutcome::ClickedObject(Obj(_destination)) = self.world.event(ctx) {
                     // TODO Enter a new state to specify the traffic params
                     self.mode = Mode::Neutral;
                     self.rebuild_world(ctx, app);

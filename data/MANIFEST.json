@@ -2150,6 +2150,61 @@
       "uncompressed_size_bytes": 4879368,
       "compressed_size_bytes": 1337344
     },
+    "data/input/us/san_francisco/gtfs/SFMTA_Transit_Data_License_Agreement.txt": {
+      "checksum": "96f920e0467e75006ed3d7a7b2dddbea",
+      "uncompressed_size_bytes": 7512,
+      "compressed_size_bytes": 2667
+    },
+    "data/input/us/san_francisco/gtfs/agency.txt": {
+      "checksum": "1ad8c654dacce4892888b0f3e2b85b17",
+      "uncompressed_size_bytes": 156,
+      "compressed_size_bytes": 136
+    },
+    "data/input/us/san_francisco/gtfs/calendar.txt": {
+      "checksum": "473cabb87e9977b95a4968f9174c52ee",
+      "uncompressed_size_bytes": 192,
+      "compressed_size_bytes": 116
+    },
+    "data/input/us/san_francisco/gtfs/calendar_dates.txt": {
+      "checksum": "8409de4a6218f2643e51822f12aac244",
+      "uncompressed_size_bytes": 142,
+      "compressed_size_bytes": 99
+    },
+    "data/input/us/san_francisco/gtfs/fare_attributes.txt": {
+      "checksum": "ebca9f3336c000ee2f46a61c3c7c83a6",
+      "uncompressed_size_bytes": 109,
+      "compressed_size_bytes": 108
+    },
+    "data/input/us/san_francisco/gtfs/fare_rules.txt": {
+      "checksum": "84afd7cbd69e2d271533a7aeea7a46fc",
+      "uncompressed_size_bytes": 938,
+      "compressed_size_bytes": 214
+    },
+    "data/input/us/san_francisco/gtfs/routes.txt": {
+      "checksum": "ee98d2628665630c723ea3be9612f700",
+      "uncompressed_size_bytes": 4265,
+      "compressed_size_bytes": 1044
+    },
+    "data/input/us/san_francisco/gtfs/shapes.txt": {
+      "checksum": "be10c470083290b84b7a4b9f1cec1400",
+      "uncompressed_size_bytes": 4279220,
+      "compressed_size_bytes": 824173
+    },
+    "data/input/us/san_francisco/gtfs/stop_times.txt": {
+      "checksum": "f575e7b5c5cde706cf634b5bcc5d5338",
+      "uncompressed_size_bytes": 42075453,
+      "compressed_size_bytes": 6395005
+    },
+    "data/input/us/san_francisco/gtfs/stops.txt": {
+      "checksum": "fb5c8465a9507f11028cd5e22a6e0f24",
+      "uncompressed_size_bytes": 203817,
+      "compressed_size_bytes": 53318
+    },
+    "data/input/us/san_francisco/gtfs/trips.txt": {
+      "checksum": "ddac619d5f8a89e75a43171a9252d2a0",
+      "uncompressed_size_bytes": 1182100,
+      "compressed_size_bytes": 94716
+    },
     "data/input/us/san_francisco/osm/downtown.osm": {
       "checksum": "0b317f826a053e7d6ccdf72a87b28dc6",
       "uncompressed_size_bytes": 118913492,
@@ -2189,6 +2244,56 @@
       "checksum": "fa4a8848172216fc5a1e74dd21c8821f",
       "uncompressed_size_bytes": 7024402,
       "compressed_size_bytes": 1896658
+    },
+    "data/input/us/seattle/gtfs/agency.txt": {
+      "checksum": "b300820bd6f0b2559f63fb4476d101e2",
+      "uncompressed_size_bytes": 591,
+      "compressed_size_bytes": 296
+    },
+    "data/input/us/seattle/gtfs/calendar.txt": {
+      "checksum": "5b3ea8a004013e0b965fc39cdaefac63",
+      "uncompressed_size_bytes": 848,
+      "compressed_size_bytes": 240
+    },
+    "data/input/us/seattle/gtfs/calendar_dates.txt": {
+      "checksum": "2b6563f04a174d77db67dfcc2d7aaf1d",
+      "uncompressed_size_bytes": 15722,
+      "compressed_size_bytes": 2491
+    },
+    "data/input/us/seattle/gtfs/fare_attributes.txt": {
+      "checksum": "4c75d5ef54d576be4a09c5ed00f708af",
+      "uncompressed_size_bytes": 596,
+      "compressed_size_bytes": 276
+    },
+    "data/input/us/seattle/gtfs/fare_rules.txt": {
+      "checksum": "4f4366d901a3fe6181c620cc9330be05",
+      "uncompressed_size_bytes": 5188,
+      "compressed_size_bytes": 838
+    },
+    "data/input/us/seattle/gtfs/routes.txt": {
+      "checksum": "bb0ae0b17de3ec052718e33e33f1ec36",
+      "uncompressed_size_bytes": 19057,
+      "compressed_size_bytes": 3634
+    },
+    "data/input/us/seattle/gtfs/shapes.txt": {
+      "checksum": "749fe199071c5a3a6e5d3f0946765940",
+      "uncompressed_size_bytes": 8937000,
+      "compressed_size_bytes": 2244511
+    },
+    "data/input/us/seattle/gtfs/stop_times.txt": {
+      "checksum": "23a7af647c5a06fa86ccee688bd2883d",
+      "uncompressed_size_bytes": 57316630,
+      "compressed_size_bytes": 7771318
+    },
+    "data/input/us/seattle/gtfs/stops.txt": {
+      "checksum": "d93bf0468e7c102ffbae67c4e2db192c",
+      "uncompressed_size_bytes": 627347,
+      "compressed_size_bytes": 125201
+    },
+    "data/input/us/seattle/gtfs/trips.txt": {
+      "checksum": "22e22ac2268341f01fdb22add44d2235",
+      "uncompressed_size_bytes": 2192939,
+      "compressed_size_bytes": 107321
     },
     "data/input/us/seattle/land_use.bin": {
       "checksum": "9e55954d634e46cd0ea622f266b47438",
