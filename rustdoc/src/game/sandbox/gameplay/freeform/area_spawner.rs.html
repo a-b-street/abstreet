@@ -381,8 +381,8 @@
                     <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;instructions&quot;</span>, <span class="ident">label</span>);
                 }
             }
-            <span class="ident">Mode::PickingDestination</span> { <span class="ident">source</span> } <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">WorldOutcome::ClickedObject</span>(<span class="ident">Obj</span>(<span class="ident">destination</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+            <span class="ident">Mode::PickingDestination</span> { .. } <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">WorldOutcome::ClickedObject</span>(<span class="ident">Obj</span>(<span class="ident">_destination</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
                     <span class="comment">// TODO Enter a new state to specify the traffic params</span>
                     <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::Neutral</span>;
                     <span class="self">self</span>.<span class="ident">rebuild_world</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
