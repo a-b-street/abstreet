@@ -1,6 +1,6 @@
 use std::collections::{BTreeMap, BTreeSet};
 
-use geom::{Circle, Distance, Line, Polygon};
+use geom::{Circle, Distance, Line, PolyLine, Polygon};
 use map_gui::tools::DrawRoadLabels;
 use map_model::{IntersectionID, Map, Perimeter, RoadID};
 use widgetry::{Color, Drawable, EventCtx, GeomBatch};
@@ -21,6 +21,7 @@ pub struct Neighborhood {
     orig_perimeter: Perimeter,
     perimeter: BTreeSet<RoadID>,
     borders: BTreeSet<IntersectionID>,
+    interior_intersections: BTreeSet<IntersectionID>,
 
     // The cells change as a result of modal filters, which're stored for all neighborhoods in
     // app.session.
@@ -35,6 +36,24 @@ pub struct Neighborhood {
 pub struct ModalFilters {
     /// For filters placed along a road, where is the filter located?
     pub roads: BTreeMap<RoadID, Distance>,
+    pub intersections: BTreeMap<IntersectionID, DiagonalFilter>,
+}
+
+/// A diagonal filter exists in an intersection. It's defined by two roads (the order is
+/// arbitrary). When all of the intersection's roads are sorted in clockwise order, this pair of
+/// roads splits the ordering into two groups. Turns in each group are still possible, but not
+/// across groups.
+///
+/// TODO Be careful with PartialEq! At a 4-way intersection, the same filter can be expressed as a
+/// different pair of two roads. And the (r1, r2) ordering is also arbitrary.
+#[derive(Clone, PartialEq)]
+pub struct DiagonalFilter {
+    r1: RoadID,
+    r2: RoadID,
+    i: IntersectionID,
+
+    group1: BTreeSet<RoadID>,
+    group2: BTreeSet<RoadID>,
 }
 
 /// A partitioning of the interior of a neighborhood based on driving connectivity
@@ -59,6 +78,7 @@ impl Neighborhood {
             orig_perimeter,
             perimeter: BTreeSet::new(),
             borders: BTreeSet::new(),
+            interior_intersections: BTreeSet::new(),
 
             cells: Vec::new(),
 
@@ -97,6 +117,15 @@ impl Neighborhood {
         );
         n.fade_irrelevant = GeomBatch::from(vec![(app.cs.fade_map_dark, fade_area)]).upload(ctx);
 
+        for r in &n.orig_perimeter.interior {
+            let road = map.get_r(*r);
+            for i in [road.src_i, road.dst_i] {
+                if !n.borders.contains(&i) {
+                    n.interior_intersections.insert(i);
+                }
+            }
+        }
+
         n.cells = find_cells(
             map,
             &n.orig_perimeter,
@@ -121,6 +150,12 @@ impl Neighborhood {
                 .make_polygons(Distance::meters(7.0));
                 batch.push(Color::WHITE, barrier.clone());
             }
+        }
+        for filter in app.session.modal_filters.intersections.values() {
+            batch.push(
+                Color::RED,
+                filter.geometry(app).make_polygons(Distance::meters(3.0)),
+            );
         }
         n.draw_filters = batch.upload(ctx);
 
@@ -216,6 +251,11 @@ fn floodfill(
                 if !perimeter.interior.contains(next) {
                     continue;
                 }
+                if let Some(filter) = modal_filters.intersections.get(&i) {
+                    if !filter.allows_turn(current.id, *next) {
+                        continue;
+                    }
+                }
                 if let Some(filter_dist) = modal_filters.roads.get(next) {
                     // Which end of the filtered road have we reached?
                     let next_road = map.get_r(*next);
@@ -242,5 +282,89 @@ fn floodfill(
 
     Cell {
         roads: visited_roads,
+    }
+}
+
+impl DiagonalFilter {
+    /// Find all possible diagonal filters at an intersection
+    fn filters_for(app: &App, i: IntersectionID) -> Vec<DiagonalFilter> {
+        let map = &app.primary.map;
+        let roads = map.get_i(i).get_roads_sorted_by_incoming_angle(map);
+        // TODO Handle >4-ways
+        if roads.len() != 4 {
+            return Vec::new();
+        }
+
+        vec![
+            DiagonalFilter::new(map, i, roads[0], roads[1]),
+            DiagonalFilter::new(map, i, roads[1], roads[2]),
+        ]
+    }
+
+    fn new(map: &Map, i: IntersectionID, r1: RoadID, r2: RoadID) -> DiagonalFilter {
+        let mut roads = map.get_i(i).get_roads_sorted_by_incoming_angle(map);
+        // Make self.r1 be the first entry
+        while roads[0] != r1 {
+            roads.rotate_right(1);
+        }
+
+        let mut group1 = BTreeSet::new();
+        group1.insert(roads.remove(0));
+        loop {
+            let next = roads.remove(0);
+            group1.insert(next);
+            if next == r2 {
+                break;
+            }
+        }
+        // This is only true for 4-ways...
+        assert_eq!(group1.len(), 2);
+        assert_eq!(roads.len(), 2);
+
+        DiagonalFilter {
+            r1,
+            r2,
+            i,
+            group1,
+            group2: roads.into_iter().collect(),
+        }
+    }
+
+    /// Physically where is the filter placed?
+    fn geometry(&self, app: &App) -> PolyLine {
+        let map = &app.primary.map;
+        let r1 = map.get_r(self.r1);
+        let r2 = map.get_r(self.r2);
+
+        // Orient the road to face the intersection
+        let mut pl1 = r1.center_pts.clone();
+        if r1.src_i == self.i {
+            pl1 = pl1.reversed();
+        }
+        let mut pl2 = r2.center_pts.clone();
+        if r2.src_i == self.i {
+            pl2 = pl2.reversed();
+        }
+
+        // The other combinations of left/right here would produce points or a line across just one
+        // road
+        let pt1 = pl1.must_shift_right(r1.get_half_width()).last_pt();
+        let pt2 = pl2.must_shift_left(r2.get_half_width()).last_pt();
+        PolyLine::must_new(vec![pt1, pt2])
+    }
+
+    fn allows_turn(&self, from: RoadID, to: RoadID) -> bool {
+        self.group1.contains(&from) == self.group1.contains(&to)
+    }
+
+    fn avoid_movements_between_roads(&self) -> Vec<(RoadID, RoadID)> {
+        let mut pairs = Vec::new();
+        for from in &self.group1 {
+            for to in &self.group2 {
+                pairs.push((*from, *to));
+                pairs.push((*to, *from));
+            }
+        }
+        pairs
     }
 }

@@ -90,6 +90,11 @@ impl RoutePlanner {
             params
                 .avoid_roads
                 .extend(app.session.modal_filters.roads.keys().cloned());
+            for filter in app.session.modal_filters.intersections.values() {
+                params
+                    .avoid_movements_between
+                    .extend(filter.avoid_movements_between_roads());
+            }
             params.main_road_penalty = self.panel.spinner::<RoundedF64>("main road penalty").0;
             let cache_custom = true;
 

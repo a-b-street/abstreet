@@ -353,6 +353,12 @@ pub fn vehicle_cost(
         // Similar to the zone_cost trick, just add an outrageous penalty here
         extra += Duration::hours(3);
     }
+    if params
+        .avoid_movements_between
+        .contains(&(mvmnt.from.road, mvmnt.to.road))
+    {
+        extra += Duration::hours(3);
+    }
 
     multiplier * base + extra
 }

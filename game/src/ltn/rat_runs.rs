@@ -88,7 +88,13 @@ fn find_rat_runs_from(
 
         for mvmnt in map.get_movements_for(current.node, PathConstraints::Car) {
             // Can't cross filters
-            if modal_filters.roads.contains_key(&mvmnt.to.road) {
+            if modal_filters.roads.contains_key(&mvmnt.to.road)
+                || modal_filters
+                    .intersections
+                    .get(&mvmnt.parent)
+                    .map(|filter| !filter.allows_turn(mvmnt.from.road, mvmnt.to.road))
+                    .unwrap_or(false)
+            {
                 continue;
             }
             // If we've already visited the destination, don't add it again. We don't want to

@@ -188,6 +188,11 @@ pub struct RoutingParams {
     // TODO Include in serde during the next full map importing
     #[serde(skip_serializing, skip_deserializing)]
     pub avoid_roads: BTreeSet<RoadID>,
+
+    /// Don't cross movements between these roads unless absolutely necessary to reach the
+    /// destination. Only affects vehicle routing, not pedestrian.
+    #[serde(skip_serializing, skip_deserializing)]
+    pub avoid_movements_between: BTreeSet<(RoadID, RoadID)>,
 }
 
 impl Default for RoutingParams {
@@ -207,6 +212,7 @@ impl Default for RoutingParams {
             main_road_penalty: 1.0,
 
             avoid_roads: BTreeSet::new(),
+            avoid_movements_between: BTreeSet::new(),
         }
     }
 }

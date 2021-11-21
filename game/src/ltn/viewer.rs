@@ -2,14 +2,14 @@ use std::collections::HashSet;
 
 use geom::Distance;
 use map_gui::tools::CityPicker;
-use map_model::RoadID;
+use map_model::{IntersectionID, RoadID};
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::{
     Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, State, TextExt,
     Toggle, VerticalAlignment, Widget,
 };
 
-use super::{BrowseNeighborhoods, Neighborhood};
+use super::{BrowseNeighborhoods, DiagonalFilter, Neighborhood};
 use crate::app::{App, Transition};
 
 pub struct Viewer {
@@ -21,6 +21,7 @@ pub struct Viewer {
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 enum Obj {
     InteriorRoad(RoadID),
+    InteriorIntersection(IntersectionID),
 }
 impl ObjectID for Obj {}
 
@@ -41,6 +42,8 @@ impl Viewer {
                 .btn_outline
                 .text("Browse rat-runs")
                 .hotkey(Key::R)
+                .disabled(true)
+                .disabled_tooltip("Still being prototyped")
                 .build_def(ctx),
             ctx.style()
                 .btn_outline
@@ -120,31 +123,63 @@ impl State<App> for Viewer {
             _ => {}
         }
 
-        if let WorldOutcome::ClickedObject(Obj::InteriorRoad(r)) = self.world.event(ctx) {
-            if app.session.modal_filters.roads.contains_key(&r) {
-                app.session.modal_filters.roads.remove(&r);
-            } else {
-                // Place the filter on the part of the road that was clicked
-                let road = app.primary.map.get_r(r);
-                // These calls shouldn't fail -- since we clicked a road, the cursor must be in
-                // map-space. And project_pt returns a point that's guaranteed to be on the
-                // polyline.
-                let cursor_pt = ctx.canvas.get_cursor_in_map_space().unwrap();
-                let pt_on_line = road.center_pts.project_pt(cursor_pt);
-                let (distance, _) = road.center_pts.dist_along_of_point(pt_on_line).unwrap();
+        match self.world.event(ctx) {
+            WorldOutcome::ClickedObject(Obj::InteriorRoad(r)) => {
+                if app.session.modal_filters.roads.contains_key(&r) {
+                    app.session.modal_filters.roads.remove(&r);
+                } else {
+                    // Place the filter on the part of the road that was clicked
+                    let road = app.primary.map.get_r(r);
+                    // These calls shouldn't fail -- since we clicked a road, the cursor must be in
+                    // map-space. And project_pt returns a point that's guaranteed to be on the
+                    // polyline.
+                    let cursor_pt = ctx.canvas.get_cursor_in_map_space().unwrap();
+                    let pt_on_line = road.center_pts.project_pt(cursor_pt);
+                    let (distance, _) = road.center_pts.dist_along_of_point(pt_on_line).unwrap();
 
-                app.session.modal_filters.roads.insert(r, distance);
+                    app.session.modal_filters.roads.insert(r, distance);
+                }
+                // TODO The cell coloring changes quite spuriously just by toggling a filter, even
+                // when it doesn't matter
+                self.neighborhood =
+                    Neighborhood::new(ctx, app, self.neighborhood.orig_perimeter.clone());
+                self.world = make_world(
+                    ctx,
+                    app,
+                    &self.neighborhood,
+                    self.panel.is_checked("draw cells"),
+                );
             }
-            // TODO The cell coloring changes quite spuriously just by toggling a filter, even
-            // when it doesn't matter
-            self.neighborhood =
-                Neighborhood::new(ctx, app, self.neighborhood.orig_perimeter.clone());
-            self.world = make_world(
-                ctx,
-                app,
-                &self.neighborhood,
-                self.panel.is_checked("draw cells"),
-            );
+            WorldOutcome::ClickedObject(Obj::InteriorIntersection(i)) => {
+                // Toggle through all possible filters
+                let mut all = DiagonalFilter::filters_for(app, i);
+                if let Some(current) = app.session.modal_filters.intersections.get(&i) {
+                    let idx = all.iter().position(|x| x == current).unwrap();
+                    if idx == all.len() - 1 {
+                        app.session.modal_filters.intersections.remove(&i);
+                    } else {
+                        app.session
+                            .modal_filters
+                            .intersections
+                            .insert(i, all.remove(idx + 1));
+                    }
+                } else if !all.is_empty() {
+                    app.session
+                        .modal_filters
+                        .intersections
+                        .insert(i, all.remove(0));
+                }
+
+                self.neighborhood =
+                    Neighborhood::new(ctx, app, self.neighborhood.orig_perimeter.clone());
+                self.world = make_world(
+                    ctx,
+                    app,
+                    &self.neighborhood,
+                    self.panel.is_checked("draw cells"),
+                );
+            }
+            _ => {}
         }
 
         Transition::Keep
@@ -216,6 +251,16 @@ fn make_world(
             }
         }
         world.draw_master_batch(ctx, draw_intersections);
+    }
+
+    for i in &neighborhood.interior_intersections {
+        world
+            .add(Obj::InteriorIntersection(*i))
+            .hitbox(map.get_i(*i).polygon.clone())
+            .drawn_in_master_batch()
+            .hover_outline(Color::BLACK, Distance::meters(5.0))
+            .clickable()
+            .build(ctx);
     }
 
     world.initialize_hover(ctx);
