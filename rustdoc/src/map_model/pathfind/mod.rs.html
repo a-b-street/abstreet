@@ -218,6 +218,7 @@
 <span id="218">218</span>
 <span id="219">219</span>
 <span id="220">220</span>
+<span id="221">221</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Everything related to pathfinding through a map for different types of agents.</span>
 
 <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
@@ -398,7 +399,8 @@
     <span class="comment">// If the road is `high_stress_for_bikes`, multiply by the base cost.</span>
     <span class="kw">pub</span> <span class="ident">avoid_high_stress</span>: <span class="ident">f64</span>,
 
-    <span class="comment">// How much to avoid main roads</span>
+    <span class="doccomment">/// When crossing an arterial or highway road, multiply the base cost by this penalty. When</span>
+    <span class="doccomment">/// greater than 1, this will encourage routes to use local roads more.</span>
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>, <span class="ident">skip_deserializing</span>)]</span>
     <span class="kw">pub</span> <span class="ident">main_road_penalty</span>: <span class="ident">f64</span>,
 
