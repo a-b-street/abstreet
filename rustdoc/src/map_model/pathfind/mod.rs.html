@@ -219,6 +219,12 @@
 <span id="219">219</span>
 <span id="220">220</span>
 <span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Everything related to pathfinding through a map for different types of agents.</span>
 
 <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
@@ -409,6 +415,11 @@
     <span class="comment">// TODO Include in serde during the next full map importing</span>
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>, <span class="ident">skip_deserializing</span>)]</span>
     <span class="kw">pub</span> <span class="ident">avoid_roads</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>,
+
+    <span class="doccomment">/// Don&#39;t cross movements between these roads unless absolutely necessary to reach the</span>
+    <span class="doccomment">/// destination. Only affects vehicle routing, not pedestrian.</span>
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>, <span class="ident">skip_deserializing</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">avoid_movements_between</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span>(<span class="ident">RoadID</span>, <span class="ident">RoadID</span>)<span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">RoutingParams</span> {
@@ -428,6 +439,7 @@
             <span class="ident">main_road_penalty</span>: <span class="number">1.0</span>,
 
             <span class="ident">avoid_roads</span>: <span class="ident">BTreeSet::new</span>(),
+            <span class="ident">avoid_movements_between</span>: <span class="ident">BTreeSet::new</span>(),
         }
     }
 }
