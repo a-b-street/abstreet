@@ -275,14 +275,14 @@ pub fn vehicle_cost(
     params: &RoutingParams,
     map: &Map,
 ) -> Duration {
+    let road = map.get_r(dr.road);
     let movement = &map.get_i(mvmnt.parent).movements[&mvmnt];
     let max_speed = match constraints {
         PathConstraints::Car | PathConstraints::Bus | PathConstraints::Train => None,
         PathConstraints::Bike => Some(crate::MAX_BIKE_SPEED),
         PathConstraints::Pedestrian => unreachable!(),
     };
-    let t1 = map.get_r(dr.road).length()
-        / Traversable::max_speed_along_road(dr, max_speed, constraints, map).0;
+    let t1 = road.length() / Traversable::max_speed_along_road(dr, max_speed, constraints, map).0;
 
     let t2 = movement.geom.length()
         / Traversable::max_speed_along_movement(mvmnt, max_speed, constraints, map);
@@ -320,7 +320,6 @@ pub fn vehicle_cost(
     if constraints == PathConstraints::Bike
         && (params.avoid_steep_incline_penalty - 1.0).abs() > f64::EPSILON
     {
-        let road = map.get_r(dr.road);
         let percent_incline = if dr.dir == Direction::Fwd {
             road.percent_incline
         } else {
@@ -333,7 +332,7 @@ pub fn vehicle_cost(
 
     if constraints == PathConstraints::Bike
         && (params.avoid_high_stress - 1.0).abs() > f64::EPSILON
-        && map.get_r(dr.road).high_stress_for_bikes(map, dr.dir)
+        && road.high_stress_for_bikes(map, dr.dir)
     {
         multiplier *= params.avoid_high_stress;
     }
@@ -344,12 +343,10 @@ pub fn vehicle_cost(
         extra += params.unprotected_turn_penalty
     }
 
-    // Slowdown factor, how much slower the traffic is compared to the
-    // original estimate.
-    if (params.main_road_penalty - 1.0).abs() > f64::EPSILON {
-        if map.get_r(dr.road).get_rank() != osm::RoadRank::Local {
-            multiplier *= params.main_road_penalty;
-        }
+    if (params.main_road_penalty - 1.0).abs() > f64::EPSILON
+        && road.get_rank() != osm::RoadRank::Local
+    {
+        multiplier *= params.main_road_penalty;
     }
 
     if params.avoid_roads.contains(&dr.road) {

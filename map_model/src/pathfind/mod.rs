@@ -178,7 +178,8 @@ pub struct RoutingParams {
     // If the road is `high_stress_for_bikes`, multiply by the base cost.
     pub avoid_high_stress: f64,
 
-    // How much to avoid main roads
+    /// When crossing an arterial or highway road, multiply the base cost by this penalty. When
+    /// greater than 1, this will encourage routes to use local roads more.
     #[serde(skip_serializing, skip_deserializing)]
     pub main_road_penalty: f64,
 

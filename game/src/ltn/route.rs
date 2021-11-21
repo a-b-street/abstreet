@@ -44,28 +44,32 @@ impl RoutePlanner {
     }
 
     fn update(&mut self, ctx: &mut EventCtx, app: &App) {
-        let mut new = Panel::new_builder(Widget::col(vec![
+        let mut panel = Panel::new_builder(Widget::col(vec![
             ctx.style()
                 .btn_outline
                 .text("Back to editing modal filters")
                 .hotkey(Key::Escape)
                 .build_def(ctx),
+            self.waypoints.get_panel_widget(ctx),
             Widget::row(vec![
-                Line("Main Road Penalty").into_widget(ctx),
+                Line("Slow-down factor for main roads:")
+                    .into_widget(ctx)
+                    .centered_vert(),
                 Spinner::f64_widget(ctx, "main road penalty", (1.0, 10.0), 1.0, 0.5),
             ]),
-            Line("Warning: Time estimates assume freeflow conditions (no traffic)")
-                .fg(Color::RED)
-                .into_widget(ctx),
-            self.waypoints.get_panel_widget(ctx),
+            Text::from_multiline(vec![
+                Line("1 means free-flow traffic conditions").secondary(),
+                Line("Increase to see how vehicles may try to detour in heavy traffic").secondary(),
+            ])
+            .into_widget(ctx),
+            Text::new().into_widget(ctx).named("note"),
         ]))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
         // Hovering on waypoint cards
         .ignore_initial_events()
         .build(ctx);
-
-        new.restore(ctx, &self.panel);
-        self.panel = new;
+        panel.restore(ctx, &self.panel);
+        self.panel = panel;
 
         let mut world = self.calculate_paths(ctx, app);
         self.waypoints
@@ -75,7 +79,8 @@ impl RoutePlanner {
         self.world = world;
     }
 
-    fn calculate_paths(&self, ctx: &mut EventCtx, app: &App) -> World<ID> {
+    /// Also has the side effect of changing a note in the panel
+    fn calculate_paths(&mut self, ctx: &mut EventCtx, app: &App) -> World<ID> {
         let map = &app.primary.map;
         let mut world = World::bounded(map.get_bounds());
 
@@ -168,6 +173,9 @@ impl RoutePlanner {
                     ));
                     txt.add_line(Line(format!("Time: {}", total_time)));
                     txt.add_line(Line(format!("Distance: {}", total_dist)));
+
+                    let label = Text::new().into_widget(ctx);
+                    self.panel.replace(ctx, "note", label);
                 } else {
                     txt.add_line(Line("Route before the new modal filters"));
                     txt.add_line(Line(format!("Time: {}", total_time)));
@@ -186,6 +194,15 @@ impl RoutePlanner {
                         "shorter",
                         "longer",
                     );
+
+                    let label = Text::from_all(vec![
+                        Line("Blue path").fg(Color::BLUE),
+                        Line(" before adding filters, "),
+                        Line("red path").fg(Color::RED),
+                        Line(" after new filters"),
+                    ])
+                    .into_widget(ctx);
+                    self.panel.replace(ctx, "note", label);
                 }
 
                 world
