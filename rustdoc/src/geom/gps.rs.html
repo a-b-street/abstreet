@@ -189,6 +189,11 @@
 <span id="189">189</span>
 <span id="190">190</span>
 <span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::fmt</span>;
 <span class="kw">use</span> <span class="ident">std::fs::File</span>;
 <span class="kw">use</span> <span class="ident">std::io</span>::{<span class="ident">BufRead</span>, <span class="ident">BufReader</span>, <span class="ident">Write</span>};
@@ -341,8 +346,8 @@
     }
 
     <span class="doccomment">/// Extract polygons from a raw GeoJSON string. For multipolygons, only returns the first</span>
-    <span class="doccomment">/// member.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_geojson_polygons</span>(<span class="ident">raw</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LonLat</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// member. If the GeoJSON feature has a property called `name`, this will also be returned.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_geojson_polygons</span>(<span class="ident">raw</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LonLat</span><span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>)<span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">geojson</span> <span class="op">=</span> <span class="ident">raw</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">GeoJson</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">features</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">geojson</span> {
             <span class="ident">GeoJson::Feature</span>(<span class="ident">feature</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec!</span>[<span class="ident">feature</span>],
@@ -358,12 +363,17 @@
                     <span class="macro">anyhow::bail!</span>(<span class="string">&quot;Unexpected feature: {:?}&quot;</span>, <span class="ident">feature</span>);
                 }
             };
-            <span class="ident">polygons</span>.<span class="ident">push</span>(
+            <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">feature</span>
+                .<span class="ident">property</span>(<span class="string">&quot;name&quot;</span>)
+                .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">value</span><span class="op">|</span> <span class="ident">value</span>.<span class="ident">as_str</span>())
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">to_string</span>());
+            <span class="ident">polygons</span>.<span class="ident">push</span>((
                 <span class="ident">points</span>
                     .<span class="ident">into_iter</span>()
                     .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">LonLat::new</span>(<span class="ident">pt</span>[<span class="number">0</span>], <span class="ident">pt</span>[<span class="number">1</span>]))
                     .<span class="ident">collect</span>(),
-            );
+                <span class="ident">name</span>,
+            ));
         }
         <span class="prelude-val">Ok</span>(<span class="ident">polygons</span>)
     }

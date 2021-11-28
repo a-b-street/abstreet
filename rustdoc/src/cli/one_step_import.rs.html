@@ -137,7 +137,7 @@
         <span class="kw">let</span> <span class="ident">geojson</span> <span class="op">=</span> <span class="ident">abstio::slurp_file</span>(<span class="ident">geojson_path</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">polygons</span> <span class="op">=</span> <span class="ident">LonLat::parse_geojson_polygons</span>(<span class="ident">String::from_utf8</span>(<span class="ident">geojson</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">filter</span> <span class="op">=</span> <span class="string">&quot;poly:\&quot;&quot;</span>.<span class="ident">to_string</span>();
-        <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">polygons</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>() {
+        <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">polygons</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>().<span class="number">0</span> {
             <span class="ident">filter</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{} {} &quot;</span>, <span class="ident">pt</span>.<span class="ident">y</span>(), <span class="ident">pt</span>.<span class="ident">x</span>()));
         }
         <span class="ident">filter</span>.<span class="ident">pop</span>();
