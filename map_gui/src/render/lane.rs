@@ -386,7 +386,8 @@ fn calculate_one_way_markings(lane: &Lane, road: &Road) -> Vec<Polygon> {
                 pt.project_away(arrow_len / 2.0, angle),
             ])
             .make_arrow(thickness * 2.0, ArrowCap::Triangle)
-            .to_outline(thickness / 2.0).unwrap()
+            .to_outline(thickness / 2.0)
+            .unwrap(),
         );
     }
     results

@@ -43,7 +43,7 @@ pub async fn run(
         let geojson = abstio::slurp_file(geojson_path)?;
         let mut polygons = LonLat::parse_geojson_polygons(String::from_utf8(geojson)?)?;
         let mut filter = "poly:\"".to_string();
-        for pt in polygons.pop().unwrap() {
+        for pt in polygons.pop().unwrap().0 {
             filter.push_str(&format!("{} {} ", pt.y(), pt.x()));
         }
         filter.pop();

@@ -150,8 +150,8 @@ impl LonLat {
     }
 
     /// Extract polygons from a raw GeoJSON string. For multipolygons, only returns the first
-    /// member.
-    pub fn parse_geojson_polygons(raw: String) -> Result<Vec<Vec<LonLat>>> {
+    /// member. If the GeoJSON feature has a property called `name`, this will also be returned.
+    pub fn parse_geojson_polygons(raw: String) -> Result<Vec<(Vec<LonLat>, Option<String>)>> {
         let geojson = raw.parse::<GeoJson>()?;
         let features = match geojson {
             GeoJson::Feature(feature) => vec![feature],
@@ -167,12 +167,17 @@ impl LonLat {
                     anyhow::bail!("Unexpected feature: {:?}", feature);
                 }
             };
-            polygons.push(
+            let name = feature
+                .property("name")
+                .and_then(|value| value.as_str())
+                .map(|x| x.to_string());
+            polygons.push((
                 points
                     .into_iter()
                     .map(|pt| LonLat::new(pt[0], pt[1]))
                     .collect(),
-            );
+                name,
+            ));
         }
         Ok(polygons)
     }
