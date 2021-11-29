@@ -313,11 +313,19 @@ pub fn find_exe(cmd: &str) -> String {
         } else {
             format!("{}/{}", dir, cmd)
         };
-        if std::path::Path::new(&path).exists() {
-            return path;
+        use std::fs::metadata;
+        if let Ok(metadata) = metadata(&path) {
+            if metadata.is_file() {
+                return path;
+            } else {
+                debug!(
+                    "found matching path: {}/{} but it's not a file.",
+                    &path, cmd
+                );
+            }
         }
     }
-    panic!("Couldn't find the {} executable", cmd);
+    panic!("Couldn't find the {} executable. Is it built?", cmd);
 }
 
 /// A button to change maps, with default keybindings
