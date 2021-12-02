@@ -12,11 +12,12 @@ use geom::{Bounds, Distance, Duration, GPSBounds, Polygon, Pt2D, Ring, Time};
 
 use crate::raw::{OriginalRoad, RawMap};
 use crate::{
-    osm, Area, AreaID, AreaType, Building, BuildingID, BuildingType, BusRoute, BusRouteID, BusStop,
-    BusStopID, CompressedMovementID, ControlStopSign, ControlTrafficSignal, DirectedRoadID,
-    Direction, Intersection, IntersectionID, Lane, LaneID, LaneType, Map, MapEdits, Movement,
-    MovementID, OffstreetParking, ParkingLot, ParkingLotID, Path, PathConstraints, PathRequest,
-    PathV2, Pathfinder, Position, Road, RoadID, RoutingParams, Turn, TurnID, TurnType, Zone,
+    osm, Area, AreaID, AreaType, Building, BuildingID, BuildingType, CompressedMovementID,
+    ControlStopSign, ControlTrafficSignal, DirectedRoadID, Direction, Intersection, IntersectionID,
+    Lane, LaneID, LaneType, Map, MapEdits, Movement, MovementID, OffstreetParking, ParkingLot,
+    ParkingLotID, Path, PathConstraints, PathRequest, PathV2, Pathfinder, Position, Road, RoadID,
+    RoutingParams, TransitRoute, TransitRouteID, TransitStop, TransitStopID, Turn, TurnID,
+    TurnType, Zone,
 };
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -154,8 +155,8 @@ impl Map {
             roads: Vec::new(),
             intersections: Vec::new(),
             buildings: Vec::new(),
-            bus_stops: BTreeMap::new(),
-            bus_routes: Vec::new(),
+            transit_stops: BTreeMap::new(),
+            transit_routes: Vec::new(),
             areas: Vec::new(),
             parking_lots: Vec::new(),
             zones: Vec::new(),
@@ -254,8 +255,8 @@ impl Map {
         self.areas.get(id.0)
     }
 
-    pub fn maybe_get_bs(&self, id: BusStopID) -> Option<&BusStop> {
-        self.bus_stops.get(&id)
+    pub fn maybe_get_ts(&self, id: TransitStopID) -> Option<&TransitStop> {
+        self.transit_stops.get(&id)
     }
 
     pub fn maybe_get_stop_sign(&self, id: IntersectionID) -> Option<&ControlStopSign> {
@@ -266,8 +267,8 @@ impl Map {
         self.traffic_signals.get(&id)
     }
 
-    pub fn maybe_get_br(&self, route: BusRouteID) -> Option<&BusRoute> {
-        self.bus_routes.get(route.0)
+    pub fn maybe_get_tr(&self, route: TransitRouteID) -> Option<&TransitRoute> {
+        self.transit_routes.get(route.0)
     }
 
     pub fn get_r(&self, id: RoadID) -> &Road {
@@ -450,29 +451,29 @@ impl Map {
         &self.name
     }
 
-    pub fn all_bus_stops(&self) -> &BTreeMap<BusStopID, BusStop> {
-        &self.bus_stops
+    pub fn all_transit_stops(&self) -> &BTreeMap<TransitStopID, TransitStop> {
+        &self.transit_stops
     }
 
-    pub fn get_bs(&self, stop: BusStopID) -> &BusStop {
-        &self.bus_stops[&stop]
+    pub fn get_ts(&self, stop: TransitStopID) -> &TransitStop {
+        &self.transit_stops[&stop]
     }
 
-    pub fn get_br(&self, route: BusRouteID) -> &BusRoute {
-        &self.bus_routes[route.0]
+    pub fn get_tr(&self, route: TransitRouteID) -> &TransitRoute {
+        &self.transit_routes[route.0]
     }
 
-    pub fn all_bus_routes(&self) -> &Vec<BusRoute> {
-        &self.bus_routes
+    pub fn all_transit_routes(&self) -> &Vec<TransitRoute> {
+        &self.transit_routes
     }
 
-    pub fn get_bus_route(&self, name: &str) -> Option<&BusRoute> {
-        self.bus_routes.iter().find(|r| r.full_name == name)
+    pub fn get_transit_route(&self, name: &str) -> Option<&TransitRoute> {
+        self.transit_routes.iter().find(|r| r.long_name == name)
     }
 
-    pub fn get_routes_serving_stop(&self, stop: BusStopID) -> Vec<&BusRoute> {
+    pub fn get_routes_serving_stop(&self, stop: TransitStopID) -> Vec<&TransitRoute> {
         let mut routes = Vec::new();
-        for r in &self.bus_routes {
+        for r in &self.transit_routes {
             if r.stops.contains(&stop) {
                 routes.push(r);
             }
@@ -603,7 +604,7 @@ impl Map {
         &self,
         start: Position,
         end: Position,
-    ) -> Option<(BusStopID, Option<BusStopID>, BusRouteID)> {
+    ) -> Option<(TransitStopID, Option<TransitStopID>, TransitRouteID)> {
         assert!(!self.pathfinder_dirty);
         self.pathfinder.should_use_transit(self, start, end)
     }
@@ -663,10 +664,10 @@ impl Map {
         None
     }
 
-    pub fn find_br(&self, id: osm::RelationID) -> Option<BusRouteID> {
-        for br in self.all_bus_routes() {
-            if br.osm_rel_id == id {
-                return Some(br.id);
+    pub fn find_tr(&self, id: osm::RelationID) -> Option<TransitRouteID> {
+        for tr in self.all_transit_routes() {
+            if tr.osm_rel_id == id {
+                return Some(tr.id);
             }
         }
         None
@@ -691,9 +692,9 @@ impl Map {
         self.buildings[b.0].bldg_type = bldg_type;
     }
 
-    pub fn hack_override_orig_spawn_times(&mut self, br: BusRouteID, times: Vec<Time>) {
-        self.bus_routes[br.0].orig_spawn_times = times.clone();
-        self.bus_routes[br.0].spawn_times = times;
+    pub fn hack_override_orig_spawn_times(&mut self, br: TransitRouteID, times: Vec<Time>) {
+        self.transit_routes[br.0].orig_spawn_times = times.clone();
+        self.transit_routes[br.0].spawn_times = times;
     }
 
     pub fn hack_add_area(&mut self, area_type: AreaType, polygon: Polygon, osm_tags: Tags) {
@@ -890,12 +891,12 @@ impl Map {
             timer,
         );
 
-        // Remove all bus routes, since we remove that pathfinder
-        self.bus_stops.clear();
-        self.bus_routes.clear();
+        // Remove all routes, since we remove that pathfinder
+        self.transit_stops.clear();
+        self.transit_routes.clear();
         for r in &mut self.roads {
             for l in &mut r.lanes {
-                l.bus_stops.clear();
+                l.transit_stops.clear();
             }
         }
     }

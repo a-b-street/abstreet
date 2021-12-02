@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use abstutil::{deserialize_multimap, serialize_multimap, FixedMap, IndexableKey, MultiMap};
 use geom::{Distance, Duration, Line, PolyLine, Speed, Time};
 use map_model::{
-    BuildingID, BusRouteID, DrivingSide, Map, ParkingLotID, Path, PathConstraints, PathStep,
+    BuildingID, DrivingSide, Map, ParkingLotID, Path, PathConstraints, PathStep, TransitRouteID,
     Traversable, SIDEWALK_THICKNESS,
 };
 
@@ -169,7 +169,7 @@ impl WalkingSimState {
                             ctx.scheduler
                                 .push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
                         }
-                        SidewalkPOI::BusStop(stop) => {
+                        SidewalkPOI::TransitStop(stop) => {
                             if let Some(route) = trips.ped_reached_bus_stop(
                                 now,
                                 ped.id,
@@ -368,7 +368,7 @@ impl WalkingSimState {
         let time_spent_waiting = p.state.time_spent_waiting(now);
         // TODO Incorporate this somewhere
         /*if let PedState::WaitingForBus(r, _) = p.state {
-            extra.push(format!("Waiting for bus {}", map.get_br(r).name));
+            extra.push(format!("Waiting for bus {}", map.get_tr(r).name));
         }*/
 
         let current_state_dist = match p.state {
@@ -577,7 +577,7 @@ impl WalkingSimState {
                 SidewalkPOI::ParkingSpot(_) | SidewalkPOI::DeferredParkingSpot => {
                     cnts.walking_to_from_car += 1;
                 }
-                SidewalkPOI::BusStop(_) => {
+                SidewalkPOI::TransitStop(_) => {
                     cnts.walking_to_from_transit += 1;
                 }
                 SidewalkPOI::BikeRack(_) => {
@@ -587,7 +587,7 @@ impl WalkingSimState {
                     SidewalkPOI::ParkingSpot(_) | SidewalkPOI::DeferredParkingSpot => {
                         cnts.walking_to_from_car += 1;
                     }
-                    SidewalkPOI::BusStop(_) => {
+                    SidewalkPOI::TransitStop(_) => {
                         cnts.walking_to_from_transit += 1;
                     }
                     SidewalkPOI::BikeRack(_) => {
@@ -850,7 +850,7 @@ enum PedState {
     EnteringParkingLot(ParkingLotID, TimeInterval),
     StartingToBike(SidewalkSpot, Line, TimeInterval),
     FinishingBiking(SidewalkSpot, Line, TimeInterval),
-    WaitingForBus(BusRouteID, Time),
+    WaitingForBus(TransitRouteID, Time),
 }
 
 impl PedState {

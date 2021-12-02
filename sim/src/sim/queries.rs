@@ -7,7 +7,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use abstutil::Counter;
 use geom::{Distance, Duration, PolyLine, Pt2D, Time};
 use map_model::{
-    BuildingID, BusRouteID, BusStopID, IntersectionID, Lane, LaneID, Map, Path, Position,
+    BuildingID, IntersectionID, Lane, LaneID, Map, Path, Position, TransitRouteID, TransitStopID,
     Traversable, TurnID,
 };
 
@@ -100,7 +100,7 @@ impl Sim {
         self.transit.get_passengers(car).len()
     }
 
-    pub fn bus_route_id(&self, maybe_bus: CarID) -> Option<BusRouteID> {
+    pub fn bus_route_id(&self, maybe_bus: CarID) -> Option<TransitRouteID> {
         if maybe_bus.vehicle_type == VehicleType::Bus
             || maybe_bus.vehicle_type == VehicleType::Train
         {
@@ -294,7 +294,7 @@ impl Sim {
     /// (bus, stop index it's coming from, percent to next stop, location)
     pub fn status_of_buses(
         &self,
-        route: BusRouteID,
+        route: TransitRouteID,
         map: &Map,
     ) -> Vec<(CarID, Option<usize>, f64, Pt2D)> {
         let mut results = Vec::new();
@@ -381,8 +381,8 @@ impl Sim {
 
     pub fn get_people_waiting_at_stop(
         &self,
-        at: BusStopID,
-    ) -> &Vec<(PedestrianID, BusRouteID, Option<BusStopID>, Time)> {
+        at: TransitStopID,
+    ) -> &Vec<(PedestrianID, TransitRouteID, Option<TransitStopID>, Time)> {
         self.transit.get_people_waiting_at_stop(at)
     }
 

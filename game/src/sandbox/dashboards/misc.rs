@@ -1,6 +1,6 @@
 use abstutil::{prettyprint_usize, Counter};
 use geom::Time;
-use map_model::BusRouteID;
+use map_model::TransitRouteID;
 use widgetry::{
     Autocomplete, EventCtx, GfxCtx, Image, Line, LinePlot, Outcome, Panel, PlotOptions, Series,
     State, TextExt, Widget,
@@ -132,20 +132,20 @@ impl TransitRoutes {
             }
         }
         let mut waiting = Counter::new();
-        for bs in app.primary.map.all_bus_stops().keys() {
-            for (_, r, _, _) in app.primary.sim.get_people_waiting_at_stop(*bs) {
+        for ts in app.primary.map.all_transit_stops().keys() {
+            for (_, r, _, _) in app.primary.sim.get_people_waiting_at_stop(*ts) {
                 waiting.inc(*r);
             }
         }
 
         // Sort descending by count, but ascending by name. Hence the funny negation.
-        let mut routes: Vec<(isize, isize, isize, String, BusRouteID)> = Vec::new();
-        for r in app.primary.map.all_bus_routes() {
+        let mut routes: Vec<(isize, isize, isize, String, TransitRouteID)> = Vec::new();
+        for r in app.primary.map.all_transit_routes() {
             routes.push((
                 -(boardings.get(r.id) as isize),
                 -(alightings.get(r.id) as isize),
                 -(waiting.get(r.id) as isize),
-                r.full_name.clone(),
+                r.long_name.clone(),
                 r.id,
             ));
         }
@@ -204,8 +204,8 @@ impl State<App> for TransitRoutes {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         let route = match self.panel.event(ctx) {
             Outcome::Clicked(x) => {
-                if let Some(x) = x.strip_prefix("BusRoute #") {
-                    BusRouteID(x.parse::<usize>().unwrap())
+                if let Some(x) = x.strip_prefix("TransitRoute #") {
+                    TransitRouteID(x.parse::<usize>().unwrap())
                 } else if x == "close" {
                     return Transition::Pop;
                 } else {
@@ -240,7 +240,7 @@ impl State<App> for TransitRoutes {
                 sandbox.controls.common.as_mut().unwrap().launch_info_panel(
                     ctx,
                     app,
-                    Tab::BusRoute(route),
+                    Tab::TransitRoute(route),
                     &mut actions,
                 )
             })),

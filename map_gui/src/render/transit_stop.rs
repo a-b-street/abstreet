@@ -1,5 +1,5 @@
 use geom::{Angle, Circle, Distance, Line, Polygon, Pt2D};
-use map_model::{BusStop, BusStopID, Map};
+use map_model::{Map, TransitStop, TransitStopID};
 use widgetry::{Drawable, EventCtx, GeomBatch, GfxCtx};
 
 use crate::colors::ColorScheme;
@@ -8,16 +8,16 @@ use crate::{AppLike, ID};
 
 const RADIUS: Distance = Distance::const_meters(1.0);
 
-pub struct DrawBusStop {
-    pub id: BusStopID,
+pub struct DrawTransitStop {
+    pub id: TransitStopID,
     center: Pt2D,
     zorder: isize,
 
     draw_default: Drawable,
 }
 
-impl DrawBusStop {
-    pub fn new(ctx: &EventCtx, stop: &BusStop, map: &Map, cs: &ColorScheme) -> DrawBusStop {
+impl DrawTransitStop {
+    pub fn new(ctx: &EventCtx, stop: &TransitStop, map: &Map, cs: &ColorScheme) -> DrawTransitStop {
         let (pt, angle) = stop.sidewalk_pos.pt_and_angle(map);
         let center = pt.project_away(
             map.get_l(stop.sidewalk_pos.lane()).width / 2.0,
@@ -53,7 +53,7 @@ impl DrawBusStop {
             .make_polygons(Distance::meters(0.3)),
         );
 
-        DrawBusStop {
+        DrawTransitStop {
             id: stop.id,
             center,
             zorder: map.get_parent(stop.sidewalk_pos.lane()).zorder,
@@ -62,9 +62,9 @@ impl DrawBusStop {
     }
 }
 
-impl Renderable for DrawBusStop {
+impl Renderable for DrawTransitStop {
     fn get_id(&self) -> ID {
-        ID::BusStop(self.id)
+        ID::TransitStop(self.id)
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &dyn AppLike, _: &DrawOptions) {

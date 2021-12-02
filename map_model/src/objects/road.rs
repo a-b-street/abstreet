@@ -10,8 +10,8 @@ use geom::{Distance, PolyLine, Polygon, Speed};
 
 use crate::raw::{OriginalRoad, RestrictionType};
 use crate::{
-    osm, AccessRestrictions, BusStopID, DrivingSide, IntersectionID, Lane, LaneID, LaneSpec,
-    LaneType, Map, PathConstraints, Zone,
+    osm, AccessRestrictions, DrivingSide, IntersectionID, Lane, LaneID, LaneSpec, LaneType, Map,
+    PathConstraints, TransitStopID, Zone,
 };
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -412,10 +412,10 @@ impl Road {
             .unwrap_or(0)
     }
 
-    pub fn all_bus_stops(&self) -> Vec<BusStopID> {
+    pub fn all_transit_stops(&self) -> Vec<TransitStopID> {
         self.lanes
             .iter()
-            .flat_map(|l| l.bus_stops.iter())
+            .flat_map(|l| l.transit_stops.iter())
             .cloned()
             .collect()
     }
@@ -581,7 +581,7 @@ impl Road {
                 dst_i,
                 lane_type: lane.lt,
                 dir: lane.dir,
-                bus_stops: BTreeSet::new(),
+                transit_stops: BTreeSet::new(),
                 driving_blackhole: false,
                 biking_blackhole: false,
             });

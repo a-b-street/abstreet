@@ -183,7 +183,7 @@ impl CommonState {
                 if let Some(r) = app.primary.sim.bus_route_id(c) {
                     osd.append_all(vec![
                         Line(" serving "),
-                        Line(&map.get_br(r).full_name).underlined(),
+                        Line(&map.get_tr(r).long_name).underlined(),
                     ]);
                 }
             }
@@ -197,12 +197,12 @@ impl CommonState {
             ID::PedCrowd(list) => {
                 osd.append(Line(format!("a crowd of {} pedestrians", list.len())));
             }
-            ID::BusStop(bs) => {
+            ID::TransitStop(bs) => {
                 if app.opts.dev {
                     osd.append(Line(bs.to_string()).bold_body());
                 } else {
                     osd.append(Line("transit stop "));
-                    osd.append(Line(&map.get_bs(bs).name).underlined());
+                    osd.append(Line(&map.get_ts(bs).name).underlined());
                 }
                 osd.append(Line(" served by "));
 

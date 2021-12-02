@@ -21,7 +21,6 @@ mod agents;
 mod area;
 mod bike;
 mod building;
-mod bus_stop;
 mod car;
 mod intersection;
 mod lane;
@@ -30,6 +29,7 @@ mod parking_lot;
 mod pedestrian;
 mod road;
 pub mod traffic_signal;
+mod transit_stop;
 mod turn;
 
 pub const BIG_ARROW_THICKNESS: Distance = Distance::const_meters(0.5);

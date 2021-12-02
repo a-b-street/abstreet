@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use abstutil::Counter;
 use geom::{Circle, Distance, Line, Polygon, Pt2D};
-use map_model::{BuildingID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, RoadID};
+use map_model::{BuildingID, IntersectionID, LaneID, Map, ParkingLotID, RoadID, TransitStopID};
 use widgetry::mapspace::ToggleZoomed;
 use widgetry::{Color, EventCtx, Fill, GeomBatch, Line, LinearGradient, Text, Widget};
 
@@ -78,9 +78,9 @@ impl<'a> ColorDiscrete<'a> {
             .push(color.alpha(0.4), self.map.get_b(b).polygon.clone());
     }
 
-    pub fn add_bs<I: AsRef<str>>(&mut self, bs: BusStopID, category: I) {
+    pub fn add_ts<I: AsRef<str>>(&mut self, ts: TransitStopID, category: I) {
         let color = self.colors[category.as_ref()];
-        let pt = self.map.get_bs(bs).sidewalk_pos.pt(self.map);
+        let pt = self.map.get_ts(ts).sidewalk_pos.pt(self.map);
         self.zoomed.push(
             color.alpha(0.4),
             Circle::new(pt, Distance::meters(5.0)).to_polygon(),

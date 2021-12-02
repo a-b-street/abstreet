@@ -13,8 +13,8 @@ use abstio::{CityName, MapName};
 use abstutil::{prettyprint_usize, serialized_size_bytes, Timer};
 use geom::{Distance, Duration, Speed, Time};
 use map_model::{
-    BuildingID, BusRoute, IntersectionID, LaneID, Map, ParkingLotID, Path, PathConstraints,
-    PathRequest, Position, Traversable,
+    BuildingID, IntersectionID, LaneID, Map, ParkingLotID, Path, PathConstraints, PathRequest,
+    Position, TransitRoute, Traversable,
 };
 
 pub use self::queries::{AgentProperties, DelayCause};
@@ -323,13 +323,13 @@ impl Sim {
         });
     }
 
-    pub(crate) fn seed_bus_route(&mut self, route: &BusRoute) {
+    pub(crate) fn seed_bus_route(&mut self, route: &TransitRoute) {
         for t in &route.spawn_times {
             self.scheduler.push(*t, Command::StartBus(route.id, *t));
         }
     }
 
-    fn start_bus(&mut self, route: &BusRoute, map: &Map) {
+    fn start_bus(&mut self, route: &TransitRoute, map: &Map) {
         // Spawn one bus for the first leg.
         let path = self.transit.create_empty_route(route, map);
 
@@ -627,7 +627,7 @@ impl Sim {
                     .handle_cmd(self.time, cmd, &mut self.scheduler);
             }
             Command::StartBus(r, _) => {
-                self.start_bus(map.get_br(r), map);
+                self.start_bus(map.get_tr(r), map);
             }
         }
 

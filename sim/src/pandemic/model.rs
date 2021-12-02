@@ -5,7 +5,7 @@ use rand_xorshift::XorShiftRng;
 use serde::{Deserialize, Serialize};
 
 use geom::{Duration, Time};
-use map_model::{BuildingID, BusStopID};
+use map_model::{BuildingID, TransitStopID};
 
 use crate::pandemic::{AnyTime, State};
 use crate::{CarID, Event, Person, PersonID, Scheduler, TripPhaseType};
@@ -19,7 +19,7 @@ pub struct PandemicModel {
     pop: BTreeMap<PersonID, State>,
 
     bldgs: SharedSpace<BuildingID>,
-    bus_stops: SharedSpace<BusStopID>,
+    bus_stops: SharedSpace<TransitStopID>,
     buses: SharedSpace<CarID>,
     person_to_bus: BTreeMap<PersonID, CarID>,
 

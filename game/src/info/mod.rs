@@ -5,7 +5,9 @@ pub use trip::OpenTrip;
 use geom::{Circle, Distance, Polygon, Time};
 use map_gui::tools::open_browser;
 use map_gui::ID;
-use map_model::{AreaID, BuildingID, BusRouteID, BusStopID, IntersectionID, LaneID, ParkingLotID};
+use map_model::{
+    AreaID, BuildingID, IntersectionID, LaneID, ParkingLotID, TransitRouteID, TransitStopID,
+};
 use sim::{
     AgentID, AgentType, Analytics, CarID, ParkingSpot, PedestrianID, PersonID, PersonState, TripID,
     VehicleType,
@@ -24,12 +26,12 @@ use crate::layer::PANEL_PLACEMENT;
 use crate::sandbox::{dashboards, GameplayMode, SandboxMode, TimeWarpScreen};
 
 mod building;
-mod bus;
 mod debug;
 mod intersection;
 mod lane;
 mod parking_lot;
 mod person;
+mod transit;
 mod trip;
 
 pub struct InfoPanel {
@@ -57,9 +59,9 @@ pub enum Tab {
     PersonBio(PersonID),
     PersonSchedule(PersonID),
 
-    BusStatus(CarID),
-    BusStop(BusStopID),
-    BusRoute(BusRouteID),
+    TransitVehicleStatus(CarID),
+    TransitStop(TransitStopID),
+    TransitRoute(TransitRouteID),
 
     ParkedCar(CarID),
 
@@ -151,7 +153,7 @@ impl Tab {
                 } else if c.vehicle_type == VehicleType::Bus || c.vehicle_type == VehicleType::Train
                 {
                     match app.session.info_panel_tab["bus"] {
-                        "status" => Tab::BusStatus(c),
+                        "status" => Tab::TransitVehicleStatus(c),
                         _ => unreachable!(),
                     }
                 } else {
@@ -180,7 +182,7 @@ impl Tab {
                 }
             }
             ID::PedCrowd(members) => Tab::Crowd(members),
-            ID::BusStop(bs) => Tab::BusStop(bs),
+            ID::TransitStop(bs) => Tab::TransitStop(bs),
             ID::Area(a) => Tab::Area(a),
         }
     }
@@ -196,9 +198,9 @@ impl Tab {
                     _ => None,
                 }
             }
-            Tab::BusStatus(c) => Some(ID::Car(*c)),
-            Tab::BusStop(bs) => Some(ID::BusStop(*bs)),
-            Tab::BusRoute(_) => None,
+            Tab::TransitVehicleStatus(c) => Some(ID::Car(*c)),
+            Tab::TransitStop(bs) => Some(ID::TransitStop(*bs)),
+            Tab::TransitRoute(_) => None,
             // TODO If a parked car becomes in use while the panel is open, should update the
             // panel better.
             Tab::ParkedCar(c) => match app.primary.sim.lookup_parked_car(*c)?.spot {
@@ -262,9 +264,9 @@ impl Tab {
             Tab::PersonTrips(_, _) => ("person", "trips"),
             Tab::PersonBio(_) => ("person", "bio"),
             Tab::PersonSchedule(_) => ("person", "schedule"),
-            Tab::BusStatus(_) => ("bus", "status"),
-            Tab::BusStop(_) => ("bus stop", "info"),
-            Tab::BusRoute(_) => ("bus route", "info"),
+            Tab::TransitVehicleStatus(_) => ("bus", "status"),
+            Tab::TransitStop(_) => ("bus stop", "info"),
+            Tab::TransitRoute(_) => ("bus route", "info"),
             Tab::ParkedCar(_) => ("parked car", "info"),
             Tab::BldgInfo(_) => ("bldg", "info"),
             Tab::BldgPeople(_) => ("bldg", "people"),
@@ -332,9 +334,9 @@ impl InfoPanel {
                 person::schedule(ctx, app, &mut details, p, ctx_actions.is_paused()),
                 false,
             ),
-            Tab::BusStatus(c) => (bus::bus_status(ctx, app, &mut details, c), true),
-            Tab::BusStop(bs) => (bus::stop(ctx, app, &mut details, bs), true),
-            Tab::BusRoute(br) => (bus::route(ctx, app, &mut details, br), true),
+            Tab::TransitVehicleStatus(c) => (transit::bus_status(ctx, app, &mut details, c), true),
+            Tab::TransitStop(bs) => (transit::stop(ctx, app, &mut details, bs), true),
+            Tab::TransitRoute(br) => (transit::route(ctx, app, &mut details, br), true),
             Tab::ParkedCar(c) => (
                 person::parked_car(ctx, app, &mut details, c, ctx_actions.is_paused()),
                 true,
@@ -571,7 +573,7 @@ impl InfoPanel {
                 } else if let Some(url) = action.strip_prefix("open ") {
                     open_browser(url);
                     (false, None)
-                } else if let Some(x) = action.strip_prefix("edit BusRoute #") {
+                } else if let Some(x) = action.strip_prefix("edit TransitRoute #") {
                     (
                         false,
                         Some(Transition::Multi(vec![
@@ -583,7 +585,7 @@ impl InfoPanel {
                             Transition::Push(RouteEditor::new_state(
                                 ctx,
                                 app,
-                                BusRouteID(x.parse::<usize>().unwrap()),
+                                TransitRouteID(x.parse::<usize>().unwrap()),
                             )),
                         ])),
                     )

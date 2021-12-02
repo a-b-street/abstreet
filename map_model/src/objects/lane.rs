@@ -7,8 +7,8 @@ use abstutil::Tags;
 use geom::{Distance, Line, PolyLine, Polygon, Pt2D};
 
 use crate::{
-    osm, BusStopID, DirectedRoadID, Direction, DrivingSide, IntersectionID, Map, MapConfig, Road,
-    RoadID, RoadSideID, SideOfRoad, TurnType,
+    osm, DirectedRoadID, Direction, DrivingSide, IntersectionID, Map, MapConfig, Road, RoadID,
+    RoadSideID, SideOfRoad, TransitStopID, TurnType,
 };
 
 /// From some manually audited cases in Seattle, the length of parallel street parking spots is a
@@ -248,7 +248,7 @@ pub struct Lane {
     pub dst_i: IntersectionID,
 
     /// Meaningless order
-    pub bus_stops: BTreeSet<BusStopID>,
+    pub transit_stops: BTreeSet<TransitStopID>,
 
     /// {Cars, bikes} trying to start or end here might not be able to reach most lanes in the
     /// graph, because this is near a border.

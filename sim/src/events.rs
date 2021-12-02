@@ -2,8 +2,8 @@ use serde::{Deserialize, Serialize};
 
 use geom::Duration;
 use map_model::{
-    BuildingID, BusRouteID, BusStopID, IntersectionID, LaneID, Map, Path, PathRequest, Traversable,
-    TurnID,
+    BuildingID, IntersectionID, LaneID, Map, Path, PathRequest, TransitRouteID, TransitStopID,
+    Traversable, TurnID,
 };
 
 use crate::{AgentID, CarID, ParkingSpot, PedestrianID, PersonID, Problem, TripID, TripMode};
@@ -21,11 +21,11 @@ pub enum Event {
     CarReachedParkingSpot(CarID, ParkingSpot),
     CarLeftParkingSpot(CarID, ParkingSpot),
 
-    BusArrivedAtStop(CarID, BusRouteID, BusStopID),
-    BusDepartedFromStop(CarID, BusRouteID, BusStopID),
+    BusArrivedAtStop(CarID, TransitRouteID, TransitStopID),
+    BusDepartedFromStop(CarID, TransitRouteID, TransitStopID),
     /// How long waiting at the stop?
-    PassengerBoardsTransit(PersonID, CarID, BusRouteID, BusStopID, Duration),
-    PassengerAlightsTransit(PersonID, CarID, BusRouteID, BusStopID),
+    PassengerBoardsTransit(PersonID, CarID, TransitRouteID, TransitStopID, Duration),
+    PassengerAlightsTransit(PersonID, CarID, TransitRouteID, TransitStopID),
 
     PersonEntersBuilding(PersonID, BuildingID),
     PersonLeavesBuilding(PersonID, BuildingID),
@@ -75,9 +75,9 @@ pub enum TripPhaseType {
     Walking,
     Biking,
     Parking,
-    WaitingForBus(BusRouteID, BusStopID),
+    WaitingForBus(TransitRouteID, TransitStopID),
     /// What stop did they board at?
-    RidingBus(BusRouteID, BusStopID, CarID),
+    RidingBus(TransitRouteID, TransitStopID, CarID),
     Cancelled,
     Finished,
     DelayedStart,
@@ -91,9 +91,9 @@ impl TripPhaseType {
             TripPhaseType::Biking => "Biking".to_string(),
             TripPhaseType::Parking => "Parking".to_string(),
             TripPhaseType::WaitingForBus(r, _) => {
-                format!("Waiting for bus {}", map.get_br(r).full_name)
+                format!("Waiting for transit route {}", map.get_tr(r).long_name)
             }
-            TripPhaseType::RidingBus(r, _, _) => format!("Riding bus {}", map.get_br(r).full_name),
+            TripPhaseType::RidingBus(r, _, _) => format!("Riding route {}", map.get_tr(r).long_name),
             TripPhaseType::Cancelled => "Trip was cancelled due to some bug".to_string(),
             TripPhaseType::Finished => "Trip finished".to_string(),
             TripPhaseType::DelayedStart => "Delayed by a previous trip taking too long".to_string(),

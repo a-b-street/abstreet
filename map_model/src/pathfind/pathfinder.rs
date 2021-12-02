@@ -11,8 +11,8 @@ use crate::pathfind::engine::CreateEngine;
 use crate::pathfind::vehicles::VehiclePathfinder;
 use crate::pathfind::walking::SidewalkPathfinder;
 use crate::{
-    BusRouteID, BusStopID, DirectedRoadID, Map, PathConstraints, PathRequest, PathV2, Position,
-    RoutingParams,
+    DirectedRoadID, Map, PathConstraints, PathRequest, PathV2, Position, RoutingParams,
+    TransitRouteID, TransitStopID,
 };
 
 #[derive(Serialize, Deserialize)]
@@ -241,7 +241,7 @@ impl Pathfinder {
         map: &Map,
         start: Position,
         end: Position,
-    ) -> Option<(BusStopID, Option<BusStopID>, BusRouteID)> {
+    ) -> Option<(TransitStopID, Option<TransitStopID>, TransitRouteID)> {
         self.walking_with_transit_graph
             .should_use_transit(map, start, end)
     }

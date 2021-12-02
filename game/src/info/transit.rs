@@ -2,14 +2,14 @@ use abstutil::{prettyprint_usize, Counter};
 use geom::{Circle, Distance, Time};
 use map_gui::tools::ColorNetwork;
 use map_gui::ID;
-use map_model::{BusRoute, BusRouteID, BusStopID, PathStep};
+use map_model::{PathStep, TransitRoute, TransitRouteID, TransitStopID};
 use sim::{AgentID, CarID};
 use widgetry::{Color, ControlState, EventCtx, Key, Line, RewriteColor, Text, TextExt, Widget};
 
 use crate::app::App;
 use crate::info::{header_btns, make_tabs, Details, Tab};
 
-pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID) -> Widget {
+pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: TransitStopID) -> Widget {
     let header = Widget::row(vec![
         Line("Bus stop").small_heading().into_widget(ctx),
         header_btns(ctx),
@@ -18,25 +18,25 @@ pub fn stop(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID)
     Widget::custom_col(vec![header, stop_body(ctx, app, details, id).tab_body(ctx)])
 }
 
-fn stop_body(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID) -> Widget {
+fn stop_body(ctx: &mut EventCtx, app: &App, details: &mut Details, id: TransitStopID) -> Widget {
     let mut rows = vec![];
 
-    let bs = app.primary.map.get_bs(id);
+    let ts = app.primary.map.get_ts(id);
     let sim = &app.primary.sim;
 
-    rows.push(Line(&bs.name).into_widget(ctx));
+    rows.push(Line(&ts.name).into_widget(ctx));
 
     let all_arrivals = &sim.get_analytics().bus_arrivals;
     for r in app.primary.map.get_routes_serving_stop(id) {
         // Full names can overlap, so include the ID
-        let label = format!("{} ({})", r.full_name, r.id);
+        let label = format!("{} ({})", r.long_name, r.id);
         rows.push(
             ctx.style()
                 .btn_outline
                 .text(format!("Route {}", r.short_name))
                 .build_widget(ctx, &label),
         );
-        details.hyperlinks.insert(label, Tab::BusRoute(r.id));
+        details.hyperlinks.insert(label, Tab::TransitRoute(r.id));
 
         let arrivals: Vec<(Time, CarID)> = all_arrivals
             .iter()
@@ -53,8 +53,8 @@ fn stop_body(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID
         rows.push(txt.into_widget(ctx));
     }
 
-    let mut boardings: Counter<BusRouteID> = Counter::new();
-    let mut alightings: Counter<BusRouteID> = Counter::new();
+    let mut boardings: Counter<TransitRouteID> = Counter::new();
+    let mut alightings: Counter<TransitRouteID> = Counter::new();
     if let Some(list) = app.primary.sim.get_analytics().passengers_boarding.get(&id) {
         for (_, r, _) in list {
             boardings.inc(*r);
@@ -97,7 +97,7 @@ fn stop_body(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID
     // Draw where the bus/train stops
     details.draw_extra.zoomed.push(
         app.cs.bus_body.alpha(0.5),
-        Circle::new(bs.driving_pos.pt(&app.primary.map), Distance::meters(2.5)).to_polygon(),
+        Circle::new(ts.driving_pos.pt(&app.primary.map), Distance::meters(2.5)).to_polygon(),
     );
 
     Widget::col(rows)
@@ -105,7 +105,7 @@ fn stop_body(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID
 
 pub fn bus_status(ctx: &mut EventCtx, app: &App, details: &mut Details, id: CarID) -> Widget {
     Widget::custom_col(vec![
-        bus_header(ctx, app, details, id, Tab::BusStatus(id)),
+        bus_header(ctx, app, details, id, Tab::TransitVehicleStatus(id)),
         bus_status_body(ctx, app, details, id).tab_body(ctx),
     ])
 }
@@ -116,7 +116,7 @@ fn bus_status_body(ctx: &mut EventCtx, app: &App, details: &mut Details, id: Car
     let route = app
         .primary
         .map
-        .get_br(app.primary.sim.bus_route_id(id).unwrap());
+        .get_tr(app.primary.sim.bus_route_id(id).unwrap());
 
     rows.push(
         ctx.style()
@@ -126,7 +126,7 @@ fn bus_status_body(ctx: &mut EventCtx, app: &App, details: &mut Details, id: Car
     );
     details.hyperlinks.insert(
         format!("Serves route {}", route.short_name),
-        Tab::BusRoute(route.id),
+        Tab::TransitRoute(route.id),
     );
 
     rows.push(
@@ -156,7 +156,7 @@ fn bus_header(ctx: &mut EventCtx, app: &App, details: &mut Details, id: CarID, t
         Line(format!(
             "{} (route {})",
             id,
-            app.primary.map.get_br(route).short_name
+            app.primary.map.get_tr(route).short_name
         ))
         .small_heading()
         .into_widget(ctx),
@@ -166,16 +166,16 @@ fn bus_header(ctx: &mut EventCtx, app: &App, details: &mut Details, id: CarID, t
         ctx,
         &mut details.hyperlinks,
         tab,
-        vec![("Status", Tab::BusStatus(id))],
+        vec![("Status", Tab::TransitVehicleStatus(id))],
     ));
 
     Widget::custom_col(rows)
 }
 
-pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteID) -> Widget {
+pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: TransitRouteID) -> Widget {
     let header = {
         let map = &app.primary.map;
-        let route = map.get_br(id);
+        let route = map.get_tr(id);
 
         Widget::row(vec![
             Line(format!("Route {}", route.short_name))
@@ -191,13 +191,13 @@ pub fn route(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteI
     ])
 }
 
-fn route_body(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRouteID) -> Widget {
+fn route_body(ctx: &mut EventCtx, app: &App, details: &mut Details, id: TransitRouteID) -> Widget {
     let mut rows = vec![];
 
     let map = &app.primary.map;
-    let route = map.get_br(id);
+    let route = map.get_tr(id);
     rows.push(
-        Text::from(&route.full_name)
+        Text::from(&route.long_name)
             .wrap_to_pct(ctx, 20)
             .into_widget(ctx),
     );
@@ -220,33 +220,33 @@ fn route_body(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRoute
             rows.push(ctx.style().btn_outline.text(bus.to_string()).build_def(ctx));
             details
                 .hyperlinks
-                .insert(bus.to_string(), Tab::BusStatus(bus));
+                .insert(bus.to_string(), Tab::TransitVehicleStatus(bus));
             bus_locations.push(pt);
         }
     }
 
-    let mut boardings: Counter<BusStopID> = Counter::new();
-    let mut alightings: Counter<BusStopID> = Counter::new();
-    let mut waiting: Counter<BusStopID> = Counter::new();
-    for bs in &route.stops {
-        if let Some(list) = app.primary.sim.get_analytics().passengers_boarding.get(bs) {
+    let mut boardings: Counter<TransitStopID> = Counter::new();
+    let mut alightings: Counter<TransitStopID> = Counter::new();
+    let mut waiting: Counter<TransitStopID> = Counter::new();
+    for ts in &route.stops {
+        if let Some(list) = app.primary.sim.get_analytics().passengers_boarding.get(ts) {
             for (_, r, _) in list {
                 if *r == id {
-                    boardings.inc(*bs);
+                    boardings.inc(*ts);
                 }
             }
         }
-        if let Some(list) = app.primary.sim.get_analytics().passengers_alighting.get(bs) {
+        if let Some(list) = app.primary.sim.get_analytics().passengers_alighting.get(ts) {
             for (_, r) in list {
                 if *r == id {
-                    alightings.inc(*bs);
+                    alightings.inc(*ts);
                 }
             }
         }
 
-        for (_, r, _, _) in app.primary.sim.get_people_waiting_at_stop(*bs) {
+        for (_, r, _, _) in app.primary.sim.get_people_waiting_at_stop(*ts) {
             if *r == id {
-                waiting.inc(*bs);
+                waiting.inc(*ts);
             }
         }
     }
@@ -279,27 +279,27 @@ fn route_body(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRoute
         ]));
         details.warpers.insert(name, ID::Intersection(i.id));
     }
-    for (idx, bs) in route.stops.iter().enumerate() {
-        let bs = map.get_bs(*bs);
-        let name = format!("Stop {}: {}", idx + 1, bs.name);
+    for (idx, ts) in route.stops.iter().enumerate() {
+        let ts = map.get_ts(*ts);
+        let name = format!("Stop {}: {}", idx + 1, ts.name);
         rows.push(Widget::row(vec![
             ctx.style()
                 .btn_plain
                 .icon("system/assets/tools/pin.svg")
                 .build_widget(ctx, &name),
             Text::from_all(vec![
-                Line(&bs.name),
+                Line(&ts.name),
                 Line(format!(
                     ": {} boardings, {} alightings, {} currently waiting",
-                    prettyprint_usize(boardings.get(bs.id)),
-                    prettyprint_usize(alightings.get(bs.id)),
-                    prettyprint_usize(waiting.get(bs.id))
+                    prettyprint_usize(boardings.get(ts.id)),
+                    prettyprint_usize(alightings.get(ts.id)),
+                    prettyprint_usize(waiting.get(ts.id))
                 ))
                 .secondary(),
             ])
             .into_widget(ctx),
         ]));
-        details.warpers.insert(name, ID::BusStop(bs.id));
+        details.warpers.insert(name, ID::TransitStop(ts.id));
     }
     if let Some(l) = route.end_border {
         let i = map.get_i(map.get_l(l).dst_i);
@@ -351,20 +351,20 @@ fn route_body(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRoute
             );
         }
 
-        for (idx, bs) in route.stops.iter().enumerate() {
-            let bs = map.get_bs(*bs);
+        for (idx, ts) in route.stops.iter().enumerate() {
+            let ts = map.get_ts(*ts);
             details.draw_extra.unzoomed.append(
-                Text::from(format!("{}) {}", idx + 1, bs.name))
+                Text::from(format!("{}) {}", idx + 1, ts.name))
                     .bg(app.cs.bus_layer)
                     .render_autocropped(ctx)
-                    .centered_on(bs.sidewalk_pos.pt(map)),
+                    .centered_on(ts.sidewalk_pos.pt(map)),
             );
             details.draw_extra.zoomed.append(
-                Text::from(format!("{}) {}", idx + 1, bs.name))
+                Text::from(format!("{}) {}", idx + 1, ts.name))
                     .bg(app.cs.bus_layer)
                     .render_autocropped(ctx)
                     .scale(0.1)
-                    .centered_on(bs.sidewalk_pos.pt(map)),
+                    .centered_on(ts.sidewalk_pos.pt(map)),
             );
         }
     }
@@ -373,7 +373,7 @@ fn route_body(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRoute
 }
 
 // TODO Unit test
-fn describe_schedule(route: &BusRoute) -> Text {
+fn describe_schedule(route: &TransitRoute) -> Text {
     let mut txt = Text::new();
     txt.add_line(format!(
         "{} {}s run this route daily",

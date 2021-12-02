@@ -3,7 +3,7 @@ use std::collections::BTreeMap;
 use geom::Pt2D;
 use map_gui::tools::{grey_out_map, PopupMsg};
 use map_gui::ID;
-use map_model::{AreaID, BuildingID, BusRouteID, IntersectionID, LaneID, ParkingLotID, RoadID};
+use map_model::{AreaID, BuildingID, IntersectionID, LaneID, ParkingLotID, RoadID, TransitRouteID};
 use sim::{PedestrianID, PersonID, TripID};
 use widgetry::{
     EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text, TextBox, TextExt, Warper, Widget,
@@ -186,8 +186,8 @@ fn inner_warp_to_id(ctx: &mut EventCtx, app: &mut App, line: &str) -> Option<Tra
                 ID::Lane(r.lanes[0].id)
             }
             'R' => {
-                let r = BusRouteID(idx);
-                app.primary.map.maybe_get_br(r)?;
+                let r = TransitRouteID(idx);
+                app.primary.map.maybe_get_tr(r)?;
                 return Some(Transition::Multi(vec![
                     Transition::Pop,
                     Transition::ModifyState(Box::new(move |state, ctx, app| {
@@ -197,7 +197,7 @@ fn inner_warp_to_id(ctx: &mut EventCtx, app: &mut App, line: &str) -> Option<Tra
                             s.controls.common.as_mut().unwrap().launch_info_panel(
                                 ctx,
                                 app,
-                                Tab::BusRoute(r),
+                                Tab::TransitRoute(r),
                                 &mut actions,
                             );
                         }

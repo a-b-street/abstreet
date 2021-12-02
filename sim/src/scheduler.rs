@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use abstutil::Counter;
 use geom::{Duration, Histogram, Time};
-use map_model::{BusRouteID, IntersectionID};
+use map_model::{IntersectionID, TransitRouteID};
 
 use crate::{
     pandemic, AgentID, CarID, CreateCar, CreatePedestrian, PedestrianID, StartTripArgs, TripID,
@@ -26,7 +26,7 @@ pub(crate) enum Command {
     Callback(Duration),
     Pandemic(pandemic::Cmd),
     /// The Time is redundant, just used to dedupe commands
-    StartBus(BusRouteID, Time),
+    StartBus(TransitRouteID, Time),
 }
 
 impl Command {
@@ -80,7 +80,7 @@ enum CommandType {
     Intersection(IntersectionID),
     Callback,
     Pandemic(pandemic::Cmd),
-    StartBus(BusRouteID, Time),
+    StartBus(TransitRouteID, Time),
 }
 
 /// A more compressed form of CommandType, just used for keeping stats on event processing.

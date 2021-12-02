@@ -292,7 +292,7 @@ impl Car {
                 || self.vehicle.vehicle_type == VehicleType::Train
             {
                 Some(
-                    map.get_br(transit.bus_route(self.vehicle.id))
+                    map.get_tr(transit.bus_route(self.vehicle.id))
                         .short_name
                         .clone(),
                 )

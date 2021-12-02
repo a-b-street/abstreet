@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::Time;
-use map_model::{BusRoute, BusRouteID, BusStopID, Map, Path, PathRequest, Position};
+use map_model::{Map, Path, PathRequest, Position, TransitRoute, TransitRouteID, TransitStopID};
 
 use crate::sim::Ctx;
 use crate::{
@@ -17,7 +17,7 @@ type StopIdx = usize;
 
 #[derive(Serialize, Deserialize, Clone)]
 struct Stop {
-    id: BusStopID,
+    id: TransitStopID,
     driving_pos: Position,
     next_stop: Option<Path>,
 }
@@ -33,9 +33,9 @@ struct Route {
 #[derive(Serialize, Deserialize, Clone)]
 struct Bus {
     car: CarID,
-    route: BusRouteID,
+    route: TransitRouteID,
     /// Where does each passenger want to deboard?
-    passengers: Vec<(PersonID, Option<BusStopID>)>,
+    passengers: Vec<(PersonID, Option<TransitStopID>)>,
     state: BusState,
 }
 
@@ -60,13 +60,14 @@ pub(crate) struct TransitSimState {
         serialize_with = "serialize_btreemap",
         deserialize_with = "deserialize_btreemap"
     )]
-    routes: BTreeMap<BusRouteID, Route>,
+    routes: BTreeMap<TransitRouteID, Route>,
     /// waiting at => (ped, route, bound for, started waiting)
     #[serde(
         serialize_with = "serialize_btreemap",
         deserialize_with = "deserialize_btreemap"
     )]
-    peds_waiting: BTreeMap<BusStopID, Vec<(PedestrianID, BusRouteID, Option<BusStopID>, Time)>>,
+    peds_waiting:
+        BTreeMap<TransitStopID, Vec<(PedestrianID, TransitRouteID, Option<TransitStopID>, Time)>>,
 
     events: Vec<Event>,
 }
@@ -75,8 +76,8 @@ impl TransitSimState {
     pub fn new(map: &Map) -> TransitSimState {
         // Keep this filled out always so get_passengers can return &Vec without a hassle
         let mut peds_waiting = BTreeMap::new();
-        for bs in map.all_bus_stops().keys() {
-            peds_waiting.insert(*bs, Vec::new());
+        for ts in map.all_transit_stops().keys() {
+            peds_waiting.insert(*ts, Vec::new());
         }
 
         TransitSimState {
@@ -88,12 +89,12 @@ impl TransitSimState {
     }
 
     /// Returns the path for the first leg.
-    pub fn create_empty_route(&mut self, bus_route: &BusRoute, map: &Map) -> Path {
+    pub fn create_empty_route(&mut self, bus_route: &TransitRoute, map: &Map) -> Path {
         self.routes.entry(bus_route.id).or_insert_with(|| {
             assert!(bus_route.stops.len() > 1);
             let mut stops = Vec::new();
             for (idx, stop1_id) in bus_route.stops.iter().enumerate() {
-                let stop1 = map.get_bs(*stop1_id);
+                let stop1 = map.get_ts(*stop1_id);
                 if idx == bus_route.stops.len() - 1 {
                     stops.push(Stop {
                         id: stop1.id,
@@ -104,7 +105,7 @@ impl TransitSimState {
                 }
                 let req = PathRequest::vehicle(
                     stop1.driving_pos,
-                    map.get_bs(bus_route.stops[idx + 1]).driving_pos,
+                    map.get_ts(bus_route.stops[idx + 1]).driving_pos,
                     bus_route.route_type,
                 );
                 match map.pathfind(req) {
@@ -125,13 +126,13 @@ impl TransitSimState {
             }
             let start_req = PathRequest::vehicle(
                 Position::start(bus_route.start),
-                map.get_bs(bus_route.stops[0]).driving_pos,
+                map.get_ts(bus_route.stops[0]).driving_pos,
                 bus_route.route_type,
             );
             let start = map.pathfind(start_req).expect("no route to first stop");
             let end_at_border = if let Some(l) = bus_route.end_border {
                 let req = PathRequest::vehicle(
-                    map.get_bs(*bus_route.stops.last().unwrap()).driving_pos,
+                    map.get_ts(*bus_route.stops.last().unwrap()).driving_pos,
                     Position::end(l, map),
                     bus_route.route_type,
                 );
@@ -153,7 +154,7 @@ impl TransitSimState {
         self.routes[&bus_route.id].start.clone()
     }
 
-    pub fn bus_created(&mut self, bus: CarID, r: BusRouteID) {
+    pub fn bus_created(&mut self, bus: CarID, r: TransitRouteID) {
         let route = self.routes.get_mut(&r).unwrap();
         route.active_vehicles.insert(bus);
         self.buses.insert(
@@ -223,9 +224,9 @@ impl TransitSimState {
                             trip,
                             person,
                             Some(PathRequest::vehicle(
-                                ctx.map.get_bs(stop1).driving_pos,
+                                ctx.map.get_ts(stop1).driving_pos,
                                 if let Some(stop2) = maybe_stop2 {
-                                    ctx.map.get_bs(stop2).driving_pos
+                                    ctx.map.get_ts(stop2).driving_pos
                                 } else {
                                     self.routes[&route]
                                         .end_at_border
@@ -307,9 +308,9 @@ impl TransitSimState {
         ped: PedestrianID,
         trip: TripID,
         person: PersonID,
-        stop1: BusStopID,
-        route_id: BusRouteID,
-        maybe_stop2: Option<BusStopID>,
+        stop1: TransitStopID,
+        route_id: TransitRouteID,
+        maybe_stop2: Option<TransitStopID>,
         map: &Map,
     ) -> Option<CarID> {
         assert!(Some(stop1) != maybe_stop2);
@@ -326,9 +327,9 @@ impl TransitSimState {
                             trip,
                             person,
                             Some(PathRequest::vehicle(
-                                map.get_bs(stop1).driving_pos,
+                                map.get_ts(stop1).driving_pos,
                                 if let Some(stop2) = maybe_stop2 {
-                                    map.get_bs(stop2).driving_pos
+                                    map.get_ts(stop2).driving_pos
                                 } else {
                                     route.end_at_border.as_ref().unwrap().get_req().end
                                 },
@@ -358,16 +359,16 @@ impl TransitSimState {
         self.events.drain(..).collect()
     }
 
-    pub fn get_passengers(&self, bus: CarID) -> &Vec<(PersonID, Option<BusStopID>)> {
+    pub fn get_passengers(&self, bus: CarID) -> &Vec<(PersonID, Option<TransitStopID>)> {
         &self.buses[&bus].passengers
     }
 
-    pub fn bus_route(&self, bus: CarID) -> BusRouteID {
+    pub fn bus_route(&self, bus: CarID) -> TransitRouteID {
         self.buses[&bus].route
     }
 
     /// also stop idx that the bus is coming from
-    pub fn buses_for_route(&self, route: BusRouteID) -> Vec<(CarID, Option<usize>)> {
+    pub fn buses_for_route(&self, route: TransitRouteID) -> Vec<(CarID, Option<usize>)> {
         if let Some(r) = self.routes.get(&route) {
             r.active_vehicles
                 .iter()
@@ -411,8 +412,8 @@ impl TransitSimState {
 
     pub fn get_people_waiting_at_stop(
         &self,
-        at: BusStopID,
-    ) -> &Vec<(PedestrianID, BusRouteID, Option<BusStopID>, Time)> {
+        at: TransitStopID,
+    ) -> &Vec<(PedestrianID, TransitRouteID, Option<TransitStopID>, Time)> {
         &self.peds_waiting[&at]
     }
 

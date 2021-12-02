@@ -374,7 +374,7 @@ impl App {
         let mut roads: Vec<&dyn Renderable> = Vec::new();
         let mut intersections: Vec<&dyn Renderable> = Vec::new();
         let mut buildings: Vec<&dyn Renderable> = Vec::new();
-        let mut bus_stops: Vec<&dyn Renderable> = Vec::new();
+        let mut transit_stops: Vec<&dyn Renderable> = Vec::new();
         let mut agents_on: Vec<Traversable> = Vec::new();
 
         for id in draw_map.get_matching_objects(bounds) {
@@ -387,9 +387,9 @@ impl App {
                     let road = draw_map.get_r(id);
                     for lane in &road.lanes {
                         agents_on.push(Traversable::Lane(lane.id));
-                        for bs in &map.get_l(lane.id).bus_stops {
-                            if show_objs.show(&ID::BusStop(*bs)) {
-                                bus_stops.push(draw_map.get_bs(*bs));
+                        for ts in &map.get_l(lane.id).transit_stops {
+                            if show_objs.show(&ID::TransitStop(*ts)) {
+                                transit_stops.push(draw_map.get_ts(*ts));
                             }
                         }
                         lanes.push(lane);
@@ -409,7 +409,11 @@ impl App {
                     agents_on.push(Traversable::Lane(map.get_pl(id).driving_pos.lane()));
                 }
 
-                ID::Lane(_) | ID::BusStop(_) | ID::Car(_) | ID::Pedestrian(_) | ID::PedCrowd(_) => {
+                ID::Lane(_)
+                | ID::TransitStop(_)
+                | ID::Car(_)
+                | ID::Pedestrian(_)
+                | ID::PedCrowd(_) => {
                     panic!("{:?} shouldn't be in the quadtree", id)
                 }
             }
@@ -423,7 +427,7 @@ impl App {
         borrows.extend(roads);
         borrows.extend(intersections);
         borrows.extend(buildings);
-        borrows.extend(bus_stops);
+        borrows.extend(transit_stops);
 
         // Expand all of the Traversables into agents, populating the cache if needed.
         for on in &agents_on {
@@ -734,9 +738,9 @@ impl PerMap {
             ID::PedCrowd(ref members) => self
                 .sim
                 .canonical_pt_for_agent(AgentID::Pedestrian(members[0]), &self.map),
-            ID::BusStop(id) => self
+            ID::TransitStop(id) => self
                 .map
-                .maybe_get_bs(id)
+                .maybe_get_ts(id)
                 .map(|bs| bs.sidewalk_pos.pt(&self.map)),
             ID::Area(id) => self.map.maybe_get_a(id).map(|a| a.polygon.center()),
         }
