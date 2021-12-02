@@ -576,6 +576,7 @@ dependencies = [
  "abstio",
  "abstutil",
  "anyhow",
+ "csv",
  "geom",
  "kml",
  "log",

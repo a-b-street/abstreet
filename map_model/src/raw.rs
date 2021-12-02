@@ -16,6 +16,7 @@ use geom::{Distance, GPSBounds, PolyLine, Polygon, Pt2D};
 use crate::make::initial::lane_specs::get_lane_specs_ltr;
 use crate::{
     osm, Amenity, AreaType, Direction, DrivingSide, IntersectionType, LaneType, MapConfig,
+    PathConstraints,
 };
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -39,6 +40,12 @@ pub struct RawMap {
     pub areas: Vec<RawArea>,
     pub parking_lots: Vec<RawParkingLot>,
     pub parking_aisles: Vec<(osm::WayID, Vec<Pt2D>)>,
+    pub transit_routes: Vec<RawTransitRoute>,
+    #[serde(
+        serialize_with = "serialize_btreemap",
+        deserialize_with = "deserialize_btreemap"
+    )]
+    pub transit_stops: BTreeMap<String, RawTransitStop>,
 
     pub boundary_polygon: Polygon,
     pub gps_bounds: GPSBounds,
@@ -114,6 +121,8 @@ impl RawMap {
             areas: Vec::new(),
             parking_lots: Vec::new(),
             parking_aisles: Vec::new(),
+            transit_routes: Vec::new(),
+            transit_stops: BTreeMap::new(),
             // Some nonsense thing
             boundary_polygon: Polygon::rectangle(1.0, 1.0),
             gps_bounds: GPSBounds::new(),
@@ -719,4 +728,25 @@ impl RestrictionType {
             None
         }
     }
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct RawTransitRoute {
+    pub long_name: String,
+    pub short_name: String,
+    pub gtfs_id: String,
+    /// This may begin and/or end inside or outside the map boundary.
+    pub shape: PolyLine,
+    /// Entries into transit_stops
+    pub stops: Vec<String>,
+    pub route_type: PathConstraints,
+    // TODO Schedule
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct RawTransitStop {
+    pub gtfs_id: String,
+    /// Only stops within a map's boundary are kept
+    pub position: Pt2D,
+    pub name: String,
 }

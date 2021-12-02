@@ -8,6 +8,7 @@ edition = "2021"
 abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
 anyhow = "1.0.38"
+csv = "1.1.4"
 geom = { path = "../geom" }
 kml = { path = "../kml" }
 log = "0.4.14"

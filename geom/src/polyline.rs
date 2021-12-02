@@ -990,6 +990,11 @@ impl PolyLine {
 
         PolyLine::new(output).unwrap()
     }
+
+    /// An arbitrary placeholder value, when Option types aren't worthwhile
+    pub fn dummy() -> PolyLine {
+        PolyLine::must_new(vec![Pt2D::new(0.0, 0.0), Pt2D::new(0.1, 0.1)])
+    }
 }
 
 impl fmt::Display for PolyLine {

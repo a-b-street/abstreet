@@ -17,6 +17,7 @@ use serde::{Deserialize, Serialize};
 mod clip;
 mod elevation;
 mod extract;
+mod gtfs;
 pub mod osm_geom;
 mod parking;
 pub mod reader;
@@ -122,6 +123,10 @@ pub fn convert(
             split_output.pt_to_road,
             timer,
         );
+    }
+
+    if opts.gtfs_url.is_some() {
+        gtfs::import(&mut map).unwrap();
     }
 
     map.config = opts.map_config;
