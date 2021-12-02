@@ -33,7 +33,7 @@ impl PathCounter {
         for agent in sim.active_agents() {
             if let Some(path) = sim.get_path(agent) {
                 if path.get_steps().iter().any(|step| match step {
-                    PathStep::Turn(t) => t.parent == i,
+                    PathStep::Turn(t) | PathStep::ContraflowTurn(t) => t.parent == i,
                     _ => false,
                 }) {
                     // Count what lanes they'll cross

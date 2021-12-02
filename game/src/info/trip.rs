@@ -899,7 +899,7 @@ fn make_elevation(
     let mut pts: Vec<(Distance, Distance)> = Vec::new();
     let mut dist = Distance::ZERO;
     for step in path.get_steps() {
-        if let PathStep::Turn(t) = step {
+        if let PathStep::Turn(t) | PathStep::ContraflowTurn(t) = step {
             pts.push((dist, map.get_i(t.parent).elevation));
         }
         dist += step.as_traversable().get_polyline(map).length();
