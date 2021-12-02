@@ -14,10 +14,9 @@ pub use self::perma::PermanentMapEdits;
 use crate::make::initial::lane_specs::get_lane_specs_ltr;
 use crate::make::{match_points_to_lanes, snap_driveway, trim_path};
 use crate::{
-    connectivity, AccessRestrictions, BuildingID, BusRouteID, ControlStopSign,
-    ControlTrafficSignal, Direction, IntersectionID, IntersectionType, LaneID, LaneSpec, LaneType,
-    Map, MapConfig, Movement, ParkingLotID, PathConstraints, Pathfinder, Road, RoadID, TurnID,
-    Zone,
+    connectivity, AccessRestrictions, BuildingID, ControlStopSign, ControlTrafficSignal, Direction,
+    IntersectionID, IntersectionType, LaneID, LaneSpec, LaneType, Map, MapConfig, Movement,
+    ParkingLotID, PathConstraints, Pathfinder, Road, RoadID, TransitRouteID, TurnID, Zone,
 };
 
 mod compat;
@@ -39,7 +38,7 @@ pub struct MapEdits {
     /// Derived from commands, kept up to date by update_derived
     pub changed_roads: BTreeSet<RoadID>,
     pub original_intersections: BTreeMap<IntersectionID, EditIntersection>,
-    pub changed_routes: BTreeSet<BusRouteID>,
+    pub changed_routes: BTreeSet<TransitRouteID>,
 
     /// Some edits are included in the game by default, in data/system/proposals, as "community
     /// proposals." They require a description and may have a link to a write-up.
@@ -186,7 +185,7 @@ pub enum EditCmd {
         old: EditIntersection,
     },
     ChangeRouteSchedule {
-        id: BusRouteID,
+        id: TransitRouteID,
         old: Vec<Time>,
         new: Vec<Time>,
     },
@@ -297,7 +296,7 @@ impl MapEdits {
         self.original_intersections
             .retain(|i, orig| map.get_i_edit(*i) != orig.clone());
         self.changed_routes.retain(|br| {
-            let r = map.get_br(*br);
+            let r = map.get_tr(*br);
             r.spawn_times != r.orig_spawn_times
         });
     }
@@ -319,7 +318,7 @@ impl MapEdits {
             });
         }
         for r in &self.changed_routes {
-            let r = map.get_br(*r);
+            let r = map.get_tr(*r);
             self.commands.push(EditCmd::ChangeRouteSchedule {
                 id: r.id,
                 new: r.spawn_times.clone(),
@@ -396,7 +395,7 @@ impl EditCmd {
                 EditIntersection::Closed => format!("close {}", i),
             },
             EditCmd::ChangeRouteSchedule { id, .. } => {
-                format!("reschedule route {}", map.get_br(*id).short_name)
+                format!("reschedule route {}", map.get_tr(*id).short_name)
             }
         };
         (summary, details)
@@ -472,7 +471,7 @@ impl EditCmd {
                 }
             }
             EditCmd::ChangeRouteSchedule { id, new, .. } => {
-                map.bus_routes[id.0].spawn_times = new.clone();
+                map.transit_routes[id.0].spawn_times = new.clone();
             }
         }
     }
@@ -905,9 +904,9 @@ impl Map {
         // Might need to update bus stops.
         if enforce_valid {
             for id in &effects.changed_roads {
-                let stops = self.get_r(*id).all_bus_stops();
+                let stops = self.get_r(*id).all_transit_stops();
                 for s in stops {
-                    let sidewalk_pos = self.get_bs(s).sidewalk_pos;
+                    let sidewalk_pos = self.get_ts(s).sidewalk_pos;
                     // Must exist, because we aren't allowed to orphan a bus stop.
                     let driving_lane = self
                         .get_r(*id)
@@ -916,7 +915,7 @@ impl Map {
                         })
                         .unwrap();
                     let driving_pos = sidewalk_pos.equiv_pos(driving_lane, self);
-                    self.bus_stops.get_mut(&s).unwrap().driving_pos = driving_pos;
+                    self.transit_stops.get_mut(&s).unwrap().driving_pos = driving_pos;
                 }
             }
         }

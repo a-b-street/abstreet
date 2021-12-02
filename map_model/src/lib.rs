@@ -11,8 +11,8 @@
 //! Map objects are usually abbreviated in method names:
 //! - a = area
 //! - b = building
-//! - br = bus route
-//! - bs = bus stop
+//! - tr = transit route
+//! - ts = transit stop
 //! - i = intersection
 //! - l = lane
 //! - pl = parking lot
@@ -47,7 +47,6 @@ pub use crate::objects::block::{Block, Perimeter};
 pub use crate::objects::building::{
     Amenity, AmenityType, Building, BuildingID, BuildingType, NamePerLanguage, OffstreetParking,
 };
-pub use crate::objects::bus_stop::{BusRoute, BusRouteID, BusStop, BusStopID};
 pub use crate::objects::intersection::{Intersection, IntersectionID, IntersectionType};
 pub use crate::objects::lane::{
     BufferType, Lane, LaneID, LaneSpec, LaneType, NORMAL_LANE_THICKNESS, PARKING_LOT_SPOT_LENGTH,
@@ -58,6 +57,7 @@ pub use crate::objects::parking_lot::{ParkingLot, ParkingLotID};
 pub use crate::objects::road::{DirectedRoadID, Direction, Road, RoadID, RoadSideID, SideOfRoad};
 pub use crate::objects::stop_signs::{ControlStopSign, RoadWithStopSign};
 pub use crate::objects::traffic_signals::{ControlTrafficSignal, Stage, StageType};
+pub use crate::objects::transit::{TransitRoute, TransitRouteID, TransitStop, TransitStopID};
 pub use crate::objects::turn::{Turn, TurnID, TurnPriority, TurnType};
 pub use crate::objects::zone::{AccessRestrictions, Zone};
 pub use crate::pathfind::uber_turns::{IntersectionCluster, UberTurn};
@@ -89,8 +89,8 @@ pub struct Map {
         serialize_with = "serialize_btreemap",
         deserialize_with = "deserialize_btreemap"
     )]
-    bus_stops: BTreeMap<BusStopID, BusStop>,
-    bus_routes: Vec<BusRoute>,
+    transit_stops: BTreeMap<TransitStopID, TransitStop>,
+    transit_routes: Vec<TransitRoute>,
     areas: Vec<Area>,
     parking_lots: Vec<ParkingLot>,
     boundary_polygon: Polygon,

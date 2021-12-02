@@ -126,18 +126,18 @@ fn dump_route_goldenfile(map: &map_model::Map) -> Result<()> {
         map.get_name().as_filename()
     ));
     let mut f = File::create(path)?;
-    for br in map.all_bus_routes() {
+    for tr in map.all_transit_routes() {
         writeln!(
             f,
             "{} from {} to {:?}",
-            br.osm_rel_id, br.start, br.end_border
+            tr.osm_rel_id, tr.start, tr.end_border
         )?;
-        for bs in &br.stops {
-            let bs = map.get_bs(*bs);
+        for ts in &tr.stops {
+            let ts = map.get_ts(*ts);
             writeln!(
                 f,
                 "  {}: {} driving, {} sidewalk",
-                bs.name, bs.driving_pos, bs.sidewalk_pos
+                ts.name, ts.driving_pos, ts.sidewalk_pos
             )?;
         }
     }

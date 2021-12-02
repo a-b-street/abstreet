@@ -79,7 +79,7 @@ impl EditCmd {
             },
             EditCmd::ChangeRouteSchedule { id, old, new } => {
                 PermanentEditCmd::ChangeRouteSchedule {
-                    osm_rel_id: map.get_br(*id).osm_rel_id,
+                    osm_rel_id: map.get_tr(*id).osm_rel_id,
                     old: old.clone(),
                     new: new.clone(),
                 }
@@ -124,7 +124,7 @@ impl PermanentEditCmd {
                 new,
             } => {
                 let id = map
-                    .find_br(osm_rel_id)
+                    .find_tr(osm_rel_id)
                     .ok_or_else(|| anyhow!("can't find {}", osm_rel_id))?;
                 Ok(EditCmd::ChangeRouteSchedule { id, old, new })
             }

@@ -52,7 +52,7 @@ enum Goal {
     BikeThenStop {
         goal: SidewalkSpot,
     },
-    FollowBusRoute {
+    FollowTransitRoute {
         end_dist: Distance,
     },
 }
@@ -108,7 +108,7 @@ impl Router {
 
     pub fn follow_bus_route(owner: CarID, path: Path) -> Router {
         Router {
-            goal: Goal::FollowBusRoute {
+            goal: Goal::FollowTransitRoute {
                 end_dist: path.get_req().end.dist_along(),
             },
             path,
@@ -143,7 +143,7 @@ impl Router {
                 ..
             } => stuck_end_dist.unwrap_or_else(|| spot.unwrap().1),
             Goal::BikeThenStop { ref goal } => goal.sidewalk_pos.dist_along(),
-            Goal::FollowBusRoute { end_dist } => end_dist,
+            Goal::FollowTransitRoute { end_dist } => end_dist,
         }
     }
 
@@ -325,7 +325,7 @@ impl Router {
                     None
                 }
             }
-            Goal::FollowBusRoute { end_dist } => {
+            Goal::FollowTransitRoute { end_dist } => {
                 if end_dist == front {
                     Some(ActionAtEnd::BusAtStop)
                 } else {

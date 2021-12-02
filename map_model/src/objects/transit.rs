@@ -1,6 +1,4 @@
-//! Bus stops and routes.
-// TODO Rename public transit -- these also cover light rail now.
-// TODO No code creates any of these structures right now.
+//! Public transit stops and routes.
 
 use std::fmt;
 
@@ -12,21 +10,21 @@ use geom::Time;
 use crate::{osm, LaneID, Map, PathConstraints, PathRequest, Position};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
-pub struct BusStopID {
+pub struct TransitStopID {
     pub sidewalk: LaneID,
     /// As long as this is unique per lane, this value is otherwise meaningless. Not contiguous or
     /// ordered in any way.
     pub(crate) idx: usize,
 }
 
-impl fmt::Display for BusStopID {
+impl fmt::Display for TransitStopID {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "BusStopID({0}, {1})", self.sidewalk, self.idx)
+        write!(f, "TransitStopID({0}, {1})", self.sidewalk, self.idx)
     }
 }
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
-pub struct BusRouteID(
+pub struct TransitRouteID(
     #[serde(
         serialize_with = "serialize_usize",
         deserialize_with = "deserialize_usize"
@@ -34,31 +32,31 @@ pub struct BusRouteID(
     pub usize,
 );
 
-impl fmt::Display for BusRouteID {
+impl fmt::Display for TransitRouteID {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "BusRoute #{}", self.0)
+        write!(f, "TransitRoute #{}", self.0)
     }
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
-pub struct BusStop {
-    pub id: BusStopID,
+pub struct TransitStop {
+    pub id: TransitStopID,
     pub name: String,
     /// These may be on different roads entirely, like for light rail platforms.
     pub driving_pos: Position,
     pub sidewalk_pos: Position,
-    /// If it's both, train overrides bus
+    /// If false, only buses serve this stop
     pub is_train_stop: bool,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct BusRoute {
-    pub id: BusRouteID,
-    pub full_name: String,
+pub struct TransitRoute {
+    pub id: TransitRouteID,
+    pub long_name: String,
     pub short_name: String,
     pub gtfs_trip_marker: Option<String>,
     pub osm_rel_id: osm::RelationID,
-    pub stops: Vec<BusStopID>,
+    pub stops: Vec<TransitStopID>,
     /// May be a border or not. If not, is long enough for buses to spawn fully.
     pub start: LaneID,
     pub end_border: Option<LaneID>,
@@ -70,23 +68,23 @@ pub struct BusRoute {
     pub orig_spawn_times: Vec<Time>,
 }
 
-impl BusRoute {
+impl TransitRoute {
     pub fn all_steps(&self, map: &Map) -> Vec<PathRequest> {
         let mut steps = vec![PathRequest::vehicle(
             Position::start(self.start),
-            map.get_bs(self.stops[0]).driving_pos,
+            map.get_ts(self.stops[0]).driving_pos,
             self.route_type,
         )];
         for pair in self.stops.windows(2) {
             steps.push(PathRequest::vehicle(
-                map.get_bs(pair[0]).driving_pos,
-                map.get_bs(pair[1]).driving_pos,
+                map.get_ts(pair[0]).driving_pos,
+                map.get_ts(pair[1]).driving_pos,
                 self.route_type,
             ));
         }
         if let Some(end) = self.end_border {
             steps.push(PathRequest::vehicle(
-                map.get_bs(*self.stops.last().unwrap()).driving_pos,
+                map.get_ts(*self.stops.last().unwrap()).driving_pos,
                 Position::end(end, map),
                 self.route_type,
             ));

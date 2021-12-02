@@ -131,14 +131,14 @@ impl Scenario {
         timer.start(format!("Instantiating {}", self.scenario_name));
 
         if let Some(ref routes) = self.only_seed_buses {
-            for route in map.all_bus_routes() {
-                if routes.contains(&route.full_name) {
+            for route in map.all_transit_routes() {
+                if routes.contains(&route.long_name) {
                     sim.seed_bus_route(route);
                 }
             }
         } else {
             // All of them
-            for route in map.all_bus_routes() {
+            for route in map.all_transit_routes() {
                 sim.seed_bus_route(route);
             }
         }

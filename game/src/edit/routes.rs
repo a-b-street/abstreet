@@ -1,5 +1,5 @@
 use geom::{Duration, Time};
-use map_model::{BusRouteID, EditCmd};
+use map_model::{EditCmd, TransitRouteID};
 use widgetry::{
     EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Spinner, State, TextExt,
     VerticalAlignment, Widget,
@@ -11,21 +11,21 @@ use crate::edit::apply_map_edits;
 
 pub struct RouteEditor {
     panel: Panel,
-    route: BusRouteID,
+    route: TransitRouteID,
 }
 
 impl RouteEditor {
-    pub fn new_state(ctx: &mut EventCtx, app: &mut App, id: BusRouteID) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &mut App, id: TransitRouteID) -> Box<dyn State<App>> {
         app.primary.current_selection = None;
 
-        let route = app.primary.map.get_br(id);
+        let route = app.primary.map.get_tr(id);
         Box::new(RouteEditor {
             panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     Line("Route editor").small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
-                Line(&route.full_name).into_widget(ctx),
+                Line(&route.long_name).into_widget(ctx),
                 // TODO This UI needs design, just something to start plumbing the edits
                 Widget::row(vec![
                     "Frequency".text_widget(ctx),
@@ -71,7 +71,7 @@ impl State<App> for RouteEditor {
                     let mut edits = app.primary.map.get_edits().clone();
                     edits.commands.push(EditCmd::ChangeRouteSchedule {
                         id: self.route,
-                        old: app.primary.map.get_br(self.route).spawn_times.clone(),
+                        old: app.primary.map.get_tr(self.route).spawn_times.clone(),
                         new: hourly_times,
                     });
                     apply_map_edits(ctx, app, edits);

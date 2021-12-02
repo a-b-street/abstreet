@@ -71,23 +71,23 @@ impl TransitNetwork {
                 colorer.add_l(l.id, "bus lanes / rails");
             }
         }
-        for bs in map.all_bus_stops().values() {
-            if !bs.is_train_stop && show_buses {
-                colorer.add_bs(bs.id, "transit stops");
+        for ts in map.all_transit_stops().values() {
+            if !ts.is_train_stop && show_buses {
+                colorer.add_ts(ts.id, "transit stops");
             }
-            if bs.is_train_stop && show_trains {
-                colorer.add_bs(bs.id, "transit stops");
+            if ts.is_train_stop && show_trains {
+                colorer.add_ts(ts.id, "transit stops");
             }
         }
         if show_all_routes {
-            for br in map.all_bus_routes() {
-                if !show_buses && br.route_type == PathConstraints::Bus {
+            for tr in map.all_transit_routes() {
+                if !show_buses && tr.route_type == PathConstraints::Bus {
                     continue;
                 }
-                if !show_trains && br.route_type == PathConstraints::Train {
+                if !show_trains && tr.route_type == PathConstraints::Train {
                     continue;
                 }
-                for req in br.all_steps(map) {
+                for req in tr.all_steps(map) {
                     if let Ok(path) = map.pathfind(req) {
                         for step in path.get_steps() {
                             if let PathStep::Lane(l) = step {

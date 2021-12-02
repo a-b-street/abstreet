@@ -1,7 +1,6 @@
 pub mod area;
 pub mod block;
 pub mod building;
-pub mod bus_stop;
 pub mod intersection;
 pub mod lane;
 pub mod movement;
@@ -9,5 +8,6 @@ pub mod parking_lot;
 pub mod road;
 pub mod stop_signs;
 pub mod traffic_signals;
+pub mod transit;
 pub mod turn;
 pub mod zone;

@@ -8,8 +8,8 @@ use serde::{Deserialize, Serialize};
 use abstutil::Counter;
 use geom::{Duration, Time};
 use map_model::{
-    BusRouteID, BusStopID, CompressedMovementID, IntersectionID, LaneID, Map, MovementID,
-    ParkingLotID, Path, PathRequest, RoadID, Traversable, TurnID,
+    CompressedMovementID, IntersectionID, LaneID, Map, MovementID, ParkingLotID, Path, PathRequest,
+    RoadID, TransitRouteID, TransitStopID, Traversable, TurnID,
 };
 
 use crate::{
@@ -38,10 +38,10 @@ pub struct Analytics {
     pub demand: BTreeMap<MovementID, usize>,
 
     // TODO Reconsider this one
-    pub bus_arrivals: Vec<(Time, CarID, BusRouteID, BusStopID)>,
+    pub bus_arrivals: Vec<(Time, CarID, TransitRouteID, TransitStopID)>,
     /// For each passenger boarding, how long did they wait at the stop?
-    pub passengers_boarding: BTreeMap<BusStopID, Vec<(Time, BusRouteID, Duration)>>,
-    pub passengers_alighting: BTreeMap<BusStopID, Vec<(Time, BusRouteID)>>,
+    pub passengers_boarding: BTreeMap<TransitStopID, Vec<(Time, TransitRouteID, Duration)>>,
+    pub passengers_alighting: BTreeMap<TransitStopID, Vec<(Time, TransitRouteID)>>,
 
     pub started_trips: BTreeMap<TripID, Time>,
     /// Finish time, ID, mode, trip duration if successful (or None if cancelled)

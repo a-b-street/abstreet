@@ -90,8 +90,8 @@ impl ObjectDebugger {
                     sim.debug_ped(p);
                 }
             }
-            ID::BusStop(id) => {
-                println!("{}", abstutil::to_json(map.get_bs(id)));
+            ID::TransitStop(id) => {
+                println!("{}", abstutil::to_json(map.get_ts(id)));
             }
             ID::Area(id) => {
                 println!("{}", abstutil::to_json(map.get_a(id)));
@@ -110,7 +110,7 @@ impl ObjectDebugger {
             ID::Pedestrian(id) => sim.debug_agent_json(AgentID::Pedestrian(id)),
             // Just show the first...
             ID::PedCrowd(members) => sim.debug_agent_json(AgentID::Pedestrian(members[0])),
-            ID::BusStop(id) => abstutil::to_json(map.get_bs(id)),
+            ID::TransitStop(id) => abstutil::to_json(map.get_ts(id)),
             ID::Area(id) => abstutil::to_json(map.get_a(id)),
             ID::Road(_) => unreachable!(),
         };

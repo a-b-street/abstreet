@@ -24,8 +24,8 @@ use serde::{Deserialize, Serialize};
 use abstutil::{deserialize_usize, serialize_usize};
 use geom::{Distance, Speed, Time};
 use map_model::{
-    BuildingID, BusRouteID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, Path,
-    PathConstraints, Position,
+    BuildingID, IntersectionID, LaneID, Map, ParkingLotID, Path, PathConstraints, Position,
+    TransitRouteID, TransitStopID,
 };
 
 pub use crate::render::{
@@ -423,7 +423,7 @@ pub(crate) enum SidewalkPOI {
     /// Don't actually know where this goes yet!
     DeferredParkingSpot,
     Building(BuildingID),
-    BusStop(BusStopID),
+    TransitStop(TransitStopID),
     Border(IntersectionID),
     /// The bikeable position
     BikeRack(Position),
@@ -467,10 +467,10 @@ impl SidewalkSpot {
         })
     }
 
-    pub fn bus_stop(stop: BusStopID, map: &Map) -> SidewalkSpot {
+    pub fn bus_stop(stop: TransitStopID, map: &Map) -> SidewalkSpot {
         SidewalkSpot {
-            sidewalk_pos: map.get_bs(stop).sidewalk_pos,
-            connection: SidewalkPOI::BusStop(stop),
+            sidewalk_pos: map.get_ts(stop).sidewalk_pos,
+            connection: SidewalkPOI::TransitStop(stop),
         }
     }
 
@@ -611,7 +611,7 @@ pub(crate) struct CreateCar {
     pub maybe_parked_car: Option<ParkedCar>,
     /// None for buses
     pub trip_and_person: Option<(TripID, PersonID)>,
-    pub maybe_route: Option<BusRouteID>,
+    pub maybe_route: Option<TransitRouteID>,
 }
 
 impl CreateCar {

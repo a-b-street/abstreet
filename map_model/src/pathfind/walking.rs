@@ -13,8 +13,8 @@ use crate::pathfind::vehicles::VehiclePathfinder;
 use crate::pathfind::zone_cost;
 use crate::pathfind::{round, unround};
 use crate::{
-    BusRoute, BusRouteID, BusStopID, DirectedRoadID, IntersectionID, Map, MovementID,
-    PathConstraints, PathRequest, PathStep, PathStepV2, PathV2, Position, TurnType,
+    DirectedRoadID, IntersectionID, Map, MovementID, PathConstraints, PathRequest, PathStep,
+    PathStepV2, PathV2, Position, TransitRoute, TransitRouteID, TransitStopID, TurnType,
 };
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -29,9 +29,9 @@ pub struct SidewalkPathfinder {
 pub enum WalkingNode {
     /// false is src_i, true is dst_i
     SidewalkEndpoint(DirectedRoadID, bool),
-    // TODO Lots of complexity below could be avoided by explicitly sticking BusRouteID here too.
+    // TODO Lots of complexity below could be avoided by explicitly sticking TransitRouteID here too.
     // Worth it?
-    RideBus(BusStopID),
+    RideTransit(TransitStopID),
     LeaveMap(IntersectionID),
 }
 
@@ -79,9 +79,9 @@ impl SidewalkPathfinder {
             }
         }
         if use_transit.is_some() {
-            // Add a node for each bus stop.
-            for bs in map.all_bus_stops().keys() {
-                nodes.get_or_insert(WalkingNode::RideBus(*bs));
+            // Add a node for each stop.
+            for ts in map.all_transit_stops().keys() {
+                nodes.get_or_insert(WalkingNode::RideTransit(*ts));
             }
             for i in map.all_outgoing_borders() {
                 // We could filter for those with sidewalks, but eh
@@ -134,14 +134,14 @@ impl SidewalkPathfinder {
         Some(PathV2::new(steps, req, cost, Vec::new()))
     }
 
-    /// Attempt the pathfinding and see if we should ride a bus. If so, says (stop1, optional stop
-    /// 2, route). If there's no stop 2, then ride the bus off the border.
+    /// Attempt the pathfinding and see if we should ride public transit. If so, says (stop1,
+    /// optional stop 2, route). If there's no stop 2, then ride transit off the border.
     pub fn should_use_transit(
         &self,
         map: &Map,
         start: Position,
         end: Position,
-    ) -> Option<(BusStopID, Option<BusStopID>, BusRouteID)> {
+    ) -> Option<(TransitStopID, Option<TransitStopID>, TransitRouteID)> {
         if matches!(self.engine, PathfindEngine::Empty) {
             return None;
         }
@@ -166,10 +166,10 @@ impl SidewalkPathfinder {
 
         let mut first_stop = None;
         let mut last_stop = None;
-        let mut possible_routes: Vec<&BusRoute> = Vec::new();
+        let mut possible_routes: Vec<&TransitRoute> = Vec::new();
         for n in &nodes {
             match n {
-                WalkingNode::RideBus(stop2) => {
+                WalkingNode::RideTransit(stop2) => {
                     if let Some(stop1) = first_stop {
                         // Keep riding the same route?
                         // We need to do this check, because some transfers might be instantaneous
@@ -334,9 +334,9 @@ fn transit_input_graph(
     train_graph: &VehiclePathfinder,
 ) {
     let max_speed = Some(crate::MAX_WALKING_SPEED);
-    // Connect bus stops with both sidewalk endpoints, using the appropriate distance.
-    for stop in map.all_bus_stops().values() {
-        let ride_bus = nodes.get(WalkingNode::RideBus(stop.id));
+    // Connect stops with both sidewalk endpoints, using the appropriate distance.
+    for stop in map.all_transit_stops().values() {
+        let ride_transit = nodes.get(WalkingNode::RideTransit(stop.id));
         let lane = map.get_l(stop.sidewalk_pos.lane());
         for (endpt, step) in [
             (false, PathStep::Lane(lane.id)),
@@ -348,24 +348,24 @@ fn transit_input_graph(
                 stop.sidewalk_pos.dist_along()
             };
             let cost = dist / step.max_speed_along(max_speed, PathConstraints::Pedestrian, map);
-            // Add some extra penalty to using a bus stop. Otherwise a path might try to pass
-            // through it uselessly.
+            // Add some extra penalty to using a stop. Otherwise a path might try to pass through
+            // it uselessly.
             let penalty = Duration::seconds(10.0);
             let sidewalk = nodes.get(WalkingNode::SidewalkEndpoint(
                 lane.get_directed_parent(),
                 endpt,
             ));
-            input_graph.add_edge(sidewalk, ride_bus, round(cost + penalty));
-            input_graph.add_edge(ride_bus, sidewalk, round(cost + penalty));
+            input_graph.add_edge(sidewalk, ride_transit, round(cost + penalty));
+            input_graph.add_edge(ride_transit, sidewalk, round(cost + penalty));
         }
     }
 
     // Connect each adjacent stop along a route, with the cost based on how long it'll take a
-    // bus to drive between the stops. Optimistically assume no waiting time at a stop.
-    for route in map.all_bus_routes() {
+    // transit vehicle to drive between the stops. Optimistically assume no waiting time at a stop.
+    for route in map.all_transit_routes() {
         // TODO Also plug in border starts
         for pair in route.stops.windows(2) {
-            let (stop1, stop2) = (map.get_bs(pair[0]), map.get_bs(pair[1]));
+            let (stop1, stop2) = (map.get_ts(pair[0]), map.get_ts(pair[1]));
             let req = PathRequest::vehicle(stop1.driving_pos, stop2.driving_pos, route.route_type);
             let maybe_driving_cost = match route.route_type {
                 PathConstraints::Bus => bus_graph.pathfind(req, map).map(|p| p.get_cost()),
@@ -374,20 +374,20 @@ fn transit_input_graph(
             };
             if let Some(driving_cost) = maybe_driving_cost {
                 input_graph.add_edge(
-                    nodes.get(WalkingNode::RideBus(stop1.id)),
-                    nodes.get(WalkingNode::RideBus(stop2.id)),
+                    nodes.get(WalkingNode::RideTransit(stop1.id)),
+                    nodes.get(WalkingNode::RideTransit(stop2.id)),
                     round(driving_cost),
                 );
             } else {
                 panic!(
-                    "No bus route from {} to {} now for {}! Prevent this edit",
-                    stop1.driving_pos, stop2.driving_pos, route.full_name,
+                    "No transit route from {} to {} now for {}! Prevent this edit",
+                    stop1.driving_pos, stop2.driving_pos, route.long_name,
                 );
             }
         }
 
         if let Some(l) = route.end_border {
-            let stop1 = map.get_bs(*route.stops.last().unwrap());
+            let stop1 = map.get_ts(*route.stops.last().unwrap());
             let req =
                 PathRequest::vehicle(stop1.driving_pos, Position::end(l, map), route.route_type);
             let maybe_driving_cost = match route.route_type {
@@ -398,14 +398,14 @@ fn transit_input_graph(
             if let Some(driving_cost) = maybe_driving_cost {
                 let border = map.get_i(map.get_l(l).dst_i);
                 input_graph.add_edge(
-                    nodes.get(WalkingNode::RideBus(stop1.id)),
+                    nodes.get(WalkingNode::RideTransit(stop1.id)),
                     nodes.get(WalkingNode::LeaveMap(border.id)),
                     round(driving_cost),
                 );
             } else {
                 panic!(
-                    "No bus route from {} to end of {} now for {}! Prevent this edit",
-                    stop1.driving_pos, l, route.full_name,
+                    "No transit route from {} to end of {} now for {}! Prevent this edit",
+                    stop1.driving_pos, l, route.long_name,
                 );
             }
         }
@@ -419,12 +419,12 @@ fn walking_path_to_steps(path: Vec<WalkingNode>, map: &Map) -> Vec<PathStepV2> {
     for pair in path.windows(2) {
         let (r1, r1_endpt) = match pair[0] {
             WalkingNode::SidewalkEndpoint(r, endpt) => (r, endpt),
-            WalkingNode::RideBus(_) => unreachable!(),
+            WalkingNode::RideTransit(_) => unreachable!(),
             WalkingNode::LeaveMap(_) => unreachable!(),
         };
         let r2 = match pair[1] {
             WalkingNode::SidewalkEndpoint(r, _) => r,
-            WalkingNode::RideBus(_) => unreachable!(),
+            WalkingNode::RideTransit(_) => unreachable!(),
             WalkingNode::LeaveMap(_) => unreachable!(),
         };
 
@@ -490,8 +490,8 @@ fn walking_path_to_steps(path: Vec<WalkingNode>, map: &Map) -> Vec<PathStepV2> {
 // TODO Do we even need this at all?
 fn one_step_walking_path(req: PathRequest, map: &Map) -> PathV2 {
     let l = req.start.lane();
-    // Weird case, but it can happen for walking from a building path to a bus stop that're
-    // actually at the same spot.
+    // Weird case, but it can happen for walking from a building path to a stop that're actually at
+    // the same spot.
     let (step_v2, step_v1) = if req.start.dist_along() <= req.end.dist_along() {
         (
             PathStepV2::Along(map.get_l(l).get_directed_parent()),

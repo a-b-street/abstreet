@@ -6,7 +6,8 @@ use serde::{Deserialize, Serialize};
 
 use geom::Pt2D;
 use map_model::{
-    BuildingID, BusRouteID, BusStopID, IntersectionID, Map, PathConstraints, PathRequest, Position,
+    BuildingID, IntersectionID, Map, PathConstraints, PathRequest, Position, TransitRouteID,
+    TransitStopID,
 };
 
 use crate::{CarID, DrivingGoal, SidewalkSpot, TripLeg, TripMode, VehicleType, SPAWN_DIST};
@@ -53,9 +54,9 @@ pub(crate) enum TripSpec {
     UsingTransit {
         start: SidewalkSpot,
         goal: SidewalkSpot,
-        route: BusRouteID,
-        stop1: BusStopID,
-        maybe_stop2: Option<BusStopID>,
+        route: TransitRouteID,
+        stop1: TransitStopID,
+        maybe_stop2: Option<TransitStopID>,
     },
 }
 
@@ -107,7 +108,7 @@ impl TripSpec {
                 // TODO The legs are a lie. Since the trip gets cancelled, this doesn't matter.
                 // I'm not going to bother doing better because I think TripLeg will get
                 // revamped soon anyway.
-                legs.push(TripLeg::RideBus(BusRouteID(0), None));
+                legs.push(TripLeg::RideBus(TransitRouteID(0), None));
             }
             TripSpec::UsingParkedCar { car, goal, .. } => {
                 legs.push(TripLeg::Walk(SidewalkSpot::deferred_parking_spot()));

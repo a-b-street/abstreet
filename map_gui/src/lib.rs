@@ -11,7 +11,9 @@ extern crate log;
 
 use abstutil::Timer;
 use geom::{Duration, Pt2D, Time};
-use map_model::{AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, RoadID};
+use map_model::{
+    AreaID, BuildingID, IntersectionID, LaneID, Map, ParkingLotID, RoadID, TransitStopID,
+};
 use sim::{AgentID, CarID, PedestrianID, Sim};
 use widgetry::{EventCtx, GfxCtx, State};
 
@@ -88,7 +90,7 @@ pub enum ID {
     Car(CarID),
     Pedestrian(PedestrianID),
     PedCrowd(Vec<PedestrianID>),
-    BusStop(BusStopID),
+    TransitStop(TransitStopID),
     Area(AreaID),
 }
 
@@ -173,9 +175,9 @@ impl From<Vec<PedestrianID>> for ID {
     }
 }
 
-impl From<BusStopID> for ID {
-    fn from(b: BusStopID) -> Self {
-        Self::BusStop(b)
+impl From<TransitStopID> for ID {
+    fn from(b: TransitStopID) -> Self {
+        Self::TransitStop(b)
     }
 }
 

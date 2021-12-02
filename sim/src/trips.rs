@@ -5,7 +5,8 @@ use serde::{Deserialize, Serialize};
 use abstutil::{deserialize_btreemap, serialize_btreemap, Counter};
 use geom::{Distance, Duration, Speed, Time};
 use map_model::{
-    BuildingID, BusRouteID, BusStopID, IntersectionID, Map, PathConstraints, PathRequest, Position,
+    BuildingID, IntersectionID, Map, PathConstraints, PathRequest, Position, TransitRouteID,
+    TransitStopID,
 };
 
 use crate::sim::Ctx;
@@ -698,12 +699,12 @@ impl TripManager {
         &mut self,
         now: Time,
         ped: PedestrianID,
-        stop: BusStopID,
+        stop: TransitStopID,
         blocked_time: Duration,
         distance_crossed: Distance,
         ctx: &mut Ctx,
         transit: &mut TransitSimState,
-    ) -> Option<BusRouteID> {
+    ) -> Option<TransitRouteID> {
         let trip = &mut self.trips[self.active_trip_mode[&AgentID::Pedestrian(ped)].0];
         trip.total_blocked_time += blocked_time;
         trip.total_distance += distance_crossed;
@@ -1348,7 +1349,7 @@ pub(crate) enum TripLeg {
     /// A person may own many vehicles, so specify which they use
     Drive(CarID, DrivingGoal),
     /// Maybe get off at a stop, maybe ride off-map
-    RideBus(BusRouteID, Option<BusStopID>),
+    RideBus(TransitRouteID, Option<TransitStopID>),
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone, Copy, PartialOrd, Ord)]

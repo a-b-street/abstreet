@@ -5,18 +5,18 @@ use aabb_quadtree::QuadTree;
 use abstutil::Timer;
 use geom::{Bounds, Distance, Polygon};
 use map_model::{
-    AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, Road, RoadID,
+    AreaID, BuildingID, IntersectionID, LaneID, Map, ParkingLotID, Road, RoadID, TransitStopID,
 };
 use widgetry::{Color, Drawable, EventCtx, GeomBatch};
 
 use crate::colors::ColorScheme;
 use crate::options::Options;
 use crate::render::building::DrawBuilding;
-use crate::render::bus_stop::DrawBusStop;
 use crate::render::intersection::DrawIntersection;
 use crate::render::lane::DrawLane;
 use crate::render::parking_lot::DrawParkingLot;
 use crate::render::road::DrawRoad;
+use crate::render::transit_stop::DrawTransitStop;
 use crate::render::{AgentCache, DrawArea, Renderable};
 use crate::{AppLike, ID};
 
@@ -25,7 +25,7 @@ pub struct DrawMap {
     pub intersections: Vec<DrawIntersection>,
     pub buildings: Vec<DrawBuilding>,
     pub parking_lots: Vec<DrawParkingLot>,
-    pub bus_stops: HashMap<BusStopID, DrawBusStop>,
+    pub bus_stops: HashMap<TransitStopID, DrawTransitStop>,
     pub areas: Vec<DrawArea>,
 
     pub boundary_polygon: Drawable,
@@ -107,11 +107,11 @@ impl DrawMap {
         let draw_all_unzoomed_parking_lots = all_unzoomed_parking_lots.upload(ctx);
         timer.stop("make DrawParkingLot");
 
-        timer.start_iter("make DrawBusStop", map.all_bus_stops().len());
-        let mut bus_stops: HashMap<BusStopID, DrawBusStop> = HashMap::new();
-        for s in map.all_bus_stops().values() {
+        timer.start_iter("make DrawTransitStop", map.all_transit_stops().len());
+        let mut bus_stops: HashMap<TransitStopID, DrawTransitStop> = HashMap::new();
+        for s in map.all_transit_stops().values() {
             timer.next();
-            bus_stops.insert(s.id, DrawBusStop::new(ctx, s, map, cs));
+            bus_stops.insert(s.id, DrawTransitStop::new(ctx, s, map, cs));
         }
 
         let mut areas: Vec<DrawArea> = Vec::new();
@@ -150,7 +150,7 @@ impl DrawMap {
         for obj in &parking_lots {
             quadtree.insert_with_box(obj.get_id(), obj.get_outline(map).get_bounds().as_bbox());
         }
-        // Don't put BusStops in the quadtree
+        // Don't put TransitStops in the quadtree
         for obj in &areas {
             quadtree.insert_with_box(obj.get_id(), obj.get_outline(map).get_bounds().as_bbox());
         }
@@ -298,7 +298,7 @@ impl DrawMap {
         &self.parking_lots[id.0]
     }
 
-    pub fn get_bs(&self, id: BusStopID) -> &DrawBusStop {
+    pub fn get_ts(&self, id: TransitStopID) -> &DrawTransitStop {
         &self.bus_stops[&id]
     }
 
@@ -338,8 +338,8 @@ impl DrawMap {
                 // If the first member has vanished, just give up
                 app.sim().get_draw_ped(members[0], app.map())?.on
             }
-            ID::BusStop(id) => {
-                return Some(self.get_bs(id));
+            ID::TransitStop(id) => {
+                return Some(self.get_ts(id));
             }
             ID::Area(id) => {
                 return Some(self.get_a(id));
@@ -370,7 +370,7 @@ impl DrawMap {
         let mut roads: Vec<&dyn Renderable> = Vec::new();
         let mut intersections: Vec<&dyn Renderable> = Vec::new();
         let mut buildings: Vec<&dyn Renderable> = Vec::new();
-        let mut bus_stops: Vec<&dyn Renderable> = Vec::new();
+        let mut transit_stops: Vec<&dyn Renderable> = Vec::new();
 
         for id in self.get_matching_objects(bounds) {
             match id {
@@ -378,8 +378,8 @@ impl DrawMap {
                 ID::Road(id) => {
                     let road = self.get_r(id);
                     for lane in &road.lanes {
-                        for bs in &map.get_l(lane.id).bus_stops {
-                            bus_stops.push(self.get_bs(*bs));
+                        for ts in &map.get_l(lane.id).transit_stops {
+                            transit_stops.push(self.get_ts(*ts));
                         }
                         lanes.push(lane);
                     }
@@ -393,7 +393,11 @@ impl DrawMap {
                     parking_lots.push(self.get_pl(id));
                 }
 
-                ID::Lane(_) | ID::BusStop(_) | ID::Car(_) | ID::Pedestrian(_) | ID::PedCrowd(_) => {
+                ID::Lane(_)
+                | ID::TransitStop(_)
+                | ID::Car(_)
+                | ID::Pedestrian(_)
+                | ID::PedCrowd(_) => {
                     panic!("{:?} shouldn't be in the quadtree", id)
                 }
             }
@@ -407,7 +411,7 @@ impl DrawMap {
         borrows.extend(roads);
         borrows.extend(intersections);
         borrows.extend(buildings);
-        borrows.extend(bus_stops);
+        borrows.extend(transit_stops);
 
         borrows.retain(|x| x.get_zorder() <= self.show_zorder);
 
