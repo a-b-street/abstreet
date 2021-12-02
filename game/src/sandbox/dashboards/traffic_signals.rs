@@ -199,7 +199,7 @@ impl Demand {
             for step in path.get_steps() {
                 match step {
                     PathStep::Lane(_) | PathStep::ContraflowLane(_) => {}
-                    PathStep::Turn(t) => {
+                    PathStep::Turn(t) | PathStep::ContraflowTurn(t) => {
                         if map.get_t(*t).turn_type == TurnType::SharedSidewalkCorner {
                             continue;
                         }

@@ -161,7 +161,7 @@ impl BorderSnapper {
             &mut iter2
         };
         for step in steps {
-            if let PathStep::Turn(t) = step {
+            if let PathStep::Turn(t) | PathStep::ContraflowTurn(t) = step {
                 if let Some(i) = node_id_to_border.get(&huge_map.get_i(t.parent).orig_id) {
                     return Some(TripEndpoint::Border(*i));
                 }

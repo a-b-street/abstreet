@@ -298,22 +298,26 @@ fn make_input_graph(
         if t.between_sidewalks() {
             let src = map.get_l(t.id.src);
             let dst = map.get_l(t.id.dst);
-            let from =
-                WalkingNode::SidewalkEndpoint(src.get_directed_parent(), src.dst_i == t.id.parent);
-            let to =
-                WalkingNode::SidewalkEndpoint(dst.get_directed_parent(), dst.dst_i == t.id.parent);
+            let from = nodes.get(WalkingNode::SidewalkEndpoint(
+                src.get_directed_parent(),
+                src.dst_i == t.id.parent,
+            ));
+            let to = nodes.get(WalkingNode::SidewalkEndpoint(
+                dst.get_directed_parent(),
+                dst.dst_i == t.id.parent,
+            ));
+
             let mut cost = t.geom.length()
-                / PathStep::Turn(t.id).max_speed_along(max_speed, PathConstraints::Pedestrian, map);
+                / PathStep::Turn(t.id).max_speed_along(max_speed, PathConstraints::Pedestrian, map)
+                + zone_cost(t.id.to_movement(map), PathConstraints::Pedestrian, map);
+
             if t.turn_type == TurnType::UnmarkedCrossing {
                 // TODO Add to RoutingParams
                 cost = 3.0 * cost;
             }
 
-            input_graph.add_edge(
-                nodes.get(from),
-                nodes.get(to),
-                round(cost + zone_cost(t.id.to_movement(map), PathConstraints::Pedestrian, map)),
-            );
+            input_graph.add_edge(from, to, round(cost));
+            input_graph.add_edge(to, from, round(cost));
         }
     }
 
@@ -441,16 +445,14 @@ fn walking_path_to_steps(path: Vec<WalkingNode>, map: &Map) -> Vec<PathStepV2> {
                 r1.src_i(map)
             };
             // Could assert the intersection matches (r2, r2_endpt).
-            if map
-                .get_turn_between(r1.must_get_sidewalk(map), r2.must_get_sidewalk(map), i)
-                .is_some()
+            if let Some(t) =
+                map.get_turn_between(r1.must_get_sidewalk(map), r2.must_get_sidewalk(map), i)
             {
-                steps.push(PathStepV2::Movement(MovementID {
-                    from: r1,
-                    to: r2,
-                    parent: i,
-                    crosswalk: true,
-                }));
+                steps.push(PathStepV2::Movement(t.id.to_movement(map)));
+            } else if let Some(t) =
+                map.get_turn_between(r2.must_get_sidewalk(map), r1.must_get_sidewalk(map), i)
+            {
+                steps.push(PathStepV2::ContraflowMovement(t.id.to_movement(map)));
             } else {
                 println!("walking_path_to_steps has a weird path:");
                 for s in &path {
@@ -469,18 +471,30 @@ fn walking_path_to_steps(path: Vec<WalkingNode>, map: &Map) -> Vec<PathStepV2> {
     }
 
     // Don't start or end a path in a turn; sim layer breaks.
-    if let PathStepV2::Movement(mvmnt) = steps[0] {
-        if mvmnt.from.src_i(map) == mvmnt.parent {
-            steps.insert(0, PathStepV2::Contraflow(mvmnt.from));
+    if let PathStepV2::Movement(mvmnt) | PathStepV2::ContraflowMovement(mvmnt) = steps[0] {
+        let lane = match steps[0] {
+            PathStepV2::Movement(m) => m.from,
+            PathStepV2::ContraflowMovement(m) => m.to,
+            _ => unreachable!(),
+        };
+        if lane.src_i(map) == mvmnt.parent {
+            steps.insert(0, PathStepV2::Contraflow(lane));
         } else {
-            steps.insert(0, PathStepV2::Along(mvmnt.from));
+            steps.insert(0, PathStepV2::Along(lane));
         }
     }
-    if let PathStepV2::Movement(mvmnt) = steps.last().cloned().unwrap() {
-        if mvmnt.to.src_i(map) == mvmnt.parent {
-            steps.push(PathStepV2::Along(mvmnt.to));
+    if let PathStepV2::Movement(mvmnt) | PathStepV2::ContraflowMovement(mvmnt) =
+        steps.last().cloned().unwrap()
+    {
+        let lane = match steps.last().unwrap() {
+            PathStepV2::Movement(m) => m.to,
+            PathStepV2::ContraflowMovement(m) => m.from,
+            _ => unreachable!(),
+        };
+        if lane.src_i(map) == mvmnt.parent {
+            steps.push(PathStepV2::Along(lane));
         } else {
-            steps.push(PathStepV2::Contraflow(mvmnt.to));
+            steps.push(PathStepV2::Contraflow(lane));
         }
     }
 

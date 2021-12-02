@@ -143,7 +143,7 @@ impl RouteDetails {
                                 );
                             }
                         }
-                        PathStep::Turn(t) => {
+                        PathStep::Turn(t) | PathStep::ContraflowTurn(t) => {
                             let i = map.get_i(t.parent);
                             elevation_pts.push((current_dist, i.elevation));
                             if i.is_traffic_signal() {
@@ -323,7 +323,9 @@ impl RouteDetails {
                                     // TODO Interpolate
                                     map.get_i(map.get_l(l).src_i).elevation
                                 }
-                                PathStep::Turn(t) => map.get_i(t.parent).elevation,
+                                PathStep::Turn(t) | PathStep::ContraflowTurn(t) => {
+                                    map.get_i(t.parent).elevation
+                                }
                             };
                             panel
                                 .find_mut::<LinePlot<Distance, Distance>>("elevation")

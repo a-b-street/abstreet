@@ -21,6 +21,7 @@ pub enum PathStepV2 {
     /// Opposite direction, sidewalks only
     Contraflow(DirectedRoadID),
     Movement(MovementID),
+    ContraflowMovement(MovementID),
 }
 
 /// A path between two endpoints for a particular mode. This representation is immutable and doesn't
@@ -241,6 +242,11 @@ impl PathV2 {
                 PathStepV2::Along(r) => PathStep::Lane(r.must_get_sidewalk(map)),
                 PathStepV2::Contraflow(r) => PathStep::ContraflowLane(r.must_get_sidewalk(map)),
                 PathStepV2::Movement(mvmnt) => PathStep::Turn(TurnID {
+                    src: mvmnt.from.must_get_sidewalk(map),
+                    dst: mvmnt.to.must_get_sidewalk(map),
+                    parent: mvmnt.parent,
+                }),
+                PathStepV2::ContraflowMovement(mvmnt) => PathStep::ContraflowTurn(TurnID {
                     src: mvmnt.from.must_get_sidewalk(map),
                     dst: mvmnt.to.must_get_sidewalk(map),
                     parent: mvmnt.parent,
