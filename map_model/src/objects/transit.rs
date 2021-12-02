@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use abstutil::{deserialize_usize, serialize_usize};
 use geom::Time;
 
-use crate::{osm, LaneID, Map, PathConstraints, PathRequest, Position};
+use crate::{LaneID, Map, PathConstraints, PathRequest, Position};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct TransitStopID {
@@ -54,11 +54,12 @@ pub struct TransitRoute {
     pub id: TransitRouteID,
     pub long_name: String,
     pub short_name: String,
-    pub gtfs_trip_marker: Option<String>,
-    pub osm_rel_id: osm::RelationID,
+    pub gtfs_id: String,
     pub stops: Vec<TransitStopID>,
-    /// May be a border or not. If not, is long enough for buses to spawn fully.
+    /// A transit vehicle spawns at the beginning of this lane. This lane may be at a border or the
+    /// first stop. For the non-border case, the lane must be long enough for the vehicle to spawn.
     pub start: LaneID,
+    /// A transit vehicle either vanishes at its last stop or exits the map through this border.
     pub end_border: Option<LaneID>,
     pub route_type: PathConstraints,
     /// Non-empty, times in order for one day when a vehicle should begin at start.
@@ -69,7 +70,7 @@ pub struct TransitRoute {
 }
 
 impl TransitRoute {
-    pub fn all_steps(&self, map: &Map) -> Vec<PathRequest> {
+    pub fn all_path_requests(&self, map: &Map) -> Vec<PathRequest> {
         let mut steps = vec![PathRequest::vehicle(
             Position::start(self.start),
             map.get_ts(self.stops[0]).driving_pos,

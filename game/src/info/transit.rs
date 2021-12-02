@@ -202,15 +202,6 @@ fn route_body(ctx: &mut EventCtx, app: &App, details: &mut Details, id: TransitR
             .into_widget(ctx),
     );
 
-    if app.opts.dev {
-        rows.push(
-            ctx.style()
-                .btn_outline
-                .text("Open OSM relation")
-                .build_widget(ctx, format!("open {}", route.osm_rel_id)),
-        );
-    }
-
     let buses = app.primary.sim.status_of_buses(id, map);
     let mut bus_locations = Vec::new();
     if buses.is_empty() {
@@ -330,7 +321,7 @@ fn route_body(ctx: &mut EventCtx, app: &App, details: &mut Details, id: TransitR
     // Draw the route, label stops, and show location of buses
     {
         let mut colorer = ColorNetwork::new(app);
-        for req in route.all_steps(map) {
+        for req in route.all_path_requests(map) {
             for step in map.pathfind(req).unwrap().get_steps() {
                 if let PathStep::Lane(l) = step {
                     colorer.add_l(*l, app.cs.unzoomed_bus);

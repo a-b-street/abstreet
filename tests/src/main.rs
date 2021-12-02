@@ -127,11 +127,7 @@ fn dump_route_goldenfile(map: &map_model::Map) -> Result<()> {
     ));
     let mut f = File::create(path)?;
     for tr in map.all_transit_routes() {
-        writeln!(
-            f,
-            "{} from {} to {:?}",
-            tr.osm_rel_id, tr.start, tr.end_border
-        )?;
+        writeln!(f, "{} from {} to {:?}", tr.gtfs_id, tr.start, tr.end_border)?;
         for ts in &tr.stops {
             let ts = map.get_ts(*ts);
             writeln!(
