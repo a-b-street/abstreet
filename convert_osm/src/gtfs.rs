@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeMap, HashMap, HashSet};
 use std::fs::File;
 
 use anyhow::Result;
@@ -6,6 +6,7 @@ use serde::Deserialize;
 
 use abstutil::MultiMap;
 use geom::{LonLat, PolyLine, Pt2D};
+use kml::{ExtraShape, ExtraShapes};
 use map_model::raw::{RawMap, RawTransitRoute, RawTransitStop};
 use map_model::PathConstraints;
 
@@ -24,7 +25,11 @@ pub fn import(map: &mut RawMap) -> Result<()> {
             _ => continue,
         };
         map.transit_routes.push(RawTransitRoute {
-            long_name: rec.route_long_name,
+            long_name: if rec.route_long_name.is_empty() {
+                rec.route_desc
+            } else {
+                rec.route_long_name
+            },
             short_name: rec.route_short_name,
             gtfs_id: rec.route_id.0,
             shape: PolyLine::dummy(),
@@ -164,6 +169,10 @@ pub fn import(map: &mut RawMap) -> Result<()> {
     map.transit_stops
         .retain(|stop_id, _| used_stops.contains(stop_id));
 
+    if true {
+        dump_kml(map);
+    }
+
     Ok(())
 }
 
@@ -181,6 +190,7 @@ struct Route {
     route_id: RouteID,
     route_short_name: String,
     route_long_name: String,
+    route_desc: String,
     route_type: usize,
 }
 
@@ -212,4 +222,36 @@ struct StopTime {
     trip_id: TripID,
     stop_id: StopID,
     stop_sequence: usize,
+}
+
+fn dump_kml(map: &RawMap) {
+    let mut shapes = Vec::new();
+
+    // One polyline per route
+    for route in &map.transit_routes {
+        let points = map.gps_bounds.convert_back(route.shape.points());
+        let mut attributes = BTreeMap::new();
+        attributes.insert("long_name".to_string(), route.long_name.clone());
+        attributes.insert("short_name".to_string(), route.short_name.clone());
+        attributes.insert("gtfs_id".to_string(), route.gtfs_id.clone());
+        attributes.insert("num_stops".to_string(), route.stops.len().to_string());
+        attributes.insert("route_type".to_string(), format!("{:?}", route.route_type));
+        shapes.push(ExtraShape { points, attributes });
+    }
+
+    // One point per stop
+    for stop in map.transit_stops.values() {
+        let mut attributes = BTreeMap::new();
+        attributes.insert("gtfs_id".to_string(), stop.gtfs_id.clone());
+        attributes.insert("name".to_string(), stop.name.clone());
+        let points = vec![stop.position.to_gps(&map.gps_bounds)];
+        shapes.push(ExtraShape { points, attributes });
+    }
+
+    abstio::write_binary(
+        map.name
+            .city
+            .input_path(format!("gtfs_{}.bin", map.name.map)),
+        &ExtraShapes { shapes },
+    );
 }
