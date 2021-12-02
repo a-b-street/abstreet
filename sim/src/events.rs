@@ -93,7 +93,9 @@ impl TripPhaseType {
             TripPhaseType::WaitingForBus(r, _) => {
                 format!("Waiting for transit route {}", map.get_tr(r).long_name)
             }
-            TripPhaseType::RidingBus(r, _, _) => format!("Riding route {}", map.get_tr(r).long_name),
+            TripPhaseType::RidingBus(r, _, _) => {
+                format!("Riding route {}", map.get_tr(r).long_name)
+            }
             TripPhaseType::Cancelled => "Trip was cancelled due to some bug".to_string(),
             TripPhaseType::Finished => "Trip finished".to_string(),
             TripPhaseType::DelayedStart => "Delayed by a previous trip taking too long".to_string(),

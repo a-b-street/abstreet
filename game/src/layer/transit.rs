@@ -87,7 +87,7 @@ impl TransitNetwork {
                 if !show_trains && tr.route_type == PathConstraints::Train {
                     continue;
                 }
-                for req in tr.all_steps(map) {
+                for req in tr.all_path_requests(map) {
                     if let Ok(path) = map.pathfind(req) {
                         for step in path.get_steps() {
                             if let PathStep::Lane(l) = step {

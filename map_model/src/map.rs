@@ -664,9 +664,9 @@ impl Map {
         None
     }
 
-    pub fn find_tr(&self, id: osm::RelationID) -> Option<TransitRouteID> {
+    pub fn find_tr_by_gtfs(&self, gtfs_id: &str) -> Option<TransitRouteID> {
         for tr in self.all_transit_routes() {
-            if tr.osm_rel_id == id {
+            if tr.gtfs_id == gtfs_id {
                 return Some(tr.id);
             }
         }

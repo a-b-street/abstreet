@@ -58,7 +58,7 @@ pub enum PermanentEditCmd {
         old: PermanentEditIntersection,
     },
     ChangeRouteSchedule {
-        osm_rel_id: osm::RelationID,
+        gtfs_id: String,
         old: Vec<Time>,
         new: Vec<Time>,
     },
@@ -79,7 +79,7 @@ impl EditCmd {
             },
             EditCmd::ChangeRouteSchedule { id, old, new } => {
                 PermanentEditCmd::ChangeRouteSchedule {
-                    osm_rel_id: map.get_tr(*id).osm_rel_id,
+                    gtfs_id: map.get_tr(*id).gtfs_id.clone(),
                     old: old.clone(),
                     new: new.clone(),
                 }
@@ -118,14 +118,10 @@ impl PermanentEditCmd {
                         .with_context(|| format!("old ChangeIntersection of {} invalid", i))?,
                 })
             }
-            PermanentEditCmd::ChangeRouteSchedule {
-                osm_rel_id,
-                old,
-                new,
-            } => {
+            PermanentEditCmd::ChangeRouteSchedule { gtfs_id, old, new } => {
                 let id = map
-                    .find_tr(osm_rel_id)
-                    .ok_or_else(|| anyhow!("can't find {}", osm_rel_id))?;
+                    .find_tr_by_gtfs(&gtfs_id)
+                    .ok_or_else(|| anyhow!("can't find {}", gtfs_id))?;
                 Ok(EditCmd::ChangeRouteSchedule { id, old, new })
             }
         }
