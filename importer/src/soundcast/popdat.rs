@@ -233,7 +233,7 @@ fn import_parcels(
     panic!("Can't import_parcels for popdat.bin without the scenarios feature (GDAL dependency)");
 }
 
-// From https://github.com/psrc/soundcast/wiki/Outputs#trip-file-_triptsv, opurp and dpurp
+// From https://github.com/psrc/soundcast/wiki/Outputs#trip-file-_triptsv, dpurp
 fn get_purpose(code: &str) -> TripPurpose {
     match code {
         "0.0" => TripPurpose::Home,
@@ -247,7 +247,7 @@ fn get_purpose(code: &str) -> TripPurpose {
         "8.0" => TripPurpose::Recreation,
         "9.0" => TripPurpose::Medical,
         "10.0" => TripPurpose::ParkAndRideTransfer,
-        _ => panic!("Unknown opurp/dpurp {}", code),
+        _ => panic!("Unknown dpurp {}", code),
     }
 }
 
@@ -287,7 +287,6 @@ struct RawTrip {
     dpcl: f64,
     deptm: f64,
     mode: String,
-    opurp: String,
     dpurp: String,
     travtime: f64,
     travdist: f64,
@@ -300,6 +299,8 @@ struct RawTrip {
 
 // See https://github.com/psrc/soundcast/wiki/Outputs#buffered-parcel-file-buffered_parcelsdat
 #[derive(Debug, Deserialize)]
+// When the 'scenarios' feature is disabled, these fields look unused
+#[allow(unused)]
 struct RawParcel {
     parcelid: usize,
     hh_p: usize,
