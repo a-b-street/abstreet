@@ -1,4 +1,4 @@
-use std::collections::BTreeSet;
+
 use std::fmt;
 
 use serde::{Deserialize, Serialize};
@@ -79,9 +79,6 @@ pub struct Turn {
     // TODO Some turns might not actually have geometry. Currently encoded by two equal points.
     // Represent more directly?
     pub geom: PolyLine,
-    /// Empty except for TurnType::Crosswalk and UnmarkedCrossing. Usually just one other ID,
-    /// except for the case of 4 duplicates at a degenerate intersection.
-    pub other_crosswalk_ids: BTreeSet<TurnID>,
 }
 
 impl Turn {

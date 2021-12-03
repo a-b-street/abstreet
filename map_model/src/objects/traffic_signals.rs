@@ -329,24 +329,15 @@ impl Stage {
     }
 
     pub fn edit_movement(&mut self, g: &Movement, pri: TurnPriority) {
-        let mut ids = vec![g.id];
         if g.turn_type.pedestrian_crossing() {
-            ids.push(MovementID {
-                from: g.id.to,
-                to: g.id.from,
-                parent: g.id.parent,
-                crosswalk: true,
-            });
             self.enforce_minimum_crosswalk_time(g);
         }
-        for id in ids {
-            self.protected_movements.remove(&id);
-            self.yield_movements.remove(&id);
-            if pri == TurnPriority::Protected {
-                self.protected_movements.insert(id);
-            } else if pri == TurnPriority::Yield {
-                self.yield_movements.insert(id);
-            }
+        self.protected_movements.remove(&g.id);
+        self.yield_movements.remove(&g.id);
+        if pri == TurnPriority::Protected {
+            self.protected_movements.insert(g.id);
+        } else if pri == TurnPriority::Yield {
+            self.yield_movements.insert(g.id);
         }
     }
     pub fn enforce_minimum_crosswalk_time(&mut self, movement: &Movement) {
