@@ -166,8 +166,10 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("leeds", "west") => "West Leeds",
             ("lockleaze", "center") => "Lockleaze",
             ("london", "a5") => "London A5 (Hyde Park to Edgware)",
-            ("london", "Camden") => "Camden",
+            ("london", "bermondsey") => "Bermondsey",
+            ("london", "camden") => "Camden",
             ("london", "southbank") => "London (Southbank)",
+            ("london", "southwark") => "Southwark",
             ("long_marston", "center") => "Long Marston (Stratford)",
             ("marsh_barton", "center") => "Marsh Barton",
             ("micklefield", "center") => "Micklefield",
@@ -214,6 +216,11 @@ pub fn nice_map_name(name: &MapName) -> &str {
         "pl" => match (name.city.city.as_ref(), name.map.as_ref()) {
             ("krakow", "center") => "Kraków (city center)",
             ("warsaw", "center") => "Warsaw (city center)",
+            _ => &name.map,
+        },
+        "pt" => match (name.city.city.as_ref(), name.map.as_ref()) {
+            ("lisbon", "huge") => "Lisbon (entire area)",
+            ("lisbon", "center") => "Lisbon (city center)",
             _ => &name.map,
         },
         "sg" => match (name.city.city.as_ref(), name.map.as_ref()) {
@@ -280,6 +287,7 @@ pub fn nice_country_name(code: &str) -> &str {
         "ly" => "Libya",
         "nz" => "New Zealand",
         "pl" => "Poland",
+        "pt" => "Portugal",
         "sg" => "Singapore",
         "tw" => "Taiwan",
         "us" => "United States of America",

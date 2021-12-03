@@ -59,6 +59,7 @@ pub async fn regenerate_everything(shard_num: usize, num_shards: usize) {
             || city == CityName::new("fr", "paris")
             || city == CityName::new("at", "salzburg")
             || city == CityName::new("ir", "tehran")
+            || city == CityName::new("pt", "portugal")
         {
             job.city_overview = true;
         }
