@@ -105,7 +105,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">TrafficRecorder</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">capture_points</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TrafficRecorder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">capture_points</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>) -&gt; <span class="ident">TrafficRecorder</span> {
         <span class="ident">TrafficRecorder</span> {
             <span class="ident">capture_points</span>,
             <span class="ident">trips</span>: <span class="ident">Vec::new</span>(),
@@ -129,7 +129,7 @@
                                     <span class="ident">TripPurpose::Shopping</span>,
                                     <span class="ident">TripEndpoint::SuddenlyAppear</span>(<span class="ident">Position::start</span>(<span class="kw-2">*</span><span class="ident">l</span>)),
                                     <span class="ident">TripEndpoint::Border</span>(<span class="ident">t</span>.<span class="ident">parent</span>),
-                                    <span class="kw">if</span> <span class="ident">car</span>.<span class="ident">vehicle_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">VehicleType::Bike</span> {
+                                    <span class="kw">if</span> <span class="ident">car</span>.<span class="ident">vehicle_type</span> <span class="op">==</span> <span class="ident">VehicleType::Bike</span> {
                                         <span class="ident">TripMode::Bike</span>
                                     } <span class="kw">else</span> {
                                         <span class="ident">TripMode::Drive</span>
@@ -145,7 +145,7 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">num_recorded_trips</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">num_recorded_trips</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
         <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">len</span>()
     }
 

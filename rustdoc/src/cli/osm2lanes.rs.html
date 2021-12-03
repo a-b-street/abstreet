@@ -115,8 +115,8 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run</span>(<span class="ident">map_path</span>: <span class="ident">String</span>) {
     <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">Map::load_synchronously</span>(<span class="ident">map_path</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer::throwaway</span>());
     <span class="kw">let</span> <span class="ident">driving_side</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">map</span>.<span class="ident">get_config</span>().<span class="ident">driving_side</span> {
-        <span class="ident">DrivingSide::Right</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;right&quot;</span>,
-        <span class="ident">DrivingSide::Left</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;left&quot;</span>,
+        <span class="ident">DrivingSide::Right</span> =&gt; <span class="string">&quot;right&quot;</span>,
+        <span class="ident">DrivingSide::Left</span> =&gt; <span class="string">&quot;left&quot;</span>,
     };
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tests</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
@@ -148,7 +148,7 @@
     <span class="ident">direction</span>: <span class="ident">String</span>,
 }
 
-<span class="kw">fn</span> <span class="ident">transform</span>(<span class="ident">road</span>: <span class="kw-2">&amp;</span><span class="ident">Road</span>, <span class="ident">driving_side</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TestCase</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">transform</span>(<span class="ident">road</span>: <span class="kw-2">&amp;</span><span class="ident">Road</span>, <span class="ident">driving_side</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TestCase</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">TestCase</span> {
         <span class="ident">way</span>: <span class="ident">road</span>.<span class="ident">orig_id</span>.<span class="ident">osm_way_id</span>.<span class="ident">to_string</span>(),
         <span class="ident">tags</span>: <span class="ident">strip_tags</span>(<span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">clone</span>().<span class="ident">into_inner</span>()),
@@ -158,31 +158,31 @@
     <span class="kw">for</span> <span class="ident">lane</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">road</span>.<span class="ident">lanes</span> {
         <span class="ident">result</span>.<span class="ident">output</span>.<span class="ident">push</span>(<span class="ident">LaneSpec</span> {
             <span class="ident">lane_type</span>: <span class="kw">match</span> <span class="ident">lane</span>.<span class="ident">lane_type</span> {
-                <span class="ident">LaneType::Driving</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;driveway&quot;</span>,
-                <span class="ident">LaneType::Parking</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;parking_lane&quot;</span>,
-                <span class="ident">LaneType::Sidewalk</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;sidewalk&quot;</span>,
-                <span class="ident">LaneType::Shoulder</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;shoulder&quot;</span>,
-                <span class="ident">LaneType::Biking</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;cycleway&quot;</span>,
+                <span class="ident">LaneType::Driving</span> =&gt; <span class="string">&quot;driveway&quot;</span>,
+                <span class="ident">LaneType::Parking</span> =&gt; <span class="string">&quot;parking_lane&quot;</span>,
+                <span class="ident">LaneType::Sidewalk</span> =&gt; <span class="string">&quot;sidewalk&quot;</span>,
+                <span class="ident">LaneType::Shoulder</span> =&gt; <span class="string">&quot;shoulder&quot;</span>,
+                <span class="ident">LaneType::Biking</span> =&gt; <span class="string">&quot;cycleway&quot;</span>,
                 <span class="comment">// Until we decide on the schema for some of these other lane types, don&#39;t generate</span>
                 <span class="comment">// test cases for any roads wth them</span>
-                <span class="ident">LaneType::Bus</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">LaneType::Bus</span> =&gt; {
                     <span class="kw">return</span> <span class="prelude-val">None</span>;
                 }
-                <span class="ident">LaneType::SharedLeftTurn</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;shared_left_turn&quot;</span>,
-                <span class="ident">LaneType::Construction</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">LaneType::SharedLeftTurn</span> =&gt; <span class="string">&quot;shared_left_turn&quot;</span>,
+                <span class="ident">LaneType::Construction</span> =&gt; {
                     <span class="kw">return</span> <span class="prelude-val">None</span>;
                 }
-                <span class="ident">LaneType::LightRail</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">LaneType::LightRail</span> =&gt; {
                     <span class="kw">return</span> <span class="prelude-val">None</span>;
                 }
-                <span class="ident">LaneType::Buffer</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">LaneType::Buffer</span>(<span class="kw">_</span>) =&gt; {
                     <span class="kw">return</span> <span class="prelude-val">None</span>;
                 }
             }
             .<span class="ident">to_string</span>(),
             <span class="ident">direction</span>: <span class="kw">match</span> <span class="ident">lane</span>.<span class="ident">dir</span> {
-                <span class="ident">Direction::Fwd</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;forward&quot;</span>,
-                <span class="ident">Direction::Back</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;backward&quot;</span>,
+                <span class="ident">Direction::Fwd</span> =&gt; <span class="string">&quot;forward&quot;</span>,
+                <span class="ident">Direction::Back</span> =&gt; <span class="string">&quot;backward&quot;</span>,
             }
             .<span class="ident">to_string</span>(),
         });
@@ -190,7 +190,7 @@
     <span class="prelude-val">Some</span>(<span class="ident">result</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">strip_tags</span>(<span class="kw-2">mut</span> <span class="ident">tags</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">String</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">String</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">strip_tags</span>(<span class="kw-2">mut</span> <span class="ident">tags</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">String</span><span class="op">&gt;</span>) -&gt; <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">String</span><span class="op">&gt;</span> {
     <span class="comment">// These aren&#39;t OSM tags; they&#39;re just added by A/B Street for internal use</span>
     <span class="ident">tags</span>.<span class="ident">remove</span>(<span class="ident">osm::OSM_WAY_ID</span>);
     <span class="ident">tags</span>.<span class="ident">remove</span>(<span class="ident">osm::ENDPT_FWD</span>);

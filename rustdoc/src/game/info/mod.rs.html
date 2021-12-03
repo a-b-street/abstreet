@@ -913,85 +913,85 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Tab</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_id</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">ID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Tab</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_id</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">ID</span>) -&gt; <span class="ident">Tab</span> {
         <span class="kw">match</span> <span class="ident">id</span> {
-            <span class="ident">ID::Road</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
-            <span class="ident">ID::Lane</span>(<span class="ident">l</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">info_panel_tab</span>[<span class="string">&quot;lane&quot;</span>] {
-                <span class="string">&quot;info&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Tab::LaneInfo</span>(<span class="ident">l</span>),
-                <span class="string">&quot;debug&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Tab::LaneDebug</span>(<span class="ident">l</span>),
-                <span class="string">&quot;traffic&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Tab::LaneTraffic</span>(<span class="ident">l</span>, <span class="ident">DataOptions::new</span>()),
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+            <span class="ident">ID::Road</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
+            <span class="ident">ID::Lane</span>(<span class="ident">l</span>) =&gt; <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">info_panel_tab</span>[<span class="string">&quot;lane&quot;</span>] {
+                <span class="string">&quot;info&quot;</span> =&gt; <span class="ident">Tab::LaneInfo</span>(<span class="ident">l</span>),
+                <span class="string">&quot;debug&quot;</span> =&gt; <span class="ident">Tab::LaneDebug</span>(<span class="ident">l</span>),
+                <span class="string">&quot;traffic&quot;</span> =&gt; <span class="ident">Tab::LaneTraffic</span>(<span class="ident">l</span>, <span class="ident">DataOptions::new</span>()),
+                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
             },
-            <span class="ident">ID::Intersection</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">info_panel_tab</span>[<span class="string">&quot;intersection&quot;</span>] {
-                <span class="string">&quot;info&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Tab::IntersectionInfo</span>(<span class="ident">i</span>),
-                <span class="string">&quot;traffic&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Tab::IntersectionTraffic</span>(<span class="ident">i</span>, <span class="ident">DataOptions::new</span>()),
-                <span class="string">&quot;delay&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ID::Intersection</span>(<span class="ident">i</span>) =&gt; <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">info_panel_tab</span>[<span class="string">&quot;intersection&quot;</span>] {
+                <span class="string">&quot;info&quot;</span> =&gt; <span class="ident">Tab::IntersectionInfo</span>(<span class="ident">i</span>),
+                <span class="string">&quot;traffic&quot;</span> =&gt; <span class="ident">Tab::IntersectionTraffic</span>(<span class="ident">i</span>, <span class="ident">DataOptions::new</span>()),
+                <span class="string">&quot;delay&quot;</span> =&gt; {
                     <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">is_traffic_signal</span>() {
                         <span class="ident">Tab::IntersectionDelay</span>(<span class="ident">i</span>, <span class="ident">DataOptions::new</span>(), <span class="bool-val">false</span>)
                     } <span class="kw">else</span> {
                         <span class="ident">Tab::IntersectionInfo</span>(<span class="ident">i</span>)
                     }
                 }
-                <span class="string">&quot;demand&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;demand&quot;</span> =&gt; {
                     <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">is_traffic_signal</span>() {
                         <span class="ident">Tab::IntersectionDemand</span>(<span class="ident">i</span>)
                     } <span class="kw">else</span> {
                         <span class="ident">Tab::IntersectionInfo</span>(<span class="ident">i</span>)
                     }
                 }
-                <span class="string">&quot;arrivals&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;arrivals&quot;</span> =&gt; {
                     <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">is_incoming_border</span>() {
                         <span class="ident">Tab::IntersectionArrivals</span>(<span class="ident">i</span>, <span class="ident">DataOptions::new</span>())
                     } <span class="kw">else</span> {
                         <span class="ident">Tab::IntersectionInfo</span>(<span class="ident">i</span>)
                     }
                 }
-                <span class="string">&quot;traffic signal&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;traffic signal&quot;</span> =&gt; {
                     <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">is_traffic_signal</span>() {
                         <span class="ident">Tab::IntersectionTrafficSignal</span>(<span class="ident">i</span>)
                     } <span class="kw">else</span> {
                         <span class="ident">Tab::IntersectionInfo</span>(<span class="ident">i</span>)
                     }
                 }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
             },
-            <span class="ident">ID::Building</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">info_panel_tab</span>[<span class="string">&quot;bldg&quot;</span>] {
-                <span class="string">&quot;info&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Tab::BldgInfo</span>(<span class="ident">b</span>),
-                <span class="string">&quot;people&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Tab::BldgPeople</span>(<span class="ident">b</span>),
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+            <span class="ident">ID::Building</span>(<span class="ident">b</span>) =&gt; <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">info_panel_tab</span>[<span class="string">&quot;bldg&quot;</span>] {
+                <span class="string">&quot;info&quot;</span> =&gt; <span class="ident">Tab::BldgInfo</span>(<span class="ident">b</span>),
+                <span class="string">&quot;people&quot;</span> =&gt; <span class="ident">Tab::BldgPeople</span>(<span class="ident">b</span>),
+                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
             },
-            <span class="ident">ID::ParkingLot</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Tab::ParkingLot</span>(<span class="ident">b</span>),
-            <span class="ident">ID::Car</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ID::ParkingLot</span>(<span class="ident">b</span>) =&gt; <span class="ident">Tab::ParkingLot</span>(<span class="ident">b</span>),
+            <span class="ident">ID::Car</span>(<span class="ident">c</span>) =&gt; {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">p</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">agent_to_person</span>(<span class="ident">AgentID::Car</span>(<span class="ident">c</span>)) {
                     <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">info_panel_tab</span>[<span class="string">&quot;person&quot;</span>] {
-                        <span class="string">&quot;trips&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Tab::PersonTrips</span>(
+                        <span class="string">&quot;trips&quot;</span> =&gt; <span class="ident">Tab::PersonTrips</span>(
                             <span class="ident">p</span>,
                             <span class="ident">OpenTrip::single</span>(
                                 <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">agent_to_trip</span>(<span class="ident">AgentID::Car</span>(<span class="ident">c</span>)).<span class="ident">unwrap</span>(),
                             ),
                         ),
-                        <span class="string">&quot;bio&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Tab::PersonBio</span>(<span class="ident">p</span>),
-                        <span class="string">&quot;schedule&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Tab::PersonSchedule</span>(<span class="ident">p</span>),
-                        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+                        <span class="string">&quot;bio&quot;</span> =&gt; <span class="ident">Tab::PersonBio</span>(<span class="ident">p</span>),
+                        <span class="string">&quot;schedule&quot;</span> =&gt; <span class="ident">Tab::PersonSchedule</span>(<span class="ident">p</span>),
+                        <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
                     }
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">c</span>.<span class="ident">vehicle_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">VehicleType::Bus</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">vehicle_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">VehicleType::Train</span>
+                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">c</span>.<span class="ident">vehicle_type</span> <span class="op">==</span> <span class="ident">VehicleType::Bus</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">vehicle_type</span> <span class="op">==</span> <span class="ident">VehicleType::Train</span>
                 {
                     <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">info_panel_tab</span>[<span class="string">&quot;bus&quot;</span>] {
-                        <span class="string">&quot;status&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Tab::BusStatus</span>(<span class="ident">c</span>),
-                        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+                        <span class="string">&quot;status&quot;</span> =&gt; <span class="ident">Tab::BusStatus</span>(<span class="ident">c</span>),
+                        <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
                     }
                 } <span class="kw">else</span> {
                     <span class="ident">Tab::ParkedCar</span>(<span class="ident">c</span>)
                 }
             }
-            <span class="ident">ID::Pedestrian</span>(<span class="ident">p</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ID::Pedestrian</span>(<span class="ident">p</span>) =&gt; {
                 <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="ident">app</span>
                     .<span class="ident">primary</span>
                     .<span class="ident">sim</span>
                     .<span class="ident">agent_to_person</span>(<span class="ident">AgentID::Pedestrian</span>(<span class="ident">p</span>))
                     .<span class="ident">unwrap</span>();
                 <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">info_panel_tab</span>[<span class="string">&quot;person&quot;</span>] {
-                    <span class="string">&quot;trips&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Tab::PersonTrips</span>(
+                    <span class="string">&quot;trips&quot;</span> =&gt; <span class="ident">Tab::PersonTrips</span>(
                         <span class="ident">person</span>,
                         <span class="ident">OpenTrip::single</span>(
                             <span class="ident">app</span>.<span class="ident">primary</span>
@@ -1000,60 +1000,60 @@
                                 .<span class="ident">unwrap</span>(),
                         ),
                     ),
-                    <span class="string">&quot;bio&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Tab::PersonBio</span>(<span class="ident">person</span>),
-                    <span class="string">&quot;schedule&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Tab::PersonSchedule</span>(<span class="ident">person</span>),
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+                    <span class="string">&quot;bio&quot;</span> =&gt; <span class="ident">Tab::PersonBio</span>(<span class="ident">person</span>),
+                    <span class="string">&quot;schedule&quot;</span> =&gt; <span class="ident">Tab::PersonSchedule</span>(<span class="ident">person</span>),
+                    <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
                 }
             }
-            <span class="ident">ID::PedCrowd</span>(<span class="ident">members</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Tab::Crowd</span>(<span class="ident">members</span>),
-            <span class="ident">ID::BusStop</span>(<span class="ident">bs</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Tab::BusStop</span>(<span class="ident">bs</span>),
-            <span class="ident">ID::Area</span>(<span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Tab::Area</span>(<span class="ident">a</span>),
+            <span class="ident">ID::PedCrowd</span>(<span class="ident">members</span>) =&gt; <span class="ident">Tab::Crowd</span>(<span class="ident">members</span>),
+            <span class="ident">ID::BusStop</span>(<span class="ident">bs</span>) =&gt; <span class="ident">Tab::BusStop</span>(<span class="ident">bs</span>),
+            <span class="ident">ID::Area</span>(<span class="ident">a</span>) =&gt; <span class="ident">Tab::Area</span>(<span class="ident">a</span>),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">to_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">to_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Tab::PersonTrips</span>(<span class="ident">p</span>, <span class="kw">_</span>) <span class="op">|</span> <span class="ident">Tab::PersonBio</span>(<span class="ident">p</span>) <span class="op">|</span> <span class="ident">Tab::PersonSchedule</span>(<span class="ident">p</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Tab::PersonTrips</span>(<span class="ident">p</span>, <span class="kw">_</span>) <span class="op">|</span> <span class="ident">Tab::PersonBio</span>(<span class="ident">p</span>) <span class="op">|</span> <span class="ident">Tab::PersonSchedule</span>(<span class="ident">p</span>) =&gt; {
                 <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_person</span>(<span class="kw-2">*</span><span class="ident">p</span>).<span class="ident">state</span> {
-                    <span class="ident">PersonState::Inside</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">ID::Building</span>(<span class="ident">b</span>)),
-                    <span class="ident">PersonState::Trip</span>(<span class="ident">t</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">PersonState::Inside</span>(<span class="ident">b</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">ID::Building</span>(<span class="ident">b</span>)),
+                    <span class="ident">PersonState::Trip</span>(<span class="ident">t</span>) =&gt; {
                         <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">trip_to_agent</span>(<span class="ident">t</span>).<span class="ident">ok</span>().<span class="ident">map</span>(<span class="ident">ID::from_agent</span>)
                     }
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+                    <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
                 }
             }
-            <span class="ident">Tab::BusStatus</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">ID::Car</span>(<span class="kw-2">*</span><span class="ident">c</span>)),
-            <span class="ident">Tab::BusStop</span>(<span class="ident">bs</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">ID::BusStop</span>(<span class="kw-2">*</span><span class="ident">bs</span>)),
-            <span class="ident">Tab::BusRoute</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+            <span class="ident">Tab::BusStatus</span>(<span class="ident">c</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">ID::Car</span>(<span class="kw-2">*</span><span class="ident">c</span>)),
+            <span class="ident">Tab::BusStop</span>(<span class="ident">bs</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">ID::BusStop</span>(<span class="kw-2">*</span><span class="ident">bs</span>)),
+            <span class="ident">Tab::BusRoute</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
             <span class="comment">// TODO If a parked car becomes in use while the panel is open, should update the</span>
             <span class="comment">// panel better.</span>
-            <span class="ident">Tab::ParkedCar</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">lookup_parked_car</span>(<span class="kw-2">*</span><span class="ident">c</span>)<span class="question-mark">?</span>.<span class="ident">spot</span> {
-                <span class="ident">ParkingSpot::Onstreet</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">ID::Car</span>(<span class="kw-2">*</span><span class="ident">c</span>)),
-                <span class="ident">ParkingSpot::Offstreet</span>(<span class="ident">b</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">ID::Building</span>(<span class="ident">b</span>)),
-                <span class="ident">ParkingSpot::Lot</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">ID::Car</span>(<span class="kw-2">*</span><span class="ident">c</span>)),
+            <span class="ident">Tab::ParkedCar</span>(<span class="ident">c</span>) =&gt; <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">lookup_parked_car</span>(<span class="kw-2">*</span><span class="ident">c</span>)<span class="question-mark">?</span>.<span class="ident">spot</span> {
+                <span class="ident">ParkingSpot::Onstreet</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">ID::Car</span>(<span class="kw-2">*</span><span class="ident">c</span>)),
+                <span class="ident">ParkingSpot::Offstreet</span>(<span class="ident">b</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">ID::Building</span>(<span class="ident">b</span>)),
+                <span class="ident">ParkingSpot::Lot</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">ID::Car</span>(<span class="kw-2">*</span><span class="ident">c</span>)),
             },
-            <span class="ident">Tab::BldgInfo</span>(<span class="ident">b</span>) <span class="op">|</span> <span class="ident">Tab::BldgPeople</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">ID::Building</span>(<span class="kw-2">*</span><span class="ident">b</span>)),
-            <span class="ident">Tab::ParkingLot</span>(<span class="ident">pl</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">ID::ParkingLot</span>(<span class="kw-2">*</span><span class="ident">pl</span>)),
-            <span class="ident">Tab::Crowd</span>(<span class="ident">members</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">ID::PedCrowd</span>(<span class="ident">members</span>.<span class="ident">clone</span>())),
-            <span class="ident">Tab::Area</span>(<span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">ID::Area</span>(<span class="kw-2">*</span><span class="ident">a</span>)),
+            <span class="ident">Tab::BldgInfo</span>(<span class="ident">b</span>) <span class="op">|</span> <span class="ident">Tab::BldgPeople</span>(<span class="ident">b</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">ID::Building</span>(<span class="kw-2">*</span><span class="ident">b</span>)),
+            <span class="ident">Tab::ParkingLot</span>(<span class="ident">pl</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">ID::ParkingLot</span>(<span class="kw-2">*</span><span class="ident">pl</span>)),
+            <span class="ident">Tab::Crowd</span>(<span class="ident">members</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">ID::PedCrowd</span>(<span class="ident">members</span>.<span class="ident">clone</span>())),
+            <span class="ident">Tab::Area</span>(<span class="ident">a</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">ID::Area</span>(<span class="kw-2">*</span><span class="ident">a</span>)),
             <span class="ident">Tab::IntersectionInfo</span>(<span class="ident">i</span>)
             <span class="op">|</span> <span class="ident">Tab::IntersectionTraffic</span>(<span class="ident">i</span>, <span class="kw">_</span>)
             <span class="op">|</span> <span class="ident">Tab::IntersectionDelay</span>(<span class="ident">i</span>, <span class="kw">_</span>, <span class="kw">_</span>)
             <span class="op">|</span> <span class="ident">Tab::IntersectionDemand</span>(<span class="ident">i</span>)
             <span class="op">|</span> <span class="ident">Tab::IntersectionArrivals</span>(<span class="ident">i</span>, <span class="kw">_</span>)
-            <span class="op">|</span> <span class="ident">Tab::IntersectionTrafficSignal</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">ID::Intersection</span>(<span class="kw-2">*</span><span class="ident">i</span>)),
-            <span class="ident">Tab::LaneInfo</span>(<span class="ident">l</span>) <span class="op">|</span> <span class="ident">Tab::LaneDebug</span>(<span class="ident">l</span>) <span class="op">|</span> <span class="ident">Tab::LaneTraffic</span>(<span class="ident">l</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">ID::Lane</span>(<span class="kw-2">*</span><span class="ident">l</span>)),
+            <span class="op">|</span> <span class="ident">Tab::IntersectionTrafficSignal</span>(<span class="ident">i</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">ID::Intersection</span>(<span class="kw-2">*</span><span class="ident">i</span>)),
+            <span class="ident">Tab::LaneInfo</span>(<span class="ident">l</span>) <span class="op">|</span> <span class="ident">Tab::LaneDebug</span>(<span class="ident">l</span>) <span class="op">|</span> <span class="ident">Tab::LaneTraffic</span>(<span class="ident">l</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">ID::Lane</span>(<span class="kw-2">*</span><span class="ident">l</span>)),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">changed_settings</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">c</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Tab</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">changed_settings</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">c</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Tab</span><span class="op">&gt;</span> {
         <span class="comment">// Avoid an occasionally expensive clone.</span>
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident">Tab::IntersectionTraffic</span>(<span class="kw">_</span>, <span class="kw">_</span>)
             <span class="op">|</span> <span class="ident">Tab::IntersectionDelay</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>)
             <span class="op">|</span> <span class="ident">Tab::IntersectionArrivals</span>(<span class="kw">_</span>, <span class="kw">_</span>)
-            <span class="op">|</span> <span class="ident">Tab::LaneTraffic</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {}
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="op">|</span> <span class="ident">Tab::LaneTraffic</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; {}
+            <span class="kw">_</span> =&gt; {
                 <span class="kw">return</span> <span class="prelude-val">None</span>;
             }
         }
@@ -1062,50 +1062,50 @@
         <span class="kw">match</span> <span class="ident">new_tab</span> {
             <span class="ident">Tab::IntersectionTraffic</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">opts</span>)
             <span class="op">|</span> <span class="ident">Tab::IntersectionArrivals</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">opts</span>)
-            <span class="op">|</span> <span class="ident">Tab::LaneTraffic</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">opts</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="op">|</span> <span class="ident">Tab::LaneTraffic</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">opts</span>) =&gt; {
                 <span class="kw">let</span> <span class="ident">new_opts</span> <span class="op">=</span> <span class="ident">DataOptions::from_controls</span>(<span class="ident">c</span>);
-                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">opts</span> <span class="op">=</span><span class="op">=</span> <span class="ident">new_opts</span> {
+                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">opts</span> <span class="op">==</span> <span class="ident">new_opts</span> {
                     <span class="kw">return</span> <span class="prelude-val">None</span>;
                 }
                 <span class="kw-2">*</span><span class="ident">opts</span> <span class="op">=</span> <span class="ident">new_opts</span>;
             }
-            <span class="ident">Tab::IntersectionDelay</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">opts</span>, <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">fan_chart</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Tab::IntersectionDelay</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">opts</span>, <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">fan_chart</span>) =&gt; {
                 <span class="kw">let</span> <span class="ident">new_opts</span> <span class="op">=</span> <span class="ident">DataOptions::from_controls</span>(<span class="ident">c</span>);
                 <span class="kw">let</span> <span class="ident">new_fan_chart</span> <span class="op">=</span> <span class="ident">c</span>.<span class="ident">is_checked</span>(<span class="string">&quot;fan chart / scatter plot&quot;</span>);
-                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">opts</span> <span class="op">=</span><span class="op">=</span> <span class="ident">new_opts</span> <span class="op">&amp;&amp;</span> <span class="kw-2">*</span><span class="ident">fan_chart</span> <span class="op">=</span><span class="op">=</span> <span class="ident">new_fan_chart</span> {
+                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">opts</span> <span class="op">==</span> <span class="ident">new_opts</span> <span class="op">&amp;&amp;</span> <span class="kw-2">*</span><span class="ident">fan_chart</span> <span class="op">==</span> <span class="ident">new_fan_chart</span> {
                     <span class="kw">return</span> <span class="prelude-val">None</span>;
                 }
                 <span class="kw-2">*</span><span class="ident">opts</span> <span class="op">=</span> <span class="ident">new_opts</span>;
                 <span class="kw-2">*</span><span class="ident">fan_chart</span> <span class="op">=</span> <span class="ident">new_fan_chart</span>;
             }
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
         }
         <span class="prelude-val">Some</span>(<span class="ident">new_tab</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">variant</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) {
+    <span class="kw">fn</span> <span class="ident">variant</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Tab::PersonTrips</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="string">&quot;person&quot;</span>, <span class="string">&quot;trips&quot;</span>),
-            <span class="ident">Tab::PersonBio</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="string">&quot;person&quot;</span>, <span class="string">&quot;bio&quot;</span>),
-            <span class="ident">Tab::PersonSchedule</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="string">&quot;person&quot;</span>, <span class="string">&quot;schedule&quot;</span>),
-            <span class="ident">Tab::BusStatus</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="string">&quot;bus&quot;</span>, <span class="string">&quot;status&quot;</span>),
-            <span class="ident">Tab::BusStop</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="string">&quot;bus stop&quot;</span>, <span class="string">&quot;info&quot;</span>),
-            <span class="ident">Tab::BusRoute</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="string">&quot;bus route&quot;</span>, <span class="string">&quot;info&quot;</span>),
-            <span class="ident">Tab::ParkedCar</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="string">&quot;parked car&quot;</span>, <span class="string">&quot;info&quot;</span>),
-            <span class="ident">Tab::BldgInfo</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="string">&quot;bldg&quot;</span>, <span class="string">&quot;info&quot;</span>),
-            <span class="ident">Tab::BldgPeople</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="string">&quot;bldg&quot;</span>, <span class="string">&quot;people&quot;</span>),
-            <span class="ident">Tab::ParkingLot</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="string">&quot;parking lot&quot;</span>, <span class="string">&quot;info&quot;</span>),
-            <span class="ident">Tab::Crowd</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="string">&quot;crowd&quot;</span>, <span class="string">&quot;info&quot;</span>),
-            <span class="ident">Tab::Area</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="string">&quot;area&quot;</span>, <span class="string">&quot;info&quot;</span>),
-            <span class="ident">Tab::IntersectionInfo</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="string">&quot;intersection&quot;</span>, <span class="string">&quot;info&quot;</span>),
-            <span class="ident">Tab::IntersectionTraffic</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="string">&quot;intersection&quot;</span>, <span class="string">&quot;traffic&quot;</span>),
-            <span class="ident">Tab::IntersectionDelay</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="string">&quot;intersection&quot;</span>, <span class="string">&quot;delay&quot;</span>),
-            <span class="ident">Tab::IntersectionDemand</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="string">&quot;intersection&quot;</span>, <span class="string">&quot;demand&quot;</span>),
-            <span class="ident">Tab::IntersectionArrivals</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="string">&quot;intersection&quot;</span>, <span class="string">&quot;arrivals&quot;</span>),
-            <span class="ident">Tab::IntersectionTrafficSignal</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="string">&quot;intersection&quot;</span>, <span class="string">&quot;traffic signal&quot;</span>),
-            <span class="ident">Tab::LaneInfo</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="string">&quot;lane&quot;</span>, <span class="string">&quot;info&quot;</span>),
-            <span class="ident">Tab::LaneDebug</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="string">&quot;lane&quot;</span>, <span class="string">&quot;debug&quot;</span>),
-            <span class="ident">Tab::LaneTraffic</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="string">&quot;lane&quot;</span>, <span class="string">&quot;traffic&quot;</span>),
+            <span class="ident">Tab::PersonTrips</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; (<span class="string">&quot;person&quot;</span>, <span class="string">&quot;trips&quot;</span>),
+            <span class="ident">Tab::PersonBio</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;person&quot;</span>, <span class="string">&quot;bio&quot;</span>),
+            <span class="ident">Tab::PersonSchedule</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;person&quot;</span>, <span class="string">&quot;schedule&quot;</span>),
+            <span class="ident">Tab::BusStatus</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;bus&quot;</span>, <span class="string">&quot;status&quot;</span>),
+            <span class="ident">Tab::BusStop</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;bus stop&quot;</span>, <span class="string">&quot;info&quot;</span>),
+            <span class="ident">Tab::BusRoute</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;bus route&quot;</span>, <span class="string">&quot;info&quot;</span>),
+            <span class="ident">Tab::ParkedCar</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;parked car&quot;</span>, <span class="string">&quot;info&quot;</span>),
+            <span class="ident">Tab::BldgInfo</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;bldg&quot;</span>, <span class="string">&quot;info&quot;</span>),
+            <span class="ident">Tab::BldgPeople</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;bldg&quot;</span>, <span class="string">&quot;people&quot;</span>),
+            <span class="ident">Tab::ParkingLot</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;parking lot&quot;</span>, <span class="string">&quot;info&quot;</span>),
+            <span class="ident">Tab::Crowd</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;crowd&quot;</span>, <span class="string">&quot;info&quot;</span>),
+            <span class="ident">Tab::Area</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;area&quot;</span>, <span class="string">&quot;info&quot;</span>),
+            <span class="ident">Tab::IntersectionInfo</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;intersection&quot;</span>, <span class="string">&quot;info&quot;</span>),
+            <span class="ident">Tab::IntersectionTraffic</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; (<span class="string">&quot;intersection&quot;</span>, <span class="string">&quot;traffic&quot;</span>),
+            <span class="ident">Tab::IntersectionDelay</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; (<span class="string">&quot;intersection&quot;</span>, <span class="string">&quot;delay&quot;</span>),
+            <span class="ident">Tab::IntersectionDemand</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;intersection&quot;</span>, <span class="string">&quot;demand&quot;</span>),
+            <span class="ident">Tab::IntersectionArrivals</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; (<span class="string">&quot;intersection&quot;</span>, <span class="string">&quot;arrivals&quot;</span>),
+            <span class="ident">Tab::IntersectionTrafficSignal</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;intersection&quot;</span>, <span class="string">&quot;traffic signal&quot;</span>),
+            <span class="ident">Tab::LaneInfo</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;lane&quot;</span>, <span class="string">&quot;info&quot;</span>),
+            <span class="ident">Tab::LaneDebug</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;lane&quot;</span>, <span class="string">&quot;debug&quot;</span>),
+            <span class="ident">Tab::LaneTraffic</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; (<span class="string">&quot;lane&quot;</span>, <span class="string">&quot;traffic&quot;</span>),
         }
     }
 }
@@ -1132,7 +1132,7 @@
         <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>,
         <span class="kw-2">mut</span> <span class="ident">tab</span>: <span class="ident">Tab</span>,
         <span class="ident">ctx_actions</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">ContextualActions</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">InfoPanel</span> {
+    ) -&gt; <span class="ident">InfoPanel</span> {
         <span class="kw">let</span> (<span class="ident">k</span>, <span class="ident">v</span>) <span class="op">=</span> <span class="ident">tab</span>.<span class="ident">variant</span>();
         <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">info_panel_tab</span>.<span class="ident">insert</span>(<span class="ident">k</span>, <span class="ident">v</span>);
 
@@ -1146,54 +1146,54 @@
         };
 
         <span class="kw">let</span> (<span class="ident">header_and_tabs</span>, <span class="ident">main_tab</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">tab</span> {
-            <span class="ident">Tab::PersonTrips</span>(<span class="ident">p</span>, <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">open</span>) <span class="op">=</span><span class="op">&gt;</span> (
+            <span class="ident">Tab::PersonTrips</span>(<span class="ident">p</span>, <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">open</span>) =&gt; (
                 <span class="ident">person::trips</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">details</span>, <span class="ident">p</span>, <span class="ident">open</span>, <span class="ident">ctx_actions</span>.<span class="ident">is_paused</span>()),
                 <span class="bool-val">true</span>,
             ),
-            <span class="ident">Tab::PersonBio</span>(<span class="ident">p</span>) <span class="op">=</span><span class="op">&gt;</span> (
+            <span class="ident">Tab::PersonBio</span>(<span class="ident">p</span>) =&gt; (
                 <span class="ident">person::bio</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">details</span>, <span class="ident">p</span>, <span class="ident">ctx_actions</span>.<span class="ident">is_paused</span>()),
                 <span class="bool-val">false</span>,
             ),
-            <span class="ident">Tab::PersonSchedule</span>(<span class="ident">p</span>) <span class="op">=</span><span class="op">&gt;</span> (
+            <span class="ident">Tab::PersonSchedule</span>(<span class="ident">p</span>) =&gt; (
                 <span class="ident">person::schedule</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">details</span>, <span class="ident">p</span>, <span class="ident">ctx_actions</span>.<span class="ident">is_paused</span>()),
                 <span class="bool-val">false</span>,
             ),
-            <span class="ident">Tab::BusStatus</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">bus::bus_status</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">details</span>, <span class="ident">c</span>), <span class="bool-val">true</span>),
-            <span class="ident">Tab::BusStop</span>(<span class="ident">bs</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">bus::stop</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">details</span>, <span class="ident">bs</span>), <span class="bool-val">true</span>),
-            <span class="ident">Tab::BusRoute</span>(<span class="ident">br</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">bus::route</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">details</span>, <span class="ident">br</span>), <span class="bool-val">true</span>),
-            <span class="ident">Tab::ParkedCar</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> (
+            <span class="ident">Tab::BusStatus</span>(<span class="ident">c</span>) =&gt; (<span class="ident">bus::bus_status</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">details</span>, <span class="ident">c</span>), <span class="bool-val">true</span>),
+            <span class="ident">Tab::BusStop</span>(<span class="ident">bs</span>) =&gt; (<span class="ident">bus::stop</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">details</span>, <span class="ident">bs</span>), <span class="bool-val">true</span>),
+            <span class="ident">Tab::BusRoute</span>(<span class="ident">br</span>) =&gt; (<span class="ident">bus::route</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">details</span>, <span class="ident">br</span>), <span class="bool-val">true</span>),
+            <span class="ident">Tab::ParkedCar</span>(<span class="ident">c</span>) =&gt; (
                 <span class="ident">person::parked_car</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">details</span>, <span class="ident">c</span>, <span class="ident">ctx_actions</span>.<span class="ident">is_paused</span>()),
                 <span class="bool-val">true</span>,
             ),
-            <span class="ident">Tab::BldgInfo</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">building::info</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">details</span>, <span class="ident">b</span>), <span class="bool-val">true</span>),
-            <span class="ident">Tab::BldgPeople</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">building::people</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">details</span>, <span class="ident">b</span>), <span class="bool-val">false</span>),
-            <span class="ident">Tab::ParkingLot</span>(<span class="ident">pl</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">parking_lot::info</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">details</span>, <span class="ident">pl</span>), <span class="bool-val">true</span>),
-            <span class="ident">Tab::Crowd</span>(<span class="kw-2">ref</span> <span class="ident">members</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">person::crowd</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">details</span>, <span class="ident">members</span>), <span class="bool-val">true</span>),
-            <span class="ident">Tab::Area</span>(<span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">debug::area</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">details</span>, <span class="ident">a</span>), <span class="bool-val">true</span>),
-            <span class="ident">Tab::IntersectionInfo</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">intersection::info</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">details</span>, <span class="ident">i</span>), <span class="bool-val">true</span>),
-            <span class="ident">Tab::IntersectionTraffic</span>(<span class="ident">i</span>, <span class="kw-2">ref</span> <span class="ident">opts</span>) <span class="op">=</span><span class="op">&gt;</span> (
+            <span class="ident">Tab::BldgInfo</span>(<span class="ident">b</span>) =&gt; (<span class="ident">building::info</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">details</span>, <span class="ident">b</span>), <span class="bool-val">true</span>),
+            <span class="ident">Tab::BldgPeople</span>(<span class="ident">b</span>) =&gt; (<span class="ident">building::people</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">details</span>, <span class="ident">b</span>), <span class="bool-val">false</span>),
+            <span class="ident">Tab::ParkingLot</span>(<span class="ident">pl</span>) =&gt; (<span class="ident">parking_lot::info</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">details</span>, <span class="ident">pl</span>), <span class="bool-val">true</span>),
+            <span class="ident">Tab::Crowd</span>(<span class="kw-2">ref</span> <span class="ident">members</span>) =&gt; (<span class="ident">person::crowd</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">details</span>, <span class="ident">members</span>), <span class="bool-val">true</span>),
+            <span class="ident">Tab::Area</span>(<span class="ident">a</span>) =&gt; (<span class="ident">debug::area</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">details</span>, <span class="ident">a</span>), <span class="bool-val">true</span>),
+            <span class="ident">Tab::IntersectionInfo</span>(<span class="ident">i</span>) =&gt; (<span class="ident">intersection::info</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">details</span>, <span class="ident">i</span>), <span class="bool-val">true</span>),
+            <span class="ident">Tab::IntersectionTraffic</span>(<span class="ident">i</span>, <span class="kw-2">ref</span> <span class="ident">opts</span>) =&gt; (
                 <span class="ident">intersection::traffic</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">details</span>, <span class="ident">i</span>, <span class="ident">opts</span>),
                 <span class="bool-val">false</span>,
             ),
-            <span class="ident">Tab::IntersectionDelay</span>(<span class="ident">i</span>, <span class="kw-2">ref</span> <span class="ident">opts</span>, <span class="ident">fan_chart</span>) <span class="op">=</span><span class="op">&gt;</span> (
+            <span class="ident">Tab::IntersectionDelay</span>(<span class="ident">i</span>, <span class="kw-2">ref</span> <span class="ident">opts</span>, <span class="ident">fan_chart</span>) =&gt; (
                 <span class="ident">intersection::delay</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">details</span>, <span class="ident">i</span>, <span class="ident">opts</span>, <span class="ident">fan_chart</span>),
                 <span class="bool-val">false</span>,
             ),
-            <span class="ident">Tab::IntersectionDemand</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> (
+            <span class="ident">Tab::IntersectionDemand</span>(<span class="ident">i</span>) =&gt; (
                 <span class="ident">intersection::current_demand</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">details</span>, <span class="ident">i</span>),
                 <span class="bool-val">false</span>,
             ),
-            <span class="ident">Tab::IntersectionArrivals</span>(<span class="ident">i</span>, <span class="kw-2">ref</span> <span class="ident">opts</span>) <span class="op">=</span><span class="op">&gt;</span> (
+            <span class="ident">Tab::IntersectionArrivals</span>(<span class="ident">i</span>, <span class="kw-2">ref</span> <span class="ident">opts</span>) =&gt; (
                 <span class="ident">intersection::arrivals</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">details</span>, <span class="ident">i</span>, <span class="ident">opts</span>),
                 <span class="bool-val">false</span>,
             ),
-            <span class="ident">Tab::IntersectionTrafficSignal</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> (
+            <span class="ident">Tab::IntersectionTrafficSignal</span>(<span class="ident">i</span>) =&gt; (
                 <span class="ident">intersection::traffic_signal</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">details</span>, <span class="ident">i</span>),
                 <span class="bool-val">false</span>,
             ),
-            <span class="ident">Tab::LaneInfo</span>(<span class="ident">l</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">lane::info</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">details</span>, <span class="ident">l</span>), <span class="bool-val">true</span>),
-            <span class="ident">Tab::LaneDebug</span>(<span class="ident">l</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">lane::debug</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">details</span>, <span class="ident">l</span>), <span class="bool-val">false</span>),
-            <span class="ident">Tab::LaneTraffic</span>(<span class="ident">l</span>, <span class="kw-2">ref</span> <span class="ident">opts</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Tab::LaneInfo</span>(<span class="ident">l</span>) =&gt; (<span class="ident">lane::info</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">details</span>, <span class="ident">l</span>), <span class="bool-val">true</span>),
+            <span class="ident">Tab::LaneDebug</span>(<span class="ident">l</span>) =&gt; (<span class="ident">lane::debug</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">details</span>, <span class="ident">l</span>), <span class="bool-val">false</span>),
+            <span class="ident">Tab::LaneTraffic</span>(<span class="ident">l</span>, <span class="kw-2">ref</span> <span class="ident">opts</span>) =&gt; {
                 (<span class="ident">lane::traffic</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">details</span>, <span class="ident">l</span>, <span class="ident">opts</span>), <span class="bool-val">false</span>)
             }
         };
@@ -1225,19 +1225,19 @@
         }) {
             <span class="comment">// Different selection styles for different objects.</span>
             <span class="kw">match</span> <span class="ident">id</span> {
-                <span class="ident">ID::Car</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">ID::Pedestrian</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">ID::PedCrowd</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">ID::Car</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">ID::Pedestrian</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">ID::PedCrowd</span>(<span class="kw">_</span>) =&gt; {
                     <span class="comment">// Some objects are much wider/taller than others</span>
                     <span class="kw">let</span> <span class="ident">multiplier</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">id</span> {
-                        <span class="ident">ID::Car</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                            <span class="kw">if</span> <span class="ident">c</span>.<span class="ident">vehicle_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">VehicleType::Bike</span> {
+                        <span class="ident">ID::Car</span>(<span class="ident">c</span>) =&gt; {
+                            <span class="kw">if</span> <span class="ident">c</span>.<span class="ident">vehicle_type</span> <span class="op">==</span> <span class="ident">VehicleType::Bike</span> {
                                 <span class="number">3.0</span>
                             } <span class="kw">else</span> {
                                 <span class="number">0.75</span>
                             }
                         }
-                        <span class="ident">ID::Pedestrian</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="number">3.0</span>,
-                        <span class="ident">ID::PedCrowd</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="number">0.75</span>,
-                        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+                        <span class="ident">ID::Pedestrian</span>(<span class="kw">_</span>) =&gt; <span class="number">3.0</span>,
+                        <span class="ident">ID::PedCrowd</span>(<span class="kw">_</span>) =&gt; <span class="number">0.75</span>,
+                        <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
                     };
                     <span class="comment">// Make a circle to cover the object.</span>
                     <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">outline</span>.<span class="ident">get_bounds</span>();
@@ -1247,14 +1247,14 @@
                         <span class="ident">Circle::new</span>(<span class="ident">bounds</span>.<span class="ident">center</span>(), <span class="ident">radius</span>).<span class="ident">to_polygon</span>(),
                     );
                     <span class="kw">match</span> <span class="ident">Circle::new</span>(<span class="ident">bounds</span>.<span class="ident">center</span>(), <span class="ident">radius</span>).<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">0.3</span>)) {
-                        <span class="prelude-val">Ok</span>(<span class="ident">poly</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="prelude-val">Ok</span>(<span class="ident">poly</span>) =&gt; {
                             <span class="ident">details</span>
                                 .<span class="ident">draw_extra</span>
                                 .<span class="ident">unzoomed</span>
                                 .<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">current_object</span>, <span class="ident">poly</span>.<span class="ident">clone</span>());
                             <span class="ident">details</span>.<span class="ident">draw_extra</span>.<span class="ident">zoomed</span>.<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">current_object</span>, <span class="ident">poly</span>);
                         }
-                        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
                             <span class="macro">warn!</span>(<span class="string">&quot;No outline for {:?}: {}&quot;</span>, <span class="ident">id</span>, <span class="ident">err</span>);
                         }
                     }
@@ -1262,7 +1262,7 @@
                     <span class="comment">// TODO And actually, don&#39;t cover up the agent. The Renderable API isn&#39;t quite</span>
                     <span class="comment">// conducive to doing this yet.</span>
                 }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">_</span> =&gt; {
                     <span class="ident">details</span>
                         .<span class="ident">draw_extra</span>
                         .<span class="ident">unzoomed</span>
@@ -1299,7 +1299,7 @@
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
         <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>,
         <span class="ident">ctx_actions</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">ContextualActions</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">bool</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span>) {
+    ) -&gt; (<span class="ident">bool</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span>) {
         <span class="comment">// Can click on the map to cancel</span>
         <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>().<span class="ident">is_some</span>()
             <span class="op">&amp;&amp;</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span>.<span class="ident">is_none</span>()
@@ -1318,7 +1318,7 @@
 
         <span class="kw">let</span> <span class="ident">maybe_id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">tab</span>.<span class="ident">to_id</span>(<span class="ident">app</span>);
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome::Clicked</span>(<span class="ident">action</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Outcome::Clicked</span>(<span class="ident">action</span>) =&gt; {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">new_tab</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">hyperlinks</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">action</span>).<span class="ident">cloned</span>() {
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">InfoPanel::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">new_tab</span>, <span class="ident">ctx_actions</span>);
                     <span class="comment">// TODO Most cases use changed_settings, but one doesn&#39;t. Detect that</span>
@@ -1326,15 +1326,15 @@
                     <span class="kw">if</span> <span class="kw">let</span> (<span class="ident">Tab::PersonTrips</span>(<span class="ident">p1</span>, <span class="kw">_</span>), <span class="ident">Tab::PersonTrips</span>(<span class="ident">p2</span>, <span class="kw">_</span>)) <span class="op">=</span>
                         (<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">tab</span>, <span class="kw-2">&amp;</span><span class="ident">new</span>.<span class="ident">tab</span>)
                     {
-                        <span class="kw">if</span> <span class="ident">p1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">p2</span> {
+                        <span class="kw">if</span> <span class="ident">p1</span> <span class="op">==</span> <span class="ident">p2</span> {
                             <span class="ident">new</span>.<span class="ident">panel</span>.<span class="ident">restore</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>);
                         }
                     }
                     <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">new</span>;
                     (<span class="bool-val">false</span>, <span class="prelude-val">None</span>)
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">action</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;close&quot;</span> {
+                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">action</span> <span class="op">==</span> <span class="string">&quot;close&quot;</span> {
                     (<span class="bool-val">true</span>, <span class="prelude-val">None</span>)
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">action</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;jump to object&quot;</span> {
+                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">action</span> <span class="op">==</span> <span class="string">&quot;jump to object&quot;</span> {
                     <span class="comment">// TODO Messy way of doing this</span>
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">tab</span>.<span class="ident">to_id</span>(<span class="ident">app</span>) {
                         (
@@ -1413,7 +1413,7 @@
                             )),
                         ])),
                     )
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">action</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;Explore demand across all traffic signals&quot;</span> {
+                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">action</span> <span class="op">==</span> <span class="string">&quot;Explore demand across all traffic signals&quot;</span> {
                     (
                         <span class="bool-val">false</span>,
                         <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(
@@ -1443,7 +1443,7 @@
                     (<span class="bool-val">false</span>, <span class="prelude-val">None</span>)
                 }
             }
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="kw">_</span> =&gt; {
                 <span class="comment">// Maybe a non-click action should change the tab. Aka, checkboxes/dropdowns/etc on</span>
                 <span class="comment">// a tab.</span>
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">new_tab</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">tab</span>.<span class="ident">changed_settings</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>) {
@@ -1471,16 +1471,16 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">active_keys</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Key</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">active_keys</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Key</span><span class="op">&gt;</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cached_actions</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">active_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">active_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">tab</span>.<span class="ident">to_id</span>(<span class="ident">app</span>)
     }
 }
 
-<span class="kw">fn</span> <span class="ident">make_table</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">rows</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">I</span>, <span class="ident">String</span>)<span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">make_table</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">rows</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">I</span>, <span class="ident">String</span>)<span class="op">&gt;</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span> {
     <span class="ident">rows</span>.<span class="ident">into_iter</span>()
         .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">k</span>, <span class="ident">v</span>)<span class="op">|</span> {
             <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
@@ -1492,13 +1492,13 @@
         .<span class="ident">collect</span>()
 }
 
-<span class="kw">fn</span> <span class="ident">throughput</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">Analytics</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">AgentType</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>)<span class="op">&gt;</span><span class="op">&gt;</span>(
+<span class="kw">fn</span> <span class="ident">throughput</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">Analytics</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">AgentType</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>)<span class="op">&gt;</span><span class="op">&gt;</span>(
     <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
     <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
     <span class="ident">title</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
     <span class="ident">get_data</span>: <span class="ident">F</span>,
     <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">DataOptions</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+) -&gt; <span class="ident">Widget</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">series</span> <span class="op">=</span> <span class="ident">get_data</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_analytics</span>())
         .<span class="ident">into_iter</span>()
         .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">agent_type</span>, <span class="ident">pts</span>)<span class="op">|</span> <span class="ident">Series</span> {
@@ -1534,7 +1534,7 @@
     <span class="ident">hyperlinks</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Tab</span><span class="op">&gt;</span>,
     <span class="ident">current_tab</span>: <span class="ident">Tab</span>,
     <span class="ident">tabs</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">Tab</span>)<span class="op">&gt;</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+) -&gt; <span class="ident">Widget</span> {
     <span class="kw">use</span> <span class="ident">widgetry::DEFAULT_CORNER_RADIUS</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">for</span> (<span class="ident">name</span>, <span class="ident">link</span>) <span class="kw">in</span> <span class="ident">tabs</span> {
@@ -1549,7 +1549,7 @@
                     <span class="ident">bottom_right</span>: <span class="number">0.0</span>,
                 })
                 <span class="comment">// We abuse &quot;disabled&quot; to denote &quot;currently selected&quot;</span>
-                .<span class="ident">disabled</span>(<span class="ident">current_tab</span>.<span class="ident">variant</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">link</span>.<span class="ident">variant</span>())
+                .<span class="ident">disabled</span>(<span class="ident">current_tab</span>.<span class="ident">variant</span>() <span class="op">==</span> <span class="ident">link</span>.<span class="ident">variant</span>())
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         );
         <span class="ident">hyperlinks</span>.<span class="ident">insert</span>(<span class="ident">name</span>.<span class="ident">to_string</span>(), <span class="ident">link</span>);
@@ -1558,7 +1558,7 @@
     <span class="ident">Widget::row</span>(<span class="ident">row</span>).<span class="ident">margin_above</span>(<span class="number">16</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">header_btns</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+<span class="kw">fn</span> <span class="ident">header_btns</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; <span class="ident">Widget</span> {
     <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
         <span class="ident">ctx</span>.<span class="ident">style</span>()
             .<span class="ident">btn_plain</span>
@@ -1572,7 +1572,7 @@
 
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ContextualActions</span> {
     <span class="comment">// TODO &amp;str?</span>
-    <span class="kw">fn</span> <span class="ident">actions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">ID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Key</span>, <span class="ident">String</span>)<span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">actions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">ID</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Key</span>, <span class="ident">String</span>)<span class="op">&gt;</span>;
     <span class="kw">fn</span> <span class="ident">execute</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
@@ -1580,11 +1580,11 @@
         <span class="ident">id</span>: <span class="ident">ID</span>,
         <span class="ident">action</span>: <span class="ident">String</span>,
         <span class="ident">close_panel</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span>;
+    ) -&gt; <span class="ident">Transition</span>;
 
     <span class="comment">// Slightly weird way to plumb in extra info, but...</span>
-    <span class="kw">fn</span> <span class="ident">is_paused</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>;
-    <span class="kw">fn</span> <span class="ident">gameplay_mode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GameplayMode</span>;
+    <span class="kw">fn</span> <span class="ident">is_paused</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>;
+    <span class="kw">fn</span> <span class="ident">gameplay_mode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">GameplayMode</span>;
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
@@ -1595,7 +1595,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">DataOptions</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DataOptions</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">DataOptions</span> {
         <span class="ident">DataOptions</span> {
             <span class="ident">show_before</span>: <span class="bool-val">false</span>,
             <span class="ident">show_end_of_day</span>: <span class="bool-val">false</span>,
@@ -1603,7 +1603,7 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_controls</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_controls</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Widget</span> {
         <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">has_prebaked</span>().<span class="ident">is_none</span>() {
             <span class="kw">return</span> <span class="ident">Widget::nothing</span>();
         }
@@ -1627,7 +1627,7 @@
         .<span class="ident">evenly_spaced</span>()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_controls</span>(<span class="ident">c</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DataOptions</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_controls</span>(<span class="ident">c</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) -&gt; <span class="ident">DataOptions</span> {
         <span class="kw">let</span> <span class="ident">show_before</span> <span class="op">=</span> <span class="ident">c</span>.<span class="ident">maybe_is_checked</span>(<span class="string">&quot;Show before changes&quot;</span>).<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">disabled_types</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
         <span class="kw">for</span> <span class="ident">a</span> <span class="kw">in</span> <span class="ident">AgentType::all</span>() {
@@ -1643,7 +1643,7 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">disabled_series</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">disabled_series</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">disabled_types</span>
             .<span class="ident">iter</span>()
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">a</span><span class="op">|</span> <span class="ident">a</span>.<span class="ident">noun</span>().<span class="ident">to_string</span>())

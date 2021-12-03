@@ -110,13 +110,13 @@
 }
 
 <span class="kw">impl</span> <span class="ident">TakeLayers</span> <span class="kw">for</span> <span class="ident">ExploreMap</span> {
-    <span class="kw">fn</span> <span class="ident">take_layers</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Layers</span> {
+    <span class="kw">fn</span> <span class="ident">take_layers</span>(<span class="self">self</span>) -&gt; <span class="ident">Layers</span> {
         <span class="self">self</span>.<span class="ident">layers</span>
     }
 }
 
 <span class="kw">impl</span> <span class="ident">ExploreMap</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">layers</span>: <span class="ident">Layers</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">layers</span>: <span class="ident">Layers</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">show_building_driveways</span> <span class="op">=</span> <span class="bool-val">false</span>;
 
         <span class="ident">URLManager::update_url_free_param</span>(
@@ -152,17 +152,17 @@
 }
 
 <span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ExploreMap</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
+    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
         <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>() {
             <span class="ident">URLManager::update_url_cam</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_gps_bounds</span>());
         }
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;Show more layers&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;Show more layers&quot;</span> =&gt; {
                     <span class="self">self</span>.<span class="ident">layers</span>.<span class="ident">show_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 }
-                <span class="ident">x</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">x</span> =&gt; {
                     <span class="kw">return</span> <span class="ident">Tab::Explore</span>
                         .<span class="ident">handle_action</span>::<span class="op">&lt;</span><span class="ident">ExploreMap</span><span class="op">&gt;</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">x</span>)
                         .<span class="ident">unwrap</span>();
@@ -181,7 +181,7 @@
         <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="self">self</span>.<span class="ident">layers</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
 
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">currently_hovering</span>() <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">&quot;Show more layers&quot;</span>.<span class="ident">to_string</span>()) {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">currently_hovering</span>() <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">&quot;Show more layers&quot;</span>.<span class="ident">to_string</span>()) {
             <span class="ident">g</span>.<span class="ident">fork_screenspace</span>();
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) <span class="op">=</span> <span class="ident">PolyLine::new</span>(<span class="macro">vec!</span>[
                 <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">center_of</span>(<span class="string">&quot;Show more layers&quot;</span>).<span class="ident">to_pt</span>(),

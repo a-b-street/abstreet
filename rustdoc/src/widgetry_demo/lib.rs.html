@@ -690,7 +690,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Demo</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tabs</span> <span class="op">=</span> <span class="ident">make_tabs</span>(<span class="ident">ctx</span>);
         <span class="self">Self</span> {
             <span class="ident">controls</span>: <span class="ident">make_controls</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tabs</span>),
@@ -702,7 +702,7 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">make_timeseries_panel</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
+    <span class="kw">fn</span> <span class="ident">make_timeseries_panel</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">Panel</span> {
         <span class="comment">// Make a table with 3 columns.</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col1</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">Line</span>(<span class="string">&quot;Time&quot;</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>)];
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">Line</span>(<span class="string">&quot;Linear&quot;</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>)];
@@ -791,7 +791,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Demo</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> {
         <span class="comment">// Allow panning and zooming to work.</span>
         <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();
 
@@ -800,25 +800,25 @@
             <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="comment">// These outcomes should probably be a custom enum per Panel, to be more</span>
                 <span class="comment">// typesafe.</span>
-                <span class="string">&quot;reset the stopwatch&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;reset the stopwatch&quot;</span> =&gt; {
                     <span class="self">self</span>.<span class="ident">elapsed</span> <span class="op">=</span> <span class="ident">Duration::ZERO</span>;
                     <span class="self">self</span>.<span class="ident">redraw_stopwatch</span>(<span class="ident">ctx</span>);
                 }
-                <span class="string">&quot;generate new faces&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;generate new faces&quot;</span> =&gt; {
                     <span class="self">self</span>.<span class="ident">scrollable_canvas</span> <span class="op">=</span> <span class="ident">setup_scrollable_canvas</span>(<span class="ident">ctx</span>);
                 }
-                <span class="string">&quot;adjust timer&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;adjust timer&quot;</span> =&gt; {
                     <span class="kw">let</span> <span class="ident">offset</span>: <span class="ident">Duration</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">persistent_split_value</span>(<span class="string">&quot;adjust timer&quot;</span>);
                     <span class="self">self</span>.<span class="ident">elapsed</span> <span class="op">+</span><span class="op">=</span> <span class="ident">offset</span>;
                     <span class="self">self</span>.<span class="ident">redraw_stopwatch</span>(<span class="ident">ctx</span>);
                 }
-                <span class="string">&quot;apply&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;apply&quot;</span> =&gt; {
                     <span class="kw">let</span> (<span class="ident">v_align</span>, <span class="ident">h_align</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;alignment&quot;</span>);
                     <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">align</span>(<span class="ident">v_align</span>, <span class="ident">h_align</span>);
                     <span class="kw">let</span> (<span class="ident">bg_texture</span>, <span class="ident">fg_texture</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;texture&quot;</span>);
                     <span class="self">self</span>.<span class="ident">texture_demo</span> <span class="op">=</span> <span class="ident">setup_texture_demo</span>(<span class="ident">ctx</span>, <span class="ident">bg_texture</span>, <span class="ident">fg_texture</span>);
                 }
-                <span class="ident">action</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">action</span> =&gt; {
                     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">tabs</span>.<span class="ident">handle_action</span>(<span class="ident">ctx</span>, <span class="ident">action</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">controls</span>) {
                         <span class="comment">// if true, tabs has handled the action</span>
                     } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">action</span>.<span class="ident">contains</span>(<span class="string">&quot;btn_&quot;</span>) {
@@ -886,7 +886,7 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">setup_texture_demo</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">bg_texture</span>: <span class="ident">Texture</span>, <span class="ident">fg_texture</span>: <span class="ident">Texture</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Drawable</span> {
+<span class="kw">fn</span> <span class="ident">setup_texture_demo</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">bg_texture</span>: <span class="ident">Texture</span>, <span class="ident">fg_texture</span>: <span class="ident">Texture</span>) -&gt; <span class="ident">Drawable</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rect</span> <span class="op">=</span> <span class="ident">Polygon::rectangle</span>(<span class="number">100.0</span>, <span class="number">100.0</span>);
@@ -918,7 +918,7 @@
 
 <span class="comment">// This prepares a bunch of geometry (colored polygons) and uploads it to the GPU once. Then it can</span>
 <span class="comment">// be redrawn cheaply later.</span>
-<span class="kw">fn</span> <span class="ident">setup_scrollable_canvas</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Drawable</span> {
+<span class="kw">fn</span> <span class="ident">setup_scrollable_canvas</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">Drawable</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
     <span class="ident">batch</span>.<span class="ident">push</span>(
         <span class="ident">Color::hex</span>(<span class="string">&quot;#4E30A6&quot;</span>),
@@ -957,7 +957,7 @@
     <span class="ident">batch</span>.<span class="ident">upload</span>(<span class="ident">ctx</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">make_tabs</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TabController</span> {
+<span class="kw">fn</span> <span class="ident">make_tabs</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">TabController</span> {
     <span class="kw">let</span> <span class="ident">style</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">style</span>();
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tabs</span> <span class="op">=</span> <span class="ident">TabController::new</span>(<span class="string">&quot;demo_tabs&quot;</span>);
@@ -1149,7 +1149,7 @@
     <span class="ident">tabs</span>
 }
 
-<span class="kw">fn</span> <span class="ident">make_controls</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">tabs</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">TabController</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
+<span class="kw">fn</span> <span class="ident">make_controls</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">tabs</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">TabController</span>) -&gt; <span class="ident">Panel</span> {
     <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
         <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="string">&quot;widgetry demo&quot;</span>).<span class="ident">big_heading_styled</span>()).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
@@ -1249,8 +1249,8 @@
     .<span class="ident">build</span>(<span class="ident">ctx</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">build_drag_drop</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">num_cards</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DragDrop</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">build_card</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">num</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">ScreenDims</span>, <span class="ident">GeomBatch</span>, <span class="ident">GeomBatch</span>, <span class="ident">GeomBatch</span>) {
+<span class="kw">fn</span> <span class="ident">build_drag_drop</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">num_cards</span>: <span class="ident">usize</span>) -&gt; <span class="ident">DragDrop</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">build_card</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">num</span>: <span class="ident">usize</span>) -&gt; (<span class="ident">ScreenDims</span>, <span class="ident">GeomBatch</span>, <span class="ident">GeomBatch</span>, <span class="ident">GeomBatch</span>) {
         <span class="kw">let</span> <span class="ident">dims</span> <span class="op">=</span> <span class="ident">ScreenDims::new</span>(<span class="number">100.0</span> <span class="op">+</span> (<span class="ident">num</span> <span class="op">%</span> <span class="number">2</span>) <span class="kw">as</span> <span class="ident">f64</span> <span class="op">*</span> <span class="number">50.0</span>, <span class="number">150.0</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">default_batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();

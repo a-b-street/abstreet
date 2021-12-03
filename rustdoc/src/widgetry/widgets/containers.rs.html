@@ -76,7 +76,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Nothing</span> {}
 
 <span class="kw">impl</span> <span class="ident">WidgetImpl</span> <span class="kw">for</span> <span class="ident">Nothing</span> {
-    <span class="kw">fn</span> <span class="ident">get_dims</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ScreenDims</span> {
+    <span class="kw">fn</span> <span class="ident">get_dims</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ScreenDims</span> {
         <span class="macro">unreachable!</span>()
     }
 
@@ -99,14 +99,14 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Container</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">is_row</span>: <span class="ident">bool</span>, <span class="kw-2">mut</span> <span class="ident">members</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Container</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">is_row</span>: <span class="ident">bool</span>, <span class="kw-2">mut</span> <span class="ident">members</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span>) -&gt; <span class="ident">Container</span> {
         <span class="ident">members</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">w</span><span class="op">|</span> <span class="op">!</span><span class="ident">w</span>.<span class="ident">widget</span>.<span class="ident">is</span>::<span class="op">&lt;</span><span class="ident">Nothing</span><span class="op">&gt;</span>());
         <span class="ident">Container</span> { <span class="ident">is_row</span>, <span class="ident">members</span> }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">WidgetImpl</span> <span class="kw">for</span> <span class="ident">Container</span> {
-    <span class="kw">fn</span> <span class="ident">get_dims</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ScreenDims</span> {
+    <span class="kw">fn</span> <span class="ident">get_dims</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ScreenDims</span> {
         <span class="comment">// TODO This impl isn&#39;t correct, but it works for the one use case of</span>
         <span class="comment">// get_width_for_forcing.</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">width</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">0.0</span>;

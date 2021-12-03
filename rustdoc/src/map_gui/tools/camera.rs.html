@@ -84,7 +84,7 @@
     <span class="doccomment">/// Save the camera&#39;s configuration for the specified map, and also remember this map was the</span>
     <span class="doccomment">/// last to be used.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">save</span>(<span class="ident">canvas</span>: <span class="kw-2">&amp;</span><span class="ident">Canvas</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">MapName</span>) {
-        <span class="kw">if</span> <span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Map::blank</span>().<span class="ident">get_name</span>() {
+        <span class="kw">if</span> <span class="ident">name</span> <span class="op">==</span> <span class="ident">Map::blank</span>().<span class="ident">get_name</span>() {
             <span class="kw">return</span>;
         }
 
@@ -105,18 +105,18 @@
 
     <span class="doccomment">/// Load the camera&#39;s configuration for the specified map. Returns true if successful, has no</span>
     <span class="doccomment">/// effect if the file is missing or broken.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">MapName</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">MapName</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="ident">abstio::maybe_read_json</span>::<span class="op">&lt;</span><span class="ident">CameraState</span><span class="op">&gt;</span>(
             <span class="ident">abstio::path_camera_state</span>(<span class="ident">name</span>),
             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer::throwaway</span>(),
         ) {
-            <span class="prelude-val">Ok</span>(<span class="kw-2">ref</span> <span class="ident">loaded</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Ok</span>(<span class="kw-2">ref</span> <span class="ident">loaded</span>) =&gt; {
                 <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_x</span> <span class="op">=</span> <span class="ident">loaded</span>.<span class="ident">cam_x</span>;
                 <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_y</span> <span class="op">=</span> <span class="ident">loaded</span>.<span class="ident">cam_y</span>;
                 <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">=</span> <span class="ident">loaded</span>.<span class="ident">cam_zoom</span>;
                 <span class="bool-val">true</span>
             }
-            <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="bool-val">false</span>,
         }
     }
 }

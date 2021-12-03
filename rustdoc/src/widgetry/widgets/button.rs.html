@@ -786,7 +786,7 @@
         <span class="ident">hitbox</span>: <span class="ident">Polygon</span>,
         <span class="ident">is_disabled</span>: <span class="ident">bool</span>,
         <span class="ident">disabled_tooltip</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Text</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Button</span> {
+    ) -&gt; <span class="ident">Button</span> {
         <span class="comment">// dims are based on the hitbox, not the two drawables!</span>
         <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">hitbox</span>.<span class="ident">get_bounds</span>();
         <span class="kw">let</span> <span class="ident">dims</span> <span class="op">=</span> <span class="ident">ScreenDims::new</span>(<span class="ident">bounds</span>.<span class="ident">width</span>(), <span class="ident">bounds</span>.<span class="ident">height</span>());
@@ -817,13 +817,13 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_enabled</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_enabled</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="op">!</span><span class="self">self</span>.<span class="ident">is_disabled</span>
     }
 }
 
 <span class="kw">impl</span> <span class="ident">WidgetImpl</span> <span class="kw">for</span> <span class="ident">Button</span> {
-    <span class="kw">fn</span> <span class="ident">get_dims</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ScreenDims</span> {
+    <span class="kw">fn</span> <span class="ident">get_dims</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ScreenDims</span> {
         <span class="self">self</span>.<span class="ident">dims</span>
     }
 
@@ -910,7 +910,7 @@
 
 <span class="comment">// can we take &#39;b out? and make the func that uses it generic?</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span>, <span class="lifetime">&#39;a</span>: <span class="lifetime">&#39;b</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
         <span class="ident">ButtonBuilder</span> {
             <span class="ident">padding</span>: <span class="ident">EdgeInsets</span> {
                 <span class="ident">top</span>: <span class="number">8.0</span>,
@@ -933,31 +933,31 @@
     <span class="doccomment">/// // uniform padding</span>
     <span class="doccomment">/// let b = ButtonBuilder::new().padding(6);</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">padding</span><span class="op">&lt;</span><span class="ident">EI</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">EdgeInsets</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">padding</span>: <span class="ident">EI</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">padding</span><span class="op">&lt;</span><span class="ident">EI</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">EdgeInsets</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">padding</span>: <span class="ident">EI</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">padding</span> <span class="op">=</span> <span class="ident">padding</span>.<span class="ident">into</span>();
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Extra spacing around a button&#39;s items (label and/or image).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">padding_top</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">padding</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">padding_top</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">padding</span>: <span class="ident">f64</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">padding</span>.<span class="ident">top</span> <span class="op">=</span> <span class="ident">padding</span>;
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Extra spacing around a button&#39;s items (label and/or image).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">padding_left</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">padding</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">padding_left</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">padding</span>: <span class="ident">f64</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">padding</span>.<span class="ident">left</span> <span class="op">=</span> <span class="ident">padding</span>;
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Extra spacing around a button&#39;s items (label and/or image).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">padding_bottom</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">padding</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">padding_bottom</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">padding</span>: <span class="ident">f64</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">padding</span>.<span class="ident">bottom</span> <span class="op">=</span> <span class="ident">padding</span>;
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Extra spacing around a button&#39;s items (label and/or image).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">padding_right</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">padding</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">padding_right</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">padding</span>: <span class="ident">f64</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">padding</span>.<span class="ident">right</span> <span class="op">=</span> <span class="ident">padding</span>;
         <span class="self">self</span>
     }
@@ -965,7 +965,7 @@
     <span class="doccomment">/// Set the text of the button&#39;s label.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// If `label_text` is not set, the button will not have a label.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">label_text</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">text</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">label_text</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">text</span>: <span class="ident">I</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">label</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">default_style</span>.<span class="ident">label</span>.<span class="ident">take</span>().<span class="ident">unwrap_or_default</span>();
         <span class="ident">label</span>.<span class="ident">text</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">text</span>.<span class="ident">into</span>());
         <span class="self">self</span>.<span class="ident">default_style</span>.<span class="ident">label</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">label</span>);
@@ -975,7 +975,7 @@
     <span class="doccomment">/// Set the text of the button&#39;s label. The text will be decorated with an underline.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// See `label_styled_text` if you need something more customizable text styling.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">label_underlined_text</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">text</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">label_underlined_text</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">text</span>: <span class="ident">I</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">text</span> <span class="op">=</span> <span class="ident">text</span>.<span class="ident">into</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">label</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">default_style</span>.<span class="ident">label</span>.<span class="ident">take</span>().<span class="ident">unwrap_or_default</span>();
         <span class="ident">label</span>.<span class="ident">text</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">text</span>.<span class="ident">clone</span>());
@@ -986,7 +986,7 @@
 
     <span class="doccomment">/// Assign a pre-styled `Text` instance if your button need something more than uniformly</span>
     <span class="doccomment">/// colored text.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">label_styled_text</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">styled_text</span>: <span class="ident">Text</span>, <span class="ident">for_state</span>: <span class="ident">ControlState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">label_styled_text</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">styled_text</span>: <span class="ident">Text</span>, <span class="ident">for_state</span>: <span class="ident">ControlState</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">state_style</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">style_mut</span>(<span class="ident">for_state</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">label</span> <span class="op">=</span> <span class="ident">state_style</span>.<span class="ident">label</span>.<span class="ident">take</span>().<span class="ident">unwrap_or_default</span>();
         <span class="ident">label</span>.<span class="ident">styled_text</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">styled_text</span>);
@@ -1001,7 +1001,7 @@
     <span class="doccomment">/// Set the color of the button&#39;s label.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// If not specified, a default font color will be used.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">label_color</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">color</span>: <span class="ident">Color</span>, <span class="ident">for_state</span>: <span class="ident">ControlState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">label_color</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">color</span>: <span class="ident">Color</span>, <span class="ident">for_state</span>: <span class="ident">ControlState</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">state_style</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">style_mut</span>(<span class="ident">for_state</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">label</span> <span class="op">=</span> <span class="ident">state_style</span>.<span class="ident">label</span>.<span class="ident">take</span>().<span class="ident">unwrap_or_default</span>();
         <span class="ident">label</span>.<span class="ident">color</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">color</span>);
@@ -1012,7 +1012,7 @@
     <span class="doccomment">/// Set the font used by the button&#39;s label.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// If not specified, a default font will be used.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">font</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">font</span>: <span class="ident">Font</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">font</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">font</span>: <span class="ident">Font</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">label</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">default_style</span>.<span class="ident">label</span>.<span class="ident">take</span>().<span class="ident">unwrap_or_default</span>();
         <span class="ident">label</span>.<span class="ident">font</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">font</span>);
         <span class="self">self</span>.<span class="ident">default_style</span>.<span class="ident">label</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">label</span>);
@@ -1022,7 +1022,7 @@
     <span class="doccomment">/// Set the size of the font of the button&#39;s label.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// If not specified, a default font size will be used.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">font_size</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">font_size</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">font_size</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">font_size</span>: <span class="ident">usize</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">label</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">default_style</span>.<span class="ident">label</span>.<span class="ident">take</span>().<span class="ident">unwrap_or_default</span>();
         <span class="ident">label</span>.<span class="ident">font_size</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">font_size</span>);
         <span class="self">self</span>.<span class="ident">default_style</span>.<span class="ident">label</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">label</span>);
@@ -1032,7 +1032,7 @@
     <span class="doccomment">/// Set the image for the button. If not set, the button will have no image.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This will replace any image previously set.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">image_path</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">image_path</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) -&gt; <span class="self">Self</span> {
         <span class="comment">// Currently we don&#39;t support setting image for other states like &quot;hover&quot;, we easily</span>
         <span class="comment">// could, but the API gets more verbose for a thing we don&#39;t currently need.</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">image</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">default_style</span>.<span class="ident">image</span>.<span class="ident">take</span>().<span class="ident">unwrap_or_default</span>();
@@ -1041,7 +1041,7 @@
         <span class="self">self</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">image</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">image</span>: <span class="ident">Image</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">image</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">image</span>: <span class="ident">Image</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="comment">// Currently we don&#39;t support setting image for other states like &quot;hover&quot;, we easily</span>
         <span class="comment">// could, but the API gets more verbose for a thing we don&#39;t currently need.</span>
         <span class="self">self</span>.<span class="ident">default_style</span>.<span class="ident">image</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">image</span>);
@@ -1056,7 +1056,7 @@
     <span class="doccomment">///   [`include_labeled_bytes!`]</span>
     <span class="doccomment">/// * `label`: a label to describe the bytes for debugging purposes</span>
     <span class="doccomment">/// * `bytes`: UTF-8 encoded bytes of the SVG</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">image_bytes</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">labeled_bytes</span>: (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>])) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">image_bytes</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">labeled_bytes</span>: (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>])) -&gt; <span class="self">Self</span> {
         <span class="comment">// Currently we don&#39;t support setting image for other states like &quot;hover&quot;, we easily</span>
         <span class="comment">// could, but the API gets more verbose for a thing we don&#39;t currently need.</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">image</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">default_style</span>.<span class="ident">image</span>.<span class="ident">take</span>().<span class="ident">unwrap_or_default</span>();
@@ -1071,7 +1071,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This method is useful when doing more complex transforms. For example, to re-write more than</span>
     <span class="doccomment">/// one color for your button image, do so externally and pass in the resultant GeomBatch here.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">image_batch</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">batch</span>: <span class="ident">GeomBatch</span>, <span class="ident">bounds</span>: <span class="ident">geom::Bounds</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">image_batch</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">batch</span>: <span class="ident">GeomBatch</span>, <span class="ident">bounds</span>: <span class="ident">geom::Bounds</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">image</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">default_style</span>.<span class="ident">image</span>.<span class="ident">take</span>().<span class="ident">unwrap_or_default</span>();
         <span class="ident">image</span> <span class="op">=</span> <span class="ident">image</span>.<span class="ident">source_batch</span>(<span class="ident">batch</span>, <span class="ident">bounds</span>);
         <span class="self">self</span>.<span class="ident">default_style</span>.<span class="ident">image</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">image</span>);
@@ -1084,7 +1084,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// If the style hasn&#39;t been set for the current ControlState, the style for</span>
     <span class="doccomment">/// `ControlState::Default` will be used.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">image_color</span><span class="op">&lt;</span><span class="ident">C</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">RewriteColor</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">color</span>: <span class="ident">C</span>, <span class="ident">for_state</span>: <span class="ident">ControlState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">image_color</span><span class="op">&lt;</span><span class="ident">C</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">RewriteColor</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">color</span>: <span class="ident">C</span>, <span class="ident">for_state</span>: <span class="ident">ControlState</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">state_style</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">style_mut</span>(<span class="ident">for_state</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">image</span> <span class="op">=</span> <span class="ident">state_style</span>.<span class="ident">image</span>.<span class="ident">take</span>().<span class="ident">unwrap_or_default</span>();
         <span class="ident">image</span> <span class="op">=</span> <span class="ident">image</span>.<span class="ident">color</span>(<span class="ident">color</span>);
@@ -1098,7 +1098,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// If the style hasn&#39;t been set for the current ControlState, the style for</span>
     <span class="doccomment">/// `ControlState::Default` will be used.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">image_bg_color</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">color</span>: <span class="ident">Color</span>, <span class="ident">for_state</span>: <span class="ident">ControlState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">image_bg_color</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">color</span>: <span class="ident">Color</span>, <span class="ident">for_state</span>: <span class="ident">ControlState</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">state_style</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">style_mut</span>(<span class="ident">for_state</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">image</span> <span class="op">=</span> <span class="ident">state_style</span>.<span class="ident">image</span>.<span class="ident">take</span>().<span class="ident">unwrap_or_default</span>();
         <span class="ident">image</span> <span class="op">=</span> <span class="ident">image</span>.<span class="ident">bg_color</span>(<span class="ident">color</span>);
@@ -1111,14 +1111,14 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// See [`ButtonBuilder::image_content_mode`] to control how the image scales to fit</span>
     <span class="doccomment">/// its custom bounds.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">image_dims</span><span class="op">&lt;</span><span class="ident">D</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">ScreenDims</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">dims</span>: <span class="ident">D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">image_dims</span><span class="op">&lt;</span><span class="ident">D</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">ScreenDims</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">dims</span>: <span class="ident">D</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">image</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">default_style</span>.<span class="ident">image</span>.<span class="ident">take</span>().<span class="ident">unwrap_or_default</span>();
         <span class="ident">image</span> <span class="op">=</span> <span class="ident">image</span>.<span class="ident">dims</span>(<span class="ident">dims</span>);
         <span class="self">self</span>.<span class="ident">default_style</span>.<span class="ident">image</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">image</span>);
         <span class="self">self</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">override_style</span>(<span class="self">self</span>, <span class="ident">style</span>: <span class="kw-2">&amp;</span><span class="ident">ButtonStyle</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">override_style</span>(<span class="self">self</span>, <span class="ident">style</span>: <span class="kw-2">&amp;</span><span class="ident">ButtonStyle</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">style</span>.<span class="ident">apply</span>(<span class="self">self</span>)
     }
 
@@ -1129,7 +1129,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// The default, [`ContentMode::ScaleAspectFit`] will only grow as much as it can while</span>
     <span class="doccomment">/// maintaining its aspect ratio and not exceeding its bounds.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">image_content_mode</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">content_mode</span>: <span class="ident">ContentMode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">image_content_mode</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">content_mode</span>: <span class="ident">ContentMode</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">image</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">default_style</span>.<span class="ident">image</span>.<span class="ident">take</span>().<span class="ident">unwrap_or_default</span>();
         <span class="ident">image</span> <span class="op">=</span> <span class="ident">image</span>.<span class="ident">content_mode</span>(<span class="ident">content_mode</span>);
         <span class="self">self</span>.<span class="ident">default_style</span>.<span class="ident">image</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">image</span>);
@@ -1137,7 +1137,7 @@
     }
 
     <span class="doccomment">/// Set independent rounding for each of the button&#39;s image&#39;s corners</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">image_corner_rounding</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">CornerRounding</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">R</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">image_corner_rounding</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">CornerRounding</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">R</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">image</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">default_style</span>.<span class="ident">image</span>.<span class="ident">take</span>().<span class="ident">unwrap_or_default</span>();
         <span class="ident">image</span> <span class="op">=</span> <span class="ident">image</span>.<span class="ident">corner_rounding</span>(<span class="ident">value</span>);
         <span class="self">self</span>.<span class="ident">default_style</span>.<span class="ident">image</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">image</span>);
@@ -1145,7 +1145,7 @@
     }
 
     <span class="doccomment">/// Set padding for the image</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">image_padding</span><span class="op">&lt;</span><span class="ident">EI</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">EdgeInsets</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">EI</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">image_padding</span><span class="op">&lt;</span><span class="ident">EI</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">EdgeInsets</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">EI</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">image</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">default_style</span>.<span class="ident">image</span>.<span class="ident">take</span>().<span class="ident">unwrap_or_default</span>();
         <span class="ident">image</span> <span class="op">=</span> <span class="ident">image</span>.<span class="ident">padding</span>(<span class="ident">value</span>);
         <span class="self">self</span>.<span class="ident">default_style</span>.<span class="ident">image</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">image</span>);
@@ -1156,7 +1156,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// If the style hasn&#39;t been set for the current ControlState, the style for</span>
     <span class="doccomment">/// `ControlState::Default` will be used.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bg_color</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">color</span>: <span class="ident">Color</span>, <span class="ident">for_state</span>: <span class="ident">ControlState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bg_color</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">color</span>: <span class="ident">Color</span>, <span class="ident">for_state</span>: <span class="ident">ControlState</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">style_mut</span>(<span class="ident">for_state</span>).<span class="ident">bg_color</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">color</span>);
         <span class="self">self</span>
     }
@@ -1165,12 +1165,12 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// If the style hasn&#39;t been set for the current ControlState, the style for</span>
     <span class="doccomment">/// `ControlState::Default` will be used.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">outline</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">outline</span>: <span class="ident">OutlineStyle</span>, <span class="ident">for_state</span>: <span class="ident">ControlState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">outline</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">outline</span>: <span class="ident">OutlineStyle</span>, <span class="ident">for_state</span>: <span class="ident">ControlState</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">style_mut</span>(<span class="ident">for_state</span>).<span class="ident">outline</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">outline</span>);
         <span class="self">self</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">outline_color</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">color</span>: <span class="ident">Color</span>, <span class="ident">for_state</span>: <span class="ident">ControlState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">outline_color</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">color</span>: <span class="ident">Color</span>, <span class="ident">for_state</span>: <span class="ident">ControlState</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">thickness</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">style</span>(<span class="ident">for_state</span>)
             .<span class="ident">outline</span>
@@ -1186,13 +1186,13 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This is useful for applying one-off button designs that can&#39;t be accommodated by the</span>
     <span class="doccomment">/// the existing ButtonBuilder methods.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">custom_batch</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">batch</span>: <span class="ident">GeomBatch</span>, <span class="ident">for_state</span>: <span class="ident">ControlState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">custom_batch</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">batch</span>: <span class="ident">GeomBatch</span>, <span class="ident">for_state</span>: <span class="ident">ControlState</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">style_mut</span>(<span class="ident">for_state</span>).<span class="ident">custom_batch</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">batch</span>);
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Set a hotkey for the button</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hotkey</span><span class="op">&lt;</span><span class="ident">MK</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MultiKey</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="ident">MK</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hotkey</span><span class="op">&lt;</span><span class="ident">MK</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MultiKey</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="ident">MK</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">hotkey</span> <span class="op">=</span> <span class="ident">key</span>.<span class="ident">into</span>();
         <span class="self">self</span>
     }
@@ -1200,14 +1200,14 @@
     <span class="doccomment">/// Set a non-default tooltip [`Text`] to appear when hovering over the button.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// If a `tooltip` is not specified, a default tooltip will be applied.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tooltip</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">tooltip</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Text</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tooltip</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">tooltip</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Text</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">tooltip</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">tooltip</span>.<span class="ident">into</span>());
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// If a `tooltip` is not specified, a default tooltip will be applied. Use `no_tooltip` when</span>
     <span class="doccomment">/// you do not want even the default tooltip to appear.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">no_tooltip</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">no_tooltip</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="self">Self</span> {
         <span class="comment">// otherwise the widgets `name` is used</span>
         <span class="self">self</span>.<span class="ident">tooltip</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Text::new</span>());
         <span class="self">self</span>
@@ -1217,7 +1217,7 @@
     <span class="doccomment">/// disabled.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This tooltip is only displayed when `disabled(true)` is also called.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">disabled_tooltip</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">tooltip</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Text</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">disabled_tooltip</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">tooltip</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Text</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">disabled_tooltip</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">tooltip</span>.<span class="ident">into</span>());
         <span class="self">self</span>
     }
@@ -1225,7 +1225,7 @@
     <span class="doccomment">/// The button&#39;s items will be rendered in a vertical column</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// If the button doesn&#39;t have both an image and label, this has no effect.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">vertical</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">vertical</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">stack_axis</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Axis::Vertical</span>);
         <span class="self">self</span>
     }
@@ -1233,13 +1233,13 @@
     <span class="doccomment">/// The button&#39;s items will be rendered in a horizontal row</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// If the button doesn&#39;t have both an image and label, this has no effect.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">horizontal</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">horizontal</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">stack_axis</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Axis::Horizontal</span>);
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// The button cannot be clicked and will be styled as [`ControlState::Disabled`]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">disabled</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">is_disabled</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">disabled</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">is_disabled</span>: <span class="ident">bool</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">is_disabled</span> <span class="op">=</span> <span class="ident">is_disabled</span>;
         <span class="self">self</span>
     }
@@ -1247,7 +1247,7 @@
     <span class="doccomment">/// Display the button&#39;s label before the button&#39;s image.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// If the button doesn&#39;t have both an image and label, this has no effect.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">label_first</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">label_first</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">is_label_before_image</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="self">self</span>
     }
@@ -1255,20 +1255,20 @@
     <span class="doccomment">/// Display the button&#39;s image before the button&#39;s label.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// If the button doesn&#39;t have both an image and label, this has no effect.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">image_first</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">image_first</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">is_label_before_image</span> <span class="op">=</span> <span class="bool-val">false</span>;
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Spacing between the image and text of a button.</span>
     <span class="doccomment">/// Has no effect if the button is text-only or image-only.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stack_spacing</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stack_spacing</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">f64</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">stack_spacing</span> <span class="op">=</span> <span class="ident">value</span>;
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Set independent rounding for each of the button&#39;s corners</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">corner_rounding</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">CornerRounding</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">R</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">corner_rounding</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">CornerRounding</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">R</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">corner_rounding</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">value</span>.<span class="ident">into</span>());
         <span class="self">self</span>
     }
@@ -1295,7 +1295,7 @@
     <span class="doccomment">///     let red_button_3 = red_builder.label_text(&quot;Last red button&quot;).build(ctx, &quot;third&quot;);</span>
     <span class="doccomment">/// }</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">action</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Button</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">action</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">Button</span> {
         <span class="kw">let</span> <span class="ident">normal</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">batch</span>(<span class="ident">ctx</span>, <span class="ident">ControlState::Default</span>);
         <span class="kw">let</span> <span class="ident">hovered</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">batch</span>(<span class="ident">ctx</span>, <span class="ident">ControlState::Hovered</span>);
         <span class="kw">let</span> <span class="ident">disabled</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">batch</span>(<span class="ident">ctx</span>, <span class="ident">ControlState::Disabled</span>);
@@ -1322,13 +1322,13 @@
     <span class="doccomment">/// Shorthand method to build a Button wrapped in a Widget</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// `action`: The event that will be fired when clicked</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_widget</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">action</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_widget</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">action</span>: <span class="ident">I</span>) -&gt; <span class="ident">Widget</span> {
         <span class="kw">let</span> <span class="ident">action</span> <span class="op">=</span> <span class="ident">action</span>.<span class="ident">as_ref</span>();
         <span class="ident">Widget::new</span>(<span class="ident">Box::new</span>(<span class="self">self</span>.<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">action</span>))).<span class="ident">named</span>(<span class="ident">action</span>)
     }
 
     <span class="doccomment">/// Shorthand method to build a default widget whose `action` is derived from the label&#39;s text.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_def</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_def</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; <span class="ident">Widget</span> {
         <span class="kw">let</span> <span class="ident">action</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">default_style</span>
             .<span class="ident">label</span>
@@ -1341,23 +1341,23 @@
 
     <span class="comment">// private  methods</span>
 
-    <span class="kw">fn</span> <span class="ident">style_mut</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">state</span>: <span class="ident">ControlState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="kw-2">mut</span> <span class="ident">ButtonStateStyle</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">style_mut</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">state</span>: <span class="ident">ControlState</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="kw-2">mut</span> <span class="ident">ButtonStateStyle</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">state</span> {
-            <span class="ident">ControlState::Default</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">default_style</span>,
-            <span class="ident">ControlState::Hovered</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">hover_style</span>,
-            <span class="ident">ControlState::Disabled</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">disable_style</span>,
+            <span class="ident">ControlState::Default</span> =&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">default_style</span>,
+            <span class="ident">ControlState::Hovered</span> =&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">hover_style</span>,
+            <span class="ident">ControlState::Disabled</span> =&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">disable_style</span>,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">style</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="self">self</span>, <span class="ident">state</span>: <span class="ident">ControlState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="ident">ButtonStateStyle</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">style</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="self">self</span>, <span class="ident">state</span>: <span class="ident">ControlState</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="ident">ButtonStateStyle</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">state</span> {
-            <span class="ident">ControlState::Default</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">default_style</span>,
-            <span class="ident">ControlState::Hovered</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">hover_style</span>,
-            <span class="ident">ControlState::Disabled</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">disable_style</span>,
+            <span class="ident">ControlState::Default</span> =&gt; <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">default_style</span>,
+            <span class="ident">ControlState::Hovered</span> =&gt; <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">hover_style</span>,
+            <span class="ident">ControlState::Disabled</span> =&gt; <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">disable_style</span>,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">batch</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">for_state</span>: <span class="ident">ControlState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GeomBatch</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">batch</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">for_state</span>: <span class="ident">ControlState</span>) -&gt; <span class="ident">GeomBatch</span> {
         <span class="kw">let</span> <span class="ident">state_style</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">style</span>(<span class="ident">for_state</span>);
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">custom_batch</span>) <span class="op">=</span> <span class="ident">state_style</span>.<span class="ident">custom_batch</span>.<span class="ident">as_ref</span>() {
             <span class="kw">return</span> <span class="ident">custom_batch</span>.<span class="ident">clone</span>();
@@ -1369,12 +1369,12 @@
         }
 
         <span class="kw">let</span> <span class="ident">image_batch</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">GeomBatch</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">match</span> (<span class="kw-2">&amp;</span><span class="ident">state_style</span>.<span class="ident">image</span>, <span class="kw-2">&amp;</span><span class="ident">default_style</span>.<span class="ident">image</span>) {
-            (<span class="prelude-val">Some</span>(<span class="ident">state_image</span>), <span class="prelude-val">Some</span>(<span class="ident">default_image</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">default_image</span>
+            (<span class="prelude-val">Some</span>(<span class="ident">state_image</span>), <span class="prelude-val">Some</span>(<span class="ident">default_image</span>)) =&gt; <span class="ident">default_image</span>
                 .<span class="ident">merged_image_style</span>(<span class="ident">state_image</span>)
                 .<span class="ident">build_batch</span>(<span class="ident">ctx</span>),
-            (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">default_image</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">default_image</span>.<span class="ident">build_batch</span>(<span class="ident">ctx</span>),
-            (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
-            (<span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">default_image</span>)) =&gt; <span class="ident">default_image</span>.<span class="ident">build_batch</span>(<span class="ident">ctx</span>),
+            (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) =&gt; <span class="prelude-val">None</span>,
+            (<span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="prelude-val">None</span>) =&gt; {
                 <span class="macro">debug_assert!</span>(
                     <span class="bool-val">false</span>,
                     <span class="string">&quot;unexpectedly found a per-state image with no default image&quot;</span>

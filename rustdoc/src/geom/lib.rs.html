@@ -184,12 +184,12 @@
 <span class="doccomment">/// Reduce the precision of an f64. This helps ensure serialization is idempotent (everything is</span>
 <span class="doccomment">/// exacly the same before and after saving/loading). Ideally we&#39;d use some kind of proper</span>
 <span class="doccomment">/// fixed-precision type instead of f64.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trim_f64</span>(<span class="ident">x</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trim_f64</span>(<span class="ident">x</span>: <span class="ident">f64</span>) -&gt; <span class="ident">f64</span> {
     (<span class="ident">x</span> <span class="op">*</span> <span class="number">10_000.0</span>).<span class="ident">round</span>() <span class="op">/</span> <span class="number">10_000.0</span>
 }
 
 <span class="doccomment">/// Serializes a trimmed `f64` as an `i32` to save space.</span>
-<span class="kw">fn</span> <span class="ident">serialize_f64</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Serializer</span><span class="op">&gt;</span>(<span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">f64</span>, <span class="ident">s</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">S::Error</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">serialize_f64</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Serializer</span><span class="op">&gt;</span>(<span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">f64</span>, <span class="ident">s</span>: <span class="ident">S</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">S::Error</span><span class="op">&gt;</span> {
     <span class="comment">// So a trimmed f64&#39;s range becomes 2**31 / 10,000 =~ 214,000, which is plenty</span>
     <span class="comment">// We don&#39;t need to round() here; trim_f64 already handles that.</span>
     <span class="kw">let</span> <span class="ident">int</span> <span class="op">=</span> (<span class="ident">x</span> <span class="op">*</span> <span class="number">10_000.0</span>) <span class="kw">as</span> <span class="ident">i32</span>;
@@ -197,7 +197,7 @@
 }
 
 <span class="doccomment">/// Deserializes a trimmed `f64` from an `i32`.</span>
-<span class="kw">fn</span> <span class="ident">deserialize_f64</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span>, <span class="ident">D</span>: <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">d</span>: <span class="ident">D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">f64</span>, <span class="ident">D::Error</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">deserialize_f64</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span>, <span class="ident">D</span>: <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">d</span>: <span class="ident">D</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">f64</span>, <span class="ident">D::Error</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span><span class="ident">::deserialize</span>(<span class="ident">d</span>)<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">x</span> <span class="kw">as</span> <span class="ident">f64</span> <span class="op">/</span> <span class="number">10_000.0</span>)
 }
@@ -220,7 +220,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">CornerRadii</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">uniform</span>(<span class="ident">radius</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">uniform</span>(<span class="ident">radius</span>: <span class="ident">f64</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">top_left</span>: <span class="ident">radius</span>,
             <span class="ident">top_right</span>: <span class="ident">radius</span>,
@@ -229,19 +229,19 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">zero</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">zero</span>() -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="self">Self</span>::uniform</span>(<span class="number">0.0</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">std::convert::From</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">CornerRadii</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">uniform</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">uniform</span>: <span class="ident">f64</span>) -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="self">Self</span>::uniform</span>(<span class="ident">uniform</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">CornerRadii</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="self">Self</span>::zero</span>()
     }
 }

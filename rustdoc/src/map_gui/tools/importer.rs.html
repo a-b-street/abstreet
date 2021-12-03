@@ -224,14 +224,14 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ImportCity</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span><span class="op">&gt;</span> {
     <span class="ident">panel</span>: <span class="ident">Panel</span>,
     <span class="comment">// Wrapped in an Option just to make calling from event() work.</span>
-    <span class="ident">on_load</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">on_load</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) -&gt; <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">ImportCity</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">on_load</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="ident">on_load</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) -&gt; <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    ) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
             <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                 <span class="ident">Line</span>(<span class="string">&quot;Import a new city&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
@@ -308,19 +308,19 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ImportCity</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) -&gt; <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition::Pop</span>,
-                <span class="string">&quot;Alternate instructions&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) =&gt; <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
+                <span class="string">&quot;close&quot;</span> =&gt; <span class="ident">Transition::Pop</span>,
+                <span class="string">&quot;Alternate instructions&quot;</span> =&gt; {
                     <span class="ident">open_browser</span>(<span class="string">&quot;https://a-b-street.github.io/docs/user/new_city.html&quot;</span>);
                     <span class="ident">Transition::Keep</span>
                 }
-                <span class="string">&quot;Go to geojson.io&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;Go to geojson.io&quot;</span> =&gt; {
                     <span class="ident">open_browser</span>(<span class="string">&quot;http://geojson.io&quot;</span>);
                     <span class="ident">Transition::Keep</span>
                 }
-                <span class="string">&quot;Import the area from your clipboard&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;Import the area from your clipboard&quot;</span> =&gt; {
                     <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">sanitize_name</span>(<span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">text_box</span>(<span class="string">&quot;new_map_name&quot;</span>));
 
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">args</span> <span class="op">=</span> <span class="macro">vec!</span>[
@@ -339,7 +339,7 @@
                         <span class="ident">args</span>.<span class="ident">push</span>(<span class="string">&quot;--filter-crosswalks&quot;</span>.<span class="ident">to_string</span>());
                     }
                     <span class="kw">match</span> <span class="ident">grab_geojson_from_clipboard</span>() {
-                        <span class="prelude-val">Ok</span>(()) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition::Push</span>(<span class="ident"><span class="kw">crate</span>::tools::RunCommand::new_state</span>(
+                        <span class="prelude-val">Ok</span>(()) =&gt; <span class="ident">Transition::Push</span>(<span class="ident"><span class="kw">crate</span>::tools::RunCommand::new_state</span>(
                             <span class="ident">ctx</span>,
                             <span class="bool-val">true</span>,
                             <span class="ident">args</span>,
@@ -360,7 +360,7 @@
                                 }
                             }),
                         )),
-                        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition::Push</span>(<span class="ident">PopupMsg::new_state</span>(
+                        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="ident">Transition::Push</span>(<span class="ident">PopupMsg::new_state</span>(
                             <span class="ident">ctx</span>,
                             <span class="string">&quot;Error&quot;</span>,
                             <span class="macro">vec!</span>[
@@ -370,9 +370,9 @@
                         )),
                     }
                 }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
             },
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition::Keep</span>,
+            <span class="kw">_</span> =&gt; <span class="ident">Transition::Keep</span>,
         }
     }
 
@@ -381,15 +381,15 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">grab_geojson_from_clipboard</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">grab_geojson_from_clipboard</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="comment">// TODO The clipboard crate uses old nightly Errors. Converting to anyhow is weird.</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ctx</span>: <span class="ident">ClipboardContext</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">ClipboardProvider::new</span>() {
-        <span class="prelude-val">Ok</span>(<span class="ident">ctx</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ctx</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">bail!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">err</span>),
+        <span class="prelude-val">Ok</span>(<span class="ident">ctx</span>) =&gt; <span class="ident">ctx</span>,
+        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="macro">bail!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">err</span>),
     };
     <span class="kw">let</span> <span class="ident">contents</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">ctx</span>.<span class="ident">get_contents</span>() {
-        <span class="prelude-val">Ok</span>(<span class="ident">contents</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">contents</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">bail!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">err</span>),
+        <span class="prelude-val">Ok</span>(<span class="ident">contents</span>) =&gt; <span class="ident">contents</span>,
+        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="macro">bail!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">err</span>),
     };
     <span class="kw">if</span> <span class="ident">contents</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">geojson::GeoJson</span><span class="op">&gt;</span>().<span class="ident">is_err</span>() {
         <span class="macro">bail!</span>(
@@ -402,11 +402,11 @@
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">fn</span> <span class="ident">sanitize_name</span>(<span class="ident">x</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">fn</span> <span class="ident">sanitize_name</span>(<span class="ident">x</span>: <span class="ident">String</span>) -&gt; <span class="ident">String</span> {
     <span class="ident">x</span>.<span class="ident">replace</span>(<span class="string">&quot; &quot;</span>, <span class="string">&quot;_&quot;</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">generate_new_map_name</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">fn</span> <span class="ident">generate_new_map_name</span>() -&gt; <span class="ident">String</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="number">0</span>;
     <span class="kw">loop</span> {
         <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;imported_{}&quot;</span>, <span class="ident">i</span>);

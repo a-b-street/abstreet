@@ -201,7 +201,7 @@
     <span class="ident">extra_fonts</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">style</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">Style</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">text_opts</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">Options</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">read_svg</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">read_svg</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="ident">base_url</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="ident">are_gzipped</span>: <span class="ident">bool</span>,
 }
@@ -211,8 +211,8 @@
         <span class="ident">style</span>: <span class="ident">Style</span>,
         <span class="ident">base_url</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
         <span class="ident">are_gzipped</span>: <span class="ident">bool</span>,
-        <span class="ident">read_svg</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Assets</span> {
+        <span class="ident">read_svg</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    ) -&gt; <span class="ident">Assets</span> {
         <span class="comment">// Many fonts are statically bundled with the library right now, on both native and web.</span>
         <span class="comment">// ctx.is_font_loaded and ctx.load_font can be used to dynamically add more later.</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fontdb</span> <span class="op">=</span> <span class="ident">fontdb::Database::new</span>();
@@ -252,9 +252,9 @@
                     .<span class="ident">query</span>(<span class="kw-2">&amp;</span><span class="ident">fontdb::Query</span> {
                         <span class="ident">families</span>: <span class="kw-2">&amp;</span>[<span class="ident">fontdb::Family::Name</span>(<span class="ident">font</span>.<span class="ident">family</span>())],
                         <span class="ident">weight</span>: <span class="kw">match</span> <span class="ident">font</span> {
-                            <span class="ident">Font::OverpassBold</span> <span class="op">|</span> <span class="ident">Font::OverpassMonoBold</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">fontdb::Weight::BOLD</span>,
-                            <span class="ident">Font::OverpassSemiBold</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">fontdb::Weight::SEMIBOLD</span>,
-                            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">fontdb::Weight::NORMAL</span>,
+                            <span class="ident">Font::OverpassBold</span> <span class="op">|</span> <span class="ident">Font::OverpassMonoBold</span> =&gt; <span class="ident">fontdb::Weight::BOLD</span>,
+                            <span class="ident">Font::OverpassSemiBold</span> =&gt; <span class="ident">fontdb::Weight::SEMIBOLD</span>,
+                            <span class="kw">_</span> =&gt; <span class="ident">fontdb::Weight::NORMAL</span>,
                         },
                         <span class="ident">stretch</span>: <span class="ident">fontdb::Stretch::Normal</span>,
                         <span class="ident">style</span>: <span class="ident">fontdb::Style::Normal</span>,
@@ -267,15 +267,15 @@
         <span class="ident">a</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">base_url</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">base_url</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">base_url</span>.<span class="ident">as_deref</span>()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">are_gzipped</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">are_gzipped</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">are_gzipped</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_font_loaded</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">filename</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_font_loaded</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">filename</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">extra_fonts</span>.<span class="ident">borrow</span>().<span class="ident">contains</span>(<span class="ident">filename</span>)
     }
 
@@ -287,7 +287,7 @@
         <span class="comment">// font.</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">line_height</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">font</span>: <span class="ident">Font</span>, <span class="ident">font_size</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">line_height</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">font</span>: <span class="ident">Font</span>, <span class="ident">font_size</span>: <span class="ident">usize</span>) -&gt; <span class="ident">f64</span> {
         <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> (<span class="ident">font</span>, <span class="ident">font_size</span>);
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">height</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">line_height_cache</span>.<span class="ident">borrow</span>().<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>) {
             <span class="kw">return</span> <span class="kw-2">*</span><span class="ident">height</span>;
@@ -314,7 +314,7 @@
     }
 
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::ptr_arg</span>)]</span> <span class="comment">// &amp;[str] does not work with `LruCache`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_cached_text</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">GeomBatch</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_cached_text</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">String</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">GeomBatch</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">text_cache</span>.<span class="ident">borrow_mut</span>().<span class="ident">get</span>(<span class="ident">key</span>).<span class="ident">cloned</span>()
     }
 
@@ -326,7 +326,7 @@
         <span class="self">self</span>.<span class="ident">text_cache</span>.<span class="ident">borrow_mut</span>().<span class="ident">clear</span>()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_cached_svg</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">GeomBatch</span>, <span class="ident">Bounds</span>)<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_cached_svg</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">GeomBatch</span>, <span class="ident">Bounds</span>)<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">svg_cache</span>.<span class="ident">borrow</span>().<span class="ident">get</span>(<span class="ident">key</span>).<span class="ident">cloned</span>()
     }
 
@@ -336,25 +336,25 @@
 }
 
 <span class="kw">impl</span> <span class="ident">std::convert::AsRef</span><span class="op">&lt;</span><span class="ident">Assets</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">GfxCtx</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Assets</span> {
+    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Assets</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">prerender</span>.<span class="ident">assets</span>
     }
 }
 
 <span class="kw">impl</span> <span class="ident">std::convert::AsRef</span><span class="op">&lt;</span><span class="ident">Assets</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">EventCtx</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Assets</span> {
+    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Assets</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">prerender</span>.<span class="ident">assets</span>
     }
 }
 
 <span class="kw">impl</span> <span class="ident">std::convert::AsRef</span><span class="op">&lt;</span><span class="ident">Assets</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Prerender</span> {
-    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Assets</span> {
+    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Assets</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">assets</span>
     }
 }
 
 <span class="kw">impl</span> <span class="ident">std::convert::AsRef</span><span class="op">&lt;</span><span class="ident">Assets</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Assets</span> {
-    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Assets</span> {
+    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Assets</span> {
         <span class="self">self</span>
     }
 }

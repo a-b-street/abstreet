@@ -95,7 +95,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// If the boundary splits multiple Geofabrik files, the result may be any of the overlapping</span>
 <span class="doccomment">/// files.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">pick_geofabrik</span>(<span class="ident">input</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">pick_geofabrik</span>(<span class="ident">input</span>: <span class="ident">String</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">boundary_pts</span> <span class="op">=</span> <span class="ident">LonLat::read_osmosis_polygon</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>)<span class="question-mark">?</span>;
     <span class="comment">// For now, just use the boundary&#39;s center. Some boundaries might cross multiple geofabrik</span>
     <span class="comment">// regions; don&#39;t handle that yet.</span>
@@ -120,7 +120,7 @@
     <span class="prelude-val">Ok</span>(<span class="ident">url</span>)
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">load_remote_geojson</span>(<span class="ident">path</span>: <span class="ident">String</span>, <span class="ident">url</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">GeoJson</span><span class="op">&gt;</span> {
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">load_remote_geojson</span>(<span class="ident">path</span>: <span class="ident">String</span>, <span class="ident">url</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">GeoJson</span><span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="op">!</span><span class="ident">abstio::file_exists</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>) {
         <span class="macro">info!</span>(<span class="string">&quot;Downloading {}&quot;</span>, <span class="ident">url</span>);
         <span class="ident">abstio::download_to_file</span>(<span class="ident">url</span>, <span class="prelude-val">None</span>, <span class="kw-2">&amp;</span><span class="ident">path</span>).<span class="kw">await</span><span class="question-mark">?</span>;
@@ -131,7 +131,7 @@
 <span class="kw">fn</span> <span class="ident">find_matching_regions</span>(
     <span class="ident">geojson</span>: <span class="ident">GeoJson</span>,
     <span class="ident">center</span>: <span class="ident">LonLat</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">geo::MultiPolygon</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>, <span class="ident">String</span>)<span class="op">&gt;</span> {
+) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">geo::MultiPolygon</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>, <span class="ident">String</span>)<span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">center</span>: <span class="ident">geo::Point</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">center</span>.<span class="ident">into</span>();
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">matches</span> <span class="op">=</span> <span class="ident">Vec::new</span>();

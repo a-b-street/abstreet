@@ -603,7 +603,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">TimePanel</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TimePanel</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">TimePanel</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">time</span> <span class="op">=</span> <span class="ident">TimePanel</span> {
             <span class="ident">panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
             <span class="ident">override_height</span>: <span class="prelude-val">None</span>,
@@ -663,10 +663,10 @@
                             <span class="ident">right</span>: <span class="number">3.0</span>,
                         });
 
-                    <span class="kw">if</span> <span class="ident">s</span> <span class="op">=</span><span class="op">=</span> <span class="ident">SpeedSetting::Realtime</span> {
+                    <span class="kw">if</span> <span class="ident">s</span> <span class="op">==</span> <span class="ident">SpeedSetting::Realtime</span> {
                         <span class="ident">triangle_btn</span> <span class="op">=</span> <span class="ident">triangle_btn</span>.<span class="ident">padding_left</span>(<span class="number">10.0</span>);
                     }
-                    <span class="kw">if</span> <span class="ident">s</span> <span class="op">=</span><span class="op">=</span> <span class="ident">SpeedSetting::Fastest</span> {
+                    <span class="kw">if</span> <span class="ident">s</span> <span class="op">==</span> <span class="ident">SpeedSetting::Fastest</span> {
                         <span class="ident">triangle_btn</span> <span class="op">=</span> <span class="ident">triangle_btn</span>.<span class="ident">padding_right</span>(<span class="number">10.0</span>);
                     }
 
@@ -725,7 +725,7 @@
         <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">build</span>(<span class="ident">ctx</span>);
     }
 
-    <span class="kw">fn</span> <span class="ident">trips_completion_bar</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+    <span class="kw">fn</span> <span class="ident">trips_completion_bar</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Widget</span> {
         <span class="kw">let</span> <span class="ident">text_color</span> <span class="op">=</span> <span class="ident">Color::WHITE</span>;
         <span class="kw">let</span> <span class="ident">bar_fg</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">primary_fg</span>;
         <span class="kw">let</span> <span class="ident">bar_bg</span> <span class="op">=</span> <span class="ident">bar_fg</span>.<span class="ident">tint</span>(<span class="number">0.6</span>).<span class="ident">shade</span>(<span class="number">0.2</span>);
@@ -828,7 +828,7 @@
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">baseline_finished</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">baseline_finished_trips</span> {
             <span class="comment">// TODO: up/down icons</span>
             <span class="kw">let</span> <span class="ident">line</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">baseline_finished</span>.<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="ident">finished</span>) {
-                <span class="ident">std::cmp::Ordering::Greater</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">std::cmp::Ordering::Greater</span> =&gt; {
                     <span class="kw">let</span> <span class="ident">difference</span> <span class="op">=</span> <span class="ident">baseline_finished</span> <span class="op">-</span> <span class="ident">finished</span>;
                     <span class="ident">Line</span>(<span class="macro">format!</span>(
                         <span class="string">&quot;{} less than baseline&quot;</span>,
@@ -836,7 +836,7 @@
                     ))
                     .<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_destructive_color</span>)
                 }
-                <span class="ident">std::cmp::Ordering::Less</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">std::cmp::Ordering::Less</span> =&gt; {
                     <span class="kw">let</span> <span class="ident">difference</span> <span class="op">=</span> <span class="ident">finished</span> <span class="op">-</span> <span class="ident">baseline_finished</span>;
                     <span class="ident">Line</span>(<span class="macro">format!</span>(
                         <span class="string">&quot;{} more than baseline&quot;</span>,
@@ -844,7 +844,7 @@
                     ))
                     .<span class="ident">fg</span>(<span class="ident">Color::GREEN</span>)
                 }
-                <span class="ident">std::cmp::Ordering::Equal</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Line</span>(<span class="string">&quot;No change from baseline&quot;</span>),
+                <span class="ident">std::cmp::Ordering::Equal</span> =&gt; <span class="ident">Line</span>(<span class="string">&quot;No change from baseline&quot;</span>),
             };
             <span class="ident">tooltip_text</span>.<span class="ident">add_line</span>(<span class="ident">line</span>);
         }
@@ -855,7 +855,7 @@
         <span class="ident">DrawWithTooltips::new_widget</span>(<span class="ident">ctx</span>, <span class="ident">progress_bar</span>, <span class="ident">tooltip</span>, <span class="ident">Box::new</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">GeomBatch::new</span>()))
     }
 
-    <span class="kw">fn</span> <span class="ident">create_time_panel</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+    <span class="kw">fn</span> <span class="ident">create_time_panel</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Widget</span> {
         <span class="kw">let</span> <span class="ident">trips_bar</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">trips_completion_bar</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
 
         <span class="comment">// TODO This likely fits better in the top center panel, but no easy way to squeeze it</span>
@@ -901,7 +901,7 @@
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
         <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>,
         <span class="ident">maybe_mode</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">GameplayMode</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">time</span> <span class="op">!</span><span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>() {
             <span class="self">self</span>.<span class="ident">time</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>();
             <span class="kw">let</span> <span class="ident">time</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">create_time_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
@@ -909,36 +909,36 @@
         }
 
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;real-time speed&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) =&gt; <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
+                <span class="string">&quot;real-time speed&quot;</span> =&gt; {
                     <span class="self">self</span>.<span class="ident">setting</span> <span class="op">=</span> <span class="ident">SpeedSetting::Realtime</span>;
                     <span class="self">self</span>.<span class="ident">recreate_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                     <span class="kw">return</span> <span class="prelude-val">None</span>;
                 }
-                <span class="string">&quot;5x speed&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;5x speed&quot;</span> =&gt; {
                     <span class="self">self</span>.<span class="ident">setting</span> <span class="op">=</span> <span class="ident">SpeedSetting::Fast</span>;
                     <span class="self">self</span>.<span class="ident">recreate_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                     <span class="kw">return</span> <span class="prelude-val">None</span>;
                 }
-                <span class="string">&quot;30x speed&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;30x speed&quot;</span> =&gt; {
                     <span class="self">self</span>.<span class="ident">setting</span> <span class="op">=</span> <span class="ident">SpeedSetting::Faster</span>;
                     <span class="self">self</span>.<span class="ident">recreate_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                     <span class="kw">return</span> <span class="prelude-val">None</span>;
                 }
-                <span class="string">&quot;3600x speed&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;3600x speed&quot;</span> =&gt; {
                     <span class="self">self</span>.<span class="ident">setting</span> <span class="op">=</span> <span class="ident">SpeedSetting::Fastest</span>;
                     <span class="self">self</span>.<span class="ident">recreate_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                     <span class="kw">return</span> <span class="prelude-val">None</span>;
                 }
-                <span class="string">&quot;play&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;play&quot;</span> =&gt; {
                     <span class="self">self</span>.<span class="ident">paused</span> <span class="op">=</span> <span class="bool-val">false</span>;
                     <span class="self">self</span>.<span class="ident">recreate_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                     <span class="kw">return</span> <span class="prelude-val">None</span>;
                 }
-                <span class="string">&quot;pause&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;pause&quot;</span> =&gt; {
                     <span class="self">self</span>.<span class="ident">pause</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 }
-                <span class="string">&quot;reset to midnight&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;reset to midnight&quot;</span> =&gt; {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">mode</span>) <span class="op">=</span> <span class="ident">maybe_mode</span> {
                         <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Replace</span>(<span class="ident">SandboxMode::simple_new</span>(
                             <span class="ident">app</span>,
@@ -952,16 +952,16 @@
                         )));
                     }
                 }
-                <span class="string">&quot;jump to specific time&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;jump to specific time&quot;</span> =&gt; {
                     <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">JumpToTime::new_state</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">app</span>,
                         <span class="ident">maybe_mode</span>.<span class="ident">cloned</span>(),
                     )));
                 }
-                <span class="string">&quot;step forwards&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;step forwards&quot;</span> =&gt; {
                     <span class="kw">let</span> <span class="ident">dt</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">persistent_split_value</span>(<span class="string">&quot;step forwards&quot;</span>);
-                    <span class="kw">if</span> <span class="ident">dt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Duration::seconds</span>(<span class="number">0.1</span>) {
+                    <span class="kw">if</span> <span class="ident">dt</span> <span class="op">==</span> <span class="ident">Duration::seconds</span>(<span class="number">0.1</span>) {
                         <span class="ident">app</span>.<span class="ident">primary</span>
                             .<span class="ident">sim</span>
                             .<span class="ident">tiny_step</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim_cb</span>);
@@ -975,7 +975,7 @@
                         <span class="prelude-val">None</span>,
                     )));
                 }
-                <span class="string">&quot;see why results are tentative&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;see why results are tentative&quot;</span> =&gt; {
                     <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">PopupMsg::new_state</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;Simulation results not finalized&quot;</span>,
@@ -988,31 +988,31 @@
                         ],
                     )));
                 }
-                <span class="string">&quot;Finish Capture&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;Finish Capture&quot;</span> =&gt; {
                     <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">save_recorded_traffic</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>);
                 }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
             },
-            <span class="ident">Outcome::Changed</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;step forwards&quot;</span> {
+            <span class="ident">Outcome::Changed</span>(<span class="ident">x</span>) =&gt; {
+                <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;step forwards&quot;</span> {
                     <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">time_increment</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">persistent_split_value</span>(<span class="string">&quot;step forwards&quot;</span>);
                 }
             }
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+            <span class="kw">_</span> =&gt; {}
         }
 
         <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key::LeftArrow</span>) {
             <span class="kw">match</span> <span class="self">self</span>.<span class="ident">setting</span> {
-                <span class="ident">SpeedSetting::Realtime</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">pause</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-                <span class="ident">SpeedSetting::Fast</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">SpeedSetting::Realtime</span> =&gt; <span class="self">self</span>.<span class="ident">pause</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+                <span class="ident">SpeedSetting::Fast</span> =&gt; {
                     <span class="self">self</span>.<span class="ident">setting</span> <span class="op">=</span> <span class="ident">SpeedSetting::Realtime</span>;
                     <span class="self">self</span>.<span class="ident">recreate_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 }
-                <span class="ident">SpeedSetting::Faster</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">SpeedSetting::Faster</span> =&gt; {
                     <span class="self">self</span>.<span class="ident">setting</span> <span class="op">=</span> <span class="ident">SpeedSetting::Fast</span>;
                     <span class="self">self</span>.<span class="ident">recreate_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 }
-                <span class="ident">SpeedSetting::Fastest</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">SpeedSetting::Fastest</span> =&gt; {
                     <span class="self">self</span>.<span class="ident">setting</span> <span class="op">=</span> <span class="ident">SpeedSetting::Faster</span>;
                     <span class="self">self</span>.<span class="ident">recreate_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 }
@@ -1020,7 +1020,7 @@
         }
         <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key::RightArrow</span>) {
             <span class="kw">match</span> <span class="self">self</span>.<span class="ident">setting</span> {
-                <span class="ident">SpeedSetting::Realtime</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">SpeedSetting::Realtime</span> =&gt; {
                     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">paused</span> {
                         <span class="self">self</span>.<span class="ident">paused</span> <span class="op">=</span> <span class="bool-val">false</span>;
                     } <span class="kw">else</span> {
@@ -1028,15 +1028,15 @@
                     }
                     <span class="self">self</span>.<span class="ident">recreate_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 }
-                <span class="ident">SpeedSetting::Fast</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">SpeedSetting::Fast</span> =&gt; {
                     <span class="self">self</span>.<span class="ident">setting</span> <span class="op">=</span> <span class="ident">SpeedSetting::Faster</span>;
                     <span class="self">self</span>.<span class="ident">recreate_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 }
-                <span class="ident">SpeedSetting::Faster</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">SpeedSetting::Faster</span> =&gt; {
                     <span class="self">self</span>.<span class="ident">setting</span> <span class="op">=</span> <span class="ident">SpeedSetting::Fastest</span>;
                     <span class="self">self</span>.<span class="ident">recreate_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 }
-                <span class="ident">SpeedSetting::Fastest</span> <span class="op">=</span><span class="op">&gt;</span> {}
+                <span class="ident">SpeedSetting::Fastest</span> =&gt; {}
             }
         }
 
@@ -1044,10 +1044,10 @@
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">real_dt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">nonblocking_is_update_event</span>() {
                 <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">use_update_event</span>();
                 <span class="kw">let</span> <span class="ident">multiplier</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">setting</span> {
-                    <span class="ident">SpeedSetting::Realtime</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">1.0</span>,
-                    <span class="ident">SpeedSetting::Fast</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">5.0</span>,
-                    <span class="ident">SpeedSetting::Faster</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">30.0</span>,
-                    <span class="ident">SpeedSetting::Fastest</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">3600.0</span>,
+                    <span class="ident">SpeedSetting::Realtime</span> =&gt; <span class="number">1.0</span>,
+                    <span class="ident">SpeedSetting::Fast</span> =&gt; <span class="number">5.0</span>,
+                    <span class="ident">SpeedSetting::Faster</span> =&gt; <span class="number">30.0</span>,
+                    <span class="ident">SpeedSetting::Fastest</span> =&gt; <span class="number">3600.0</span>,
                 };
                 <span class="kw">let</span> <span class="ident">dt</span> <span class="op">=</span> <span class="ident">multiplier</span> <span class="op">*</span> <span class="ident">real_dt</span>;
                 <span class="comment">// TODO This should match the update frequency in widgetry. Plumb along the deadline</span>
@@ -1071,11 +1071,11 @@
                 <span class="ident">alerts</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">msg</span>)<span class="op">|</span> <span class="ident">msg</span>).<span class="ident">collect</span>(),
             );
             <span class="kw">let</span> <span class="ident">maybe_id</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">alerts</span>[<span class="number">0</span>].<span class="number">1</span> {
-                <span class="ident">AlertLocation::Nil</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
-                <span class="ident">AlertLocation::Intersection</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">ID::Intersection</span>(<span class="ident">i</span>)),
+                <span class="ident">AlertLocation::Nil</span> =&gt; <span class="prelude-val">None</span>,
+                <span class="ident">AlertLocation::Intersection</span>(<span class="ident">i</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">ID::Intersection</span>(<span class="ident">i</span>)),
                 <span class="comment">// TODO Open info panel and warp to them</span>
-                <span class="ident">AlertLocation::Person</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
-                <span class="ident">AlertLocation::Building</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">ID::Building</span>(<span class="ident">b</span>)),
+                <span class="ident">AlertLocation::Person</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
+                <span class="ident">AlertLocation::Building</span>(<span class="ident">b</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">ID::Building</span>(<span class="ident">b</span>)),
             };
             <span class="comment">// TODO Can filter for particular alerts places like this:</span>
             <span class="comment">/*if !alerts[0].2.contains(&quot;Turn conflict cycle&quot;) {
@@ -1124,7 +1124,7 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_paused</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_paused</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">paused</span>
     }
 }

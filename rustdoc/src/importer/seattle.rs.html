@@ -297,7 +297,7 @@
     <span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">ImporterConfiguration</span>,
     <span class="ident">built_raw_huge_seattle</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
     <span class="ident">built_map_huge_seattle</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
-) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident"><span class="kw">crate</span>::soundcast::PopDat</span>, <span class="ident">map_model::Map</span>) {
+) -&gt; (<span class="ident"><span class="kw">crate</span>::soundcast::PopDat</span>, <span class="ident">map_model::Map</span>) {
     <span class="kw">let</span> <span class="ident">huge_name</span> <span class="op">=</span> <span class="ident">MapName::seattle</span>(<span class="string">&quot;huge_seattle&quot;</span>);
 
     <span class="kw">if</span> <span class="ident">abstio::file_exists</span>(<span class="ident">abstio::path_popdat</span>()) {
@@ -377,11 +377,11 @@
 
     <span class="kw">for</span> (<span class="ident">b</span>, <span class="ident">num_housing_units</span>) <span class="kw">in</span> <span class="ident">units_per_bldg</span> {
         <span class="kw">let</span> <span class="ident">bldg_type</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">bldg_type</span>.<span class="ident">clone</span>() {
-            <span class="ident">BuildingType::Residential</span> { <span class="ident">num_residents</span>, .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">BuildingType::Residential</span> {
+            <span class="ident">BuildingType::Residential</span> { <span class="ident">num_residents</span>, .. } =&gt; <span class="ident">BuildingType::Residential</span> {
                 <span class="ident">num_housing_units</span>,
                 <span class="ident">num_residents</span>,
             },
-            <span class="ident">x</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>,
+            <span class="ident">x</span> =&gt; <span class="ident">x</span>,
         };
         <span class="ident">map</span>.<span class="ident">hack_override_bldg_type</span>(<span class="ident">b</span>, <span class="ident">bldg_type</span>);
     }

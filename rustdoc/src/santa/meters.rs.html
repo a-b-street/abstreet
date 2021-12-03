@@ -41,7 +41,7 @@
 <span class="kw">use</span> <span class="ident">geom::Polygon</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>};
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">custom_bar</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">filled_color</span>: <span class="ident">Color</span>, <span class="ident">pct_full</span>: <span class="ident">f64</span>, <span class="ident">txt</span>: <span class="ident">Text</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">custom_bar</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">filled_color</span>: <span class="ident">Color</span>, <span class="ident">pct_full</span>: <span class="ident">f64</span>, <span class="ident">txt</span>: <span class="ident">Text</span>) -&gt; <span class="ident">Widget</span> {
     <span class="kw">let</span> <span class="ident">total_width</span> <span class="op">=</span> <span class="number">300.0</span>;
     <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> <span class="number">32.0</span>;
     <span class="kw">let</span> <span class="ident">radius</span> <span class="op">=</span> <span class="number">4.0</span>;
@@ -63,8 +63,8 @@
     <span class="ident">batch</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_bar</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">filled_color</span>: <span class="ident">Color</span>, <span class="ident">value</span>: <span class="ident">usize</span>, <span class="ident">max</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="ident">pct_full</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">max</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_bar</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">filled_color</span>: <span class="ident">Color</span>, <span class="ident">value</span>: <span class="ident">usize</span>, <span class="ident">max</span>: <span class="ident">usize</span>) -&gt; <span class="ident">Widget</span> {
+    <span class="kw">let</span> <span class="ident">pct_full</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">max</span> <span class="op">==</span> <span class="number">0</span> {
         <span class="number">0.0</span>
     } <span class="kw">else</span> {
         (<span class="ident">value</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> (<span class="ident">max</span> <span class="kw">as</span> <span class="ident">f64</span>)

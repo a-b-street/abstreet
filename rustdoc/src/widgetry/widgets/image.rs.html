@@ -379,16 +379,16 @@
     <span class="doccomment">/// Process `self` into a [`GeomBatch`].</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// The underlying implementation makes use of caching to avoid re-parsing SVGs.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="ident"><span class="kw">crate</span>::Prerender</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">GeomBatch</span>, <span class="ident">geom::Bounds</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="ident"><span class="kw">crate</span>::Prerender</span>) -&gt; (<span class="ident">GeomBatch</span>, <span class="ident">geom::Bounds</span>) {
         <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::svg</span>;
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ImageSource::Path</span>(<span class="ident">image_path</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">svg::load_svg</span>(<span class="ident">prerender</span>, <span class="ident">image_path</span>),
-            <span class="ident">ImageSource::Bytes</span> { <span class="ident">bytes</span>, <span class="ident">cache_key</span> } <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ImageSource::Path</span>(<span class="ident">image_path</span>) =&gt; <span class="ident">svg::load_svg</span>(<span class="ident">prerender</span>, <span class="ident">image_path</span>),
+            <span class="ident">ImageSource::Bytes</span> { <span class="ident">bytes</span>, <span class="ident">cache_key</span> } =&gt; {
                 <span class="ident">svg::load_svg_bytes</span>(<span class="ident">prerender</span>, <span class="ident">cache_key</span>, <span class="ident">bytes</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
                     <span class="macro">panic!</span>(<span class="string">&quot;Failed to load svg from bytes. cache_key: {}&quot;</span>, <span class="ident">cache_key</span>)
                 })
             }
-            <span class="ident">ImageSource::GeomBatch</span>(<span class="ident">geom_batch</span>, <span class="ident">bounds</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">geom_batch</span>.<span class="ident">clone</span>(), <span class="kw-2">*</span><span class="ident">bounds</span>),
+            <span class="ident">ImageSource::GeomBatch</span>(<span class="ident">geom_batch</span>, <span class="ident">bounds</span>) =&gt; (<span class="ident">geom_batch</span>.<span class="ident">clone</span>(), <span class="kw-2">*</span><span class="ident">bounds</span>),
         }
     }
 }
@@ -396,14 +396,14 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span> <span class="ident">Image</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span> {
     <span class="doccomment">/// An `Image` with no renderable content. Useful for starting a template for creating</span>
     <span class="doccomment">/// several similar images using a builder pattern.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>() -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             ..<span class="ident">Default::default</span>()
         }
     }
 
     <span class="doccomment">/// Create an SVG `Image`, read from `filename`, which is colored to match `Style.icon_fg`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_path</span>(<span class="ident">filename</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_path</span>(<span class="ident">filename</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">source</span>: <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">ImageSource::Path</span>(<span class="ident">filename</span>))),
             ..<span class="ident">Default::default</span>()
@@ -416,7 +416,7 @@
     <span class="doccomment">///   [`include_labeled_bytes!`]</span>
     <span class="doccomment">/// * `label`: a label to describe the bytes for debugging purposes</span>
     <span class="doccomment">/// * `bytes`: UTF-8 encoded bytes of the SVG</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_bytes</span>(<span class="ident">labeled_bytes</span>: (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>])) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_bytes</span>(<span class="ident">labeled_bytes</span>: (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>])) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">source</span>: <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">ImageSource::Bytes</span> {
                 <span class="ident">cache_key</span>: <span class="ident">labeled_bytes</span>.<span class="number">0</span>,
@@ -429,7 +429,7 @@
     <span class="doccomment">/// Create a new `Image` from a [`GeomBatch`].</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// By default, the given `bounds` will be used for padding, background, etc.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_batch</span>(<span class="ident">batch</span>: <span class="ident">GeomBatch</span>, <span class="ident">bounds</span>: <span class="ident">Bounds</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_batch</span>(<span class="ident">batch</span>: <span class="ident">GeomBatch</span>, <span class="ident">bounds</span>: <span class="ident">Bounds</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">source</span>: <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">ImageSource::GeomBatch</span>(<span class="ident">batch</span>, <span class="ident">bounds</span>))),
             <span class="ident">dims</span>: <span class="prelude-val">Some</span>(<span class="ident">bounds</span>.<span class="ident">into</span>()),
@@ -440,7 +440,7 @@
     <span class="doccomment">/// Set a new source for the `Image`&#39;s data.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This will replace any previously set source.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">source</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">source</span>: <span class="ident">ImageSource</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">source</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">source</span>: <span class="ident">ImageSource</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">source</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">source</span>));
         <span class="self">self</span>
     }
@@ -448,7 +448,7 @@
     <span class="doccomment">/// Set the path to an SVG file for the image.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This will replace any image source previously set.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">source_path</span>(<span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">source_path</span>(<span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">source</span>(<span class="ident">ImageSource::Path</span>(<span class="ident">path</span>))
     }
 
@@ -460,7 +460,7 @@
     <span class="doccomment">///   [`include_labeled_bytes!`]</span>
     <span class="doccomment">/// * `label`: a label to describe the bytes for debugging purposes</span>
     <span class="doccomment">/// * `bytes`: UTF-8 encoded bytes of the SVG</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">source_bytes</span>(<span class="self">self</span>, <span class="ident">labeled_bytes</span>: (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>])) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">source_bytes</span>(<span class="self">self</span>, <span class="ident">labeled_bytes</span>: (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>])) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> (<span class="ident">label</span>, <span class="ident">bytes</span>) <span class="op">=</span> <span class="ident">labeled_bytes</span>;
         <span class="self">self</span>.<span class="ident">source</span>(<span class="ident">ImageSource::Bytes</span> {
             <span class="ident">bytes</span>,
@@ -474,18 +474,18 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This method is useful when doing more complex transforms. For example, to re-write more than</span>
     <span class="doccomment">/// one color for your image, do so externally and pass in the resultant GeomBatch here.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">source_batch</span>(<span class="self">self</span>, <span class="ident">batch</span>: <span class="ident">GeomBatch</span>, <span class="ident">bounds</span>: <span class="ident">geom::Bounds</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">source_batch</span>(<span class="self">self</span>, <span class="ident">batch</span>: <span class="ident">GeomBatch</span>, <span class="ident">bounds</span>: <span class="ident">geom::Bounds</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">source</span>(<span class="ident">ImageSource::GeomBatch</span>(<span class="ident">batch</span>, <span class="ident">bounds</span>))
     }
 
     <span class="doccomment">/// Add a tooltip to appear when hovering over the image.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tooltip</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">tooltip</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Text</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tooltip</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">tooltip</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Text</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">tooltip</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">tooltip</span>.<span class="ident">into</span>());
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Create a new `Image` based on `self`, but overriding with any values set on `other`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">merged_image_style</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;c</span> <span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;c</span> <span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">merged_image_style</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;c</span> <span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;c</span> <span class="self">Self</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">source_cow</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="ident">ImageSource</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span>
             <span class="ident">other</span>.<span class="ident">source</span>.<span class="ident">as_ref</span>().<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">source</span>.<span class="ident">as_ref</span>());
         <span class="kw">let</span> <span class="ident">source</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="ident">ImageSource</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">source_cow</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">source</span>: <span class="kw-2">&amp;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="ident">ImageSource</span><span class="op">&gt;</span><span class="op">|</span> {
@@ -507,19 +507,19 @@
     }
 
     <span class="doccomment">/// Rewrite the color of the image.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">color</span><span class="op">&lt;</span><span class="ident">RWC</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">RewriteColor</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">RWC</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">color</span><span class="op">&lt;</span><span class="ident">RWC</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">RewriteColor</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">RWC</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">color</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">value</span>.<span class="ident">into</span>());
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Set a background color for the image. Has no effect unless custom `dims` are explicitly set.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bg_color</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">Color</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bg_color</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">Color</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">bg_color</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">value</span>);
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// The image&#39;s intrinsic colors will be used, it will not be tinted like `Image::icon`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">untinted</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">untinted</span>(<span class="self">self</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">color</span>(<span class="ident">RewriteColor::NoOp</span>)
     }
 
@@ -527,7 +527,7 @@
     <span class="doccomment">/// size will be used, but padding and background settings will be ignored.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// See [`Self::content_mode`] to control how the image scales to fit its custom bounds.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dims</span><span class="op">&lt;</span><span class="ident">D</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">ScreenDims</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">dims</span>: <span class="ident">D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dims</span><span class="op">&lt;</span><span class="ident">D</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">ScreenDims</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">dims</span>: <span class="ident">D</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">dims</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">dims</span>.<span class="ident">into</span>());
         <span class="self">self</span>
     }
@@ -539,26 +539,26 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// The default, [`ContentMode::ScaleAspectFit`] will only grow as much as it can while</span>
     <span class="doccomment">/// maintaining its aspect ratio and not exceeding its bounds</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">content_mode</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">ContentMode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">content_mode</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">ContentMode</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">content_mode</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">value</span>);
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Set independent rounding for each of the image&#39;s corners. Has no effect unless custom</span>
     <span class="doccomment">/// `dims` are explicitly set.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">corner_rounding</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">CornerRounding</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">R</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">corner_rounding</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">CornerRounding</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">R</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">corner_rounding</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">value</span>.<span class="ident">into</span>());
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Set padding for the image. Has no effect unless custom `dims` are explicitly set.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">padding</span><span class="op">&lt;</span><span class="ident">EI</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">EdgeInsets</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">EI</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">padding</span><span class="op">&lt;</span><span class="ident">EI</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">EdgeInsets</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">EI</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">padding</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">value</span>.<span class="ident">into</span>());
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Padding above the image. Has no effect unless custom `dims` are explicitly set.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">padding_top</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">new_value</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">padding_top</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">new_value</span>: <span class="ident">f64</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">padding</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">padding</span>.<span class="ident">unwrap_or_default</span>();
         <span class="ident">padding</span>.<span class="ident">top</span> <span class="op">=</span> <span class="ident">new_value</span>;
         <span class="self">self</span>.<span class="ident">padding</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">padding</span>);
@@ -566,7 +566,7 @@
     }
 
     <span class="doccomment">/// Padding to the left of the image. Has no effect unless custom `dims` are explicitly set.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">padding_left</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">new_value</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">padding_left</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">new_value</span>: <span class="ident">f64</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">padding</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">padding</span>.<span class="ident">unwrap_or_default</span>();
         <span class="ident">padding</span>.<span class="ident">left</span> <span class="op">=</span> <span class="ident">new_value</span>;
         <span class="self">self</span>.<span class="ident">padding</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">padding</span>);
@@ -574,7 +574,7 @@
     }
 
     <span class="doccomment">/// Padding below the image. Has no effect unless custom `dims` are explicitly set.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">padding_bottom</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">new_value</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">padding_bottom</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">new_value</span>: <span class="ident">f64</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">padding</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">padding</span>.<span class="ident">unwrap_or_default</span>();
         <span class="ident">padding</span>.<span class="ident">bottom</span> <span class="op">=</span> <span class="ident">new_value</span>;
         <span class="self">self</span>.<span class="ident">padding</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">padding</span>);
@@ -582,7 +582,7 @@
     }
 
     <span class="doccomment">/// Padding to the right of the image. Has no effect unless custom `dims` are explicitly set.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">padding_right</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">new_value</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">padding_right</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">new_value</span>: <span class="ident">f64</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">padding</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">padding</span>.<span class="ident">unwrap_or_default</span>();
         <span class="ident">padding</span>.<span class="ident">right</span> <span class="op">=</span> <span class="ident">new_value</span>;
         <span class="self">self</span>.<span class="ident">padding</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">padding</span>);
@@ -590,7 +590,7 @@
     }
 
     <span class="doccomment">/// Render the `Image` and any styling (padding, background, etc.) to a `GeomBatch`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_batch</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">GeomBatch</span>, <span class="ident">Bounds</span>)<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_batch</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">GeomBatch</span>, <span class="ident">Bounds</span>)<span class="op">&gt;</span> {
         <span class="comment">// TODO: unwrap/panic if source is empty?</span>
         <span class="self">self</span>.<span class="ident">source</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">source</span><span class="op">|</span> {
             <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">image_batch</span>, <span class="ident">image_bounds</span>) <span class="op">=</span> <span class="ident">source</span>.<span class="ident">load</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>);
@@ -601,23 +601,23 @@
             );
 
             <span class="kw">match</span> <span class="self">self</span>.<span class="ident">dims</span> {
-                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">None</span> =&gt; {
                     <span class="comment">// Preserve any padding intrinsic to the SVG.</span>
                     <span class="ident">image_batch</span>.<span class="ident">push</span>(<span class="ident">Color::CLEAR</span>, <span class="ident">image_bounds</span>.<span class="ident">get_rectangle</span>());
                     (<span class="ident">image_batch</span>, <span class="ident">image_bounds</span>)
                 }
-                <span class="prelude-val">Some</span>(<span class="ident">image_dims</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">Some</span>(<span class="ident">image_dims</span>) =&gt; {
                     <span class="kw">if</span> <span class="ident">image_bounds</span>.<span class="ident">width</span>() <span class="op">!</span><span class="op">=</span> <span class="number">0.0</span> <span class="op">&amp;&amp;</span> <span class="ident">image_bounds</span>.<span class="ident">height</span>() <span class="op">!</span><span class="op">=</span> <span class="number">0.0</span> {
                         <span class="kw">let</span> (<span class="ident">x_factor</span>, <span class="ident">y_factor</span>) <span class="op">=</span> (
                             <span class="ident">image_dims</span>.<span class="ident">width</span> <span class="op">/</span> <span class="ident">image_bounds</span>.<span class="ident">width</span>(),
                             <span class="ident">image_dims</span>.<span class="ident">height</span> <span class="op">/</span> <span class="ident">image_bounds</span>.<span class="ident">height</span>(),
                         );
                         <span class="ident">image_batch</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">content_mode</span>.<span class="ident">unwrap_or_default</span>() {
-                            <span class="ident">ContentMode::ScaleToFill</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">image_batch</span>.<span class="ident">scale_xy</span>(<span class="ident">x_factor</span>, <span class="ident">y_factor</span>),
-                            <span class="ident">ContentMode::ScaleAspectFit</span> <span class="op">=</span><span class="op">&gt;</span> {
+                            <span class="ident">ContentMode::ScaleToFill</span> =&gt; <span class="ident">image_batch</span>.<span class="ident">scale_xy</span>(<span class="ident">x_factor</span>, <span class="ident">y_factor</span>),
+                            <span class="ident">ContentMode::ScaleAspectFit</span> =&gt; {
                                 <span class="ident">image_batch</span>.<span class="ident">scale</span>(<span class="ident">x_factor</span>.<span class="ident">min</span>(<span class="ident">y_factor</span>))
                             }
-                            <span class="ident">ContentMode::ScaleAspectFill</span> <span class="op">=</span><span class="op">&gt;</span> {
+                            <span class="ident">ContentMode::ScaleAspectFill</span> =&gt; {
                                 <span class="ident">image_batch</span>.<span class="ident">scale</span>(<span class="ident">x_factor</span>.<span class="ident">max</span>(<span class="ident">y_factor</span>))
                             }
                         };
@@ -634,10 +634,10 @@
                         <span class="ident">max_y</span>: <span class="ident">image_dims</span>.<span class="ident">height</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">top</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">bottom</span>,
                     };
                     <span class="kw">let</span> <span class="ident">container</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">image_corners</span> {
-                        <span class="ident">CornerRounding::FullyRounded</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">CornerRounding::FullyRounded</span> =&gt; {
                             <span class="ident">Polygon::pill</span>(<span class="ident">container_bounds</span>.<span class="ident">width</span>(), <span class="ident">container_bounds</span>.<span class="ident">height</span>())
                         }
-                        <span class="ident">CornerRounding::CornerRadii</span>(<span class="ident">image_corners</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Polygon::rounded_rectangle</span>(
+                        <span class="ident">CornerRounding::CornerRadii</span>(<span class="ident">image_corners</span>) =&gt; <span class="ident">Polygon::rounded_rectangle</span>(
                             <span class="ident">container_bounds</span>.<span class="ident">width</span>(),
                             <span class="ident">container_bounds</span>.<span class="ident">height</span>(),
                             <span class="ident">image_corners</span>,
@@ -660,10 +660,10 @@
         })
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_widget</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_widget</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; <span class="ident">Widget</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">build_batch</span>(<span class="ident">ctx</span>) {
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Widget::nothing</span>(),
-            <span class="prelude-val">Some</span>((<span class="ident">batch</span>, <span class="ident">bounds</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">None</span> =&gt; <span class="ident">Widget::nothing</span>(),
+            <span class="prelude-val">Some</span>((<span class="ident">batch</span>, <span class="ident">bounds</span>)) =&gt; {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">tooltip</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">tooltip</span> {
                     <span class="ident">DrawWithTooltips::new_widget</span>(
                         <span class="ident">ctx</span>,

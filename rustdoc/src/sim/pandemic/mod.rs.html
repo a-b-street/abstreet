@@ -349,11 +349,11 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AnyTime</span>(<span class="ident">f64</span>);
 
 <span class="kw">impl</span> <span class="ident">AnyTime</span> {
-    <span class="kw">fn</span> <span class="ident">inner_seconds</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
+    <span class="kw">fn</span> <span class="ident">inner_seconds</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">f64</span> {
         <span class="self">self</span>.<span class="number">0</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_finite</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_finite</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="number">0</span>.<span class="ident">is_finite</span>()
     }
 }
@@ -361,7 +361,7 @@
 <span class="kw">impl</span> <span class="ident">ops::Add</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">AnyTime</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">AnyTime</span>;
 
-    <span class="kw">fn</span> <span class="ident">add</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Duration</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">AnyTime</span> {
+    <span class="kw">fn</span> <span class="ident">add</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Duration</span>) -&gt; <span class="ident">AnyTime</span> {
         <span class="ident">AnyTime</span>(<span class="self">self</span>.<span class="number">0</span> <span class="op">+</span> <span class="ident">other</span>.<span class="ident">inner_seconds</span>())
     }
 }
@@ -375,7 +375,7 @@
 <span class="kw">impl</span> <span class="ident">ops::Sub</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">AnyTime</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">AnyTime</span>;
 
-    <span class="kw">fn</span> <span class="ident">sub</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Duration</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">AnyTime</span> {
+    <span class="kw">fn</span> <span class="ident">sub</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Duration</span>) -&gt; <span class="ident">AnyTime</span> {
         <span class="ident">AnyTime</span>(<span class="self">self</span>.<span class="number">0</span> <span class="op">-</span> <span class="ident">other</span>.<span class="ident">inner_seconds</span>())
     }
 }
@@ -383,25 +383,25 @@
 <span class="kw">impl</span> <span class="ident">ops::Sub</span> <span class="kw">for</span> <span class="ident">AnyTime</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Duration</span>;
 
-    <span class="kw">fn</span> <span class="ident">sub</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">AnyTime</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Duration</span> {
+    <span class="kw">fn</span> <span class="ident">sub</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">AnyTime</span>) -&gt; <span class="ident">Duration</span> {
         <span class="ident">Duration::seconds</span>(<span class="self">self</span>.<span class="number">0</span> <span class="op">-</span> <span class="ident">other</span>.<span class="number">0</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Time</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">AnyTime</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">t</span>: <span class="ident">Time</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">AnyTime</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">t</span>: <span class="ident">Time</span>) -&gt; <span class="ident">AnyTime</span> {
         <span class="ident">AnyTime</span>(<span class="ident">t</span>.<span class="ident">inner_seconds</span>())
     }
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">AnyTime</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Time</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">time</span>: <span class="ident">AnyTime</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">time</span>: <span class="ident">AnyTime</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">Time::START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration::seconds</span>(<span class="ident">time</span>.<span class="ident">inner_seconds</span>())
     }
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">AnyTime</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">t</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">AnyTime</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">t</span>: <span class="ident">f64</span>) -&gt; <span class="ident">AnyTime</span> {
         <span class="ident">AnyTime</span>(<span class="ident">t</span>)
     }
 }
@@ -424,9 +424,9 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Event</span> {
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">now</span>: <span class="ident">AnyTime</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">State</span> {
+    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">now</span>: <span class="ident">AnyTime</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>) -&gt; <span class="ident">State</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">s</span> {
-            <span class="ident">StateEvent::Exposition</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">State::Exposed</span>((
+            <span class="ident">StateEvent::Exposition</span> =&gt; <span class="ident">State::Exposed</span>((
                 <span class="ident">Event</span> {
                     <span class="ident">s</span>: <span class="ident">StateEvent::Incubation</span>,
                     <span class="ident">p_hosp</span>: <span class="self">self</span>.<span class="ident">p_hosp</span>,
@@ -435,7 +435,7 @@
                 },
                 <span class="ident">now</span>.<span class="ident">into</span>(),
             )),
-            <span class="ident">StateEvent::Incubation</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">StateEvent::Incubation</span> =&gt; {
                 <span class="kw">if</span> <span class="ident">rng</span>.<span class="ident">gen_bool</span>(<span class="self">self</span>.<span class="ident">p_death</span>) {
                     <span class="ident">State::Infectious</span>((
                         <span class="ident">Event</span> {
@@ -458,7 +458,7 @@
                     ))
                 }
             }
-            <span class="ident">StateEvent::Hospitalization</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">StateEvent::Hospitalization</span> =&gt; {
                 <span class="kw">if</span> <span class="ident">rng</span>.<span class="ident">gen_bool</span>(<span class="self">self</span>.<span class="ident">p_hosp</span>) {
                     <span class="ident">State::Hospitalized</span>((
                         <span class="ident">Event</span> {
@@ -481,8 +481,8 @@
                     ))
                 }
             }
-            <span class="ident">StateEvent::Death</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">State::Dead</span>(<span class="ident">now</span>.<span class="ident">into</span>()),
-            <span class="ident">StateEvent::Recovery</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">State::Recovered</span>(<span class="ident">now</span>.<span class="ident">into</span>()),
+            <span class="ident">StateEvent::Death</span> =&gt; <span class="ident">State::Dead</span>(<span class="ident">now</span>.<span class="ident">into</span>()),
+            <span class="ident">StateEvent::Recovery</span> =&gt; <span class="ident">State::Recovered</span>(<span class="ident">now</span>.<span class="ident">into</span>()),
         }
     }
 }
@@ -506,15 +506,15 @@
     <span class="kw">const</span> <span class="ident">I_RATIO</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">0.05</span>;
     <span class="comment">// const R_RATIO: f64 = 0.0;</span>
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ini_infectious_ratio</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ini_infectious_ratio</span>() -&gt; <span class="ident">f64</span> {
         <span class="ident"><span class="self">Self</span>::I_RATIO</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ini_exposed_ratio</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ini_exposed_ratio</span>() -&gt; <span class="ident">f64</span> {
         <span class="ident"><span class="self">Self</span>::E_RATIO</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">p_hosp</span>: <span class="ident">f64</span>, <span class="ident">p_death</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">p_hosp</span>: <span class="ident">f64</span>, <span class="ident">p_death</span>: <span class="ident">f64</span>) -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="self">Self</span>::Sane</span>((
             <span class="ident">Event</span> {
                 <span class="ident">s</span>: <span class="ident">StateEvent::Exposition</span>,
@@ -526,57 +526,57 @@
         ))
     }
 
-    <span class="kw">fn</span> <span class="ident">get_time_exp</span>(<span class="ident">lambda</span>: <span class="ident">f64</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">geom::Duration</span> {
+    <span class="kw">fn</span> <span class="ident">get_time_exp</span>(<span class="ident">lambda</span>: <span class="ident">f64</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>) -&gt; <span class="ident">geom::Duration</span> {
         <span class="kw">let</span> <span class="ident">normal</span> <span class="op">=</span> <span class="ident">Exp::new</span>(<span class="ident">lambda</span>).<span class="ident">unwrap</span>();
         <span class="ident">Duration::seconds</span>(<span class="ident">normal</span>.<span class="ident">sample</span>(<span class="ident">rng</span>))
     }
 
-    <span class="kw">fn</span> <span class="ident">get_time_normal</span>(<span class="ident">mu</span>: <span class="ident">f64</span>, <span class="ident">sigma</span>: <span class="ident">f64</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">geom::Duration</span> {
+    <span class="kw">fn</span> <span class="ident">get_time_normal</span>(<span class="ident">mu</span>: <span class="ident">f64</span>, <span class="ident">sigma</span>: <span class="ident">f64</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>) -&gt; <span class="ident">geom::Duration</span> {
         <span class="kw">let</span> <span class="ident">normal</span> <span class="op">=</span> <span class="ident">Normal::new</span>(<span class="ident">mu</span>, <span class="ident">sigma</span>).<span class="ident">unwrap</span>();
         <span class="ident">Duration::seconds</span>(<span class="ident">normal</span>.<span class="ident">sample</span>(<span class="ident">rng</span>))
     }
 
-    <span class="kw">fn</span> <span class="ident">is_sane</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">is_sane</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">State::Sane</span>((<span class="ident">ev</span>, <span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="op">!</span><span class="ident">ev</span>.<span class="ident">t</span>.<span class="ident">is_finite</span>(),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">State::Sane</span>((<span class="ident">ev</span>, <span class="kw">_</span>)) =&gt; <span class="op">!</span><span class="ident">ev</span>.<span class="ident">t</span>.<span class="ident">is_finite</span>(),
+            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">is_exposed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">is_exposed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident">State::Exposed</span>(<span class="kw">_</span>))
     }
 
-    <span class="kw">fn</span> <span class="ident">is_infectious</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">is_infectious</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident">State::Infectious</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">State::Hospitalized</span>(<span class="kw">_</span>))
     }
 
-    <span class="kw">fn</span> <span class="ident">is_recovered</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">is_recovered</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident">State::Recovered</span>(<span class="kw">_</span>))
     }
 
-    <span class="kw">fn</span> <span class="ident">is_dead</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">is_dead</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident">State::Dead</span>(<span class="kw">_</span>))
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Time</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Time</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Sane</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+            <span class="ident"><span class="self">Self</span>::Sane</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
             <span class="ident"><span class="self">Self</span>::Recovered</span>(<span class="ident">t</span>)
             <span class="op">|</span> <span class="ident"><span class="self">Self</span>::Dead</span>(<span class="ident">t</span>)
             <span class="op">|</span> <span class="ident"><span class="self">Self</span>::Exposed</span>((<span class="kw">_</span>, <span class="ident">t</span>))
             <span class="op">|</span> <span class="ident"><span class="self">Self</span>::Infectious</span>((<span class="kw">_</span>, <span class="ident">t</span>))
-            <span class="op">|</span> <span class="ident"><span class="self">Self</span>::Hospitalized</span>((<span class="kw">_</span>, <span class="ident">t</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">t</span>),
+            <span class="op">|</span> <span class="ident"><span class="self">Self</span>::Hospitalized</span>((<span class="kw">_</span>, <span class="ident">t</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">t</span>),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_event_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">AnyTime</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_event_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">AnyTime</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident"><span class="self">Self</span>::Sane</span>((<span class="ident">ev</span>, <span class="kw">_</span>))
             <span class="op">|</span> <span class="ident"><span class="self">Self</span>::Exposed</span>((<span class="ident">ev</span>, <span class="kw">_</span>))
             <span class="op">|</span> <span class="ident"><span class="self">Self</span>::Infectious</span>((<span class="ident">ev</span>, <span class="kw">_</span>))
-            <span class="op">|</span> <span class="ident"><span class="self">Self</span>::Hospitalized</span>((<span class="ident">ev</span>, <span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">ev</span>.<span class="ident">t</span>),
-            <span class="ident"><span class="self">Self</span>::Recovered</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident"><span class="self">Self</span>::Dead</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+            <span class="op">|</span> <span class="ident"><span class="self">Self</span>::Hospitalized</span>((<span class="ident">ev</span>, <span class="kw">_</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="ident">ev</span>.<span class="ident">t</span>),
+            <span class="ident"><span class="self">Self</span>::Recovered</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident"><span class="self">Self</span>::Dead</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
         }
     }
 
@@ -598,63 +598,63 @@
     <span class="comment">// }</span>
 
     <span class="comment">// TODO: not sure if we want an option here...</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">next_default</span>(<span class="self">self</span>, <span class="ident">default</span>: <span class="ident">AnyTime</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">next_default</span>(<span class="self">self</span>, <span class="ident">default</span>: <span class="ident">AnyTime</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="comment">// TODO: when #![feature(bindings_after_at)] reaches stable</span>
         <span class="comment">// rewrite this part with it</span>
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Sane</span>((<span class="ident">ev</span>, <span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident"><span class="self">Self</span>::Sane</span>((<span class="ident">ev</span>, <span class="ident">default</span>.<span class="ident">into</span>()))),
-            <span class="ident"><span class="self">Self</span>::Exposed</span>((<span class="ident">ev</span>, <span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">ev</span>.<span class="ident">next</span>(<span class="ident">default</span>, <span class="ident">rng</span>)),
-            <span class="ident"><span class="self">Self</span>::Infectious</span>((<span class="ident">ev</span>, <span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">ev</span>.<span class="ident">next</span>(<span class="ident">default</span>, <span class="ident">rng</span>)),
-            <span class="ident"><span class="self">Self</span>::Hospitalized</span>((<span class="ident">ev</span>, <span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">ev</span>.<span class="ident">next</span>(<span class="ident">default</span>, <span class="ident">rng</span>)),
-            <span class="ident"><span class="self">Self</span>::Recovered</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident"><span class="self">Self</span>::Recovered</span>(<span class="ident">default</span>.<span class="ident">into</span>())),
-            <span class="ident"><span class="self">Self</span>::Dead</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident"><span class="self">Self</span>::Dead</span>(<span class="ident">default</span>.<span class="ident">into</span>())),
+            <span class="ident"><span class="self">Self</span>::Sane</span>((<span class="ident">ev</span>, <span class="kw">_</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="ident"><span class="self">Self</span>::Sane</span>((<span class="ident">ev</span>, <span class="ident">default</span>.<span class="ident">into</span>()))),
+            <span class="ident"><span class="self">Self</span>::Exposed</span>((<span class="ident">ev</span>, <span class="kw">_</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="ident">ev</span>.<span class="ident">next</span>(<span class="ident">default</span>, <span class="ident">rng</span>)),
+            <span class="ident"><span class="self">Self</span>::Infectious</span>((<span class="ident">ev</span>, <span class="kw">_</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="ident">ev</span>.<span class="ident">next</span>(<span class="ident">default</span>, <span class="ident">rng</span>)),
+            <span class="ident"><span class="self">Self</span>::Hospitalized</span>((<span class="ident">ev</span>, <span class="kw">_</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="ident">ev</span>.<span class="ident">next</span>(<span class="ident">default</span>, <span class="ident">rng</span>)),
+            <span class="ident"><span class="self">Self</span>::Recovered</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident"><span class="self">Self</span>::Recovered</span>(<span class="ident">default</span>.<span class="ident">into</span>())),
+            <span class="ident"><span class="self">Self</span>::Dead</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident"><span class="self">Self</span>::Dead</span>(<span class="ident">default</span>.<span class="ident">into</span>())),
         }
     }
 
     <span class="comment">// TODO: not sure if we want an option here...</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">next</span>(<span class="self">self</span>, <span class="ident">now</span>: <span class="ident">AnyTime</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">next</span>(<span class="self">self</span>, <span class="ident">now</span>: <span class="ident">AnyTime</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="comment">// TODO: when #![feature(bindings_after_at)] reaches stable</span>
         <span class="comment">// rewrite this part with it</span>
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Sane</span>((<span class="ident">ev</span>, <span class="ident">t</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident"><span class="self">Self</span>::Sane</span>((<span class="ident">ev</span>, <span class="ident">t</span>))),
-            <span class="ident"><span class="self">Self</span>::Exposed</span>((<span class="ident">ev</span>, <span class="ident">t</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident"><span class="self">Self</span>::Sane</span>((<span class="ident">ev</span>, <span class="ident">t</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="ident"><span class="self">Self</span>::Sane</span>((<span class="ident">ev</span>, <span class="ident">t</span>))),
+            <span class="ident"><span class="self">Self</span>::Exposed</span>((<span class="ident">ev</span>, <span class="ident">t</span>)) =&gt; {
                 <span class="kw">if</span> <span class="ident">ev</span>.<span class="ident">t</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">now</span> {
                     <span class="prelude-val">Some</span>(<span class="ident">ev</span>.<span class="ident">next</span>(<span class="ident">now</span>, <span class="ident">rng</span>))
                 } <span class="kw">else</span> {
                     <span class="prelude-val">Some</span>(<span class="ident"><span class="self">Self</span>::Exposed</span>((<span class="ident">ev</span>, <span class="ident">t</span>)))
                 }
             }
-            <span class="ident"><span class="self">Self</span>::Infectious</span>((<span class="ident">ev</span>, <span class="ident">t</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident"><span class="self">Self</span>::Infectious</span>((<span class="ident">ev</span>, <span class="ident">t</span>)) =&gt; {
                 <span class="kw">if</span> <span class="ident">ev</span>.<span class="ident">t</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">now</span> {
                     <span class="prelude-val">Some</span>(<span class="ident">ev</span>.<span class="ident">next</span>(<span class="ident">now</span>, <span class="ident">rng</span>))
                 } <span class="kw">else</span> {
                     <span class="prelude-val">Some</span>(<span class="ident"><span class="self">Self</span>::Infectious</span>((<span class="ident">ev</span>, <span class="ident">t</span>)))
                 }
             }
-            <span class="ident"><span class="self">Self</span>::Hospitalized</span>((<span class="ident">ev</span>, <span class="ident">t</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident"><span class="self">Self</span>::Hospitalized</span>((<span class="ident">ev</span>, <span class="ident">t</span>)) =&gt; {
                 <span class="kw">if</span> <span class="ident">ev</span>.<span class="ident">t</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">now</span> {
                     <span class="prelude-val">Some</span>(<span class="ident">ev</span>.<span class="ident">next</span>(<span class="ident">now</span>, <span class="ident">rng</span>))
                 } <span class="kw">else</span> {
                     <span class="prelude-val">Some</span>(<span class="ident"><span class="self">Self</span>::Hospitalized</span>((<span class="ident">ev</span>, <span class="ident">t</span>)))
                 }
             }
-            <span class="ident"><span class="self">Self</span>::Recovered</span>(<span class="ident">t</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident"><span class="self">Self</span>::Recovered</span>(<span class="ident">t</span>)),
-            <span class="ident"><span class="self">Self</span>::Dead</span>(<span class="ident">t</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident"><span class="self">Self</span>::Dead</span>(<span class="ident">t</span>)),
+            <span class="ident"><span class="self">Self</span>::Recovered</span>(<span class="ident">t</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident"><span class="self">Self</span>::Recovered</span>(<span class="ident">t</span>)),
+            <span class="ident"><span class="self">Self</span>::Dead</span>(<span class="ident">t</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident"><span class="self">Self</span>::Dead</span>(<span class="ident">t</span>)),
         }
     }
 
     <span class="comment">// TODO: not sure if we want an option here... I guess here we want because we could have</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">start</span>(<span class="self">self</span>, <span class="ident">now</span>: <span class="ident">AnyTime</span>, <span class="ident">overlap</span>: <span class="ident">Duration</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">start</span>(<span class="self">self</span>, <span class="ident">now</span>: <span class="ident">AnyTime</span>, <span class="ident">overlap</span>: <span class="ident">Duration</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="comment">// rewrite this part with it</span>
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Sane</span>((<span class="ident">ev</span>, <span class="ident">t</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident"><span class="self">Self</span>::Sane</span>((<span class="ident">ev</span>, <span class="ident">t</span>)) =&gt; {
                 <span class="kw">if</span> <span class="ident">overlap</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident"><span class="self">Self</span>::get_time_exp</span>(<span class="ident">State::R_0</span> <span class="op">/</span> <span class="ident">State::T_INF</span>, <span class="ident">rng</span>) {
                     <span class="prelude-val">Ok</span>(<span class="ident">ev</span>.<span class="ident">next</span>(<span class="ident">now</span>, <span class="ident">rng</span>))
                 } <span class="kw">else</span> {
                     <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::Sane</span>((<span class="ident">ev</span>, <span class="ident">t</span>)))
                 }
             }
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">bail!</span>(<span class="string">&quot;impossible to start from a non-sane situation.&quot;</span>,),
+            <span class="kw">_</span> =&gt; <span class="macro">bail!</span>(<span class="string">&quot;impossible to start from a non-sane situation.&quot;</span>,),
         }
     }
 }

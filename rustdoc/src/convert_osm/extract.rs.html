@@ -659,7 +659,7 @@
     <span class="ident">clip_path</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">Options</span>,
     <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OsmExtract</span> {
+) -&gt; <span class="ident">OsmExtract</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">doc</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::reader::read</span>(<span class="ident">osm_input_path</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">gps_bounds</span>, <span class="ident">timer</span>).<span class="ident">unwrap</span>();
 
     <span class="comment">// TODO Hacks to override OSM data. There&#39;s no problem upstream, but we want to accomplish</span>
@@ -728,7 +728,7 @@
             <span class="comment">// TODO Hardcoding these overrides. OSM is correct, these don&#39;t have</span>
             <span class="comment">// sidewalks; there&#39;s a crosswalk mapped. But until we can snap sidewalks properly, do</span>
             <span class="comment">// this to prevent the sidewalks from being disconnected.</span>
-            <span class="kw">if</span> <span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">WayID</span>(<span class="number">332060260</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">WayID</span>(<span class="number">332060236</span>) {
+            <span class="kw">if</span> <span class="ident">id</span> <span class="op">==</span> <span class="ident">WayID</span>(<span class="number">332060260</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">id</span> <span class="op">==</span> <span class="ident">WayID</span>(<span class="number">332060236</span>) {
                 <span class="ident">way</span>.<span class="ident">tags</span>.<span class="ident">insert</span>(<span class="ident">osm::SIDEWALK</span>, <span class="string">&quot;right&quot;</span>);
             }
 
@@ -804,7 +804,7 @@
     <span class="comment">// Since we&#39;re not actively working on using footways, stop generating except in Seattle. In</span>
     <span class="comment">// the future, this should only happen for the largest or canonical map per city, but there&#39;s</span>
     <span class="comment">// no way to express that right now.</span>
-    <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="ident">MapName::seattle</span>(<span class="string">&quot;huge_seattle&quot;</span>) {
+    <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">name</span> <span class="op">==</span> <span class="ident">MapName::seattle</span>(<span class="string">&quot;huge_seattle&quot;</span>) {
         <span class="ident">abstio::write_binary</span>(<span class="ident">map</span>.<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">input_path</span>(<span class="string">&quot;footways.bin&quot;</span>), <span class="kw-2">&amp;</span><span class="ident">extra_footways</span>);
     }
 
@@ -843,21 +843,21 @@
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">to_way_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">WayID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
             <span class="kw">for</span> (<span class="ident">role</span>, <span class="ident">member</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">rel</span>.<span class="ident">members</span> {
                 <span class="kw">match</span> <span class="ident">member</span> {
-                    <span class="ident">OsmID::Way</span>(<span class="ident">w</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="kw">if</span> <span class="ident">role</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;from&quot;</span> {
+                    <span class="ident">OsmID::Way</span>(<span class="ident">w</span>) =&gt; {
+                        <span class="kw">if</span> <span class="ident">role</span> <span class="op">==</span> <span class="string">&quot;from&quot;</span> {
                             <span class="ident">from_way_id</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">w</span>);
-                        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">role</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;to&quot;</span> {
+                        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">role</span> <span class="op">==</span> <span class="string">&quot;to&quot;</span> {
                             <span class="ident">to_way_id</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">w</span>);
-                        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">role</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;via&quot;</span> {
+                        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">role</span> <span class="op">==</span> <span class="string">&quot;via&quot;</span> {
                             <span class="ident">via_way_id</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">w</span>);
                         }
                     }
-                    <span class="ident">OsmID::Node</span>(<span class="ident">n</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="kw">if</span> <span class="ident">role</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;via&quot;</span> {
+                    <span class="ident">OsmID::Node</span>(<span class="ident">n</span>) =&gt; {
+                        <span class="kw">if</span> <span class="ident">role</span> <span class="op">==</span> <span class="string">&quot;via&quot;</span> {
                             <span class="ident">via_node_id</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">n</span>);
                         }
                     }
-                    <span class="ident">OsmID::Relation</span>(<span class="ident">r</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">OsmID::Relation</span>(<span class="ident">r</span>) =&gt; {
                         <span class="macro">warn!</span>(<span class="string">&quot;{} contains {} as {}&quot;</span>, <span class="ident">id</span>, <span class="ident">r</span>, <span class="ident">role</span>);
                     }
                 }
@@ -870,7 +870,7 @@
                     } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> (<span class="prelude-val">Some</span>(<span class="ident">from</span>), <span class="prelude-val">Some</span>(<span class="ident">via</span>), <span class="prelude-val">Some</span>(<span class="ident">to</span>)) <span class="op">=</span>
                         (<span class="ident">from_way_id</span>, <span class="ident">via_way_id</span>, <span class="ident">to_way_id</span>)
                     {
-                        <span class="kw">if</span> <span class="ident">rt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">RestrictionType::BanTurns</span> {
+                        <span class="kw">if</span> <span class="ident">rt</span> <span class="op">==</span> <span class="ident">RestrictionType::BanTurns</span> {
                             <span class="ident">out</span>.<span class="ident">complicated_turn_restrictions</span>.<span class="ident">push</span>((<span class="ident">id</span>, <span class="ident">from</span>, <span class="ident">via</span>, <span class="ident">to</span>));
                         } <span class="kw">else</span> {
                             <span class="macro">warn!</span>(
@@ -884,7 +884,7 @@
             }
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">is_bldg</span>(<span class="kw-2">&amp;</span><span class="ident">rel</span>.<span class="ident">tags</span>) {
             <span class="kw">match</span> <span class="ident">multipoly_geometry</span>(<span class="ident">id</span>, <span class="ident">rel</span>, <span class="kw-2">&amp;</span><span class="ident">doc</span>) {
-                <span class="prelude-val">Ok</span>(<span class="ident">polygon</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">Ok</span>(<span class="ident">polygon</span>) =&gt; {
                     <span class="ident">map</span>.<span class="ident">buildings</span>.<span class="ident">insert</span>(
                         <span class="ident">OsmID::Relation</span>(<span class="ident">id</span>),
                         <span class="ident">RawBuilding</span> {
@@ -896,7 +896,7 @@
                         },
                     );
                 }
-                <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">println!</span>(<span class="string">&quot;Skipping building {}: {}&quot;</span>, <span class="ident">id</span>, <span class="ident">err</span>),
+                <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="macro">println!</span>(<span class="string">&quot;Skipping building {}: {}&quot;</span>, <span class="ident">id</span>, <span class="ident">err</span>),
             }
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">rel</span>.<span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;amenity&quot;</span>, <span class="string">&quot;parking&quot;</span>) {
             <span class="kw">for</span> <span class="ident">polygon</span> <span class="kw">in</span>
@@ -965,9 +965,9 @@
     <span class="comment">// Hack to fix z-ordering for Green Lake (and probably other places). Put water and islands</span>
     <span class="comment">// last. I think the more proper fix is interpreting &quot;inner&quot; roles in relations.</span>
     <span class="ident">map</span>.<span class="ident">areas</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">a</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">a</span>.<span class="ident">area_type</span> {
-        <span class="ident">AreaType::Island</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">2</span>,
-        <span class="ident">AreaType::Water</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">1</span>,
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">0</span>,
+        <span class="ident">AreaType::Island</span> =&gt; <span class="number">2</span>,
+        <span class="ident">AreaType::Water</span> =&gt; <span class="number">1</span>,
+        <span class="kw">_</span> =&gt; <span class="number">0</span>,
     });
 
     <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;find service roads crossing parking lots&quot;</span>);
@@ -977,7 +977,7 @@
     <span class="ident">out</span>
 }
 
-<span class="kw">fn</span> <span class="ident">is_road</span>(<span class="ident">tags</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Tags</span>, <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">Options</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+<span class="kw">fn</span> <span class="ident">is_road</span>(<span class="ident">tags</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Tags</span>, <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">Options</span>) -&gt; <span class="ident">bool</span> {
     <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;area&quot;</span>, <span class="string">&quot;yes&quot;</span>) {
         <span class="kw">return</span> <span class="bool-val">false</span>;
     }
@@ -995,7 +995,7 @@
     }
 
     <span class="kw">let</span> <span class="ident">highway</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">tags</span>.<span class="ident">get</span>(<span class="ident">osm::HIGHWAY</span>) {
-        <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;construction&quot;</span> {
+        <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;construction&quot;</span> {
             <span class="comment">// What exactly is under construction?</span>
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">tags</span>.<span class="ident">get</span>(<span class="string">&quot;construction&quot;</span>) {
                 <span class="ident">x</span>
@@ -1036,19 +1036,19 @@
         <span class="kw">return</span> <span class="bool-val">false</span>;
     }
 
-    <span class="kw">if</span> <span class="ident">highway</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;track&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;bicycle&quot;</span>, <span class="string">&quot;no&quot;</span>) {
+    <span class="kw">if</span> <span class="ident">highway</span> <span class="op">==</span> <span class="string">&quot;track&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;bicycle&quot;</span>, <span class="string">&quot;no&quot;</span>) {
         <span class="kw">return</span> <span class="bool-val">false</span>;
     }
 
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::collapsible_if</span>)]</span> <span class="comment">// better readability</span>
-    <span class="kw">if</span> (<span class="ident">highway</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;footway&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">highway</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;path&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">highway</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;steps&quot;</span>)
+    <span class="kw">if</span> (<span class="ident">highway</span> <span class="op">==</span> <span class="string">&quot;footway&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">highway</span> <span class="op">==</span> <span class="string">&quot;path&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">highway</span> <span class="op">==</span> <span class="string">&quot;steps&quot;</span>)
         <span class="op">&amp;&amp;</span> <span class="ident">opts</span>.<span class="ident">map_config</span>.<span class="ident">inferred_sidewalks</span>
     {
         <span class="kw">if</span> <span class="op">!</span><span class="ident">tags</span>.<span class="ident">is_any</span>(<span class="string">&quot;bicycle&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;designated&quot;</span>, <span class="string">&quot;yes&quot;</span>, <span class="string">&quot;dismount&quot;</span>]) {
             <span class="kw">return</span> <span class="bool-val">false</span>;
         }
     }
-    <span class="kw">if</span> <span class="ident">highway</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;pedestrian&quot;</span>
+    <span class="kw">if</span> <span class="ident">highway</span> <span class="op">==</span> <span class="string">&quot;pedestrian&quot;</span>
         <span class="op">&amp;&amp;</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;bicycle&quot;</span>, <span class="string">&quot;dismount&quot;</span>)
         <span class="op">&amp;&amp;</span> <span class="ident">opts</span>.<span class="ident">map_config</span>.<span class="ident">inferred_sidewalks</span>
     {
@@ -1057,16 +1057,16 @@
 
     <span class="comment">// Import most service roads. Always ignore driveways, golf cart paths, and always reserve</span>
     <span class="comment">// parking_aisles for parking lots.</span>
-    <span class="kw">if</span> <span class="ident">highway</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;service&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">tags</span>.<span class="ident">is_any</span>(<span class="string">&quot;service&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;driveway&quot;</span>, <span class="string">&quot;parking_aisle&quot;</span>]) {
+    <span class="kw">if</span> <span class="ident">highway</span> <span class="op">==</span> <span class="string">&quot;service&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">tags</span>.<span class="ident">is_any</span>(<span class="string">&quot;service&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;driveway&quot;</span>, <span class="string">&quot;parking_aisle&quot;</span>]) {
         <span class="comment">// An exception -- keep driveways signed for bikes</span>
         <span class="kw">if</span> <span class="op">!</span>(<span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;service&quot;</span>, <span class="string">&quot;driveway&quot;</span>) <span class="op">&amp;&amp;</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;bicycle&quot;</span>, <span class="string">&quot;designated&quot;</span>)) {
             <span class="kw">return</span> <span class="bool-val">false</span>;
         }
     }
-    <span class="kw">if</span> <span class="ident">highway</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;service&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;golf&quot;</span>, <span class="string">&quot;cartpath&quot;</span>) {
+    <span class="kw">if</span> <span class="ident">highway</span> <span class="op">==</span> <span class="string">&quot;service&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;golf&quot;</span>, <span class="string">&quot;cartpath&quot;</span>) {
         <span class="kw">return</span> <span class="bool-val">false</span>;
     }
-    <span class="kw">if</span> <span class="ident">highway</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;service&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;access&quot;</span>, <span class="string">&quot;customers&quot;</span>) {
+    <span class="kw">if</span> <span class="ident">highway</span> <span class="op">==</span> <span class="string">&quot;service&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;access&quot;</span>, <span class="string">&quot;customers&quot;</span>) {
         <span class="kw">return</span> <span class="bool-val">false</span>;
     }
 
@@ -1075,7 +1075,7 @@
         <span class="kw">return</span> <span class="bool-val">false</span>;
     }
 
-    <span class="kw">if</span> <span class="ident">opts</span>.<span class="ident">skip_local_roads</span> <span class="op">&amp;&amp;</span> <span class="ident">osm::RoadRank::from_highway</span>(<span class="ident">highway</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">osm::RoadRank::Local</span> {
+    <span class="kw">if</span> <span class="ident">opts</span>.<span class="ident">skip_local_roads</span> <span class="op">&amp;&amp;</span> <span class="ident">osm::RoadRank::from_highway</span>(<span class="ident">highway</span>) <span class="op">==</span> <span class="ident">osm::RoadRank::Local</span> {
         <span class="kw">return</span> <span class="bool-val">false</span>;
     }
 
@@ -1105,10 +1105,10 @@
             <span class="kw">let</span> <span class="ident">right</span> <span class="op">=</span> <span class="op">!</span><span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;sidewalk:right&quot;</span>, <span class="string">&quot;no&quot;</span>);
             <span class="kw">let</span> <span class="ident">left</span> <span class="op">=</span> <span class="op">!</span><span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;sidewalk:left&quot;</span>, <span class="string">&quot;no&quot;</span>);
             <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="kw">match</span> (<span class="ident">right</span>, <span class="ident">left</span>) {
-                (<span class="bool-val">true</span>, <span class="bool-val">true</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;both&quot;</span>,
-                (<span class="bool-val">true</span>, <span class="bool-val">false</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;right&quot;</span>,
-                (<span class="bool-val">false</span>, <span class="bool-val">true</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;left&quot;</span>,
-                (<span class="bool-val">false</span>, <span class="bool-val">false</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;none&quot;</span>,
+                (<span class="bool-val">true</span>, <span class="bool-val">true</span>) =&gt; <span class="string">&quot;both&quot;</span>,
+                (<span class="bool-val">true</span>, <span class="bool-val">false</span>) =&gt; <span class="string">&quot;right&quot;</span>,
+                (<span class="bool-val">false</span>, <span class="bool-val">true</span>) =&gt; <span class="string">&quot;left&quot;</span>,
+                (<span class="bool-val">false</span>, <span class="bool-val">false</span>) =&gt; <span class="string">&quot;none&quot;</span>,
             };
             <span class="ident">tags</span>.<span class="ident">insert</span>(<span class="ident">osm::SIDEWALK</span>, <span class="ident">value</span>);
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is_any</span>(<span class="ident">osm::HIGHWAY</span>, <span class="macro">vec!</span>[<span class="string">&quot;motorway&quot;</span>, <span class="string">&quot;motorway_link&quot;</span>])
@@ -1120,7 +1120,7 @@
         {
             <span class="ident">tags</span>.<span class="ident">insert</span>(<span class="ident">osm::SIDEWALK</span>, <span class="string">&quot;none&quot;</span>);
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;oneway&quot;</span>, <span class="string">&quot;yes&quot;</span>) {
-            <span class="kw">if</span> <span class="ident">opts</span>.<span class="ident">map_config</span>.<span class="ident">driving_side</span> <span class="op">=</span><span class="op">=</span> <span class="ident">DrivingSide::Right</span> {
+            <span class="kw">if</span> <span class="ident">opts</span>.<span class="ident">map_config</span>.<span class="ident">driving_side</span> <span class="op">==</span> <span class="ident">DrivingSide::Right</span> {
                 <span class="ident">tags</span>.<span class="ident">insert</span>(<span class="ident">osm::SIDEWALK</span>, <span class="string">&quot;right&quot;</span>);
             } <span class="kw">else</span> {
                 <span class="ident">tags</span>.<span class="ident">insert</span>(<span class="ident">osm::SIDEWALK</span>, <span class="string">&quot;left&quot;</span>);
@@ -1138,12 +1138,12 @@
     <span class="bool-val">true</span>
 }
 
-<span class="kw">fn</span> <span class="ident">is_bldg</span>(<span class="ident">tags</span>: <span class="kw-2">&amp;</span><span class="ident">Tags</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+<span class="kw">fn</span> <span class="ident">is_bldg</span>(<span class="ident">tags</span>: <span class="kw-2">&amp;</span><span class="ident">Tags</span>) -&gt; <span class="ident">bool</span> {
     <span class="comment">// Sorry, the towers at Gasworks don&#39;t count. :)</span>
     <span class="ident">tags</span>.<span class="ident">contains_key</span>(<span class="string">&quot;building&quot;</span>) <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">tags</span>.<span class="ident">contains_key</span>(<span class="string">&quot;abandoned:man_made&quot;</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">get_bldg_amenities</span>(<span class="ident">tags</span>: <span class="kw-2">&amp;</span><span class="ident">Tags</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Amenity</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">get_bldg_amenities</span>(<span class="ident">tags</span>: <span class="kw-2">&amp;</span><span class="ident">Tags</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Amenity</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">amenities</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">for</span> <span class="ident">key</span> <span class="kw">in</span> [<span class="string">&quot;amenity&quot;</span>, <span class="string">&quot;shop&quot;</span>, <span class="string">&quot;craft&quot;</span>, <span class="string">&quot;office&quot;</span>, <span class="string">&quot;tourism&quot;</span>, <span class="string">&quot;leisure&quot;</span>] {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">amenity</span>) <span class="op">=</span> <span class="ident">tags</span>.<span class="ident">get</span>(<span class="ident">key</span>) {
@@ -1157,7 +1157,7 @@
     <span class="ident">amenities</span>
 }
 
-<span class="kw">fn</span> <span class="ident">get_area_type</span>(<span class="ident">tags</span>: <span class="kw-2">&amp;</span><span class="ident">Tags</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">AreaType</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">get_area_type</span>(<span class="ident">tags</span>: <span class="kw-2">&amp;</span><span class="ident">Tags</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">AreaType</span><span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is_any</span>(<span class="string">&quot;leisure&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;garden&quot;</span>, <span class="string">&quot;park&quot;</span>, <span class="string">&quot;golf_course&quot;</span>]) {
         <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">AreaType::Park</span>);
     }
@@ -1229,7 +1229,7 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">service_road_crosses_parking_lot</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">RawMap</span>, <span class="ident">road</span>: <span class="kw-2">&amp;</span><span class="ident">RawRoad</span>, <span class="ident">candidates</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+<span class="kw">fn</span> <span class="ident">service_road_crosses_parking_lot</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">RawMap</span>, <span class="ident">road</span>: <span class="kw-2">&amp;</span><span class="ident">RawRoad</span>, <span class="ident">candidates</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span> {
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>((<span class="ident">polylines</span>, <span class="ident">rings</span>)) <span class="op">=</span> <span class="ident">Ring::split_points</span>(<span class="kw-2">&amp;</span><span class="ident">road</span>.<span class="ident">center_points</span>) {
         <span class="kw">for</span> <span class="ident">pl</span> <span class="kw">in</span> <span class="ident">polylines</span> {
             <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">candidates</span> {

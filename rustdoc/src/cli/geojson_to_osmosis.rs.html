@@ -19,7 +19,7 @@
 
 <span class="kw">use</span> <span class="ident">geom::LonLat</span>;
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run</span>(<span class="ident">path</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run</span>(<span class="ident">path</span>: <span class="ident">String</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="ident">std::fs::read_to_string</span>(<span class="ident">path</span>)<span class="question-mark">?</span>;
     <span class="kw">for</span> (<span class="ident">idx</span>, (<span class="ident">points</span>, <span class="ident">maybe_name</span>)) <span class="kw">in</span> <span class="ident">LonLat::parse_geojson_polygons</span>(<span class="ident">buffer</span>)<span class="question-mark">?</span>
         .<span class="ident">into_iter</span>()

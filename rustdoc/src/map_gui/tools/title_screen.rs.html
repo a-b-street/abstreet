@@ -346,7 +346,7 @@
 <span class="doccomment">/// A title screen shared among all of the A/B Street apps.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TitleScreen</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span> {
     <span class="ident">current_exe</span>: <span class="ident">Executable</span>,
-    <span class="ident">enter_state</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">enter_state</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>)]</span>
@@ -363,8 +363,8 @@
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
         <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>,
         <span class="ident">current_exe</span>: <span class="ident">Executable</span>,
-        <span class="ident">enter_state</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="ident">enter_state</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    ) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
             <span class="ident">Image::from_path</span>(<span class="string">&quot;system/assets/pregame/logo.svg&quot;</span>)
                 .<span class="ident">untinted</span>()
@@ -497,8 +497,8 @@
         <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>,
         <span class="ident">exe</span>: <span class="ident">Executable</span>,
         <span class="ident">args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">exe</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">current_exe</span> {
+    ) -&gt; <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="ident">exe</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">current_exe</span> {
             <span class="ident">Transition::Push</span>((<span class="self">self</span>.<span class="ident">enter_state</span>)(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">args</span>))
         } <span class="kw">else</span> {
             <span class="ident">exe</span>.<span class="ident">replace_process</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">args</span>);
@@ -518,7 +518,7 @@
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
         <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>,
         <span class="ident">args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">a</span><span class="op">|</span> <span class="ident">a</span>.<span class="ident">to_string</span>()).<span class="ident">collect</span>();
         <span class="comment">// Pass in the name of the current map, unless we&#39;re launching Santa</span>
         <span class="kw">if</span> <span class="self">self</span> <span class="op">!</span><span class="op">=</span> <span class="ident">Executable::Santa</span> {
@@ -532,11 +532,11 @@
 
             <span class="comment">// TODO find_exe panics; should return error instead</span>
             <span class="kw">let</span> <span class="ident">binary</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::tools::find_exe</span>(<span class="kw">match</span> <span class="self">self</span> {
-                <span class="ident">Executable::ABStreet</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;game&quot;</span>,
-                <span class="ident">Executable::FifteenMin</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;fifteen_min&quot;</span>,
-                <span class="ident">Executable::OSMViewer</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;osm_viewer&quot;</span>,
-                <span class="ident">Executable::ParkingMapper</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;parking_mapper&quot;</span>,
-                <span class="ident">Executable::Santa</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;santa&quot;</span>,
+                <span class="ident">Executable::ABStreet</span> =&gt; <span class="string">&quot;game&quot;</span>,
+                <span class="ident">Executable::FifteenMin</span> =&gt; <span class="string">&quot;fifteen_min&quot;</span>,
+                <span class="ident">Executable::OSMViewer</span> =&gt; <span class="string">&quot;osm_viewer&quot;</span>,
+                <span class="ident">Executable::ParkingMapper</span> =&gt; <span class="string">&quot;parking_mapper&quot;</span>,
+                <span class="ident">Executable::Santa</span> =&gt; <span class="string">&quot;santa&quot;</span>,
             });
 
             <span class="comment">// We can only replace the current process on Linux/Mac</span>
@@ -560,7 +560,7 @@
         <span class="comment">// On web, leave the current page and go to another.</span>
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
         {
-            <span class="kw">fn</span> <span class="ident">set_href</span>(<span class="ident">url</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+            <span class="kw">fn</span> <span class="ident">set_href</span>(<span class="ident">url</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">window</span> <span class="op">=</span> <span class="ident">web_sys::window</span>().<span class="ident">ok_or</span>(<span class="macro">anyhow!</span>(<span class="string">&quot;no window?&quot;</span>))<span class="question-mark">?</span>;
                 <span class="ident">window</span>.<span class="ident">location</span>().<span class="ident">set_href</span>(<span class="ident">url</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
                     <span class="macro">anyhow!</span>(<span class="ident">err</span>
@@ -570,12 +570,12 @@
             }
 
             <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span> {
-                <span class="ident">Executable::ABStreet</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;abstreet&quot;</span>,
-                <span class="ident">Executable::FifteenMin</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;fifteen_min&quot;</span>,
-                <span class="ident">Executable::OSMViewer</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;osm_viewer&quot;</span>,
+                <span class="ident">Executable::ABStreet</span> =&gt; <span class="string">&quot;abstreet&quot;</span>,
+                <span class="ident">Executable::FifteenMin</span> =&gt; <span class="string">&quot;fifteen_min&quot;</span>,
+                <span class="ident">Executable::OSMViewer</span> =&gt; <span class="string">&quot;osm_viewer&quot;</span>,
                 <span class="comment">// This only works on native</span>
-                <span class="ident">Executable::ParkingMapper</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
-                <span class="ident">Executable::Santa</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;santa&quot;</span>,
+                <span class="ident">Executable::ParkingMapper</span> =&gt; <span class="macro">unreachable!</span>(),
+                <span class="ident">Executable::Santa</span> =&gt; <span class="string">&quot;santa&quot;</span>,
             };
             <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}.html{}&quot;</span>, <span class="ident">page</span>, <span class="ident">abstutil::args_to_query_string</span>(<span class="ident">args</span>));
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">set_href</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>) {
@@ -591,28 +591,28 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">TitleScreen</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">on_click</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>, <span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">on_click</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>, <span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) -&gt; <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">x</span> {
-            <span class="string">&quot;Traffic simulation tutorial&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="string">&quot;Traffic simulation tutorial&quot;</span> =&gt; {
                 <span class="self">self</span>.<span class="ident">run</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Executable::ABStreet</span>, <span class="macro">vec!</span>[<span class="string">&quot;--tutorial-intro&quot;</span>])
             }
-            <span class="string">&quot;Traffic simulation challenges&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="string">&quot;Traffic simulation challenges&quot;</span> =&gt; {
                 <span class="self">self</span>.<span class="ident">run</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Executable::ABStreet</span>, <span class="macro">vec!</span>[<span class="string">&quot;--challenges&quot;</span>])
             }
-            <span class="string">&quot;15-minute Santa&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">run</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Executable::Santa</span>, <span class="macro">vec!</span>[]),
-            <span class="string">&quot;Traffic simulation sandbox&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="string">&quot;15-minute Santa&quot;</span> =&gt; <span class="self">self</span>.<span class="ident">run</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Executable::Santa</span>, <span class="macro">vec!</span>[]),
+            <span class="string">&quot;Traffic simulation sandbox&quot;</span> =&gt; {
                 <span class="self">self</span>.<span class="ident">run</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Executable::ABStreet</span>, <span class="macro">vec!</span>[<span class="string">&quot;--sandbox&quot;</span>])
             }
-            <span class="string">&quot;Community proposals&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">run</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Executable::ABStreet</span>, <span class="macro">vec!</span>[<span class="string">&quot;--proposals&quot;</span>]),
-            <span class="string">&quot;Ungap the Map&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">run</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Executable::ABStreet</span>, <span class="macro">vec!</span>[<span class="string">&quot;--ungap&quot;</span>]),
-            <span class="string">&quot;15-minute neighborhoods&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">run</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Executable::FifteenMin</span>, <span class="macro">vec!</span>[]),
-            <span class="string">&quot;Low traffic neighborhoods&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">run</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Executable::ABStreet</span>, <span class="macro">vec!</span>[<span class="string">&quot;--ltn&quot;</span>]),
-            <span class="string">&quot;ActDev&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="string">&quot;Community proposals&quot;</span> =&gt; <span class="self">self</span>.<span class="ident">run</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Executable::ABStreet</span>, <span class="macro">vec!</span>[<span class="string">&quot;--proposals&quot;</span>]),
+            <span class="string">&quot;Ungap the Map&quot;</span> =&gt; <span class="self">self</span>.<span class="ident">run</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Executable::ABStreet</span>, <span class="macro">vec!</span>[<span class="string">&quot;--ungap&quot;</span>]),
+            <span class="string">&quot;15-minute neighborhoods&quot;</span> =&gt; <span class="self">self</span>.<span class="ident">run</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Executable::FifteenMin</span>, <span class="macro">vec!</span>[]),
+            <span class="string">&quot;Low traffic neighborhoods&quot;</span> =&gt; <span class="self">self</span>.<span class="ident">run</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Executable::ABStreet</span>, <span class="macro">vec!</span>[<span class="string">&quot;--ltn&quot;</span>]),
+            <span class="string">&quot;ActDev&quot;</span> =&gt; {
                 <span class="ident">open_browser</span>(<span class="string">&quot;https://actdev.cyipt.bike&quot;</span>);
                 <span class="ident">Transition::Keep</span>
             }
-            <span class="string">&quot;Advanced tools&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">run</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Executable::ABStreet</span>, <span class="macro">vec!</span>[<span class="string">&quot;--devtools&quot;</span>]),
-            <span class="string">&quot;About&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition::Push</span>(<span class="ident">PopupMsg::new_state</span>(
+            <span class="string">&quot;Advanced tools&quot;</span> =&gt; <span class="self">self</span>.<span class="ident">run</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Executable::ABStreet</span>, <span class="macro">vec!</span>[<span class="string">&quot;--devtools&quot;</span>]),
+            <span class="string">&quot;About&quot;</span> =&gt; <span class="ident">Transition::Push</span>(<span class="ident">PopupMsg::new_state</span>(
                 <span class="ident">ctx</span>,
                 <span class="string">&quot;About A/B Street&quot;</span>,
                 <span class="macro">vec!</span>[
@@ -626,15 +626,15 @@
                     <span class="string">&quot;amount of fun.&quot;</span>,
                 ],
             )),
-            <span class="string">&quot;Credits&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="string">&quot;Credits&quot;</span> =&gt; {
                 <span class="ident">open_browser</span>(<span class="string">&quot;https://a-b-street.github.io/docs/project/team.html&quot;</span>);
                 <span class="ident">Transition::Keep</span>
             }
-            <span class="string">&quot;Download the new release&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="string">&quot;Download the new release&quot;</span> =&gt; {
                 <span class="ident">open_browser</span>(<span class="string">&quot;https://github.com/a-b-street/abstreet/releases&quot;</span>);
                 <span class="ident">Transition::Keep</span>
             }
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
         }
     }
 }
@@ -646,7 +646,7 @@
 
     <span class="macro">include!</span>(<span class="macro">concat!</span>(<span class="macro">env!</span>(<span class="string">&quot;OUT_DIR&quot;</span>), <span class="string">&quot;/built.rs&quot;</span>));
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_update</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_update</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">Widget</span> {
         <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="ident">built::util::strptime</span>(<span class="ident">BUILT_TIME_UTC</span>);
 
         <span class="kw">let</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">widgetry::Text::from</span>(<span class="macro">format!</span>(<span class="string">&quot;This version built on {}&quot;</span>, <span class="ident">t</span>.<span class="ident">date</span>().<span class="ident">naive_local</span>()))
@@ -670,7 +670,7 @@
 <span class="kw">mod</span> <span class="ident">built_info</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_update</span>(<span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_update</span>(<span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">Widget</span> {
         <span class="ident">Widget::nothing</span>()
     }
 }

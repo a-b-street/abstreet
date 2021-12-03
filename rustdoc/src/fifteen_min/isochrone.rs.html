@@ -256,12 +256,12 @@
 <span class="kw">impl</span> <span class="ident">Options</span> {
     <span class="doccomment">/// Calculate the quickest time to reach buildings across the map from any of the starting</span>
     <span class="doccomment">/// points, subject to the walking/biking settings configured in these Options.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">times_from</span>(<span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">starts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Spot</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">BuildingID</span>, <span class="ident">Duration</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">times_from</span>(<span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">starts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Spot</span><span class="op">&gt;</span>) -&gt; <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">BuildingID</span>, <span class="ident">Duration</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Options::Walking</span>(<span class="ident">opts</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Options::Walking</span>(<span class="ident">opts</span>) =&gt; {
                 <span class="ident">connectivity::all_walking_costs_from</span>(<span class="ident">map</span>, <span class="ident">starts</span>, <span class="ident">Duration::minutes</span>(<span class="number">15</span>), <span class="ident">opts</span>)
             }
-            <span class="ident">Options::Biking</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">connectivity::all_vehicle_costs_from</span>(
+            <span class="ident">Options::Biking</span> =&gt; <span class="ident">connectivity::all_vehicle_costs_from</span>(
                 <span class="ident">map</span>,
                 <span class="ident">starts</span>,
                 <span class="ident">Duration::minutes</span>(<span class="number">15</span>),
@@ -277,7 +277,7 @@
         <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
         <span class="ident">start</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span>,
         <span class="ident">options</span>: <span class="ident">Options</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Isochrone</span> {
+    ) -&gt; <span class="ident">Isochrone</span> {
         <span class="kw">let</span> <span class="ident">spot_starts</span> <span class="op">=</span> <span class="ident">start</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">b_id</span><span class="op">|</span> <span class="ident">Spot::Building</span>(<span class="kw-2">*</span><span class="ident">b_id</span>)).<span class="ident">collect</span>();
         <span class="kw">let</span> <span class="ident">time_to_reach_building</span> <span class="op">=</span> <span class="ident">options</span>.<span class="ident">clone</span>().<span class="ident">times_from</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>, <span class="ident">spot_starts</span>);
 
@@ -293,10 +293,10 @@
             }
             <span class="kw">match</span> <span class="ident">bldg</span>.<span class="ident">bldg_type</span> {
                 <span class="ident">BuildingType::Residential</span> { <span class="ident">num_residents</span>, .. }
-                <span class="op">|</span> <span class="ident">BuildingType::ResidentialCommercial</span>(<span class="ident">num_residents</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="op">|</span> <span class="ident">BuildingType::ResidentialCommercial</span>(<span class="ident">num_residents</span>, <span class="kw">_</span>) =&gt; {
                     <span class="ident">population</span> <span class="op">+</span><span class="op">=</span> <span class="ident">num_residents</span>;
                 }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+                <span class="kw">_</span> =&gt; {}
             }
             <span class="ident">all_roads</span>.<span class="ident">insert</span>(<span class="ident">bldg</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">lane</span>().<span class="ident">road</span>);
         }
@@ -305,7 +305,7 @@
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">all_roads</span> {
             <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>);
             <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">r</span>.<span class="ident">lanes</span> {
-                <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">lane_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType::Parking</span> {
+                <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">lane_type</span> <span class="op">==</span> <span class="ident">LaneType::Parking</span> {
                     <span class="ident">onstreet_parking_spots</span> <span class="op">+</span><span class="op">=</span> <span class="ident">l</span>.<span class="ident">number_parking_spots</span>(<span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_config</span>());
                 }
             }
@@ -349,15 +349,15 @@
         <span class="ident">i</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_to</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">to</span>: <span class="ident">BuildingID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_to</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">to</span>: <span class="ident">BuildingID</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span> {
         <span class="comment">// Don&#39;t draw paths to places far away</span>
         <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">time_to_reach_building</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">to</span>) {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
 
         <span class="kw">let</span> <span class="ident">constraints</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">options</span> {
-            <span class="ident">Options::Walking</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PathConstraints::Pedestrian</span>,
-            <span class="ident">Options::Biking</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PathConstraints::Bike</span>,
+            <span class="ident">Options::Walking</span>(<span class="kw">_</span>) =&gt; <span class="ident">PathConstraints::Pedestrian</span>,
+            <span class="ident">Options::Biking</span> =&gt; <span class="ident">PathConstraints::Bike</span>,
         };
 
         <span class="kw">let</span> <span class="ident">all_paths</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">start</span>.<span class="ident">iter</span>().<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">b_id</span><span class="op">|</span> {
@@ -391,7 +391,7 @@
         <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
         <span class="ident">start</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
         <span class="ident">options</span>: <span class="ident">Options</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BorderIsochrone</span> {
+    ) -&gt; <span class="ident">BorderIsochrone</span> {
         <span class="kw">let</span> <span class="ident">spot_starts</span> <span class="op">=</span> <span class="ident">start</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">i_id</span><span class="op">|</span> <span class="ident">Spot::Border</span>(<span class="kw-2">*</span><span class="ident">i_id</span>)).<span class="ident">collect</span>();
         <span class="kw">let</span> <span class="ident">time_to_reach_building</span> <span class="op">=</span> <span class="ident">options</span>.<span class="ident">clone</span>().<span class="ident">times_from</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>, <span class="ident">spot_starts</span>);
 

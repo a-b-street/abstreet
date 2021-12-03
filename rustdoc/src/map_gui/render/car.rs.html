@@ -282,7 +282,7 @@
         <span class="ident">sim</span>: <span class="kw-2">&amp;</span><span class="ident">Sim</span>,
         <span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="ident">Prerender</span>,
         <span class="ident">cs</span>: <span class="kw-2">&amp;</span><span class="ident">ColorScheme</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DrawCar</span> {
+    ) -&gt; <span class="ident">DrawCar</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw_default</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
 
         <span class="comment">// Wheels</span>
@@ -333,13 +333,13 @@
                 <span class="ident">tip_pt</span>.<span class="ident">project_away</span>(<span class="ident">CAR_WIDTH</span> <span class="op">/</span> <span class="number">4.0</span>, <span class="ident">tip_angle</span>.<span class="ident">rotate_degs</span>(<span class="number">90.0</span>)),
                 <span class="ident">corner_pt</span>.<span class="ident">project_away</span>(<span class="ident">CAR_WIDTH</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">corner_angle</span>.<span class="ident">rotate_degs</span>(<span class="number">90.0</span>)),
             ]) {
-                <span class="prelude-val">Ok</span>(<span class="ident">front</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">front</span>.<span class="ident">into_polygon</span>().<span class="ident">union</span>(<span class="ident">thick_line</span>),
-                <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">thick_line</span>,
+                <span class="prelude-val">Ok</span>(<span class="ident">front</span>) =&gt; <span class="ident">front</span>.<span class="ident">into_polygon</span>().<span class="ident">union</span>(<span class="ident">thick_line</span>),
+                <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="ident">thick_line</span>,
             }
         };
 
         <span class="ident">draw_default</span>.<span class="ident">push</span>(<span class="ident">zoomed_color_car</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>, <span class="ident">sim</span>, <span class="ident">cs</span>), <span class="ident">body_polygon</span>.<span class="ident">clone</span>());
-        <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">status</span> <span class="op">=</span><span class="op">=</span> <span class="ident">CarStatus::Parked</span> {
+        <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">status</span> <span class="op">==</span> <span class="ident">CarStatus::Parked</span> {
             <span class="ident">draw_default</span>.<span class="ident">append</span>(
                 <span class="ident">GeomBatch::load_svg</span>(<span class="ident">prerender</span>, <span class="string">&quot;system/assets/map/parked_car.svg&quot;</span>)
                     .<span class="ident">scale</span>(<span class="number">0.01</span>)
@@ -347,7 +347,7 @@
             );
         }
 
-        <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">intent</span> <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Intent::Parking</span>) {
+        <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">intent</span> <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="ident">Intent::Parking</span>) {
             <span class="comment">// draw intent bubble</span>
             <span class="kw">let</span> <span class="ident">bubble_z</span> <span class="op">=</span> <span class="op">-</span><span class="number">0.0001</span>;
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bubble_batch</span> <span class="op">=</span>
@@ -375,7 +375,7 @@
 
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">input</span>.<span class="ident">waiting_for_turn</span> {
                 <span class="kw">match</span> <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="ident">t</span>).<span class="ident">turn_type</span> {
-                    <span class="ident">TurnType::Left</span> <span class="op">|</span> <span class="ident">TurnType::UTurn</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">TurnType::Left</span> <span class="op">|</span> <span class="ident">TurnType::UTurn</span> =&gt; {
                         <span class="kw">let</span> (<span class="ident">pos</span>, <span class="ident">angle</span>) <span class="op">=</span> <span class="ident">input</span>
                             .<span class="ident">body</span>
                             .<span class="ident">must_dist_along</span>(<span class="ident">input</span>.<span class="ident">body</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">Distance::meters</span>(<span class="number">2.5</span>));
@@ -389,7 +389,7 @@
                             .<span class="ident">make_arrow</span>(<span class="ident">arrow_thickness</span>, <span class="ident">ArrowCap::Triangle</span>),
                         );
                     }
-                    <span class="ident">TurnType::Right</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">TurnType::Right</span> =&gt; {
                         <span class="kw">let</span> (<span class="ident">pos</span>, <span class="ident">angle</span>) <span class="op">=</span> <span class="ident">input</span>
                             .<span class="ident">body</span>
                             .<span class="ident">must_dist_along</span>(<span class="ident">input</span>.<span class="ident">body</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">Distance::meters</span>(<span class="number">2.5</span>));
@@ -403,10 +403,10 @@
                             .<span class="ident">make_arrow</span>(<span class="ident">arrow_thickness</span>, <span class="ident">ArrowCap::Triangle</span>),
                         );
                     }
-                    <span class="ident">TurnType::Straight</span> <span class="op">=</span><span class="op">&gt;</span> {}
+                    <span class="ident">TurnType::Straight</span> =&gt; {}
                     <span class="ident">TurnType::Crosswalk</span>
                     <span class="op">|</span> <span class="ident">TurnType::UnmarkedCrossing</span>
-                    <span class="op">|</span> <span class="ident">TurnType::SharedSidewalkCorner</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+                    <span class="op">|</span> <span class="ident">TurnType::SharedSidewalkCorner</span> =&gt; <span class="macro">unreachable!</span>(),
                 }
 
                 <span class="comment">// Always draw the brake light</span>
@@ -465,7 +465,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Renderable</span> <span class="kw">for</span> <span class="ident">DrawCar</span> {
-    <span class="kw">fn</span> <span class="ident">get_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ID</span> {
+    <span class="kw">fn</span> <span class="ident">get_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ID</span> {
         <span class="ident">ID::Car</span>(<span class="self">self</span>.<span class="ident">id</span>)
     }
 
@@ -473,17 +473,17 @@
         <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw_default</span>);
     }
 
-    <span class="kw">fn</span> <span class="ident">get_outline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
+    <span class="kw">fn</span> <span class="ident">get_outline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">Polygon</span> {
         <span class="self">self</span>.<span class="ident">body</span>
             .<span class="ident">to_thick_boundary</span>(<span class="ident">CAR_WIDTH</span>, <span class="ident">OUTLINE_THICKNESS</span>)
             .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">body_polygon</span>.<span class="ident">clone</span>())
     }
 
-    <span class="kw">fn</span> <span class="ident">contains_pt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">contains_pt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">body_polygon</span>.<span class="ident">contains_pt</span>(<span class="ident">pt</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">get_zorder</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">isize</span> {
+    <span class="kw">fn</span> <span class="ident">get_zorder</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">isize</span> {
         <span class="self">self</span>.<span class="ident">zorder</span>
     }
 }
@@ -493,21 +493,21 @@
     <span class="ident">line_length</span>: <span class="ident">Distance</span>,
     <span class="ident">pt</span>: <span class="ident">Pt2D</span>,
     <span class="ident">angle</span>: <span class="ident">Angle</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
+) -&gt; <span class="ident">Polygon</span> {
     <span class="kw">let</span> <span class="ident">pt2</span> <span class="op">=</span> <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="ident">line_length</span>, <span class="ident">angle</span>);
     <span class="comment">// Shouldn&#39;t ever fail for a single line</span>
     <span class="ident">PolyLine::must_new</span>(<span class="macro">vec!</span>[<span class="ident">pt</span>, <span class="ident">pt2</span>]).<span class="ident">make_polygons</span>(<span class="ident">thickness</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">zoomed_color_car</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">DrawCarInput</span>, <span class="ident">sim</span>: <span class="kw-2">&amp;</span><span class="ident">Sim</span>, <span class="ident">cs</span>: <span class="kw-2">&amp;</span><span class="ident">ColorScheme</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Color</span> {
-    <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">id</span>.<span class="ident">vehicle_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">VehicleType::Bus</span> {
+<span class="kw">fn</span> <span class="ident">zoomed_color_car</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">DrawCarInput</span>, <span class="ident">sim</span>: <span class="kw-2">&amp;</span><span class="ident">Sim</span>, <span class="ident">cs</span>: <span class="kw-2">&amp;</span><span class="ident">ColorScheme</span>) -&gt; <span class="ident">Color</span> {
+    <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">id</span>.<span class="ident">vehicle_type</span> <span class="op">==</span> <span class="ident">VehicleType::Bus</span> {
         <span class="ident">cs</span>.<span class="ident">bus_body</span>
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">id</span>.<span class="ident">vehicle_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">VehicleType::Train</span> {
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">id</span>.<span class="ident">vehicle_type</span> <span class="op">==</span> <span class="ident">VehicleType::Train</span> {
         <span class="ident">cs</span>.<span class="ident">train_body</span>
     } <span class="kw">else</span> {
         <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">input</span>.<span class="ident">status</span> {
-            <span class="ident">CarStatus::Moving</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">cs</span>.<span class="ident">rotating_color_agents</span>(<span class="ident">input</span>.<span class="ident">id</span>.<span class="ident">id</span>),
-            <span class="ident">CarStatus::Parked</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">cs</span>.<span class="ident">parked_car</span>,
+            <span class="ident">CarStatus::Moving</span> =&gt; <span class="ident">cs</span>.<span class="ident">rotating_color_agents</span>(<span class="ident">input</span>.<span class="ident">id</span>.<span class="ident">id</span>),
+            <span class="ident">CarStatus::Parked</span> =&gt; <span class="ident">cs</span>.<span class="ident">parked_car</span>,
         };
         <span class="ident">grey_out_unhighlighted_people</span>(<span class="ident">color</span>, <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">person</span>, <span class="ident">sim</span>)
     }

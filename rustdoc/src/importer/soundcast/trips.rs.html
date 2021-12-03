@@ -336,7 +336,7 @@
     <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>,
     <span class="ident">maybe_huge_map</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>(<span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">osm::OsmID</span>, <span class="ident">BuildingID</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
     <span class="ident">only_passthrough_trips</span>: <span class="ident">bool</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">TripEndpoint</span>, <span class="ident">TripEndpoint</span>)<span class="op">&gt;</span> {
+) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">TripEndpoint</span>, <span class="ident">TripEndpoint</span>)<span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">from_bldg</span> <span class="op">=</span> <span class="ident">from</span>
         .<span class="ident">osm_building</span>
         .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="ident">osm_id_to_bldg</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>))
@@ -405,7 +405,7 @@
                 .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">id</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">TripEndpoint::Border</span>(<span class="kw-2">*</span><span class="ident">id</span>))
         })<span class="question-mark">?</span>;
 
-    <span class="kw">if</span> <span class="ident">from_endpt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">to_endpt</span> {
+    <span class="kw">if</span> <span class="ident">from_endpt</span> <span class="op">==</span> <span class="ident">to_endpt</span> {
         <span class="comment">//warn!(&quot;loop on {:?}. {:?} to {:?}&quot;, from_endpt, from, to);</span>
     }
 
@@ -424,7 +424,7 @@
         <span class="ident">to</span>: <span class="kw-2">&amp;</span><span class="ident">Endpoint</span>,
         <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>,
         <span class="ident">maybe_huge_map</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>(<span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">osm::OsmID</span>, <span class="ident">BuildingID</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BorderSnapper</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BorderSnapper</span><span class="op">&gt;</span> {
         <span class="kw">let</span> (<span class="ident">huge_map</span>, <span class="ident">huge_osm_id_to_bldg</span>) <span class="op">=</span> <span class="ident">maybe_huge_map</span><span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">b1</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">from</span>
             .<span class="ident">osm_building</span>
@@ -444,7 +444,7 @@
         <span class="ident">incoming</span>: <span class="ident">bool</span>,
         <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
         <span class="ident">maybe_huge_map</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>(<span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">osm::OsmID</span>, <span class="ident">BuildingID</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TripEndpoint</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TripEndpoint</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">huge_map</span> <span class="op">=</span> <span class="ident">maybe_huge_map</span><span class="question-mark">?</span>.<span class="number">0</span>;
         <span class="comment">// Do any of the usable borders match the path?</span>
         <span class="comment">// TODO Calculate this once</span>
@@ -478,8 +478,8 @@
     <span class="ident">huge_map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
     <span class="ident">only_passthrough_trips</span>: <span class="ident">bool</span>,
     <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Trip</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">maybe_huge_map</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">map</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;huge_seattle&quot;</span> {
+) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Trip</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">maybe_huge_map</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">map</span> <span class="op">==</span> <span class="string">&quot;huge_seattle&quot;</span> {
         <span class="prelude-val">None</span>
     } <span class="kw">else</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">huge_osm_id_to_bldg</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
@@ -505,9 +505,9 @@
                 <span class="kw-2">&amp;</span><span class="ident">osm_id_to_bldg</span>,
                 <span class="ident">borders</span>.<span class="ident">for_mode</span>(<span class="ident">orig</span>.<span class="ident">mode</span>),
                 <span class="kw">match</span> <span class="ident">orig</span>.<span class="ident">mode</span> {
-                    <span class="ident">TripMode::Walk</span> <span class="op">|</span> <span class="ident">TripMode::Transit</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PathConstraints::Pedestrian</span>,
-                    <span class="ident">TripMode::Drive</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PathConstraints::Car</span>,
-                    <span class="ident">TripMode::Bike</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PathConstraints::Bike</span>,
+                    <span class="ident">TripMode::Walk</span> <span class="op">|</span> <span class="ident">TripMode::Transit</span> =&gt; <span class="ident">PathConstraints::Pedestrian</span>,
+                    <span class="ident">TripMode::Drive</span> =&gt; <span class="ident">PathConstraints::Car</span>,
+                    <span class="ident">TripMode::Bike</span> =&gt; <span class="ident">PathConstraints::Bike</span>,
                 },
                 <span class="ident">maybe_huge_map</span>.<span class="ident">as_ref</span>(),
                 <span class="ident">only_passthrough_trips</span>,
@@ -535,8 +535,8 @@
     <span class="ident">popdat</span>: <span class="kw-2">&amp;</span><span class="ident">PopDat</span>,
     <span class="ident">huge_map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
     <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Scenario</span> {
-    <span class="kw">let</span> <span class="ident">only_passthrough_trips</span> <span class="op">=</span> <span class="ident">scenario_name</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;passthrough&quot;</span>;
+) -&gt; <span class="ident">Scenario</span> {
+    <span class="kw">let</span> <span class="ident">only_passthrough_trips</span> <span class="op">=</span> <span class="ident">scenario_name</span> <span class="op">==</span> <span class="string">&quot;passthrough&quot;</span>;
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">individ_trips</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">IndividTrip</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="comment">// person -&gt; (trip seq, index into individ_trips)</span>

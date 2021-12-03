@@ -83,7 +83,7 @@
     <span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="ident">Prerender</span>,
     <span class="ident">zoom</span>: <span class="ident">f64</span>,
     <span class="ident">dims</span>: <span class="ident">ScreenDims</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+) -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="ident">dims</span>.<span class="ident">width</span> <span class="op">&gt;</span> <span class="ident">state</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span> <span class="op">|</span><span class="op">|</span> <span class="ident">dims</span>.<span class="ident">height</span> <span class="op">&gt;</span> <span class="ident">state</span>.<span class="ident">canvas</span>.<span class="ident">window_height</span> {
         <span class="macro">bail!</span>(
             <span class="string">&quot;Can&#39;t take screenshots of dims {:?} when the window is only {:?}&quot;</span>,
@@ -116,7 +116,7 @@
             <span class="ident">state</span>.<span class="ident">canvas</span>.<span class="ident">cam_y</span> <span class="op">=</span> (<span class="ident">tile_y</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="ident">dims</span>.<span class="ident">height</span>;
 
             <span class="ident">cnt</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-            <span class="kw">if</span> <span class="ident">cnt</span> <span class="op">%</span> <span class="ident">free_memory_frequency</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+            <span class="kw">if</span> <span class="ident">cnt</span> <span class="op">%</span> <span class="ident">free_memory_frequency</span> <span class="op">==</span> <span class="number">0</span> {
                 <span class="ident">state</span>.<span class="ident">free_memory</span>();
             }
 
@@ -124,7 +124,7 @@
 
             <span class="comment">// Sometimes the very first image captured is of the debug mode used to launch this. Not</span>
             <span class="comment">// sure why, and it&#39;s not so reproducible. But double-drawing seems to help.</span>
-            <span class="kw">if</span> <span class="ident">tile_x</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="ident">tile_y</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+            <span class="kw">if</span> <span class="ident">tile_x</span> <span class="op">==</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="ident">tile_y</span> <span class="op">==</span> <span class="number">0</span> {
                 <span class="ident">state</span>.<span class="ident">draw</span>(<span class="ident">prerender</span>, <span class="bool-val">true</span>);
             }
 

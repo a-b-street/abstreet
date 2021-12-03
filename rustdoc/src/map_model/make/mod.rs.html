@@ -415,7 +415,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Map</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">create_from_raw</span>(<span class="kw-2">mut</span> <span class="ident">raw</span>: <span class="ident">RawMap</span>, <span class="ident">opts</span>: <span class="ident">RawToMapOptions</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Map</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">create_from_raw</span>(<span class="kw-2">mut</span> <span class="ident">raw</span>: <span class="ident">RawMap</span>, <span class="ident">opts</span>: <span class="ident">RawToMapOptions</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) -&gt; <span class="ident">Map</span> {
         <span class="ident">raw</span>.<span class="ident">run_all_simplifications</span>(<span class="ident">opts</span>.<span class="ident">consolidate_all_intersections</span>, <span class="ident">timer</span>);
 
         <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;raw_map to InitialMap&quot;</span>);
@@ -544,7 +544,7 @@
                     <span class="ident">i</span>.<span class="ident">id</span>, <span class="ident">i</span>.<span class="ident">orig_id</span>, <span class="ident">i</span>.<span class="ident">roads</span>
                 );
             }
-            <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">intersection_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">IntersectionType::TrafficSignal</span> {
+            <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">intersection_type</span> <span class="op">==</span> <span class="ident">IntersectionType::TrafficSignal</span> {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ok</span> <span class="op">=</span> <span class="bool-val">false</span>;
                 <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">roads</span> {
                     <span class="comment">// Skip signals only connected to roads under construction or purely to control</span>
@@ -630,10 +630,10 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">traffic_signals</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">IntersectionID</span>, <span class="ident">ControlTrafficSignal</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">intersections</span> {
             <span class="kw">match</span> <span class="ident">i</span>.<span class="ident">intersection_type</span> {
-                <span class="ident">IntersectionType::StopSign</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">IntersectionType::StopSign</span> =&gt; {
                     <span class="ident">stop_signs</span>.<span class="ident">insert</span>(<span class="ident">i</span>.<span class="ident">id</span>, <span class="ident">ControlStopSign::new</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">i</span>.<span class="ident">id</span>));
                 }
-                <span class="ident">IntersectionType::TrafficSignal</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">IntersectionType::TrafficSignal</span> =&gt; {
                     <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">movements</span>.<span class="ident">is_empty</span>() {
                         <span class="macro">error!</span>(<span class="string">&quot;Traffic signal at {} downgraded to stop sign, because it has no movements -- probably roads under construction&quot;</span>, <span class="ident">i</span>.<span class="ident">orig_id</span>);
                         <span class="ident">stop_signs</span>.<span class="ident">insert</span>(<span class="ident">i</span>.<span class="ident">id</span>, <span class="ident">ControlStopSign::new</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">i</span>.<span class="ident">id</span>));
@@ -642,7 +642,7 @@
                             .<span class="ident">insert</span>(<span class="ident">i</span>.<span class="ident">id</span>, <span class="ident">ControlTrafficSignal::validating_new</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">i</span>.<span class="ident">id</span>));
                     }
                 }
-                <span class="ident">IntersectionType::Border</span> <span class="op">|</span> <span class="ident">IntersectionType::Construction</span> <span class="op">=</span><span class="op">&gt;</span> {}
+                <span class="ident">IntersectionType::Border</span> <span class="op">|</span> <span class="ident">IntersectionType::Construction</span> =&gt; {}
             };
         }
         <span class="ident">map</span>.<span class="ident">stop_signs</span> <span class="op">=</span> <span class="ident">stop_signs</span>;
@@ -669,14 +669,14 @@
 
 <span class="doccomment">/// Snap points to an exact Position along the nearest lane. If the result doesn&#39;t contain a</span>
 <span class="doccomment">/// requested point, then there was no matching lane close enough.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">match_points_to_lanes</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">Lane</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span><span class="op">&gt;</span>(
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">match_points_to_lanes</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">Lane</span>) -&gt; <span class="ident">bool</span><span class="op">&gt;</span>(
     <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
     <span class="ident">pts</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">HashablePt2D</span><span class="op">&gt;</span>,
     <span class="ident">filter</span>: <span class="ident">F</span>,
     <span class="ident">buffer</span>: <span class="ident">Distance</span>,
     <span class="ident">max_dist_away</span>: <span class="ident">Distance</span>,
     <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">HashablePt2D</span>, <span class="ident">Position</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">HashablePt2D</span>, <span class="ident">Position</span><span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="ident">pts</span>.<span class="ident">is_empty</span>() {
         <span class="kw">return</span> <span class="ident">HashMap::new</span>();
     }
@@ -725,7 +725,7 @@
 }
 
 <span class="doccomment">/// Adjust the path to start on the polygon&#39;s border, not center.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trim_path</span>(<span class="ident">poly</span>: <span class="kw-2">&amp;</span><span class="ident">Polygon</span>, <span class="ident">path</span>: <span class="ident">Line</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Line</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trim_path</span>(<span class="ident">poly</span>: <span class="kw-2">&amp;</span><span class="ident">Polygon</span>, <span class="ident">path</span>: <span class="ident">Line</span>) -&gt; <span class="ident">Line</span> {
     <span class="kw">for</span> <span class="ident">line</span> <span class="kw">in</span> <span class="ident">poly</span>.<span class="ident">points</span>().<span class="ident">windows</span>(<span class="number">2</span>) {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l1</span>) <span class="op">=</span> <span class="ident">Line::new</span>(<span class="ident">line</span>[<span class="number">0</span>], <span class="ident">line</span>[<span class="number">1</span>]) {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">hit</span>) <span class="op">=</span> <span class="ident">l1</span>.<span class="ident">intersection</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>) {

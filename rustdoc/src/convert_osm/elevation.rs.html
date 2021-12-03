@@ -166,7 +166,7 @@
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">PolyLine</span>};
 <span class="kw">use</span> <span class="ident">map_model::raw</span>::{<span class="ident">OriginalRoad</span>, <span class="ident">RawMap</span>};
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_data</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RawMap</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_data</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RawMap</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="comment">// TODO It&#39;d be nice to include more timing breakdown here, but if we bail out early,</span>
     <span class="comment">// it&#39;s tedious to call timer.stop().</span>
     <span class="kw">let</span> <span class="ident">ids</span> <span class="op">=</span> <span class="ident">generate_input</span>(<span class="ident">map</span>)<span class="question-mark">?</span>;
@@ -225,7 +225,7 @@
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">fn</span> <span class="ident">generate_input</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">RawMap</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">generate_input</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">RawMap</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="ident">std::fs::create_dir_all</span>(<span class="string">&quot;elevation_input&quot;</span>)<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">BufWriter::new</span>(<span class="ident">File::create</span>(<span class="string">&quot;elevation_input/query&quot;</span>)<span class="question-mark">?</span>);
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ids</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
@@ -254,7 +254,7 @@
     <span class="prelude-val">Ok</span>(<span class="ident">ids</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">scrape_output</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RawMap</span>, <span class="ident">ids</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">scrape_output</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RawMap</span>, <span class="ident">ids</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">num_ids</span> <span class="op">=</span> <span class="ident">ids</span>.<span class="ident">len</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cnt</span> <span class="op">=</span> <span class="number">0</span>;
     <span class="kw">for</span> (<span class="ident">line</span>, <span class="ident">id</span>) <span class="kw">in</span> <span class="ident">BufReader::new</span>(<span class="ident">File::open</span>(<span class="string">&quot;elevation_output/query&quot;</span>)<span class="question-mark">?</span>)

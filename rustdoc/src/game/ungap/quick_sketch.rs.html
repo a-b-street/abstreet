@@ -591,13 +591,13 @@
 }
 
 <span class="kw">impl</span> <span class="ident">TakeLayers</span> <span class="kw">for</span> <span class="ident">QuickSketch</span> {
-    <span class="kw">fn</span> <span class="ident">take_layers</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Layers</span> {
+    <span class="kw">fn</span> <span class="ident">take_layers</span>(<span class="self">self</span>) -&gt; <span class="ident">Layers</span> {
         <span class="self">self</span>.<span class="ident">layers</span>
     }
 }
 
 <span class="kw">impl</span> <span class="ident">QuickSketch</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">layers</span>: <span class="ident">Layers</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">layers</span>: <span class="ident">Layers</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">qs</span> <span class="op">=</span> <span class="ident">QuickSketch</span> {
             <span class="ident">top_panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
             <span class="ident">layers</span>,
@@ -672,7 +672,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">QuickSketch</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
+    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
         <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits_change_key</span>();
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">map_edit_key</span> <span class="op">!</span><span class="op">=</span> <span class="ident">key</span> {
             <span class="self">self</span>.<span class="ident">map_edit_key</span> <span class="op">=</span> <span class="ident">key</span>;
@@ -684,9 +684,9 @@
             <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
                 <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span>
                     <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">mouseover_unzoomed_roads_and_intersections</span>(<span class="ident">ctx</span>) {
-                        <span class="prelude-val">Some</span>(<span class="ident">ID::Road</span>(<span class="ident">r</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">r</span>),
-                        <span class="prelude-val">Some</span>(<span class="ident">ID::Lane</span>(<span class="ident">l</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>.<span class="ident">road</span>),
-                        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+                        <span class="prelude-val">Some</span>(<span class="ident">ID::Road</span>(<span class="ident">r</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="ident">r</span>),
+                        <span class="prelude-val">Some</span>(<span class="ident">ID::Lane</span>(<span class="ident">l</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="ident">l</span>.<span class="ident">road</span>),
+                        <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
                     }
                     .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> {
                         <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">is_light_rail</span>() {
@@ -707,7 +707,7 @@
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;Add bike lanes&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;Add bike lanes&quot;</span> =&gt; {
                     <span class="kw">let</span> <span class="ident">messages</span> <span class="op">=</span> <span class="ident">make_quick_changes</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">app</span>,
@@ -718,7 +718,7 @@
                     <span class="self">self</span>.<span class="ident">update_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                     <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;Changes made&quot;</span>, <span class="ident">messages</span>));
                 }
-                <span class="string">&quot;Open a proposal&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;Open a proposal&quot;</span> =&gt; {
                     <span class="comment">// Dummy mode, just to allow all edits</span>
                     <span class="comment">// TODO Actually, should we make one to express that only road edits are</span>
                     <span class="comment">// relevant?</span>
@@ -729,7 +729,7 @@
                     <span class="comment">// unsaved.</span>
                     <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">LoadEdits::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">mode</span>));
                 }
-                <span class="string">&quot;Save this proposal&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;Save this proposal&quot;</span> =&gt; {
                     <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">SaveEdits::new_state</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">app</span>,
@@ -739,10 +739,10 @@
                         <span class="ident">Box::new</span>(<span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> {}),
                     ));
                 }
-                <span class="string">&quot;Share proposal&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;Share proposal&quot;</span> =&gt; {
                     <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">share::ShareProposal::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="string">&quot;--ungap&quot;</span>));
                 }
-                <span class="ident">x</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">x</span> =&gt; {
                     <span class="comment">// TODO More brittle routing of outcomes.</span>
                     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">route_sketcher</span>.<span class="ident">on_click</span>(<span class="ident">x</span>) {
                         <span class="self">self</span>.<span class="ident">update_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
@@ -779,7 +779,7 @@
     <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>,
     <span class="ident">roads</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>,
     <span class="ident">buffer_type</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BufferType</span><span class="op">&gt;</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
     <span class="comment">// TODO Erasing changes</span>
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
@@ -793,7 +793,7 @@
             <span class="ident">buffer_type</span>,
             <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_config</span>().<span class="ident">driving_side</span>,
         );
-        <span class="kw">if</span> <span class="ident">old</span> <span class="op">=</span><span class="op">=</span> <span class="ident">new</span> {
+        <span class="kw">if</span> <span class="ident">old</span> <span class="op">==</span> <span class="ident">new</span> {
             <span class="ident">unchanged</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
         } <span class="kw">else</span> {
             <span class="ident">changed</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
@@ -825,13 +825,13 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fwd_side</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">back_side</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">for</span> <span class="ident">spec</span> <span class="kw">in</span> <span class="ident">r</span>.<span class="ident">lanes_ltr</span>.<span class="ident">drain</span>(..) {
-        <span class="kw">if</span> <span class="ident">spec</span>.<span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction::Fwd</span> {
+        <span class="kw">if</span> <span class="ident">spec</span>.<span class="ident">dir</span> <span class="op">==</span> <span class="ident">Direction::Fwd</span> {
             <span class="ident">fwd_side</span>.<span class="ident">push</span>(<span class="ident">spec</span>);
         } <span class="kw">else</span> {
             <span class="ident">back_side</span>.<span class="ident">push</span>(<span class="ident">spec</span>);
         }
     }
-    <span class="kw">if</span> <span class="ident">driving_side</span> <span class="op">=</span><span class="op">=</span> <span class="ident">DrivingSide::Right</span> {
+    <span class="kw">if</span> <span class="ident">driving_side</span> <span class="op">==</span> <span class="ident">DrivingSide::Right</span> {
         <span class="ident">fwd_side</span>.<span class="ident">reverse</span>();
     } <span class="kw">else</span> {
         <span class="ident">back_side</span>.<span class="ident">reverse</span>();
@@ -850,19 +850,19 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">num_driving_lanes</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">already_has_bike_lane</span> <span class="op">=</span> <span class="bool-val">false</span>;
         <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">spec</span>) <span class="kw">in</span> <span class="ident">side</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-            <span class="kw">if</span> <span class="ident">spec</span>.<span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType::Parking</span> <span class="op">&amp;&amp;</span> <span class="ident">parking_lane</span>.<span class="ident">is_none</span>() {
+            <span class="kw">if</span> <span class="ident">spec</span>.<span class="ident">lt</span> <span class="op">==</span> <span class="ident">LaneType::Parking</span> <span class="op">&amp;&amp;</span> <span class="ident">parking_lane</span>.<span class="ident">is_none</span>() {
                 <span class="ident">parking_lane</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>);
             }
-            <span class="kw">if</span> <span class="ident">spec</span>.<span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType::Driving</span> <span class="op">&amp;&amp;</span> <span class="ident">first_driving_lane</span>.<span class="ident">is_none</span>() {
+            <span class="kw">if</span> <span class="ident">spec</span>.<span class="ident">lt</span> <span class="op">==</span> <span class="ident">LaneType::Driving</span> <span class="op">&amp;&amp;</span> <span class="ident">first_driving_lane</span>.<span class="ident">is_none</span>() {
                 <span class="ident">first_driving_lane</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>);
             }
-            <span class="kw">if</span> <span class="ident">spec</span>.<span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType::Driving</span> {
+            <span class="kw">if</span> <span class="ident">spec</span>.<span class="ident">lt</span> <span class="op">==</span> <span class="ident">LaneType::Driving</span> {
                 <span class="ident">num_driving_lanes</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
             }
-            <span class="kw">if</span> <span class="ident">spec</span>.<span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType::Bus</span> <span class="op">&amp;&amp;</span> <span class="ident">bus_lane</span>.<span class="ident">is_none</span>() {
+            <span class="kw">if</span> <span class="ident">spec</span>.<span class="ident">lt</span> <span class="op">==</span> <span class="ident">LaneType::Bus</span> <span class="op">&amp;&amp;</span> <span class="ident">bus_lane</span>.<span class="ident">is_none</span>() {
                 <span class="ident">bus_lane</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>);
             }
-            <span class="kw">if</span> <span class="ident">spec</span>.<span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType::Biking</span> {
+            <span class="kw">if</span> <span class="ident">spec</span>.<span class="ident">lt</span> <span class="op">==</span> <span class="ident">LaneType::Biking</span> {
                 <span class="ident">already_has_bike_lane</span> <span class="op">=</span> <span class="bool-val">true</span>;
             }
         }
@@ -872,7 +872,7 @@
         }
         <span class="comment">// So if a road is one-way, this shouldn&#39;t add a bike lane to the off-side.</span>
         <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="ident">parking_lane</span> {
-            <span class="kw">if</span> <span class="ident">num_driving_lanes</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+            <span class="kw">if</span> <span class="ident">num_driving_lanes</span> <span class="op">==</span> <span class="number">0</span> {
                 <span class="prelude-val">None</span>
             } <span class="kw">else</span> {
                 <span class="prelude-val">Some</span>(<span class="ident">idx</span>)
@@ -912,7 +912,7 @@
     }
 
     <span class="comment">// Now re-assemble...</span>
-    <span class="kw">if</span> <span class="ident">driving_side</span> <span class="op">=</span><span class="op">=</span> <span class="ident">DrivingSide::Right</span> {
+    <span class="kw">if</span> <span class="ident">driving_side</span> <span class="op">==</span> <span class="ident">DrivingSide::Right</span> {
         <span class="ident">r</span>.<span class="ident">lanes_ltr</span> <span class="op">=</span> <span class="ident">back_side</span>;
         <span class="ident">fwd_side</span>.<span class="ident">reverse</span>();
         <span class="ident">r</span>.<span class="ident">lanes_ltr</span>.<span class="ident">extend</span>(<span class="ident">fwd_side</span>);
@@ -1068,7 +1068,7 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">proposal_management</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+<span class="kw">fn</span> <span class="ident">proposal_management</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Widget</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">let</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>();
 
@@ -1081,12 +1081,12 @@
                 <span class="kw">let</span> <span class="ident">num_before</span> <span class="op">=</span> <span class="ident">old</span>
                     .<span class="ident">lanes_ltr</span>
                     .<span class="ident">iter</span>()
-                    .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">spec</span><span class="op">|</span> <span class="ident">spec</span>.<span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType::Biking</span>)
+                    .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">spec</span><span class="op">|</span> <span class="ident">spec</span>.<span class="ident">lt</span> <span class="op">==</span> <span class="ident">LaneType::Biking</span>)
                     .<span class="ident">count</span>();
                 <span class="kw">let</span> <span class="ident">num_after</span> <span class="op">=</span> <span class="ident">new</span>
                     .<span class="ident">lanes_ltr</span>
                     .<span class="ident">iter</span>()
-                    .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">spec</span><span class="op">|</span> <span class="ident">spec</span>.<span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType::Biking</span>)
+                    .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">spec</span><span class="op">|</span> <span class="ident">spec</span>.<span class="ident">lt</span> <span class="op">==</span> <span class="ident">LaneType::Biking</span>)
                     .<span class="ident">count</span>();
                 <span class="kw">if</span> <span class="ident">num_before</span> <span class="op">!</span><span class="op">=</span> <span class="ident">num_after</span> {
                     <span class="kw">let</span> <span class="ident">multiplier</span> <span class="op">=</span> (<span class="ident">num_after</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">-</span> (<span class="ident">num_before</span>) <span class="kw">as</span> <span class="ident">f64</span>;

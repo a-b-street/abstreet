@@ -691,13 +691,13 @@
 }
 
 <span class="kw">impl</span> <span class="ident">TravelTimes</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">filter</span>: <span class="ident">Filter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">filter</span>: <span class="ident">Filter</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident">Box::new</span>(<span class="ident">TravelTimes</span> {
             <span class="ident">panel</span>: <span class="ident">TravelTimes::make_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">filter</span>),
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">make_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">filter</span>: <span class="ident">Filter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
+    <span class="kw">fn</span> <span class="ident">make_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">filter</span>: <span class="ident">Filter</span>) -&gt; <span class="ident">Panel</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">filters</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="string">&quot;Filters&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>)];
         <span class="kw">for</span> <span class="ident">mode</span> <span class="kw">in</span> <span class="ident">TripMode::all</span>() {
             <span class="ident">filters</span>.<span class="ident">push</span>(<span class="ident">Toggle::colored_checkbox</span>(
@@ -780,30 +780,30 @@
 }
 
 <span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">TravelTimes</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
+    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;Export to CSV&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) =&gt; <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
+                <span class="string">&quot;Export to CSV&quot;</span> =&gt; {
                     <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="kw">match</span> <span class="ident">export_times</span>(<span class="ident">app</span>) {
-                        <span class="prelude-val">Ok</span>(<span class="ident">path</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PopupMsg::new_state</span>(
+                        <span class="prelude-val">Ok</span>(<span class="ident">path</span>) =&gt; <span class="ident">PopupMsg::new_state</span>(
                             <span class="ident">ctx</span>,
                             <span class="string">&quot;Data exported&quot;</span>,
                             <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">&quot;Data exported to {}&quot;</span>, <span class="ident">path</span>)],
                         ),
-                        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
                             <span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;Export failed&quot;</span>, <span class="macro">vec!</span>[<span class="ident">err</span>.<span class="ident">to_string</span>()])
                         }
                     });
                 }
-                <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition::Pop</span>,
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+                <span class="string">&quot;close&quot;</span> =&gt; <span class="ident">Transition::Pop</span>,
+                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
             },
-            <span class="ident">Outcome::ClickCustom</span>(<span class="ident">data</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Outcome::ClickCustom</span>(<span class="ident">data</span>) =&gt; {
                 <span class="kw">let</span> <span class="ident">trips</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">as_any</span>().<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripID</span><span class="op">&gt;</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
                 <span class="comment">// TODO Handle browsing multiple trips</span>
                 <span class="ident">open_trip_transition</span>(<span class="ident">app</span>, <span class="ident">trips</span>[<span class="number">0</span>].<span class="number">0</span>)
             }
-            <span class="ident">Outcome::Changed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Outcome::Changed</span>(<span class="kw">_</span>) =&gt; {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">DashTab::TravelTimes</span>.<span class="ident">transition</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>) {
                     <span class="kw">return</span> <span class="ident">t</span>;
                 }
@@ -823,7 +823,7 @@
                 <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">new_panel</span>;
                 <span class="ident">Transition::Keep</span>
             }
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition::Keep</span>,
+            <span class="kw">_</span> =&gt; <span class="ident">Transition::Keep</span>,
         }
     }
 
@@ -832,7 +832,7 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">summary_boxes</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">filter</span>: <span class="kw-2">&amp;</span><span class="ident">Filter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+<span class="kw">fn</span> <span class="ident">summary_boxes</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">filter</span>: <span class="kw-2">&amp;</span><span class="ident">Filter</span>) -&gt; <span class="ident">Widget</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">num_same</span> <span class="op">=</span> <span class="number">0</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">num_faster</span> <span class="op">=</span> <span class="number">0</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">num_slower</span> <span class="op">=</span> <span class="number">0</span>;
@@ -850,7 +850,7 @@
         <span class="kw">let</span> <span class="ident">same</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pct</span>) <span class="op">=</span> <span class="ident">filter</span>.<span class="ident">changes_pct</span> {
             <span class="ident">pct_diff</span>(<span class="ident">a</span>, <span class="ident">b</span>) <span class="op">&lt;</span><span class="op">=</span> <span class="ident">pct</span>
         } <span class="kw">else</span> {
-            <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="ident">b</span>
+            <span class="ident">a</span> <span class="op">==</span> <span class="ident">b</span>
         };
 
         <span class="kw">if</span> <span class="ident">same</span> {
@@ -875,7 +875,7 @@
             .<span class="ident">small</span>(),
             <span class="ident">Line</span>(<span class="macro">format!</span>(
                 <span class="string">&quot;Average {} faster per trip&quot;</span>,
-                <span class="kw">if</span> <span class="ident">num_faster</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+                <span class="kw">if</span> <span class="ident">num_faster</span> <span class="op">==</span> <span class="number">0</span> {
                     <span class="ident">Duration::ZERO</span>
                 } <span class="kw">else</span> {
                     <span class="ident">sum_faster</span> <span class="op">/</span> (<span class="ident">num_faster</span> <span class="kw">as</span> <span class="ident">f64</span>)
@@ -902,7 +902,7 @@
             .<span class="ident">small</span>(),
             <span class="ident">Line</span>(<span class="macro">format!</span>(
                 <span class="string">&quot;Average {} slower per trip&quot;</span>,
-                <span class="kw">if</span> <span class="ident">num_slower</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+                <span class="kw">if</span> <span class="ident">num_slower</span> <span class="op">==</span> <span class="number">0</span> {
                     <span class="ident">Duration::ZERO</span>
                 } <span class="kw">else</span> {
                     <span class="ident">sum_slower</span> <span class="op">/</span> (<span class="ident">num_slower</span> <span class="kw">as</span> <span class="ident">f64</span>)
@@ -933,7 +933,7 @@
     .<span class="ident">evenly_spaced</span>()
 }
 
-<span class="kw">fn</span> <span class="ident">scatter_plot</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">filter</span>: <span class="kw-2">&amp;</span><span class="ident">Filter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+<span class="kw">fn</span> <span class="ident">scatter_plot</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">filter</span>: <span class="kw-2">&amp;</span><span class="ident">Filter</span>) -&gt; <span class="ident">Widget</span> {
     <span class="kw">let</span> <span class="ident">points</span> <span class="op">=</span> <span class="ident">filter</span>.<span class="ident">get_trips</span>(<span class="ident">app</span>);
     <span class="kw">if</span> <span class="ident">points</span>.<span class="ident">is_empty</span>() {
         <span class="kw">return</span> <span class="ident">Widget::nothing</span>();
@@ -958,7 +958,7 @@
     ])
 }
 
-<span class="kw">fn</span> <span class="ident">contingency_table</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">filter</span>: <span class="kw-2">&amp;</span><span class="ident">Filter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+<span class="kw">fn</span> <span class="ident">contingency_table</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">filter</span>: <span class="kw-2">&amp;</span><span class="ident">Filter</span>) -&gt; <span class="ident">Widget</span> {
     <span class="kw">let</span> <span class="ident">total_width</span> <span class="op">=</span> <span class="number">500.0</span>;
     <span class="kw">let</span> <span class="ident">total_height</span> <span class="op">=</span> <span class="number">300.0</span>;
 
@@ -1060,15 +1060,15 @@
             .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">duration_buckets</span>.<span class="ident">len</span>())
             <span class="op">-</span> <span class="number">1</span>;
         <span class="kw">match</span> <span class="ident">a</span>.<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>) {
-            <span class="ident">std::cmp::Ordering::Greater</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">std::cmp::Ordering::Greater</span> =&gt; {
                 <span class="ident">losses_per_bucket</span>[<span class="ident">idx</span>].<span class="ident">accumulated_duration</span> <span class="op">+</span><span class="op">=</span> <span class="ident">a</span> <span class="op">-</span> <span class="ident">b</span>;
                 <span class="ident">losses_per_bucket</span>[<span class="ident">idx</span>].<span class="ident">trip_count</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
             }
-            <span class="ident">std::cmp::Ordering::Less</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">std::cmp::Ordering::Less</span> =&gt; {
                 <span class="ident">savings_per_bucket</span>[<span class="ident">idx</span>].<span class="ident">accumulated_duration</span> <span class="op">+</span><span class="op">=</span> <span class="ident">b</span> <span class="op">-</span> <span class="ident">a</span>;
                 <span class="ident">savings_per_bucket</span>[<span class="ident">idx</span>].<span class="ident">trip_count</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
             }
-            <span class="ident">std::cmp::Ordering::Equal</span> <span class="op">=</span><span class="op">&gt;</span> {}
+            <span class="ident">std::cmp::Ordering::Equal</span> =&gt; {}
         }
     }
     <span class="kw">let</span> <span class="ident">max_y</span> <span class="op">=</span> <span class="ident">losses_per_bucket</span>
@@ -1115,17 +1115,17 @@
                 <span class="ident">rect</span>,
                 <span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
                     <span class="ident">Line</span>(<span class="kw">match</span> <span class="ident">idx</span> {
-                        <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format!</span>(
+                        <span class="number">0</span> =&gt; <span class="macro">format!</span>(
                             <span class="string">&quot;{} trips shorter than {}&quot;</span>,
                             <span class="ident">prettyprint_usize</span>(<span class="ident">num_savings</span>),
                             <span class="ident">duration_buckets</span>[<span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>]
                         ),
-                        <span class="ident">i</span> <span class="kw">if</span> <span class="ident">i</span> <span class="op">+</span> <span class="number">1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">duration_buckets</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format!</span>(
+                        <span class="ident">i</span> <span class="kw">if</span> <span class="ident">i</span> <span class="op">+</span> <span class="number">1</span> <span class="op">==</span> <span class="ident">duration_buckets</span>.<span class="ident">len</span>() =&gt; <span class="macro">format!</span>(
                             <span class="string">&quot;{} trips longer than {}&quot;</span>,
                             <span class="ident">prettyprint_usize</span>(<span class="ident">num_savings</span>),
                             <span class="ident">duration_buckets</span>[<span class="ident">idx</span>]
                         ),
-                        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format!</span>(
+                        <span class="kw">_</span> =&gt; <span class="macro">format!</span>(
                             <span class="string">&quot;{} trips between {} and {}&quot;</span>,
                             <span class="ident">prettyprint_usize</span>(<span class="ident">num_savings</span>),
                             <span class="ident">duration_buckets</span>[<span class="ident">idx</span>],
@@ -1153,17 +1153,17 @@
                 <span class="ident">rect</span>,
                 <span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
                     <span class="ident">Line</span>(<span class="kw">match</span> <span class="ident">idx</span> {
-                        <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format!</span>(
+                        <span class="number">0</span> =&gt; <span class="macro">format!</span>(
                             <span class="string">&quot;{} trips shorter than {}&quot;</span>,
                             <span class="ident">prettyprint_usize</span>(<span class="ident">num_loss</span>),
                             <span class="ident">duration_buckets</span>[<span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>]
                         ),
-                        <span class="ident">i</span> <span class="kw">if</span> <span class="ident">i</span> <span class="op">+</span> <span class="number">1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">duration_buckets</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format!</span>(
+                        <span class="ident">i</span> <span class="kw">if</span> <span class="ident">i</span> <span class="op">+</span> <span class="number">1</span> <span class="op">==</span> <span class="ident">duration_buckets</span>.<span class="ident">len</span>() =&gt; <span class="macro">format!</span>(
                             <span class="string">&quot;{} trips longer than {}&quot;</span>,
                             <span class="ident">prettyprint_usize</span>(<span class="ident">num_loss</span>),
                             <span class="ident">duration_buckets</span>[<span class="ident">idx</span>]
                         ),
-                        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format!</span>(
+                        <span class="kw">_</span> =&gt; <span class="macro">format!</span>(
                             <span class="string">&quot;{} trips between {} and {}&quot;</span>,
                             <span class="ident">prettyprint_usize</span>(<span class="ident">num_loss</span>),
                             <span class="ident">duration_buckets</span>[<span class="ident">idx</span>],
@@ -1260,17 +1260,17 @@
 }
 
 <span class="kw">impl</span> <span class="ident">TripProblemFilter</span> <span class="kw">for</span> <span class="ident">Filter</span> {
-    <span class="kw">fn</span> <span class="ident">includes_mode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">mode</span>: <span class="kw-2">&amp;</span><span class="ident">TripMode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">includes_mode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">mode</span>: <span class="kw-2">&amp;</span><span class="ident">TripMode</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">modes</span>.<span class="ident">contains</span>(<span class="ident">mode</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">include_no_changes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">include_no_changes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">include_no_changes</span>
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Filter</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Filter</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">Filter</span> {
         <span class="ident">Filter</span> {
             <span class="ident">changes_pct</span>: <span class="prelude-val">None</span>,
             <span class="ident">modes</span>: <span class="ident">TripMode::all</span>().<span class="ident">into_iter</span>().<span class="ident">collect</span>(),
@@ -1278,7 +1278,7 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">get_trips</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Duration</span>, <span class="ident">Duration</span>)<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">get_trips</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Duration</span>, <span class="ident">Duration</span>)<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">points</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">b</span>, <span class="ident">a</span>, <span class="ident">mode</span>) <span class="kw">in</span> <span class="ident">app</span>
             .<span class="ident">primary</span>
@@ -1299,7 +1299,7 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">pct_diff</span>(<span class="ident">a</span>: <span class="ident">Duration</span>, <span class="ident">b</span>: <span class="ident">Duration</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
+<span class="kw">fn</span> <span class="ident">pct_diff</span>(<span class="ident">a</span>: <span class="ident">Duration</span>, <span class="ident">b</span>: <span class="ident">Duration</span>) -&gt; <span class="ident">f64</span> {
     <span class="kw">if</span> <span class="ident">a</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">b</span> {
         (<span class="ident">a</span> <span class="op">/</span> <span class="ident">b</span>) <span class="op">-</span> <span class="number">1.0</span>
     } <span class="kw">else</span> {
@@ -1307,7 +1307,7 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">export_times</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">export_times</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="macro">format!</span>(
         <span class="string">&quot;trip_times_{}_{}.csv&quot;</span>,
         <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">as_filename</span>(),

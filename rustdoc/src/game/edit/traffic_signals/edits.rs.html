@@ -431,7 +431,7 @@
         <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
         <span class="ident">signal</span>: <span class="kw-2">&amp;</span><span class="ident">ControlTrafficSignal</span>,
         <span class="ident">idx</span>: <span class="ident">usize</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">signal</span>.<span class="ident">id</span>);
         <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
             <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
@@ -455,11 +455,11 @@
                 .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
                 <span class="ident">Text::from_all</span>(<span class="kw">match</span> <span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">idx</span>].<span class="ident">stage_type</span> {
-                    <span class="ident">StageType::Fixed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec!</span>[
+                    <span class="ident">StageType::Fixed</span>(<span class="kw">_</span>) =&gt; <span class="macro">vec!</span>[
                         <span class="ident">Line</span>(<span class="string">&quot;Fixed timing&quot;</span>).<span class="ident">small_heading</span>(),
                         <span class="ident">Line</span>(<span class="string">&quot; (Adjust both values below to enable variable timing)&quot;</span>),
                     ],
-                    <span class="ident">StageType::Variable</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec!</span>[
+                    <span class="ident">StageType::Variable</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">vec!</span>[
                         <span class="ident">Line</span>(<span class="string">&quot;Variable timing&quot;</span>).<span class="ident">small_heading</span>(),
                         <span class="ident">Line</span>(<span class="string">&quot; (Set either values below to 0 to use fixed timing.&quot;</span>),
                     ],
@@ -475,8 +475,8 @@
                         <span class="string">&quot;additional&quot;</span>,
                         (<span class="ident">Duration::ZERO</span>, <span class="ident">Duration::minutes</span>(<span class="number">5</span>)),
                         <span class="kw">match</span> <span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">idx</span>].<span class="ident">stage_type</span> {
-                            <span class="ident">StageType::Fixed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Duration::ZERO</span>,
-                            <span class="ident">StageType::Variable</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">additional</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">additional</span>,
+                            <span class="ident">StageType::Fixed</span>(<span class="kw">_</span>) =&gt; <span class="ident">Duration::ZERO</span>,
+                            <span class="ident">StageType::Variable</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">additional</span>) =&gt; <span class="ident">additional</span>,
                         },
                         <span class="ident">Duration::seconds</span>(<span class="number">1.0</span>),
                     ),
@@ -490,8 +490,8 @@
                         <span class="string">&quot;delay&quot;</span>,
                         (<span class="ident">Duration::ZERO</span>, <span class="ident">Duration::seconds</span>(<span class="number">300.0</span>)),
                         <span class="kw">match</span> <span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">idx</span>].<span class="ident">stage_type</span> {
-                            <span class="ident">StageType::Fixed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Duration::ZERO</span>,
-                            <span class="ident">StageType::Variable</span>(<span class="kw">_</span>, <span class="ident">delay</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">delay</span>,
+                            <span class="ident">StageType::Fixed</span>(<span class="kw">_</span>) =&gt; <span class="ident">Duration::ZERO</span>,
+                            <span class="ident">StageType::Variable</span>(<span class="kw">_</span>, <span class="ident">delay</span>, <span class="kw">_</span>) =&gt; <span class="ident">delay</span>,
                         },
                         <span class="ident">Duration::seconds</span>(<span class="number">1.0</span>),
                     ),
@@ -512,14 +512,14 @@
 }
 
 <span class="kw">impl</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ChangeDuration</span> {
-    <span class="kw">fn</span> <span class="ident">on_click</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">panel</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
+    <span class="kw">fn</span> <span class="ident">on_click</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">panel</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) -&gt; <span class="ident">Transition</span> {
         <span class="kw">match</span> <span class="ident">x</span> {
-            <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition::Pop</span>,
-            <span class="string">&quot;Apply&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="string">&quot;close&quot;</span> =&gt; <span class="ident">Transition::Pop</span>,
+            <span class="string">&quot;Apply&quot;</span> =&gt; {
                 <span class="kw">let</span> <span class="ident">dt</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;duration&quot;</span>);
                 <span class="kw">let</span> <span class="ident">delay</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;delay&quot;</span>);
                 <span class="kw">let</span> <span class="ident">additional</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;additional&quot;</span>);
-                <span class="kw">let</span> <span class="ident">new_type</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">delay</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Duration::ZERO</span> <span class="op">|</span><span class="op">|</span> <span class="ident">additional</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Duration::ZERO</span> {
+                <span class="kw">let</span> <span class="ident">new_type</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">delay</span> <span class="op">==</span> <span class="ident">Duration::ZERO</span> <span class="op">|</span><span class="op">|</span> <span class="ident">additional</span> <span class="op">==</span> <span class="ident">Duration::ZERO</span> {
                     <span class="ident">StageType::Fixed</span>(<span class="ident">dt</span>)
                 } <span class="kw">else</span> {
                     <span class="ident">StageType::Variable</span>(<span class="ident">dt</span>, <span class="ident">delay</span>, <span class="ident">additional</span>)
@@ -535,7 +535,7 @@
                     })),
                 ])
             }
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
         }
     }
 
@@ -544,10 +544,10 @@
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
         <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>,
         <span class="ident">panel</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Panel</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">new_label</span> <span class="op">=</span> <span class="ident">Text::from_all</span>(
-            <span class="kw">if</span> <span class="ident">panel</span>.<span class="ident">spinner</span>::<span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>(<span class="string">&quot;delay&quot;</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">Duration::ZERO</span>
-                <span class="op">|</span><span class="op">|</span> <span class="ident">panel</span>.<span class="ident">spinner</span>::<span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>(<span class="string">&quot;additional&quot;</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">Duration::ZERO</span>
+            <span class="kw">if</span> <span class="ident">panel</span>.<span class="ident">spinner</span>::<span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>(<span class="string">&quot;delay&quot;</span>) <span class="op">==</span> <span class="ident">Duration::ZERO</span>
+                <span class="op">|</span><span class="op">|</span> <span class="ident">panel</span>.<span class="ident">spinner</span>::<span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>(<span class="string">&quot;additional&quot;</span>) <span class="op">==</span> <span class="ident">Duration::ZERO</span>
             {
                 <span class="macro">vec!</span>[
                     <span class="ident">Line</span>(<span class="string">&quot;Fixed timing&quot;</span>).<span class="ident">small_heading</span>(),
@@ -565,14 +565,14 @@
         <span class="prelude-val">None</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">other_event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
+    <span class="kw">fn</span> <span class="ident">other_event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
         <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_screen_space</span>().<span class="ident">is_none</span>() {
             <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
         }
         <span class="ident">Transition::Keep</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">draw_baselayer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DrawBaselayer</span> {
+    <span class="kw">fn</span> <span class="ident">draw_baselayer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">DrawBaselayer</span> {
         <span class="ident">DrawBaselayer::PreviousState</span>
     }
 }
@@ -583,7 +583,7 @@
     <span class="ident">i</span>: <span class="ident">IntersectionID</span>,
     <span class="ident">mode</span>: <span class="ident">GameplayMode</span>,
     <span class="ident">original</span>: <span class="ident">BundleEdits</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">has_sidewalks</span> <span class="op">=</span> <span class="ident">app</span>
         .<span class="ident">primary</span>
         .<span class="ident">map</span>
@@ -628,7 +628,7 @@
         <span class="string">&quot;What do you want to change?&quot;</span>,
         <span class="ident">Choice::strings</span>(<span class="ident">choices</span>),
         <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">x</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_str</span>() {
-            <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="ident">use_template</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition::Replace</span>(<span class="ident">ChooseSomething::new_state</span>(
+            <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="ident">use_template</span> =&gt; <span class="ident">Transition::Replace</span>(<span class="ident">ChooseSomething::new_state</span>(
                 <span class="ident">ctx</span>,
                 <span class="string">&quot;Use which preset for this intersection?&quot;</span>,
                 <span class="ident">Choice::from</span>(<span class="ident">ControlTrafficSignal::get_possible_policies</span>(
@@ -647,7 +647,7 @@
                     ])
                 }),
             )),
-            <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="ident">all_walk</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
+            <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="ident">all_walk</span> =&gt; <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
                 <span class="ident">Transition::Pop</span>,
                 <span class="ident">Transition::ModifyState</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_signal</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="ident">i</span>).<span class="ident">clone</span>();
@@ -659,7 +659,7 @@
                     }
                 })),
             ]),
-            <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="ident">major_minor_timing</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition::Replace</span>(<span class="ident">ChooseSomething::new_state</span>(
+            <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="ident">major_minor_timing</span> =&gt; <span class="ident">Transition::Replace</span>(<span class="ident">ChooseSomething::new_state</span>(
                 <span class="ident">ctx</span>,
                 <span class="string">&quot;Use what timing split?&quot;</span>,
                 <span class="macro">vec!</span>[
@@ -676,7 +676,7 @@
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_signal</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="ident">i</span>).<span class="ident">clone</span>();
                     <span class="kw">match</span> <span class="ident">new_signal</span>.<span class="ident">adjust_major_minor_timing</span>(<span class="ident">timing</span>.<span class="number">0</span>, <span class="ident">timing</span>.<span class="number">1</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>)
                     {
-                        <span class="prelude-val">Ok</span>(()) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
+                        <span class="prelude-val">Ok</span>(()) =&gt; <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
                             <span class="ident">Transition::Pop</span>,
                             <span class="ident">Transition::ModifyState</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
                                 <span class="kw">let</span> <span class="ident">editor</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">TrafficSignalEditor</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
@@ -685,7 +685,7 @@
                                 });
                             })),
                         ]),
-                        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition::Replace</span>(<span class="ident">PopupMsg::new_state</span>(
+                        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="ident">Transition::Replace</span>(<span class="ident">PopupMsg::new_state</span>(
                             <span class="ident">ctx</span>,
                             <span class="string">&quot;Error&quot;</span>,
                             <span class="macro">vec!</span>[<span class="ident">err</span>.<span class="ident">to_string</span>()],
@@ -693,7 +693,7 @@
                     }
                 }),
             )),
-            <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="ident">stop_sign</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="ident">stop_sign</span> =&gt; {
                 <span class="ident">original</span>.<span class="ident">apply</span>(<span class="ident">app</span>);
 
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
@@ -708,7 +708,7 @@
                     <span class="ident">Transition::Replace</span>(<span class="ident">StopSignEditor::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">i</span>, <span class="ident">mode</span>)),
                 ])
             }
-            <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="ident">close</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="ident">close</span> =&gt; {
                 <span class="ident">original</span>.<span class="ident">apply</span>(<span class="ident">app</span>);
 
                 <span class="kw">let</span> <span class="ident">cmd</span> <span class="op">=</span> <span class="ident">EditCmd::ChangeIntersection</span> {
@@ -726,7 +726,7 @@
                     <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[<span class="ident">Transition::Pop</span>, <span class="ident">Transition::Pop</span>])
                 }
             }
-            <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="ident">reset</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
+            <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="ident">reset</span> =&gt; <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
                 <span class="ident">Transition::Pop</span>,
                 <span class="ident">Transition::ModifyState</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
                     <span class="kw">let</span> <span class="ident">editor</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">TrafficSignalEditor</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
@@ -739,7 +739,7 @@
                     });
                 })),
             ]),
-            <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="ident">gmns_picker</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition::Replace</span>(<span class="ident">FilePicker::new_state</span>(
+            <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="ident">gmns_picker</span> =&gt; <span class="ident">Transition::Replace</span>(<span class="ident">FilePicker::new_state</span>(
                 <span class="ident">ctx</span>,
                 <span class="prelude-val">None</span>,
                 <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">maybe_path</span><span class="op">|</span> {
@@ -747,7 +747,7 @@
                         <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">last_gmns_timing_csv</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>.<span class="ident">clone</span>());
                         <span class="kw">match</span> <span class="ident"><span class="kw">crate</span>::edit::traffic_signals::gmns::import</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>, <span class="ident">i</span>, <span class="kw-2">&amp;</span><span class="ident">path</span>)
                         {
-                            <span class="prelude-val">Ok</span>(<span class="ident">new_signal</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
+                            <span class="prelude-val">Ok</span>(<span class="ident">new_signal</span>) =&gt; <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
                                 <span class="ident">Transition::Pop</span>,
                                 <span class="ident">Transition::ModifyState</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
                                     <span class="kw">let</span> <span class="ident">editor</span> <span class="op">=</span>
@@ -757,7 +757,7 @@
                                     });
                                 })),
                             ]),
-                            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition::Replace</span>(<span class="ident">PopupMsg::new_state</span>(
+                            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="ident">Transition::Replace</span>(<span class="ident">PopupMsg::new_state</span>(
                                 <span class="ident">ctx</span>,
                                 <span class="string">&quot;Error&quot;</span>,
                                 <span class="macro">vec!</span>[<span class="ident">err</span>.<span class="ident">to_string</span>()],
@@ -768,13 +768,13 @@
                     }
                 }),
             )),
-            <span class="ident">x</span> <span class="kw">if</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>.<span class="ident">to_string</span>()) <span class="op">=</span><span class="op">=</span> <span class="ident">gmns_existing</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">x</span> <span class="kw">if</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>.<span class="ident">to_string</span>()) <span class="op">==</span> <span class="ident">gmns_existing</span> =&gt; {
                 <span class="kw">match</span> <span class="ident"><span class="kw">crate</span>::edit::traffic_signals::gmns::import</span>(
                     <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>,
                     <span class="ident">i</span>,
                     <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">last_gmns_timing_csv</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>(),
                 ) {
-                    <span class="prelude-val">Ok</span>(<span class="ident">new_signal</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
+                    <span class="prelude-val">Ok</span>(<span class="ident">new_signal</span>) =&gt; <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
                         <span class="ident">Transition::Pop</span>,
                         <span class="ident">Transition::ModifyState</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
                             <span class="kw">let</span> <span class="ident">editor</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">TrafficSignalEditor</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
@@ -783,14 +783,14 @@
                             });
                         })),
                     ]),
-                    <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition::Replace</span>(<span class="ident">PopupMsg::new_state</span>(
+                    <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="ident">Transition::Replace</span>(<span class="ident">PopupMsg::new_state</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;Error&quot;</span>,
                         <span class="macro">vec!</span>[<span class="ident">err</span>.<span class="ident">to_string</span>()],
                     )),
                 }
             }
-            <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="ident">gmns_all</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition::Replace</span>(<span class="ident">FilePicker::new_state</span>(
+            <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="ident">gmns_all</span> =&gt; <span class="ident">Transition::Replace</span>(<span class="ident">FilePicker::new_state</span>(
                 <span class="ident">ctx</span>,
                 <span class="prelude-val">None</span>,
                 <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">maybe_path</span><span class="op">|</span> {
@@ -810,7 +810,7 @@
                     }
                 }),
             )),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
         }),
     )
 }

@@ -212,7 +212,7 @@
 <span class="kw">impl</span> <span class="ident">ShareProposal</span> {
     <span class="doccomment">/// This will point to a URL with the new edits and the current map, but the caller needs to</span>
     <span class="doccomment">/// indicate a flag to reach the proper mode of A/B Street.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">url_flag</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">url_flag</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">checksum</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">get_checksum</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">url</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
@@ -282,10 +282,10 @@
 }
 
 <span class="kw">impl</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ShareProposal</span> {
-    <span class="kw">fn</span> <span class="ident">on_click</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
+    <span class="kw">fn</span> <span class="ident">on_click</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) -&gt; <span class="ident">Transition</span> {
         <span class="kw">match</span> <span class="ident">x</span> {
-            <span class="string">&quot;close&quot;</span> <span class="op">|</span> <span class="string">&quot;Cancel&quot;</span> <span class="op">|</span> <span class="string">&quot;Back&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition::Pop</span>,
-            <span class="string">&quot;Upload&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="string">&quot;close&quot;</span> <span class="op">|</span> <span class="string">&quot;Cancel&quot;</span> <span class="op">|</span> <span class="string">&quot;Back&quot;</span> =&gt; <span class="ident">Transition::Pop</span>,
+            <span class="string">&quot;Upload&quot;</span> =&gt; {
                 <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">outer_progress_rx</span>) <span class="op">=</span> <span class="ident">futures_channel::mpsc::channel</span>(<span class="number">1</span>);
                 <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">inner_progress_rx</span>) <span class="op">=</span> <span class="ident">futures_channel::mpsc::channel</span>(<span class="number">1</span>);
                 <span class="kw">let</span> <span class="ident">edits_json</span> <span class="op">=</span>
@@ -299,14 +299,14 @@
                             <span class="ident">abstio::http_post</span>(<span class="macro">format!</span>(<span class="string">&quot;{}/create&quot;</span>, <span class="ident">PROPOSAL_HOST_URL</span>), <span class="ident">edits_json</span>)
                                 .<span class="kw">await</span><span class="question-mark">?</span>;
                         <span class="comment">// TODO I&#39;m so lost in this type magic</span>
-                        <span class="kw">let</span> <span class="ident">wrapper</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">id</span>);
+                        <span class="kw">let</span> <span class="ident">wrapper</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">id</span>);
                         <span class="prelude-val">Ok</span>(<span class="ident">wrapper</span>)
                     }),
                     <span class="ident">outer_progress_rx</span>,
                     <span class="ident">inner_progress_rx</span>,
                     <span class="string">&quot;Uploading proposal&quot;</span>,
                     <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">result</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">result</span> {
-                        <span class="prelude-val">Ok</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="prelude-val">Ok</span>(<span class="ident">id</span>) =&gt; {
                             <span class="ident">URLManager::update_url_param</span>(
                                 <span class="string">&quot;--edits&quot;</span>.<span class="ident">to_string</span>(),
                                 <span class="macro">format!</span>(<span class="string">&quot;remote/{}&quot;</span>, <span class="ident">id</span>),
@@ -315,7 +315,7 @@
                             <span class="ident">UploadedProposals::proposal_uploaded</span>(<span class="ident">id</span>);
                             <span class="ident">Transition::Replace</span>(<span class="ident">ShareProposal::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">url_flag</span>))
                         }
-                        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
+                        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
                             <span class="ident">Transition::Pop</span>,
                             <span class="ident">Transition::Push</span>(<span class="ident">ShareProposal::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">url_flag</span>)),
                             <span class="ident">Transition::Push</span>(<span class="ident">PopupMsg::new_state</span>(
@@ -327,15 +327,15 @@
                     }),
                 ));
             }
-            <span class="string">&quot;Copy URL to clipboard&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="string">&quot;Copy URL to clipboard&quot;</span> =&gt; {
                 <span class="ident">set_clipboard</span>(<span class="self">self</span>.<span class="ident">url</span>.<span class="ident">clone</span>().<span class="ident">unwrap</span>());
                 <span class="ident">Transition::Keep</span>
             }
-            <span class="string">&quot;open in browser&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="string">&quot;open in browser&quot;</span> =&gt; {
                 <span class="ident">open_browser</span>(<span class="self">self</span>.<span class="ident">url</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>());
                 <span class="ident">Transition::Keep</span>
             }
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
         }
     }
 
@@ -350,7 +350,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">UploadedProposals</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">UploadedProposals</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load</span>() -&gt; <span class="ident">UploadedProposals</span> {
         <span class="ident">abstio::maybe_read_json</span>::<span class="op">&lt;</span><span class="ident">UploadedProposals</span><span class="op">&gt;</span>(
             <span class="ident">abstio::path_player</span>(<span class="string">&quot;uploaded_proposals.json&quot;</span>),
             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer::throwaway</span>(),

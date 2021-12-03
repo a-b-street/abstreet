@@ -97,7 +97,7 @@
 <span class="kw">use</span> <span class="ident">map_model::Map</span>;
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">ExternalPerson</span>, <span class="ident">ExternalTrip</span>, <span class="ident">ExternalTripEndpoint</span>, <span class="ident">Scenario</span>, <span class="ident">TripMode</span>, <span class="ident">TripPurpose</span>};
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run</span>(<span class="ident">csv_path</span>: <span class="ident">String</span>, <span class="ident">map</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run</span>(<span class="ident">csv_path</span>: <span class="ident">String</span>, <span class="ident">map</span>: <span class="ident">String</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer::new</span>(<span class="string">&quot;import grid2demand&quot;</span>);
     <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;parse CSV&quot;</span>);
     <span class="kw">let</span> <span class="ident">people</span> <span class="op">=</span> <span class="ident">parse_trips</span>(<span class="ident">csv_path</span>)<span class="question-mark">?</span>;
@@ -122,16 +122,16 @@
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">fn</span> <span class="ident">parse_trips</span>(<span class="ident">csv_path</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExternalPerson</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">parse_trips</span>(<span class="ident">csv_path</span>: <span class="ident">String</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExternalPerson</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">people</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">for</span> <span class="ident">rec</span> <span class="kw">in</span> <span class="ident">csv::Reader::from_reader</span>(<span class="ident">std::fs::File::open</span>(<span class="ident">csv_path</span>)<span class="question-mark">?</span>).<span class="ident">deserialize</span>() {
         <span class="kw">let</span> <span class="ident">rec</span>: <span class="ident">Record</span> <span class="op">=</span> <span class="ident">rec</span><span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">mode</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">rec</span>.<span class="ident">agent_type</span>.<span class="ident">as_ref</span>() {
-            <span class="string">&quot;v&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripMode::Drive</span>,
-            <span class="string">&quot;b&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripMode::Bike</span>,
-            <span class="string">&quot;p&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripMode::Walk</span>,
-            <span class="string">&quot;t&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripMode::Transit</span>,
-            <span class="ident">x</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">bail!</span>(<span class="string">&quot;Unknown agent_type {}&quot;</span>, <span class="ident">x</span>),
+            <span class="string">&quot;v&quot;</span> =&gt; <span class="ident">TripMode::Drive</span>,
+            <span class="string">&quot;b&quot;</span> =&gt; <span class="ident">TripMode::Bike</span>,
+            <span class="string">&quot;p&quot;</span> =&gt; <span class="ident">TripMode::Walk</span>,
+            <span class="string">&quot;t&quot;</span> =&gt; <span class="ident">TripMode::Transit</span>,
+            <span class="ident">x</span> =&gt; <span class="macro">bail!</span>(<span class="string">&quot;Unknown agent_type {}&quot;</span>, <span class="ident">x</span>),
         };
         <span class="kw">let</span> (<span class="ident">origin</span>, <span class="ident">destination</span>) <span class="op">=</span> <span class="ident">parse_linestring</span>(<span class="kw-2">&amp;</span><span class="ident">rec</span>.<span class="ident">geometry</span>)
             .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">anyhow!</span>(<span class="string">&quot;didn&#39;t parse geometry {}&quot;</span>, <span class="ident">rec</span>.<span class="ident">geometry</span>))<span class="question-mark">?</span>;
@@ -151,7 +151,7 @@
     <span class="prelude-val">Ok</span>(<span class="ident">people</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">parse_linestring</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">LonLat</span>, <span class="ident">LonLat</span>)<span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">parse_linestring</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">LonLat</span>, <span class="ident">LonLat</span>)<span class="op">&gt;</span> {
     <span class="comment">// Input is something like LINESTRING(-122.3245062 47.6456213,-122.3142029 47.6675654)</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">nums</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="ident">input</span>
@@ -167,7 +167,7 @@
     <span class="prelude-val">Some</span>((<span class="ident">LonLat::new</span>(<span class="ident">nums</span>[<span class="number">0</span>], <span class="ident">nums</span>[<span class="number">1</span>]), <span class="ident">LonLat::new</span>(<span class="ident">nums</span>[<span class="number">2</span>], <span class="ident">nums</span>[<span class="number">3</span>])))
 }
 
-<span class="kw">fn</span> <span class="ident">parse_time</span>(<span class="ident">input</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Time</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">parse_time</span>(<span class="ident">input</span>: <span class="ident">String</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Time</span><span class="op">&gt;</span> {
     <span class="comment">// Input is HHMM, like 0730</span>
     <span class="kw">let</span> <span class="ident">hours</span> <span class="op">=</span> <span class="ident">input</span>[<span class="number">0</span>..<span class="number">2</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">mins</span> <span class="op">=</span> <span class="ident">input</span>[<span class="number">2</span>..].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;

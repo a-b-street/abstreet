@@ -315,7 +315,7 @@
         <span class="ident">orig_state</span>: <span class="ident">EditRoad</span>,
         <span class="ident">new_state</span>: <span class="ident">EditRoad</span>,
         <span class="ident">base_edits</span>: <span class="ident">MapEdits</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
 
         <span class="comment">// Find all road segments matching the original state and name. base_road has already</span>
@@ -324,8 +324,8 @@
         <span class="kw">let</span> <span class="ident">base_name</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">base_road</span>).<span class="ident">get_name</span>(<span class="prelude-val">None</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">candidates</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
-            <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_r_edit</span>(<span class="ident">r</span>.<span class="ident">id</span>).<span class="ident">lanes_ltr</span> <span class="op">=</span><span class="op">=</span> <span class="ident">orig_state</span>.<span class="ident">lanes_ltr</span>
-                <span class="op">&amp;&amp;</span> <span class="ident">r</span>.<span class="ident">get_name</span>(<span class="prelude-val">None</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">base_name</span>
+            <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_r_edit</span>(<span class="ident">r</span>.<span class="ident">id</span>).<span class="ident">lanes_ltr</span> <span class="op">==</span> <span class="ident">orig_state</span>.<span class="ident">lanes_ltr</span>
+                <span class="op">&amp;&amp;</span> <span class="ident">r</span>.<span class="ident">get_name</span>(<span class="prelude-val">None</span>) <span class="op">==</span> <span class="ident">base_name</span>
             {
                 <span class="ident">candidates</span>.<span class="ident">insert</span>(<span class="ident">r</span>.<span class="ident">id</span>);
             }
@@ -405,7 +405,7 @@
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_plain</span>
                     .<span class="ident">text</span>(<span class="string">&quot;Select all&quot;</span>)
-                    .<span class="ident">disabled</span>(<span class="self">self</span>.<span class="ident">current</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">candidates</span>.<span class="ident">len</span>())
+                    .<span class="ident">disabled</span>(<span class="self">self</span>.<span class="ident">current</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="self">self</span>.<span class="ident">candidates</span>.<span class="ident">len</span>())
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_plain</span>
@@ -432,10 +432,10 @@
 }
 
 <span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">SelectSegments</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
+    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;Apply&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;Apply&quot;</span> =&gt; {
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">std::mem::take</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">base_edits</span>);
                     <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">current</span> {
                         <span class="ident">edits</span>
@@ -458,18 +458,18 @@
                         )),
                     ]);
                 }
-                <span class="string">&quot;Select all&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;Select all&quot;</span> =&gt; {
                     <span class="self">self</span>.<span class="ident">current</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">candidates</span>.<span class="ident">clone</span>();
                     <span class="self">self</span>.<span class="ident">recalculate</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 }
-                <span class="string">&quot;Unselect all&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;Unselect all&quot;</span> =&gt; {
                     <span class="self">self</span>.<span class="ident">current</span>.<span class="ident">clear</span>();
                     <span class="self">self</span>.<span class="ident">recalculate</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 }
-                <span class="string">&quot;Cancel&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;Cancel&quot;</span> =&gt; {
                     <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
                 }
-                <span class="string">&quot;jump to changed road&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;jump to changed road&quot;</span> =&gt; {
                     <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">Warping::new_state</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">app</span>.<span class="ident">primary</span>
@@ -480,7 +480,7 @@
                         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">app</span>.<span class="ident">primary</span>,
                     ));
                 }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
             }
         }
 
@@ -488,15 +488,15 @@
             <span class="self">self</span>.<span class="ident">selected</span> <span class="op">=</span> <span class="prelude-val">None</span>;
             <span class="ident">ctx</span>.<span class="ident">show_cursor</span>();
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">r</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">mouseover_unzoomed_roads_and_intersections</span>(<span class="ident">ctx</span>) {
-                <span class="prelude-val">Some</span>(<span class="ident">ID::Road</span>(<span class="ident">r</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">r</span>),
-                <span class="prelude-val">Some</span>(<span class="ident">ID::Lane</span>(<span class="ident">l</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>.<span class="ident">road</span>),
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+                <span class="prelude-val">Some</span>(<span class="ident">ID::Road</span>(<span class="ident">r</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="ident">r</span>),
+                <span class="prelude-val">Some</span>(<span class="ident">ID::Lane</span>(<span class="ident">l</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="ident">l</span>.<span class="ident">road</span>),
+                <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
             } {
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">candidates</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>) {
                     <span class="self">self</span>.<span class="ident">selected</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">r</span>);
                     <span class="ident">ctx</span>.<span class="ident">hide_cursor</span>();
                 }
-                <span class="kw">if</span> <span class="ident">r</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">base_road</span> {
+                <span class="kw">if</span> <span class="ident">r</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">base_road</span> {
                     <span class="self">self</span>.<span class="ident">selected</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">r</span>);
                 }
             }
@@ -543,7 +543,7 @@
                 <span class="ident">g</span>.<span class="ident">unfork</span>();
             }
 
-            <span class="kw">if</span> <span class="ident">r</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">base_road</span> {
+            <span class="kw">if</span> <span class="ident">r</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">base_road</span> {
                 <span class="ident">g</span>.<span class="ident">draw_mouse_tooltip</span>(<span class="ident">Text::from</span>(<span class="macro">format!</span>(<span class="string">&quot;Edited {}&quot;</span>, <span class="ident">r</span>)));
             }
         }

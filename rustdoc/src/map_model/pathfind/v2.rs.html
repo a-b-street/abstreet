@@ -337,7 +337,7 @@
         <span class="ident">req</span>: <span class="ident">PathRequest</span>,
         <span class="ident">cost</span>: <span class="ident">Duration</span>,
         <span class="ident">uber_turns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">UberTurnV2</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PathV2</span> {
+    ) -&gt; <span class="ident">PathV2</span> {
         <span class="comment">// TODO Port validate_continuity and validate_restrictions?</span>
         <span class="ident">PathV2</span> {
             <span class="ident">steps</span>,
@@ -355,7 +355,7 @@
         <span class="ident">cost</span>: <span class="ident">Duration</span>,
         <span class="ident">uber_turns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">UberTurnV2</span><span class="op">&gt;</span>,
         <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PathV2</span> {
+    ) -&gt; <span class="ident">PathV2</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">steps</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">roads</span>.<span class="ident">windows</span>(<span class="number">2</span>) {
             <span class="ident">steps</span>.<span class="ident">push</span>(<span class="ident">PathStepV2::Along</span>(<span class="ident">pair</span>[<span class="number">0</span>]));
@@ -371,26 +371,26 @@
     }
 
     <span class="doccomment">/// The original PathRequest used to produce this path.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_req</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">PathRequest</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_req</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">PathRequest</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">req</span>
     }
 
     <span class="doccomment">/// All steps in this path.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_steps</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PathStepV2</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_steps</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PathStepV2</span><span class="op">&gt;</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">steps</span>
     }
 
     <span class="doccomment">/// The time needed to perform this path. This time is not a lower bound; physically following</span>
     <span class="doccomment">/// the path might be faster. This time incorporates costs like using sub-optimal lanes or</span>
     <span class="doccomment">/// taking difficult turns.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_cost</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Duration</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_cost</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Duration</span> {
         <span class="self">self</span>.<span class="ident">cost</span>
     }
 
     <span class="doccomment">/// Transform a sequence of roads representing a path into the current lane-based path, by</span>
     <span class="doccomment">/// picking particular lanes and turns to use.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_v1</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">constraints</span> <span class="op">=</span><span class="op">=</span> <span class="ident">PathConstraints::Pedestrian</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_v1</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">constraints</span> <span class="op">==</span> <span class="ident">PathConstraints::Pedestrian</span> {
             <span class="kw">return</span> <span class="self">self</span>.<span class="ident">into_v1_walking</span>(<span class="ident">map</span>);
         }
 
@@ -398,7 +398,7 @@
         <span class="kw">let</span> <span class="ident">orig_start_lane</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">lane</span>();
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">pos</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">alt_start</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PathStepV2::Along</span>(<span class="ident">dr</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">steps</span>[<span class="number">0</span>] {
-                <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="self">self</span>.<span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">lane</span>()).<span class="ident">get_directed_parent</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">dr</span> {
+                <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="self">self</span>.<span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">lane</span>()).<span class="ident">get_directed_parent</span>() <span class="op">==</span> <span class="ident">dr</span> {
                     <span class="comment">// We used the original side, fine. No need to preserve this.</span>
                 } <span class="kw">else</span> {
                     <span class="macro">assert_eq!</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">pos</span>.<span class="ident">lane</span>()).<span class="ident">get_directed_parent</span>(), <span class="ident">dr</span>);
@@ -466,9 +466,9 @@
         <span class="kw">match</span> <span class="ident">petgraph::algo::astar</span>(
             <span class="kw-2">&amp;</span><span class="ident">graph</span>,
             <span class="ident">virtual_start_node</span>,
-            <span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">end</span>.<span class="ident">lane</span>(),
+            <span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">end</span>.<span class="ident">lane</span>(),
             <span class="op">|</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">t</span>)<span class="op">|</span> {
-                <span class="kw">if</span> <span class="ident">t</span>.<span class="ident">src</span> <span class="op">=</span><span class="op">=</span> <span class="ident">virtual_start_node</span> {
+                <span class="kw">if</span> <span class="ident">t</span>.<span class="ident">src</span> <span class="op">==</span> <span class="ident">virtual_start_node</span> {
                     <span class="kw">return</span> <span class="ident">t</span>.<span class="ident">parent</span>.<span class="number">0</span>;
                 }
 
@@ -476,7 +476,7 @@
                 <span class="comment">// near uber-turns. So still use some of the penalties here.</span>
                 <span class="kw">let</span> (<span class="ident">lt</span>, <span class="ident">lc</span>, <span class="ident">slow_lane</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="kw-2">*</span><span class="ident">t</span>).<span class="ident">penalty</span>(<span class="self">self</span>.<span class="ident">req</span>.<span class="ident">constraints</span>, <span class="ident">map</span>);
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">extra_penalty</span> <span class="op">=</span> <span class="ident">lt</span> <span class="op">+</span> <span class="ident">lc</span>;
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">constraints</span> <span class="op">=</span><span class="op">=</span> <span class="ident">PathConstraints::Bike</span> {
+                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">constraints</span> <span class="op">==</span> <span class="ident">PathConstraints::Bike</span> {
                     <span class="ident">extra_penalty</span> <span class="op">+</span><span class="op">=</span> <span class="ident">slow_lane</span>;
                 }
                 <span class="comment">// Always treat every lane/turn as at least cost 1; otherwise A* can&#39;t understand</span>
@@ -489,12 +489,12 @@
             },
             <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="number">0</span>,
         ) {
-            <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="ident">path</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="ident">path</span>)) =&gt; {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">steps</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
                 <span class="comment">// Skip the first node; it&#39;s always virtual_start_node</span>
                 <span class="macro">assert_eq!</span>(<span class="ident">path</span>[<span class="number">0</span>], <span class="ident">virtual_start_node</span>);
                 <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">path</span>.<span class="ident">windows</span>(<span class="number">2</span>) {
-                    <span class="kw">if</span> <span class="ident">pair</span>[<span class="number">0</span>] <span class="op">=</span><span class="op">=</span> <span class="ident">virtual_start_node</span> {
+                    <span class="kw">if</span> <span class="ident">pair</span>[<span class="number">0</span>] <span class="op">==</span> <span class="ident">virtual_start_node</span> {
                         <span class="kw">continue</span>;
                     }
 
@@ -510,8 +510,8 @@
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">blocked_starts</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
                 <span class="kw">if</span> <span class="ident">steps</span>[<span class="number">0</span>] <span class="op">!</span><span class="op">=</span> <span class="ident">PathStep::Lane</span>(<span class="ident">orig_start_lane</span>) {
                     <span class="kw">let</span> <span class="ident">actual_start</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">steps</span>[<span class="number">0</span>] {
-                        <span class="ident">PathStep::Lane</span>(<span class="ident">l</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">l</span>,
-                        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+                        <span class="ident">PathStep::Lane</span>(<span class="ident">l</span>) =&gt; <span class="ident">l</span>,
+                        <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
                     };
                     <span class="ident">blocked_starts</span>.<span class="ident">push</span>(<span class="ident">orig_start_lane</span>);
                     <span class="ident">blocked_starts</span>
@@ -522,20 +522,20 @@
                 <span class="kw">let</span> <span class="ident">uber_turns</span> <span class="op">=</span> <span class="ident">find_uber_turns</span>(<span class="kw-2">&amp;</span><span class="ident">steps</span>, <span class="ident">map</span>, <span class="self">self</span>.<span class="ident">uber_turns</span>);
                 <span class="prelude-val">Ok</span>(<span class="ident">Path::new</span>(<span class="ident">map</span>, <span class="ident">steps</span>, <span class="self">self</span>.<span class="ident">req</span>, <span class="ident">uber_turns</span>, <span class="ident">blocked_starts</span>))
             }
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">bail!</span>(
+            <span class="prelude-val">None</span> =&gt; <span class="macro">bail!</span>(
                 <span class="string">&quot;Can&#39;t transform a road-based path to a lane-based path for {}&quot;</span>,
                 <span class="self">self</span>.<span class="ident">req</span>
             ),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">into_v1_walking</span>(<span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">into_v1_walking</span>(<span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">steps</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">for</span> <span class="ident">step</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">steps</span> {
             <span class="ident">steps</span>.<span class="ident">push</span>(<span class="kw">match</span> <span class="ident">step</span> {
-                <span class="ident">PathStepV2::Along</span>(<span class="ident">r</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PathStep::Lane</span>(<span class="ident">r</span>.<span class="ident">must_get_sidewalk</span>(<span class="ident">map</span>)),
-                <span class="ident">PathStepV2::Contraflow</span>(<span class="ident">r</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PathStep::ContraflowLane</span>(<span class="ident">r</span>.<span class="ident">must_get_sidewalk</span>(<span class="ident">map</span>)),
-                <span class="ident">PathStepV2::Movement</span>(<span class="ident">mvmnt</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PathStep::Turn</span>(<span class="ident">TurnID</span> {
+                <span class="ident">PathStepV2::Along</span>(<span class="ident">r</span>) =&gt; <span class="ident">PathStep::Lane</span>(<span class="ident">r</span>.<span class="ident">must_get_sidewalk</span>(<span class="ident">map</span>)),
+                <span class="ident">PathStepV2::Contraflow</span>(<span class="ident">r</span>) =&gt; <span class="ident">PathStep::ContraflowLane</span>(<span class="ident">r</span>.<span class="ident">must_get_sidewalk</span>(<span class="ident">map</span>)),
+                <span class="ident">PathStepV2::Movement</span>(<span class="ident">mvmnt</span>) =&gt; <span class="ident">PathStep::Turn</span>(<span class="ident">TurnID</span> {
                     <span class="ident">src</span>: <span class="ident">mvmnt</span>.<span class="ident">from</span>.<span class="ident">must_get_sidewalk</span>(<span class="ident">map</span>),
                     <span class="ident">dst</span>: <span class="ident">mvmnt</span>.<span class="ident">to</span>.<span class="ident">must_get_sidewalk</span>(<span class="ident">map</span>),
                     <span class="ident">parent</span>: <span class="ident">mvmnt</span>.<span class="ident">parent</span>,
@@ -550,7 +550,7 @@
     <span class="ident">steps</span>: <span class="kw-2">&amp;</span>[<span class="ident">PathStep</span>],
     <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
     <span class="kw-2">mut</span> <span class="ident">uber_turns_v2</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">UberTurnV2</span><span class="op">&gt;</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">UberTurn</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">UberTurn</span><span class="op">&gt;</span> {
     <span class="comment">// Pathfinding v1 needs to know the uber turns that the path crosses, for the simulation layer.</span>
     <span class="comment">// Since we now construct the path in two stages, it&#39;s easiest to just reconstruct the uber</span>
     <span class="comment">// turns after building the lane-based path.</span>
@@ -566,7 +566,7 @@
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PathStep::Turn</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">step</span> {
             <span class="kw">if</span> <span class="ident">current_ut</span>.<span class="ident">is_empty</span>()
-                <span class="op">&amp;&amp;</span> <span class="ident">uber_turns_v2</span>[<span class="number">0</span>].<span class="ident">path</span>[<span class="number">0</span>].<span class="ident">from</span> <span class="op">=</span><span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">t</span>.<span class="ident">src</span>).<span class="ident">get_directed_parent</span>()
+                <span class="op">&amp;&amp;</span> <span class="ident">uber_turns_v2</span>[<span class="number">0</span>].<span class="ident">path</span>[<span class="number">0</span>].<span class="ident">from</span> <span class="op">==</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">t</span>.<span class="ident">src</span>).<span class="ident">get_directed_parent</span>()
             {
                 <span class="ident">current_ut</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">t</span>);
             }
@@ -575,7 +575,7 @@
                 <span class="kw">if</span> <span class="ident">current_ut</span>.<span class="ident">last</span>() <span class="op">!</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) {
                     <span class="ident">current_ut</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">t</span>);
                 }
-                <span class="kw">if</span> <span class="ident">uber_turns_v2</span>[<span class="number">0</span>].<span class="ident">path</span>[<span class="number">0</span>].<span class="ident">to</span> <span class="op">=</span><span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">t</span>.<span class="ident">dst</span>).<span class="ident">get_directed_parent</span>() {
+                <span class="kw">if</span> <span class="ident">uber_turns_v2</span>[<span class="number">0</span>].<span class="ident">path</span>[<span class="number">0</span>].<span class="ident">to</span> <span class="op">==</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">t</span>.<span class="ident">dst</span>).<span class="ident">get_directed_parent</span>() {
                     <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">UberTurn</span> {
                         <span class="ident">path</span>: <span class="ident">current_ut</span>.<span class="ident">drain</span>(..).<span class="ident">collect</span>(),
                     });

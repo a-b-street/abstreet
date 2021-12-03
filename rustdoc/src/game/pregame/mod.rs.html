@@ -72,7 +72,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TitleScreen</span>;
 
 <span class="kw">impl</span> <span class="ident">TitleScreen</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident">map_gui::tools::TitleScreen::new_state</span>(
             <span class="ident">ctx</span>,
             <span class="ident">app</span>,
@@ -82,11 +82,11 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">enter_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">enter_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">match</span> <span class="ident">args</span>[<span class="number">0</span>] {
-        <span class="string">&quot;--tutorial-intro&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Tutorial::start</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-        <span class="string">&quot;--challenges&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ChallengesPicker::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-        <span class="string">&quot;--sandbox&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SandboxMode::simple_new</span>(
+        <span class="string">&quot;--tutorial-intro&quot;</span> =&gt; <span class="ident">Tutorial::start</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+        <span class="string">&quot;--challenges&quot;</span> =&gt; <span class="ident">ChallengesPicker::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+        <span class="string">&quot;--sandbox&quot;</span> =&gt; <span class="ident">SandboxMode::simple_new</span>(
             <span class="ident">app</span>,
             <span class="ident">GameplayMode::PlayScenario</span>(
                 <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">clone</span>(),
@@ -94,24 +94,24 @@
                 <span class="ident">Vec::new</span>(),
             ),
         ),
-        <span class="string">&quot;--proposals&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">proposals::Proposals::new_state</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
-        <span class="string">&quot;--ungap&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="string">&quot;--proposals&quot;</span> =&gt; <span class="ident">proposals::Proposals::new_state</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
+        <span class="string">&quot;--ungap&quot;</span> =&gt; {
             <span class="kw">let</span> <span class="ident">layers</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::ungap::Layers::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
             <span class="ident"><span class="kw">crate</span>::ungap::ExploreMap::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">layers</span>)
         }
-        <span class="string">&quot;--ltn&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::ltn::BrowseNeighborhoods::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-        <span class="string">&quot;--devtools&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::devtools::DevToolsMode::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+        <span class="string">&quot;--ltn&quot;</span> =&gt; <span class="ident"><span class="kw">crate</span>::ltn::BrowseNeighborhoods::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+        <span class="string">&quot;--devtools&quot;</span> =&gt; <span class="ident"><span class="kw">crate</span>::devtools::DevToolsMode::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+        <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">default_scenario_for_map</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">MapName</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-    <span class="kw">if</span> <span class="ident">name</span>.<span class="ident">city</span> <span class="op">=</span><span class="op">=</span> <span class="ident">CityName::seattle</span>()
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">default_scenario_for_map</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">MapName</span>) -&gt; <span class="ident">String</span> {
+    <span class="kw">if</span> <span class="ident">name</span>.<span class="ident">city</span> <span class="op">==</span> <span class="ident">CityName::seattle</span>()
         <span class="op">&amp;&amp;</span> <span class="ident">abstio::file_exists</span>(<span class="ident">abstio::path_scenario</span>(<span class="ident">name</span>, <span class="string">&quot;weekday&quot;</span>))
     {
         <span class="kw">return</span> <span class="string">&quot;weekday&quot;</span>.<span class="ident">to_string</span>();
     }
-    <span class="kw">if</span> <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">country</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;gb&quot;</span> {
+    <span class="kw">if</span> <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">country</span> <span class="op">==</span> <span class="string">&quot;gb&quot;</span> {
         <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> [<span class="string">&quot;background&quot;</span>, <span class="string">&quot;base_with_bg&quot;</span>] {
             <span class="kw">if</span> <span class="ident">abstio::file_exists</span>(<span class="ident">abstio::path_scenario</span>(<span class="ident">name</span>, <span class="ident">x</span>)) {
                 <span class="kw">return</span> <span class="ident">x</span>.<span class="ident">to_string</span>();

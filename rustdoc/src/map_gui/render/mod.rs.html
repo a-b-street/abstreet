@@ -154,17 +154,17 @@
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Renderable</span> {
     <span class="comment">// TODO This is expensive for the PedCrowd case. :( Returning a borrow is awkward, because most</span>
     <span class="comment">// Renderables are better off storing the inner ID directly.</span>
-    <span class="kw">fn</span> <span class="ident">get_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ID</span>;
+    <span class="kw">fn</span> <span class="ident">get_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ID</span>;
     <span class="comment">// Only traffic signals need UI. :\</span>
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>, <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">DrawOptions</span>);
     <span class="comment">// Higher z-ordered objects are drawn later. Default to low so roads at -1 don&#39;t vanish.</span>
-    <span class="kw">fn</span> <span class="ident">get_zorder</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">isize</span> {
+    <span class="kw">fn</span> <span class="ident">get_zorder</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">isize</span> {
         <span class="op">-</span><span class="number">5</span>
     }
     <span class="comment">// This outline is drawn over the base object to show that it&#39;s selected. It also represents</span>
     <span class="comment">// the boundaries for quadtrees. This isn&#39;t called often; don&#39;t worry about caching.</span>
-    <span class="kw">fn</span> <span class="ident">get_outline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span>;
-    <span class="kw">fn</span> <span class="ident">contains_pt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">get_outline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">Polygon</span>;
+    <span class="kw">fn</span> <span class="ident">contains_pt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">get_outline</span>(<span class="ident">map</span>).<span class="ident">contains_pt</span>(<span class="ident">pt</span>)
     }
 }
@@ -175,8 +175,8 @@
     <span class="ident">sim</span>: <span class="kw-2">&amp;</span><span class="ident">Sim</span>,
     <span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="ident">Prerender</span>,
     <span class="ident">cs</span>: <span class="kw-2">&amp;</span><span class="ident">ColorScheme</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">id</span>.<span class="ident">vehicle_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">VehicleType::Bike</span> {
+) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;</span> {
+    <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">id</span>.<span class="ident">vehicle_type</span> <span class="op">==</span> <span class="ident">VehicleType::Bike</span> {
         <span class="ident">Box::new</span>(<span class="ident">DrawBike::new</span>(<span class="ident">input</span>, <span class="ident">map</span>, <span class="ident">sim</span>, <span class="ident">prerender</span>, <span class="ident">cs</span>))
     } <span class="kw">else</span> {
         <span class="ident">Box::new</span>(<span class="ident">DrawCar::new</span>(<span class="ident">input</span>, <span class="ident">map</span>, <span class="ident">sim</span>, <span class="ident">prerender</span>, <span class="ident">cs</span>))
@@ -193,7 +193,7 @@
 
 <span class="kw">impl</span> <span class="ident">DrawOptions</span> {
     <span class="doccomment">/// Default options for drawing a map.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DrawOptions</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">DrawOptions</span> {
         <span class="ident">DrawOptions</span> {
             <span class="ident">suppress_traffic_signal_details</span>: <span class="ident">Vec::new</span>(),
             <span class="ident">label_buildings</span>: <span class="bool-val">false</span>,
@@ -201,7 +201,7 @@
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unzoomed_agent_radius</span>(<span class="ident">vt</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">VehicleType</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Distance</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unzoomed_agent_radius</span>(<span class="ident">vt</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">VehicleType</span><span class="op">&gt;</span>) -&gt; <span class="ident">Distance</span> {
     <span class="comment">// Lane thickness is a little hard to see, so double it. Most of the time, the circles don&#39;t</span>
     <span class="comment">// leak out of the road too much.</span>
     <span class="kw">if</span> <span class="ident">vt</span>.<span class="ident">is_some</span>() {
@@ -212,7 +212,7 @@
 }
 
 <span class="doccomment">/// If the sim has highlighted people, then fade all others out.</span>
-<span class="kw">fn</span> <span class="ident">grey_out_unhighlighted_people</span>(<span class="ident">color</span>: <span class="ident">Color</span>, <span class="ident">person</span>: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PersonID</span><span class="op">&gt;</span>, <span class="ident">sim</span>: <span class="kw-2">&amp;</span><span class="ident">Sim</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Color</span> {
+<span class="kw">fn</span> <span class="ident">grey_out_unhighlighted_people</span>(<span class="ident">color</span>: <span class="ident">Color</span>, <span class="ident">person</span>: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PersonID</span><span class="op">&gt;</span>, <span class="ident">sim</span>: <span class="kw-2">&amp;</span><span class="ident">Sim</span>) -&gt; <span class="ident">Color</span> {
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">highlighted</span>) <span class="op">=</span> <span class="ident">sim</span>.<span class="ident">get_highlighted_people</span>() {
         <span class="kw">if</span> <span class="ident">person</span>
             .<span class="ident">as_ref</span>()

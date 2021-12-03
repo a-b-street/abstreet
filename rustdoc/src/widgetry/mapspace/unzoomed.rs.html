@@ -159,7 +159,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">DrawUnzoomedShapes</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>() -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">lines</span>: <span class="ident">Vec::new</span>(),
             <span class="ident">circles</span>: <span class="ident">Vec::new</span>(),
@@ -167,7 +167,7 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">builder</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DrawUnzoomedShapesBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">builder</span>() -&gt; <span class="ident">DrawUnzoomedShapesBuilder</span> {
         <span class="ident">DrawUnzoomedShapesBuilder</span> {
             <span class="ident">lines</span>: <span class="ident">Vec::new</span>(),
             <span class="ident">circles</span>: <span class="ident">Vec::new</span>(),
@@ -211,7 +211,7 @@
     }
 
     <span class="comment">// TODO We might take EventCtx here to upload something to the GPU.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DrawUnzoomedShapes</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="self">self</span>) -&gt; <span class="ident">DrawUnzoomedShapes</span> {
         <span class="ident">DrawUnzoomedShapes</span> {
             <span class="ident">lines</span>: <span class="self">self</span>.<span class="ident">lines</span>,
             <span class="ident">circles</span>: <span class="self">self</span>.<span class="ident">circles</span>,
@@ -224,7 +224,7 @@
 <span class="comment">// move line thickening into the shader to do it better. So recalculate with less granularity.</span>
 <span class="comment">//</span>
 <span class="comment">// Returns ([0.0, 1.0], [0, 10])</span>
-<span class="kw">fn</span> <span class="ident">discretize_zoom</span>(<span class="ident">zoom</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">f64</span>, <span class="ident">usize</span>) {
+<span class="kw">fn</span> <span class="ident">discretize_zoom</span>(<span class="ident">zoom</span>: <span class="ident">f64</span>) -&gt; (<span class="ident">f64</span>, <span class="ident">usize</span>) {
     <span class="kw">if</span> <span class="ident">zoom</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">1.0</span> {
         <span class="kw">return</span> (<span class="number">1.0</span>, <span class="number">10</span>);
     }

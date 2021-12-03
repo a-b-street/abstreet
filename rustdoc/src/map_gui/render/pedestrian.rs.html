@@ -321,7 +321,7 @@
         <span class="ident">sim</span>: <span class="kw-2">&amp;</span><span class="ident">Sim</span>,
         <span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="ident">Prerender</span>,
         <span class="ident">cs</span>: <span class="kw-2">&amp;</span><span class="ident">ColorScheme</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DrawPedestrian</span> {
+    ) -&gt; <span class="ident">DrawPedestrian</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw_default</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
         <span class="ident">DrawPedestrian::geometry</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">draw_default</span>, <span class="ident">sim</span>, <span class="ident">cs</span>, <span class="kw-2">&amp;</span><span class="ident">input</span>, <span class="ident">step_count</span>);
 
@@ -341,7 +341,7 @@
             );
         }
 
-        <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">intent</span> <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Intent::SteepUphill</span>) {
+        <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">intent</span> <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="ident">Intent::SteepUphill</span>) {
             <span class="kw">let</span> <span class="ident">bubble_z</span> <span class="op">=</span> <span class="op">-</span><span class="number">0.0001</span>;
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bubble_batch</span> <span class="op">=</span>
                 <span class="ident">GeomBatch::load_svg</span>(<span class="ident">prerender</span>, <span class="string">&quot;system/assets/map/thought_bubble.svg&quot;</span>)
@@ -416,14 +416,14 @@
         <span class="kw">let</span> <span class="ident">foot_color</span> <span class="op">=</span> <span class="ident">cs</span>.<span class="ident">ped_foot</span>;
         <span class="kw">let</span> <span class="ident">hand_color</span> <span class="op">=</span> <span class="ident">cs</span>.<span class="ident">ped_head</span>;
         <span class="comment">// Jitter based on ID so we don&#39;t all walk synchronized.</span>
-        <span class="kw">let</span> <span class="ident">jitter</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">id</span>.<span class="number">0</span> <span class="op">%</span> <span class="number">2</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">let</span> <span class="ident">jitter</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">id</span>.<span class="number">0</span> <span class="op">%</span> <span class="number">2</span> <span class="op">==</span> <span class="number">0</span>;
         <span class="kw">let</span> <span class="ident">remainder</span> <span class="op">=</span> <span class="ident">step_count</span> <span class="op">%</span> <span class="number">6</span>;
         <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">waiting_for_turn</span>.<span class="ident">is_some</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">input</span>.<span class="ident">waiting_for_bus</span> {
             <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">foot_color</span>, <span class="ident">left_foot</span>.<span class="ident">to_polygon</span>());
             <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">foot_color</span>, <span class="ident">right_foot</span>.<span class="ident">to_polygon</span>());
             <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">hand_color</span>, <span class="ident">left_hand</span>.<span class="ident">to_polygon</span>());
             <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">hand_color</span>, <span class="ident">right_hand</span>.<span class="ident">to_polygon</span>());
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">jitter</span> <span class="op">=</span><span class="op">=</span> (<span class="ident">remainder</span> <span class="op">&lt;</span> <span class="number">3</span>) {
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">jitter</span> <span class="op">==</span> (<span class="ident">remainder</span> <span class="op">&lt;</span> <span class="number">3</span>) {
             <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">foot_color</span>, <span class="ident">left_foot</span>.<span class="ident">to_polygon</span>());
             <span class="ident">batch</span>.<span class="ident">push</span>(
                 <span class="ident">foot_color</span>,
@@ -491,7 +491,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Renderable</span> <span class="kw">for</span> <span class="ident">DrawPedestrian</span> {
-    <span class="kw">fn</span> <span class="ident">get_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ID</span> {
+    <span class="kw">fn</span> <span class="ident">get_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ID</span> {
         <span class="ident">ID::Pedestrian</span>(<span class="self">self</span>.<span class="ident">id</span>)
     }
 
@@ -499,17 +499,17 @@
         <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw_default</span>);
     }
 
-    <span class="kw">fn</span> <span class="ident">get_outline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
+    <span class="kw">fn</span> <span class="ident">get_outline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">Polygon</span> {
         <span class="ident">Circle::new</span>(<span class="self">self</span>.<span class="ident">body_circle</span>.<span class="ident">center</span>, <span class="ident">Distance::meters</span>(<span class="number">2.0</span>))
             .<span class="ident">to_outline</span>(<span class="ident">OUTLINE_THICKNESS</span>)
             .<span class="ident">unwrap</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">contains_pt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">contains_pt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">bool</span> {
         <span class="ident">Circle::new</span>(<span class="self">self</span>.<span class="ident">body_circle</span>.<span class="ident">center</span>, <span class="ident">Distance::meters</span>(<span class="number">2.0</span>)).<span class="ident">contains_pt</span>(<span class="ident">pt</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">get_zorder</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">isize</span> {
+    <span class="kw">fn</span> <span class="ident">get_zorder</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">isize</span> {
         <span class="self">self</span>.<span class="ident">zorder</span>
     }
 }
@@ -529,22 +529,22 @@
         <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
         <span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="ident">Prerender</span>,
         <span class="ident">cs</span>: <span class="kw-2">&amp;</span><span class="ident">ColorScheme</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DrawPedCrowd</span> {
+    ) -&gt; <span class="ident">DrawPedCrowd</span> {
         <span class="kw">let</span> <span class="ident">pl_shifted</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">input</span>.<span class="ident">location</span> {
-            <span class="ident">PedCrowdLocation::Sidewalk</span>(<span class="ident">on</span>, <span class="ident">contraflow</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">PedCrowdLocation::Sidewalk</span>(<span class="ident">on</span>, <span class="ident">contraflow</span>) =&gt; {
                 <span class="kw">let</span> <span class="ident">pl_slice</span> <span class="op">=</span> <span class="ident">on</span>.<span class="ident">get_polyline</span>(<span class="ident">map</span>).<span class="ident">exact_slice</span>(<span class="ident">input</span>.<span class="ident">low</span>, <span class="ident">input</span>.<span class="ident">high</span>);
-                <span class="kw">if</span> <span class="ident">contraflow</span> <span class="op">=</span><span class="op">=</span> (<span class="ident">map</span>.<span class="ident">get_config</span>().<span class="ident">driving_side</span> <span class="op">=</span><span class="op">=</span> <span class="ident">DrivingSide::Right</span>) {
+                <span class="kw">if</span> <span class="ident">contraflow</span> <span class="op">==</span> (<span class="ident">map</span>.<span class="ident">get_config</span>().<span class="ident">driving_side</span> <span class="op">==</span> <span class="ident">DrivingSide::Right</span>) {
                     <span class="ident">pl_slice</span>.<span class="ident">shift_left</span>(<span class="ident">SIDEWALK_THICKNESS</span> <span class="op">/</span> <span class="number">4.0</span>)
                 } <span class="kw">else</span> {
                     <span class="ident">pl_slice</span>.<span class="ident">shift_right</span>(<span class="ident">SIDEWALK_THICKNESS</span> <span class="op">/</span> <span class="number">4.0</span>)
                 }
                 .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">on</span>.<span class="ident">get_polyline</span>(<span class="ident">map</span>).<span class="ident">exact_slice</span>(<span class="ident">input</span>.<span class="ident">low</span>, <span class="ident">input</span>.<span class="ident">high</span>))
             }
-            <span class="ident">PedCrowdLocation::BldgDriveway</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">map</span>
+            <span class="ident">PedCrowdLocation::BldgDriveway</span>(<span class="ident">b</span>) =&gt; <span class="ident">map</span>
                 .<span class="ident">get_b</span>(<span class="ident">b</span>)
                 .<span class="ident">driveway_geom</span>
                 .<span class="ident">exact_slice</span>(<span class="ident">input</span>.<span class="ident">low</span>, <span class="ident">input</span>.<span class="ident">high</span>),
-            <span class="ident">PedCrowdLocation::LotDriveway</span>(<span class="ident">pl</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">map</span>
+            <span class="ident">PedCrowdLocation::LotDriveway</span>(<span class="ident">pl</span>) =&gt; <span class="ident">map</span>
                 .<span class="ident">get_pl</span>(<span class="ident">pl</span>)
                 .<span class="ident">sidewalk_line</span>
                 .<span class="ident">to_polyline</span>()
@@ -565,9 +565,9 @@
             <span class="ident">blob_pl</span>: <span class="ident">pl_shifted</span>,
             <span class="ident">blob</span>,
             <span class="ident">zorder</span>: <span class="kw">match</span> <span class="ident">input</span>.<span class="ident">location</span> {
-                <span class="ident">PedCrowdLocation::Sidewalk</span>(<span class="ident">on</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">on</span>.<span class="ident">get_zorder</span>(<span class="ident">map</span>),
-                <span class="ident">PedCrowdLocation::BldgDriveway</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="number">0</span>,
-                <span class="ident">PedCrowdLocation::LotDriveway</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="number">0</span>,
+                <span class="ident">PedCrowdLocation::Sidewalk</span>(<span class="ident">on</span>, <span class="kw">_</span>) =&gt; <span class="ident">on</span>.<span class="ident">get_zorder</span>(<span class="ident">map</span>),
+                <span class="ident">PedCrowdLocation::BldgDriveway</span>(<span class="kw">_</span>) =&gt; <span class="number">0</span>,
+                <span class="ident">PedCrowdLocation::LotDriveway</span>(<span class="kw">_</span>) =&gt; <span class="number">0</span>,
             },
             <span class="ident">draw_default</span>: <span class="ident">prerender</span>.<span class="ident">upload</span>(<span class="ident">batch</span>),
         }
@@ -575,7 +575,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Renderable</span> <span class="kw">for</span> <span class="ident">DrawPedCrowd</span> {
-    <span class="kw">fn</span> <span class="ident">get_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ID</span> {
+    <span class="kw">fn</span> <span class="ident">get_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ID</span> {
         <span class="comment">// Expensive! :(</span>
         <span class="ident">ID::PedCrowd</span>(<span class="self">self</span>.<span class="ident">members</span>.<span class="ident">clone</span>())
     }
@@ -584,13 +584,13 @@
         <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw_default</span>);
     }
 
-    <span class="kw">fn</span> <span class="ident">get_outline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
+    <span class="kw">fn</span> <span class="ident">get_outline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">Polygon</span> {
         <span class="self">self</span>.<span class="ident">blob_pl</span>
             .<span class="ident">to_thick_boundary</span>(<span class="ident">SIDEWALK_THICKNESS</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">OUTLINE_THICKNESS</span>)
             .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">blob</span>.<span class="ident">clone</span>())
     }
 
-    <span class="kw">fn</span> <span class="ident">get_zorder</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">isize</span> {
+    <span class="kw">fn</span> <span class="ident">get_zorder</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">isize</span> {
         <span class="self">self</span>.<span class="ident">zorder</span>
     }
 }

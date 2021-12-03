@@ -332,6 +332,7 @@
 <span id="332">332</span>
 <span id="333">333</span>
 <span id="334">334</span>
+<span id="335">335</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
@@ -349,14 +350,14 @@
 }
 
 <span class="comment">// Extract trip demand data from PSRC&#39;s Soundcast outputs.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">import_data</span>(<span class="ident">huge_map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PopDat</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">import_data</span>(<span class="ident">huge_map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) -&gt; <span class="ident">PopDat</span> {
     <span class="kw">let</span> <span class="ident">trips</span> <span class="op">=</span> <span class="ident">import_trips</span>(<span class="ident">huge_map</span>, <span class="ident">timer</span>);
     <span class="kw">let</span> <span class="ident">popdat</span> <span class="op">=</span> <span class="ident">PopDat</span> { <span class="ident">trips</span> };
     <span class="ident">abstio::write_binary</span>(<span class="ident">abstio::path_popdat</span>(), <span class="kw-2">&amp;</span><span class="ident">popdat</span>);
     <span class="ident">popdat</span>
 }
 
-<span class="kw">fn</span> <span class="ident">import_trips</span>(<span class="ident">huge_map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">OrigTrip</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">import_trips</span>(<span class="ident">huge_map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">OrigTrip</span><span class="op">&gt;</span> {
     <span class="kw">let</span> (<span class="ident">parcels</span>, <span class="kw-2">mut</span> <span class="ident">keyed_shapes</span>) <span class="op">=</span> <span class="ident">import_parcels</span>(<span class="ident">huge_map</span>, <span class="ident">timer</span>);
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">trips</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
@@ -378,7 +379,7 @@
 
         <span class="comment">// If both are None, then skip -- the trip doesn&#39;t start or end within huge_seattle.</span>
         <span class="comment">// If both are the same building, also skip -- that&#39;s a redundant trip.</span>
-        <span class="kw">if</span> <span class="ident">from</span>.<span class="ident">osm_building</span> <span class="op">=</span><span class="op">=</span> <span class="ident">to</span>.<span class="ident">osm_building</span> {
+        <span class="kw">if</span> <span class="ident">from</span>.<span class="ident">osm_building</span> <span class="op">==</span> <span class="ident">to</span>.<span class="ident">osm_building</span> {
             <span class="kw">if</span> <span class="ident">from</span>.<span class="ident">osm_building</span>.<span class="ident">is_some</span>() {
                 <span class="comment">/*warn!(
                     &quot;Skipping trip from parcel {} to {}; both match OSM building {:?}&quot;,
@@ -399,7 +400,7 @@
         <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="ident">OrigPersonID</span>(<span class="ident">rec</span>.<span class="ident">hhno</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">rec</span>.<span class="ident">pno</span> <span class="kw">as</span> <span class="ident">usize</span>);
         <span class="ident">people</span>.<span class="ident">insert</span>(<span class="ident">person</span>);
         <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::float_cmp</span>)]</span>
-        <span class="kw">let</span> <span class="ident">seq</span> <span class="op">=</span> (<span class="ident">rec</span>.<span class="ident">tour</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">rec</span>.<span class="ident">half</span> <span class="op">=</span><span class="op">=</span> <span class="number">2.0</span>, <span class="ident">rec</span>.<span class="ident">tseg</span> <span class="kw">as</span> <span class="ident">usize</span>);
+        <span class="kw">let</span> <span class="ident">seq</span> <span class="op">=</span> (<span class="ident">rec</span>.<span class="ident">tour</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">rec</span>.<span class="ident">half</span> <span class="op">==</span> <span class="number">2.0</span>, <span class="ident">rec</span>.<span class="ident">tseg</span> <span class="kw">as</span> <span class="ident">usize</span>);
 
         <span class="ident">trips</span>.<span class="ident">push</span>(<span class="ident">OrigTrip</span> {
             <span class="ident">from</span>,
@@ -452,7 +453,7 @@
 <span class="kw">fn</span> <span class="ident">import_parcels</span>(
     <span class="ident">huge_map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
     <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
-) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">Endpoint</span><span class="op">&gt;</span>, <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">ExtraShape</span><span class="op">&gt;</span>) {
+) -&gt; (<span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">Endpoint</span><span class="op">&gt;</span>, <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">ExtraShape</span><span class="op">&gt;</span>) {
     <span class="kw">use</span> <span class="ident">geom::FindClosest</span>;
 
     <span class="comment">// TODO I really just want to do polygon containment with a quadtree. FindClosest only does</span>
@@ -563,40 +564,40 @@
 <span class="kw">fn</span> <span class="ident">import_parcels</span>(
     <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
     <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
-) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">Endpoint</span><span class="op">&gt;</span>, <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">ExtraShape</span><span class="op">&gt;</span>) {
+) -&gt; (<span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">Endpoint</span><span class="op">&gt;</span>, <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">ExtraShape</span><span class="op">&gt;</span>) {
     <span class="macro">panic!</span>(<span class="string">&quot;Can&#39;t import_parcels for popdat.bin without the scenarios feature (GDAL dependency)&quot;</span>);
 }
 
-<span class="comment">// From https://github.com/psrc/soundcast/wiki/Outputs#trip-file-_triptsv, opurp and dpurp</span>
-<span class="kw">fn</span> <span class="ident">get_purpose</span>(<span class="ident">code</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TripPurpose</span> {
+<span class="comment">// From https://github.com/psrc/soundcast/wiki/Outputs#trip-file-_triptsv, dpurp</span>
+<span class="kw">fn</span> <span class="ident">get_purpose</span>(<span class="ident">code</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">TripPurpose</span> {
     <span class="kw">match</span> <span class="ident">code</span> {
-        <span class="string">&quot;0.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripPurpose::Home</span>,
-        <span class="string">&quot;1.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripPurpose::Work</span>,
-        <span class="string">&quot;2.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripPurpose::School</span>,
-        <span class="string">&quot;3.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripPurpose::Escort</span>,
-        <span class="string">&quot;4.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripPurpose::PersonalBusiness</span>,
-        <span class="string">&quot;5.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripPurpose::Shopping</span>,
-        <span class="string">&quot;6.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripPurpose::Meal</span>,
-        <span class="string">&quot;7.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripPurpose::Social</span>,
-        <span class="string">&quot;8.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripPurpose::Recreation</span>,
-        <span class="string">&quot;9.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripPurpose::Medical</span>,
-        <span class="string">&quot;10.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripPurpose::ParkAndRideTransfer</span>,
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;Unknown opurp/dpurp {}&quot;</span>, <span class="ident">code</span>),
+        <span class="string">&quot;0.0&quot;</span> =&gt; <span class="ident">TripPurpose::Home</span>,
+        <span class="string">&quot;1.0&quot;</span> =&gt; <span class="ident">TripPurpose::Work</span>,
+        <span class="string">&quot;2.0&quot;</span> =&gt; <span class="ident">TripPurpose::School</span>,
+        <span class="string">&quot;3.0&quot;</span> =&gt; <span class="ident">TripPurpose::Escort</span>,
+        <span class="string">&quot;4.0&quot;</span> =&gt; <span class="ident">TripPurpose::PersonalBusiness</span>,
+        <span class="string">&quot;5.0&quot;</span> =&gt; <span class="ident">TripPurpose::Shopping</span>,
+        <span class="string">&quot;6.0&quot;</span> =&gt; <span class="ident">TripPurpose::Meal</span>,
+        <span class="string">&quot;7.0&quot;</span> =&gt; <span class="ident">TripPurpose::Social</span>,
+        <span class="string">&quot;8.0&quot;</span> =&gt; <span class="ident">TripPurpose::Recreation</span>,
+        <span class="string">&quot;9.0&quot;</span> =&gt; <span class="ident">TripPurpose::Medical</span>,
+        <span class="string">&quot;10.0&quot;</span> =&gt; <span class="ident">TripPurpose::ParkAndRideTransfer</span>,
+        <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unknown dpurp {}&quot;</span>, <span class="ident">code</span>),
     }
 }
 
 <span class="comment">// From https://github.com/psrc/soundcast/wiki/Outputs#trip-file-_triptsv, mode</span>
-<span class="kw">fn</span> <span class="ident">get_mode</span>(<span class="ident">code</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TripMode</span> {
+<span class="kw">fn</span> <span class="ident">get_mode</span>(<span class="ident">code</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">TripMode</span> {
     <span class="kw">match</span> <span class="ident">code</span> {
-        <span class="string">&quot;1.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripMode::Walk</span>,
-        <span class="string">&quot;2.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripMode::Bike</span>,
-        <span class="string">&quot;3.0&quot;</span> <span class="op">|</span> <span class="string">&quot;4.0&quot;</span> <span class="op">|</span> <span class="string">&quot;5.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripMode::Drive</span>,
+        <span class="string">&quot;1.0&quot;</span> =&gt; <span class="ident">TripMode::Walk</span>,
+        <span class="string">&quot;2.0&quot;</span> =&gt; <span class="ident">TripMode::Bike</span>,
+        <span class="string">&quot;3.0&quot;</span> <span class="op">|</span> <span class="string">&quot;4.0&quot;</span> <span class="op">|</span> <span class="string">&quot;5.0&quot;</span> =&gt; <span class="ident">TripMode::Drive</span>,
         <span class="comment">// TODO Park-and-ride and school bus as walk-to-transit is a little weird.</span>
-        <span class="string">&quot;6.0&quot;</span> <span class="op">|</span> <span class="string">&quot;7.0&quot;</span> <span class="op">|</span> <span class="string">&quot;8.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripMode::Transit</span>,
+        <span class="string">&quot;6.0&quot;</span> <span class="op">|</span> <span class="string">&quot;7.0&quot;</span> <span class="op">|</span> <span class="string">&quot;8.0&quot;</span> =&gt; <span class="ident">TripMode::Transit</span>,
         <span class="comment">// TODO Invalid code, what&#39;s this one mean? I only see a few examples, so just default to</span>
         <span class="comment">// walking.</span>
-        <span class="string">&quot;0.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripMode::Walk</span>,
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;Unknown mode {}&quot;</span>, <span class="ident">code</span>),
+        <span class="string">&quot;0.0&quot;</span> =&gt; <span class="ident">TripMode::Walk</span>,
+        <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unknown mode {}&quot;</span>, <span class="ident">code</span>),
     }
 }
 
@@ -621,7 +622,6 @@
     <span class="ident">dpcl</span>: <span class="ident">f64</span>,
     <span class="ident">deptm</span>: <span class="ident">f64</span>,
     <span class="ident">mode</span>: <span class="ident">String</span>,
-    <span class="ident">opurp</span>: <span class="ident">String</span>,
     <span class="ident">dpurp</span>: <span class="ident">String</span>,
     <span class="ident">travtime</span>: <span class="ident">f64</span>,
     <span class="ident">travdist</span>: <span class="ident">f64</span>,
@@ -634,6 +634,8 @@
 
 <span class="comment">// See https://github.com/psrc/soundcast/wiki/Outputs#buffered-parcel-file-buffered_parcelsdat</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="comment">// When the &#39;scenarios&#39; feature is disabled, these fields look unused</span>
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused</span>)]</span>
 <span class="kw">struct</span> <span class="ident">RawParcel</span> {
     <span class="ident">parcelid</span>: <span class="ident">usize</span>,
     <span class="ident">hh_p</span>: <span class="ident">usize</span>,

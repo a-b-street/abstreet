@@ -182,13 +182,13 @@
 }
 
 <span class="kw">impl</span> <span class="ident">RoutePreview</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RoutePreview</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">RoutePreview</span> {
         <span class="ident">RoutePreview</span> { <span class="ident">preview</span>: <span class="prelude-val">None</span> }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">RoutePreview</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">agent</span>) <span class="op">=</span> <span class="ident">app</span>
             .<span class="ident">primary</span>
             .<span class="ident">current_selection</span>
@@ -241,7 +241,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">TrafficRecorder</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">members</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">members</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident">Box::new</span>(<span class="ident">TrafficRecorder</span> {
             <span class="ident">panel</span>: <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
                 <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
@@ -260,7 +260,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">TrafficRecorder</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
+    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
         <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();
         <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
             <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">mouseover_unzoomed_intersections</span>(<span class="ident">ctx</span>);
@@ -281,14 +281,14 @@
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;close&quot;</span> =&gt; {
                     <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
                 }
-                <span class="string">&quot;record&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;record&quot;</span> =&gt; {
                     <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">record_traffic_for</span>(<span class="self">self</span>.<span class="ident">members</span>.<span class="ident">clone</span>());
                     <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
                 }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
             }
         }
 
@@ -311,16 +311,16 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">make_btn</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">num</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+<span class="kw">fn</span> <span class="ident">make_btn</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">num</span>: <span class="ident">usize</span>) -&gt; <span class="ident">Widget</span> {
     <span class="kw">let</span> <span class="ident">title</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">num</span> {
-        <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Record 0 intersections&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="number">1</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Record 1 intersection&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format!</span>(<span class="string">&quot;Record {} intersections&quot;</span>, <span class="ident">num</span>),
+        <span class="number">0</span> =&gt; <span class="string">&quot;Record 0 intersections&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="number">1</span> =&gt; <span class="string">&quot;Record 1 intersection&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="kw">_</span> =&gt; <span class="macro">format!</span>(<span class="string">&quot;Record {} intersections&quot;</span>, <span class="ident">num</span>),
     };
     <span class="ident">ctx</span>.<span class="ident">style</span>()
         .<span class="ident">btn_solid_primary</span>
         .<span class="ident">text</span>(<span class="ident">title</span>)
-        .<span class="ident">disabled</span>(<span class="ident">num</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>)
+        .<span class="ident">disabled</span>(<span class="ident">num</span> <span class="op">==</span> <span class="number">0</span>)
         .<span class="ident">hotkey</span>(<span class="ident">Key::Enter</span>)
         .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;record&quot;</span>)
 }

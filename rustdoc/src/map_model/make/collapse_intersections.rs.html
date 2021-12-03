@@ -289,10 +289,10 @@
             <span class="kw">continue</span>;
         }
         <span class="kw">match</span> <span class="ident">should_collapse</span>(<span class="ident">roads</span>[<span class="number">0</span>], <span class="ident">roads</span>[<span class="number">1</span>], <span class="ident">raw</span>) {
-            <span class="prelude-val">Ok</span>(()) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Ok</span>(()) =&gt; {
                 <span class="ident">merge</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">id</span>);
             }
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
                 <span class="macro">warn!</span>(<span class="string">&quot;Not collapsing degenerate intersection {}: {}&quot;</span>, <span class="ident">id</span>, <span class="ident">err</span>);
             }
         }
@@ -306,7 +306,7 @@
     <span class="comment">// Results look good so far.</span>
 }
 
-<span class="kw">fn</span> <span class="ident">should_collapse</span>(<span class="ident">r1</span>: <span class="ident">OriginalRoad</span>, <span class="ident">r2</span>: <span class="ident">OriginalRoad</span>, <span class="ident">raw</span>: <span class="kw-2">&amp;</span><span class="ident">RawMap</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">should_collapse</span>(<span class="ident">r1</span>: <span class="ident">OriginalRoad</span>, <span class="ident">r2</span>: <span class="ident">OriginalRoad</span>, <span class="ident">raw</span>: <span class="kw-2">&amp;</span><span class="ident">RawMap</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">road1</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">raw</span>.<span class="ident">roads</span>[<span class="kw-2">&amp;</span><span class="ident">r1</span>];
     <span class="kw">let</span> <span class="ident">road2</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">raw</span>.<span class="ident">roads</span>[<span class="kw-2">&amp;</span><span class="ident">r2</span>];
 
@@ -320,7 +320,7 @@
 
     <span class="comment">// Avoid two one-ways that point at each other. https://www.openstreetmap.org/node/440979339 is</span>
     <span class="comment">// a bizarre example. These are actually blackholed, some problem with service roads.</span>
-    <span class="kw">if</span> <span class="ident">road1</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="string">&quot;oneway&quot;</span>, <span class="string">&quot;yes&quot;</span>) <span class="op">&amp;&amp;</span> <span class="ident">road2</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="string">&quot;oneway&quot;</span>, <span class="string">&quot;yes&quot;</span>) <span class="op">&amp;&amp;</span> <span class="ident">r1</span>.<span class="ident">i2</span> <span class="op">=</span><span class="op">=</span> <span class="ident">r2</span>.<span class="ident">i2</span> {
+    <span class="kw">if</span> <span class="ident">road1</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="string">&quot;oneway&quot;</span>, <span class="string">&quot;yes&quot;</span>) <span class="op">&amp;&amp;</span> <span class="ident">road2</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="string">&quot;oneway&quot;</span>, <span class="string">&quot;yes&quot;</span>) <span class="op">&amp;&amp;</span> <span class="ident">r1</span>.<span class="ident">i2</span> <span class="op">==</span> <span class="ident">r2</span>.<span class="ident">i2</span> {
         <span class="macro">bail!</span>(<span class="string">&quot;oneway roads point at each other&quot;</span>);
     }
 
@@ -384,7 +384,7 @@
         <span class="comment">// tagged.</span>
         <span class="comment">// TODO We could get fancier and copy values over. We&#39;d have to sometimes flip the</span>
         <span class="comment">// direction.</span>
-        <span class="kw">if</span> <span class="ident">k</span> <span class="op">=</span><span class="op">=</span> <span class="ident">osm::ENDPT_FWD</span>
+        <span class="kw">if</span> <span class="ident">k</span> <span class="op">==</span> <span class="ident">osm::ENDPT_FWD</span>
             <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">road1</span>.<span class="ident">osm_tags</span>.<span class="ident">contains_key</span>(<span class="string">&quot;turn:lanes&quot;</span>)
             <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">road1</span>.<span class="ident">osm_tags</span>.<span class="ident">contains_key</span>(<span class="string">&quot;turn:lanes:forward&quot;</span>)
             <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">road2</span>.<span class="ident">osm_tags</span>.<span class="ident">contains_key</span>(<span class="string">&quot;turn:lanes&quot;</span>)
@@ -392,7 +392,7 @@
         {
             <span class="kw">continue</span>;
         }
-        <span class="kw">if</span> <span class="ident">k</span> <span class="op">=</span><span class="op">=</span> <span class="ident">osm::ENDPT_BACK</span>
+        <span class="kw">if</span> <span class="ident">k</span> <span class="op">==</span> <span class="ident">osm::ENDPT_BACK</span>
             <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">road1</span>.<span class="ident">osm_tags</span>.<span class="ident">contains_key</span>(<span class="string">&quot;turn:lanes:backward&quot;</span>)
             <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">road2</span>.<span class="ident">osm_tags</span>.<span class="ident">contains_key</span>(<span class="string">&quot;turn:lanes:backward&quot;</span>)
         {
@@ -407,10 +407,10 @@
 
 <span class="comment">// Rather bruteforce way of figuring this out... is_cycleway logic lifted from Road, unfortunately.</span>
 <span class="comment">// Better than repeating the OSM tag log from get_lane_specs_ltr.</span>
-<span class="kw">fn</span> <span class="ident">is_cycleway</span>(<span class="ident">lanes</span>: <span class="kw-2">&amp;</span>[<span class="ident">LaneSpec</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+<span class="kw">fn</span> <span class="ident">is_cycleway</span>(<span class="ident">lanes</span>: <span class="kw-2">&amp;</span>[<span class="ident">LaneSpec</span>]) -&gt; <span class="ident">bool</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bike</span> <span class="op">=</span> <span class="bool-val">false</span>;
     <span class="kw">for</span> <span class="ident">spec</span> <span class="kw">in</span> <span class="ident">lanes</span> {
-        <span class="kw">if</span> <span class="ident">spec</span>.<span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType::Biking</span> {
+        <span class="kw">if</span> <span class="ident">spec</span>.<span class="ident">lt</span> <span class="op">==</span> <span class="ident">LaneType::Biking</span> {
             <span class="ident">bike</span> <span class="op">=</span> <span class="bool-val">true</span>;
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">spec</span>.<span class="ident">lt</span> <span class="op">!</span><span class="op">=</span> <span class="ident">LaneType::Shoulder</span> {
             <span class="kw">return</span> <span class="bool-val">false</span>;
@@ -450,19 +450,19 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">road2</span> <span class="op">=</span> <span class="ident">raw</span>.<span class="ident">roads</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">r2</span>).<span class="ident">unwrap</span>();
 
     <span class="comment">// There are 4 cases, easy to understand on paper. Preserve the original direction of r1</span>
-    <span class="kw">let</span> (<span class="ident">new_i1</span>, <span class="ident">new_i2</span>) <span class="op">=</span> <span class="kw">if</span> <span class="ident">r1</span>.<span class="ident">i2</span> <span class="op">=</span><span class="op">=</span> <span class="ident">r2</span>.<span class="ident">i1</span> {
+    <span class="kw">let</span> (<span class="ident">new_i1</span>, <span class="ident">new_i2</span>) <span class="op">=</span> <span class="kw">if</span> <span class="ident">r1</span>.<span class="ident">i2</span> <span class="op">==</span> <span class="ident">r2</span>.<span class="ident">i1</span> {
         <span class="ident">new_road</span>.<span class="ident">center_points</span>.<span class="ident">extend</span>(<span class="ident">road2</span>.<span class="ident">center_points</span>);
         (<span class="ident">r1</span>.<span class="ident">i1</span>, <span class="ident">r2</span>.<span class="ident">i2</span>)
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">r1</span>.<span class="ident">i2</span> <span class="op">=</span><span class="op">=</span> <span class="ident">r2</span>.<span class="ident">i2</span> {
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">r1</span>.<span class="ident">i2</span> <span class="op">==</span> <span class="ident">r2</span>.<span class="ident">i2</span> {
         <span class="ident">road2</span>.<span class="ident">center_points</span>.<span class="ident">reverse</span>();
         <span class="ident">new_road</span>.<span class="ident">center_points</span>.<span class="ident">extend</span>(<span class="ident">road2</span>.<span class="ident">center_points</span>);
         (<span class="ident">r1</span>.<span class="ident">i1</span>, <span class="ident">r2</span>.<span class="ident">i1</span>)
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">r1</span>.<span class="ident">i1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">r2</span>.<span class="ident">i1</span> {
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">r1</span>.<span class="ident">i1</span> <span class="op">==</span> <span class="ident">r2</span>.<span class="ident">i1</span> {
         <span class="ident">road2</span>.<span class="ident">center_points</span>.<span class="ident">reverse</span>();
         <span class="ident">road2</span>.<span class="ident">center_points</span>.<span class="ident">extend</span>(<span class="ident">new_road</span>.<span class="ident">center_points</span>);
         <span class="ident">new_road</span>.<span class="ident">center_points</span> <span class="op">=</span> <span class="ident">road2</span>.<span class="ident">center_points</span>;
         (<span class="ident">r2</span>.<span class="ident">i2</span>, <span class="ident">r1</span>.<span class="ident">i2</span>)
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">r1</span>.<span class="ident">i1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">r2</span>.<span class="ident">i2</span> {
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">r1</span>.<span class="ident">i1</span> <span class="op">==</span> <span class="ident">r2</span>.<span class="ident">i2</span> {
         <span class="ident">road2</span>.<span class="ident">center_points</span>.<span class="ident">extend</span>(<span class="ident">new_road</span>.<span class="ident">center_points</span>);
         <span class="ident">new_road</span>.<span class="ident">center_points</span> <span class="op">=</span> <span class="ident">road2</span>.<span class="ident">center_points</span>;
         (<span class="ident">r2</span>.<span class="ident">i1</span>, <span class="ident">r1</span>.<span class="ident">i2</span>)
@@ -482,7 +482,7 @@
     <span class="ident">raw</span>.<span class="ident">roads</span>.<span class="ident">insert</span>(<span class="ident">new_r1</span>, <span class="ident">new_road</span>);
 
     <span class="comment">// We may need to fix up turn restrictions. r1 and r2 both become new_r1.</span>
-    <span class="kw">let</span> <span class="ident">rewrite</span> <span class="op">=</span> <span class="op">|</span><span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">OriginalRoad</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="ident">r1</span> <span class="op">|</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="ident">r2</span>;
+    <span class="kw">let</span> <span class="ident">rewrite</span> <span class="op">=</span> <span class="op">|</span><span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">OriginalRoad</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">x</span> <span class="op">==</span> <span class="ident">r1</span> <span class="op">|</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">x</span> <span class="op">==</span> <span class="ident">r2</span>;
     <span class="kw">for</span> <span class="ident">road</span> <span class="kw">in</span> <span class="ident">raw</span>.<span class="ident">roads</span>.<span class="ident">values_mut</span>() {
         <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">id</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">road</span>.<span class="ident">turn_restrictions</span> {
             <span class="kw">if</span> <span class="ident">rewrite</span>(<span class="ident">id</span>) {
@@ -513,7 +513,7 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">remove_intersections</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
     <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">i</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">raw</span>.<span class="ident">intersections</span> {
         <span class="kw">let</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">raw</span>.<span class="ident">roads_per_intersection</span>(<span class="kw-2">*</span><span class="ident">id</span>);
-        <span class="kw">if</span> <span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">1</span> <span class="op">|</span><span class="op">|</span> <span class="ident">i</span>.<span class="ident">intersection_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">IntersectionType::Border</span> {
+        <span class="kw">if</span> <span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">1</span> <span class="op">|</span><span class="op">|</span> <span class="ident">i</span>.<span class="ident">intersection_type</span> <span class="op">==</span> <span class="ident">IntersectionType::Border</span> {
             <span class="kw">continue</span>;
         }
         <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">raw</span>.<span class="ident">roads</span>[<span class="kw-2">&amp;</span><span class="ident">roads</span>[<span class="number">0</span>]];

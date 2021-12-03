@@ -108,7 +108,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">AccessRestrictions</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">AccessRestrictions</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">AccessRestrictions</span> {
         <span class="ident">AccessRestrictions</span> {
             <span class="ident">allow_through_traffic</span>: <span class="ident">EnumSet::all</span>(),
         }
@@ -125,7 +125,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Zone</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_all</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Zone</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_all</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Zone</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">queue</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
             <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">is_private</span>() {
@@ -149,7 +149,7 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">floodfill</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">start</span>: <span class="ident">RoadID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Zone</span> {
+<span class="kw">fn</span> <span class="ident">floodfill</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">start</span>: <span class="ident">RoadID</span>) -&gt; <span class="ident">Zone</span> {
     <span class="kw">let</span> <span class="ident">match_constraints</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">start</span>).<span class="ident">access_restrictions</span>.<span class="ident">clone</span>();
     <span class="kw">let</span> <span class="ident">merge_zones</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">merge_zones</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">queue</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">start</span>];
@@ -163,7 +163,7 @@
         <span class="ident">members</span>.<span class="ident">insert</span>(<span class="ident">current</span>);
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">get_next_roads</span>(<span class="ident">current</span>) {
             <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>);
-            <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">access_restrictions</span> <span class="op">=</span><span class="op">=</span> <span class="ident">match_constraints</span> <span class="op">&amp;&amp;</span> <span class="ident">merge_zones</span> {
+            <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">access_restrictions</span> <span class="op">==</span> <span class="ident">match_constraints</span> <span class="op">&amp;&amp;</span> <span class="ident">merge_zones</span> {
                 <span class="ident">queue</span>.<span class="ident">push</span>(<span class="ident">r</span>.<span class="ident">id</span>);
             } <span class="kw">else</span> {
                 <span class="ident">borders</span>.<span class="ident">insert</span>(<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">current</span>).<span class="ident">common_endpt</span>(<span class="ident">r</span>));

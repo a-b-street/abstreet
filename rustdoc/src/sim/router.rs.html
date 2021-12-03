@@ -578,14 +578,14 @@
         <span class="ident">path</span>: <span class="ident">Path</span>,
         <span class="ident">end_dist</span>: <span class="ident">Distance</span>,
         <span class="ident">i</span>: <span class="ident">IntersectionID</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Router</span> {
+    ) -&gt; <span class="ident">Router</span> {
         <span class="ident">Router</span> {
             <span class="ident">path</span>,
             <span class="ident">goal</span>: <span class="ident">Goal::EndAtBorder</span> { <span class="ident">end_dist</span>, <span class="ident">i</span> },
             <span class="ident">owner</span>,
         }
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">vanish_bus</span>(<span class="ident">owner</span>: <span class="ident">CarID</span>, <span class="ident">start</span>: <span class="ident">Position</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Router</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">vanish_bus</span>(<span class="ident">owner</span>: <span class="ident">CarID</span>, <span class="ident">start</span>: <span class="ident">Position</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">Router</span> {
         <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">start</span>.<span class="ident">lane</span>());
         <span class="ident">Router</span> {
             <span class="ident">path</span>: <span class="ident">Path::one_step</span>(
@@ -600,7 +600,7 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">park_near</span>(<span class="ident">owner</span>: <span class="ident">CarID</span>, <span class="ident">path</span>: <span class="ident">Path</span>, <span class="ident">bldg</span>: <span class="ident">BuildingID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Router</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">park_near</span>(<span class="ident">owner</span>: <span class="ident">CarID</span>, <span class="ident">path</span>: <span class="ident">Path</span>, <span class="ident">bldg</span>: <span class="ident">BuildingID</span>) -&gt; <span class="ident">Router</span> {
         <span class="ident">Router</span> {
             <span class="ident">path</span>,
             <span class="ident">goal</span>: <span class="ident">Goal::ParkNearBuilding</span> {
@@ -613,7 +613,7 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bike_then_stop</span>(<span class="ident">owner</span>: <span class="ident">CarID</span>, <span class="ident">path</span>: <span class="ident">Path</span>, <span class="ident">goal</span>: <span class="ident">SidewalkSpot</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Router</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bike_then_stop</span>(<span class="ident">owner</span>: <span class="ident">CarID</span>, <span class="ident">path</span>: <span class="ident">Path</span>, <span class="ident">goal</span>: <span class="ident">SidewalkSpot</span>) -&gt; <span class="ident">Router</span> {
         <span class="ident">Router</span> {
             <span class="ident">goal</span>: <span class="ident">Goal::BikeThenStop</span> { <span class="ident">goal</span> },
             <span class="ident">path</span>,
@@ -621,7 +621,7 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">follow_bus_route</span>(<span class="ident">owner</span>: <span class="ident">CarID</span>, <span class="ident">path</span>: <span class="ident">Path</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Router</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">follow_bus_route</span>(<span class="ident">owner</span>: <span class="ident">CarID</span>, <span class="ident">path</span>: <span class="ident">Path</span>) -&gt; <span class="ident">Router</span> {
         <span class="ident">Router</span> {
             <span class="ident">goal</span>: <span class="ident">Goal::FollowBusRoute</span> {
                 <span class="ident">end_dist</span>: <span class="ident">path</span>.<span class="ident">get_req</span>().<span class="ident">end</span>.<span class="ident">dist_along</span>(),
@@ -631,38 +631,38 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">head</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Traversable</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">head</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Traversable</span> {
         <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">current_step</span>().<span class="ident">as_traversable</span>()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Traversable</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Traversable</span> {
         <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">next_step</span>().<span class="ident">as_traversable</span>()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_next</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Traversable</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_next</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Traversable</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">maybe_next_step</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">as_traversable</span>())
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">last_step</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">last_step</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">is_last_step</span>()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_end_dist</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Distance</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_end_dist</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Distance</span> {
         <span class="comment">// Shouldn&#39;t ask earlier!</span>
         <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">last_step</span>());
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">goal</span> {
-            <span class="ident">Goal::EndAtBorder</span> { <span class="ident">end_dist</span>, .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">end_dist</span>,
+            <span class="ident">Goal::EndAtBorder</span> { <span class="ident">end_dist</span>, .. } =&gt; <span class="ident">end_dist</span>,
             <span class="ident">Goal::ParkNearBuilding</span> {
                 <span class="ident">spot</span>,
                 <span class="ident">stuck_end_dist</span>,
                 ..
-            } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">stuck_end_dist</span>.<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">spot</span>.<span class="ident">unwrap</span>().<span class="number">1</span>),
-            <span class="ident">Goal::BikeThenStop</span> { <span class="kw-2">ref</span> <span class="ident">goal</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">goal</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">dist_along</span>(),
-            <span class="ident">Goal::FollowBusRoute</span> { <span class="ident">end_dist</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">end_dist</span>,
+            } =&gt; <span class="ident">stuck_end_dist</span>.<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">spot</span>.<span class="ident">unwrap</span>().<span class="number">1</span>),
+            <span class="ident">Goal::BikeThenStop</span> { <span class="kw-2">ref</span> <span class="ident">goal</span> } =&gt; <span class="ident">goal</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">dist_along</span>(),
+            <span class="ident">Goal::FollowBusRoute</span> { <span class="ident">end_dist</span> } =&gt; <span class="ident">end_dist</span>,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_path</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Path</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_path</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Path</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">path</span>
     }
 
@@ -674,7 +674,7 @@
         <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
         <span class="ident">trip_and_person</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">TripID</span>, <span class="ident">PersonID</span>)<span class="op">&gt;</span>,
         <span class="ident">events</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Traversable</span> {
+    ) -&gt; <span class="ident">Traversable</span> {
         <span class="kw">let</span> <span class="ident">prev</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">shift</span>(<span class="ident">map</span>).<span class="ident">as_traversable</span>();
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">last_step</span>() {
             <span class="comment">// Do this to trigger the side-effect of looking for parking.</span>
@@ -713,12 +713,12 @@
         <span class="comment">// TODO Not so nice to plumb all of this here</span>
         <span class="ident">trip_and_person</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">TripID</span>, <span class="ident">PersonID</span>)<span class="op">&gt;</span>,
         <span class="ident">events</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ActionAtEnd</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ActionAtEnd</span><span class="op">&gt;</span> {
         <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">path</span>.<span class="ident">is_last_step</span>());
 
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">goal</span> {
-            <span class="ident">Goal::EndAtBorder</span> { <span class="ident">end_dist</span>, <span class="ident">i</span> } <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">if</span> <span class="ident">end_dist</span> <span class="op">=</span><span class="op">=</span> <span class="ident">front</span> {
+            <span class="ident">Goal::EndAtBorder</span> { <span class="ident">end_dist</span>, <span class="ident">i</span> } =&gt; {
+                <span class="kw">if</span> <span class="ident">end_dist</span> <span class="op">==</span> <span class="ident">front</span> {
                     <span class="prelude-val">Some</span>(<span class="ident">ActionAtEnd::VanishAtBorder</span>(<span class="ident">i</span>))
                 } <span class="kw">else</span> {
                     <span class="prelude-val">None</span>
@@ -729,9 +729,9 @@
                 <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">stuck_end_dist</span>,
                 <span class="ident">target</span>,
                 <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">started_looking</span>,
-            } <span class="op">=</span><span class="op">&gt;</span> {
+            } =&gt; {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">d</span>) <span class="op">=</span> <span class="ident">stuck_end_dist</span> {
-                    <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">d</span> <span class="op">=</span><span class="op">=</span> <span class="ident">front</span> {
+                    <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">d</span> <span class="op">==</span> <span class="ident">front</span> {
                         <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">ActionAtEnd::GiveUpOnParking</span>);
                     } <span class="kw">else</span> {
                         <span class="kw">return</span> <span class="prelude-val">None</span>;
@@ -739,8 +739,8 @@
                 }
 
                 <span class="kw">let</span> <span class="ident">need_new_spot</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">spot</span> {
-                    <span class="prelude-val">Some</span>((<span class="ident">s</span>, <span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="op">!</span><span class="ident">parking</span>.<span class="ident">is_free</span>(<span class="kw-2">*</span><span class="ident">s</span>),
-                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+                    <span class="prelude-val">Some</span>((<span class="ident">s</span>, <span class="kw">_</span>)) =&gt; <span class="op">!</span><span class="ident">parking</span>.<span class="ident">is_free</span>(<span class="kw-2">*</span><span class="ident">s</span>),
+                    <span class="prelude-val">None</span> =&gt; <span class="bool-val">true</span>,
                 };
                 <span class="kw">if</span> <span class="ident">need_new_spot</span> {
                     <span class="kw-2">*</span><span class="ident">started_looking</span> <span class="op">=</span> <span class="bool-val">true</span>;
@@ -753,7 +753,7 @@
                     );
                     <span class="kw">let</span> <span class="ident">best</span> <span class="op">=</span>
                         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">driving_pos</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">target</span>).<span class="ident">driving_connection</span>(<span class="ident">map</span>) {
-                            <span class="kw">if</span> <span class="ident">driving_pos</span>.<span class="ident">lane</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">current_lane</span> {
+                            <span class="kw">if</span> <span class="ident">driving_pos</span>.<span class="ident">lane</span>() <span class="op">==</span> <span class="ident">current_lane</span> {
                                 <span class="kw">let</span> <span class="ident">target_dist</span> <span class="op">=</span> <span class="ident">driving_pos</span>.<span class="ident">dist_along</span>();
                                 <span class="comment">// Closest to the building</span>
                                 <span class="ident">candidates</span>
@@ -827,21 +827,21 @@
                     }
                 }
 
-                <span class="kw">if</span> <span class="ident">spot</span>.<span class="ident">unwrap</span>().<span class="number">1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">front</span> {
+                <span class="kw">if</span> <span class="ident">spot</span>.<span class="ident">unwrap</span>().<span class="number">1</span> <span class="op">==</span> <span class="ident">front</span> {
                     <span class="prelude-val">Some</span>(<span class="ident">ActionAtEnd::StartParking</span>(<span class="ident">spot</span>.<span class="ident">unwrap</span>().<span class="number">0</span>))
                 } <span class="kw">else</span> {
                     <span class="prelude-val">None</span>
                 }
             }
-            <span class="ident">Goal::BikeThenStop</span> { <span class="kw-2">ref</span> <span class="ident">goal</span> } <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">if</span> <span class="ident">goal</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">dist_along</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">front</span> {
+            <span class="ident">Goal::BikeThenStop</span> { <span class="kw-2">ref</span> <span class="ident">goal</span> } =&gt; {
+                <span class="kw">if</span> <span class="ident">goal</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">dist_along</span>() <span class="op">==</span> <span class="ident">front</span> {
                     <span class="prelude-val">Some</span>(<span class="ident">ActionAtEnd::StopBiking</span>(<span class="ident">goal</span>.<span class="ident">clone</span>()))
                 } <span class="kw">else</span> {
                     <span class="prelude-val">None</span>
                 }
             }
-            <span class="ident">Goal::FollowBusRoute</span> { <span class="ident">end_dist</span> } <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">if</span> <span class="ident">end_dist</span> <span class="op">=</span><span class="op">=</span> <span class="ident">front</span> {
+            <span class="ident">Goal::FollowBusRoute</span> { <span class="ident">end_dist</span> } =&gt; {
+                <span class="kw">if</span> <span class="ident">end_dist</span> <span class="op">==</span> <span class="ident">front</span> {
                     <span class="prelude-val">Some</span>(<span class="ident">ActionAtEnd::BusAtStop</span>)
                 } <span class="kw">else</span> {
                     <span class="prelude-val">None</span>
@@ -870,8 +870,8 @@
                     <span class="kw">return</span>;
                 }
                 <span class="kw">match</span> (<span class="ident">steps</span>[<span class="number">1</span> <span class="op">+</span> <span class="ident">segment</span> <span class="op">*</span> <span class="number">2</span>], <span class="ident">steps</span>[<span class="number">4</span> <span class="op">+</span> <span class="ident">segment</span> <span class="op">*</span> <span class="number">2</span>]) {
-                    (<span class="ident">PathStep::Turn</span>(<span class="ident">t</span>), <span class="ident">PathStep::Lane</span>(<span class="ident">l</span>)) <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">t</span>, <span class="ident">l</span>),
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    (<span class="ident">PathStep::Turn</span>(<span class="ident">t</span>), <span class="ident">PathStep::Lane</span>(<span class="ident">l</span>)) =&gt; (<span class="ident">t</span>, <span class="ident">l</span>),
+                    <span class="kw">_</span> =&gt; {
                         <span class="kw">return</span>;
                     }
                 }
@@ -901,7 +901,7 @@
                 <span class="comment">// make our choice based on each penalty in order, breaking ties by moving onto the</span>
                 <span class="comment">// next thing. With one exception: To produce more realistic behavior, we combine</span>
                 <span class="comment">// `vehicles + lc` as one score to avoid switching lanes just to get around one car.</span>
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">owner</span>.<span class="ident">vehicle_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">VehicleType::Bike</span> {
+                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">owner</span>.<span class="ident">vehicle_type</span> <span class="op">==</span> <span class="ident">VehicleType::Bike</span> {
                     <span class="ident">bike</span> <span class="op">=</span> <span class="number">0</span>;
                 } <span class="kw">else</span> {
                     <span class="ident">slow_lane</span> <span class="op">=</span> <span class="number">0</span>;
@@ -916,7 +916,7 @@
             <span class="kw">let</span> <span class="ident">best</span> <span class="op">=</span> <span class="ident">parent</span>
                 .<span class="ident">lanes</span>
                 .<span class="ident">iter</span>()
-                .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span>.<span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">dir</span> <span class="op">&amp;&amp;</span> <span class="ident">constraints</span>.<span class="ident">can_use</span>(<span class="ident">l</span>, <span class="ident">map</span>))
+                .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span>.<span class="ident">dir</span> <span class="op">==</span> <span class="ident">dir</span> <span class="op">&amp;&amp;</span> <span class="ident">constraints</span>.<span class="ident">can_use</span>(<span class="ident">l</span>, <span class="ident">map</span>))
                 .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> {
                     <span class="comment">// Make sure we can go from this lane to next_lane.</span>
 
@@ -938,7 +938,7 @@
                 })
                 .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">turn1</span>, <span class="ident">l</span>, <span class="ident">turn2</span>)<span class="op">|</span> {
                     <span class="kw">let</span> <span class="ident">cost</span> <span class="op">=</span> <span class="ident">compute_cost</span>(<span class="ident">turn1</span>, <span class="ident">l</span>);
-                    <span class="kw">if</span> <span class="ident">turn1</span>.<span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">current_turn</span> {
+                    <span class="kw">if</span> <span class="ident">turn1</span>.<span class="ident">id</span> <span class="op">==</span> <span class="ident">current_turn</span> {
                         <span class="ident">original_cost</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">cost</span>);
                     }
                     (<span class="ident">cost</span>, <span class="ident">turn1</span>, <span class="ident">l</span>, <span class="ident">turn2</span>)
@@ -981,15 +981,15 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">can_lanechange</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">from</span>: <span class="ident">LaneID</span>, <span class="ident">to</span>: <span class="ident">LaneID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">can_lanechange</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">from</span>: <span class="ident">LaneID</span>, <span class="ident">to</span>: <span class="ident">LaneID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">let</span> <span class="ident">steps</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">get_steps</span>();
         <span class="kw">if</span> <span class="ident">steps</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">3</span> {
             <span class="kw">return</span> <span class="bool-val">false</span>;
         }
         <span class="macro">assert_eq!</span>(<span class="ident">PathStep::Lane</span>(<span class="ident">from</span>), <span class="ident">steps</span>[<span class="number">0</span>]);
         <span class="kw">let</span> <span class="ident">current_turn</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">steps</span>[<span class="number">1</span>] {
-            <span class="ident">PathStep::Turn</span>(<span class="ident">t</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">t</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+            <span class="ident">PathStep::Turn</span>(<span class="ident">t</span>) =&gt; <span class="ident">t</span>,
+            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
         };
         <span class="kw">let</span> <span class="ident">next_lane</span> <span class="op">=</span> <span class="ident">current_turn</span>.<span class="ident">dst</span>;
         <span class="macro">assert_eq!</span>(<span class="ident">PathStep::Lane</span>(<span class="ident">next_lane</span>), <span class="ident">steps</span>[<span class="number">2</span>]);
@@ -1005,26 +1005,26 @@
         <span class="comment">// No assertions, blind trust!</span>
         <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">modify_step</span>(<span class="number">0</span>, <span class="ident">PathStep::Lane</span>(<span class="ident">to</span>), <span class="ident">map</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">turn</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">get_steps</span>()[<span class="number">1</span>] {
-            <span class="ident">PathStep::Turn</span>(<span class="ident">t</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">t</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+            <span class="ident">PathStep::Turn</span>(<span class="ident">t</span>) =&gt; <span class="ident">t</span>,
+            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
         };
         <span class="ident">turn</span>.<span class="ident">src</span> <span class="op">=</span> <span class="ident">to</span>;
         <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">modify_step</span>(<span class="number">1</span>, <span class="ident">PathStep::Turn</span>(<span class="ident">turn</span>), <span class="ident">map</span>);
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_parking</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_parking</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">goal</span> {
             <span class="ident">Goal::ParkNearBuilding</span> {
                 <span class="ident">started_looking</span>, ..
-            } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">started_looking</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            } =&gt; <span class="ident">started_looking</span>,
+            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_parking_spot_goal</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_parking_spot_goal</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">goal</span> {
-            <span class="ident">Goal::ParkNearBuilding</span> { <span class="kw-2">ref</span> <span class="ident">spot</span>, .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">spot</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">s</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">s</span>),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+            <span class="ident">Goal::ParkNearBuilding</span> { <span class="kw-2">ref</span> <span class="ident">spot</span>, .. } =&gt; <span class="ident">spot</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">s</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">s</span>),
+            <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
         }
     }
 }

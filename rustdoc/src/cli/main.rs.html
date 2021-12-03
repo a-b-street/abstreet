@@ -549,7 +549,7 @@
 }
 
 <span class="attribute">#[<span class="ident">tokio::main</span>]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">main</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">main</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">cmd</span> <span class="op">=</span> <span class="ident">Command::from_args</span>();
 
     <span class="comment">// All but a few commands want logging</span>
@@ -563,39 +563,39 @@
     <span class="comment">// Short implementations can stay in this file, but please split larger subcommands to their</span>
     <span class="comment">// own module.</span>
     <span class="kw">match</span> <span class="ident">Command::from_args</span>() {
-        <span class="ident">Command::DumpJSON</span> { <span class="ident">path</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">dump_json</span>(<span class="ident">path</span>),
+        <span class="ident">Command::DumpJSON</span> { <span class="ident">path</span> } =&gt; <span class="ident">dump_json</span>(<span class="ident">path</span>),
         <span class="ident">Command::RandomScenario</span> {
             <span class="ident">rng_seed</span>,
             <span class="ident">map</span>,
             <span class="ident">scenario_name</span>,
-        } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">random_scenario</span>(<span class="ident">rng_seed</span>, <span class="ident">map</span>, <span class="ident">scenario_name</span>),
+        } =&gt; <span class="ident">random_scenario</span>(<span class="ident">rng_seed</span>, <span class="ident">map</span>, <span class="ident">scenario_name</span>),
         <span class="ident">Command::AugmentScenario</span> {
             <span class="ident">input_scenario</span>,
             <span class="ident">add_return_trips</span>,
             <span class="ident">add_lunch_trips</span>,
             <span class="ident">rng_seed</span>,
-        } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">augment_scenario::run</span>(<span class="ident">input_scenario</span>, <span class="ident">add_return_trips</span>, <span class="ident">add_lunch_trips</span>, <span class="ident">rng_seed</span>),
+        } =&gt; <span class="ident">augment_scenario::run</span>(<span class="ident">input_scenario</span>, <span class="ident">add_return_trips</span>, <span class="ident">add_lunch_trips</span>, <span class="ident">rng_seed</span>),
         <span class="ident">Command::ClipOSM</span> {
             <span class="ident">pbf_path</span>,
             <span class="ident">clip_path</span>,
             <span class="ident">out_path</span>,
-        } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">clip_osm::run</span>(<span class="ident">pbf_path</span>, <span class="ident">clip_path</span>, <span class="ident">out_path</span>)<span class="question-mark">?</span>,
-        <span class="ident">Command::GeoJSONToOsmosis</span> { <span class="ident">input</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">geojson_to_osmosis::run</span>(<span class="ident">input</span>)<span class="question-mark">?</span>,
-        <span class="ident">Command::ImportGrid2Demand</span> { <span class="ident">input</span>, <span class="ident">map</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">import_grid2demand::run</span>(<span class="ident">input</span>, <span class="ident">map</span>)<span class="question-mark">?</span>,
+        } =&gt; <span class="ident">clip_osm::run</span>(<span class="ident">pbf_path</span>, <span class="ident">clip_path</span>, <span class="ident">out_path</span>)<span class="question-mark">?</span>,
+        <span class="ident">Command::GeoJSONToOsmosis</span> { <span class="ident">input</span> } =&gt; <span class="ident">geojson_to_osmosis::run</span>(<span class="ident">input</span>)<span class="question-mark">?</span>,
+        <span class="ident">Command::ImportGrid2Demand</span> { <span class="ident">input</span>, <span class="ident">map</span> } =&gt; <span class="ident">import_grid2demand::run</span>(<span class="ident">input</span>, <span class="ident">map</span>)<span class="question-mark">?</span>,
         <span class="ident">Command::ImportScenario</span> {
             <span class="ident">input</span>,
             <span class="ident">map</span>,
             <span class="ident">skip_problems</span>,
-        } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">import_scenario::run</span>(<span class="ident">input</span>, <span class="ident">map</span>, <span class="ident">skip_problems</span>),
-        <span class="ident">Command::ImportJSONMap</span> { <span class="ident">input</span>, <span class="ident">output</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">import_json_map</span>(<span class="ident">input</span>, <span class="ident">output</span>),
-        <span class="ident">Command::MinifyMap</span> { <span class="ident">map</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">minify_map</span>(<span class="ident">map</span>),
+        } =&gt; <span class="ident">import_scenario::run</span>(<span class="ident">input</span>, <span class="ident">map</span>, <span class="ident">skip_problems</span>),
+        <span class="ident">Command::ImportJSONMap</span> { <span class="ident">input</span>, <span class="ident">output</span> } =&gt; <span class="ident">import_json_map</span>(<span class="ident">input</span>, <span class="ident">output</span>),
+        <span class="ident">Command::MinifyMap</span> { <span class="ident">map</span> } =&gt; <span class="ident">minify_map</span>(<span class="ident">map</span>),
         <span class="ident">Command::GenerateHouses</span> {
             <span class="ident">map</span>,
             <span class="ident">num_required</span>,
             <span class="ident">rng_seed</span>,
             <span class="ident">output</span>,
-        } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">generate_houses::run</span>(<span class="ident">map</span>, <span class="ident">num_required</span>, <span class="ident">rng_seed</span>, <span class="ident">output</span>),
-        <span class="ident">Command::PickGeofabrik</span> { <span class="ident">input</span> } <span class="op">=</span><span class="op">&gt;</span> {
+        } =&gt; <span class="ident">generate_houses::run</span>(<span class="ident">map</span>, <span class="ident">num_required</span>, <span class="ident">rng_seed</span>, <span class="ident">output</span>),
+        <span class="ident">Command::PickGeofabrik</span> { <span class="ident">input</span> } =&gt; {
             <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">importer::pick_geofabrik</span>(<span class="ident">input</span>).<span class="kw">await</span><span class="question-mark">?</span>)
         }
         <span class="ident">Command::OneStepImport</span> {
@@ -604,7 +604,7 @@
             <span class="ident">drive_on_left</span>,
             <span class="ident">use_geofabrik</span>,
             <span class="ident">filter_crosswalks</span>,
-        } <span class="op">=</span><span class="op">&gt;</span> {
+        } =&gt; {
             <span class="ident">one_step_import::run</span>(
                 <span class="ident">geojson_path</span>,
                 <span class="ident">map_name</span>,
@@ -620,14 +620,14 @@
             <span class="ident">drive_on_left</span>,
             <span class="ident">filter_crosswalks</span>,
             <span class="ident">opts</span>,
-        } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">importer::oneshot</span>(<span class="ident">osm_input</span>, <span class="ident">clip_path</span>, <span class="ident">drive_on_left</span>, <span class="ident">filter_crosswalks</span>, <span class="ident">opts</span>),
+        } =&gt; <span class="ident">importer::oneshot</span>(<span class="ident">osm_input</span>, <span class="ident">clip_path</span>, <span class="ident">drive_on_left</span>, <span class="ident">filter_crosswalks</span>, <span class="ident">opts</span>),
         <span class="ident">Command::RegenerateEverything</span> {
             <span class="ident">shard_num</span>,
             <span class="ident">num_shards</span>,
-        } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">importer::regenerate_everything</span>(<span class="ident">shard_num</span>, <span class="ident">num_shards</span>).<span class="kw">await</span>,
-        <span class="ident">Command::RegenerateAllMaps</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">importer::regenerate_all_maps</span>(),
-        <span class="ident">Command::Import</span> { <span class="ident">job</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">job</span>.<span class="ident">run</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer::new</span>(<span class="string">&quot;import one city&quot;</span>)).<span class="kw">await</span>,
-        <span class="ident">Command::OSM2Lanes</span> { <span class="ident">map_path</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">osm2lanes::run</span>(<span class="ident">map_path</span>),
+        } =&gt; <span class="ident">importer::regenerate_everything</span>(<span class="ident">shard_num</span>, <span class="ident">num_shards</span>).<span class="kw">await</span>,
+        <span class="ident">Command::RegenerateAllMaps</span> =&gt; <span class="ident">importer::regenerate_all_maps</span>(),
+        <span class="ident">Command::Import</span> { <span class="ident">job</span> } =&gt; <span class="ident">job</span>.<span class="ident">run</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer::new</span>(<span class="string">&quot;import one city&quot;</span>)).<span class="kw">await</span>,
+        <span class="ident">Command::OSM2Lanes</span> { <span class="ident">map_path</span> } =&gt; <span class="ident">osm2lanes::run</span>(<span class="ident">map_path</span>),
     }
     <span class="prelude-val">Ok</span>(())
 }

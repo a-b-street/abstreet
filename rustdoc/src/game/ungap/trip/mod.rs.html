@@ -352,7 +352,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">TakeLayers</span> <span class="kw">for</span> <span class="ident">TripPlanner</span> {
-    <span class="kw">fn</span> <span class="ident">take_layers</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Layers</span> {
+    <span class="kw">fn</span> <span class="ident">take_layers</span>(<span class="self">self</span>) -&gt; <span class="ident">Layers</span> {
         <span class="self">self</span>.<span class="ident">layers</span>
     }
 }
@@ -366,7 +366,7 @@
 <span class="kw">impl</span> <span class="ident">ObjectID</span> <span class="kw">for</span> <span class="ident">ID</span> {}
 
 <span class="kw">impl</span> <span class="ident">TripPlanner</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">layers</span>: <span class="ident">Layers</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">layers</span>: <span class="ident">Layers</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;apply edits&quot;</span>, <span class="op">|</span><span class="kw">_</span>, <span class="kw-2">mut</span> <span class="ident">timer</span><span class="op">|</span> {
             <span class="ident">app</span>.<span class="ident">primary</span>
                 .<span class="ident">map</span>
@@ -421,7 +421,7 @@
                 <span class="ident">avoid_stressful_roads</span>: <span class="bool-val">true</span>,
             },
         ] {
-            <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">routing_preferences</span> <span class="op">=</span><span class="op">=</span> <span class="ident">preferences</span> {
+            <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">routing_preferences</span> <span class="op">==</span> <span class="ident">preferences</span> {
                 <span class="kw">continue</span>;
             }
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">alt</span> <span class="op">=</span> <span class="ident">RouteDetails::alt_route</span>(
@@ -501,17 +501,17 @@
 }
 
 <span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">TripPlanner</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
+    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
         <span class="kw">let</span> <span class="ident">world_outcome_for_waypoints</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">WorldOutcome::ClickedObject</span>(<span class="ident">ID::AltRoute</span>(<span class="ident">idx</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">WorldOutcome::ClickedObject</span>(<span class="ident">ID::AltRoute</span>(<span class="ident">idx</span>)) =&gt; {
                 <span class="comment">// Switch routes</span>
                 <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">routing_preferences</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">alt_routes</span>[<span class="ident">idx</span>].<span class="ident">preferences</span>;
                 <span class="self">self</span>.<span class="ident">recalculate_routes</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 <span class="kw">return</span> <span class="ident">Transition::Keep</span>;
             }
-            <span class="ident">x</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">map_id</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">id</span> {
-                <span class="ident">ID::Waypoint</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">id</span>,
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+            <span class="ident">x</span> =&gt; <span class="ident">x</span>.<span class="ident">map_id</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">id</span> {
+                <span class="ident">ID::Waypoint</span>(<span class="ident">id</span>) =&gt; <span class="ident">id</span>,
+                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
             }),
         };
 
@@ -527,7 +527,7 @@
                 }
                 <span class="kw">return</span> <span class="ident">t</span>;
             }
-            <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;show original map&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;show edited map&quot;</span> {
+            <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;show original map&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;show edited map&quot;</span> {
                 <span class="ident">app</span>.<span class="ident">swap_map</span>();
                 <span class="comment">// We&#39;re assuming building and intersection IDs haven&#39;t changed</span>
                 <span class="self">self</span>.<span class="ident">recalculate_routes</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
@@ -537,7 +537,7 @@
             }
         }
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Changed</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) <span class="op">=</span> <span class="ident">panel_outcome</span> {
-            <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;Avoid steep hills&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;Avoid stressful roads&quot;</span> {
+            <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;Avoid steep hills&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;Avoid stressful roads&quot;</span> {
                 <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">routing_preferences</span> <span class="op">=</span> <span class="ident">RoutingPreferences</span> {
                     <span class="ident">avoid_hills</span>: <span class="self">self</span>.<span class="ident">input_panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;Avoid steep hills&quot;</span>),
                     <span class="ident">avoid_stressful_roads</span>: <span class="self">self</span>.<span class="ident">input_panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;Avoid stressful roads&quot;</span>),
@@ -595,23 +595,23 @@
 
 <span class="kw">impl</span> <span class="ident">RoutingPreferences</span> {
     <span class="comment">// TODO Consider changing this now, and also for the mode shift calculation</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">avoid_hills</span>: <span class="bool-val">false</span>,
             <span class="ident">avoid_stressful_roads</span>: <span class="bool-val">false</span>,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">name</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
+    <span class="kw">fn</span> <span class="ident">name</span>(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
         <span class="kw">match</span> (<span class="self">self</span>.<span class="ident">avoid_hills</span>, <span class="self">self</span>.<span class="ident">avoid_stressful_roads</span>) {
-            (<span class="bool-val">false</span>, <span class="bool-val">false</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;fastest&quot;</span>,
-            (<span class="bool-val">true</span>, <span class="bool-val">false</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;flat&quot;</span>,
-            (<span class="bool-val">false</span>, <span class="bool-val">true</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;low-stress&quot;</span>,
-            (<span class="bool-val">true</span>, <span class="bool-val">true</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;flat &amp; low-stress&quot;</span>,
+            (<span class="bool-val">false</span>, <span class="bool-val">false</span>) =&gt; <span class="string">&quot;fastest&quot;</span>,
+            (<span class="bool-val">true</span>, <span class="bool-val">false</span>) =&gt; <span class="string">&quot;flat&quot;</span>,
+            (<span class="bool-val">false</span>, <span class="bool-val">true</span>) =&gt; <span class="string">&quot;low-stress&quot;</span>,
+            (<span class="bool-val">true</span>, <span class="bool-val">true</span>) =&gt; <span class="string">&quot;flat &amp; low-stress&quot;</span>,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">routing_params</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RoutingParams</span> {
+    <span class="kw">fn</span> <span class="ident">routing_params</span>(<span class="self">self</span>) -&gt; <span class="ident">RoutingParams</span> {
         <span class="ident">RoutingParams</span> {
             <span class="ident">avoid_steep_incline_penalty</span>: <span class="kw">if</span> <span class="self">self</span>.<span class="ident">avoid_hills</span> { <span class="number">2.0</span> } <span class="kw">else</span> { <span class="number">1.0</span> },
             <span class="ident">avoid_high_stress</span>: <span class="kw">if</span> <span class="self">self</span>.<span class="ident">avoid_stressful_roads</span> { <span class="number">2.0</span> } <span class="kw">else</span> { <span class="number">1.0</span> },
@@ -620,7 +620,7 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">before_after_button</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+<span class="kw">fn</span> <span class="ident">before_after_button</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Widget</span> {
     <span class="kw">let</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>();
     <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">secondary</span>.<span class="ident">is_none</span>() {
         <span class="kw">return</span> <span class="ident">Widget::nothing</span>();

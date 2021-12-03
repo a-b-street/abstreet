@@ -243,7 +243,7 @@
 
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::derive_ord_xor_partial_ord</span>)]</span> <span class="comment">// false positive</span>
 <span class="kw">impl</span> <span class="ident">Ord</span> <span class="kw">for</span> <span class="ident">Time</span> {
-    <span class="kw">fn</span> <span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Time</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">cmp::Ordering</span> {
+    <span class="kw">fn</span> <span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Time</span>) -&gt; <span class="ident">cmp::Ordering</span> {
         <span class="self">self</span>.<span class="ident">partial_cmp</span>(<span class="ident">other</span>).<span class="ident">unwrap</span>()
     }
 }
@@ -259,7 +259,7 @@
     <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">START_OF_DAY</span>: <span class="ident">Time</span> <span class="op">=</span> <span class="ident">Time</span>(<span class="number">0.0</span>);
 
     <span class="comment">// No direct public constructors. Explicitly do Time::START_OF_DAY + duration.</span>
-    <span class="kw">fn</span> <span class="ident">seconds_since_midnight</span>(<span class="ident">value</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Time</span> {
+    <span class="kw">fn</span> <span class="ident">seconds_since_midnight</span>(<span class="ident">value</span>: <span class="ident">f64</span>) -&gt; <span class="ident">Time</span> {
         <span class="kw">if</span> <span class="op">!</span><span class="ident">value</span>.<span class="ident">is_finite</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">value</span> <span class="op">&lt;</span> <span class="number">0.0</span> {
             <span class="macro">panic!</span>(<span class="string">&quot;Bad Time {}&quot;</span>, <span class="ident">value</span>);
         }
@@ -268,7 +268,7 @@
     }
 
     <span class="doccomment">/// (hours, minutes, seconds, centiseconds)</span>
-    <span class="kw">fn</span> <span class="ident">get_parts</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">usize</span>, <span class="ident">usize</span>, <span class="ident">usize</span>, <span class="ident">usize</span>) {
+    <span class="kw">fn</span> <span class="ident">get_parts</span>(<span class="self">self</span>) -&gt; (<span class="ident">usize</span>, <span class="ident">usize</span>, <span class="ident">usize</span>, <span class="ident">usize</span>) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">remainder</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>;
         <span class="kw">let</span> <span class="ident">hours</span> <span class="op">=</span> (<span class="ident">remainder</span> <span class="op">/</span> <span class="number">3600.0</span>).<span class="ident">floor</span>();
         <span class="ident">remainder</span> <span class="op">-</span><span class="op">=</span> <span class="ident">hours</span> <span class="op">*</span> <span class="number">3600.0</span>;
@@ -286,11 +286,11 @@
         )
     }
     <span class="doccomment">/// Rounded down. 6:59:00 is hour 6.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_hours</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_hours</span>(<span class="self">self</span>) -&gt; <span class="ident">usize</span> {
         <span class="self">self</span>.<span class="ident">get_parts</span>().<span class="number">0</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ampm_tostring</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ampm_tostring</span>(<span class="self">self</span>) -&gt; <span class="ident">String</span> {
         <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">hours</span>, <span class="ident">minutes</span>, <span class="ident">seconds</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_parts</span>();
         <span class="kw">let</span> <span class="ident">next_day</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">hours</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">24</span> {
             <span class="kw">let</span> <span class="ident">days</span> <span class="op">=</span> <span class="ident">hours</span> <span class="op">/</span> <span class="number">24</span>;
@@ -300,7 +300,7 @@
             <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>()
         };
         <span class="kw">let</span> <span class="ident">suffix</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">hours</span> <span class="op">&lt;</span> <span class="number">12</span> { <span class="string">&quot;AM&quot;</span> } <span class="kw">else</span> { <span class="string">&quot;PM&quot;</span> };
-        <span class="kw">if</span> <span class="ident">hours</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+        <span class="kw">if</span> <span class="ident">hours</span> <span class="op">==</span> <span class="number">0</span> {
             <span class="ident">hours</span> <span class="op">=</span> <span class="number">12</span>;
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">hours</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">24</span> {
             <span class="ident">hours</span> <span class="op">-</span><span class="op">=</span> <span class="number">24</span>;
@@ -314,7 +314,7 @@
         )
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_filename</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_filename</span>(<span class="self">self</span>) -&gt; <span class="ident">String</span> {
         <span class="kw">let</span> (<span class="ident">hours</span>, <span class="ident">minutes</span>, <span class="ident">seconds</span>, <span class="ident">remainder</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_parts</span>();
         <span class="macro">format!</span>(
             <span class="string">&quot;{0:02}h{1:02}m{2:02}.{3:01}s&quot;</span>,
@@ -322,7 +322,7 @@
         )
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">string</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Time</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">string</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Time</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">parts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">string</span>.<span class="ident">split</span>(<span class="string">&#39;:&#39;</span>).<span class="ident">collect</span>();
         <span class="kw">if</span> <span class="ident">parts</span>.<span class="ident">is_empty</span>() {
             <span class="macro">bail!</span>(<span class="string">&quot;Time {}: no :&#39;s&quot;</span>, <span class="ident">string</span>);
@@ -330,51 +330,51 @@
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seconds</span> <span class="op">=</span> <span class="ident">parts</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
         <span class="kw">match</span> <span class="ident">parts</span>.<span class="ident">len</span>() {
-            <span class="number">1</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">Time::seconds_since_midnight</span>(<span class="ident">seconds</span>)),
-            <span class="number">2</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="number">1</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Time::seconds_since_midnight</span>(<span class="ident">seconds</span>)),
+            <span class="number">2</span> =&gt; {
                 <span class="comment">// They&#39;re really minutes</span>
                 <span class="ident">seconds</span> <span class="kw-2">*</span><span class="op">=</span> <span class="number">60.0</span>;
                 <span class="ident">seconds</span> <span class="op">+</span><span class="op">=</span> <span class="number">3600.0</span> <span class="op">*</span> <span class="ident">parts</span>[<span class="number">0</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
                 <span class="prelude-val">Ok</span>(<span class="ident">Time::seconds_since_midnight</span>(<span class="ident">seconds</span>))
             }
-            <span class="number">3</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="number">3</span> =&gt; {
                 <span class="ident">seconds</span> <span class="op">+</span><span class="op">=</span> <span class="number">60.0</span> <span class="op">*</span> <span class="ident">parts</span>[<span class="number">1</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
                 <span class="ident">seconds</span> <span class="op">+</span><span class="op">=</span> <span class="number">3600.0</span> <span class="op">*</span> <span class="ident">parts</span>[<span class="number">0</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
                 <span class="prelude-val">Ok</span>(<span class="ident">Time::seconds_since_midnight</span>(<span class="ident">seconds</span>))
             }
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">bail!</span>(<span class="string">&quot;Time {}: weird number of parts&quot;</span>, <span class="ident">string</span>),
+            <span class="kw">_</span> =&gt; <span class="macro">bail!</span>(<span class="string">&quot;Time {}: weird number of parts&quot;</span>, <span class="ident">string</span>),
         }
     }
 
     <span class="comment">// TODO These are a little weird, so don&#39;t operator overload yet</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">percent_of</span>(<span class="self">self</span>, <span class="ident">p</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Time</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">percent_of</span>(<span class="self">self</span>, <span class="ident">p</span>: <span class="ident">f64</span>) -&gt; <span class="ident">Time</span> {
         <span class="kw">if</span> <span class="op">!</span>(<span class="number">0.0</span>..<span class="op">=</span><span class="number">1.0</span>).<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">p</span>) {
             <span class="macro">panic!</span>(<span class="string">&quot;Bad percent_of input: {}&quot;</span>, <span class="ident">p</span>);
         }
         <span class="ident">Time::seconds_since_midnight</span>(<span class="self">self</span>.<span class="number">0</span> <span class="op">*</span> <span class="ident">p</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_percent</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Time</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_percent</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Time</span>) -&gt; <span class="ident">f64</span> {
         <span class="self">self</span>.<span class="number">0</span> <span class="op">/</span> <span class="ident">other</span>.<span class="number">0</span>
     }
 
     <span class="doccomment">/// For RNG range generation. Don&#39;t abuse.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inner_seconds</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inner_seconds</span>(<span class="self">self</span>) -&gt; <span class="ident">f64</span> {
         <span class="self">self</span>.<span class="number">0</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clamped_sub</span>(<span class="self">self</span>, <span class="ident">dt</span>: <span class="ident">Duration</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Time</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clamped_sub</span>(<span class="self">self</span>, <span class="ident">dt</span>: <span class="ident">Duration</span>) -&gt; <span class="ident">Time</span> {
         <span class="ident">Time::seconds_since_midnight</span>((<span class="self">self</span>.<span class="number">0</span> <span class="op">-</span> <span class="ident">dt</span>.<span class="ident">inner_seconds</span>()).<span class="ident">max</span>(<span class="number">0.0</span>))
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">round_seconds</span>(<span class="self">self</span>, <span class="ident">s</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Time</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">round_seconds</span>(<span class="self">self</span>, <span class="ident">s</span>: <span class="ident">f64</span>) -&gt; <span class="ident">Time</span> {
         <span class="ident">Time::seconds_since_midnight</span>(<span class="ident">s</span> <span class="op">*</span> (<span class="self">self</span>.<span class="number">0</span> <span class="op">/</span> <span class="ident">s</span>).<span class="ident">round</span>())
     }
 }
 
 <span class="comment">// 24-hour format by default</span>
 <span class="kw">impl</span> <span class="ident">std::fmt::Display</span> <span class="kw">for</span> <span class="ident">Time</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">std::fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">std::fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">std::fmt::Formatter</span>) -&gt; <span class="ident">std::fmt::Result</span> {
         <span class="kw">let</span> (<span class="ident">hours</span>, <span class="ident">minutes</span>, <span class="ident">seconds</span>, <span class="ident">remainder</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_parts</span>();
         <span class="macro">write!</span>(
             <span class="ident">f</span>,
@@ -387,7 +387,7 @@
 <span class="kw">impl</span> <span class="ident">ops::Add</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Time</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Time</span>;
 
-    <span class="kw">fn</span> <span class="ident">add</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Duration</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Time</span> {
+    <span class="kw">fn</span> <span class="ident">add</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Duration</span>) -&gt; <span class="ident">Time</span> {
         <span class="ident">Time::seconds_since_midnight</span>(<span class="self">self</span>.<span class="number">0</span> <span class="op">+</span> <span class="ident">other</span>.<span class="ident">inner_seconds</span>())
     }
 }
@@ -401,7 +401,7 @@
 <span class="kw">impl</span> <span class="ident">ops::Sub</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Time</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Time</span>;
 
-    <span class="kw">fn</span> <span class="ident">sub</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Duration</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Time</span> {
+    <span class="kw">fn</span> <span class="ident">sub</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Duration</span>) -&gt; <span class="ident">Time</span> {
         <span class="ident">Time::seconds_since_midnight</span>(<span class="self">self</span>.<span class="number">0</span> <span class="op">-</span> <span class="ident">other</span>.<span class="ident">inner_seconds</span>())
     }
 }
@@ -409,7 +409,7 @@
 <span class="kw">impl</span> <span class="ident">ops::Sub</span> <span class="kw">for</span> <span class="ident">Time</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Duration</span>;
 
-    <span class="kw">fn</span> <span class="ident">sub</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Time</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Duration</span> {
+    <span class="kw">fn</span> <span class="ident">sub</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Time</span>) -&gt; <span class="ident">Duration</span> {
         <span class="ident">Duration::seconds</span>(<span class="self">self</span>.<span class="number">0</span> <span class="op">-</span> <span class="ident">other</span>.<span class="number">0</span>)
     }
 }

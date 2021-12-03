@@ -118,7 +118,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">ToggleZoomed</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">unzoomed</span>: <span class="ident">GeomBatch</span>, <span class="ident">zoomed</span>: <span class="ident">GeomBatch</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ToggleZoomed</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">unzoomed</span>: <span class="ident">GeomBatch</span>, <span class="ident">zoomed</span>: <span class="ident">GeomBatch</span>) -&gt; <span class="ident">ToggleZoomed</span> {
         <span class="ident">ToggleZoomed</span> {
             <span class="ident">unzoomed</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">unzoomed</span>),
             <span class="ident">zoomed</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">zoomed</span>),
@@ -126,7 +126,7 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ToggleZoomed</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; <span class="ident">ToggleZoomed</span> {
         <span class="ident">ToggleZoomed</span> {
             <span class="ident">unzoomed</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
             <span class="ident">zoomed</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
@@ -134,7 +134,7 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">builder</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ToggleZoomedBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">builder</span>() -&gt; <span class="ident">ToggleZoomedBuilder</span> {
         <span class="ident">ToggleZoomedBuilder</span> {
             <span class="ident">unzoomed</span>: <span class="ident">GeomBatch::new</span>(),
             <span class="ident">zoomed</span>: <span class="ident">GeomBatch::new</span>(),
@@ -160,7 +160,7 @@
 
 <span class="kw">impl</span> <span class="ident">ToggleZoomedBuilder</span> {
     <span class="doccomment">/// Transforms all colors in both batches.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">color</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">transformation</span>: <span class="ident">RewriteColor</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">color</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">transformation</span>: <span class="ident">RewriteColor</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">unzoomed</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">unzoomed</span>.<span class="ident">color</span>(<span class="ident">transformation</span>);
         <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">always_draw_unzoomed</span> {
             <span class="self">self</span>.<span class="ident">zoomed</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">zoomed</span>.<span class="ident">color</span>(<span class="ident">transformation</span>);
@@ -169,7 +169,7 @@
     }
 
     <span class="doccomment">/// Adds a single polygon to both batches, painted according to `Fill`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Fill</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">fill</span>: <span class="ident">F</span>, <span class="ident">p</span>: <span class="ident">Polygon</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Fill</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">fill</span>: <span class="ident">F</span>, <span class="ident">p</span>: <span class="ident">Polygon</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">fill</span> <span class="op">=</span> <span class="ident">fill</span>.<span class="ident">into</span>();
         <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">always_draw_unzoomed</span> {
             <span class="self">self</span>.<span class="ident">zoomed</span>.<span class="ident">push</span>(<span class="ident">fill</span>.<span class="ident">clone</span>(), <span class="ident">p</span>.<span class="ident">clone</span>());
@@ -178,7 +178,7 @@
         <span class="self">self</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ToggleZoomed</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; <span class="ident">ToggleZoomed</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">always_draw_unzoomed</span> {
             <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">zoomed</span>.<span class="ident">is_empty</span>());
         }
@@ -192,7 +192,7 @@
 
 <span class="comment">// Drawing just one batch means the same thing will appear whether zoomed or unzoomed</span>
 <span class="kw">impl</span> <span class="ident">std::convert::From</span><span class="op">&lt;</span><span class="ident">GeomBatch</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ToggleZoomedBuilder</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">unzoomed</span>: <span class="ident">GeomBatch</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">unzoomed</span>: <span class="ident">GeomBatch</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">unzoomed</span>,
             <span class="ident">zoomed</span>: <span class="ident">GeomBatch::new</span>(),

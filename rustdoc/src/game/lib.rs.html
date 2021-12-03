@@ -816,11 +816,11 @@
 
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">args</span>.<span class="ident">challenge</span> {
         <span class="comment">// TODO This is a weak form of mutual exclusion; just use subcommands</span>
-        <span class="macro">assert!</span>(<span class="ident">setup</span>.<span class="ident">mode</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Mode::SomethingElse</span>);
+        <span class="macro">assert!</span>(<span class="ident">setup</span>.<span class="ident">mode</span> <span class="op">==</span> <span class="ident">Mode::SomethingElse</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">aliases</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="lifetime">&#39;OUTER</span>: <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">stages</span>) <span class="kw">in</span> <span class="ident">challenges::Challenge::all</span>() {
             <span class="kw">for</span> <span class="ident">challenge</span> <span class="kw">in</span> <span class="ident">stages</span> {
-                <span class="kw">if</span> <span class="ident">challenge</span>.<span class="ident">alias</span> <span class="op">=</span><span class="op">=</span> <span class="ident">x</span> {
+                <span class="kw">if</span> <span class="ident">challenge</span>.<span class="ident">alias</span> <span class="op">==</span> <span class="ident">x</span> {
                     <span class="ident">setup</span>.<span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span> <span class="op">=</span> <span class="ident">challenge</span>.<span class="ident">gameplay</span>.<span class="ident">map_name</span>().<span class="ident">path</span>();
                     <span class="ident">setup</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::Gameplay</span>(<span class="ident">challenge</span>.<span class="ident">gameplay</span>);
                     <span class="kw">break</span> <span class="lifetime">&#39;OUTER</span>;
@@ -829,7 +829,7 @@
                 }
             }
         }
-        <span class="kw">if</span> <span class="ident">setup</span>.<span class="ident">mode</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Mode::SomethingElse</span> {
+        <span class="kw">if</span> <span class="ident">setup</span>.<span class="ident">mode</span> <span class="op">==</span> <span class="ident">Mode::SomethingElse</span> {
             <span class="macro">panic!</span>(<span class="string">&quot;Invalid --challenge={}. Choices: {}&quot;</span>, <span class="ident">x</span>, <span class="ident">aliases</span>.<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>));
         }
     }
@@ -844,7 +844,7 @@
     <span class="comment">// other scenarios loaed in the UI later.</span>
     <span class="kw">let</span> <span class="ident">modifiers</span> <span class="op">=</span> <span class="ident">setup</span>.<span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">scenario_modifiers</span>.<span class="ident">drain</span>(..).<span class="ident">collect</span>();
 
-    <span class="kw">if</span> <span class="ident">setup</span>.<span class="ident">mode</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Mode::SomethingElse</span> <span class="op">&amp;&amp;</span> <span class="ident">setup</span>.<span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span>.<span class="ident">contains</span>(<span class="string">&quot;scenarios/&quot;</span>) {
+    <span class="kw">if</span> <span class="ident">setup</span>.<span class="ident">mode</span> <span class="op">==</span> <span class="ident">Mode::SomethingElse</span> <span class="op">&amp;&amp;</span> <span class="ident">setup</span>.<span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span>.<span class="ident">contains</span>(<span class="string">&quot;scenarios/&quot;</span>) {
         <span class="kw">let</span> (<span class="ident">map_name</span>, <span class="ident">scenario</span>) <span class="op">=</span> <span class="ident">abstio::parse_scenario_path</span>(<span class="kw-2">&amp;</span><span class="ident">setup</span>.<span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span>);
         <span class="ident">setup</span>.<span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span> <span class="op">=</span> <span class="ident">map_name</span>.<span class="ident">path</span>();
         <span class="ident">setup</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::Gameplay</span>(<span class="ident">sandbox::GameplayMode::PlayScenario</span>(
@@ -863,7 +863,7 @@
         <span class="comment">// Parking data in the actdev maps is nonexistent, so many people have convoluted walking</span>
         <span class="comment">// routes just to fetch their car. Just disable parking entirely.</span>
         <span class="ident">setup</span>.<span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">opts</span>.<span class="ident">infinite_parking</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="kw">let</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">actdev_scenario</span> <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="string">&quot;go_active&quot;</span>.<span class="ident">to_string</span>()) {
+        <span class="kw">let</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">actdev_scenario</span> <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="string">&quot;go_active&quot;</span>.<span class="ident">to_string</span>()) {
             <span class="string">&quot;go_active&quot;</span>.<span class="ident">to_string</span>()
         } <span class="kw">else</span> {
             <span class="string">&quot;base&quot;</span>.<span class="ident">to_string</span>()
@@ -874,14 +874,14 @@
     <span class="ident">widgetry::run</span>(<span class="ident">settings</span>, <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> <span class="ident">setup_app</span>(<span class="ident">ctx</span>, <span class="ident">setup</span>))
 }
 
-<span class="kw">fn</span> <span class="ident">setup_app</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">mut</span> <span class="ident">setup</span>: <span class="ident">Setup</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">App</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
+<span class="kw">fn</span> <span class="ident">setup_app</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">mut</span> <span class="ident">setup</span>: <span class="ident">Setup</span>) -&gt; (<span class="ident">App</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
     <span class="kw">let</span> <span class="ident">title</span> <span class="op">=</span> <span class="op">!</span><span class="ident">setup</span>.<span class="ident">opts</span>.<span class="ident">dev</span>
         <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">setup</span>.<span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span>.<span class="ident">contains</span>(<span class="string">&quot;player/save&quot;</span>)
         <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">setup</span>.<span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span>.<span class="ident">contains</span>(<span class="string">&quot;/scenarios/&quot;</span>)
-        <span class="op">&amp;&amp;</span> <span class="ident">setup</span>.<span class="ident">mode</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Mode::SomethingElse</span>;
+        <span class="op">&amp;&amp;</span> <span class="ident">setup</span>.<span class="ident">mode</span> <span class="op">==</span> <span class="ident">Mode::SomethingElse</span>;
 
     <span class="comment">// Load the map used previously if we&#39;re starting on the title screen without any overrides.</span>
-    <span class="kw">if</span> <span class="ident">title</span> <span class="op">&amp;&amp;</span> <span class="ident">setup</span>.<span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span> <span class="op">=</span><span class="op">=</span> <span class="ident">MapName::seattle</span>(<span class="string">&quot;montlake&quot;</span>).<span class="ident">path</span>() {
+    <span class="kw">if</span> <span class="ident">title</span> <span class="op">&amp;&amp;</span> <span class="ident">setup</span>.<span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span> <span class="op">==</span> <span class="ident">MapName::seattle</span>(<span class="string">&quot;montlake&quot;</span>).<span class="ident">path</span>() {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">default</span>) <span class="op">=</span> <span class="ident">abstio::maybe_read_json</span>::<span class="op">&lt;</span><span class="ident">map_gui::tools::DefaultMap</span><span class="op">&gt;</span>(
             <span class="ident">abstio::path_player</span>(<span class="string">&quot;maps.json&quot;</span>),
             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer::throwaway</span>(),
@@ -1005,7 +1005,7 @@
     <span class="ident">title</span>: <span class="ident">bool</span>,
     <span class="ident">setup</span>: <span class="ident">Setup</span>,
     <span class="ident">secondary</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PerMap</span><span class="op">&gt;</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="comment">// Run this after loading the primary map. That process wipes out app.secondary.</span>
     <span class="ident">app</span>.<span class="ident">secondary</span> <span class="op">=</span> <span class="ident">secondary</span>;
 
@@ -1025,7 +1025,7 @@
         .<span class="ident">load</span>
         .<span class="ident">contains</span>(<span class="string">&quot;player/saves/&quot;</span>)
     {
-        <span class="macro">assert!</span>(<span class="ident">setup</span>.<span class="ident">mode</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Mode::SomethingElse</span>);
+        <span class="macro">assert!</span>(<span class="ident">setup</span>.<span class="ident">mode</span> <span class="op">==</span> <span class="ident">Mode::SomethingElse</span>);
         <span class="prelude-val">Some</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">clear_sim</span>())
     } <span class="kw">else</span> {
         <span class="prelude-val">None</span>
@@ -1043,7 +1043,7 @@
                 <span class="ident">ctx</span>,
                 <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
                     <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">abstio::http_get</span>(<span class="ident">url</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-                    <span class="kw">let</span> <span class="ident">wrapper</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">bytes</span>);
+                    <span class="kw">let</span> <span class="ident">wrapper</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">bytes</span>);
                     <span class="prelude-val">Ok</span>(<span class="ident">wrapper</span>)
                 }),
                 <span class="ident">outer_progress_rx</span>,
@@ -1053,7 +1053,7 @@
                     <span class="kw">match</span> <span class="ident">result</span>
                         .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">bytes</span><span class="op">|</span> <span class="ident">MapEdits::load_from_bytes</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>, <span class="ident">bytes</span>))
                     {
-                        <span class="prelude-val">Ok</span>(<span class="ident">edits</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition::Clear</span>(<span class="ident">finish_app_setup</span>(
+                        <span class="prelude-val">Ok</span>(<span class="ident">edits</span>) =&gt; <span class="ident">Transition::Clear</span>(<span class="ident">finish_app_setup</span>(
                             <span class="ident">ctx</span>,
                             <span class="ident">app</span>,
                             <span class="ident">title</span>,
@@ -1061,7 +1061,7 @@
                             <span class="prelude-val">Some</span>(<span class="ident">edits</span>),
                             <span class="ident">setup</span>,
                         )),
-                        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
                             <span class="comment">// TODO Fail more gracefully -- add a popup with the error, but continue</span>
                             <span class="comment">// app setup?</span>
                             <span class="macro">error!</span>(<span class="string">&quot;Couldn&#39;t load remote proposal: {}&quot;</span>, <span class="ident">err</span>);
@@ -1105,8 +1105,8 @@
     <span class="ident">savestate</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Sim</span><span class="op">&gt;</span>,
     <span class="ident">edits</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MapEdits</span><span class="op">&gt;</span>,
     <span class="ident">setup</span>: <span class="ident">Setup</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="ident">setup</span>.<span class="ident">mode</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Mode::Ungap</span> {
+) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">if</span> <span class="ident">setup</span>.<span class="ident">mode</span> <span class="op">==</span> <span class="ident">Mode::Ungap</span> {
         <span class="ident">app</span>.<span class="ident">store_unedited_map_in_secondary</span> <span class="op">=</span> <span class="bool-val">true</span>;
     }
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">edits</span>) <span class="op">=</span> <span class="ident">edits</span> {
@@ -1132,7 +1132,7 @@
         <span class="ident">SandboxMode::start_from_savestate</span>(<span class="ident">app</span>)
     } <span class="kw">else</span> {
         <span class="kw">match</span> <span class="ident">setup</span>.<span class="ident">mode</span> {
-            <span class="ident">Mode::Gameplay</span>(<span class="ident">gameplay</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Mode::Gameplay</span>(<span class="ident">gameplay</span>) =&gt; {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="ident">GameplayMode::Actdev</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">gameplay</span> {
                     <span class="ident">SandboxMode::async_new</span>(
                         <span class="ident">app</span>,
@@ -1145,7 +1145,7 @@
                     <span class="ident">SandboxMode::simple_new</span>(<span class="ident">app</span>, <span class="ident">gameplay</span>)
                 }
             }
-            <span class="ident">Mode::SomethingElse</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Mode::SomethingElse</span> =&gt; {
                 <span class="comment">// Not attempting to keep the primary and secondary simulations synchronized at the</span>
                 <span class="comment">// same time yet. Just handle this one startup case, so we can switch maps without</span>
                 <span class="comment">// constantly flopping day/night mode.</span>
@@ -1166,9 +1166,9 @@
                     <span class="ident">jump_to_time_upon_startup</span>(<span class="ident">Duration::hours</span>(<span class="number">6</span>)),
                 )
             }
-            <span class="ident">Mode::TutorialIntro</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">sandbox::gameplay::Tutorial::start</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-            <span class="ident">Mode::Challenges</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">challenges::ChallengesPicker::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-            <span class="ident">Mode::Sandbox</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SandboxMode::simple_new</span>(
+            <span class="ident">Mode::TutorialIntro</span> =&gt; <span class="ident">sandbox::gameplay::Tutorial::start</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+            <span class="ident">Mode::Challenges</span> =&gt; <span class="ident">challenges::ChallengesPicker::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+            <span class="ident">Mode::Sandbox</span> =&gt; <span class="ident">SandboxMode::simple_new</span>(
                 <span class="ident">app</span>,
                 <span class="ident">GameplayMode::PlayScenario</span>(
                     <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">clone</span>(),
@@ -1176,14 +1176,14 @@
                     <span class="ident">Vec::new</span>(),
                 ),
             ),
-            <span class="ident">Mode::Proposals</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">pregame::proposals::Proposals::new_state</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
-            <span class="ident">Mode::Ungap</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Mode::Proposals</span> =&gt; <span class="ident">pregame::proposals::Proposals::new_state</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>),
+            <span class="ident">Mode::Ungap</span> =&gt; {
                 <span class="kw">let</span> <span class="ident">layers</span> <span class="op">=</span> <span class="ident">ungap::Layers::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 <span class="ident">ungap::ExploreMap::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">layers</span>)
             }
-            <span class="ident">Mode::Ltn</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ltn::BrowseNeighborhoods::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-            <span class="ident">Mode::Devtools</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">devtools::DevToolsMode::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-            <span class="ident">Mode::LoadKML</span>(<span class="ident">path</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::devtools::kml::ViewKML::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">Some</span>(<span class="ident">path</span>)),
+            <span class="ident">Mode::Ltn</span> =&gt; <span class="ident">ltn::BrowseNeighborhoods::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+            <span class="ident">Mode::Devtools</span> =&gt; <span class="ident">devtools::DevToolsMode::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+            <span class="ident">Mode::LoadKML</span>(<span class="ident">path</span>) =&gt; <span class="ident"><span class="kw">crate</span>::devtools::kml::ViewKML::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">Some</span>(<span class="ident">path</span>)),
         }
     };
     <span class="macro">vec!</span>[<span class="ident">TitleScreen::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>), <span class="ident">state</span>]

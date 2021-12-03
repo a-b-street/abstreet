@@ -582,7 +582,7 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">osm</span>, <span class="ident">BufferType</span>, <span class="ident">Direction</span>, <span class="ident">DrivingSide</span>, <span class="ident">LaneSpec</span>, <span class="ident">LaneType</span>, <span class="ident">MapConfig</span>};
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_lane_specs_ltr</span>(<span class="ident">tags</span>: <span class="kw-2">&amp;</span><span class="ident">Tags</span>, <span class="ident">cfg</span>: <span class="kw-2">&amp;</span><span class="ident">MapConfig</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneSpec</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_lane_specs_ltr</span>(<span class="ident">tags</span>: <span class="kw-2">&amp;</span><span class="ident">Tags</span>, <span class="ident">cfg</span>: <span class="kw-2">&amp;</span><span class="ident">MapConfig</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneSpec</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">fwd</span> <span class="op">=</span> <span class="op">|</span><span class="ident">lt</span>: <span class="ident">LaneType</span><span class="op">|</span> <span class="ident">LaneSpec</span> {
         <span class="ident">lt</span>,
         <span class="ident">dir</span>: <span class="ident">Direction::Fwd</span>,
@@ -647,7 +647,7 @@
     } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="op">=</span> <span class="ident">tags</span>.<span class="ident">get</span>(<span class="string">&quot;lanes&quot;</span>).<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">num</span><span class="op">|</span> <span class="ident">num</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>().<span class="ident">ok</span>()) {
         <span class="kw">if</span> <span class="ident">oneway</span> {
             <span class="ident">n</span>
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">n</span> <span class="op">%</span> <span class="number">2</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">n</span> <span class="op">%</span> <span class="number">2</span> <span class="op">==</span> <span class="number">0</span> {
             <span class="ident">n</span> <span class="op">/</span> <span class="number">2</span>
         } <span class="kw">else</span> {
             <span class="comment">// usize division rounds down</span>
@@ -707,7 +707,7 @@
         <span class="ident">fwd_side</span>.<span class="ident">insert</span>(<span class="number">0</span>, <span class="ident">fwd</span>(<span class="ident">LaneType::SharedLeftTurn</span>));
     }
 
-    <span class="kw">if</span> <span class="ident">driving_lane</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType::Construction</span> {
+    <span class="kw">if</span> <span class="ident">driving_lane</span> <span class="op">==</span> <span class="ident">LaneType::Construction</span> {
         <span class="kw">return</span> <span class="ident">assemble_ltr</span>(<span class="ident">fwd_side</span>, <span class="ident">back_side</span>, <span class="ident">cfg</span>.<span class="ident">driving_side</span>);
     }
 
@@ -728,14 +728,14 @@
     };
     <span class="kw">if</span> <span class="op">!</span><span class="ident">fwd_bus_spec</span>.<span class="ident">is_empty</span>() {
         <span class="kw">let</span> <span class="ident">parts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">fwd_bus_spec</span>.<span class="ident">split</span>(<span class="string">&#39;|&#39;</span>).<span class="ident">collect</span>();
-        <span class="kw">let</span> <span class="ident">offset</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">fwd_side</span>[<span class="number">0</span>].<span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType::SharedLeftTurn</span> {
+        <span class="kw">let</span> <span class="ident">offset</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">fwd_side</span>[<span class="number">0</span>].<span class="ident">lt</span> <span class="op">==</span> <span class="ident">LaneType::SharedLeftTurn</span> {
             <span class="number">1</span>
         } <span class="kw">else</span> {
             <span class="number">0</span>
         };
-        <span class="kw">if</span> <span class="ident">parts</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">fwd_side</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="ident">offset</span> {
+        <span class="kw">if</span> <span class="ident">parts</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="ident">fwd_side</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="ident">offset</span> {
             <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">part</span>) <span class="kw">in</span> <span class="ident">parts</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
-                <span class="kw">if</span> <span class="ident">part</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;designated&quot;</span> {
+                <span class="kw">if</span> <span class="ident">part</span> <span class="op">==</span> <span class="string">&quot;designated&quot;</span> {
                     <span class="ident">fwd_side</span>[<span class="ident">idx</span> <span class="op">+</span> <span class="ident">offset</span>].<span class="ident">lt</span> <span class="op">=</span> <span class="ident">LaneType::Bus</span>;
                 }
             }
@@ -746,9 +746,9 @@
         .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">tags</span>.<span class="ident">get</span>(<span class="string">&quot;psv:lanes:backward&quot;</span>))
     {
         <span class="kw">let</span> <span class="ident">parts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">spec</span>.<span class="ident">split</span>(<span class="string">&#39;|&#39;</span>).<span class="ident">collect</span>();
-        <span class="kw">if</span> <span class="ident">parts</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">back_side</span>.<span class="ident">len</span>() {
+        <span class="kw">if</span> <span class="ident">parts</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="ident">back_side</span>.<span class="ident">len</span>() {
             <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">part</span>) <span class="kw">in</span> <span class="ident">parts</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
-                <span class="kw">if</span> <span class="ident">part</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;designated&quot;</span> {
+                <span class="kw">if</span> <span class="ident">part</span> <span class="op">==</span> <span class="string">&quot;designated&quot;</span> {
                     <span class="ident">back_side</span>[<span class="ident">idx</span>].<span class="ident">lt</span> <span class="op">=</span> <span class="ident">LaneType::Bus</span>;
                 }
             }
@@ -769,7 +769,7 @@
         <span class="comment">//</span>
         <span class="comment">// TODO Can we express this more simply by referring to a left_side and right_side here?</span>
         <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is_any</span>(<span class="string">&quot;cycleway:right&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;lane&quot;</span>, <span class="string">&quot;track&quot;</span>]) {
-            <span class="kw">if</span> <span class="ident">cfg</span>.<span class="ident">driving_side</span> <span class="op">=</span><span class="op">=</span> <span class="ident">DrivingSide::Right</span> {
+            <span class="kw">if</span> <span class="ident">cfg</span>.<span class="ident">driving_side</span> <span class="op">==</span> <span class="ident">DrivingSide::Right</span> {
                 <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;cycleway:right:oneway&quot;</span>, <span class="string">&quot;no&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;oneway:bicycle&quot;</span>, <span class="string">&quot;no&quot;</span>) {
                     <span class="ident">fwd_side</span>.<span class="ident">push</span>(<span class="ident">back</span>(<span class="ident">LaneType::Biking</span>));
                 }
@@ -782,14 +782,14 @@
             }
         }
         <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;cycleway:left&quot;</span>, <span class="string">&quot;opposite_lane&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;cycleway&quot;</span>, <span class="string">&quot;opposite_lane&quot;</span>) {
-            <span class="kw">if</span> <span class="ident">cfg</span>.<span class="ident">driving_side</span> <span class="op">=</span><span class="op">=</span> <span class="ident">DrivingSide::Right</span> {
+            <span class="kw">if</span> <span class="ident">cfg</span>.<span class="ident">driving_side</span> <span class="op">==</span> <span class="ident">DrivingSide::Right</span> {
                 <span class="ident">back_side</span>.<span class="ident">push</span>(<span class="ident">back</span>(<span class="ident">LaneType::Biking</span>));
             } <span class="kw">else</span> {
                 <span class="ident">fwd_side</span>.<span class="ident">push</span>(<span class="ident">fwd</span>(<span class="ident">LaneType::Biking</span>));
             }
         }
         <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is_any</span>(<span class="string">&quot;cycleway:left&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;lane&quot;</span>, <span class="string">&quot;opposite_track&quot;</span>, <span class="string">&quot;track&quot;</span>]) {
-            <span class="kw">if</span> <span class="ident">cfg</span>.<span class="ident">driving_side</span> <span class="op">=</span><span class="op">=</span> <span class="ident">DrivingSide::Right</span> {
+            <span class="kw">if</span> <span class="ident">cfg</span>.<span class="ident">driving_side</span> <span class="op">==</span> <span class="ident">DrivingSide::Right</span> {
                 <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;cycleway:left:oneway&quot;</span>, <span class="string">&quot;no&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;oneway:bicycle&quot;</span>, <span class="string">&quot;no&quot;</span>) {
                     <span class="ident">back_side</span>.<span class="ident">push</span>(<span class="ident">fwd</span>(<span class="ident">LaneType::Biking</span>));
                     <span class="ident">back_side</span>.<span class="ident">push</span>(<span class="ident">back</span>(<span class="ident">LaneType::Biking</span>));
@@ -820,7 +820,7 @@
     {
         <span class="comment">// TODO These shouldn&#39;t fail, but snapping is imperfect... like around</span>
         <span class="comment">// https://www.openstreetmap.org/way/486283205</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="ident">fwd_side</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType::Biking</span>) {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="ident">fwd_side</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">lt</span> <span class="op">==</span> <span class="ident">LaneType::Biking</span>) {
             <span class="ident">fwd_side</span>.<span class="ident">insert</span>(<span class="ident">idx</span>, <span class="ident">fwd</span>(<span class="ident">LaneType::Buffer</span>(<span class="ident">buffer</span>)));
         }
     }
@@ -828,7 +828,7 @@
         .<span class="ident">get</span>(<span class="string">&quot;cycleway:left:separation:left&quot;</span>)
         .<span class="ident">and_then</span>(<span class="ident">osm_separation_type</span>)
     {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="ident">back_side</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType::Biking</span>) {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="ident">back_side</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">lt</span> <span class="op">==</span> <span class="ident">LaneType::Biking</span>) {
             <span class="ident">back_side</span>.<span class="ident">insert</span>(<span class="ident">idx</span>, <span class="ident">back</span>(<span class="ident">LaneType::Buffer</span>(<span class="ident">buffer</span>)));
         }
     }
@@ -837,12 +837,12 @@
         .<span class="ident">and_then</span>(<span class="ident">osm_separation_type</span>)
     {
         <span class="comment">// This is assuming a one-way road. That&#39;s why we&#39;re not looking at back_side.</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="ident">fwd_side</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType::Biking</span>) {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="ident">fwd_side</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">lt</span> <span class="op">==</span> <span class="ident">LaneType::Biking</span>) {
             <span class="ident">fwd_side</span>.<span class="ident">insert</span>(<span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">fwd</span>(<span class="ident">LaneType::Buffer</span>(<span class="ident">buffer</span>)));
         }
     }
 
-    <span class="kw">if</span> <span class="ident">driving_lane</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType::Driving</span> {
+    <span class="kw">if</span> <span class="ident">driving_lane</span> <span class="op">==</span> <span class="ident">LaneType::Driving</span> {
         <span class="kw">let</span> <span class="ident">has_parking</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="string">&quot;parallel&quot;</span>, <span class="string">&quot;diagonal&quot;</span>, <span class="string">&quot;perpendicular&quot;</span>];
         <span class="kw">let</span> <span class="ident">parking_lane_fwd</span> <span class="op">=</span> <span class="ident">tags</span>.<span class="ident">is_any</span>(<span class="ident">osm::PARKING_RIGHT</span>, <span class="ident">has_parking</span>.<span class="ident">clone</span>())
             <span class="op">|</span><span class="op">|</span> <span class="ident">tags</span>.<span class="ident">is_any</span>(<span class="ident">osm::PARKING_BOTH</span>, <span class="ident">has_parking</span>.<span class="ident">clone</span>());
@@ -866,13 +866,13 @@
             <span class="ident">back_side</span>.<span class="ident">push</span>(<span class="ident">back</span>(<span class="ident">LaneType::Sidewalk</span>));
         }
     } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="ident">osm::SIDEWALK</span>, <span class="string">&quot;right&quot;</span>) {
-        <span class="kw">if</span> <span class="ident">cfg</span>.<span class="ident">driving_side</span> <span class="op">=</span><span class="op">=</span> <span class="ident">DrivingSide::Right</span> {
+        <span class="kw">if</span> <span class="ident">cfg</span>.<span class="ident">driving_side</span> <span class="op">==</span> <span class="ident">DrivingSide::Right</span> {
             <span class="ident">fwd_side</span>.<span class="ident">push</span>(<span class="ident">fwd</span>(<span class="ident">LaneType::Sidewalk</span>));
         } <span class="kw">else</span> {
             <span class="ident">back_side</span>.<span class="ident">push</span>(<span class="ident">back</span>(<span class="ident">LaneType::Sidewalk</span>));
         }
     } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="ident">osm::SIDEWALK</span>, <span class="string">&quot;left&quot;</span>) {
-        <span class="kw">if</span> <span class="ident">cfg</span>.<span class="ident">driving_side</span> <span class="op">=</span><span class="op">=</span> <span class="ident">DrivingSide::Right</span> {
+        <span class="kw">if</span> <span class="ident">cfg</span>.<span class="ident">driving_side</span> <span class="op">==</span> <span class="ident">DrivingSide::Right</span> {
             <span class="ident">back_side</span>.<span class="ident">push</span>(<span class="ident">back</span>(<span class="ident">LaneType::Sidewalk</span>));
         } <span class="kw">else</span> {
             <span class="ident">fwd_side</span>.<span class="ident">push</span>(<span class="ident">fwd</span>(<span class="ident">LaneType::Sidewalk</span>));
@@ -920,14 +920,14 @@
     <span class="kw-2">mut</span> <span class="ident">fwd_side</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneSpec</span><span class="op">&gt;</span>,
     <span class="kw-2">mut</span> <span class="ident">back_side</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneSpec</span><span class="op">&gt;</span>,
     <span class="ident">driving_side</span>: <span class="ident">DrivingSide</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneSpec</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneSpec</span><span class="op">&gt;</span> {
     <span class="kw">match</span> <span class="ident">driving_side</span> {
-        <span class="ident">DrivingSide::Right</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">DrivingSide::Right</span> =&gt; {
             <span class="ident">back_side</span>.<span class="ident">reverse</span>();
             <span class="ident">back_side</span>.<span class="ident">extend</span>(<span class="ident">fwd_side</span>);
             <span class="ident">back_side</span>
         }
-        <span class="ident">DrivingSide::Left</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">DrivingSide::Left</span> =&gt; {
             <span class="ident">fwd_side</span>.<span class="ident">reverse</span>();
             <span class="ident">fwd_side</span>.<span class="ident">extend</span>(<span class="ident">back_side</span>);
             <span class="ident">fwd_side</span>
@@ -938,17 +938,17 @@
 <span class="comment">// See https://wiki.openstreetmap.org/wiki/Proposed_features/cycleway:separation#Typical_values.</span>
 <span class="comment">// Lots of these mappings are pretty wacky right now. We need more BufferTypes.</span>
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::ptr_arg</span>)]</span> <span class="comment">// Can&#39;t chain with `tags.get(&quot;foo&quot;).and_then` otherwise</span>
-<span class="kw">fn</span> <span class="ident">osm_separation_type</span>(<span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BufferType</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">osm_separation_type</span>(<span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">String</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BufferType</span><span class="op">&gt;</span> {
     <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-        <span class="string">&quot;bollard&quot;</span> <span class="op">|</span> <span class="string">&quot;vertical_panel&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">BufferType::FlexPosts</span>),
-        <span class="string">&quot;kerb&quot;</span> <span class="op">|</span> <span class="string">&quot;separation_kerb&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">BufferType::Curb</span>),
-        <span class="string">&quot;grass_verge&quot;</span> <span class="op">|</span> <span class="string">&quot;planter&quot;</span> <span class="op">|</span> <span class="string">&quot;tree_row&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">BufferType::Planters</span>),
-        <span class="string">&quot;guard_rail&quot;</span> <span class="op">|</span> <span class="string">&quot;jersey_barrier&quot;</span> <span class="op">|</span> <span class="string">&quot;railing&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">BufferType::JerseyBarrier</span>),
+        <span class="string">&quot;bollard&quot;</span> <span class="op">|</span> <span class="string">&quot;vertical_panel&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BufferType::FlexPosts</span>),
+        <span class="string">&quot;kerb&quot;</span> <span class="op">|</span> <span class="string">&quot;separation_kerb&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BufferType::Curb</span>),
+        <span class="string">&quot;grass_verge&quot;</span> <span class="op">|</span> <span class="string">&quot;planter&quot;</span> <span class="op">|</span> <span class="string">&quot;tree_row&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BufferType::Planters</span>),
+        <span class="string">&quot;guard_rail&quot;</span> <span class="op">|</span> <span class="string">&quot;jersey_barrier&quot;</span> <span class="op">|</span> <span class="string">&quot;railing&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BufferType::JerseyBarrier</span>),
         <span class="comment">// TODO Make sure there&#39;s a parking lane on that side... also mapped? Any flex posts in</span>
         <span class="comment">// between?</span>
-        <span class="string">&quot;parking_lane&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
-        <span class="string">&quot;barred_area&quot;</span> <span class="op">|</span> <span class="string">&quot;dashed_line&quot;</span> <span class="op">|</span> <span class="string">&quot;solid_line&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">BufferType::Stripes</span>),
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+        <span class="string">&quot;parking_lane&quot;</span> =&gt; <span class="prelude-val">None</span>,
+        <span class="string">&quot;barred_area&quot;</span> <span class="op">|</span> <span class="string">&quot;dashed_line&quot;</span> <span class="op">|</span> <span class="string">&quot;solid_line&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BufferType::Stripes</span>),
+        <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
     }
 }
 
@@ -956,7 +956,7 @@
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
-    <span class="kw">fn</span> <span class="ident">tags</span>(<span class="ident">kv</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Tags</span> {
+    <span class="kw">fn</span> <span class="ident">tags</span>(<span class="ident">kv</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>) -&gt; <span class="ident">Tags</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tags</span> <span class="op">=</span> <span class="ident">Tags::empty</span>();
         <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">kv</span> {
             <span class="kw">let</span> <span class="ident">parts</span> <span class="op">=</span> <span class="ident">pair</span>.<span class="ident">split</span>(<span class="string">&#39;=&#39;</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
@@ -1132,7 +1132,7 @@
             <span class="kw">let</span> <span class="ident">actual_lt</span>: <span class="ident">String</span> <span class="op">=</span> <span class="ident">actual</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">lt</span>.<span class="ident">to_char</span>()).<span class="ident">collect</span>();
             <span class="kw">let</span> <span class="ident">actual_dir</span>: <span class="ident">String</span> <span class="op">=</span> <span class="ident">actual</span>
                 .<span class="ident">iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction::Fwd</span> { <span class="string">&#39;^&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;v&#39;</span> })
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">dir</span> <span class="op">==</span> <span class="ident">Direction::Fwd</span> { <span class="string">&#39;^&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;v&#39;</span> })
                 .<span class="ident">collect</span>();
             <span class="kw">if</span> <span class="ident">actual_lt</span> <span class="op">!</span><span class="op">=</span> <span class="ident">expected_lt</span> <span class="op">|</span><span class="op">|</span> <span class="ident">actual_dir</span> <span class="op">!</span><span class="op">=</span> <span class="ident">expected_dir</span> {
                 <span class="ident">ok</span> <span class="op">=</span> <span class="bool-val">false</span>;

@@ -552,18 +552,18 @@
 }
 
 <span class="kw">impl</span> <span class="ident">WalkingNode</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">closest</span>(<span class="ident">pos</span>: <span class="ident">Position</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">WalkingNode</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">closest</span>(<span class="ident">pos</span>: <span class="ident">Position</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">WalkingNode</span> {
         <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">pos</span>.<span class="ident">lane</span>());
         <span class="kw">let</span> <span class="ident">dst_i</span> <span class="op">=</span> <span class="ident">lane</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">pos</span>.<span class="ident">dist_along</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="ident">pos</span>.<span class="ident">dist_along</span>();
         <span class="ident">WalkingNode::SidewalkEndpoint</span>(<span class="ident">lane</span>.<span class="ident">get_directed_parent</span>(), <span class="ident">dst_i</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">end_transit</span>(<span class="ident">pos</span>: <span class="ident">Position</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">WalkingNode</span> {
+    <span class="kw">fn</span> <span class="ident">end_transit</span>(<span class="ident">pos</span>: <span class="ident">Position</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">WalkingNode</span> {
         <span class="kw">let</span> <span class="ident">l</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">pos</span>.<span class="ident">lane</span>());
-        <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">l</span>.<span class="ident">src_i</span>).<span class="ident">is_outgoing_border</span>() <span class="op">&amp;&amp;</span> <span class="ident">pos</span>.<span class="ident">dist_along</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">Distance::ZERO</span> {
+        <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">l</span>.<span class="ident">src_i</span>).<span class="ident">is_outgoing_border</span>() <span class="op">&amp;&amp;</span> <span class="ident">pos</span>.<span class="ident">dist_along</span>() <span class="op">==</span> <span class="ident">Distance::ZERO</span> {
             <span class="kw">return</span> <span class="ident">WalkingNode::LeaveMap</span>(<span class="ident">l</span>.<span class="ident">src_i</span>);
         }
-        <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">l</span>.<span class="ident">dst_i</span>).<span class="ident">is_outgoing_border</span>() <span class="op">&amp;&amp;</span> <span class="ident">pos</span>.<span class="ident">dist_along</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">l</span>.<span class="ident">length</span>() {
+        <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">l</span>.<span class="ident">dst_i</span>).<span class="ident">is_outgoing_border</span>() <span class="op">&amp;&amp;</span> <span class="ident">pos</span>.<span class="ident">dist_along</span>() <span class="op">==</span> <span class="ident">l</span>.<span class="ident">length</span>() {
             <span class="kw">return</span> <span class="ident">WalkingNode::LeaveMap</span>(<span class="ident">l</span>.<span class="ident">dst_i</span>);
         }
         <span class="ident">WalkingNode::closest</span>(<span class="ident">pos</span>, <span class="ident">map</span>)
@@ -571,7 +571,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">SidewalkPathfinder</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SidewalkPathfinder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>() -&gt; <span class="ident">SidewalkPathfinder</span> {
         <span class="ident">SidewalkPathfinder</span> {
             <span class="ident">nodes</span>: <span class="ident">NodeMap::new</span>(),
             <span class="ident">use_transit</span>: <span class="bool-val">false</span>,
@@ -583,7 +583,7 @@
         <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
         <span class="ident">use_transit</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="ident">VehiclePathfinder</span>, <span class="kw-2">&amp;</span><span class="ident">VehiclePathfinder</span>)<span class="op">&gt;</span>,
         <span class="ident">engine</span>: <span class="kw-2">&amp;</span><span class="ident">CreateEngine</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SidewalkPathfinder</span> {
+    ) -&gt; <span class="ident">SidewalkPathfinder</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">nodes</span> <span class="op">=</span> <span class="ident">NodeMap::new</span>();
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
             <span class="comment">// Regardless of whether the road has sidewalks/shoulders on one or both sides, add</span>
@@ -629,12 +629,12 @@
         <span class="self">self</span>.<span class="ident">engine</span> <span class="op">=</span> <span class="ident">engine</span>;
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pathfind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">PathRequest</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathV2</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pathfind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">PathRequest</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathV2</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">engine</span>, <span class="ident">PathfindEngine::Empty</span>) {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
 
-        <span class="kw">if</span> <span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">lane</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">req</span>.<span class="ident">end</span>.<span class="ident">lane</span>() {
+        <span class="kw">if</span> <span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">lane</span>() <span class="op">==</span> <span class="ident">req</span>.<span class="ident">end</span>.<span class="ident">lane</span>() {
             <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">one_step_walking_path</span>(<span class="ident">req</span>, <span class="ident">map</span>));
         }
         <span class="kw">let</span> (<span class="ident">raw_weight</span>, <span class="ident">raw_nodes</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">engine</span>.<span class="ident">calculate_path</span>(
@@ -657,7 +657,7 @@
         <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
         <span class="ident">start</span>: <span class="ident">Position</span>,
         <span class="ident">end</span>: <span class="ident">Position</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">BusStopID</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BusStopID</span><span class="op">&gt;</span>, <span class="ident">BusRouteID</span>)<span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">BusStopID</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BusStopID</span><span class="op">&gt;</span>, <span class="ident">BusRouteID</span>)<span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">engine</span>, <span class="ident">PathfindEngine::Empty</span>) {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
@@ -685,7 +685,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">possible_routes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">BusRoute</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">for</span> <span class="ident">n</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">nodes</span> {
             <span class="kw">match</span> <span class="ident">n</span> {
-                <span class="ident">WalkingNode::RideBus</span>(<span class="ident">stop2</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">WalkingNode::RideBus</span>(<span class="ident">stop2</span>) =&gt; {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">stop1</span>) <span class="op">=</span> <span class="ident">first_stop</span> {
                         <span class="comment">// Keep riding the same route?</span>
                         <span class="comment">// We need to do this check, because some transfers might be instantaneous</span>
@@ -695,8 +695,8 @@
                         <span class="comment">// a different point.</span>
                         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">filtered</span> <span class="op">=</span> <span class="ident">possible_routes</span>.<span class="ident">clone</span>();
                         <span class="ident">filtered</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> {
-                            <span class="kw">let</span> <span class="ident">idx1</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">stops</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">s</span> <span class="op">=</span><span class="op">=</span> <span class="ident">stop1</span>).<span class="ident">unwrap</span>();
-                            <span class="kw">let</span> <span class="ident">idx2</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">stops</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span> <span class="op">=</span><span class="op">=</span> <span class="ident">stop2</span>);
+                            <span class="kw">let</span> <span class="ident">idx1</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">stops</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">s</span> <span class="op">==</span> <span class="ident">stop1</span>).<span class="ident">unwrap</span>();
+                            <span class="kw">let</span> <span class="ident">idx2</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">stops</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span> <span class="op">==</span> <span class="ident">stop2</span>);
                             <span class="ident">idx2</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">idx2</span><span class="op">|</span> <span class="ident">idx1</span> <span class="op">&lt;</span> <span class="ident">idx2</span>).<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>)
                         });
                         <span class="kw">if</span> <span class="ident">filtered</span>.<span class="ident">is_empty</span>() {
@@ -717,11 +717,11 @@
                         <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">possible_routes</span>.<span class="ident">is_empty</span>());
                     }
                 }
-                <span class="ident">WalkingNode::LeaveMap</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">WalkingNode::LeaveMap</span>(<span class="ident">i</span>) =&gt; {
                     <span class="comment">// Make sure the route actually leaves via the correct border!</span>
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">r</span>) <span class="op">=</span> <span class="ident">possible_routes</span>.<span class="ident">iter</span>().<span class="ident">find</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> {
                         <span class="ident">r</span>.<span class="ident">end_border</span>
-                            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">dst_i</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">i</span>)
+                            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">dst_i</span> <span class="op">==</span> <span class="kw-2">*</span><span class="ident">i</span>)
                             .<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>)
                     }) {
                         <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="ident">first_stop</span>.<span class="ident">unwrap</span>(), <span class="prelude-val">None</span>, <span class="ident">r</span>.<span class="ident">id</span>));
@@ -733,7 +733,7 @@
                         <span class="ident">possible_routes</span>[<span class="number">0</span>].<span class="ident">id</span>,
                     ));
                 }
-                <span class="ident">WalkingNode::SidewalkEndpoint</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">WalkingNode::SidewalkEndpoint</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">stop1</span>) <span class="op">=</span> <span class="ident">first_stop</span> {
                         <span class="kw">return</span> <span class="prelude-val">Some</span>((
                             <span class="ident">stop1</span>,
@@ -747,7 +747,7 @@
         <span class="prelude-val">None</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_costs_from</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">start</span>: <span class="ident">Position</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">DirectedRoadID</span>, <span class="ident">Duration</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_costs_from</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">start</span>: <span class="ident">Position</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">DirectedRoadID</span>, <span class="ident">Duration</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">engine</span>, <span class="ident">PathfindEngine::Empty</span>) {
             <span class="kw">return</span> <span class="ident">HashMap::new</span>();
         }
@@ -781,7 +781,7 @@
     <span class="ident">nodes</span>: <span class="kw-2">&amp;</span><span class="ident">NodeMap</span><span class="op">&lt;</span><span class="ident">WalkingNode</span><span class="op">&gt;</span>,
     <span class="ident">use_transit</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="ident">VehiclePathfinder</span>, <span class="kw-2">&amp;</span><span class="ident">VehiclePathfinder</span>)<span class="op">&gt;</span>,
     <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">InputGraph</span> {
+) -&gt; <span class="ident">InputGraph</span> {
     <span class="kw">let</span> <span class="ident">max_speed</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident"><span class="kw">crate</span>::MAX_WALKING_SPEED</span>);
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">input_graph</span> <span class="op">=</span> <span class="ident">InputGraph::new</span>();
 
@@ -815,12 +815,12 @@
             <span class="kw">let</span> <span class="ident">src</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">src</span>);
             <span class="kw">let</span> <span class="ident">dst</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">dst</span>);
             <span class="kw">let</span> <span class="ident">from</span> <span class="op">=</span>
-                <span class="ident">WalkingNode::SidewalkEndpoint</span>(<span class="ident">src</span>.<span class="ident">get_directed_parent</span>(), <span class="ident">src</span>.<span class="ident">dst_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">parent</span>);
+                <span class="ident">WalkingNode::SidewalkEndpoint</span>(<span class="ident">src</span>.<span class="ident">get_directed_parent</span>(), <span class="ident">src</span>.<span class="ident">dst_i</span> <span class="op">==</span> <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">parent</span>);
             <span class="kw">let</span> <span class="ident">to</span> <span class="op">=</span>
-                <span class="ident">WalkingNode::SidewalkEndpoint</span>(<span class="ident">dst</span>.<span class="ident">get_directed_parent</span>(), <span class="ident">dst</span>.<span class="ident">dst_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">parent</span>);
+                <span class="ident">WalkingNode::SidewalkEndpoint</span>(<span class="ident">dst</span>.<span class="ident">get_directed_parent</span>(), <span class="ident">dst</span>.<span class="ident">dst_i</span> <span class="op">==</span> <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">parent</span>);
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cost</span> <span class="op">=</span> <span class="ident">t</span>.<span class="ident">geom</span>.<span class="ident">length</span>()
                 <span class="op">/</span> <span class="ident">PathStep::Turn</span>(<span class="ident">t</span>.<span class="ident">id</span>).<span class="ident">max_speed_along</span>(<span class="ident">max_speed</span>, <span class="ident">PathConstraints::Pedestrian</span>, <span class="ident">map</span>);
-            <span class="kw">if</span> <span class="ident">t</span>.<span class="ident">turn_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TurnType::UnmarkedCrossing</span> {
+            <span class="kw">if</span> <span class="ident">t</span>.<span class="ident">turn_type</span> <span class="op">==</span> <span class="ident">TurnType::UnmarkedCrossing</span> {
                 <span class="comment">// TODO Add to RoutingParams</span>
                 <span class="ident">cost</span> <span class="op">=</span> <span class="number">3.0</span> <span class="op">*</span> <span class="ident">cost</span>;
             }
@@ -884,9 +884,9 @@
             <span class="kw">let</span> (<span class="ident">stop1</span>, <span class="ident">stop2</span>) <span class="op">=</span> (<span class="ident">map</span>.<span class="ident">get_bs</span>(<span class="ident">pair</span>[<span class="number">0</span>]), <span class="ident">map</span>.<span class="ident">get_bs</span>(<span class="ident">pair</span>[<span class="number">1</span>]));
             <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">PathRequest::vehicle</span>(<span class="ident">stop1</span>.<span class="ident">driving_pos</span>, <span class="ident">stop2</span>.<span class="ident">driving_pos</span>, <span class="ident">route</span>.<span class="ident">route_type</span>);
             <span class="kw">let</span> <span class="ident">maybe_driving_cost</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">route</span>.<span class="ident">route_type</span> {
-                <span class="ident">PathConstraints::Bus</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">bus_graph</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>, <span class="ident">map</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">get_cost</span>()),
-                <span class="ident">PathConstraints::Train</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">train_graph</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>, <span class="ident">map</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">get_cost</span>()),
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+                <span class="ident">PathConstraints::Bus</span> =&gt; <span class="ident">bus_graph</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>, <span class="ident">map</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">get_cost</span>()),
+                <span class="ident">PathConstraints::Train</span> =&gt; <span class="ident">train_graph</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>, <span class="ident">map</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">get_cost</span>()),
+                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
             };
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">driving_cost</span>) <span class="op">=</span> <span class="ident">maybe_driving_cost</span> {
                 <span class="ident">input_graph</span>.<span class="ident">add_edge</span>(
@@ -907,9 +907,9 @@
             <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span>
                 <span class="ident">PathRequest::vehicle</span>(<span class="ident">stop1</span>.<span class="ident">driving_pos</span>, <span class="ident">Position::end</span>(<span class="ident">l</span>, <span class="ident">map</span>), <span class="ident">route</span>.<span class="ident">route_type</span>);
             <span class="kw">let</span> <span class="ident">maybe_driving_cost</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">route</span>.<span class="ident">route_type</span> {
-                <span class="ident">PathConstraints::Bus</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">bus_graph</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>, <span class="ident">map</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">get_cost</span>()),
-                <span class="ident">PathConstraints::Train</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">train_graph</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>, <span class="ident">map</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">get_cost</span>()),
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+                <span class="ident">PathConstraints::Bus</span> =&gt; <span class="ident">bus_graph</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>, <span class="ident">map</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">get_cost</span>()),
+                <span class="ident">PathConstraints::Train</span> =&gt; <span class="ident">train_graph</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>, <span class="ident">map</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">get_cost</span>()),
+                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
             };
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">driving_cost</span>) <span class="op">=</span> <span class="ident">maybe_driving_cost</span> {
                 <span class="kw">let</span> <span class="ident">border</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">dst_i</span>);
@@ -929,22 +929,22 @@
 }
 
 <span class="comment">// TODO Fold into reconstruct_path?</span>
-<span class="kw">fn</span> <span class="ident">walking_path_to_steps</span>(<span class="ident">path</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">WalkingNode</span><span class="op">&gt;</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PathStepV2</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">walking_path_to_steps</span>(<span class="ident">path</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">WalkingNode</span><span class="op">&gt;</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PathStepV2</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">steps</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
     <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">path</span>.<span class="ident">windows</span>(<span class="number">2</span>) {
         <span class="kw">let</span> (<span class="ident">r1</span>, <span class="ident">r1_endpt</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">pair</span>[<span class="number">0</span>] {
-            <span class="ident">WalkingNode::SidewalkEndpoint</span>(<span class="ident">r</span>, <span class="ident">endpt</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">r</span>, <span class="ident">endpt</span>),
-            <span class="ident">WalkingNode::RideBus</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
-            <span class="ident">WalkingNode::LeaveMap</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+            <span class="ident">WalkingNode::SidewalkEndpoint</span>(<span class="ident">r</span>, <span class="ident">endpt</span>) =&gt; (<span class="ident">r</span>, <span class="ident">endpt</span>),
+            <span class="ident">WalkingNode::RideBus</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
+            <span class="ident">WalkingNode::LeaveMap</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
         };
         <span class="kw">let</span> <span class="ident">r2</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">pair</span>[<span class="number">1</span>] {
-            <span class="ident">WalkingNode::SidewalkEndpoint</span>(<span class="ident">r</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">r</span>,
-            <span class="ident">WalkingNode::RideBus</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
-            <span class="ident">WalkingNode::LeaveMap</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+            <span class="ident">WalkingNode::SidewalkEndpoint</span>(<span class="ident">r</span>, <span class="kw">_</span>) =&gt; <span class="ident">r</span>,
+            <span class="ident">WalkingNode::RideBus</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
+            <span class="ident">WalkingNode::LeaveMap</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
         };
 
-        <span class="kw">if</span> <span class="ident">r1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">r2</span> {
+        <span class="kw">if</span> <span class="ident">r1</span> <span class="op">==</span> <span class="ident">r2</span> {
             <span class="kw">if</span> <span class="ident">r1_endpt</span> {
                 <span class="ident">steps</span>.<span class="ident">push</span>(<span class="ident">PathStepV2::Contraflow</span>(<span class="ident">r1</span>));
             } <span class="kw">else</span> {
@@ -986,14 +986,14 @@
 
     <span class="comment">// Don&#39;t start or end a path in a turn; sim layer breaks.</span>
     <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PathStepV2::Movement</span>(<span class="ident">mvmnt</span>) <span class="op">=</span> <span class="ident">steps</span>[<span class="number">0</span>] {
-        <span class="kw">if</span> <span class="ident">mvmnt</span>.<span class="ident">from</span>.<span class="ident">src_i</span>(<span class="ident">map</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">mvmnt</span>.<span class="ident">parent</span> {
+        <span class="kw">if</span> <span class="ident">mvmnt</span>.<span class="ident">from</span>.<span class="ident">src_i</span>(<span class="ident">map</span>) <span class="op">==</span> <span class="ident">mvmnt</span>.<span class="ident">parent</span> {
             <span class="ident">steps</span>.<span class="ident">insert</span>(<span class="number">0</span>, <span class="ident">PathStepV2::Contraflow</span>(<span class="ident">mvmnt</span>.<span class="ident">from</span>));
         } <span class="kw">else</span> {
             <span class="ident">steps</span>.<span class="ident">insert</span>(<span class="number">0</span>, <span class="ident">PathStepV2::Along</span>(<span class="ident">mvmnt</span>.<span class="ident">from</span>));
         }
     }
     <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PathStepV2::Movement</span>(<span class="ident">mvmnt</span>) <span class="op">=</span> <span class="ident">steps</span>.<span class="ident">last</span>().<span class="ident">cloned</span>().<span class="ident">unwrap</span>() {
-        <span class="kw">if</span> <span class="ident">mvmnt</span>.<span class="ident">to</span>.<span class="ident">src_i</span>(<span class="ident">map</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">mvmnt</span>.<span class="ident">parent</span> {
+        <span class="kw">if</span> <span class="ident">mvmnt</span>.<span class="ident">to</span>.<span class="ident">src_i</span>(<span class="ident">map</span>) <span class="op">==</span> <span class="ident">mvmnt</span>.<span class="ident">parent</span> {
             <span class="ident">steps</span>.<span class="ident">push</span>(<span class="ident">PathStepV2::Along</span>(<span class="ident">mvmnt</span>.<span class="ident">to</span>));
         } <span class="kw">else</span> {
             <span class="ident">steps</span>.<span class="ident">push</span>(<span class="ident">PathStepV2::Contraflow</span>(<span class="ident">mvmnt</span>.<span class="ident">to</span>));
@@ -1004,7 +1004,7 @@
 }
 
 <span class="comment">// TODO Do we even need this at all?</span>
-<span class="kw">fn</span> <span class="ident">one_step_walking_path</span>(<span class="ident">req</span>: <span class="ident">PathRequest</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PathV2</span> {
+<span class="kw">fn</span> <span class="ident">one_step_walking_path</span>(<span class="ident">req</span>: <span class="ident">PathRequest</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">PathV2</span> {
     <span class="kw">let</span> <span class="ident">l</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">lane</span>();
     <span class="comment">// Weird case, but it can happen for walking from a building path to a bus stop that&#39;re</span>
     <span class="comment">// actually at the same spot.</span>

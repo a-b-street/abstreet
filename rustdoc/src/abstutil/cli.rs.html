@@ -69,16 +69,16 @@
 <span class="doccomment">/// On web, this transforms URL query parameters into command-line arguments, by treating `&amp;` as</span>
 <span class="doccomment">/// the separator between arguments. So for instance &quot;?--dev&amp;--color_scheme=night%20mode&quot; becomes</span>
 <span class="doccomment">/// vec![&quot;dummy program name&quot;, &quot;--dev&quot;, &quot;--color_scheme=night mode&quot;].</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cli_args</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">OsString</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cli_args</span>() -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">OsString</span><span class="op">&gt;</span> {
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
     {
         <span class="kw">match</span> <span class="ident">parse_args</span>() {
-            <span class="prelude-val">Ok</span>(<span class="kw-2">mut</span> <span class="ident">args</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Ok</span>(<span class="kw-2">mut</span> <span class="ident">args</span>) =&gt; {
                 <span class="ident">args</span>.<span class="ident">insert</span>(<span class="number">0</span>, <span class="string">&quot;dummy program name&quot;</span>.<span class="ident">to_string</span>());
                 <span class="kw">let</span> <span class="ident">x</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">OsString</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">into</span>()).<span class="ident">collect</span>();
                 <span class="kw">return</span> <span class="ident">x</span>.<span class="ident">into_iter</span>();
             }
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
                 <span class="macro">warn!</span>(<span class="string">&quot;Didn&#39;t parse arguments from URL query params: {}&quot;</span>, <span class="ident">err</span>);
                 <span class="ident">Vec::new</span>().<span class="ident">into_iter</span>()
             }
@@ -92,7 +92,7 @@
 
 <span class="doccomment">/// Transforms some command-line arguments into URL query parameters, using `&amp;` as the separator</span>
 <span class="doccomment">/// between arguments. The string returned starts with `?`, unless the arguments are all empty.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">args_to_query_string</span>(<span class="ident">args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">args_to_query_string</span>(<span class="ident">args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) -&gt; <span class="ident">String</span> {
     <span class="comment">// TODO Similar to parse_args forgoing a URL decoding crate, just handle this one</span>
     <span class="comment">// transformation</span>
     <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">args</span>
@@ -108,7 +108,7 @@
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
-<span class="kw">fn</span> <span class="ident">parse_args</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">parse_args</span>() -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">window</span> <span class="op">=</span> <span class="ident">web_sys::window</span>().<span class="ident">ok_or</span>(<span class="macro">anyhow!</span>(<span class="string">&quot;no window?&quot;</span>))<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">window</span>.<span class="ident">location</span>().<span class="ident">href</span>().<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
         <span class="macro">anyhow!</span>(<span class="ident">err</span>

@@ -100,14 +100,14 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app::App</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::info</span>::{<span class="ident">header_btns</span>, <span class="ident">make_tabs</span>, <span class="ident">Details</span>, <span class="ident">Tab</span>};
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">info</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">details</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Details</span>, <span class="ident">id</span>: <span class="ident">ParkingLotID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">info</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">details</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Details</span>, <span class="ident">id</span>: <span class="ident">ParkingLotID</span>) -&gt; <span class="ident">Widget</span> {
     <span class="ident">Widget::custom_col</span>(<span class="macro">vec!</span>[
         <span class="ident">header</span>(<span class="ident">ctx</span>, <span class="ident">details</span>, <span class="ident">id</span>, <span class="ident">Tab::ParkingLot</span>(<span class="ident">id</span>)),
         <span class="ident">info_body</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>).<span class="ident">tab_body</span>(<span class="ident">ctx</span>),
     ])
 }
 
-<span class="kw">fn</span> <span class="ident">info_body</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">ParkingLotID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+<span class="kw">fn</span> <span class="ident">info_body</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">ParkingLotID</span>) -&gt; <span class="ident">Widget</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec!</span>[];
     <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_pl</span>(<span class="ident">id</span>);
     <span class="kw">let</span> <span class="ident">capacity</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">capacity</span>();
@@ -174,7 +174,7 @@
     <span class="ident">Widget::col</span>(<span class="ident">rows</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">header</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">details</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Details</span>, <span class="ident">id</span>: <span class="ident">ParkingLotID</span>, <span class="ident">tab</span>: <span class="ident">Tab</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+<span class="kw">fn</span> <span class="ident">header</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">details</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Details</span>, <span class="ident">id</span>: <span class="ident">ParkingLotID</span>, <span class="ident">tab</span>: <span class="ident">Tab</span>) -&gt; <span class="ident">Widget</span> {
     <span class="ident">Widget::custom_col</span>(<span class="macro">vec!</span>[
         <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
             <span class="ident">Line</span>(<span class="ident">id</span>.<span class="ident">to_string</span>()).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),

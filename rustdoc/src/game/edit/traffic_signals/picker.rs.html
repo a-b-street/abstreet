@@ -144,7 +144,7 @@
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
         <span class="ident">members</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
         <span class="ident">mode</span>: <span class="ident">GameplayMode</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident">Box::new</span>(<span class="ident">SignalPicker</span> {
             <span class="ident">panel</span>: <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
                 <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
@@ -164,7 +164,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">SignalPicker</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
+    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
         <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();
         <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
             <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span>
@@ -191,10 +191,10 @@
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;close&quot;</span> =&gt; {
                     <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
                 }
-                <span class="string">&quot;edit&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;edit&quot;</span> =&gt; {
                     <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">TrafficSignalEditor::new_state</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">app</span>,
@@ -202,7 +202,7 @@
                         <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">clone</span>(),
                     ));
                 }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
             }
         }
 
@@ -225,16 +225,16 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">make_btn</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">num</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+<span class="kw">fn</span> <span class="ident">make_btn</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">num</span>: <span class="ident">usize</span>) -&gt; <span class="ident">Widget</span> {
     <span class="kw">let</span> <span class="ident">title</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">num</span> {
-        <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Edit 0 signals&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="number">1</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Edit 1 signal&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format!</span>(<span class="string">&quot;Edit {} signals&quot;</span>, <span class="ident">num</span>),
+        <span class="number">0</span> =&gt; <span class="string">&quot;Edit 0 signals&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="number">1</span> =&gt; <span class="string">&quot;Edit 1 signal&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="kw">_</span> =&gt; <span class="macro">format!</span>(<span class="string">&quot;Edit {} signals&quot;</span>, <span class="ident">num</span>),
     };
     <span class="ident">ctx</span>.<span class="ident">style</span>()
         .<span class="ident">btn_solid_primary</span>
         .<span class="ident">text</span>(<span class="ident">title</span>)
-        .<span class="ident">disabled</span>(<span class="ident">num</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>)
+        .<span class="ident">disabled</span>(<span class="ident">num</span> <span class="op">==</span> <span class="number">0</span>)
         .<span class="ident">hotkey</span>(<span class="ident">hotkeys</span>(<span class="macro">vec!</span>[<span class="ident">Key::Enter</span>, <span class="ident">Key::E</span>]))
         .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;edit&quot;</span>)
 }

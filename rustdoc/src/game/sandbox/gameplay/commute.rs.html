@@ -383,7 +383,7 @@
         <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
         <span class="ident">orig_person</span>: <span class="ident">OrigPersonID</span>,
         <span class="ident">goal</span>: <span class="ident">Duration</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">GameplayState</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">GameplayState</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">find_person_by_orig_id</span>(<span class="ident">orig_person</span>).<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">trips</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_person</span>(<span class="ident">person</span>).<span class="ident">trips</span>.<span class="ident">clone</span>();
         <span class="ident">Box::new</span>(<span class="ident">OptimizeCommute</span> {
@@ -398,7 +398,7 @@
         })
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cutscene_pt1</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">mode</span>: <span class="kw-2">&amp;</span><span class="ident">GameplayMode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cutscene_pt1</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">mode</span>: <span class="kw-2">&amp;</span><span class="ident">GameplayMode</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident">CutsceneBuilder::new</span>(<span class="string">&quot;Optimize one commute: part 1&quot;</span>)
             .<span class="ident">boss</span>(<span class="string">&quot;Listen up, I&#39;ve got a special job for you today.&quot;</span>)
             .<span class="ident">player</span>(<span class="string">&quot;What is it? The scooter coalition back with demands for more valet parking?&quot;</span>)
@@ -420,7 +420,7 @@
             .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">cutscene_task</span>(<span class="ident">mode</span>))
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cutscene_pt2</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">mode</span>: <span class="kw-2">&amp;</span><span class="ident">GameplayMode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cutscene_pt2</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">mode</span>: <span class="kw-2">&amp;</span><span class="ident">GameplayMode</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="comment">// TODO The person chosen for this currently has more of an issue needing PBLs, actually.</span>
         <span class="ident">CutsceneBuilder::new</span>(<span class="string">&quot;Optimize one commute: part 2&quot;</span>)
             .<span class="ident">boss</span>(<span class="string">&quot;I&#39;ve got another, er, friend who&#39;s sick of this parking situation.&quot;</span>)
@@ -449,7 +449,7 @@
         <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>,
         <span class="ident">controls</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SandboxControls</span>,
         <span class="ident">actions</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Actions</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">once</span> {
             <span class="self">self</span>.<span class="ident">once</span> <span class="op">=</span> <span class="bool-val">false</span>;
             <span class="ident">controls</span>.<span class="ident">common</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>().<span class="ident">launch_info_panel</span>(
@@ -465,7 +465,7 @@
             <span class="self">self</span>.<span class="ident">recreate_panels</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
 
             <span class="kw">let</span> (<span class="ident">before</span>, <span class="ident">after</span>, <span class="ident">done</span>) <span class="op">=</span> <span class="ident">get_score</span>(<span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">trips</span>);
-            <span class="kw">if</span> <span class="ident">done</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">len</span>() {
+            <span class="kw">if</span> <span class="ident">done</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">len</span>() {
                 <span class="self">self</span>.<span class="ident">done</span> <span class="op">=</span> <span class="bool-val">true</span>;
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">final_score</span>(
                     <span class="ident">ctx</span>,
@@ -480,14 +480,14 @@
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">top_right</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;edit map&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;edit map&quot;</span> =&gt; {
                     <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">EditMode::new_state</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">app</span>,
                         <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">clone</span>(),
                     )));
                 }
-                <span class="string">&quot;instructions&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;instructions&quot;</span> =&gt; {
                     <span class="kw">let</span> <span class="ident">contents</span> <span class="op">=</span> (<span class="ident">cutscene_task</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">mode</span>))(<span class="ident">ctx</span>);
                     <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">ShowMessage::new_state</span>(
                         <span class="ident">ctx</span>,
@@ -495,7 +495,7 @@
                         <span class="ident">Color::WHITE</span>,
                     )));
                 }
-                <span class="string">&quot;hint&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;hint&quot;</span> =&gt; {
                     <span class="comment">// TODO Multiple hints. Point to follow button.</span>
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::from</span>(<span class="string">&quot;Hints&quot;</span>);
                     <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;&quot;</span>);
@@ -509,7 +509,7 @@
                         <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">panel_bg</span>,
                     )));
                 }
-                <span class="string">&quot;locate VIP&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;locate VIP&quot;</span> =&gt; {
                     <span class="ident">controls</span>.<span class="ident">common</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>().<span class="ident">launch_info_panel</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">app</span>,
@@ -517,7 +517,7 @@
                         <span class="ident">actions</span>,
                     );
                 }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
             }
         }
 
@@ -562,7 +562,7 @@
 }
 
 <span class="comment">// Returns (before, after, number of trips done)</span>
-<span class="kw">fn</span> <span class="ident">get_score</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">trips</span>: <span class="kw-2">&amp;</span>[<span class="ident">TripID</span>]) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Duration</span>, <span class="ident">Duration</span>, <span class="ident">usize</span>) {
+<span class="kw">fn</span> <span class="ident">get_score</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">trips</span>: <span class="kw-2">&amp;</span>[<span class="ident">TripID</span>]) -&gt; (<span class="ident">Duration</span>, <span class="ident">Duration</span>, <span class="ident">usize</span>) {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">done</span> <span class="op">=</span> <span class="number">0</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">before</span> <span class="op">=</span> <span class="ident">Duration::ZERO</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">after</span> <span class="op">=</span> <span class="ident">Duration::ZERO</span>;
@@ -584,10 +584,10 @@
     <span class="ident">before</span>: <span class="ident">Duration</span>,
     <span class="ident">after</span>: <span class="ident">Duration</span>,
     <span class="ident">goal</span>: <span class="ident">Duration</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">next_mode</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">GameplayMode</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
 
-    <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">before</span> <span class="op">=</span><span class="op">=</span> <span class="ident">after</span> {
+    <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">before</span> <span class="op">==</span> <span class="ident">after</span> {
         <span class="macro">format!</span>(
             <span class="string">&quot;The VIP&#39;s commute still takes a total of {}. Were you asleep on the job? Try \
              changing something!&quot;</span>,
@@ -630,10 +630,10 @@
     <span class="ident">FinalScore::new_state</span>(<span class="ident">ctx</span>, <span class="ident">msg</span>, <span class="ident">mode</span>, <span class="ident">next_mode</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">cutscene_task</span>(<span class="ident">mode</span>: <span class="kw-2">&amp;</span><span class="ident">GameplayMode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">cutscene_task</span>(<span class="ident">mode</span>: <span class="kw-2">&amp;</span><span class="ident">GameplayMode</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">Widget</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">goal</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">mode</span> {
-        <span class="ident">GameplayMode::OptimizeCommute</span>(<span class="kw">_</span>, <span class="ident">d</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="ident">d</span>,
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+        <span class="ident">GameplayMode::OptimizeCommute</span>(<span class="kw">_</span>, <span class="ident">d</span>) =&gt; <span class="kw-2">*</span><span class="ident">d</span>,
+        <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
     };
 
     <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> {
