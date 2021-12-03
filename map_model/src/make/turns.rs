@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
+use std::collections::{BTreeMap, HashMap, HashSet};
 
 use anyhow::Result;
 use nbez::{Bez3o, BezCurve, Point2d};
@@ -219,7 +219,6 @@ fn make_vehicle_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
                     dst: dst.id,
                 },
                 turn_type,
-                other_crosswalk_ids: BTreeSet::new(),
                 geom,
             });
         }

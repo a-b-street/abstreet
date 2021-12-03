@@ -55,10 +55,7 @@ impl DrawIntersection {
         }
 
         for turn in &i.turns {
-            // Avoid double-rendering
-            if turn.turn_type.pedestrian_crossing()
-                && !turn.other_crosswalk_ids.iter().any(|id| *id < turn.id)
-            {
+            if turn.turn_type.pedestrian_crossing() {
                 make_crosswalk(&mut default_geom, turn, map, app.cs());
             }
         }
@@ -265,10 +262,6 @@ pub fn calculate_corners(i: &Intersection, map: &Map) -> Vec<Polygon> {
 
     for turn in &i.turns {
         if turn.turn_type == TurnType::SharedSidewalkCorner {
-            // Avoid double-rendering
-            if map.get_l(turn.id.src).dst_i != i.id {
-                continue;
-            }
             let l1 = map.get_l(turn.id.src);
             let l2 = map.get_l(turn.id.dst);
 
@@ -278,23 +271,36 @@ pub fn calculate_corners(i: &Intersection, map: &Map) -> Vec<Polygon> {
                 continue;
             }
 
+            // Is point2 counter-clockwise of point1?
+            let dir = if i
+                .polygon
+                .center()
+                .angle_to(turn.geom.first_pt())
+                .simple_shortest_rotation_towards(i.polygon.center().angle_to(turn.geom.last_pt()))
+                > 0.0
+            {
+                1.0
+            } else {
+                -1.0
+            };
+
             if l1.width == l2.width {
                 // When two sidewalks or two shoulders meet, use the turn geometry to create some
                 // nice rounding.
-                let width = l1.width;
+                let shift = dir * l1.width / 2.0;
                 if let Some(poly) = (|| {
-                    let mut pts = turn.geom.shift_left(width / 2.0).ok()?.into_points();
-                    pts.push(l2.first_line().shift_left(width / 2.0).pt1());
-                    pts.push(l2.first_line().shift_right(width / 2.0).pt1());
+                    let mut pts = turn.geom.shift_either_direction(-shift).ok()?.into_points();
+                    pts.push(l2.end_line(i.id).shift_either_direction(shift).pt2());
+                    pts.push(l2.end_line(i.id).shift_either_direction(-shift).pt2());
                     pts.extend(
                         turn.geom
-                            .shift_right(width / 2.0)
+                            .shift_either_direction(shift)
                             .ok()?
                             .reversed()
                             .into_points(),
                     );
-                    pts.push(l1.last_line().shift_right(width / 2.0).pt2());
-                    pts.push(l1.last_line().shift_left(width / 2.0).pt2());
+                    pts.push(l1.end_line(i.id).shift_either_direction(shift).pt2());
+                    pts.push(l1.end_line(i.id).shift_either_direction(-shift).pt2());
                     pts.push(pts[0]);
                     // Many resulting shapes aren't valid rings, but we can still triangulate them.
                     Some(Polygon::buggy_new(pts))
@@ -304,10 +310,18 @@ pub fn calculate_corners(i: &Intersection, map: &Map) -> Vec<Polygon> {
             } else {
                 // When a sidewalk and a shoulder meet, use a simpler shape to connect them.
                 let mut pts = vec![
-                    l2.first_line().shift_left(l2.width / 2.0).pt1(),
-                    l2.first_line().shift_right(l2.width / 2.0).pt1(),
-                    l1.last_line().shift_right(l1.width / 2.0).pt2(),
-                    l1.last_line().shift_left(l1.width / 2.0).pt2(),
+                    l2.end_line(i.id)
+                        .shift_either_direction(dir * l2.width / 2.0)
+                        .pt2(),
+                    l2.end_line(i.id)
+                        .shift_either_direction(-dir * l2.width / 2.0)
+                        .pt2(),
+                    l1.end_line(i.id)
+                        .shift_either_direction(-dir * l1.width / 2.0)
+                        .pt2(),
+                    l1.end_line(i.id)
+                        .shift_either_direction(dir * l1.width / 2.0)
+                        .pt2(),
                 ];
                 pts.push(pts[0]);
                 if let Ok(ring) = Ring::new(pts) {
@@ -332,20 +346,26 @@ fn calculate_corner_curbs(i: &Intersection, map: &Map) -> Vec<Polygon> {
 
     for turn in &i.turns {
         if turn.turn_type == TurnType::SharedSidewalkCorner {
-            // Avoid double-rendering
-            if map.get_l(turn.id.src).dst_i != i.id {
-                continue;
-            }
+            let dir = if turn
+                .geom
+                .first_pt()
+                .angle_to(i.polygon.center())
+                .simple_shortest_rotation_towards(
+                    turn.geom.first_pt().angle_to(turn.geom.last_pt()),
+                )
+                > 0.0
+            {
+                1.0
+            } else {
+                -1.0
+            };
             let l1 = map.get_l(turn.id.src);
             let l2 = map.get_l(turn.id.dst);
 
             if l1.width == l2.width {
                 // When two sidewalks or two shoulders meet, use the turn geometry to create some
                 // nice rounding.
-                let mut width = shift(l1.width);
-                if map.get_config().driving_side == DrivingSide::Right {
-                    width *= -1.0;
-                }
+                let width = dir * shift(l1.width);
 
                 if let Some(pl) = (|| {
                     let mut pts = turn.geom.shift_either_direction(width).ok()?.into_points();
@@ -354,15 +374,18 @@ fn calculate_corner_curbs(i: &Intersection, map: &Map) -> Vec<Polygon> {
                     // this causes "zig-zaggy" artifacts. The approx_eq check helps some (but not
                     // all) of those cases, but sometimes introduces visual "gaps". This still
                     // needs more work.
-                    let first_line = l2.first_line().shift_either_direction(width);
-                    if !pts.last().unwrap().approx_eq(first_line.pt1(), thickness) {
-                        pts.push(first_line.pt1());
-                        pts.push(first_line.unbounded_dist_along(thickness));
+                    let first_line = l2.end_line(i.id).shift_either_direction(-width);
+                    if !pts.last().unwrap().approx_eq(first_line.pt2(), thickness) {
+                        pts.push(first_line.pt2());
+                        pts.push(first_line.unbounded_dist_along(first_line.length() - thickness));
                     }
-                    let last_line = l1.last_line().shift_either_direction(width).reversed();
-                    if !pts[0].approx_eq(last_line.pt1(), thickness) {
-                        pts.insert(0, last_line.pt1());
-                        pts.insert(0, last_line.unbounded_dist_along(thickness));
+                    let last_line = l1.end_line(i.id).shift_either_direction(width);
+                    if !pts[0].approx_eq(last_line.pt2(), thickness) {
+                        pts.insert(0, last_line.pt2());
+                        pts.insert(
+                            0,
+                            last_line.unbounded_dist_along(last_line.length() - thickness),
+                        );
                     }
                     PolyLine::deduping_new(pts).ok()
                 })() {
@@ -370,22 +393,17 @@ fn calculate_corner_curbs(i: &Intersection, map: &Map) -> Vec<Polygon> {
                 }
             } else {
                 // When a sidewalk and a shoulder meet, use a simpler shape to connect them.
-                let direction = if map.get_config().driving_side == DrivingSide::Right {
-                    -1.0
-                } else {
-                    1.0
-                };
-                let last_line = l1
-                    .last_line()
-                    .shift_either_direction(direction * shift(l1.width));
-                let first_line = l2
-                    .first_line()
-                    .shift_either_direction(direction * shift(l2.width));
+                let l1_line = l1
+                    .end_line(i.id)
+                    .shift_either_direction(dir * shift(l1.width));
+                let l2_line = l2
+                    .end_line(i.id)
+                    .shift_either_direction(-dir * shift(l2.width));
                 if let Ok(pl) = PolyLine::deduping_new(vec![
-                    last_line.reversed().unbounded_dist_along(thickness),
-                    last_line.pt2(),
-                    first_line.pt1(),
-                    first_line.unbounded_dist_along(thickness),
+                    l1_line.unbounded_dist_along(l1_line.length() - thickness),
+                    l1_line.pt2(),
+                    l2_line.pt2(),
+                    l2_line.unbounded_dist_along(l2_line.length() - thickness),
                 ]) {
                     curbs.push(pl.make_polygons(thickness));
                 }
