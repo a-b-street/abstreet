@@ -530,6 +530,21 @@
       "uncompressed_size_bytes": 12256088,
       "compressed_size_bytes": 2898054
     },
+    "data/input/gb/bradford/osm/center.osm": {
+      "checksum": "85e8b114180161fa82c5c7ffe94f4b3a",
+      "uncompressed_size_bytes": 37921614,
+      "compressed_size_bytes": 3960540
+    },
+    "data/input/gb/bradford/osm/west-yorkshire-latest.osm.pbf": {
+      "checksum": "91a036a7347fa8430d9824d8e4b9c0ea",
+      "uncompressed_size_bytes": 38738178,
+      "compressed_size_bytes": 38696224
+    },
+    "data/input/gb/bradford/raw_maps/center.bin": {
+      "checksum": "1257497eceef396cb7c43cec75cb041f",
+      "uncompressed_size_bytes": 13729474,
+      "compressed_size_bytes": 2484649
+    },
     "data/input/gb/cambridge/osm/cambridgeshire-latest.osm.pbf": {
       "checksum": "fc78b2ebc96bfcd24d5117926c7b9e87",
       "uncompressed_size_bytes": 23006168,
@@ -1020,6 +1035,11 @@
       "uncompressed_size_bytes": 62100025,
       "compressed_size_bytes": 62049835
     },
+    "data/input/gb/london/osm/kingston_upon_thames.osm": {
+      "checksum": "261a2bbe86a5bd57a93695a57617f9ac",
+      "uncompressed_size_bytes": 34193457,
+      "compressed_size_bytes": 3505120
+    },
     "data/input/gb/london/osm/southbank.osm": {
       "checksum": "b86babace41d69a9e5b8be2310a725ae",
       "uncompressed_size_bytes": 18059372,
@@ -1044,6 +1064,11 @@
       "checksum": "ab8584829657058127b7ab29bdfce5e4",
       "uncompressed_size_bytes": 28887349,
       "compressed_size_bytes": 5923349
+    },
+    "data/input/gb/london/raw_maps/kingston_upon_thames.bin": {
+      "checksum": "95bb113928f1e41fea4069547dc28c5e",
+      "uncompressed_size_bytes": 9594136,
+      "compressed_size_bytes": 1924619
     },
     "data/input/gb/london/raw_maps/southbank.bin": {
       "checksum": "00ec655a6a74c6025be1354c29cb8679",
@@ -2935,6 +2960,16 @@
       "uncompressed_size_bytes": 3743981,
       "compressed_size_bytes": 989899
     },
+    "data/system/gb/bradford/maps/center.bin": {
+      "checksum": "8aead7c6369af10c2a2132fb6543b56e",
+      "uncompressed_size_bytes": 73820142,
+      "compressed_size_bytes": 26021505
+    },
+    "data/system/gb/bradford/scenarios/center/background.bin": {
+      "checksum": "0a4d29fea54585cc73f77762329c1aa3",
+      "uncompressed_size_bytes": 5938966,
+      "compressed_size_bytes": 1458863
+    },
     "data/system/gb/cambridge/maps/north.bin": {
       "checksum": "e2342e0b8f5594a28f02b6221e874324",
       "uncompressed_size_bytes": 16940163,
@@ -3490,6 +3525,11 @@
       "uncompressed_size_bytes": 63856326,
       "compressed_size_bytes": 22593821
     },
+    "data/system/gb/london/maps/kingston_upon_thames.bin": {
+      "checksum": "93d19fd45391a715c9652d72e3ed2ef6",
+      "uncompressed_size_bytes": 32553251,
+      "compressed_size_bytes": 11446681
+    },
     "data/system/gb/london/maps/southbank.bin": {
       "checksum": "bb24e997d8557527d5b7128b0f3cc0f8",
       "uncompressed_size_bytes": 8127649,
@@ -3514,6 +3554,11 @@
       "checksum": "4214036aa8f3e979fecf4e3e11f8e9f9",
       "uncompressed_size_bytes": 10209374,
       "compressed_size_bytes": 2688815
+    },
+    "data/system/gb/london/scenarios/kingston_upon_thames/background.bin": {
+      "checksum": "41ae0b270f4ac50fbcfe2d1b75e8cbe0",
+      "uncompressed_size_bytes": 2294881,
+      "compressed_size_bytes": 589743
     },
     "data/system/gb/london/scenarios/southbank/background.bin": {
       "checksum": "47ccd3beffe5d3d4d3a4d1ee02ddcda5",
