@@ -424,14 +424,6 @@
 <span id="424">424</span>
 <span id="425">425</span>
 <span id="426">426</span>
-<span id="427">427</span>
-<span id="428">428</span>
-<span id="429">429</span>
-<span id="430">430</span>
-<span id="431">431</span>
-<span id="432">432</span>
-<span id="433">433</span>
-<span id="434">434</span>
 </pre><pre class="rust"><code><span class="kw">mod</span> <span class="ident">area_spawner</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
 <span class="kw">mod</span> <span class="ident">importers</span>;
@@ -463,15 +455,7 @@
 
 <span class="kw">impl</span> <span class="ident">Freeform</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">GameplayState</span><span class="op">&gt;</span> {
-        <span class="ident">URLManager::update_url_free_param</span>(
-            <span class="ident">app</span>.<span class="ident">primary</span>
-                .<span class="ident">map</span>
-                .<span class="ident">get_name</span>()
-                .<span class="ident">path</span>()
-                .<span class="ident">strip_prefix</span>(<span class="kw-2">&amp;</span><span class="ident">abstio::path</span>(<span class="string">&quot;&quot;</span>))
-                .<span class="ident">unwrap</span>()
-                .<span class="ident">to_string</span>(),
-        );
+        <span class="ident">URLManager::update_url_map_name</span>(<span class="ident">app</span>);
 
         <span class="ident">Box::new</span>(<span class="ident">Freeform</span> {
             <span class="ident">top_right</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
