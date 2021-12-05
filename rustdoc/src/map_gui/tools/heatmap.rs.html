@@ -426,7 +426,7 @@
                     <span class="self">self</span>.<span class="ident">color_scheme</span>.<span class="ident">clone</span>(),
                     <span class="macro">vec!</span>[<span class="string">&quot;Turbo&quot;</span>, <span class="string">&quot;Inferno&quot;</span>, <span class="string">&quot;Warm&quot;</span>, <span class="string">&quot;Cool&quot;</span>, <span class="string">&quot;Oranges&quot;</span>, <span class="string">&quot;Spectral&quot;</span>]
                         .<span class="ident">into_iter</span>()
-                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">Choice::string</span>(<span class="ident">x</span>))
+                        .<span class="ident">map</span>(<span class="ident">Choice::string</span>)
                         .<span class="ident">collect</span>(),
                 ),
             ]),

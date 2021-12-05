@@ -286,8 +286,6 @@
 <span id="286">286</span>
 <span id="287">287</span>
 <span id="288">288</span>
-<span id="289">289</span>
-<span id="290">290</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Polygon</span>};
 <span class="kw">use</span> <span class="ident">map_model::NORMAL_LANE_THICKNESS</span>;
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>};
@@ -519,12 +517,10 @@
 
 <span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">RoutePlanner</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
-        <span class="kw">let</span> <span class="ident">world_outcome_for_waypoints</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">x</span> =&gt; <span class="ident">x</span>.<span class="ident">map_id</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">id</span> {
-                <span class="ident">ID::Waypoint</span>(<span class="ident">id</span>) =&gt; <span class="ident">id</span>,
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
-            }),
-        };
+        <span class="kw">let</span> <span class="ident">world_outcome_for_waypoints</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">event</span>(<span class="ident">ctx</span>).<span class="ident">map_id</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">id</span> {
+            <span class="ident">ID::Waypoint</span>(<span class="ident">id</span>) =&gt; <span class="ident">id</span>,
+            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+        });
 
         <span class="kw">let</span> <span class="ident">panel_outcome</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>);
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) <span class="op">=</span> <span class="ident">panel_outcome</span> {

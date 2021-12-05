@@ -767,8 +767,8 @@
         <span class="kw">if</span> <span class="ident">show</span> <span class="op">==</span> <span class="ident">Show::OverlappingStuff</span> {
             <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(
                 <span class="string">&quot;find buildings and parking lots overlapping roads&quot;</span>,
-                <span class="op">|</span><span class="kw">_</span>, <span class="kw-2">mut</span> <span class="ident">timer</span><span class="op">|</span> {
-                    <span class="kw">for</span> <span class="ident">poly</span> <span class="kw">in</span> <span class="ident">find_overlapping_stuff</span>(<span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>) {
+                <span class="op">|</span><span class="kw">_</span>, <span class="ident">timer</span><span class="op">|</span> {
+                    <span class="kw">for</span> <span class="ident">poly</span> <span class="kw">in</span> <span class="ident">find_overlapping_stuff</span>(<span class="ident">app</span>, <span class="ident">timer</span>) {
                         <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">poly</span>);
                     }
                 },

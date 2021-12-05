@@ -583,23 +583,6 @@
 <span id="583">583</span>
 <span id="584">584</span>
 <span id="585">585</span>
-<span id="586">586</span>
-<span id="587">587</span>
-<span id="588">588</span>
-<span id="589">589</span>
-<span id="590">590</span>
-<span id="591">591</span>
-<span id="592">592</span>
-<span id="593">593</span>
-<span id="594">594</span>
-<span id="595">595</span>
-<span id="596">596</span>
-<span id="597">597</span>
-<span id="598">598</span>
-<span id="599">599</span>
-<span id="600">600</span>
-<span id="601">601</span>
-<span id="602">602</span>
 </pre><pre class="rust"><code><span class="comment">// Disable some noisy lints</span>
 <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::too_many_arguments</span>, <span class="ident">clippy::type_complexity</span>)]</span>
 
@@ -910,21 +893,14 @@
 
     <span class="comment">// No web support; this uses blocking IO</span>
     <span class="kw">let</span> <span class="ident">secondary</span> <span class="op">=</span> <span class="ident">setup</span>.<span class="ident">diff_map</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> {
-        <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;load secondary map&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="kw-2">mut</span> <span class="ident">timer</span><span class="op">|</span> {
+        <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;load secondary map&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
             <span class="comment">// Use this low-level API, since the secondary map file probably isn&#39;t in the usual</span>
             <span class="comment">// directory structure</span>
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span>: <span class="ident">Map</span> <span class="op">=</span> <span class="ident">abstio::read_binary</span>(<span class="ident">path</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
-            <span class="ident">map</span>.<span class="ident">map_loaded_directly</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span>: <span class="ident">Map</span> <span class="op">=</span> <span class="ident">abstio::read_binary</span>(<span class="ident">path</span>.<span class="ident">clone</span>(), <span class="ident">timer</span>);
+            <span class="ident">map</span>.<span class="ident">map_loaded_directly</span>(<span class="ident">timer</span>);
             <span class="kw">let</span> <span class="ident">sim</span> <span class="op">=</span> <span class="ident">Sim::new</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">setup</span>.<span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">opts</span>.<span class="ident">clone</span>());
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">per_map</span> <span class="op">=</span> <span class="ident">PerMap::map_loaded</span>(
-                <span class="ident">map</span>,
-                <span class="ident">sim</span>,
-                <span class="ident">setup</span>.<span class="ident">flags</span>.<span class="ident">clone</span>(),
-                <span class="kw-2">&amp;</span><span class="ident">setup</span>.<span class="ident">opts</span>,
-                <span class="kw-2">&amp;</span><span class="ident">cs</span>,
-                <span class="ident">ctx</span>,
-                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>,
-            );
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">per_map</span> <span class="op">=</span>
+                <span class="ident">PerMap::map_loaded</span>(<span class="ident">map</span>, <span class="ident">sim</span>, <span class="ident">setup</span>.<span class="ident">flags</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;</span><span class="ident">setup</span>.<span class="ident">opts</span>, <span class="kw-2">&amp;</span><span class="ident">cs</span>, <span class="ident">ctx</span>, <span class="ident">timer</span>);
             <span class="ident">per_map</span>.<span class="ident">is_secondary</span> <span class="op">=</span> <span class="bool-val">true</span>;
             <span class="ident">per_map</span>
         })
@@ -970,18 +946,10 @@
     } <span class="kw">else</span> {
         <span class="comment">// We&#39;re loading a savestate or a RawMap. Do it with blocking IO. This won&#39;t</span>
         <span class="comment">// work on the web.</span>
-        <span class="kw">let</span> <span class="ident">primary</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;load map&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="kw-2">mut</span> <span class="ident">timer</span><span class="op">|</span> {
+        <span class="kw">let</span> <span class="ident">primary</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;load map&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
             <span class="macro">assert!</span>(<span class="ident">setup</span>.<span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">scenario_modifiers</span>.<span class="ident">is_empty</span>());
             <span class="kw">let</span> (<span class="ident">map</span>, <span class="ident">sim</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">setup</span>.<span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load_synchronously</span>(<span class="ident">timer</span>);
-            <span class="ident">PerMap::map_loaded</span>(
-                <span class="ident">map</span>,
-                <span class="ident">sim</span>,
-                <span class="ident">setup</span>.<span class="ident">flags</span>.<span class="ident">clone</span>(),
-                <span class="kw-2">&amp;</span><span class="ident">setup</span>.<span class="ident">opts</span>,
-                <span class="kw-2">&amp;</span><span class="ident">cs</span>,
-                <span class="ident">ctx</span>,
-                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>,
-            )
+            <span class="ident">PerMap::map_loaded</span>(<span class="ident">map</span>, <span class="ident">sim</span>, <span class="ident">setup</span>.<span class="ident">flags</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;</span><span class="ident">setup</span>.<span class="ident">opts</span>, <span class="kw-2">&amp;</span><span class="ident">cs</span>, <span class="ident">ctx</span>, <span class="ident">timer</span>)
         });
         <span class="macro">assert!</span>(<span class="ident">secondary</span>.<span class="ident">is_none</span>());
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">app</span> <span class="op">=</span> <span class="ident">App</span> {
@@ -1110,11 +1078,9 @@
         <span class="ident">app</span>.<span class="ident">store_unedited_map_in_secondary</span> <span class="op">=</span> <span class="bool-val">true</span>;
     }
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">edits</span>) <span class="op">=</span> <span class="ident">edits</span> {
-        <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;apply initial edits&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="kw-2">mut</span> <span class="ident">timer</span><span class="op">|</span> {
+        <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;apply initial edits&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
             <span class="ident"><span class="kw">crate</span>::edit::apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
-            <span class="ident">app</span>.<span class="ident">primary</span>
-                .<span class="ident">map</span>
-                .<span class="ident">recalculate_pathfinding_after_edits</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
+            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">recalculate_pathfinding_after_edits</span>(<span class="ident">timer</span>);
             <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">clear_sim</span>();
         });
     }

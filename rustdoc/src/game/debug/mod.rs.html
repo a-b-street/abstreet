@@ -1062,11 +1062,6 @@
 <span id="1062">1062</span>
 <span id="1063">1063</span>
 <span id="1064">1064</span>
-<span id="1065">1065</span>
-<span id="1066">1066</span>
-<span id="1067">1067</span>
-<span id="1068">1068</span>
-<span id="1069">1069</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
 <span class="kw">use</span> <span class="ident">abstio::MapName</span>;
@@ -1296,42 +1291,37 @@
                     });
                 }
                 <span class="string">&quot;load previous sim state&quot;</span> =&gt; {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span>
-                        <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;load previous savestate&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="kw-2">mut</span> <span class="ident">timer</span><span class="op">|</span> {
-                            <span class="kw">let</span> <span class="ident">prev_state</span> <span class="op">=</span> <span class="ident">app</span>
-                                .<span class="ident">primary</span>
-                                .<span class="ident">sim</span>
-                                .<span class="ident">find_previous_savestate</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>());
-                            <span class="kw">match</span> <span class="ident">prev_state</span>
-                                .<span class="ident">clone</span>()
-                                .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> <span class="ident">Sim::load_savestate</span>(<span class="ident">path</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>).<span class="ident">ok</span>())
-                            {
-                                <span class="prelude-val">Some</span>(<span class="ident">new_sim</span>) =&gt; {
-                                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span> <span class="op">=</span> <span class="ident">new_sim</span>;
-                                    <span class="ident">app</span>.<span class="ident">recalculate_current_selection</span>(<span class="ident">ctx</span>);
-                                    <span class="prelude-val">None</span>
-                                }
-                                <span class="prelude-val">None</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">PopupMsg::new_state</span>(
-                                    <span class="ident">ctx</span>,
-                                    <span class="string">&quot;Error&quot;</span>,
-                                    <span class="macro">vec!</span>[<span class="macro">format!</span>(
-                                        <span class="string">&quot;Couldn&#39;t load previous savestate {:?}&quot;</span>,
-                                        <span class="ident">prev_state</span>
-                                    )],
-                                ))),
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;load previous savestate&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
+                        <span class="kw">let</span> <span class="ident">prev_state</span> <span class="op">=</span> <span class="ident">app</span>
+                            .<span class="ident">primary</span>
+                            .<span class="ident">sim</span>
+                            .<span class="ident">find_previous_savestate</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>());
+                        <span class="kw">match</span> <span class="ident">prev_state</span>
+                            .<span class="ident">clone</span>()
+                            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> <span class="ident">Sim::load_savestate</span>(<span class="ident">path</span>, <span class="ident">timer</span>).<span class="ident">ok</span>())
+                        {
+                            <span class="prelude-val">Some</span>(<span class="ident">new_sim</span>) =&gt; {
+                                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span> <span class="op">=</span> <span class="ident">new_sim</span>;
+                                <span class="ident">app</span>.<span class="ident">recalculate_current_selection</span>(<span class="ident">ctx</span>);
+                                <span class="prelude-val">None</span>
                             }
-                        })
-                    {
+                            <span class="prelude-val">None</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">PopupMsg::new_state</span>(
+                                <span class="ident">ctx</span>,
+                                <span class="string">&quot;Error&quot;</span>,
+                                <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">&quot;Couldn&#39;t load previous savestate {:?}&quot;</span>, <span class="ident">prev_state</span>)],
+                            ))),
+                        }
+                    }) {
                         <span class="kw">return</span> <span class="ident">t</span>;
                     }
                 }
                 <span class="string">&quot;load next sim state&quot;</span> =&gt; {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;load next savestate&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="kw-2">mut</span> <span class="ident">timer</span><span class="op">|</span> {
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;load next savestate&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
                         <span class="kw">let</span> <span class="ident">next_state</span> <span class="op">=</span>
                             <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">find_next_savestate</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>());
                         <span class="kw">match</span> <span class="ident">next_state</span>
                             .<span class="ident">clone</span>()
-                            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> <span class="ident">Sim::load_savestate</span>(<span class="ident">path</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>).<span class="ident">ok</span>())
+                            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> <span class="ident">Sim::load_savestate</span>(<span class="ident">path</span>, <span class="ident">timer</span>).<span class="ident">ok</span>())
                         {
                             <span class="prelude-val">Some</span>(<span class="ident">new_sim</span>) =&gt; {
                                 <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span> <span class="op">=</span> <span class="ident">new_sim</span>;
@@ -1357,8 +1347,8 @@
                             <span class="comment">// TODO Oh no, we have to do path construction here :(</span>
                             <span class="kw">let</span> <span class="ident">ss_path</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}/{}.bin&quot;</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">save_dir</span>(), <span class="ident">ss</span>);
 
-                            <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;load savestate&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="kw-2">mut</span> <span class="ident">timer</span><span class="op">|</span> {
-                                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span> <span class="op">=</span> <span class="ident">Sim::load_savestate</span>(<span class="ident">ss_path</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>)
+                            <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;load savestate&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
+                                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span> <span class="op">=</span> <span class="ident">Sim::load_savestate</span>(<span class="ident">ss_path</span>, <span class="ident">timer</span>)
                                     .<span class="ident">expect</span>(<span class="string">&quot;Can&#39;t load savestate&quot;</span>);
                                 <span class="ident">app</span>.<span class="ident">recalculate_current_selection</span>(<span class="ident">ctx</span>);
                             });
