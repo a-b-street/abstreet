@@ -29,15 +29,7 @@ pub struct Freeform {
 
 impl Freeform {
     pub fn new_state(ctx: &mut EventCtx, app: &App) -> Box<dyn GameplayState> {
-        URLManager::update_url_free_param(
-            app.primary
-                .map
-                .get_name()
-                .path()
-                .strip_prefix(&abstio::path(""))
-                .unwrap()
-                .to_string(),
-        );
+        URLManager::update_url_map_name(app);
 
         Box::new(Freeform {
             top_right: Panel::empty(ctx),

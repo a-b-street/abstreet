@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 
 use abstutil::Timer;
 use geom::Distance;
-use map_gui::tools::{CityPicker, DrawRoadLabels, Navigator};
+use map_gui::tools::{CityPicker, DrawRoadLabels, Navigator, URLManager};
 use map_model::osm::RoadRank;
 use map_model::{Block, Perimeter};
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
@@ -36,6 +36,8 @@ pub struct BrowseNeighborhoods {
 
 impl BrowseNeighborhoods {
     pub fn new_state(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+        URLManager::update_url_map_name(app);
+
         let (neighborhoods, world) = ctx.loading_screen("calculate neighborhoods", |ctx, timer| {
             detect_neighborhoods(ctx, app, timer)
         });

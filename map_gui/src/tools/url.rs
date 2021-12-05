@@ -3,25 +3,26 @@ use anyhow::Result;
 use geom::{GPSBounds, LonLat, Pt2D};
 use widgetry::EventCtx;
 
+use crate::AppLike;
+
 /// Utilities for reflecting the current map and viewport in the URL on the web. No effect on
 /// native.
 pub struct URLManager;
 
 impl URLManager {
-    /// This does nothing on native. On web, it modifies the current URL to change the first free
-    /// parameter in the HTTP GET params to the specified value, adding it if needed.
+    /// Modify the current URL to change the first free parameter in the HTTP GET params to the
+    /// specified value, adding it if needed.
     pub fn update_url_free_param(free_param: String) {
         must_update_url(Box::new(move |url| change_url_free_param(url, &free_param)))
     }
 
-    /// This does nothing on native. On web, it modifies the current URL to change the first named
-    /// parameter in the HTTP GET params to the specified value, adding it if needed.
+    /// Modify the current URL to change the first named parameter in the HTTP GET params to the
+    /// specified value, adding it if needed.
     pub fn update_url_param(key: String, value: String) {
         must_update_url(Box::new(move |url| change_url_param(url, &key, &value)))
     }
 
-    /// This does nothing on native. On web, it modifies the current URL to set --cam to an
-    /// OSM-style `zoom/lat/lon` string
+    /// Modify the current URL to set --cam to an OSM-style `zoom/lat/lon` string
     /// (https://wiki.openstreetmap.org/wiki/Browsing#Other_URL_tricks) based on the current
     /// viewport.
     pub fn update_url_cam(ctx: &EventCtx, gps_bounds: &GPSBounds) {
@@ -37,6 +38,18 @@ impl URLManager {
         let cam = format!("{:.2}/{:.5}/{:.5}", zoom_lvl, center.y(), center.x());
 
         must_update_url(Box::new(move |url| change_url_param(url, "--cam", &cam)))
+    }
+
+    /// Modify the current URL to set the first free parameter to the current map name.
+    pub fn update_url_map_name(app: &dyn AppLike) {
+        URLManager::update_url_free_param(
+            app.map()
+                .get_name()
+                .path()
+                .strip_prefix(&abstio::path(""))
+                .unwrap()
+                .to_string(),
+        );
     }
 
     /// Parse an OSM-style `zoom/lat/lon` string

@@ -45,14 +45,7 @@ impl Viewer {
     }
 
     pub fn new_state(ctx: &mut EventCtx, app: &App, start: BuildingID) -> Box<dyn State<App>> {
-        URLManager::update_url_free_param(
-            app.map
-                .get_name()
-                .path()
-                .strip_prefix(&abstio::path(""))
-                .unwrap()
-                .to_string(),
-        );
+        URLManager::update_url_map_name(app);
 
         let options = Options::Walking(WalkingOptions::default());
         let start = app.map.get_b(start);

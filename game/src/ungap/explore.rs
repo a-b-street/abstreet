@@ -20,15 +20,7 @@ impl ExploreMap {
     pub fn new_state(ctx: &mut EventCtx, app: &mut App, layers: Layers) -> Box<dyn State<App>> {
         app.opts.show_building_driveways = false;
 
-        URLManager::update_url_free_param(
-            app.primary
-                .map
-                .get_name()
-                .path()
-                .strip_prefix(&abstio::path(""))
-                .unwrap()
-                .to_string(),
-        );
+        URLManager::update_url_map_name(app);
 
         Box::new(ExploreMap {
             top_panel: Tab::Explore.make_left_panel(
