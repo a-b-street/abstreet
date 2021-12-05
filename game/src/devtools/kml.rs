@@ -40,10 +40,10 @@ const THICKNESS: Distance = Distance::const_meters(2.0);
 
 impl ViewKML {
     pub fn new_state(ctx: &mut EventCtx, app: &App, path: Option<String>) -> Box<dyn State<App>> {
-        ctx.loading_screen("load kml", |ctx, mut timer| {
+        ctx.loading_screen("load kml", |ctx, timer| {
             // Enable to write a smaller .bin only with the shapes matching the bounds.
             let dump_clipped_shapes = false;
-            let (dataset_name, objects) = load_objects(app, path, dump_clipped_shapes, &mut timer);
+            let (dataset_name, objects) = load_objects(app, path, dump_clipped_shapes, timer);
 
             let mut batch = GeomBatch::new();
             let mut quadtree = QuadTree::default(app.primary.map.get_bounds().as_bbox());

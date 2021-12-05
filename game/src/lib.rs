@@ -308,21 +308,14 @@ fn setup_app(ctx: &mut EventCtx, mut setup: Setup) -> (App, Vec<Box<dyn State<Ap
 
     // No web support; this uses blocking IO
     let secondary = setup.diff_map.as_ref().map(|path| {
-        ctx.loading_screen("load secondary map", |ctx, mut timer| {
+        ctx.loading_screen("load secondary map", |ctx, timer| {
             // Use this low-level API, since the secondary map file probably isn't in the usual
             // directory structure
-            let mut map: Map = abstio::read_binary(path.clone(), &mut timer);
-            map.map_loaded_directly(&mut timer);
+            let mut map: Map = abstio::read_binary(path.clone(), timer);
+            map.map_loaded_directly(timer);
             let sim = Sim::new(&map, setup.flags.sim_flags.opts.clone());
-            let mut per_map = PerMap::map_loaded(
-                map,
-                sim,
-                setup.flags.clone(),
-                &setup.opts,
-                &cs,
-                ctx,
-                &mut timer,
-            );
+            let mut per_map =
+                PerMap::map_loaded(map, sim, setup.flags.clone(), &setup.opts, &cs, ctx, timer);
             per_map.is_secondary = true;
             per_map
         })
@@ -368,18 +361,10 @@ fn setup_app(ctx: &mut EventCtx, mut setup: Setup) -> (App, Vec<Box<dyn State<Ap
     } else {
         // We're loading a savestate or a RawMap. Do it with blocking IO. This won't
         // work on the web.
-        let primary = ctx.loading_screen("load map", |ctx, mut timer| {
+        let primary = ctx.loading_screen("load map", |ctx, timer| {
             assert!(setup.flags.sim_flags.scenario_modifiers.is_empty());
             let (map, sim, _) = setup.flags.sim_flags.load_synchronously(timer);
-            PerMap::map_loaded(
-                map,
-                sim,
-                setup.flags.clone(),
-                &setup.opts,
-                &cs,
-                ctx,
-                &mut timer,
-            )
+            PerMap::map_loaded(map, sim, setup.flags.clone(), &setup.opts, &cs, ctx, timer)
         });
         assert!(secondary.is_none());
         let mut app = App {
@@ -508,11 +493,9 @@ fn finish_app_setup(
         app.store_unedited_map_in_secondary = true;
     }
     if let Some(edits) = edits {
-        ctx.loading_screen("apply initial edits", |ctx, mut timer| {
+        ctx.loading_screen("apply initial edits", |ctx, timer| {
             crate::edit::apply_map_edits(ctx, app, edits);
-            app.primary
-                .map
-                .recalculate_pathfinding_after_edits(&mut timer);
+            app.primary.map.recalculate_pathfinding_after_edits(timer);
             app.primary.clear_sim();
         });
     }

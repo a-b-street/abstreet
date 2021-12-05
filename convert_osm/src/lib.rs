@@ -85,7 +85,7 @@ pub fn convert(
     opts: Options,
     timer: &mut Timer,
 ) -> RawMap {
-    let mut map = RawMap::blank(name.clone());
+    let mut map = RawMap::blank(name);
     if let Some(ref path) = clip_path {
         let pts = LonLat::read_osmosis_polygon(path).unwrap();
         let gps_bounds = GPSBounds::from(pts.clone());
@@ -94,14 +94,14 @@ pub fn convert(
     }
 
     let extract = extract::extract_osm(&mut map, &osm_input_path, clip_path, &opts, timer);
-    let (amenities, crosswalks, pt_to_road) = split_ways::split_up_roads(&mut map, extract, timer);
+    let split_output = split_ways::split_up_roads(&mut map, extract, timer);
     clip::clip_map(&mut map, timer);
 
     // Need to do a first pass of removing cul-de-sacs here, or we wind up with loop PolyLines when
     // doing the parking hint matching.
     map.roads.retain(|r, _| r.i1 != r.i2);
 
-    use_amenities(&mut map, amenities, timer);
+    use_amenities(&mut map, split_output.amenities, timer);
 
     parking::apply_parking(&mut map, &opts, timer);
 
@@ -116,7 +116,12 @@ pub fn convert(
     }
 
     if opts.filter_crosswalks {
-        filter_crosswalks(&mut map, crosswalks, pt_to_road, timer);
+        filter_crosswalks(
+            &mut map,
+            split_output.crosswalks,
+            split_output.pt_to_road,
+            timer,
+        );
     }
 
     map.config = opts.map_config;

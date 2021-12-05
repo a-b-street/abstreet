@@ -141,13 +141,11 @@ fn launch(ctx: &mut EventCtx, app: &App, edits: PermanentMapEdits) -> Transition
         edits.map_name.clone(),
         Box::new(move |ctx, app| {
             // Apply edits before setting up the sandbox, for simplicity
-            let maybe_err = ctx.loading_screen("apply edits", |ctx, mut timer| {
+            let maybe_err = ctx.loading_screen("apply edits", |ctx, timer| {
                 match edits.into_edits(&app.primary.map) {
                     Ok(edits) => {
                         apply_map_edits(ctx, app, edits);
-                        app.primary
-                            .map
-                            .recalculate_pathfinding_after_edits(&mut timer);
+                        app.primary.map.recalculate_pathfinding_after_edits(timer);
                         None
                     }
                     Err(err) => Some(err),

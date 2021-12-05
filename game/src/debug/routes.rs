@@ -313,7 +313,7 @@ impl AllRoutesExplorer {
         app.change_color_scheme(ctx, ColorSchemeChoice::DayMode);
 
         let (requests, baseline_counts) =
-            ctx.loading_screen("calculate baseline paths", |_, mut timer| {
+            ctx.loading_screen("calculate baseline paths", |_, timer| {
                 let map = &app.primary.map;
                 let requests = timer
                     .parallelize(
@@ -324,7 +324,7 @@ impl AllRoutesExplorer {
                     .into_iter()
                     .flatten()
                     .collect::<Vec<_>>();
-                let baseline_counts = calculate_demand(app, &requests, &mut timer);
+                let baseline_counts = calculate_demand(app, &requests, timer);
                 (requests, baseline_counts)
             });
         let current_counts = baseline_counts.clone();
@@ -369,21 +369,19 @@ impl State<App> for AllRoutesExplorer {
         if let Outcome::Clicked(x) = self.panel.event(ctx) {
             match x.as_ref() {
                 "close" => {
-                    ctx.loading_screen("revert routing params to defaults", |_, mut timer| {
+                    ctx.loading_screen("revert routing params to defaults", |_, timer| {
                         app.primary
                             .map
-                            .hack_override_routing_params(RoutingParams::default(), &mut timer);
+                            .hack_override_routing_params(RoutingParams::default(), timer);
                     });
                     return Transition::Pop;
                 }
                 "keep changed params" => {
                     // This is handy for seeing the effects on a real simulation without rebuilding
                     // the map.
-                    ctx.loading_screen("update routing params", |_, mut timer| {
+                    ctx.loading_screen("update routing params", |_, timer| {
                         let (_, params) = controls_to_params(&self.panel);
-                        app.primary
-                            .map
-                            .hack_override_routing_params(params, &mut timer);
+                        app.primary.map.hack_override_routing_params(params, timer);
                     });
                     return Transition::Pop;
                 }
@@ -405,12 +403,10 @@ impl State<App> for AllRoutesExplorer {
                 "Calculate differential demand" => {
                     ctx.loading_screen(
                         "calculate differential demand due to routing params",
-                        |ctx, mut timer| {
+                        |ctx, timer| {
                             let (_, params) = controls_to_params(&self.panel);
-                            app.primary
-                                .map
-                                .hack_override_routing_params(params, &mut timer);
-                            self.current_counts = calculate_demand(app, &self.requests, &mut timer);
+                            app.primary.map.hack_override_routing_params(params, timer);
+                            self.current_counts = calculate_demand(app, &self.requests, timer);
 
                             // Calculate the difference
                             let mut colorer = ColorNetwork::new(app);

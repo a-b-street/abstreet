@@ -73,18 +73,14 @@ impl EditMode {
             app.primary.sim = old_sim;
             app.primary.dirty_from_edits = self.orig_dirty;
             // Could happen if we load some edits, then load whatever we entered edit mode with.
-            ctx.loading_screen("apply edits", |_, mut timer| {
-                app.primary
-                    .map
-                    .recalculate_pathfinding_after_edits(&mut timer);
+            ctx.loading_screen("apply edits", |_, timer| {
+                app.primary.map.recalculate_pathfinding_after_edits(timer);
             });
             return Transition::Pop;
         }
 
-        ctx.loading_screen("apply edits", move |ctx, mut timer| {
-            app.primary
-                .map
-                .recalculate_pathfinding_after_edits(&mut timer);
+        ctx.loading_screen("apply edits", move |ctx, timer| {
+            app.primary.map.recalculate_pathfinding_after_edits(timer);
             if GameplayMode::FixTrafficSignals == self.mode {
                 app.primary.sim = old_sim;
                 app.primary.dirty_from_edits = true;
@@ -98,10 +94,8 @@ impl EditMode {
                 app.primary
                     .sim
                     .handle_live_edited_traffic_signals(&app.primary.map);
-                let (trips, parked_cars) = app
-                    .primary
-                    .sim
-                    .handle_live_edits(&app.primary.map, &mut timer);
+                let (trips, parked_cars) =
+                    app.primary.sim.handle_live_edits(&app.primary.map, timer);
                 if trips == 0 && parked_cars == 0 {
                     Transition::Pop
                 } else {

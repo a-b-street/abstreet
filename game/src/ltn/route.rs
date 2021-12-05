@@ -229,12 +229,10 @@ impl RoutePlanner {
 
 impl State<App> for RoutePlanner {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        let world_outcome_for_waypoints = match self.world.event(ctx) {
-            x => x.map_id(|id| match id {
-                ID::Waypoint(id) => id,
-                _ => unreachable!(),
-            }),
-        };
+        let world_outcome_for_waypoints = self.world.event(ctx).map_id(|id| match id {
+            ID::Waypoint(id) => id,
+            _ => unreachable!(),
+        });
 
         let panel_outcome = self.panel.event(ctx);
         if let Outcome::Clicked(ref x) = panel_outcome {

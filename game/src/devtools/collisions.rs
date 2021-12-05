@@ -19,9 +19,9 @@ pub struct CollisionsViewer {
 impl CollisionsViewer {
     pub fn new_state(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         let map = &app.primary.map;
-        let data = ctx.loading_screen("load collision data", |_, mut timer| {
+        let data = ctx.loading_screen("load collision data", |_, timer| {
             let mut all: CollisionDataset =
-                abstio::read_binary(map.get_city_name().input_path("collisions.bin"), &mut timer);
+                abstio::read_binary(map.get_city_name().input_path("collisions.bin"), timer);
             all.collisions.retain(|c| {
                 map.get_boundary_polygon()
                     .contains_pt(c.location.to_pt(map.get_gps_bounds()))

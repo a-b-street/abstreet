@@ -125,9 +125,7 @@ impl State<App> for Viewer {
 
         match self.world.event(ctx) {
             WorldOutcome::ClickedObject(Obj::InteriorRoad(r)) => {
-                if app.session.modal_filters.roads.contains_key(&r) {
-                    app.session.modal_filters.roads.remove(&r);
-                } else {
+                if app.session.modal_filters.roads.remove(&r).is_none() {
                     // Place the filter on the part of the road that was clicked
                     let road = app.primary.map.get_r(r);
                     // These calls shouldn't fail -- since we clicked a road, the cursor must be in

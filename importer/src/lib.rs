@@ -209,19 +209,19 @@ impl Job {
 
         for name in names {
             timer.start(name.describe());
-            if self.osm_to_raw {
-                if !built_raw_huge_seattle || name != MapName::seattle("huge_seattle") {
-                    let raw = utils::osm_to_raw(name.clone(), timer, &config).await;
+            if self.osm_to_raw
+                && (!built_raw_huge_seattle || name != MapName::seattle("huge_seattle"))
+            {
+                let raw = utils::osm_to_raw(name.clone(), timer, &config).await;
 
-                    // The collision data will only cover one part of London, since we don't have a
-                    // region-wide map there yet
-                    if name.city == CityName::new("de", "berlin") {
-                        berlin::import_extra_data(&raw, &config, timer).await;
-                    } else if name == MapName::new("gb", "leeds", "huge") {
-                        uk::import_collision_data(&raw, &config, timer).await;
-                    } else if name == MapName::new("gb", "london", "camden") {
-                        uk::import_collision_data(&raw, &config, timer).await;
-                    }
+                // The collision data will only cover one part of London, since we don't have a
+                // region-wide map there yet
+                if name.city == CityName::new("de", "berlin") {
+                    berlin::import_extra_data(&raw, &config, timer).await;
+                } else if name == MapName::new("gb", "leeds", "huge") {
+                    uk::import_collision_data(&raw, &config, timer).await;
+                } else if name == MapName::new("gb", "london", "camden") {
+                    uk::import_collision_data(&raw, &config, timer).await;
                 }
             }
 

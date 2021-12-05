@@ -99,8 +99,8 @@ impl ParkingMapper {
         if show == Show::OverlappingStuff {
             ctx.loading_screen(
                 "find buildings and parking lots overlapping roads",
-                |_, mut timer| {
-                    for poly in find_overlapping_stuff(app, &mut timer) {
+                |_, timer| {
+                    for poly in find_overlapping_stuff(app, timer) {
                         batch.push(color, poly);
                     }
                 },

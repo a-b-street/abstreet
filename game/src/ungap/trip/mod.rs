@@ -40,10 +40,8 @@ impl ObjectID for ID {}
 
 impl TripPlanner {
     pub fn new_state(ctx: &mut EventCtx, app: &mut App, layers: Layers) -> Box<dyn State<App>> {
-        ctx.loading_screen("apply edits", |_, mut timer| {
-            app.primary
-                .map
-                .recalculate_pathfinding_after_edits(&mut timer);
+        ctx.loading_screen("apply edits", |_, timer| {
+            app.primary.map.recalculate_pathfinding_after_edits(timer);
         });
 
         let mut rp = TripPlanner {

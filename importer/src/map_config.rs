@@ -6,6 +6,8 @@ use map_model::DrivingSide;
 ///
 /// Note this was once expressed as config files for every city. That was less maintainable; most
 /// places used default values that were copied around.
+// Slightly more verbose logic feels easier to read
+#[allow(clippy::match_like_matches_macro)]
 pub fn config_for_map(name: &MapName) -> convert_osm::Options {
     // Some maps have extra procedurally generated houses. Just see if a file in a canonical
     // location exists.

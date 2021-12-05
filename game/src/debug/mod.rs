@@ -227,42 +227,37 @@ impl State<App> for DebugMode {
                     });
                 }
                 "load previous sim state" => {
-                    if let Some(t) =
-                        ctx.loading_screen("load previous savestate", |ctx, mut timer| {
-                            let prev_state = app
-                                .primary
-                                .sim
-                                .find_previous_savestate(app.primary.sim.time());
-                            match prev_state
-                                .clone()
-                                .and_then(|path| Sim::load_savestate(path, &mut timer).ok())
-                            {
-                                Some(new_sim) => {
-                                    app.primary.sim = new_sim;
-                                    app.recalculate_current_selection(ctx);
-                                    None
-                                }
-                                None => Some(Transition::Push(PopupMsg::new_state(
-                                    ctx,
-                                    "Error",
-                                    vec![format!(
-                                        "Couldn't load previous savestate {:?}",
-                                        prev_state
-                                    )],
-                                ))),
+                    if let Some(t) = ctx.loading_screen("load previous savestate", |ctx, timer| {
+                        let prev_state = app
+                            .primary
+                            .sim
+                            .find_previous_savestate(app.primary.sim.time());
+                        match prev_state
+                            .clone()
+                            .and_then(|path| Sim::load_savestate(path, timer).ok())
+                        {
+                            Some(new_sim) => {
+                                app.primary.sim = new_sim;
+                                app.recalculate_current_selection(ctx);
+                                None
                             }
-                        })
-                    {
+                            None => Some(Transition::Push(PopupMsg::new_state(
+                                ctx,
+                                "Error",
+                                vec![format!("Couldn't load previous savestate {:?}", prev_state)],
+                            ))),
+                        }
+                    }) {
                         return t;
                     }
                 }
                 "load next sim state" => {
-                    if let Some(t) = ctx.loading_screen("load next savestate", |ctx, mut timer| {
+                    if let Some(t) = ctx.loading_screen("load next savestate", |ctx, timer| {
                         let next_state =
                             app.primary.sim.find_next_savestate(app.primary.sim.time());
                         match next_state
                             .clone()
-                            .and_then(|path| Sim::load_savestate(path, &mut timer).ok())
+                            .and_then(|path| Sim::load_savestate(path, timer).ok())
                         {
                             Some(new_sim) => {
                                 app.primary.sim = new_sim;
@@ -288,8 +283,8 @@ impl State<App> for DebugMode {
                             // TODO Oh no, we have to do path construction here :(
                             let ss_path = format!("{}/{}.bin", app.primary.sim.save_dir(), ss);
 
-                            ctx.loading_screen("load savestate", |ctx, mut timer| {
-                                app.primary.sim = Sim::load_savestate(ss_path, &mut timer)
+                            ctx.loading_screen("load savestate", |ctx, timer| {
+                                app.primary.sim = Sim::load_savestate(ss_path, timer)
                                     .expect("Can't load savestate");
                                 app.recalculate_current_selection(ctx);
                             });

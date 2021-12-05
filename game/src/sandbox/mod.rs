@@ -470,11 +470,11 @@ impl State<App> for SandboxLoader {
                 LoadStage::LoadingScenario => {
                     // TODO Can we cache the dynamically generated scenarios, like home_to_work, and
                     // avoid regenerating with this call?
-                    match ctx.loading_screen("load scenario", |_, mut timer| {
+                    match ctx.loading_screen("load scenario", |_, timer| {
                         self.mode.scenario(
                             app,
                             app.primary.current_flags.sim_flags.make_rng(),
-                            &mut timer,
+                            timer,
                         )
                     }) {
                         gameplay::LoadScenario::Nothing => {
@@ -541,7 +541,7 @@ impl State<App> for SandboxLoader {
                 }
                 LoadStage::GotScenario(mut scenario) => {
                     let scenario_name = scenario.scenario_name.clone();
-                    ctx.loading_screen("instantiate scenario", |_, mut timer| {
+                    ctx.loading_screen("instantiate scenario", |_, timer| {
                         app.primary.scenario = Some(scenario.clone());
 
                         if let GameplayMode::PlayScenario(_, _, ref modifiers) = self.mode {
@@ -554,7 +554,7 @@ impl State<App> for SandboxLoader {
                             &mut app.primary.sim,
                             &app.primary.map,
                             &mut app.primary.current_flags.sim_flags.make_rng(),
-                            &mut timer,
+                            timer,
                         );
                         app.primary
                             .sim

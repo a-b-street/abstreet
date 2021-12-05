@@ -65,7 +65,7 @@ impl HeatmapOptions {
                     self.color_scheme.clone(),
                     vec!["Turbo", "Inferno", "Warm", "Cool", "Oranges", "Spectral"]
                         .into_iter()
-                        .map(|x| Choice::string(x))
+                        .map(Choice::string)
                         .collect(),
                 ),
             ]),

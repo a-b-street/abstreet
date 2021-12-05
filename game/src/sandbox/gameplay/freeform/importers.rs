@@ -61,8 +61,8 @@ pub fn import_json(ctx: &mut EventCtx) -> Transition {
         None,
         Box::new(|ctx, app, maybe_path| {
             if let Ok(Some(path)) = maybe_path {
-                let result = ctx.loading_screen("import JSON scenario", |_, mut timer| {
-                    import_json_scenario(&app.primary.map, path, &mut timer)
+                let result = ctx.loading_screen("import JSON scenario", |_, timer| {
+                    import_json_scenario(&app.primary.map, path, timer)
                 });
                 match result {
                     Ok(scenario_name) => {
