@@ -42,6 +42,7 @@ impl fmt::Display for TransitRouteID {
 pub struct TransitStop {
     pub id: TransitStopID,
     pub name: String,
+    pub gtfs_id: String,
     /// These may be on different roads entirely, like for light rail platforms.
     pub driving_pos: Position,
     pub sidewalk_pos: Position,
