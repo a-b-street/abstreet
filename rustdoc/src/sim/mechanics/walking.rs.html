@@ -934,7 +934,7 @@
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_multimap</span>, <span class="ident">serialize_multimap</span>, <span class="ident">FixedMap</span>, <span class="ident">IndexableKey</span>, <span class="ident">MultiMap</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">Speed</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{
-    <span class="ident">BuildingID</span>, <span class="ident">BusRouteID</span>, <span class="ident">DrivingSide</span>, <span class="ident">Map</span>, <span class="ident">ParkingLotID</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathStep</span>,
+    <span class="ident">BuildingID</span>, <span class="ident">DrivingSide</span>, <span class="ident">Map</span>, <span class="ident">ParkingLotID</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathStep</span>, <span class="ident">TransitRouteID</span>,
     <span class="ident">Traversable</span>, <span class="ident">SIDEWALK_THICKNESS</span>,
 };
 
@@ -1098,7 +1098,7 @@
                             <span class="ident">ctx</span>.<span class="ident">scheduler</span>
                                 .<span class="ident">push</span>(<span class="ident">ped</span>.<span class="ident">state</span>.<span class="ident">get_end_time</span>(), <span class="ident">Command::UpdatePed</span>(<span class="ident">ped</span>.<span class="ident">id</span>));
                         }
-                        <span class="ident">SidewalkPOI::BusStop</span>(<span class="ident">stop</span>) =&gt; {
+                        <span class="ident">SidewalkPOI::TransitStop</span>(<span class="ident">stop</span>) =&gt; {
                             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">route</span>) <span class="op">=</span> <span class="ident">trips</span>.<span class="ident">ped_reached_bus_stop</span>(
                                 <span class="ident">now</span>,
                                 <span class="ident">ped</span>.<span class="ident">id</span>,
@@ -1297,7 +1297,7 @@
         <span class="kw">let</span> <span class="ident">time_spent_waiting</span> <span class="op">=</span> <span class="ident">p</span>.<span class="ident">state</span>.<span class="ident">time_spent_waiting</span>(<span class="ident">now</span>);
         <span class="comment">// TODO Incorporate this somewhere</span>
         <span class="comment">/*if let PedState::WaitingForBus(r, _) = p.state {
-            extra.push(format!(&quot;Waiting for bus {}&quot;, map.get_br(r).name));
+            extra.push(format!(&quot;Waiting for bus {}&quot;, map.get_tr(r).name));
         }*/</span>
 
         <span class="kw">let</span> <span class="ident">current_state_dist</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">p</span>.<span class="ident">state</span> {
@@ -1506,7 +1506,7 @@
                 <span class="ident">SidewalkPOI::ParkingSpot</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">SidewalkPOI::DeferredParkingSpot</span> =&gt; {
                     <span class="ident">cnts</span>.<span class="ident">walking_to_from_car</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                 }
-                <span class="ident">SidewalkPOI::BusStop</span>(<span class="kw">_</span>) =&gt; {
+                <span class="ident">SidewalkPOI::TransitStop</span>(<span class="kw">_</span>) =&gt; {
                     <span class="ident">cnts</span>.<span class="ident">walking_to_from_transit</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                 }
                 <span class="ident">SidewalkPOI::BikeRack</span>(<span class="kw">_</span>) =&gt; {
@@ -1516,7 +1516,7 @@
                     <span class="ident">SidewalkPOI::ParkingSpot</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">SidewalkPOI::DeferredParkingSpot</span> =&gt; {
                         <span class="ident">cnts</span>.<span class="ident">walking_to_from_car</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                     }
-                    <span class="ident">SidewalkPOI::BusStop</span>(<span class="kw">_</span>) =&gt; {
+                    <span class="ident">SidewalkPOI::TransitStop</span>(<span class="kw">_</span>) =&gt; {
                         <span class="ident">cnts</span>.<span class="ident">walking_to_from_transit</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                     }
                     <span class="ident">SidewalkPOI::BikeRack</span>(<span class="kw">_</span>) =&gt; {
@@ -1779,7 +1779,7 @@
     <span class="ident">EnteringParkingLot</span>(<span class="ident">ParkingLotID</span>, <span class="ident">TimeInterval</span>),
     <span class="ident">StartingToBike</span>(<span class="ident">SidewalkSpot</span>, <span class="ident">Line</span>, <span class="ident">TimeInterval</span>),
     <span class="ident">FinishingBiking</span>(<span class="ident">SidewalkSpot</span>, <span class="ident">Line</span>, <span class="ident">TimeInterval</span>),
-    <span class="ident">WaitingForBus</span>(<span class="ident">BusRouteID</span>, <span class="ident">Time</span>),
+    <span class="ident">WaitingForBus</span>(<span class="ident">TransitRouteID</span>, <span class="ident">Time</span>),
 }
 
 <span class="kw">impl</span> <span class="ident">PedState</span> {

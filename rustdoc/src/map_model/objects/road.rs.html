@@ -699,8 +699,8 @@
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::raw</span>::{<span class="ident">OriginalRoad</span>, <span class="ident">RestrictionType</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">osm</span>, <span class="ident">AccessRestrictions</span>, <span class="ident">BusStopID</span>, <span class="ident">DrivingSide</span>, <span class="ident">IntersectionID</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">LaneSpec</span>,
-    <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">Zone</span>,
+    <span class="ident">osm</span>, <span class="ident">AccessRestrictions</span>, <span class="ident">DrivingSide</span>, <span class="ident">IntersectionID</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">LaneSpec</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>,
+    <span class="ident">PathConstraints</span>, <span class="ident">TransitStopID</span>, <span class="ident">Zone</span>,
 };
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
@@ -1101,10 +1101,10 @@
             .<span class="ident">unwrap_or</span>(<span class="number">0</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_bus_stops</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BusStopID</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_transit_stops</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TransitStopID</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">lanes</span>
             .<span class="ident">iter</span>()
-            .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span>.<span class="ident">bus_stops</span>.<span class="ident">iter</span>())
+            .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span>.<span class="ident">transit_stops</span>.<span class="ident">iter</span>())
             .<span class="ident">cloned</span>()
             .<span class="ident">collect</span>()
     }
@@ -1270,7 +1270,7 @@
                 <span class="ident">dst_i</span>,
                 <span class="ident">lane_type</span>: <span class="ident">lane</span>.<span class="ident">lt</span>,
                 <span class="ident">dir</span>: <span class="ident">lane</span>.<span class="ident">dir</span>,
-                <span class="ident">bus_stops</span>: <span class="ident">BTreeSet::new</span>(),
+                <span class="ident">transit_stops</span>: <span class="ident">BTreeSet::new</span>(),
                 <span class="ident">driving_blackhole</span>: <span class="bool-val">false</span>,
                 <span class="ident">biking_blackhole</span>: <span class="bool-val">false</span>,
             });

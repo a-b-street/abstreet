@@ -410,6 +410,7 @@
 <span id="410">410</span>
 <span id="411">411</span>
 <span id="412">412</span>
+<span id="413">413</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Intermediate structures used to instantiate a Scenario. Badly needs simplification:</span>
 <span class="doccomment">//! https://github.com/a-b-street/abstreet/issues/258</span>
 
@@ -418,7 +419,8 @@
 
 <span class="kw">use</span> <span class="ident">geom::Pt2D</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{
-    <span class="ident">BuildingID</span>, <span class="ident">BusRouteID</span>, <span class="ident">BusStopID</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">Position</span>,
+    <span class="ident">BuildingID</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">Position</span>, <span class="ident">TransitRouteID</span>,
+    <span class="ident">TransitStopID</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">CarID</span>, <span class="ident">DrivingGoal</span>, <span class="ident">SidewalkSpot</span>, <span class="ident">TripLeg</span>, <span class="ident">TripMode</span>, <span class="ident">VehicleType</span>, <span class="ident">SPAWN_DIST</span>};
@@ -465,9 +467,9 @@
     <span class="ident">UsingTransit</span> {
         <span class="ident">start</span>: <span class="ident">SidewalkSpot</span>,
         <span class="ident">goal</span>: <span class="ident">SidewalkSpot</span>,
-        <span class="ident">route</span>: <span class="ident">BusRouteID</span>,
-        <span class="ident">stop1</span>: <span class="ident">BusStopID</span>,
-        <span class="ident">maybe_stop2</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BusStopID</span><span class="op">&gt;</span>,
+        <span class="ident">route</span>: <span class="ident">TransitRouteID</span>,
+        <span class="ident">stop1</span>: <span class="ident">TransitStopID</span>,
+        <span class="ident">maybe_stop2</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TransitStopID</span><span class="op">&gt;</span>,
     },
 }
 
@@ -519,7 +521,7 @@
                 <span class="comment">// TODO The legs are a lie. Since the trip gets cancelled, this doesn&#39;t matter.</span>
                 <span class="comment">// I&#39;m not going to bother doing better because I think TripLeg will get</span>
                 <span class="comment">// revamped soon anyway.</span>
-                <span class="ident">legs</span>.<span class="ident">push</span>(<span class="ident">TripLeg::RideBus</span>(<span class="ident">BusRouteID</span>(<span class="number">0</span>), <span class="prelude-val">None</span>));
+                <span class="ident">legs</span>.<span class="ident">push</span>(<span class="ident">TripLeg::RideBus</span>(<span class="ident">TransitRouteID</span>(<span class="number">0</span>), <span class="prelude-val">None</span>));
             }
             <span class="ident">TripSpec::UsingParkedCar</span> { <span class="ident">car</span>, <span class="ident">goal</span>, .. } =&gt; {
                 <span class="ident">legs</span>.<span class="ident">push</span>(<span class="ident">TripLeg::Walk</span>(<span class="ident">SidewalkSpot::deferred_parking_spot</span>()));

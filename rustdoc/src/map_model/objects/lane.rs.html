@@ -589,8 +589,8 @@
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">osm</span>, <span class="ident">BusStopID</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>, <span class="ident">DrivingSide</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">MapConfig</span>, <span class="ident">Road</span>,
-    <span class="ident">RoadID</span>, <span class="ident">RoadSideID</span>, <span class="ident">SideOfRoad</span>, <span class="ident">TurnType</span>,
+    <span class="ident">osm</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>, <span class="ident">DrivingSide</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">MapConfig</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>,
+    <span class="ident">RoadSideID</span>, <span class="ident">SideOfRoad</span>, <span class="ident">TransitStopID</span>, <span class="ident">TurnType</span>,
 };
 
 <span class="doccomment">/// From some manually audited cases in Seattle, the length of parallel street parking spots is a</span>
@@ -830,7 +830,7 @@
     <span class="kw">pub</span> <span class="ident">dst_i</span>: <span class="ident">IntersectionID</span>,
 
     <span class="doccomment">/// Meaningless order</span>
-    <span class="kw">pub</span> <span class="ident">bus_stops</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">BusStopID</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">transit_stops</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">TransitStopID</span><span class="op">&gt;</span>,
 
     <span class="doccomment">/// {Cars, bikes} trying to start or end here might not be able to reach most lanes in the</span>
     <span class="doccomment">/// graph, because this is near a border.</span>

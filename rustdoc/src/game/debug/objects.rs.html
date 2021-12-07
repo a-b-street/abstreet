@@ -230,8 +230,8 @@
                     <span class="ident">sim</span>.<span class="ident">debug_ped</span>(<span class="ident">p</span>);
                 }
             }
-            <span class="ident">ID::BusStop</span>(<span class="ident">id</span>) =&gt; {
-                <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">abstutil::to_json</span>(<span class="ident">map</span>.<span class="ident">get_bs</span>(<span class="ident">id</span>)));
+            <span class="ident">ID::TransitStop</span>(<span class="ident">id</span>) =&gt; {
+                <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">abstutil::to_json</span>(<span class="ident">map</span>.<span class="ident">get_ts</span>(<span class="ident">id</span>)));
             }
             <span class="ident">ID::Area</span>(<span class="ident">id</span>) =&gt; {
                 <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">abstutil::to_json</span>(<span class="ident">map</span>.<span class="ident">get_a</span>(<span class="ident">id</span>)));
@@ -250,7 +250,7 @@
             <span class="ident">ID::Pedestrian</span>(<span class="ident">id</span>) =&gt; <span class="ident">sim</span>.<span class="ident">debug_agent_json</span>(<span class="ident">AgentID::Pedestrian</span>(<span class="ident">id</span>)),
             <span class="comment">// Just show the first...</span>
             <span class="ident">ID::PedCrowd</span>(<span class="ident">members</span>) =&gt; <span class="ident">sim</span>.<span class="ident">debug_agent_json</span>(<span class="ident">AgentID::Pedestrian</span>(<span class="ident">members</span>[<span class="number">0</span>])),
-            <span class="ident">ID::BusStop</span>(<span class="ident">id</span>) =&gt; <span class="ident">abstutil::to_json</span>(<span class="ident">map</span>.<span class="ident">get_bs</span>(<span class="ident">id</span>)),
+            <span class="ident">ID::TransitStop</span>(<span class="ident">id</span>) =&gt; <span class="ident">abstutil::to_json</span>(<span class="ident">map</span>.<span class="ident">get_ts</span>(<span class="ident">id</span>)),
             <span class="ident">ID::Area</span>(<span class="ident">id</span>) =&gt; <span class="ident">abstutil::to_json</span>(<span class="ident">map</span>.<span class="ident">get_a</span>(<span class="ident">id</span>)),
             <span class="ident">ID::Road</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
         };

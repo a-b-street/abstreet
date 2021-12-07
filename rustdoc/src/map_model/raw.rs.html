@@ -720,6 +720,36 @@
 <span id="720">720</span>
 <span id="721">721</span>
 <span id="722">722</span>
+<span id="723">723</span>
+<span id="724">724</span>
+<span id="725">725</span>
+<span id="726">726</span>
+<span id="727">727</span>
+<span id="728">728</span>
+<span id="729">729</span>
+<span id="730">730</span>
+<span id="731">731</span>
+<span id="732">732</span>
+<span id="733">733</span>
+<span id="734">734</span>
+<span id="735">735</span>
+<span id="736">736</span>
+<span id="737">737</span>
+<span id="738">738</span>
+<span id="739">739</span>
+<span id="740">740</span>
+<span id="741">741</span>
+<span id="742">742</span>
+<span id="743">743</span>
+<span id="744">744</span>
+<span id="745">745</span>
+<span id="746">746</span>
+<span id="747">747</span>
+<span id="748">748</span>
+<span id="749">749</span>
+<span id="750">750</span>
+<span id="751">751</span>
+<span id="752">752</span>
 </pre><pre class="rust"><code><span class="doccomment">//! The convert_osm crate produces a RawMap from OSM and other data. Storing this intermediate</span>
 <span class="doccomment">//! structure is useful to iterate quickly on parts of the map importing pipeline without having to</span>
 <span class="doccomment">//! constantly read .osm files, and to visualize the intermediate state with map_editor.</span>
@@ -738,6 +768,7 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::make::initial::lane_specs::get_lane_specs_ltr</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">osm</span>, <span class="ident">Amenity</span>, <span class="ident">AreaType</span>, <span class="ident">Direction</span>, <span class="ident">DrivingSide</span>, <span class="ident">IntersectionType</span>, <span class="ident">LaneType</span>, <span class="ident">MapConfig</span>,
+    <span class="ident">PathConstraints</span>,
 };
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
@@ -761,6 +792,12 @@
     <span class="kw">pub</span> <span class="ident">areas</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RawArea</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">parking_lots</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RawParkingLot</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">parking_aisles</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">osm::WayID</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">transit_routes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RawTransitRoute</span><span class="op">&gt;</span>,
+    <span class="attribute">#[<span class="ident">serde</span>(
+        <span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_btreemap&quot;</span>,
+        <span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;deserialize_btreemap&quot;</span>
+    )]</span>
+    <span class="kw">pub</span> <span class="ident">transit_stops</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">RawTransitStop</span><span class="op">&gt;</span>,
 
     <span class="kw">pub</span> <span class="ident">boundary_polygon</span>: <span class="ident">Polygon</span>,
     <span class="kw">pub</span> <span class="ident">gps_bounds</span>: <span class="ident">GPSBounds</span>,
@@ -836,6 +873,8 @@
             <span class="ident">areas</span>: <span class="ident">Vec::new</span>(),
             <span class="ident">parking_lots</span>: <span class="ident">Vec::new</span>(),
             <span class="ident">parking_aisles</span>: <span class="ident">Vec::new</span>(),
+            <span class="ident">transit_routes</span>: <span class="ident">Vec::new</span>(),
+            <span class="ident">transit_stops</span>: <span class="ident">BTreeMap::new</span>(),
             <span class="comment">// Some nonsense thing</span>
             <span class="ident">boundary_polygon</span>: <span class="ident">Polygon::rectangle</span>(<span class="number">1.0</span>, <span class="number">1.0</span>),
             <span class="ident">gps_bounds</span>: <span class="ident">GPSBounds::new</span>(),
@@ -1441,6 +1480,27 @@
             <span class="prelude-val">None</span>
         }
     }
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RawTransitRoute</span> {
+    <span class="kw">pub</span> <span class="ident">long_name</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">short_name</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">gtfs_id</span>: <span class="ident">String</span>,
+    <span class="doccomment">/// This may begin and/or end inside or outside the map boundary.</span>
+    <span class="kw">pub</span> <span class="ident">shape</span>: <span class="ident">PolyLine</span>,
+    <span class="doccomment">/// Entries into transit_stops</span>
+    <span class="kw">pub</span> <span class="ident">stops</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">route_type</span>: <span class="ident">PathConstraints</span>,
+    <span class="comment">// TODO Schedule</span>
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RawTransitStop</span> {
+    <span class="kw">pub</span> <span class="ident">gtfs_id</span>: <span class="ident">String</span>,
+    <span class="doccomment">/// Only stops within a map&#39;s boundary are kept</span>
+    <span class="kw">pub</span> <span class="ident">position</span>: <span class="ident">Pt2D</span>,
+    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="map_model" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>

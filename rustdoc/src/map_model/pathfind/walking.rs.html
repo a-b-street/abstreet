@@ -529,8 +529,8 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pathfind::zone_cost</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pathfind</span>::{<span class="ident">round</span>, <span class="ident">unround</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">BusRoute</span>, <span class="ident">BusRouteID</span>, <span class="ident">BusStopID</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">MovementID</span>,
-    <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">PathStep</span>, <span class="ident">PathStepV2</span>, <span class="ident">PathV2</span>, <span class="ident">Position</span>, <span class="ident">TurnType</span>,
+    <span class="ident">DirectedRoadID</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">MovementID</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">PathStep</span>,
+    <span class="ident">PathStepV2</span>, <span class="ident">PathV2</span>, <span class="ident">Position</span>, <span class="ident">TransitRoute</span>, <span class="ident">TransitRouteID</span>, <span class="ident">TransitStopID</span>, <span class="ident">TurnType</span>,
 };
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
@@ -545,9 +545,9 @@
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">WalkingNode</span> {
     <span class="doccomment">/// false is src_i, true is dst_i</span>
     <span class="ident">SidewalkEndpoint</span>(<span class="ident">DirectedRoadID</span>, <span class="ident">bool</span>),
-    <span class="comment">// TODO Lots of complexity below could be avoided by explicitly sticking BusRouteID here too.</span>
+    <span class="comment">// TODO Lots of complexity below could be avoided by explicitly sticking TransitRouteID here too.</span>
     <span class="comment">// Worth it?</span>
-    <span class="ident">RideBus</span>(<span class="ident">BusStopID</span>),
+    <span class="ident">RideTransit</span>(<span class="ident">TransitStopID</span>),
     <span class="ident">LeaveMap</span>(<span class="ident">IntersectionID</span>),
 }
 
@@ -595,9 +595,9 @@
             }
         }
         <span class="kw">if</span> <span class="ident">use_transit</span>.<span class="ident">is_some</span>() {
-            <span class="comment">// Add a node for each bus stop.</span>
-            <span class="kw">for</span> <span class="ident">bs</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_bus_stops</span>().<span class="ident">keys</span>() {
-                <span class="ident">nodes</span>.<span class="ident">get_or_insert</span>(<span class="ident">WalkingNode::RideBus</span>(<span class="kw-2">*</span><span class="ident">bs</span>));
+            <span class="comment">// Add a node for each stop.</span>
+            <span class="kw">for</span> <span class="ident">ts</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_transit_stops</span>().<span class="ident">keys</span>() {
+                <span class="ident">nodes</span>.<span class="ident">get_or_insert</span>(<span class="ident">WalkingNode::RideTransit</span>(<span class="kw-2">*</span><span class="ident">ts</span>));
             }
             <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_outgoing_borders</span>() {
                 <span class="comment">// We could filter for those with sidewalks, but eh</span>
@@ -650,14 +650,14 @@
         <span class="prelude-val">Some</span>(<span class="ident">PathV2::new</span>(<span class="ident">steps</span>, <span class="ident">req</span>, <span class="ident">cost</span>, <span class="ident">Vec::new</span>()))
     }
 
-    <span class="doccomment">/// Attempt the pathfinding and see if we should ride a bus. If so, says (stop1, optional stop</span>
-    <span class="doccomment">/// 2, route). If there&#39;s no stop 2, then ride the bus off the border.</span>
+    <span class="doccomment">/// Attempt the pathfinding and see if we should ride public transit. If so, says (stop1,</span>
+    <span class="doccomment">/// optional stop 2, route). If there&#39;s no stop 2, then ride transit off the border.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">should_use_transit</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
         <span class="ident">start</span>: <span class="ident">Position</span>,
         <span class="ident">end</span>: <span class="ident">Position</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">BusStopID</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BusStopID</span><span class="op">&gt;</span>, <span class="ident">BusRouteID</span>)<span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">TransitStopID</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TransitStopID</span><span class="op">&gt;</span>, <span class="ident">TransitRouteID</span>)<span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">engine</span>, <span class="ident">PathfindEngine::Empty</span>) {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
@@ -682,10 +682,10 @@
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">first_stop</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">last_stop</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">possible_routes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">BusRoute</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">possible_routes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">TransitRoute</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">for</span> <span class="ident">n</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">nodes</span> {
             <span class="kw">match</span> <span class="ident">n</span> {
-                <span class="ident">WalkingNode::RideBus</span>(<span class="ident">stop2</span>) =&gt; {
+                <span class="ident">WalkingNode::RideTransit</span>(<span class="ident">stop2</span>) =&gt; {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">stop1</span>) <span class="op">=</span> <span class="ident">first_stop</span> {
                         <span class="comment">// Keep riding the same route?</span>
                         <span class="comment">// We need to do this check, because some transfers might be instantaneous</span>
@@ -850,9 +850,9 @@
     <span class="ident">train_graph</span>: <span class="kw-2">&amp;</span><span class="ident">VehiclePathfinder</span>,
 ) {
     <span class="kw">let</span> <span class="ident">max_speed</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident"><span class="kw">crate</span>::MAX_WALKING_SPEED</span>);
-    <span class="comment">// Connect bus stops with both sidewalk endpoints, using the appropriate distance.</span>
-    <span class="kw">for</span> <span class="ident">stop</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_bus_stops</span>().<span class="ident">values</span>() {
-        <span class="kw">let</span> <span class="ident">ride_bus</span> <span class="op">=</span> <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">WalkingNode::RideBus</span>(<span class="ident">stop</span>.<span class="ident">id</span>));
+    <span class="comment">// Connect stops with both sidewalk endpoints, using the appropriate distance.</span>
+    <span class="kw">for</span> <span class="ident">stop</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_transit_stops</span>().<span class="ident">values</span>() {
+        <span class="kw">let</span> <span class="ident">ride_transit</span> <span class="op">=</span> <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">WalkingNode::RideTransit</span>(<span class="ident">stop</span>.<span class="ident">id</span>));
         <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">stop</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">lane</span>());
         <span class="kw">for</span> (<span class="ident">endpt</span>, <span class="ident">step</span>) <span class="kw">in</span> [
             (<span class="bool-val">false</span>, <span class="ident">PathStep::Lane</span>(<span class="ident">lane</span>.<span class="ident">id</span>)),
@@ -864,24 +864,24 @@
                 <span class="ident">stop</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">dist_along</span>()
             };
             <span class="kw">let</span> <span class="ident">cost</span> <span class="op">=</span> <span class="ident">dist</span> <span class="op">/</span> <span class="ident">step</span>.<span class="ident">max_speed_along</span>(<span class="ident">max_speed</span>, <span class="ident">PathConstraints::Pedestrian</span>, <span class="ident">map</span>);
-            <span class="comment">// Add some extra penalty to using a bus stop. Otherwise a path might try to pass</span>
-            <span class="comment">// through it uselessly.</span>
+            <span class="comment">// Add some extra penalty to using a stop. Otherwise a path might try to pass through</span>
+            <span class="comment">// it uselessly.</span>
             <span class="kw">let</span> <span class="ident">penalty</span> <span class="op">=</span> <span class="ident">Duration::seconds</span>(<span class="number">10.0</span>);
             <span class="kw">let</span> <span class="ident">sidewalk</span> <span class="op">=</span> <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">WalkingNode::SidewalkEndpoint</span>(
                 <span class="ident">lane</span>.<span class="ident">get_directed_parent</span>(),
                 <span class="ident">endpt</span>,
             ));
-            <span class="ident">input_graph</span>.<span class="ident">add_edge</span>(<span class="ident">sidewalk</span>, <span class="ident">ride_bus</span>, <span class="ident">round</span>(<span class="ident">cost</span> <span class="op">+</span> <span class="ident">penalty</span>));
-            <span class="ident">input_graph</span>.<span class="ident">add_edge</span>(<span class="ident">ride_bus</span>, <span class="ident">sidewalk</span>, <span class="ident">round</span>(<span class="ident">cost</span> <span class="op">+</span> <span class="ident">penalty</span>));
+            <span class="ident">input_graph</span>.<span class="ident">add_edge</span>(<span class="ident">sidewalk</span>, <span class="ident">ride_transit</span>, <span class="ident">round</span>(<span class="ident">cost</span> <span class="op">+</span> <span class="ident">penalty</span>));
+            <span class="ident">input_graph</span>.<span class="ident">add_edge</span>(<span class="ident">ride_transit</span>, <span class="ident">sidewalk</span>, <span class="ident">round</span>(<span class="ident">cost</span> <span class="op">+</span> <span class="ident">penalty</span>));
         }
     }
 
     <span class="comment">// Connect each adjacent stop along a route, with the cost based on how long it&#39;ll take a</span>
-    <span class="comment">// bus to drive between the stops. Optimistically assume no waiting time at a stop.</span>
-    <span class="kw">for</span> <span class="ident">route</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_bus_routes</span>() {
+    <span class="comment">// transit vehicle to drive between the stops. Optimistically assume no waiting time at a stop.</span>
+    <span class="kw">for</span> <span class="ident">route</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_transit_routes</span>() {
         <span class="comment">// TODO Also plug in border starts</span>
         <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">route</span>.<span class="ident">stops</span>.<span class="ident">windows</span>(<span class="number">2</span>) {
-            <span class="kw">let</span> (<span class="ident">stop1</span>, <span class="ident">stop2</span>) <span class="op">=</span> (<span class="ident">map</span>.<span class="ident">get_bs</span>(<span class="ident">pair</span>[<span class="number">0</span>]), <span class="ident">map</span>.<span class="ident">get_bs</span>(<span class="ident">pair</span>[<span class="number">1</span>]));
+            <span class="kw">let</span> (<span class="ident">stop1</span>, <span class="ident">stop2</span>) <span class="op">=</span> (<span class="ident">map</span>.<span class="ident">get_ts</span>(<span class="ident">pair</span>[<span class="number">0</span>]), <span class="ident">map</span>.<span class="ident">get_ts</span>(<span class="ident">pair</span>[<span class="number">1</span>]));
             <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">PathRequest::vehicle</span>(<span class="ident">stop1</span>.<span class="ident">driving_pos</span>, <span class="ident">stop2</span>.<span class="ident">driving_pos</span>, <span class="ident">route</span>.<span class="ident">route_type</span>);
             <span class="kw">let</span> <span class="ident">maybe_driving_cost</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">route</span>.<span class="ident">route_type</span> {
                 <span class="ident">PathConstraints::Bus</span> =&gt; <span class="ident">bus_graph</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>, <span class="ident">map</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">get_cost</span>()),
@@ -890,20 +890,20 @@
             };
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">driving_cost</span>) <span class="op">=</span> <span class="ident">maybe_driving_cost</span> {
                 <span class="ident">input_graph</span>.<span class="ident">add_edge</span>(
-                    <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">WalkingNode::RideBus</span>(<span class="ident">stop1</span>.<span class="ident">id</span>)),
-                    <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">WalkingNode::RideBus</span>(<span class="ident">stop2</span>.<span class="ident">id</span>)),
+                    <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">WalkingNode::RideTransit</span>(<span class="ident">stop1</span>.<span class="ident">id</span>)),
+                    <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">WalkingNode::RideTransit</span>(<span class="ident">stop2</span>.<span class="ident">id</span>)),
                     <span class="ident">round</span>(<span class="ident">driving_cost</span>),
                 );
             } <span class="kw">else</span> {
                 <span class="macro">panic!</span>(
-                    <span class="string">&quot;No bus route from {} to {} now for {}! Prevent this edit&quot;</span>,
-                    <span class="ident">stop1</span>.<span class="ident">driving_pos</span>, <span class="ident">stop2</span>.<span class="ident">driving_pos</span>, <span class="ident">route</span>.<span class="ident">full_name</span>,
+                    <span class="string">&quot;No transit route from {} to {} now for {}! Prevent this edit&quot;</span>,
+                    <span class="ident">stop1</span>.<span class="ident">driving_pos</span>, <span class="ident">stop2</span>.<span class="ident">driving_pos</span>, <span class="ident">route</span>.<span class="ident">long_name</span>,
                 );
             }
         }
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="ident">route</span>.<span class="ident">end_border</span> {
-            <span class="kw">let</span> <span class="ident">stop1</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_bs</span>(<span class="kw-2">*</span><span class="ident">route</span>.<span class="ident">stops</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>());
+            <span class="kw">let</span> <span class="ident">stop1</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_ts</span>(<span class="kw-2">*</span><span class="ident">route</span>.<span class="ident">stops</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>());
             <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span>
                 <span class="ident">PathRequest::vehicle</span>(<span class="ident">stop1</span>.<span class="ident">driving_pos</span>, <span class="ident">Position::end</span>(<span class="ident">l</span>, <span class="ident">map</span>), <span class="ident">route</span>.<span class="ident">route_type</span>);
             <span class="kw">let</span> <span class="ident">maybe_driving_cost</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">route</span>.<span class="ident">route_type</span> {
@@ -914,14 +914,14 @@
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">driving_cost</span>) <span class="op">=</span> <span class="ident">maybe_driving_cost</span> {
                 <span class="kw">let</span> <span class="ident">border</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">dst_i</span>);
                 <span class="ident">input_graph</span>.<span class="ident">add_edge</span>(
-                    <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">WalkingNode::RideBus</span>(<span class="ident">stop1</span>.<span class="ident">id</span>)),
+                    <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">WalkingNode::RideTransit</span>(<span class="ident">stop1</span>.<span class="ident">id</span>)),
                     <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">WalkingNode::LeaveMap</span>(<span class="ident">border</span>.<span class="ident">id</span>)),
                     <span class="ident">round</span>(<span class="ident">driving_cost</span>),
                 );
             } <span class="kw">else</span> {
                 <span class="macro">panic!</span>(
-                    <span class="string">&quot;No bus route from {} to end of {} now for {}! Prevent this edit&quot;</span>,
-                    <span class="ident">stop1</span>.<span class="ident">driving_pos</span>, <span class="ident">l</span>, <span class="ident">route</span>.<span class="ident">full_name</span>,
+                    <span class="string">&quot;No transit route from {} to end of {} now for {}! Prevent this edit&quot;</span>,
+                    <span class="ident">stop1</span>.<span class="ident">driving_pos</span>, <span class="ident">l</span>, <span class="ident">route</span>.<span class="ident">long_name</span>,
                 );
             }
         }
@@ -935,12 +935,12 @@
     <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">path</span>.<span class="ident">windows</span>(<span class="number">2</span>) {
         <span class="kw">let</span> (<span class="ident">r1</span>, <span class="ident">r1_endpt</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">pair</span>[<span class="number">0</span>] {
             <span class="ident">WalkingNode::SidewalkEndpoint</span>(<span class="ident">r</span>, <span class="ident">endpt</span>) =&gt; (<span class="ident">r</span>, <span class="ident">endpt</span>),
-            <span class="ident">WalkingNode::RideBus</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
+            <span class="ident">WalkingNode::RideTransit</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
             <span class="ident">WalkingNode::LeaveMap</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
         };
         <span class="kw">let</span> <span class="ident">r2</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">pair</span>[<span class="number">1</span>] {
             <span class="ident">WalkingNode::SidewalkEndpoint</span>(<span class="ident">r</span>, <span class="kw">_</span>) =&gt; <span class="ident">r</span>,
-            <span class="ident">WalkingNode::RideBus</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
+            <span class="ident">WalkingNode::RideTransit</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
             <span class="ident">WalkingNode::LeaveMap</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
         };
 
@@ -1006,8 +1006,8 @@
 <span class="comment">// TODO Do we even need this at all?</span>
 <span class="kw">fn</span> <span class="ident">one_step_walking_path</span>(<span class="ident">req</span>: <span class="ident">PathRequest</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">PathV2</span> {
     <span class="kw">let</span> <span class="ident">l</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">lane</span>();
-    <span class="comment">// Weird case, but it can happen for walking from a building path to a bus stop that&#39;re</span>
-    <span class="comment">// actually at the same spot.</span>
+    <span class="comment">// Weird case, but it can happen for walking from a building path to a stop that&#39;re actually at</span>
+    <span class="comment">// the same spot.</span>
     <span class="kw">let</span> (<span class="ident">step_v2</span>, <span class="ident">step_v1</span>) <span class="op">=</span> <span class="kw">if</span> <span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">dist_along</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="ident">req</span>.<span class="ident">end</span>.<span class="ident">dist_along</span>() {
         (
             <span class="ident">PathStepV2::Along</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">get_directed_parent</span>()),

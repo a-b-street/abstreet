@@ -1053,6 +1053,11 @@
 <span id="1053">1053</span>
 <span id="1054">1054</span>
 <span id="1055">1055</span>
+<span id="1056">1056</span>
+<span id="1057">1057</span>
+<span id="1058">1058</span>
+<span id="1059">1059</span>
+<span id="1060">1060</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
@@ -2044,6 +2049,11 @@
         <span class="ident">output</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>());
 
         <span class="ident">PolyLine::new</span>(<span class="ident">output</span>).<span class="ident">unwrap</span>()
+    }
+
+    <span class="doccomment">/// An arbitrary placeholder value, when Option types aren&#39;t worthwhile</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dummy</span>() -&gt; <span class="ident">PolyLine</span> {
+        <span class="ident">PolyLine::must_new</span>(<span class="macro">vec!</span>[<span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>), <span class="ident">Pt2D::new</span>(<span class="number">0.1</span>, <span class="number">0.1</span>)])
     }
 }
 

@@ -567,7 +567,7 @@
     <span class="ident">BikeThenStop</span> {
         <span class="ident">goal</span>: <span class="ident">SidewalkSpot</span>,
     },
-    <span class="ident">FollowBusRoute</span> {
+    <span class="ident">FollowTransitRoute</span> {
         <span class="ident">end_dist</span>: <span class="ident">Distance</span>,
     },
 }
@@ -623,7 +623,7 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">follow_bus_route</span>(<span class="ident">owner</span>: <span class="ident">CarID</span>, <span class="ident">path</span>: <span class="ident">Path</span>) -&gt; <span class="ident">Router</span> {
         <span class="ident">Router</span> {
-            <span class="ident">goal</span>: <span class="ident">Goal::FollowBusRoute</span> {
+            <span class="ident">goal</span>: <span class="ident">Goal::FollowTransitRoute</span> {
                 <span class="ident">end_dist</span>: <span class="ident">path</span>.<span class="ident">get_req</span>().<span class="ident">end</span>.<span class="ident">dist_along</span>(),
             },
             <span class="ident">path</span>,
@@ -658,7 +658,7 @@
                 ..
             } =&gt; <span class="ident">stuck_end_dist</span>.<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">spot</span>.<span class="ident">unwrap</span>().<span class="number">1</span>),
             <span class="ident">Goal::BikeThenStop</span> { <span class="kw-2">ref</span> <span class="ident">goal</span> } =&gt; <span class="ident">goal</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">dist_along</span>(),
-            <span class="ident">Goal::FollowBusRoute</span> { <span class="ident">end_dist</span> } =&gt; <span class="ident">end_dist</span>,
+            <span class="ident">Goal::FollowTransitRoute</span> { <span class="ident">end_dist</span> } =&gt; <span class="ident">end_dist</span>,
         }
     }
 
@@ -840,7 +840,7 @@
                     <span class="prelude-val">None</span>
                 }
             }
-            <span class="ident">Goal::FollowBusRoute</span> { <span class="ident">end_dist</span> } =&gt; {
+            <span class="ident">Goal::FollowTransitRoute</span> { <span class="ident">end_dist</span> } =&gt; {
                 <span class="kw">if</span> <span class="ident">end_dist</span> <span class="op">==</span> <span class="ident">front</span> {
                     <span class="prelude-val">Some</span>(<span class="ident">ActionAtEnd::BusAtStop</span>)
                 } <span class="kw">else</span> {

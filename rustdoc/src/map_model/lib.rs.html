@@ -131,8 +131,8 @@
 <span class="doccomment">//! Map objects are usually abbreviated in method names:</span>
 <span class="doccomment">//! - a = area</span>
 <span class="doccomment">//! - b = building</span>
-<span class="doccomment">//! - br = bus route</span>
-<span class="doccomment">//! - bs = bus stop</span>
+<span class="doccomment">//! - tr = transit route</span>
+<span class="doccomment">//! - ts = transit stop</span>
 <span class="doccomment">//! - i = intersection</span>
 <span class="doccomment">//! - l = lane</span>
 <span class="doccomment">//! - pl = parking lot</span>
@@ -167,7 +167,6 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::objects::building</span>::{
     <span class="ident">Amenity</span>, <span class="ident">AmenityType</span>, <span class="ident">Building</span>, <span class="ident">BuildingID</span>, <span class="ident">BuildingType</span>, <span class="ident">NamePerLanguage</span>, <span class="ident">OffstreetParking</span>,
 };
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::objects::bus_stop</span>::{<span class="ident">BusRoute</span>, <span class="ident">BusRouteID</span>, <span class="ident">BusStop</span>, <span class="ident">BusStopID</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::objects::intersection</span>::{<span class="ident">Intersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">IntersectionType</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::objects::lane</span>::{
     <span class="ident">BufferType</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">LaneSpec</span>, <span class="ident">LaneType</span>, <span class="ident">NORMAL_LANE_THICKNESS</span>, <span class="ident">PARKING_LOT_SPOT_LENGTH</span>,
@@ -178,6 +177,7 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::objects::road</span>::{<span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>, <span class="ident">RoadSideID</span>, <span class="ident">SideOfRoad</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::objects::stop_signs</span>::{<span class="ident">ControlStopSign</span>, <span class="ident">RoadWithStopSign</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::objects::traffic_signals</span>::{<span class="ident">ControlTrafficSignal</span>, <span class="ident">Stage</span>, <span class="ident">StageType</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::objects::transit</span>::{<span class="ident">TransitRoute</span>, <span class="ident">TransitRouteID</span>, <span class="ident">TransitStop</span>, <span class="ident">TransitStopID</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::objects::turn</span>::{<span class="ident">Turn</span>, <span class="ident">TurnID</span>, <span class="ident">TurnPriority</span>, <span class="ident">TurnType</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::objects::zone</span>::{<span class="ident">AccessRestrictions</span>, <span class="ident">Zone</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pathfind::uber_turns</span>::{<span class="ident">IntersectionCluster</span>, <span class="ident">UberTurn</span>};
@@ -209,8 +209,8 @@
         <span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_btreemap&quot;</span>,
         <span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;deserialize_btreemap&quot;</span>
     )]</span>
-    <span class="ident">bus_stops</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">BusStopID</span>, <span class="ident">BusStop</span><span class="op">&gt;</span>,
-    <span class="ident">bus_routes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BusRoute</span><span class="op">&gt;</span>,
+    <span class="ident">transit_stops</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">TransitStopID</span>, <span class="ident">TransitStop</span><span class="op">&gt;</span>,
+    <span class="ident">transit_routes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TransitRoute</span><span class="op">&gt;</span>,
     <span class="ident">areas</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Area</span><span class="op">&gt;</span>,
     <span class="ident">parking_lots</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingLot</span><span class="op">&gt;</span>,
     <span class="ident">boundary_polygon</span>: <span class="ident">Polygon</span>,

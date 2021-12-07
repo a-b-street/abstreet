@@ -713,8 +713,8 @@
 <span class="kw">use</span> <span class="ident">abstutil::Counter</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{
-    <span class="ident">BusRouteID</span>, <span class="ident">BusStopID</span>, <span class="ident">CompressedMovementID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">MovementID</span>,
-    <span class="ident">ParkingLotID</span>, <span class="ident">Path</span>, <span class="ident">PathRequest</span>, <span class="ident">RoadID</span>, <span class="ident">Traversable</span>, <span class="ident">TurnID</span>,
+    <span class="ident">CompressedMovementID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">MovementID</span>, <span class="ident">ParkingLotID</span>, <span class="ident">Path</span>, <span class="ident">PathRequest</span>,
+    <span class="ident">RoadID</span>, <span class="ident">TransitRouteID</span>, <span class="ident">TransitStopID</span>, <span class="ident">Traversable</span>, <span class="ident">TurnID</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -743,10 +743,10 @@
     <span class="kw">pub</span> <span class="ident">demand</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">MovementID</span>, <span class="ident">usize</span><span class="op">&gt;</span>,
 
     <span class="comment">// TODO Reconsider this one</span>
-    <span class="kw">pub</span> <span class="ident">bus_arrivals</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">CarID</span>, <span class="ident">BusRouteID</span>, <span class="ident">BusStopID</span>)<span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">bus_arrivals</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">CarID</span>, <span class="ident">TransitRouteID</span>, <span class="ident">TransitStopID</span>)<span class="op">&gt;</span>,
     <span class="doccomment">/// For each passenger boarding, how long did they wait at the stop?</span>
-    <span class="kw">pub</span> <span class="ident">passengers_boarding</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">BusStopID</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">BusRouteID</span>, <span class="ident">Duration</span>)<span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">passengers_alighting</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">BusStopID</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">BusRouteID</span>)<span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">passengers_boarding</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">TransitStopID</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">TransitRouteID</span>, <span class="ident">Duration</span>)<span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">passengers_alighting</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">TransitStopID</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">TransitRouteID</span>)<span class="op">&gt;</span><span class="op">&gt;</span>,
 
     <span class="kw">pub</span> <span class="ident">started_trips</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">TripID</span>, <span class="ident">Time</span><span class="op">&gt;</span>,
     <span class="doccomment">/// Finish time, ID, mode, trip duration if successful (or None if cancelled)</span>

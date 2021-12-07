@@ -257,10 +257,6 @@
 <span id="257">257</span>
 <span id="258">258</span>
 <span id="259">259</span>
-<span id="260">260</span>
-<span id="261">261</span>
-<span id="262">262</span>
-<span id="263">263</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">anyhow</span>::{<span class="ident">Context</span>, <span class="prelude-ty">Result</span>};
@@ -321,7 +317,7 @@
         <span class="ident">old</span>: <span class="ident">PermanentEditIntersection</span>,
     },
     <span class="ident">ChangeRouteSchedule</span> {
-        <span class="ident">osm_rel_id</span>: <span class="ident">osm::RelationID</span>,
+        <span class="ident">gtfs_id</span>: <span class="ident">String</span>,
         <span class="ident">old</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Time</span><span class="op">&gt;</span>,
         <span class="ident">new</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Time</span><span class="op">&gt;</span>,
     },
@@ -342,7 +338,7 @@
             },
             <span class="ident">EditCmd::ChangeRouteSchedule</span> { <span class="ident">id</span>, <span class="ident">old</span>, <span class="ident">new</span> } =&gt; {
                 <span class="ident">PermanentEditCmd::ChangeRouteSchedule</span> {
-                    <span class="ident">osm_rel_id</span>: <span class="ident">map</span>.<span class="ident">get_br</span>(<span class="kw-2">*</span><span class="ident">id</span>).<span class="ident">osm_rel_id</span>,
+                    <span class="ident">gtfs_id</span>: <span class="ident">map</span>.<span class="ident">get_tr</span>(<span class="kw-2">*</span><span class="ident">id</span>).<span class="ident">gtfs_id</span>.<span class="ident">clone</span>(),
                     <span class="ident">old</span>: <span class="ident">old</span>.<span class="ident">clone</span>(),
                     <span class="ident">new</span>: <span class="ident">new</span>.<span class="ident">clone</span>(),
                 }
@@ -381,14 +377,10 @@
                         .<span class="ident">with_context</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">format!</span>(<span class="string">&quot;old ChangeIntersection of {} invalid&quot;</span>, <span class="ident">i</span>))<span class="question-mark">?</span>,
                 })
             }
-            <span class="ident">PermanentEditCmd::ChangeRouteSchedule</span> {
-                <span class="ident">osm_rel_id</span>,
-                <span class="ident">old</span>,
-                <span class="ident">new</span>,
-            } =&gt; {
+            <span class="ident">PermanentEditCmd::ChangeRouteSchedule</span> { <span class="ident">gtfs_id</span>, <span class="ident">old</span>, <span class="ident">new</span> } =&gt; {
                 <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">map</span>
-                    .<span class="ident">find_br</span>(<span class="ident">osm_rel_id</span>)
-                    .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">anyhow!</span>(<span class="string">&quot;can&#39;t find {}&quot;</span>, <span class="ident">osm_rel_id</span>))<span class="question-mark">?</span>;
+                    .<span class="ident">find_tr_by_gtfs</span>(<span class="kw-2">&amp;</span><span class="ident">gtfs_id</span>)
+                    .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">anyhow!</span>(<span class="string">&quot;can&#39;t find {}&quot;</span>, <span class="ident">gtfs_id</span>))<span class="question-mark">?</span>;
                 <span class="prelude-val">Ok</span>(<span class="ident">EditCmd::ChangeRouteSchedule</span> { <span class="ident">id</span>, <span class="ident">old</span>, <span class="ident">new</span> })
             }
         }

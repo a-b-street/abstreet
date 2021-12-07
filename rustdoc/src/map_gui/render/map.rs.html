@@ -512,6 +512,10 @@
 <span id="512">512</span>
 <span id="513">513</span>
 <span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">aabb_quadtree::QuadTree</span>;
@@ -519,18 +523,18 @@
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">Polygon</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{
-    <span class="ident">AreaID</span>, <span class="ident">BuildingID</span>, <span class="ident">BusStopID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">ParkingLotID</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>,
+    <span class="ident">AreaID</span>, <span class="ident">BuildingID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">ParkingLotID</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>, <span class="ident">TransitStopID</span>,
 };
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::colors::ColorScheme</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::options::Options</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::render::building::DrawBuilding</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::render::bus_stop::DrawBusStop</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::render::intersection::DrawIntersection</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::render::lane::DrawLane</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::render::parking_lot::DrawParkingLot</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::render::road::DrawRoad</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::render::transit_stop::DrawTransitStop</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::render</span>::{<span class="ident">AgentCache</span>, <span class="ident">DrawArea</span>, <span class="ident">Renderable</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AppLike</span>, <span class="ident">ID</span>};
 
@@ -539,7 +543,7 @@
     <span class="kw">pub</span> <span class="ident">intersections</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawIntersection</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">buildings</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawBuilding</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">parking_lots</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawParkingLot</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">bus_stops</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">BusStopID</span>, <span class="ident">DrawBusStop</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">bus_stops</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">TransitStopID</span>, <span class="ident">DrawTransitStop</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">areas</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawArea</span><span class="op">&gt;</span>,
 
     <span class="kw">pub</span> <span class="ident">boundary_polygon</span>: <span class="ident">Drawable</span>,
@@ -621,11 +625,11 @@
         <span class="kw">let</span> <span class="ident">draw_all_unzoomed_parking_lots</span> <span class="op">=</span> <span class="ident">all_unzoomed_parking_lots</span>.<span class="ident">upload</span>(<span class="ident">ctx</span>);
         <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;make DrawParkingLot&quot;</span>);
 
-        <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;make DrawBusStop&quot;</span>, <span class="ident">map</span>.<span class="ident">all_bus_stops</span>().<span class="ident">len</span>());
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bus_stops</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">BusStopID</span>, <span class="ident">DrawBusStop</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-        <span class="kw">for</span> <span class="ident">s</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_bus_stops</span>().<span class="ident">values</span>() {
+        <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;make DrawTransitStop&quot;</span>, <span class="ident">map</span>.<span class="ident">all_transit_stops</span>().<span class="ident">len</span>());
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bus_stops</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">TransitStopID</span>, <span class="ident">DrawTransitStop</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
+        <span class="kw">for</span> <span class="ident">s</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_transit_stops</span>().<span class="ident">values</span>() {
             <span class="ident">timer</span>.<span class="ident">next</span>();
-            <span class="ident">bus_stops</span>.<span class="ident">insert</span>(<span class="ident">s</span>.<span class="ident">id</span>, <span class="ident">DrawBusStop::new</span>(<span class="ident">ctx</span>, <span class="ident">s</span>, <span class="ident">map</span>, <span class="ident">cs</span>));
+            <span class="ident">bus_stops</span>.<span class="ident">insert</span>(<span class="ident">s</span>.<span class="ident">id</span>, <span class="ident">DrawTransitStop::new</span>(<span class="ident">ctx</span>, <span class="ident">s</span>, <span class="ident">map</span>, <span class="ident">cs</span>));
         }
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">areas</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawArea</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
@@ -664,7 +668,7 @@
         <span class="kw">for</span> <span class="ident">obj</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">parking_lots</span> {
             <span class="ident">quadtree</span>.<span class="ident">insert_with_box</span>(<span class="ident">obj</span>.<span class="ident">get_id</span>(), <span class="ident">obj</span>.<span class="ident">get_outline</span>(<span class="ident">map</span>).<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>());
         }
-        <span class="comment">// Don&#39;t put BusStops in the quadtree</span>
+        <span class="comment">// Don&#39;t put TransitStops in the quadtree</span>
         <span class="kw">for</span> <span class="ident">obj</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">areas</span> {
             <span class="ident">quadtree</span>.<span class="ident">insert_with_box</span>(<span class="ident">obj</span>.<span class="ident">get_id</span>(), <span class="ident">obj</span>.<span class="ident">get_outline</span>(<span class="ident">map</span>).<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>());
         }
@@ -812,7 +816,7 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">parking_lots</span>[<span class="ident">id</span>.<span class="number">0</span>]
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_bs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">BusStopID</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">DrawBusStop</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_ts</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">TransitStopID</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">DrawTransitStop</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bus_stops</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>]
     }
 
@@ -852,8 +856,8 @@
                 <span class="comment">// If the first member has vanished, just give up</span>
                 <span class="ident">app</span>.<span class="ident">sim</span>().<span class="ident">get_draw_ped</span>(<span class="ident">members</span>[<span class="number">0</span>], <span class="ident">app</span>.<span class="ident">map</span>())<span class="question-mark">?</span>.<span class="ident">on</span>
             }
-            <span class="ident">ID::BusStop</span>(<span class="ident">id</span>) =&gt; {
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">get_bs</span>(<span class="ident">id</span>));
+            <span class="ident">ID::TransitStop</span>(<span class="ident">id</span>) =&gt; {
+                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">get_ts</span>(<span class="ident">id</span>));
             }
             <span class="ident">ID::Area</span>(<span class="ident">id</span>) =&gt; {
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">get_a</span>(<span class="ident">id</span>));
@@ -884,7 +888,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">roads</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">intersections</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buildings</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bus_stops</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">transit_stops</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
         <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">get_matching_objects</span>(<span class="ident">bounds</span>) {
             <span class="kw">match</span> <span class="ident">id</span> {
@@ -892,8 +896,8 @@
                 <span class="ident">ID::Road</span>(<span class="ident">id</span>) =&gt; {
                     <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_r</span>(<span class="ident">id</span>);
                     <span class="kw">for</span> <span class="ident">lane</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">road</span>.<span class="ident">lanes</span> {
-                        <span class="kw">for</span> <span class="ident">bs</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">lane</span>.<span class="ident">id</span>).<span class="ident">bus_stops</span> {
-                            <span class="ident">bus_stops</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">get_bs</span>(<span class="kw-2">*</span><span class="ident">bs</span>));
+                        <span class="kw">for</span> <span class="ident">ts</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">lane</span>.<span class="ident">id</span>).<span class="ident">transit_stops</span> {
+                            <span class="ident">transit_stops</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">get_ts</span>(<span class="kw-2">*</span><span class="ident">ts</span>));
                         }
                         <span class="ident">lanes</span>.<span class="ident">push</span>(<span class="ident">lane</span>);
                     }
@@ -907,7 +911,11 @@
                     <span class="ident">parking_lots</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">get_pl</span>(<span class="ident">id</span>));
                 }
 
-                <span class="ident">ID::Lane</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">ID::BusStop</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">ID::Car</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">ID::Pedestrian</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">ID::PedCrowd</span>(<span class="kw">_</span>) =&gt; {
+                <span class="ident">ID::Lane</span>(<span class="kw">_</span>)
+                <span class="op">|</span> <span class="ident">ID::TransitStop</span>(<span class="kw">_</span>)
+                <span class="op">|</span> <span class="ident">ID::Car</span>(<span class="kw">_</span>)
+                <span class="op">|</span> <span class="ident">ID::Pedestrian</span>(<span class="kw">_</span>)
+                <span class="op">|</span> <span class="ident">ID::PedCrowd</span>(<span class="kw">_</span>) =&gt; {
                     <span class="macro">panic!</span>(<span class="string">&quot;{:?} shouldn&#39;t be in the quadtree&quot;</span>, <span class="ident">id</span>)
                 }
             }
@@ -921,7 +929,7 @@
         <span class="ident">borrows</span>.<span class="ident">extend</span>(<span class="ident">roads</span>);
         <span class="ident">borrows</span>.<span class="ident">extend</span>(<span class="ident">intersections</span>);
         <span class="ident">borrows</span>.<span class="ident">extend</span>(<span class="ident">buildings</span>);
-        <span class="ident">borrows</span>.<span class="ident">extend</span>(<span class="ident">bus_stops</span>);
+        <span class="ident">borrows</span>.<span class="ident">extend</span>(<span class="ident">transit_stops</span>);
 
         <span class="ident">borrows</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">get_zorder</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">show_zorder</span>);
 

@@ -824,6 +824,8 @@
 <span id="824">824</span>
 <span id="825">825</span>
 <span id="826">826</span>
+<span id="827">827</span>
+<span id="828">828</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">trip::OpenTrip</span>;
@@ -831,7 +833,9 @@
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Polygon</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_gui::tools::open_browser</span>;
 <span class="kw">use</span> <span class="ident">map_gui::ID</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">AreaID</span>, <span class="ident">BuildingID</span>, <span class="ident">BusRouteID</span>, <span class="ident">BusStopID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">ParkingLotID</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::{
+    <span class="ident">AreaID</span>, <span class="ident">BuildingID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">ParkingLotID</span>, <span class="ident">TransitRouteID</span>, <span class="ident">TransitStopID</span>,
+};
 <span class="kw">use</span> <span class="ident">sim</span>::{
     <span class="ident">AgentID</span>, <span class="ident">AgentType</span>, <span class="ident">Analytics</span>, <span class="ident">CarID</span>, <span class="ident">ParkingSpot</span>, <span class="ident">PedestrianID</span>, <span class="ident">PersonID</span>, <span class="ident">PersonState</span>, <span class="ident">TripID</span>,
     <span class="ident">VehicleType</span>,
@@ -850,12 +854,12 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sandbox</span>::{<span class="ident">dashboards</span>, <span class="ident">GameplayMode</span>, <span class="ident">SandboxMode</span>, <span class="ident">TimeWarpScreen</span>};
 
 <span class="kw">mod</span> <span class="ident">building</span>;
-<span class="kw">mod</span> <span class="ident">bus</span>;
 <span class="kw">mod</span> <span class="ident">debug</span>;
 <span class="kw">mod</span> <span class="ident">intersection</span>;
 <span class="kw">mod</span> <span class="ident">lane</span>;
 <span class="kw">mod</span> <span class="ident">parking_lot</span>;
 <span class="kw">mod</span> <span class="ident">person</span>;
+<span class="kw">mod</span> <span class="ident">transit</span>;
 <span class="kw">mod</span> <span class="ident">trip</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">InfoPanel</span> {
@@ -883,9 +887,9 @@
     <span class="ident">PersonBio</span>(<span class="ident">PersonID</span>),
     <span class="ident">PersonSchedule</span>(<span class="ident">PersonID</span>),
 
-    <span class="ident">BusStatus</span>(<span class="ident">CarID</span>),
-    <span class="ident">BusStop</span>(<span class="ident">BusStopID</span>),
-    <span class="ident">BusRoute</span>(<span class="ident">BusRouteID</span>),
+    <span class="ident">TransitVehicleStatus</span>(<span class="ident">CarID</span>),
+    <span class="ident">TransitStop</span>(<span class="ident">TransitStopID</span>),
+    <span class="ident">TransitRoute</span>(<span class="ident">TransitRouteID</span>),
 
     <span class="ident">ParkedCar</span>(<span class="ident">CarID</span>),
 
@@ -977,7 +981,7 @@
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">c</span>.<span class="ident">vehicle_type</span> <span class="op">==</span> <span class="ident">VehicleType::Bus</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">vehicle_type</span> <span class="op">==</span> <span class="ident">VehicleType::Train</span>
                 {
                     <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">info_panel_tab</span>[<span class="string">&quot;bus&quot;</span>] {
-                        <span class="string">&quot;status&quot;</span> =&gt; <span class="ident">Tab::BusStatus</span>(<span class="ident">c</span>),
+                        <span class="string">&quot;status&quot;</span> =&gt; <span class="ident">Tab::TransitVehicleStatus</span>(<span class="ident">c</span>),
                         <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
                     }
                 } <span class="kw">else</span> {
@@ -1006,7 +1010,7 @@
                 }
             }
             <span class="ident">ID::PedCrowd</span>(<span class="ident">members</span>) =&gt; <span class="ident">Tab::Crowd</span>(<span class="ident">members</span>),
-            <span class="ident">ID::BusStop</span>(<span class="ident">bs</span>) =&gt; <span class="ident">Tab::BusStop</span>(<span class="ident">bs</span>),
+            <span class="ident">ID::TransitStop</span>(<span class="ident">bs</span>) =&gt; <span class="ident">Tab::TransitStop</span>(<span class="ident">bs</span>),
             <span class="ident">ID::Area</span>(<span class="ident">a</span>) =&gt; <span class="ident">Tab::Area</span>(<span class="ident">a</span>),
         }
     }
@@ -1022,9 +1026,9 @@
                     <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
                 }
             }
-            <span class="ident">Tab::BusStatus</span>(<span class="ident">c</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">ID::Car</span>(<span class="kw-2">*</span><span class="ident">c</span>)),
-            <span class="ident">Tab::BusStop</span>(<span class="ident">bs</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">ID::BusStop</span>(<span class="kw-2">*</span><span class="ident">bs</span>)),
-            <span class="ident">Tab::BusRoute</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">Tab::TransitVehicleStatus</span>(<span class="ident">c</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">ID::Car</span>(<span class="kw-2">*</span><span class="ident">c</span>)),
+            <span class="ident">Tab::TransitStop</span>(<span class="ident">bs</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">ID::TransitStop</span>(<span class="kw-2">*</span><span class="ident">bs</span>)),
+            <span class="ident">Tab::TransitRoute</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
             <span class="comment">// TODO If a parked car becomes in use while the panel is open, should update the</span>
             <span class="comment">// panel better.</span>
             <span class="ident">Tab::ParkedCar</span>(<span class="ident">c</span>) =&gt; <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">lookup_parked_car</span>(<span class="kw-2">*</span><span class="ident">c</span>)<span class="question-mark">?</span>.<span class="ident">spot</span> {
@@ -1088,9 +1092,9 @@
             <span class="ident">Tab::PersonTrips</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; (<span class="string">&quot;person&quot;</span>, <span class="string">&quot;trips&quot;</span>),
             <span class="ident">Tab::PersonBio</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;person&quot;</span>, <span class="string">&quot;bio&quot;</span>),
             <span class="ident">Tab::PersonSchedule</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;person&quot;</span>, <span class="string">&quot;schedule&quot;</span>),
-            <span class="ident">Tab::BusStatus</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;bus&quot;</span>, <span class="string">&quot;status&quot;</span>),
-            <span class="ident">Tab::BusStop</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;bus stop&quot;</span>, <span class="string">&quot;info&quot;</span>),
-            <span class="ident">Tab::BusRoute</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;bus route&quot;</span>, <span class="string">&quot;info&quot;</span>),
+            <span class="ident">Tab::TransitVehicleStatus</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;bus&quot;</span>, <span class="string">&quot;status&quot;</span>),
+            <span class="ident">Tab::TransitStop</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;bus stop&quot;</span>, <span class="string">&quot;info&quot;</span>),
+            <span class="ident">Tab::TransitRoute</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;bus route&quot;</span>, <span class="string">&quot;info&quot;</span>),
             <span class="ident">Tab::ParkedCar</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;parked car&quot;</span>, <span class="string">&quot;info&quot;</span>),
             <span class="ident">Tab::BldgInfo</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;bldg&quot;</span>, <span class="string">&quot;info&quot;</span>),
             <span class="ident">Tab::BldgPeople</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;bldg&quot;</span>, <span class="string">&quot;people&quot;</span>),
@@ -1158,9 +1162,9 @@
                 <span class="ident">person::schedule</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">details</span>, <span class="ident">p</span>, <span class="ident">ctx_actions</span>.<span class="ident">is_paused</span>()),
                 <span class="bool-val">false</span>,
             ),
-            <span class="ident">Tab::BusStatus</span>(<span class="ident">c</span>) =&gt; (<span class="ident">bus::bus_status</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">details</span>, <span class="ident">c</span>), <span class="bool-val">true</span>),
-            <span class="ident">Tab::BusStop</span>(<span class="ident">bs</span>) =&gt; (<span class="ident">bus::stop</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">details</span>, <span class="ident">bs</span>), <span class="bool-val">true</span>),
-            <span class="ident">Tab::BusRoute</span>(<span class="ident">br</span>) =&gt; (<span class="ident">bus::route</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">details</span>, <span class="ident">br</span>), <span class="bool-val">true</span>),
+            <span class="ident">Tab::TransitVehicleStatus</span>(<span class="ident">c</span>) =&gt; (<span class="ident">transit::bus_status</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">details</span>, <span class="ident">c</span>), <span class="bool-val">true</span>),
+            <span class="ident">Tab::TransitStop</span>(<span class="ident">bs</span>) =&gt; (<span class="ident">transit::stop</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">details</span>, <span class="ident">bs</span>), <span class="bool-val">true</span>),
+            <span class="ident">Tab::TransitRoute</span>(<span class="ident">br</span>) =&gt; (<span class="ident">transit::route</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">details</span>, <span class="ident">br</span>), <span class="bool-val">true</span>),
             <span class="ident">Tab::ParkedCar</span>(<span class="ident">c</span>) =&gt; (
                 <span class="ident">person::parked_car</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">details</span>, <span class="ident">c</span>, <span class="ident">ctx_actions</span>.<span class="ident">is_paused</span>()),
                 <span class="bool-val">true</span>,
@@ -1397,7 +1401,7 @@
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">url</span>) <span class="op">=</span> <span class="ident">action</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;open &quot;</span>) {
                     <span class="ident">open_browser</span>(<span class="ident">url</span>);
                     (<span class="bool-val">false</span>, <span class="prelude-val">None</span>)
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">action</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;edit BusRoute #&quot;</span>) {
+                } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">action</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;edit TransitRoute #&quot;</span>) {
                     (
                         <span class="bool-val">false</span>,
                         <span class="prelude-val">Some</span>(<span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
@@ -1409,7 +1413,7 @@
                             <span class="ident">Transition::Push</span>(<span class="ident">RouteEditor::new_state</span>(
                                 <span class="ident">ctx</span>,
                                 <span class="ident">app</span>,
-                                <span class="ident">BusRouteID</span>(<span class="ident">x</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>()),
+                                <span class="ident">TransitRouteID</span>(<span class="ident">x</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>()),
                             )),
                         ])),
                     )
