@@ -169,7 +169,7 @@ pub fn import(map: &mut RawMap) -> Result<()> {
     map.transit_stops
         .retain(|stop_id, _| used_stops.contains(stop_id));
 
-    if true {
+    if false {
         dump_kml(map);
     }
 

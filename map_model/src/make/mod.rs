@@ -26,6 +26,7 @@ mod parking_lots;
 pub mod remove_disconnected;
 pub mod snappy;
 pub mod traffic_signals;
+pub mod transit;
 pub mod turns;
 mod walking_turns;
 
@@ -292,6 +293,8 @@ impl Map {
         };
         map.pathfinder = Pathfinder::new(&map, map.routing_params().clone(), engine, timer);
         timer.stop("setup pathfinding");
+
+        transit::finalize_transit(&mut map, &raw, timer);
 
         map
     }

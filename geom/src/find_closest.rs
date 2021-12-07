@@ -29,6 +29,8 @@ where
     }
 
     /// Add an object to the quadtree, remembering some key associated with the points.
+    /// TODO This doesn't properly handle single points, and will silently fail by never returning
+    /// any matches.
     pub fn add(&mut self, key: K, pts: &[Pt2D]) {
         self.geometries.insert(key.clone(), pts_to_line_string(pts));
         self.quadtree

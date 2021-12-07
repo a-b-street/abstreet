@@ -91,7 +91,6 @@ impl TransitSimState {
     /// Returns the path for the first leg.
     pub fn create_empty_route(&mut self, bus_route: &TransitRoute, map: &Map) -> Path {
         self.routes.entry(bus_route.id).or_insert_with(|| {
-            assert!(bus_route.stops.len() > 1);
             let mut stops = Vec::new();
             for (idx, stop1_id) in bus_route.stops.iter().enumerate() {
                 let stop1 = map.get_ts(*stop1_id);
