@@ -334,6 +334,12 @@
 <span id="334">334</span>
 <span id="335">335</span>
 <span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">FindClosest</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">RoadID</span>};
 <span class="kw">use</span> <span class="ident">widgetry::mapspace::DrawUnzoomedShapes</span>;
@@ -635,6 +641,8 @@
             <span class="kw">return</span> <span class="number">0</span>;
         }
 
+        <span class="kw">let</span> <span class="ident">orig</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">clone</span>();
+
         <span class="comment">// Move an existing waypoint?</span>
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">way_idx</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">x</span> <span class="op">==</span> <span class="ident">old_i</span>) {
             <span class="self">self</span>.<span class="ident">waypoints</span>[<span class="ident">way_idx</span>] <span class="op">=</span> <span class="ident">new_i</span>;
@@ -653,12 +661,16 @@
         <span class="comment">// changed, but eh.</span>
         <span class="self">self</span>.<span class="ident">full_path</span>.<span class="ident">clear</span>();
         <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">windows</span>(<span class="number">2</span>) {
-            <span class="comment">// TODO If the new change doesn&#39;t work, we could revert.</span>
-            <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">intersections</span>) <span class="op">=</span> <span class="ident">map</span>
-                .<span class="ident">simple_path_btwn_v2</span>(<span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>], <span class="ident">PathConstraints::Car</span>)
-                .<span class="ident">unwrap</span>();
-            <span class="self">self</span>.<span class="ident">full_path</span>.<span class="ident">pop</span>();
-            <span class="self">self</span>.<span class="ident">full_path</span>.<span class="ident">extend</span>(<span class="ident">intersections</span>);
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="ident">intersections</span>)) <span class="op">=</span>
+                <span class="ident">map</span>.<span class="ident">simple_path_btwn_v2</span>(<span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>], <span class="ident">PathConstraints::Car</span>)
+            {
+                <span class="self">self</span>.<span class="ident">full_path</span>.<span class="ident">pop</span>();
+                <span class="self">self</span>.<span class="ident">full_path</span>.<span class="ident">extend</span>(<span class="ident">intersections</span>);
+            } <span class="kw">else</span> {
+                <span class="comment">// Moving the waypoint broke the path, just revert.</span>
+                <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">orig</span>;
+                <span class="kw">return</span> <span class="ident">full_idx</span>;
+            }
         }
         <span class="self">self</span>.<span class="ident">idx</span>(<span class="ident">new_i</span>).<span class="ident">unwrap</span>()
     }
