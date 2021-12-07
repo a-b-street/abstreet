@@ -299,6 +299,8 @@ impl Route {
             return 0;
         }
 
+        let orig = self.clone();
+
         // Move an existing waypoint?
         if let Some(way_idx) = self.waypoints.iter().position(|x| *x == old_i) {
             self.waypoints[way_idx] = new_i;
@@ -317,12 +319,16 @@ impl Route {
         // changed, but eh.
         self.full_path.clear();
         for pair in self.waypoints.windows(2) {
-            // TODO If the new change doesn't work, we could revert.
-            let (_, intersections) = map
-                .simple_path_btwn_v2(pair[0], pair[1], PathConstraints::Car)
-                .unwrap();
-            self.full_path.pop();
-            self.full_path.extend(intersections);
+            if let Some((_, intersections)) =
+                map.simple_path_btwn_v2(pair[0], pair[1], PathConstraints::Car)
+            {
+                self.full_path.pop();
+                self.full_path.extend(intersections);
+            } else {
+                // Moving the waypoint broke the path, just revert.
+                *self = orig;
+                return full_idx;
+            }
         }
         self.idx(new_i).unwrap()
     }
