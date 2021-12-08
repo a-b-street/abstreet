@@ -134,9 +134,9 @@ impl Source {
                         continue;
                     }
                     visited.insert(current);
-                    for turn in map.get_turns_for(current, constraints) {
-                        if !visited.contains(&turn.id.dst) {
-                            queue.push(turn.id.dst);
+                    for (_, l) in map.get_next_turns_and_lanes_for(current, constraints) {
+                        if !visited.contains(&l.id) {
+                            queue.push(l.id);
                         }
                     }
                 }
