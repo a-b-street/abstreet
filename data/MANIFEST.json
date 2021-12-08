@@ -1016,69 +1016,69 @@
       "compressed_size_bytes": 57248
     },
     "data/input/gb/london/osm/a5.osm": {
-      "checksum": "90c54ca8dbbca814756ef163a3cdc7e4",
-      "uncompressed_size_bytes": 68632547,
-      "compressed_size_bytes": 6974519
+      "checksum": "0f296901cc14d4d7ec3e4d7e41174970",
+      "uncompressed_size_bytes": 68642783,
+      "compressed_size_bytes": 6976468
     },
     "data/input/gb/london/osm/bermondsey.osm": {
-      "checksum": "f348ca023da2f6a6708e6febb220e799",
-      "uncompressed_size_bytes": 63024325,
-      "compressed_size_bytes": 6481579
+      "checksum": "7df9b4714d59ce5ce1bb14934a1d23b0",
+      "uncompressed_size_bytes": 63050725,
+      "compressed_size_bytes": 6484541
     },
     "data/input/gb/london/osm/camden.osm": {
-      "checksum": "15b10576c09a4c2cb3afcb60e11a1b61",
-      "uncompressed_size_bytes": 115218183,
-      "compressed_size_bytes": 12675229
+      "checksum": "5d9fe107fdc76a8bb911907668fa10d1",
+      "uncompressed_size_bytes": 115253496,
+      "compressed_size_bytes": 12680522
     },
     "data/input/gb/london/osm/greater-london-latest.osm.pbf": {
-      "checksum": "cffa53364c9a03f50f01eb22f5b11d66",
-      "uncompressed_size_bytes": 77817351,
-      "compressed_size_bytes": 77759670
+      "checksum": "550e3f02ae5395d10fd69fa54dd61c61",
+      "uncompressed_size_bytes": 92242713,
+      "compressed_size_bytes": 92217564
     },
     "data/input/gb/london/osm/kingston_upon_thames.osm": {
-      "checksum": "53bfa8ec182c6ae03fdcc3dd9b3feff2",
-      "uncompressed_size_bytes": 48678600,
-      "compressed_size_bytes": 4838017
+      "checksum": "e040b36d0e32db208692a5f90b1ee4d1",
+      "uncompressed_size_bytes": 48694853,
+      "compressed_size_bytes": 4840109
     },
     "data/input/gb/london/osm/southbank.osm": {
-      "checksum": "68b43e4d5f339a26c5a7c63db6fd40bd",
-      "uncompressed_size_bytes": 19772942,
-      "compressed_size_bytes": 2318171
+      "checksum": "a1977053138bdcc442dcaa550806d38f",
+      "uncompressed_size_bytes": 19785266,
+      "compressed_size_bytes": 2319673
     },
     "data/input/gb/london/osm/southwark.osm": {
-      "checksum": "0cd81df657389f9e071232bca41ffff6",
-      "uncompressed_size_bytes": 104934322,
-      "compressed_size_bytes": 10410707
+      "checksum": "d68c116275ccbeb3380875dd8eb97331",
+      "uncompressed_size_bytes": 105015238,
+      "compressed_size_bytes": 10419272
     },
     "data/input/gb/london/raw_maps/a5.bin": {
-      "checksum": "f40d911f78717bc9fdb69b8525264820",
-      "uncompressed_size_bytes": 19446034,
-      "compressed_size_bytes": 3973629
+      "checksum": "22005b602d195ec5ef408a63c956a087",
+      "uncompressed_size_bytes": 19447250,
+      "compressed_size_bytes": 3974107
     },
     "data/input/gb/london/raw_maps/bermondsey.bin": {
-      "checksum": "4e5de8a78aa4a9a6ef6715c6d903b382",
-      "uncompressed_size_bytes": 14070713,
-      "compressed_size_bytes": 2815439
+      "checksum": "4aa433299705bf5b615fed4071a58b1e",
+      "uncompressed_size_bytes": 14081574,
+      "compressed_size_bytes": 2817951
     },
     "data/input/gb/london/raw_maps/camden.bin": {
-      "checksum": "1e48cdc28455cd9057e9df12e852a742",
-      "uncompressed_size_bytes": 32566605,
-      "compressed_size_bytes": 6776721
+      "checksum": "a2ff075b61250acf635616745db5a4ed",
+      "uncompressed_size_bytes": 32573339,
+      "compressed_size_bytes": 6778175
     },
     "data/input/gb/london/raw_maps/kingston_upon_thames.bin": {
-      "checksum": "2af07cde0a5953dd89769104a8265798",
-      "uncompressed_size_bytes": 13074075,
-      "compressed_size_bytes": 2618452
+      "checksum": "e8788bdbdd8f189b252eee89714c72f8",
+      "uncompressed_size_bytes": 13074385,
+      "compressed_size_bytes": 2618616
     },
     "data/input/gb/london/raw_maps/southbank.bin": {
-      "checksum": "bd9cff03833618758d6564fe566b9a92",
-      "uncompressed_size_bytes": 3954803,
-      "compressed_size_bytes": 791482
+      "checksum": "d4543ec1ca18519686343fe1257dc8ec",
+      "uncompressed_size_bytes": 3958123,
+      "compressed_size_bytes": 792957
     },
     "data/input/gb/london/raw_maps/southwark.bin": {
-      "checksum": "25224ee4e180ac660e13caafd2c151e6",
-      "uncompressed_size_bytes": 24812557,
-      "compressed_size_bytes": 4901173
+      "checksum": "fc7be05fafb4f031b5db35ee8224e74f",
+      "uncompressed_size_bytes": 24845778,
+      "compressed_size_bytes": 4907237
     },
     "data/input/gb/long_marston/osm/center.osm": {
       "checksum": "c7c25ca197870b843ac79c591c1275f3",
@@ -3511,49 +3511,49 @@
       "compressed_size_bytes": 1805380
     },
     "data/system/gb/london/maps/a5.bin": {
-      "checksum": "99cd17d42323fbe9a7aa9d5f32a00978",
-      "uncompressed_size_bytes": 46840153,
-      "compressed_size_bytes": 16630522
+      "checksum": "f0f8a8f9cd2d600d0c0596efdfc2af99",
+      "uncompressed_size_bytes": 46840216,
+      "compressed_size_bytes": 16635305
     },
     "data/system/gb/london/maps/bermondsey.bin": {
-      "checksum": "b99578d76baf3df8212e5dad3657f432",
-      "uncompressed_size_bytes": 43195045,
-      "compressed_size_bytes": 14934324
+      "checksum": "4d63674cfc1c25b5f7d4b775899f0174",
+      "uncompressed_size_bytes": 43216392,
+      "compressed_size_bytes": 14949942
     },
     "data/system/gb/london/maps/camden.bin": {
-      "checksum": "444aa5e9be64134c96e2d266716eb2f2",
-      "uncompressed_size_bytes": 69218052,
-      "compressed_size_bytes": 24585123
+      "checksum": "32df20dcfd8168b4a936576a4467efb4",
+      "uncompressed_size_bytes": 69180495,
+      "compressed_size_bytes": 24564453
     },
     "data/system/gb/london/maps/kingston_upon_thames.bin": {
-      "checksum": "d900dfc5437429639e41465abf670833",
-      "uncompressed_size_bytes": 36499263,
-      "compressed_size_bytes": 12858459
+      "checksum": "7edda6bf2d6fd25857fb949ab52272a7",
+      "uncompressed_size_bytes": 36500155,
+      "compressed_size_bytes": 12859810
     },
     "data/system/gb/london/maps/southbank.bin": {
-      "checksum": "b9377526295ea7e04d47207299f96948",
-      "uncompressed_size_bytes": 8919403,
-      "compressed_size_bytes": 2945540
+      "checksum": "dd0683fbd0eb6e1035df314aa8aabd41",
+      "uncompressed_size_bytes": 8922890,
+      "compressed_size_bytes": 2947495
     },
     "data/system/gb/london/maps/southwark.bin": {
-      "checksum": "6f98c9ab9bf07d6ea293af774bd8ef17",
-      "uncompressed_size_bytes": 69803668,
-      "compressed_size_bytes": 24543076
+      "checksum": "cba82ad6d6bae1a5f074ba4010d20067",
+      "uncompressed_size_bytes": 69849874,
+      "compressed_size_bytes": 24555821
     },
     "data/system/gb/london/scenarios/a5/background.bin": {
-      "checksum": "f9e84c1000f00a6e403384f69fcaea8e",
+      "checksum": "d6b43aa3f8c2950beaad9600f55c0e23",
       "uncompressed_size_bytes": 5140009,
-      "compressed_size_bytes": 1314831
+      "compressed_size_bytes": 1314845
     },
     "data/system/gb/london/scenarios/bermondsey/background.bin": {
-      "checksum": "106943f74092c09a522b7d496b3be0d3",
+      "checksum": "bff535c2dd2a0a439915a0512a62916a",
       "uncompressed_size_bytes": 4776249,
-      "compressed_size_bytes": 1206959
+      "compressed_size_bytes": 1207009
     },
     "data/system/gb/london/scenarios/camden/background.bin": {
-      "checksum": "9f411859abe9973095ce9df0495c0d72",
-      "uncompressed_size_bytes": 10208822,
-      "compressed_size_bytes": 2707507
+      "checksum": "e9135fd89314c936ac828cbe19faea37",
+      "uncompressed_size_bytes": 10208891,
+      "compressed_size_bytes": 2707364
     },
     "data/system/gb/london/scenarios/kingston_upon_thames/background.bin": {
       "checksum": "4e651e9d54a758cb4353a47a82ea106b",
@@ -3566,9 +3566,9 @@
       "compressed_size_bytes": 199341
     },
     "data/system/gb/london/scenarios/southwark/background.bin": {
-      "checksum": "eb42ea72ed6261b334769ef9e5084b8f",
-      "uncompressed_size_bytes": 8262404,
-      "compressed_size_bytes": 2139699
+      "checksum": "6f86c784c5dcbe4d48da5a3c4920fef7",
+      "uncompressed_size_bytes": 8262335,
+      "compressed_size_bytes": 2140138
     },
     "data/system/gb/long_marston/maps/center.bin": {
       "checksum": "506988da7050f524d037bcd096662642",
