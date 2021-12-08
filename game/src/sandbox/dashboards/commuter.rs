@@ -608,8 +608,9 @@ fn partition_sidewalk_loops(app: &App) -> Vec<Loop> {
 
             // Chase SharedSidewalkCorners. There should be zero or one new options for corners.
             let turns = map
-                .get_turns_from_lane(current_l)
+                .get_next_turns_and_lanes(current_l)
                 .into_iter()
+                .map(|(t, _)| t)
                 .filter(|t| {
                     t.turn_type == TurnType::SharedSidewalkCorner && t.id.parent != current_i
                 })
@@ -619,7 +620,11 @@ fn partition_sidewalk_loops(app: &App) -> Vec<Loop> {
                 // look the other way.
                 break false;
             } else if turns.len() == 1 {
-                current_l = turns[0].id.dst;
+                current_l = if turns[0].id.dst != current_l {
+                    turns[0].id.dst
+                } else {
+                    turns[0].id.src
+                };
                 current_i = turns[0].id.parent;
                 if sidewalks.contains(&current_l) {
                     // Loop closed!

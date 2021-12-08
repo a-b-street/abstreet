@@ -188,9 +188,9 @@ impl Building {
             {
                 return Some(pair);
             }
-            for t in map.get_turns_from_lane(l) {
-                if !visited.contains(&t.id.dst) {
-                    queue.push_back(t.id.dst);
+            for (_, next) in map.get_next_turns_and_lanes(l) {
+                if !visited.contains(&next.id) {
+                    queue.push_back(next.id);
                 }
             }
         }

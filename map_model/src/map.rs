@@ -321,39 +321,35 @@ impl Map {
     /// The turns may belong to two different intersections!
     pub fn get_turns_from_lane(&self, l: LaneID) -> Vec<&Turn> {
         let lane = self.get_l(l);
-        let mut turns: Vec<&Turn> = self
+        let turns: Vec<&Turn> = self
             .get_i(lane.dst_i)
             .turns
             .iter()
-            .filter(|t| t.id.src == l)
+            .chain(
+                self.get_i(lane.src_i)
+                    .turns
+                    .iter()
+                    .take_while(|_| lane.is_walkable()),
+            )
+            .filter(|t| t.id.src == l || (lane.is_walkable() && t.id.dst == l))
             .collect();
-        // Sidewalks/shoulders are bidirectional
-        if lane.is_walkable() {
-            for t in &self.get_i(lane.src_i).turns {
-                if t.id.src == l {
-                    turns.push(t);
-                }
-            }
-        }
         turns
     }
 
     pub fn get_turns_to_lane(&self, l: LaneID) -> Vec<&Turn> {
         let lane = self.get_l(l);
-        let mut turns: Vec<&Turn> = self
+
+        // Sidewalks/shoulders are bidirectional
+        if lane.is_walkable() {
+            return self.get_turns_from_lane(l);
+        }
+
+        let turns: Vec<&Turn> = self
             .get_i(lane.src_i)
             .turns
             .iter()
             .filter(|t| t.id.dst == l)
             .collect();
-        // Sidewalks/shoulders are bidirectional
-        if lane.is_walkable() {
-            for t in &self.get_i(lane.dst_i).turns {
-                if t.id.dst == l {
-                    turns.push(t);
-                }
-            }
-        }
         turns
     }
 
@@ -369,36 +365,34 @@ impl Map {
             .find(|t| t.id.src == from && t.id.dst == to)
     }
 
-    pub fn get_next_turns_and_lanes(
+    pub fn get_next_turns_and_lanes(&self, from: LaneID) -> Vec<(&Turn, &Lane)> {
+        self.get_turns_from_lane(from)
+            .into_iter()
+            .map(|t| {
+                (
+                    t,
+                    self.get_l(if t.id.src == from { t.id.dst } else { t.id.src }),
+                )
+            })
+            .collect()
+    }
+
+    pub fn get_next_turns_and_lanes_for(
         &self,
         from: LaneID,
-        parent: IntersectionID,
+        constraints: PathConstraints,
     ) -> Vec<(&Turn, &Lane)> {
-        self.get_i(parent)
-            .turns
-            .iter()
-            .filter(|t| t.id.src == from)
-            .map(|t| (t, self.get_l(t.id.dst)))
+        self.get_next_turns_and_lanes(from)
+            .into_iter()
+            .filter(|(_, l)| constraints.can_use(l, self))
             .collect()
     }
 
     pub fn get_turns_for(&self, from: LaneID, constraints: PathConstraints) -> Vec<&Turn> {
-        let mut turns: Vec<&Turn> = self
-            .get_next_turns_and_lanes(from, self.get_l(from).dst_i)
+        self.get_next_turns_and_lanes_for(from, constraints)
             .into_iter()
-            .filter(|(_, l)| constraints.can_use(l, self))
             .map(|(t, _)| t)
-            .collect();
-        // Sidewalks are bidirectional
-        if constraints == PathConstraints::Pedestrian {
-            turns.extend(
-                self.get_next_turns_and_lanes(from, self.get_l(from).src_i)
-                    .into_iter()
-                    .filter(|(_, l)| constraints.can_use(l, self))
-                    .map(|(t, _)| t),
-            );
-        }
-        turns
+            .collect()
     }
 
     /// Find all movements from one road to another that're usable by someone.
