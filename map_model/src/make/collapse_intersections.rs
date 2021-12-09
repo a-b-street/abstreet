@@ -2,6 +2,7 @@ use std::collections::BTreeSet;
 
 use anyhow::Result;
 
+use abstutil::Timer;
 use geom::Distance;
 
 use crate::make::initial::lane_specs::get_lane_specs_ltr;
@@ -12,9 +13,11 @@ use crate::{osm, IntersectionType, LaneSpec, LaneType};
 /// Collapse degenerate intersections:
 /// - between two cycleways
 /// - when the lane specs match and only "unimportant" OSM tags differ
-pub fn collapse(raw: &mut RawMap) {
+pub fn collapse(raw: &mut RawMap, timer: &mut Timer) {
     let mut merge: Vec<NodeID> = Vec::new();
+    timer.start_iter("check degenerate intersections", raw.intersections.len());
     for id in raw.intersections.keys() {
+        timer.next();
         let roads = raw.roads_per_intersection(*id);
         if roads.len() != 2 {
             continue;

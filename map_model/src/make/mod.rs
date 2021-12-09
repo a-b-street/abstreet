@@ -19,6 +19,7 @@ use crate::{
 
 mod bridges;
 mod buildings;
+pub mod collapse_divided_oneways;
 pub mod collapse_intersections;
 pub mod initial;
 pub mod merge_intersections;

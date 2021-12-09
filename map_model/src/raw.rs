@@ -531,6 +531,10 @@ impl RawMap {
         consolidate_all_intersections: bool,
         timer: &mut Timer,
     ) {
+        timer.start("collapsing divided one-ways");
+        crate::make::collapse_divided_oneways::collapse(self);
+        timer.stop("collapsing divided one-ways");
+
         timer.start("trimming dead-end cycleways (round 1)");
         crate::make::collapse_intersections::trim_deadends(self);
         timer.stop("trimming dead-end cycleways (round 1)");
@@ -552,7 +556,7 @@ impl RawMap {
         timer.stop("merging short roads");
 
         timer.start("collapsing degenerate intersections");
-        crate::make::collapse_intersections::collapse(self);
+        crate::make::collapse_intersections::collapse(self, timer);
         timer.stop("collapsing degenerate intersections");
     }
 }
