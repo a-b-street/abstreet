@@ -41,7 +41,7 @@ enum Task {
     /// Synchronize the local `data` directory with the source-of-truth in S3.
     Download {
         /// The Github Actions build uses this to include only a few files for the release to be
-        /// usable. People can use the UI to open another map and download more data. The UI will
+        /// usable. People can use the UI to open another map and download more data.
         #[structopt(long)]
         minimal: bool,
         /// Only update files from the manifest. Leave extra files alone.

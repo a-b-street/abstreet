@@ -810,11 +810,6 @@
       "uncompressed_size_bytes": 13262112,
       "compressed_size_bytes": 2570970
     },
-    "data/input/gb/great_kneighton/screenshots/center.zip": {
-      "checksum": "b38897e4436b0838dd460c282b0c1ed3",
-      "uncompressed_size_bytes": 53256048,
-      "compressed_size_bytes": 53243521
-    },
     "data/input/gb/halsnead/osm/center.osm": {
       "checksum": "9b4aedf25220e29e11d0970cf7c70a26",
       "uncompressed_size_bytes": 30400273,
@@ -1035,6 +1030,11 @@
       "uncompressed_size_bytes": 92242713,
       "compressed_size_bytes": 92217564
     },
+    "data/input/gb/london/osm/kennington.osm": {
+      "checksum": "60e61ad6d93c87c24aca866ad418ca35",
+      "uncompressed_size_bytes": 7997541,
+      "compressed_size_bytes": 847287
+    },
     "data/input/gb/london/osm/kingston_upon_thames.osm": {
       "checksum": "e040b36d0e32db208692a5f90b1ee4d1",
       "uncompressed_size_bytes": 48694853,
@@ -1065,6 +1065,11 @@
       "uncompressed_size_bytes": 32573339,
       "compressed_size_bytes": 6778175
     },
+    "data/input/gb/london/raw_maps/kennington.bin": {
+      "checksum": "6c59b7fc2cc04071e97f6e403b924077",
+      "uncompressed_size_bytes": 1592715,
+      "compressed_size_bytes": 293669
+    },
     "data/input/gb/london/raw_maps/kingston_upon_thames.bin": {
       "checksum": "e8788bdbdd8f189b252eee89714c72f8",
       "uncompressed_size_bytes": 13074385,
@@ -1079,6 +1084,11 @@
       "checksum": "fc7be05fafb4f031b5db35ee8224e74f",
       "uncompressed_size_bytes": 24845778,
       "compressed_size_bytes": 4907237
+    },
+    "data/input/gb/london/screenshots/kennington.zip": {
+      "checksum": "c1ce3f66d897425cc998c3d56d692f1e",
+      "uncompressed_size_bytes": 6583351,
+      "compressed_size_bytes": 6582212
     },
     "data/input/gb/long_marston/osm/center.osm": {
       "checksum": "c7c25ca197870b843ac79c591c1275f3",
@@ -1621,9 +1631,9 @@
       "compressed_size_bytes": 3233426
     },
     "data/input/pl/krakow/screenshots/center.zip": {
-      "checksum": "09db130b060cdaef471ce90accdc65de",
-      "uncompressed_size_bytes": 36785740,
-      "compressed_size_bytes": 36782121
+      "checksum": "a208b31562d6f3750b5bbfe16358a99e",
+      "uncompressed_size_bytes": 36793573,
+      "compressed_size_bytes": 36790054
     },
     "data/input/pl/warsaw/osm/center.osm": {
       "checksum": "b41830dd375674ffc9f7ec15d6cf9c0c",
@@ -2206,9 +2216,9 @@
       "compressed_size_bytes": 389879
     },
     "data/input/us/phoenix/screenshots/tempe.zip": {
-      "checksum": "c04bf6c010b1141875d4629ed91a5155",
-      "uncompressed_size_bytes": 10039897,
-      "compressed_size_bytes": 10038005
+      "checksum": "cf5c4a0073f492f2d601889dc51b927f",
+      "uncompressed_size_bytes": 10074225,
+      "compressed_size_bytes": 10072389
     },
     "data/input/us/providence/osm/downtown.osm": {
       "checksum": "463b986adc83ae4d1174496a4ce744d1",
@@ -2556,19 +2566,14 @@
       "compressed_size_bytes": 4948530
     },
     "data/input/us/seattle/screenshots/downtown.zip": {
-      "checksum": "9cc39cc605d4e631f01296ca682a30bf",
-      "uncompressed_size_bytes": 28065683,
-      "compressed_size_bytes": 28058074
-    },
-    "data/input/us/seattle/screenshots/lakeslice.zip": {
-      "checksum": "fde89e09b2f2785a2befb943f4c129c8",
-      "uncompressed_size_bytes": 27020588,
-      "compressed_size_bytes": 27014855
+      "checksum": "3e769bf3958d2fc165254ae0355b433e",
+      "uncompressed_size_bytes": 28065711,
+      "compressed_size_bytes": 28058132
     },
     "data/input/us/seattle/screenshots/montlake.zip": {
-      "checksum": "bc35c4da922f7aedf681477ff75962c2",
-      "uncompressed_size_bytes": 5411581,
-      "compressed_size_bytes": 5411523
+      "checksum": "833bc605742f6c48f83a756951545ac4",
+      "uncompressed_size_bytes": 5414653,
+      "compressed_size_bytes": 5414589
     },
     "data/input/us/seattle/trips_2014.csv": {
       "checksum": "d4a8e733045b28c0385fb81359d6df03",
@@ -3525,6 +3530,11 @@
       "uncompressed_size_bytes": 69180495,
       "compressed_size_bytes": 24564453
     },
+    "data/system/gb/london/maps/kennington.bin": {
+      "checksum": "075f2d8614825308b5b770da20763c30",
+      "uncompressed_size_bytes": 4844505,
+      "compressed_size_bytes": 1610556
+    },
     "data/system/gb/london/maps/kingston_upon_thames.bin": {
       "checksum": "7edda6bf2d6fd25857fb949ab52272a7",
       "uncompressed_size_bytes": 36500155,
@@ -3554,6 +3564,11 @@
       "checksum": "e9135fd89314c936ac828cbe19faea37",
       "uncompressed_size_bytes": 10208891,
       "compressed_size_bytes": 2707364
+    },
+    "data/system/gb/london/scenarios/kennington/background.bin": {
+      "checksum": "bdd77a3265489630fe8e931e7ebb89f6",
+      "uncompressed_size_bytes": 246606,
+      "compressed_size_bytes": 57243
     },
     "data/system/gb/london/scenarios/kingston_upon_thames/background.bin": {
       "checksum": "4e651e9d54a758cb4353a47a82ea106b",
