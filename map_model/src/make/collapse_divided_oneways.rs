@@ -1,5 +1,8 @@
 use std::collections::HashMap;
 
+use abstutil::Tags;
+
+use crate::make::initial::lane_specs::{assemble_ltr, get_lane_specs_ltr};
 use crate::osm;
 use crate::osm::NodeID;
 use crate::raw::{OriginalRoad, RawMap};
@@ -44,29 +47,43 @@ fn collapse_loop(raw: &mut RawMap, r1: OriginalRoad, r2: OriginalRoad) {
     // straight line.
     road.center_points = vec![road.center_points[0], *road.center_points.last().unwrap()];
 
-    // Merge tags between the two one-ways. Let's do this the "ad-hoc" way. The more rigorous
-    // approach would transform into the LaneSpecs, append the two sides, and then overwrite OSM
-    // tags with whatever would produce that.
-    road.osm_tags.remove("oneway");
-    let lanes_forward = road
-        .osm_tags
-        .get("lanes")
-        .and_then(|num| num.parse::<usize>().ok())
-        .unwrap_or(1);
-    let lanes_backward = deleted
-        .osm_tags
-        .get("lanes")
-        .and_then(|num| num.parse::<usize>().ok())
-        .unwrap_or(1);
+    // Rather than trying to merge the OSM tags from the two, parse each one into LaneSpecs.
+    let lane_specs = assemble_ltr(
+        get_lane_specs_ltr(&road.osm_tags, &raw.config),
+        get_lane_specs_ltr(&deleted.osm_tags, &raw.config)
+            .into_iter()
+            .map(|mut spec| {
+                spec.dir = spec.dir.opposite();
+                spec
+            })
+            .collect(),
+        raw.config.driving_side,
+    );
+
+    // Encode the lane specs as JSON and just squish into the OSM tags
+    let old_tags = std::mem::replace(&mut road.osm_tags, Tags::empty());
     road.osm_tags
-        .insert("lanes", (lanes_forward + lanes_backward).to_string());
-    road.osm_tags
-        .insert("lanes:forward", lanes_forward.to_string());
-    road.osm_tags
-        .insert("lanes:backward", lanes_backward.to_string());
-    if road.osm_tags.get("sidewalk") == deleted.osm_tags.get("sidewalk") {
-        // If both had "left" (UK) or "right" (US), then we can combine
-        road.osm_tags.insert("sidewalk", "both");
+        .insert("abst:lanes", abstutil::to_json(&lane_specs));
+    // Copy over just a few values
+    for key in ["name", "maxspeed"] {
+        if let Some(value) = old_tags.get(key) {
+            road.osm_tags.insert(key, value);
+        }
+    }
+    // Be careful with the highway tag -- it might be cycleway.
+    for value in [
+        old_tags.get(osm::HIGHWAY),
+        deleted.osm_tags.get(osm::HIGHWAY),
+    ] {
+        if let Some(value) = value {
+            if value != "cycleway" {
+                road.osm_tags.insert(osm::HIGHWAY, value);
+            }
+        }
+    }
+    if !road.osm_tags.contains_key(osm::HIGHWAY) {
+        // Neither road originally had it? Unlikely, but...
+        road.osm_tags.insert(osm::HIGHWAY, "residential");
     }
 
     // TODO Preserve turn_restrictions and complicated_turn_restrictions

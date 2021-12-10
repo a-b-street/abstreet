@@ -6,6 +6,11 @@ use abstutil::Tags;
 use crate::{osm, BufferType, Direction, DrivingSide, LaneSpec, LaneType, MapConfig};
 
 pub fn get_lane_specs_ltr(tags: &Tags, cfg: &MapConfig) -> Vec<LaneSpec> {
+    // Some map importer transformations may just generate LaneSpecs directly.
+    if let Some(raw_json) = tags.get("abst:lanes") {
+        return abstutil::from_json(raw_json.as_bytes()).unwrap();
+    }
+
     let fwd = |lt: LaneType| LaneSpec {
         lt,
         dir: Direction::Fwd,
@@ -339,7 +344,7 @@ pub fn get_lane_specs_ltr(tags: &Tags, cfg: &MapConfig) -> Vec<LaneSpec> {
     assemble_ltr(fwd_side, back_side, cfg.driving_side)
 }
 
-fn assemble_ltr(
+pub fn assemble_ltr(
     mut fwd_side: Vec<LaneSpec>,
     mut back_side: Vec<LaneSpec>,
     driving_side: DrivingSide,
