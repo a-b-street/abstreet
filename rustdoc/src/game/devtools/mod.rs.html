@@ -164,6 +164,17 @@
 <span id="164">164</span>
 <span id="165">165</span>
 <span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
 </pre><pre class="rust"><code><span class="doccomment">//! This directory contains extra/experimental tools not directly related to A/B Street the game.</span>
 <span class="doccomment">//! Eventually some might be split into separate crates.</span>
 
@@ -246,6 +257,14 @@
                 } <span class="kw">else</span> {
                     <span class="ident">Widget::nothing</span>()
                 },
+                <span class="kw">if</span> <span class="ident">abstio::file_exists</span>(<span class="ident">abstio::path_raw_map</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>())) {
+                    <span class="ident">ctx</span>.<span class="ident">style</span>()
+                        .<span class="ident">btn_solid_primary</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;RawMap editor&quot;</span>)
+                        .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
+                } <span class="kw">else</span> {
+                    <span class="ident">Widget::nothing</span>()
+                },
             ]),
         ]))
         .<span class="ident">build</span>(<span class="ident">ctx</span>);
@@ -315,6 +334,9 @@
             }
             <span class="string">&quot;Parking mapper&quot;</span> =&gt; {
                 <span class="ident">map_gui::tools::Executable::ParkingMapper</span>.<span class="ident">replace_process</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="macro">vec!</span>[])
+            }
+            <span class="string">&quot;RawMap editor&quot;</span> =&gt; {
+                <span class="ident">map_gui::tools::Executable::RawMapEditor</span>.<span class="ident">replace_process</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="macro">vec!</span>[])
             }
             <span class="string">&quot;change map&quot;</span> =&gt; <span class="ident">Transition::Push</span>(<span class="ident">CityPicker::new_state</span>(
                 <span class="ident">ctx</span>,
