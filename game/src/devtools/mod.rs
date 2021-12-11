@@ -80,6 +80,14 @@ impl DevToolsMode {
                 } else {
                     Widget::nothing()
                 },
+                if abstio::file_exists(abstio::path_raw_map(app.primary.map.get_name())) {
+                    ctx.style()
+                        .btn_solid_primary
+                        .text("RawMap editor")
+                        .build_def(ctx)
+                } else {
+                    Widget::nothing()
+                },
             ]),
         ]))
         .build(ctx);
@@ -149,6 +157,9 @@ impl SimpleState<App> for DevToolsMode {
             }
             "Parking mapper" => {
                 map_gui::tools::Executable::ParkingMapper.replace_process(ctx, app, vec![])
+            }
+            "RawMap editor" => {
+                map_gui::tools::Executable::RawMapEditor.replace_process(ctx, app, vec![])
             }
             "change map" => Transition::Push(CityPicker::new_state(
                 ctx,

@@ -2,7 +2,7 @@ use widgetry::{
     EventCtx, Image, Key, Line, Panel, RewriteColor, SimpleState, State, Transition, Widget,
 };
 
-use crate::tools::{open_browser, PopupMsg};
+use crate::tools::{open_browser, PopupMsg, URLManager};
 use crate::AppLike;
 
 /// A title screen shared among all of the A/B Street apps.
@@ -18,6 +18,7 @@ pub enum Executable {
     OSMViewer,
     ParkingMapper,
     Santa,
+    RawMapEditor,
 }
 
 impl<A: AppLike + 'static> TitleScreen<A> {
@@ -182,9 +183,19 @@ impl Executable {
         args: Vec<&str>,
     ) -> Transition<A> {
         let mut args: Vec<String> = args.into_iter().map(|a| a.to_string()).collect();
-        // Pass in the name of the current map, unless we're launching Santa
-        if self != Executable::Santa {
-            args.push(app.map().get_name().path());
+        // Usually pass in the current map's path
+        match self {
+            Executable::Santa => {}
+            Executable::RawMapEditor => {
+                args.push(abstio::path_raw_map(app.map().get_name()));
+                args.push(format!(
+                    "--cam={}",
+                    URLManager::get_cam_param(ctx, app.map().get_gps_bounds())
+                ));
+            }
+            _ => {
+                args.push(app.map().get_name().path());
+            }
         }
 
         // On native, end the current process and start another.
@@ -199,6 +210,7 @@ impl Executable {
                 Executable::OSMViewer => "osm_viewer",
                 Executable::ParkingMapper => "parking_mapper",
                 Executable::Santa => "santa",
+                Executable::RawMapEditor => "map_editor",
             });
 
             // We can only replace the current process on Linux/Mac
@@ -238,6 +250,7 @@ impl Executable {
                 // This only works on native
                 Executable::ParkingMapper => unreachable!(),
                 Executable::Santa => "santa",
+                Executable::RawMapEditor => "map_editor",
             };
             let url = format!("{}.html{}", page, abstutil::args_to_query_string(args));
             if let Err(err) = set_href(&url) {

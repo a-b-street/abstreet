@@ -22,10 +22,10 @@ impl URLManager {
         must_update_url(Box::new(move |url| change_url_param(url, &key, &value)))
     }
 
-    /// Modify the current URL to set --cam to an OSM-style `zoom/lat/lon` string
+    /// Get an OSM-style `zoom/lat/lon` string
     /// (https://wiki.openstreetmap.org/wiki/Browsing#Other_URL_tricks) based on the current
     /// viewport.
-    pub fn update_url_cam(ctx: &EventCtx, gps_bounds: &GPSBounds) {
+    pub fn get_cam_param(ctx: &EventCtx, gps_bounds: &GPSBounds) -> String {
         let center = ctx.canvas.center_to_map_pt().to_gps(gps_bounds);
 
         // To calculate zoom, just solve for the inverse of the code in parse_center_camera.
@@ -35,8 +35,14 @@ impl URLManager {
         let zoom_lvl = log_arg.log2() - 8.0;
 
         // Trim precision
-        let cam = format!("{:.2}/{:.5}/{:.5}", zoom_lvl, center.y(), center.x());
+        format!("{:.2}/{:.5}/{:.5}", zoom_lvl, center.y(), center.x())
+    }
 
+    /// Modify the current URL to set --cam to an OSM-style `zoom/lat/lon` string
+    /// (https://wiki.openstreetmap.org/wiki/Browsing#Other_URL_tricks) based on the current
+    /// viewport.
+    pub fn update_url_cam(ctx: &EventCtx, gps_bounds: &GPSBounds) {
+        let cam = URLManager::get_cam_param(ctx, gps_bounds);
         must_update_url(Box::new(move |url| change_url_param(url, "--cam", &cam)))
     }
 
