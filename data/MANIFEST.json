@@ -931,44 +931,39 @@
       "compressed_size_bytes": 17493
     },
     "data/input/gb/leeds/osm/central.osm": {
-      "checksum": "579b491a9db624131df50e2f336f20b5",
-      "uncompressed_size_bytes": 32188686,
-      "compressed_size_bytes": 3315457
+      "checksum": "ed4d42ddc0bb7311fe6e22c130e42fb3",
+      "uncompressed_size_bytes": 35559682,
+      "compressed_size_bytes": 3700588
     },
     "data/input/gb/leeds/osm/huge.osm": {
-      "checksum": "7c5408f54d8c62aee7420a711a228ec0",
-      "uncompressed_size_bytes": 130969890,
-      "compressed_size_bytes": 12269621
-    },
-    "data/input/gb/leeds/osm/lcid.osm": {
-      "checksum": "cabdd4a350493e3be5ba6d22906a219a",
-      "uncompressed_size_bytes": 49133308,
-      "compressed_size_bytes": 4821193
+      "checksum": "267697832b3b729bfd971e55a8ae4b02",
+      "uncompressed_size_bytes": 138695729,
+      "compressed_size_bytes": 13128205
     },
     "data/input/gb/leeds/osm/north.osm": {
-      "checksum": "a5551114b5d8fc3b0bb1478f8b0fa565",
-      "uncompressed_size_bytes": 58094888,
-      "compressed_size_bytes": 5551337
+      "checksum": "43070a6ffa07b0d16e082614551735cd",
+      "uncompressed_size_bytes": 61128631,
+      "compressed_size_bytes": 5907648
     },
     "data/input/gb/leeds/osm/west-yorkshire-latest.osm.pbf": {
-      "checksum": "0de99323ac548f889860f597704b2910",
-      "uncompressed_size_bytes": 33826429,
-      "compressed_size_bytes": 33785174
+      "checksum": "0fd25fc534e3a7d227cc094f0bcc9730",
+      "uncompressed_size_bytes": 38798863,
+      "compressed_size_bytes": 38757353
     },
     "data/input/gb/leeds/osm/west.osm": {
-      "checksum": "017c8389db1280d0a894a678f3dbbca7",
-      "uncompressed_size_bytes": 45132657,
-      "compressed_size_bytes": 4369994
+      "checksum": "6b18cff56d0a78c3d9afccc39bcb8325",
+      "uncompressed_size_bytes": 48656484,
+      "compressed_size_bytes": 4768746
     },
     "data/input/gb/leeds/raw_maps/central.bin": {
-      "checksum": "c9fca27f026b8f71e873ca93aa561885",
-      "uncompressed_size_bytes": 10914195,
-      "compressed_size_bytes": 2052887
+      "checksum": "fc0c4cd0f8414f1d11e1720bb46ac580",
+      "uncompressed_size_bytes": 11990835,
+      "compressed_size_bytes": 2255254
     },
     "data/input/gb/leeds/raw_maps/huge.bin": {
-      "checksum": "0c0b172ba792406a89c6edbcc696718a",
-      "uncompressed_size_bytes": 40576579,
-      "compressed_size_bytes": 8255403
+      "checksum": "79068bc949e2c50cf21e80ce84d9d2fd",
+      "uncompressed_size_bytes": 42582177,
+      "compressed_size_bytes": 8636020
     },
     "data/input/gb/leeds/raw_maps/lcid.bin": {
       "checksum": "cfaea751caf2c8ab1432d1ff2924244a",
@@ -976,14 +971,14 @@
       "compressed_size_bytes": 3688476
     },
     "data/input/gb/leeds/raw_maps/north.bin": {
-      "checksum": "8853a867acadbf8c4ed97267d2355463",
-      "uncompressed_size_bytes": 17403141,
-      "compressed_size_bytes": 3574973
+      "checksum": "3a7f0cbc4d2c46b63baf0297872e2788",
+      "uncompressed_size_bytes": 18233022,
+      "compressed_size_bytes": 3729619
     },
     "data/input/gb/leeds/raw_maps/west.bin": {
-      "checksum": "2a0a7110a3fad154f987a03ba64d869d",
-      "uncompressed_size_bytes": 14218756,
-      "compressed_size_bytes": 2836988
+      "checksum": "4a696a04b19d3002b64657b79f1bbeb4",
+      "uncompressed_size_bytes": 15132062,
+      "compressed_size_bytes": 3020334
     },
     "data/input/gb/lockleaze/osm/bristol-latest.osm.pbf": {
       "checksum": "8189191a2a02403cf5223bb2f296040c",
@@ -3446,49 +3441,49 @@
       "compressed_size_bytes": 696607
     },
     "data/system/gb/leeds/city.bin": {
-      "checksum": "bef0f06947cd4a8dd410c9ad45cb31fb",
-      "uncompressed_size_bytes": 560554,
-      "compressed_size_bytes": 273160
+      "checksum": "0bd7a032e08a47de09037a2574bbe175",
+      "uncompressed_size_bytes": 340327,
+      "compressed_size_bytes": 166479
     },
     "data/system/gb/leeds/maps/central.bin": {
-      "checksum": "5f74b10ca1f36b832f5f7e0d2e5b08f6",
-      "uncompressed_size_bytes": 34728202,
-      "compressed_size_bytes": 11682159
+      "checksum": "2cd92f773ebffb168959337467e1d838",
+      "uncompressed_size_bytes": 38481392,
+      "compressed_size_bytes": 12963997
     },
     "data/system/gb/leeds/maps/huge.bin": {
-      "checksum": "48ba39629ae5c590f985836091ff5794",
-      "uncompressed_size_bytes": 117876982,
-      "compressed_size_bytes": 41094066
+      "checksum": "6aa82a9fa1cabe2ee2a7a8cc0a4e1679",
+      "uncompressed_size_bytes": 123582865,
+      "compressed_size_bytes": 43077586
     },
     "data/system/gb/leeds/maps/north.bin": {
-      "checksum": "203a682fe5f5121193a2b8bb906b9fb6",
-      "uncompressed_size_bytes": 50216285,
-      "compressed_size_bytes": 17439771
+      "checksum": "47e877857648737089a196be9618da40",
+      "uncompressed_size_bytes": 52487093,
+      "compressed_size_bytes": 18223974
     },
     "data/system/gb/leeds/maps/west.bin": {
-      "checksum": "cbf7b95004e5cb71a7e1f4e4125041c1",
-      "uncompressed_size_bytes": 41730594,
-      "compressed_size_bytes": 14361389
+      "checksum": "e221a0a79b45c28798f8c74ff90320e1",
+      "uncompressed_size_bytes": 43771474,
+      "compressed_size_bytes": 15087915
     },
     "data/system/gb/leeds/scenarios/central/background.bin": {
-      "checksum": "c2eba55572f548988818dda9b730997a",
-      "uncompressed_size_bytes": 2543474,
-      "compressed_size_bytes": 640442
+      "checksum": "adea9996d97b6f6af887946f8d85cd1c",
+      "uncompressed_size_bytes": 2543681,
+      "compressed_size_bytes": 641826
     },
     "data/system/gb/leeds/scenarios/huge/background.bin": {
-      "checksum": "efd6c554ec9e699a9196874715c34b24",
-      "uncompressed_size_bytes": 7825283,
-      "compressed_size_bytes": 2127131
+      "checksum": "38e83b5c639ad31fb75fdcc434e3814f",
+      "uncompressed_size_bytes": 7868684,
+      "compressed_size_bytes": 2140454
     },
     "data/system/gb/leeds/scenarios/north/background.bin": {
-      "checksum": "142c45010ec949d704208f7d425bbbac",
-      "uncompressed_size_bytes": 3846123,
-      "compressed_size_bytes": 1011753
+      "checksum": "19468ba99913e235a0444e11bd35664a",
+      "uncompressed_size_bytes": 3882555,
+      "compressed_size_bytes": 1022519
     },
     "data/system/gb/leeds/scenarios/west/background.bin": {
-      "checksum": "dbe4dc98139f464936adb337cbbc5a76",
-      "uncompressed_size_bytes": 3145910,
-      "compressed_size_bytes": 820863
+      "checksum": "26123bff731cc6e04e381c2c61c0daf9",
+      "uncompressed_size_bytes": 3164954,
+      "compressed_size_bytes": 826660
     },
     "data/system/gb/lockleaze/maps/center.bin": {
       "checksum": "10eb887f85de9d08a892c99e23026659",
