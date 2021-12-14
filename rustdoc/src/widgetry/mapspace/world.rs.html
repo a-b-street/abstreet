@@ -533,6 +533,11 @@
 <span id="533">533</span>
 <span id="534">534</span>
 <span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 <span class="kw">use</span> <span class="ident">std::fmt::Debug</span>;
 <span class="kw">use</span> <span class="ident">std::hash::Hash</span>;
@@ -1049,6 +1054,11 @@
                 <span class="ident">obj</span>.<span class="ident">draw_normal</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
             }
         }
+    }
+
+    <span class="doccomment">/// Returns the object currently hovered on.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_hovering</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">hovering</span>
     }
 }
 

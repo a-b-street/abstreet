@@ -497,6 +497,14 @@
 <span id="497">497</span>
 <span id="498">498</span>
 <span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
@@ -900,6 +908,14 @@
         <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">roads</span> {
             <span class="macro">println!</span>(<span class="string">&quot;- {:?} of {}&quot;</span>, <span class="ident">id</span>.<span class="ident">side</span>, <span class="ident">id</span>.<span class="ident">road</span>);
         }
+    }
+
+    <span class="doccomment">/// Does this perimeter completely enclose the other?</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Perimeter</span>) -&gt; <span class="ident">bool</span> {
+        <span class="ident">other</span>
+            .<span class="ident">roads</span>
+            .<span class="ident">iter</span>()
+            .<span class="ident">all</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">interior</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>.<span class="ident">road</span>) <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">contains</span>(<span class="ident">id</span>))
     }
 }
 

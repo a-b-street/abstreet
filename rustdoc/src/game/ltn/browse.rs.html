@@ -168,6 +168,17 @@
 <span id="168">168</span>
 <span id="169">169</span>
 <span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
@@ -183,6 +194,7 @@
 
 <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::Neighborhood</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ltn::select_boundary::SelectBoundary</span>;
 
 <span class="kw">const</span> <span class="ident">COLORS</span>: [<span class="ident">Color</span>; <span class="number">6</span>] <span class="op">=</span> [
     <span class="ident">Color::BLUE</span>,
@@ -223,6 +235,13 @@
                     .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;search&quot;</span>)
                     .<span class="ident">align_right</span>(),
             ]),
+            <span class="comment">// TODO Can customize later, these boundaries are just initial suggestions, see here</span>
+            <span class="comment">// how they&#39;re found...</span>
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_outline</span>
+                .<span class="ident">text</span>(<span class="string">&quot;Draw custom boundary&quot;</span>)
+                .<span class="ident">hotkey</span>(<span class="ident">Key::B</span>)
+                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         ]))
         .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Left</span>, <span class="ident">VerticalAlignment::Top</span>)
         .<span class="ident">build</span>(<span class="ident">ctx</span>);
@@ -250,6 +269,9 @@
                             <span class="ident">Transition::Replace</span>(<span class="ident">BrowseNeighborhoods::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))
                         }),
                     ));
+                }
+                <span class="string">&quot;Draw custom boundary&quot;</span> =&gt; {
+                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">SelectBoundary::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">None</span>));
                 }
                 <span class="string">&quot;search&quot;</span> =&gt; {
                     <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">Navigator::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));

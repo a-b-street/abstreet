@@ -265,6 +265,25 @@
 <span id="265">265</span>
 <span id="266">266</span>
 <span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
 <span class="kw">use</span> <span class="ident">geom::Distance</span>;
@@ -304,6 +323,10 @@
                 .<span class="ident">btn_outline</span>
                 .<span class="ident">text</span>(<span class="string">&quot;Browse neighborhoods&quot;</span>)
                 .<span class="ident">hotkey</span>(<span class="ident">Key::Escape</span>)
+                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_outline</span>
+                .<span class="ident">text</span>(<span class="string">&quot;Adjust boundary&quot;</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_outline</span>
@@ -356,6 +379,21 @@
                 }
                 <span class="string">&quot;Browse neighborhoods&quot;</span> =&gt; {
                     <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
+                }
+                <span class="string">&quot;Adjust boundary&quot;</span> =&gt; {
+                    <span class="kw">return</span> <span class="ident">Transition::ConsumeState</span>(<span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+                        <span class="kw">let</span> <span class="ident">perimeter</span> <span class="op">=</span> <span class="ident">state</span>
+                            .<span class="ident">downcast</span>::<span class="op">&lt;</span><span class="ident">Viewer</span><span class="op">&gt;</span>()
+                            .<span class="ident">ok</span>()
+                            .<span class="ident">unwrap</span>()
+                            .<span class="ident">neighborhood</span>
+                            .<span class="ident">orig_perimeter</span>;
+                        <span class="macro">vec!</span>[<span class="ident"><span class="kw">super</span>::select_boundary::SelectBoundary::new_state</span>(
+                            <span class="ident">ctx</span>,
+                            <span class="ident">app</span>,
+                            <span class="prelude-val">Some</span>(<span class="ident">perimeter</span>),
+                        )]
+                    }));
                 }
                 <span class="string">&quot;Browse rat-runs&quot;</span> =&gt; {
                     <span class="kw">return</span> <span class="ident">Transition::ConsumeState</span>(<span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
