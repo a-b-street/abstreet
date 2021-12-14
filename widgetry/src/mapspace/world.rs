@@ -515,6 +515,11 @@ impl<ID: ObjectID> World<ID> {
             }
         }
     }
+
+    /// Returns the object currently hovered on.
+    pub fn get_hovering(&self) -> Option<ID> {
+        self.hovering
+    }
 }
 
 /// If you don't ever need to refer to objects in a `World`, you can auto-assign dummy IDs.

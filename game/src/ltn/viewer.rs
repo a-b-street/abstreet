@@ -40,6 +40,10 @@ impl Viewer {
                 .build_def(ctx),
             ctx.style()
                 .btn_outline
+                .text("Adjust boundary")
+                .build_def(ctx),
+            ctx.style()
+                .btn_outline
                 .text("Browse rat-runs")
                 .hotkey(Key::R)
                 .disabled(true)
@@ -89,6 +93,21 @@ impl State<App> for Viewer {
                 }
                 "Browse neighborhoods" => {
                     return Transition::Pop;
+                }
+                "Adjust boundary" => {
+                    return Transition::ConsumeState(Box::new(|state, ctx, app| {
+                        let perimeter = state
+                            .downcast::<Viewer>()
+                            .ok()
+                            .unwrap()
+                            .neighborhood
+                            .orig_perimeter;
+                        vec![super::select_boundary::SelectBoundary::new_state(
+                            ctx,
+                            app,
+                            Some(perimeter),
+                        )]
+                    }));
                 }
                 "Browse rat-runs" => {
                     return Transition::ConsumeState(Box::new(|state, ctx, app| {
