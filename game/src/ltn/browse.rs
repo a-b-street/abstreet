@@ -13,6 +13,7 @@ use widgetry::{
 
 use super::Neighborhood;
 use crate::app::{App, Transition};
+use crate::ltn::select_boundary::SelectBoundary;
 
 const COLORS: [Color; 6] = [
     Color::BLUE,
@@ -53,6 +54,13 @@ impl BrowseNeighborhoods {
                     .build_widget(ctx, "search")
                     .align_right(),
             ]),
+            // TODO Can customize later, these boundaries are just initial suggestions, see here
+            // how they're found...
+            ctx.style()
+                .btn_outline
+                .text("Draw custom boundary")
+                .hotkey(Key::B)
+                .build_def(ctx),
         ]))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
         .build(ctx);
@@ -80,6 +88,9 @@ impl State<App> for BrowseNeighborhoods {
                             Transition::Replace(BrowseNeighborhoods::new_state(ctx, app))
                         }),
                     ));
+                }
+                "Draw custom boundary" => {
+                    return Transition::Push(SelectBoundary::new_state(ctx, app, None));
                 }
                 "search" => {
                     return Transition::Push(Navigator::new_state(ctx, app));

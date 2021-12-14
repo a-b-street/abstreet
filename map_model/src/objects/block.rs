@@ -402,6 +402,14 @@ impl Perimeter {
             println!("- {:?} of {}", id.side, id.road);
         }
     }
+
+    /// Does this perimeter completely enclose the other?
+    pub fn contains(&self, other: &Perimeter) -> bool {
+        other
+            .roads
+            .iter()
+            .all(|id| self.interior.contains(&id.road) || self.roads.contains(id))
+    }
 }
 
 impl Block {
