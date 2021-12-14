@@ -436,7 +436,7 @@ impl Road {
     }
 
     pub fn is_footway(&self) -> bool {
-        self.lanes.len() == 1 && self.lanes[0].lane_type == LaneType::Sidewalk
+        self.lanes.len() == 1 && self.lanes[0].lane_type == LaneType::Footway
     }
 
     pub fn is_service(&self) -> bool {

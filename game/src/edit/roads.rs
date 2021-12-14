@@ -975,7 +975,7 @@ fn lane_type_to_icon(lt: LaneType) -> Option<&'static str> {
         }
         LaneType::Buffer(BufferType::Curb) => Some("system/assets/edit/buffer/curb.svg"),
         // Don't allow creating these yet
-        LaneType::LightRail => None,
+        LaneType::LightRail | LaneType::Footway => None,
     }
 }
 

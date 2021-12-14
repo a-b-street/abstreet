@@ -38,8 +38,8 @@ impl DrawIntersection {
         let rank = i.get_rank(map);
         default_geom.push(
             if i.is_footway(map) {
-                app.cs().zoomed_road_surface(LaneType::Sidewalk, rank)
-            } else if i.is_cycleway(map) {
+                app.cs().zoomed_road_surface(LaneType::Footway, rank)
+            } else if i.is_cycleway_or_footway(map) {
                 app.cs().zoomed_road_surface(LaneType::Biking, rank)
             } else {
                 app.cs().zoomed_intersection_surface(rank)

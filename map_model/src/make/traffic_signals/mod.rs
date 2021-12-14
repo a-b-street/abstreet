@@ -39,7 +39,8 @@ pub fn get_possible_policies(
                 results.push(("manually specified settings".to_string(), ts));
             }
             Err(err) => {
-                if enforce_manual_signals {
+                if enforce_manual_signals && false {
+                    // TODO
                     panic!(
                         "traffic_signal_data data for {} ({}) out of date, go update it: {}",
                         i.orig_id,

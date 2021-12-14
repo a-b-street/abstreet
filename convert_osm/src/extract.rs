@@ -411,25 +411,6 @@ fn is_road(tags: &mut Tags, opts: &Options) -> bool {
         return false;
     }
 
-    if highway == "track" && tags.is("bicycle", "no") {
-        return false;
-    }
-
-    #[allow(clippy::collapsible_if)] // better readability
-    if (highway == "footway" || highway == "path" || highway == "steps")
-        && opts.map_config.inferred_sidewalks
-    {
-        if !tags.is_any("bicycle", vec!["designated", "yes", "dismount"]) {
-            return false;
-        }
-    }
-    if highway == "pedestrian"
-        && tags.is("bicycle", "dismount")
-        && opts.map_config.inferred_sidewalks
-    {
-        return false;
-    }
-
     // Import most service roads. Always ignore driveways, golf cart paths, and always reserve
     // parking_aisles for parking lots.
     if highway == "service" && tags.is_any("service", vec!["driveway", "parking_aisle"]) {
@@ -442,6 +423,11 @@ fn is_road(tags: &mut Tags, opts: &Options) -> bool {
         return false;
     }
     if highway == "service" && tags.is("access", "customers") {
+        return false;
+    }
+
+    // Bring in all footways, except for separately mapped sidewalks
+    if opts.map_config.inferred_sidewalks && tags.is("footway", "sidewalk") {
         return false;
     }
 
@@ -490,8 +476,17 @@ fn is_road(tags: &mut Tags, opts: &Options) -> bool {
             || tags.is_any("junction", vec!["intersection", "roundabout"])
             || tags.is("foot", "no")
             || tags.is(osm::HIGHWAY, "service")
-            // TODO For now, not attempting shared walking/biking paths.
-            || tags.is_any(osm::HIGHWAY, vec!["cycleway", "pedestrian", "track"])
+            || tags.is_any(
+                osm::HIGHWAY,
+                vec![
+                    "cycleway",
+                    "footway",
+                    "path",
+                    "pedestrian",
+                    "steps",
+                    "track",
+                ],
+            )
         {
             tags.insert(osm::SIDEWALK, "none");
         } else if tags.is("oneway", "yes") {

@@ -83,6 +83,9 @@ fn lane(lane: &Lane) -> Option<serde_json::Map<String, serde_json::value::Value>
             LaneType::Buffer(_) => {
                 return None;
             }
+            LaneType::Footway => {
+                return None;
+            }
         },
     );
     if lane.lane_type == LaneType::SharedLeftTurn {

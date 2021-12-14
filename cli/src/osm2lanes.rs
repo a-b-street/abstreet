@@ -72,6 +72,9 @@ fn transform(road: &Road, driving_side: &str) -> Option<TestCase> {
                 LaneType::Buffer(_) => {
                     return None;
                 }
+                LaneType::Footway => {
+                    return None;
+                }
             }
             .to_string(),
             direction: match lane.dir {

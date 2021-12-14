@@ -65,6 +65,29 @@ impl DrawLane {
                     );
                 }
             }
+            LaneType::Footway => {
+                // Dashed lines
+                batch.extend(
+                    general_road_marking,
+                    lane.lane_center_pts
+                        .must_shift_left(lane.width / 2.0)
+                        .dashed_lines(
+                            Distance::meters(0.25),
+                            Distance::meters(1.0),
+                            Distance::meters(1.5),
+                        ),
+                );
+                batch.extend(
+                    general_road_marking,
+                    lane.lane_center_pts
+                        .must_shift_right(lane.width / 2.0)
+                        .dashed_lines(
+                            Distance::meters(0.25),
+                            Distance::meters(1.0),
+                            Distance::meters(1.5),
+                        ),
+                );
+            }
             LaneType::Parking => {
                 batch.extend(general_road_marking, calculate_parking_lines(lane, map));
             }

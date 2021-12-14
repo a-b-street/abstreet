@@ -21,39 +21,54 @@ pub fn get_lane_specs_ltr(tags: &Tags, cfg: &MapConfig) -> Vec<LaneSpec> {
     if tags.is_any("railway", vec!["light_rail", "rail"]) {
         return vec![fwd(LaneType::LightRail)];
     }
-    if tags.is(osm::HIGHWAY, "steps") {
-        return vec![fwd(LaneType::Sidewalk)];
-    }
-    // Eventually, we should have some kind of special LaneType for shared walking/cycling paths of
-    // different kinds. Until then, model by making bike lanes and a shoulder for walking.
+
+    // Spaces for just pedestrians and/or cyclists.
     if tags.is_any(
         osm::HIGHWAY,
-        vec!["cycleway", "footway", "path", "pedestrian", "track"],
+        vec![
+            "cycleway",
+            "footway",
+            "path",
+            "pedestrian",
+            "steps",
+            "track",
+        ],
     ) {
-        // If it just allows foot traffic, simply make it a sidewalk. For most of the above highway
-        // types, assume bikes are allowed, except for footways, where they must be explicitly
-        // allowed.
-        if tags.is("bicycle", "no")
-            || (tags.is(osm::HIGHWAY, "footway")
-                && !tags.is_any("bicycle", vec!["designated", "yes", "dismount"]))
-        {
-            return vec![fwd(LaneType::Sidewalk)];
-        }
-        // Otherwise, there'll always be a bike lane.
-
-        let mut fwd_side = vec![fwd(LaneType::Biking)];
-        let mut back_side = if tags.is("oneway", "yes") {
-            vec![]
+        // 3 cases -- foot and bike, just foot, just bike.
+        let bikes_allowed = match tags.get(osm::HIGHWAY).unwrap().as_ref() {
+            "steps" => false,
+            "footway" => tags.is_any("bicycle", vec!["designated", "yes", "dismount"]),
+            _ => !tags.is("bicycle", "no"),
+        };
+        let pedestrians_allowed = if tags.is(osm::HIGHWAY, "cycleway") {
+            !tags.is("foot", "no")
         } else {
-            vec![back(LaneType::Biking)]
+            true
         };
 
-        if !tags.is("foot", "no") {
+        let mut fwd_side = Vec::new();
+        let mut back_side = Vec::new();
+        if bikes_allowed && pedestrians_allowed {
+            fwd_side.push(fwd(LaneType::Biking));
+            // TODO This should be one shared lane, or maybe segregated
             fwd_side.push(fwd(LaneType::Shoulder));
-            if !back_side.is_empty() {
+            if tags.is("oneway", "yes") {
+                back_side.push(back(LaneType::Shoulder));
+            } else {
+                back_side.push(back(LaneType::Biking));
+                // TODO This should be one shared lane, or maybe segregated
                 back_side.push(back(LaneType::Shoulder));
             }
-        }
+        } else if bikes_allowed {
+            fwd_side.push(fwd(LaneType::Biking));
+            if !tags.is("oneway", "yes") {
+                back_side.push(back(LaneType::Biking));
+            }
+        } else if pedestrians_allowed {
+            fwd_side.push(fwd(LaneType::Footway));
+        } else {
+            unreachable!()
+        };
         return assemble_ltr(fwd_side, back_side, cfg.driving_side);
     }
 

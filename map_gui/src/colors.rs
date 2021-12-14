@@ -85,6 +85,7 @@ pub struct ColorScheme {
     parking_lane: Color,
     bike_lane: Color,
     sidewalk: Color,
+    footway: Color,
     pub sidewalk_lines: Color,
     pub general_road_marking: Color,
     pub road_center_line: Color,
@@ -93,7 +94,8 @@ pub struct ColorScheme {
     pub unzoomed_highway: Color,
     pub unzoomed_arterial: Color,
     pub unzoomed_residential: Color,
-    pub unzoomed_trail: Color,
+    pub unzoomed_cycleway: Color,
+    pub unzoomed_footway: Color,
 
     // Intersections
     pub normal_intersection: Color,
@@ -205,6 +207,7 @@ impl ColorScheme {
             parking_lane: Color::grey(0.2),
             bike_lane: Color::rgb(15, 125, 75),
             sidewalk: Color::grey(0.8),
+            footway: hex("#E5E1BB"),
             sidewalk_lines: Color::grey(0.7),
             general_road_marking: Color::WHITE,
             road_center_line: Color::YELLOW,
@@ -213,7 +216,8 @@ impl ColorScheme {
             unzoomed_highway: hex("#E892A2"),
             unzoomed_arterial: hex("#FFC73E"),
             unzoomed_residential: Color::WHITE,
-            unzoomed_trail: hex("#0F7D4B"),
+            unzoomed_cycleway: hex("#0F7D4B"),
+            unzoomed_footway: hex("#F99B8F"),
 
             // Intersections
             normal_intersection: Color::grey(0.2),
@@ -407,6 +411,7 @@ impl ColorScheme {
             LaneType::Construction => parking_asphalt,
             LaneType::LightRail => unreachable!(),
             LaneType::Buffer(_) => main_asphalt,
+            LaneType::Footway => self.footway,
         }
     }
     pub fn zoomed_intersection_surface(&self, rank: RoadRank) -> Color {
@@ -437,7 +442,7 @@ impl ColorScheme {
             "unzoomed_residential {}",
             self.unzoomed_residential.as_hex()
         )?;
-        writeln!(f, "unzoomed_trail {}", self.unzoomed_trail.as_hex())?;
+        writeln!(f, "unzoomed_cycleway {}", self.unzoomed_cycleway.as_hex())?;
         writeln!(f, "private_road {}", self.private_road.as_hex())?;
         writeln!(
             f,
@@ -473,7 +478,7 @@ impl ColorScheme {
         self.unzoomed_highway = colors[0];
         self.unzoomed_arterial = colors[1];
         self.unzoomed_residential = colors[2];
-        self.unzoomed_trail = colors[3];
+        self.unzoomed_cycleway = colors[3];
         self.private_road = colors[4];
         self.residential_building = colors[5];
         self.commercial_building = colors[6];

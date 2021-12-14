@@ -210,7 +210,9 @@ impl DrawMap {
                 if r.is_light_rail() {
                     cs.light_rail_track
                 } else if r.is_cycleway() {
-                    cs.unzoomed_trail
+                    cs.unzoomed_cycleway
+                } else if r.is_footway() {
+                    cs.unzoomed_footway
                 } else if r.is_private() {
                     cs.private_road
                 } else {
@@ -244,8 +246,10 @@ impl DrawMap {
                 if i.is_stop_sign() {
                     if i.is_light_rail(map) {
                         cs.light_rail_track
-                    } else if i.is_cycleway(map) {
-                        cs.unzoomed_trail
+                    } else if i.is_footway(map) {
+                        cs.unzoomed_footway
+                    } else if i.is_cycleway_or_footway(map) {
+                        cs.unzoomed_cycleway
                     } else if i.is_private(map) {
                         cs.private_road
                     } else {

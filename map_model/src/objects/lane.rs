@@ -83,8 +83,8 @@ pub enum LaneType {
     Driving,
     Parking,
     Sidewalk,
-    // Walkable like a Sidewalk, but very narrow. Used to model pedestrians walking on roads
-    // without sidewalks.
+    /// Walkable like a Sidewalk, but very narrow. Used to model pedestrians walking on roads
+    /// without sidewalks.
     Shoulder,
     Biking,
     Bus,
@@ -92,6 +92,8 @@ pub enum LaneType {
     Construction,
     LightRail,
     Buffer(BufferType),
+    /// A bidirectional, pedestrian-only space. May be paved, grass, dirt, steps, etc.
+    Footway,
 }
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -121,6 +123,7 @@ impl LaneType {
             LaneType::Construction => false,
             LaneType::LightRail => true,
             LaneType::Buffer(_) => false,
+            LaneType::Footway => false,
         }
     }
 
@@ -136,11 +139,12 @@ impl LaneType {
             LaneType::Construction => false,
             LaneType::LightRail => true,
             LaneType::Buffer(_) => false,
+            LaneType::Footway => true,
         }
     }
 
     pub fn is_walkable(self) -> bool {
-        self == LaneType::Sidewalk || self == LaneType::Shoulder
+        self == LaneType::Sidewalk || self == LaneType::Shoulder || self == LaneType::Footway
     }
 
     pub fn describe(self) -> &'static str {
@@ -159,6 +163,7 @@ impl LaneType {
             LaneType::Buffer(BufferType::Planters) => "planter barriers",
             LaneType::Buffer(BufferType::JerseyBarrier) => "a Jersey barrier",
             LaneType::Buffer(BufferType::Curb) => "a raised curb",
+            LaneType::Footway => "a footpath",
         }
     }
 
@@ -178,6 +183,7 @@ impl LaneType {
             LaneType::Buffer(BufferType::Planters) => "planters",
             LaneType::Buffer(BufferType::JerseyBarrier) => "Jersey barrier",
             LaneType::Buffer(BufferType::Curb) => "curb",
+            LaneType::Footway => "footpath",
         }
     }
 
@@ -197,6 +203,7 @@ impl LaneType {
             "planters" => Some(LaneType::Buffer(BufferType::Planters)),
             "Jersey barrier" => Some(LaneType::Buffer(BufferType::JerseyBarrier)),
             "curb" => Some(LaneType::Buffer(BufferType::Curb)),
+            "footpath" => Some(LaneType::Footway),
             _ => None,
         }
     }
@@ -214,6 +221,7 @@ impl LaneType {
             LaneType::Construction => 'x',
             LaneType::LightRail => 'l',
             LaneType::Buffer(_) => '|',
+            LaneType::Footway => 'f',
         }
     }
 
@@ -230,6 +238,7 @@ impl LaneType {
             'x' => LaneType::Construction,
             'l' => LaneType::LightRail,
             '|' => LaneType::Buffer(BufferType::FlexPosts),
+            'f' => LaneType::Footway,
             _ => panic!("from_char({}) undefined", x),
         }
     }
@@ -349,6 +358,10 @@ impl Lane {
 
     pub fn is_shoulder(&self) -> bool {
         self.lane_type == LaneType::Shoulder
+    }
+
+    pub fn is_footway(&self) -> bool {
+        self.lane_type == LaneType::Footway
     }
 
     pub fn is_parking(&self) -> bool {
@@ -546,6 +559,7 @@ impl LaneSpec {
                 (Distance::feet(6.0), "wide"),
             ],
             LaneType::Shoulder => vec![(SHOULDER_THICKNESS, "default")],
+            LaneType::Footway => vec![(Distance::feet(8.0), "default")],
             // Pretty wild guesses
             LaneType::Buffer(BufferType::Stripes) => vec![(Distance::meters(1.5), "default")],
             LaneType::Buffer(BufferType::FlexPosts) => {

@@ -90,20 +90,32 @@ impl Intersection {
         self.intersection_type == IntersectionType::TrafficSignal
     }
 
+    /// Does this intersection only connect to light rail?
     pub fn is_light_rail(&self, map: &Map) -> bool {
         self.roads.iter().all(|r| map.get_r(*r).is_light_rail())
     }
 
+    /// Does this intersection only connect to private roads?
     pub fn is_private(&self, map: &Map) -> bool {
         self.roads.iter().all(|r| map.get_r(*r).is_private())
     }
 
+    /// Does this intersection only connect to footways?
     pub fn is_footway(&self, map: &Map) -> bool {
         self.roads.iter().all(|r| map.get_r(*r).is_footway())
     }
 
+    /// Does this intersection only connect cycleways?
     pub fn is_cycleway(&self, map: &Map) -> bool {
         self.roads.iter().all(|r| map.get_r(*r).is_cycleway())
+    }
+
+    /// Does this intersection only connect to cycleways and footways?
+    pub fn is_cycleway_or_footway(&self, map: &Map) -> bool {
+        self.roads.iter().all(|r| {
+            let road = map.get_r(*r);
+            road.is_cycleway() || road.is_footway()
+        })
     }
 
     /// Does this intersection only connect two road segments? Then usually, the intersection only

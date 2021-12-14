@@ -762,7 +762,8 @@ pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
 
 pub fn can_edit_lane(app: &App, l: LaneID) -> bool {
     let map = &app.primary.map;
-    if map.get_l(l).is_light_rail() {
+    let lane = map.get_l(l);
+    if lane.is_light_rail() || lane.is_footway() {
         return false;
     }
     let r = map.get_parent(l);
