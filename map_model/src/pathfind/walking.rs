@@ -13,8 +13,8 @@ use crate::pathfind::vehicles::VehiclePathfinder;
 use crate::pathfind::zone_cost;
 use crate::pathfind::{round, unround};
 use crate::{
-    DirectedRoadID, IntersectionID, Map, MovementID, PathConstraints, PathRequest, PathStep,
-    PathStepV2, PathV2, Position, TransitRoute, TransitRouteID, TransitStopID, TurnType,
+    DirectedRoadID, IntersectionID, Map, PathConstraints, PathRequest, PathStep, PathStepV2,
+    PathV2, Position, TransitRoute, TransitRouteID, TransitStopID, TurnType,
 };
 
 #[derive(Clone, Serialize, Deserialize)]
