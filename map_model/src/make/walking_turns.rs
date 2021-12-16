@@ -92,16 +92,11 @@ pub fn make_walking_turns(map: &Map, i: &Intersection) -> Vec<Turn> {
             from = Some(l2);
         // adj stays true
         } else {
-            // Only make one crosswalk for degenerate intersections
-            if !(i.is_degenerate() || i.is_deadend())
-                || !result.iter().any(|t| t.turn_type == TurnType::Crosswalk)
-            {
-                result.push(Turn {
-                    id: turn_id(i.id, l1.id, l2.id),
-                    turn_type: TurnType::Crosswalk,
-                    geom: make_crosswalk(i, l1, l2),
-                });
-            }
+            result.push(Turn {
+                id: turn_id(i.id, l1.id, l2.id),
+                turn_type: TurnType::Crosswalk,
+                geom: make_crosswalk(i, l1, l2),
+            });
             from = Some(l2);
             adj = true;
         }
@@ -110,6 +105,21 @@ pub fn make_walking_turns(map: &Map, i: &Intersection) -> Vec<Turn> {
         if first_from == from.unwrap().id {
             break;
         }
+    }
+
+    // If there are exactly two crosswalks they must be connected, so delete one.
+    if result
+        .iter()
+        .filter(|t| t.turn_type == TurnType::Crosswalk)
+        .count()
+        == 2
+    {
+        result.remove(
+            result
+                .iter()
+                .position(|t| t.turn_type == TurnType::Crosswalk)
+                .unwrap(),
+        );
     }
 
     result
