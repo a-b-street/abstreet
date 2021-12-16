@@ -4,12 +4,10 @@ use crate::{
     Direction, DrivingSide, Intersection, IntersectionID, Lane, LaneID, Map, Turn, TurnID, TurnType,
 };
 
-/// Generate Crosswalk and SharedSidewalkCorner (places where two sidewalks directly meet) turns.
+/// Looks at all sidewalks (or lack thereof) in counter-clockwise order around an intersection.
+/// Based on adjacency, create a SharedSidewalkCorner or a Crosswalk.
 /// UnmarkedCrossings are not generated here; another process later "downgrades" crosswalks to
 /// unmarked.
-/// A complete rewrite of make_walking_turns, which looks at all sidewalks (or lack thereof) in
-/// counter-clockwise order around an intersection. Based on adjacency, create a
-/// SharedSidewalkCorner or a Crosswalk.
 pub fn make_walking_turns(map: &Map, i: &Intersection) -> Vec<Turn> {
     let driving_side = map.config.driving_side;
 
@@ -71,16 +69,6 @@ pub fn make_walking_turns(map: &Map, i: &Intersection) -> Vec<Turn> {
     let first_from = from.unwrap().id;
     let mut adj = true;
     for l in lanes.iter().skip(1).chain(lanes.iter()) {
-        if i.id.0 == 284 {
-            debug!(
-                "looking at {:?}. from is {:?}, first_from is {}, adj is {}",
-                l.map(|l| l.id),
-                from.map(|l| l.id),
-                first_from,
-                adj
-            );
-        }
-
         if from.is_none() {
             from = *l;
             adj = true;

@@ -675,15 +675,4 @@ impl Road {
             panic!("{} doesn't have an endpoint at {}", self.id, i);
         }
     }
-
-    /// Returns lanes from the "center" going out
-    pub(crate) fn outgoing_lanes(&self, i: IntersectionID) -> Vec<(LaneID, LaneType)> {
-        if self.src_i == i {
-            self.children_forwards()
-        } else if self.dst_i == i {
-            self.children_backwards()
-        } else {
-            panic!("{} doesn't have an endpoint at {}", self.id, i);
-        }
-    }
 }
