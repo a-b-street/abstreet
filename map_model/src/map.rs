@@ -321,19 +321,19 @@ impl Map {
     /// The turns may belong to two different intersections!
     pub fn get_turns_from_lane(&self, l: LaneID) -> Vec<&Turn> {
         let lane = self.get_l(l);
-        let turns: Vec<&Turn> = self
-            .get_i(lane.dst_i)
+        self.get_i(lane.dst_i)
             .turns
             .iter()
+            // Sidewalks are bidirectional, so include turns from the source intersection
             .chain(
                 self.get_i(lane.src_i)
                     .turns
                     .iter()
+                    // And then don't yield them if this isn't a sidewalk
                     .take_while(|_| lane.is_walkable()),
             )
             .filter(|t| t.id.src == l || (lane.is_walkable() && t.id.dst == l))
-            .collect();
-        turns
+            .collect()
     }
 
     pub fn get_turns_to_lane(&self, l: LaneID) -> Vec<&Turn> {
