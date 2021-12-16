@@ -24,38 +24,6 @@
             },
             {
               "from": {
-                "osm_way_id": 337818332,
-                "osm_node1": 53223864,
-                "osm_node2": 53086809,
-                "is_forwards": true
-              },
-              "to": {
-                "osm_way_id": 337818332,
-                "osm_node1": 53223864,
-                "osm_node2": 53086809,
-                "is_forwards": false
-              },
-              "intersection_osm_node_id": 53223864,
-              "is_crosswalk": true
-            },
-            {
-              "from": {
-                "osm_way_id": 428315591,
-                "osm_node1": 53096142,
-                "osm_node2": 53223864,
-                "is_forwards": false
-              },
-              "to": {
-                "osm_way_id": 428315591,
-                "osm_node1": 53096142,
-                "osm_node2": 53223864,
-                "is_forwards": true
-              },
-              "intersection_osm_node_id": 53223864,
-              "is_crosswalk": true
-            },
-            {
-              "from": {
                 "osm_way_id": 428315591,
                 "osm_node1": 53096142,
                 "osm_node2": 53223864,
@@ -209,22 +177,6 @@
           "protected_turns": [
             {
               "from": {
-                "osm_way_id": 6488417,
-                "osm_node1": 53223864,
-                "osm_node2": 3857576850,
-                "is_forwards": true
-              },
-              "to": {
-                "osm_way_id": 739678024,
-                "osm_node1": 1818407082,
-                "osm_node2": 53223864,
-                "is_forwards": true
-              },
-              "intersection_osm_node_id": 53223864,
-              "is_crosswalk": true
-            },
-            {
-              "from": {
                 "osm_way_id": 337818332,
                 "osm_node1": 53223864,
                 "osm_node2": 53086809,
@@ -266,22 +218,6 @@
                 "osm_way_id": 6488417,
                 "osm_node1": 53223864,
                 "osm_node2": 3857576850,
-                "is_forwards": true
-              },
-              "intersection_osm_node_id": 53223864,
-              "is_crosswalk": true
-            },
-            {
-              "from": {
-                "osm_way_id": 912599281,
-                "osm_node1": 3857577565,
-                "osm_node2": 53223864,
-                "is_forwards": false
-              },
-              "to": {
-                "osm_way_id": 912599281,
-                "osm_node1": 3857577565,
-                "osm_node2": 53223864,
                 "is_forwards": true
               },
               "intersection_osm_node_id": 53223864,
