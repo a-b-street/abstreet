@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use geom::{Circle, Distance, Line, PolyLine, Polygon};
 use map_gui::tools::DrawRoadLabels;
-use map_model::{IntersectionID, Map, Perimeter, RoadID};
+use map_model::{IntersectionID, Map, PathConstraints, Perimeter, RoadID};
 use widgetry::{Color, Drawable, EventCtx, GeomBatch};
 
 use crate::app::App;
@@ -249,6 +249,7 @@ fn floodfill(
         );
         for i in [current.src_i, current.dst_i] {
             for next in &map.get_i(i).roads {
+                let next_road = map.get_r(*next);
                 if !perimeter.interior.contains(next) {
                     continue;
                 }
@@ -259,7 +260,6 @@ fn floodfill(
                 }
                 if let Some(filter_dist) = modal_filters.roads.get(next) {
                     // Which end of the filtered road have we reached?
-                    let next_road = map.get_r(*next);
                     visited_roads.insert(
                         *next,
                         if next_road.src_i == i {
@@ -274,9 +274,15 @@ fn floodfill(
                             }
                         },
                     );
-                } else {
-                    queue.push(*next);
+                    continue;
                 }
+
+                if !PathConstraints::Car.can_use_road(next_road, map) {
+                    // The road is only for bikes/pedestrians to start with
+                    continue;
+                }
+
+                queue.push(*next);
             }
         }
     }
