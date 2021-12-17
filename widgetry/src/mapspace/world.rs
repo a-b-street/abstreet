@@ -159,25 +159,32 @@ impl<'a, ID: ObjectID> ObjectBuilder<'a, ID> {
         self.draw_hover_rewrite(RewriteColor::ChangeAlpha(alpha))
     }
 
-    /// Draw the object in a hovered state by adding an outline to the normal drawing.
+    /// Draw the object in a hovered state by adding an outline to the normal drawing. The
+    /// specified `color` and `thickness` will be used when unzoomed. For the zoomed view, the
+    /// color's opacity and the thickness will be halved.
     pub fn hover_outline(self, color: Color, thickness: Distance) -> Self {
         let mut draw = self
             .draw_normal
             .clone()
-            .expect("first specify how to draw normally");
-        if let Ok(p) = self
-            .hitbox
-            .clone()
-            .expect("call hitbox first")
-            .to_outline(thickness)
-        {
-            draw = draw.push(color, p);
+            .expect("first specify how to draw normally")
+            .draw_differently_zoomed();
+        let hitbox = self.hitbox.as_ref().expect("call hitbox first");
+        if let (Ok(unzoomed), Ok(zoomed)) = (
+            hitbox.to_outline(thickness),
+            hitbox.to_outline(thickness / 2.0),
+        ) {
+            draw.unzoomed.push(color, unzoomed);
+            draw.zoomed.push(color.multiply_alpha(0.5), zoomed);
         } else {
             warn!(
                 "Can't hover_outline for {:?}. Falling back to a colored polygon",
                 self.id
             );
-            draw = GeomBatch::from(vec![(color, self.hitbox.clone().unwrap())]).into();
+            draw = GeomBatch::from(vec![(
+                color.multiply_alpha(0.5),
+                self.hitbox.clone().unwrap(),
+            )])
+            .into();
         }
         self.draw_hovered(draw)
     }

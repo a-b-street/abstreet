@@ -77,6 +77,16 @@ impl ToggleZoomedBuilder {
         self
     }
 
+    /// Mark that this object will be drawn differently when zoomed and unzoomed, undoing the
+    /// effects of converting from a single `GeomBatch`. Idempotent.
+    pub fn draw_differently_zoomed(mut self) -> Self {
+        if self.always_draw_unzoomed {
+            self.always_draw_unzoomed = false;
+            self.zoomed = self.unzoomed.clone();
+        }
+        self
+    }
+
     pub fn build(self, ctx: &EventCtx) -> ToggleZoomed {
         if self.always_draw_unzoomed {
             assert!(self.zoomed.is_empty());

@@ -2,10 +2,11 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use geom::Distance;
 use map_model::{Block, Perimeter};
+use widgetry::mapspace::ToggleZoomed;
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, State,
-    TextExt, VerticalAlignment, Widget,
+    Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, State, TextExt,
+    VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -20,7 +21,7 @@ pub struct SelectBoundary {
     blocks: BTreeMap<Obj, Block>,
     world: World<Obj>,
     selected: BTreeSet<Obj>,
-    draw_outline: Drawable,
+    draw_outline: ToggleZoomed,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -39,7 +40,7 @@ impl SelectBoundary {
             blocks: BTreeMap::new(),
             world: World::bounded(app.primary.map.get_bounds()),
             selected: BTreeSet::new(),
-            draw_outline: Drawable::empty(ctx),
+            draw_outline: ToggleZoomed::empty(ctx),
         };
 
         ctx.loading_screen("calculate all blocks", |ctx, timer| {
@@ -126,27 +127,28 @@ impl SelectBoundary {
 
         // Draw the outline of the current blocks
         let mut valid_blocks = 0;
-        let mut batch = GeomBatch::new();
+        let mut batch = ToggleZoomed::builder();
 
         for perimeter in self.merge_selected() {
             if let Ok(block) = perimeter.to_block(&app.primary.map) {
-                if let Ok(outline) = block.polygon.to_outline(Distance::meters(10.0)) {
-                    // Alternate colors, to help people figure out where two disjoint boundaries
-                    // exist
-                    // TODO Ideally have more than 2 colors to cycle through
-                    batch.push(
-                        if valid_blocks % 2 == 0 {
-                            Color::RED
-                        } else {
-                            Color::GREEN
-                        },
-                        outline,
-                    );
-                }
+                // Alternate colors, to help people figure out where two disjoint boundaries exist
+                // TODO Ideally have more than 2 colors to cycle through
+                let color = if valid_blocks % 2 == 0 {
+                    Color::RED
+                } else {
+                    Color::GREEN
+                };
                 valid_blocks += 1;
+
+                if let Ok(outline) = block.polygon.to_outline(Distance::meters(10.0)) {
+                    batch.unzoomed.push(color, outline);
+                }
+                if let Ok(outline) = block.polygon.to_outline(Distance::meters(5.0)) {
+                    batch.zoomed.push(color.alpha(0.5), outline);
+                }
             }
         }
-        self.draw_outline = batch.upload(ctx);
+        self.draw_outline = batch.build(ctx);
         self.panel = make_panel(ctx, app, valid_blocks == 1);
     }
 }
@@ -212,7 +214,7 @@ impl State<App> for SelectBoundary {
 
     fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.world.draw(g);
-        g.redraw(&self.draw_outline);
+        self.draw_outline.draw(g);
         self.panel.draw(g);
     }
 }

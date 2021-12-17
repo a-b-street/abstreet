@@ -114,6 +114,11 @@ impl Color {
         Color::rgba_f(self.r, self.g, self.b, a)
     }
 
+    /// Multiply the color's current alpha by the `factor`, returning a new color.
+    pub fn multiply_alpha(&self, factor: f32) -> Color {
+        Color::rgba_f(self.r, self.g, self.b, self.a * factor)
+    }
+
     pub fn hex(raw: &str) -> Color {
         // Skip the leading '#'
         let r = usize::from_str_radix(&raw[1..3], 16).unwrap();
