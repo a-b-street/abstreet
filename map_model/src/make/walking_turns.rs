@@ -1,4 +1,4 @@
-use geom::{Distance, PolyLine, Pt2D, Ring};
+use geom::{Distance, PolyLine, Ring};
 
 use crate::{
     Direction, DrivingSide, Intersection, IntersectionID, Lane, LaneID, Map, Turn, TurnID, TurnType,
@@ -216,7 +216,7 @@ fn make_shared_sidewalk_corner(i: &Intersection, l1: &Lane, l2: &Lane) -> PolyLi
         1.0
     } else {
         -1.0
-    // For deadends, go the long way around
+        // For deadends, go the long way around
     } * if i.is_deadend() { -1.0 } else { 1.0 };
     // Find all of the points on the intersection polygon between the two sidewalks. Assumes
     // sidewalks are the same length.
@@ -238,71 +238,61 @@ fn make_shared_sidewalk_corner(i: &Intersection, l1: &Lane, l2: &Lane) -> PolyLi
 
     // The order of the points here seems backwards, but it's because we scan from corner2
     // to corner1 below.
-
     let mut pts_between = vec![l2.endpoint(i.id)];
     // Intersection polygons are constructed in clockwise order, so do corner2 to corner1.
     let mut i_pts = i.polygon.points().clone();
+
+    // last pt = first_pt
+    i_pts.pop();
 
     if dir < 0.0 {
         i_pts.reverse();
     }
 
-    if let Some(pts) = Pt2D::find_pts_between(&i_pts, corner2, corner1, Distance::meters(0.5)) {
-        let mut deduped = pts;
-        deduped.dedup();
-        if deduped.len() >= 2 {
-            if abstutil::contains_duplicates(
-                &deduped
-                    .iter()
-                    .map(|pt| pt.to_hashable())
-                    .collect::<Vec<_>>(),
-            ) {
-                warn!(
-                    "SharedSidewalkCorner between {} and {} has weird duplicate geometry, so just \
-                     doing straight line",
-                    l1.id, l2.id
-                );
-                return baseline;
-            }
+    for _ in 0..i_pts.len() {
+        if i_pts[0].approx_eq(corner2, Distance::meters(0.5)) {
+            break;
+        }
+        i_pts.rotate_left(1);
+    }
 
-            if let Ok(pl) = PolyLine::must_new(deduped)
-                .shift_either_direction(dir * l1.width.min(l2.width) / 2.0)
-            {
-                pts_between.extend(pl.points());
-            } else {
-                warn!(
-                    "SharedSidewalkCorner between {} and {} has weird collapsing geometry, so \
-                     just doing straight line",
-                    l1.id, l2.id
-                );
-                return baseline;
-            }
+    for idx in 0..i_pts.len() {
+        if i_pts[idx].approx_eq(corner1, Distance::meters(0.5)) {
+            i_pts.truncate(idx + 1);
+            break;
         }
     }
-    pts_between.push(l1.endpoint(i.id));
-    pts_between.reverse();
-    // Pretty big smoothing; I'm observing funky backtracking about 0.5m long.
-    let mut final_pts = Pt2D::approx_dedupe(pts_between.clone(), Distance::meters(1.0));
-    if final_pts.len() < 2 {
+
+    if i_pts.len() < 2 {
+        // no intermediate points, so just do a straight line
+        return baseline;
+    }
+
+    if let Ok(pl) =
+        PolyLine::must_new(i_pts).shift_either_direction(dir * l1.width.min(l2.width) / 2.0)
+    {
+        // The first and last points should be approximately l2's and l1's endpoints
+        pts_between.extend(pl.points().iter().take(pl.points().len() - 1).skip(1));
+    } else {
         warn!(
-            "SharedSidewalkCorner between {} and {} couldn't do final smoothing",
+            "SharedSidewalkCorner between {} and {} has weird collapsing geometry, so \
+                just doing straight line",
             l1.id, l2.id
         );
-        final_pts = pts_between;
-        final_pts.dedup()
+        return baseline;
     }
-    // The last point might be removed as a duplicate, but we want the start/end to exactly match
-    // up at least.
-    if *final_pts.last().unwrap() != l2.endpoint(i.id) {
-        final_pts.pop();
-        final_pts.push(l2.endpoint(i.id));
-    }
+
+    pts_between.push(l1.endpoint(i.id));
+    pts_between.dedup();
+
+    pts_between.reverse();
+
     if abstutil::contains_duplicates(
-        &final_pts
+        &pts_between
             .iter()
             .map(|pt| pt.to_hashable())
             .collect::<Vec<_>>(),
-    ) || final_pts.len() < 2
+    ) || pts_between.len() < 2
     {
         warn!(
             "SharedSidewalkCorner between {} and {} has weird duplicate geometry, so just doing \
@@ -311,7 +301,7 @@ fn make_shared_sidewalk_corner(i: &Intersection, l1: &Lane, l2: &Lane) -> PolyLi
         );
         return baseline;
     }
-    let result = PolyLine::must_new(final_pts);
+    let result = PolyLine::must_new(pts_between);
     if result.length() > 10.0 * baseline.length() {
         warn!(
             "SharedSidewalkCorner between {} and {} explodes to {} long, so just doing straight \
