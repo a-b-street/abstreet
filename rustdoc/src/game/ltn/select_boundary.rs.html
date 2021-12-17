@@ -244,6 +244,8 @@
 <span id="244">244</span>
 <span id="245">245</span>
 <span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">geom::Distance</span>;
@@ -478,12 +480,14 @@
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_solid_primary</span>
                 .<span class="ident">text</span>(<span class="string">&quot;Confirm&quot;</span>)
+                .<span class="ident">hotkey</span>(<span class="ident">Key::Enter</span>)
                 .<span class="ident">disabled</span>(<span class="op">!</span><span class="ident">boundary_ok</span>)
                 .<span class="ident">disabled_tooltip</span>(<span class="string">&quot;You must select one contiguous boundary&quot;</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_solid_destructive</span>
                 .<span class="ident">text</span>(<span class="string">&quot;Cancel&quot;</span>)
+                .<span class="ident">hotkey</span>(<span class="ident">Key::Escape</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         ]),
     ]))

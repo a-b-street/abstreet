@@ -369,11 +369,54 @@
 <span id="369">369</span>
 <span id="370">370</span>
 <span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Line</span>, <span class="ident">Polygon</span>};
 <span class="kw">use</span> <span class="ident">map_gui::tools::DrawRoadLabels</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">Perimeter</span>, <span class="ident">RoadID</span>};
+<span class="kw">use</span> <span class="ident">widgetry::mapspace::ToggleZoomed</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app::App</span>;
@@ -400,7 +443,7 @@
     <span class="ident">cells</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Cell</span><span class="op">&gt;</span>,
 
     <span class="ident">fade_irrelevant</span>: <span class="ident">Drawable</span>,
-    <span class="ident">draw_filters</span>: <span class="ident">Drawable</span>,
+    <span class="ident">draw_filters</span>: <span class="ident">ToggleZoomed</span>,
     <span class="ident">labels</span>: <span class="ident">DrawRoadLabels</span>,
 }
 
@@ -455,7 +498,7 @@
             <span class="ident">cells</span>: <span class="ident">Vec::new</span>(),
 
             <span class="ident">fade_irrelevant</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
-            <span class="ident">draw_filters</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
+            <span class="ident">draw_filters</span>: <span class="ident">ToggleZoomed::empty</span>(<span class="ident">ctx</span>),
             <span class="comment">// Temporary value</span>
             <span class="ident">labels</span>: <span class="ident">DrawRoadLabels::only_major_roads</span>(),
         };
@@ -505,7 +548,7 @@
             <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>,
         );
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">ToggleZoomed::builder</span>();
         <span class="kw">for</span> (<span class="ident">r</span>, <span class="ident">dist</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">roads</span> {
             <span class="kw">if</span> <span class="op">!</span><span class="ident">n</span>.<span class="ident">orig_perimeter</span>.<span class="ident">interior</span>.<span class="ident">contains</span>(<span class="ident">r</span>) {
                 <span class="kw">continue</span>;
@@ -513,23 +556,44 @@
 
             <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>((<span class="ident">pt</span>, <span class="ident">angle</span>)) <span class="op">=</span> <span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">dist_along</span>(<span class="kw-2">*</span><span class="ident">dist</span>) {
-                <span class="kw">let</span> <span class="ident">filter_len</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">get_width</span>();
-                <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::RED</span>, <span class="ident">Circle::new</span>(<span class="ident">pt</span>, <span class="ident">filter_len</span>).<span class="ident">to_polygon</span>());
-                <span class="kw">let</span> <span class="ident">barrier</span> <span class="op">=</span> <span class="ident">Line::must_new</span>(
-                    <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="number">0.8</span> <span class="op">*</span> <span class="ident">filter_len</span>, <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="number">90.0</span>)),
-                    <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="number">0.8</span> <span class="op">*</span> <span class="ident">filter_len</span>, <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="op">-</span><span class="number">90.0</span>)),
-                )
-                .<span class="ident">make_polygons</span>(<span class="ident">Distance::meters</span>(<span class="number">7.0</span>));
-                <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::WHITE</span>, <span class="ident">barrier</span>.<span class="ident">clone</span>());
+                <span class="kw">let</span> <span class="ident">road_width</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">get_width</span>();
+
+                <span class="ident">batch</span>
+                    .<span class="ident">unzoomed</span>
+                    .<span class="ident">push</span>(<span class="ident">Color::RED</span>, <span class="ident">Circle::new</span>(<span class="ident">pt</span>, <span class="ident">road_width</span>).<span class="ident">to_polygon</span>());
+                <span class="ident">batch</span>.<span class="ident">unzoomed</span>.<span class="ident">push</span>(
+                    <span class="ident">Color::WHITE</span>,
+                    <span class="ident">Line::must_new</span>(
+                        <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="number">0.8</span> <span class="op">*</span> <span class="ident">road_width</span>, <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="number">90.0</span>)),
+                        <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="number">0.8</span> <span class="op">*</span> <span class="ident">road_width</span>, <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="op">-</span><span class="number">90.0</span>)),
+                    )
+                    .<span class="ident">make_polygons</span>(<span class="ident">Distance::meters</span>(<span class="number">7.0</span>)),
+                );
+
+                <span class="comment">// TODO Only cover the driving/parking lanes (and center appropriately)</span>
+                <span class="ident">draw_zoomed_planters</span>(
+                    <span class="ident">ctx</span>,
+                    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">batch</span>.<span class="ident">zoomed</span>,
+                    <span class="ident">Line::must_new</span>(
+                        <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="number">0.3</span> <span class="op">*</span> <span class="ident">road_width</span>, <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="number">90.0</span>)),
+                        <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="number">0.3</span> <span class="op">*</span> <span class="ident">road_width</span>, <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="op">-</span><span class="number">90.0</span>)),
+                    ),
+                );
             }
         }
         <span class="kw">for</span> <span class="ident">filter</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">intersections</span>.<span class="ident">values</span>() {
-            <span class="ident">batch</span>.<span class="ident">push</span>(
-                <span class="ident">Color::RED</span>,
-                <span class="ident">filter</span>.<span class="ident">geometry</span>(<span class="ident">app</span>).<span class="ident">make_polygons</span>(<span class="ident">Distance::meters</span>(<span class="number">3.0</span>)),
+            <span class="kw">let</span> <span class="ident">line</span> <span class="op">=</span> <span class="ident">filter</span>.<span class="ident">geometry</span>(<span class="ident">app</span>);
+            <span class="ident">batch</span>
+                .<span class="ident">unzoomed</span>
+                .<span class="ident">push</span>(<span class="ident">Color::RED</span>, <span class="ident">line</span>.<span class="ident">make_polygons</span>(<span class="ident">Distance::meters</span>(<span class="number">3.0</span>)));
+
+            <span class="ident">draw_zoomed_planters</span>(
+                <span class="ident">ctx</span>,
+                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">batch</span>.<span class="ident">zoomed</span>,
+                <span class="ident">line</span>.<span class="ident">percent_slice</span>(<span class="number">0.3</span>, <span class="number">0.7</span>).<span class="ident">unwrap_or</span>(<span class="ident">line</span>),
             );
         }
-        <span class="ident">n</span>.<span class="ident">draw_filters</span> <span class="op">=</span> <span class="ident">batch</span>.<span class="ident">upload</span>(<span class="ident">ctx</span>);
+        <span class="ident">n</span>.<span class="ident">draw_filters</span> <span class="op">=</span> <span class="ident">batch</span>.<span class="ident">build</span>(<span class="ident">ctx</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">label_roads</span> <span class="op">=</span> <span class="ident">n</span>.<span class="ident">perimeter</span>.<span class="ident">clone</span>();
         <span class="ident">label_roads</span>.<span class="ident">extend</span>(<span class="ident">n</span>.<span class="ident">orig_perimeter</span>.<span class="ident">interior</span>.<span class="ident">clone</span>());
@@ -537,6 +601,26 @@
 
         <span class="ident">n</span>
     }
+}
+
+<span class="comment">// Draw two planters on each end of a line. They&#39;ll be offset so that they don&#39;t exceed the</span>
+<span class="comment">// endpoints.</span>
+<span class="kw">fn</span> <span class="ident">draw_zoomed_planters</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">batch</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GeomBatch</span>, <span class="ident">line</span>: <span class="ident">Line</span>) {
+    <span class="kw">let</span> <span class="ident">planter</span> <span class="op">=</span> <span class="ident">GeomBatch::load_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/map/planter.svg&quot;</span>);
+    <span class="kw">let</span> <span class="ident">planter_width</span> <span class="op">=</span> <span class="ident">planter</span>.<span class="ident">get_dims</span>().<span class="ident">width</span>;
+    <span class="kw">let</span> <span class="ident">scaled_planter</span> <span class="op">=</span> <span class="ident">planter</span>.<span class="ident">scale</span>(<span class="number">0.3</span> <span class="op">*</span> <span class="ident">line</span>.<span class="ident">length</span>().<span class="ident">inner_meters</span>() <span class="op">/</span> <span class="ident">planter_width</span>);
+
+    <span class="ident">batch</span>.<span class="ident">append</span>(
+        <span class="ident">scaled_planter</span>
+            .<span class="ident">clone</span>()
+            .<span class="ident">centered_on</span>(<span class="ident">line</span>.<span class="ident">must_dist_along</span>(<span class="number">0.15</span> <span class="op">*</span> <span class="ident">line</span>.<span class="ident">length</span>()))
+            .<span class="ident">rotate</span>(<span class="ident">line</span>.<span class="ident">angle</span>()),
+    );
+    <span class="ident">batch</span>.<span class="ident">append</span>(
+        <span class="ident">scaled_planter</span>
+            .<span class="ident">centered_on</span>(<span class="ident">line</span>.<span class="ident">must_dist_along</span>(<span class="number">0.85</span> <span class="op">*</span> <span class="ident">line</span>.<span class="ident">length</span>()))
+            .<span class="ident">rotate</span>(<span class="ident">line</span>.<span class="ident">angle</span>()),
+    );
 }
 
 <span class="comment">// Find all of the disconnected &quot;cells&quot; of reachable areas, bounded by a perimeter. This is with</span>
@@ -703,7 +787,7 @@
     }
 
     <span class="doccomment">/// Physically where is the filter placed?</span>
-    <span class="kw">fn</span> <span class="ident">geometry</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">PolyLine</span> {
+    <span class="kw">fn</span> <span class="ident">geometry</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Line</span> {
         <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
         <span class="kw">let</span> <span class="ident">r1</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">r1</span>);
         <span class="kw">let</span> <span class="ident">r2</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">r2</span>);
@@ -722,7 +806,7 @@
         <span class="comment">// road</span>
         <span class="kw">let</span> <span class="ident">pt1</span> <span class="op">=</span> <span class="ident">pl1</span>.<span class="ident">must_shift_right</span>(<span class="ident">r1</span>.<span class="ident">get_half_width</span>()).<span class="ident">last_pt</span>();
         <span class="kw">let</span> <span class="ident">pt2</span> <span class="op">=</span> <span class="ident">pl2</span>.<span class="ident">must_shift_left</span>(<span class="ident">r2</span>.<span class="ident">get_half_width</span>()).<span class="ident">last_pt</span>();
-        <span class="ident">PolyLine::must_new</span>(<span class="macro">vec!</span>[<span class="ident">pt1</span>, <span class="ident">pt2</span>])
+        <span class="ident">Line::must_new</span>(<span class="ident">pt1</span>, <span class="ident">pt2</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">allows_turn</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">from</span>: <span class="ident">RoadID</span>, <span class="ident">to</span>: <span class="ident">RoadID</span>) -&gt; <span class="ident">bool</span> {
