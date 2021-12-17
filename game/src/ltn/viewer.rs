@@ -5,8 +5,8 @@ use map_gui::tools::CityPicker;
 use map_model::{IntersectionID, RoadID};
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::{
-    Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, State, TextExt,
-    Toggle, VerticalAlignment, Widget,
+    Choice, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, State,
+    TextExt, VerticalAlignment, Widget,
 };
 
 use super::{BrowseNeighborhoods, DiagonalFilter, Neighborhood};
@@ -57,14 +57,19 @@ impl Viewer {
                 .build_def(ctx),
             Widget::row(vec![
                 "Draw traffic cells as".text_widget(ctx).centered_vert(),
-                Toggle::choice(ctx, "draw cells", "areas", "streets", Key::C, true),
+                Widget::dropdown(
+                    ctx,
+                    "draw cells",
+                    "areas".to_string(),
+                    Choice::strings(vec!["areas", "streets", "area outlines"]),
+                ),
             ]),
             "Click a road to add or remove a modal filter".text_widget(ctx),
         ]))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
         .build(ctx);
 
-        let world = make_world(ctx, app, &neighborhood, panel.is_checked("draw cells"));
+        let world = make_world(ctx, app, &neighborhood, panel.dropdown_value("draw cells"));
 
         Box::new(Viewer {
             panel,
@@ -137,7 +142,7 @@ impl State<App> for Viewer {
                     ctx,
                     app,
                     &self.neighborhood,
-                    self.panel.is_checked("draw cells"),
+                    self.panel.dropdown_value("draw cells"),
                 );
             }
             _ => {}
@@ -165,7 +170,7 @@ impl State<App> for Viewer {
                     ctx,
                     app,
                     &self.neighborhood,
-                    self.panel.is_checked("draw cells"),
+                    self.panel.dropdown_value("draw cells"),
                 );
             }
             WorldOutcome::ClickedObject(Obj::InteriorIntersection(i)) => {
@@ -194,7 +199,7 @@ impl State<App> for Viewer {
                     ctx,
                     app,
                     &self.neighborhood,
-                    self.panel.is_checked("draw cells"),
+                    self.panel.dropdown_value("draw cells"),
                 );
             }
             _ => {}
@@ -221,14 +226,14 @@ fn make_world(
     ctx: &mut EventCtx,
     app: &App,
     neighborhood: &Neighborhood,
-    draw_cells_as_areas: bool,
+    style: String,
 ) -> World<Obj> {
     let map = &app.primary.map;
     let mut world = World::bounded(map.get_bounds());
 
     // Could refactor this, but I suspect we'll settle on one drawing style or another. Toggling
     // between the two is temporary.
-    if draw_cells_as_areas {
+    if style == "areas" || style == "area outlines" {
         for r in &neighborhood.orig_perimeter.interior {
             world
                 .add(Obj::InteriorRoad(*r))
@@ -239,7 +244,10 @@ fn make_world(
                 .build(ctx);
         }
 
-        world.draw_master_batch(ctx, super::draw_cells::draw_cells(map, neighborhood));
+        world.draw_master_batch(
+            ctx,
+            super::draw_cells::draw_cells(map, neighborhood, style == "areas"),
+        );
     } else {
         let mut draw_intersections = GeomBatch::new();
         let mut seen_roads = HashSet::new();

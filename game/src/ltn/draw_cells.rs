@@ -18,7 +18,7 @@ pub const COLORS: [Color; 6] = [
 
 /// Partition a neighborhood's boundary polygon based on the cells. Currently this discretizes
 /// space into a grid, so the results don't look perfect, but it's fast.
-pub fn draw_cells(map: &Map, neighborhood: &Neighborhood) -> GeomBatch {
+pub fn draw_cells(map: &Map, neighborhood: &Neighborhood, draw_grid: bool) -> GeomBatch {
     let boundary_polygon = neighborhood
         .orig_perimeter
         .clone()
@@ -74,31 +74,83 @@ pub fn draw_cells(map: &Map, neighborhood: &Neighborhood) -> GeomBatch {
 
     diffusion(&mut grid, boundary_marker);
 
-    // Just draw rectangles based on the grid
-    // TODO We should be able to generate actual polygons per cell using the contours crate
-    // TODO Also it'd look nicer to render this "underneath" the roads and intersections, at the
-    // layer where areas are shown now
     let mut batch = GeomBatch::new();
-    for (idx, value) in grid.data.iter().enumerate() {
-        if let Some(cell_idx) = value {
-            if *cell_idx == boundary_marker {
-                continue;
+    if draw_grid {
+        // Just draw rectangles based on the grid
+        // TODO Also it'd look nicer to render this "underneath" the roads and intersections, at
+        // the layer where areas are shown now
+        for (idx, value) in grid.data.iter().enumerate() {
+            if let Some(cell_idx) = value {
+                if *cell_idx == boundary_marker {
+                    continue;
+                }
+                let (x, y) = grid.xy(idx);
+                let tile_center = Pt2D::new(
+                    bounds.min_x + resolution_m * (x as f64 + 0.5),
+                    bounds.min_y + resolution_m * (y as f64 + 0.5),
+                );
+                // TODO If two cells are adjacent, assign different colors
+                let color = COLORS[cell_idx % COLORS.len()].alpha(0.5);
+                batch.push(
+                    color,
+                    Polygon::rectangle_centered(
+                        tile_center,
+                        Distance::meters(resolution_m),
+                        Distance::meters(resolution_m),
+                    ),
+                );
             }
-            let (x, y) = grid.xy(idx);
-            let tile_center = Pt2D::new(
-                bounds.min_x + resolution_m * (x as f64 + 0.5),
-                bounds.min_y + resolution_m * (y as f64 + 0.5),
+        }
+    } else {
+        // Turn the grids into contours.
+        let grid: Grid<f64> = Grid {
+            width: grid.width,
+            height: grid.height,
+            data: grid
+                .data
+                .into_iter()
+                .map(|maybe_cell| {
+                    maybe_cell
+                        .map(|x| x as f64)
+                        .unwrap_or(boundary_marker as f64)
+                })
+                .collect(),
+        };
+
+        let smooth = false;
+        let c = contour::ContourBuilder::new(grid.width as u32, grid.height as u32, smooth);
+        let thresholds: Vec<f64> = (0..neighborhood.cells.len() + 1)
+            .map(|x| x as f64)
+            .collect();
+        let features = c.contours(&grid.data, &thresholds).unwrap();
+        for (cell_idx, feature) in features.into_iter().enumerate() {
+            println!(
+                "boundary_marker is {}. here's cell_idx {}. num cells {}",
+                boundary_marker,
+                cell_idx,
+                neighborhood.cells.len()
             );
-            // TODO If two cells are adjacent, assign different colors
+            /*if cell_idx == boundary_marker - 1 {
+                continue;
+            }*/
+
             let color = COLORS[cell_idx % COLORS.len()].alpha(0.5);
-            batch.push(
-                color,
-                Polygon::rectangle_centered(
-                    tile_center,
-                    Distance::meters(resolution_m),
-                    Distance::meters(resolution_m),
-                ),
-            );
+            match feature.geometry.unwrap().value {
+                geojson::Value::MultiPolygon(polygons) => {
+                    for p in polygons {
+                        if let Ok(p) = Polygon::from_geojson(&p) {
+                            let poly = p.scale(resolution_m).translate(bounds.min_x, bounds.min_y);
+                            //batch.push(color, poly);
+                            if let Ok(x) = poly.to_outline(Distance::meters(5.0)) {
+                                batch.push(color, x);
+                            } else {
+                                batch.push(color, poly);
+                            }
+                        }
+                    }
+                }
+                _ => unreachable!(),
+            }
         }
     }
     batch
