@@ -76,9 +76,8 @@ pub fn make_walking_turns(map: &Map, i: &Intersection) -> Vec<Turn> {
     let mut result: Vec<Turn> = Vec::new();
 
     let mut from: Option<&Lane> = lanes[0];
-    let first_from = from.unwrap().id;
     let mut adj = true;
-    for l in lanes.iter().skip(1).chain(lanes.iter()) {
+    for l in lanes.iter().skip(1).chain(lanes.iter().take(1)) {
         if from.is_none() {
             from = *l;
             adj = true;
@@ -109,11 +108,6 @@ pub fn make_walking_turns(map: &Map, i: &Intersection) -> Vec<Turn> {
             });
             from = Some(l2);
             adj = true;
-        }
-
-        // Have we made it all the way around?
-        if first_from == from.unwrap().id {
-            break;
         }
     }
 
