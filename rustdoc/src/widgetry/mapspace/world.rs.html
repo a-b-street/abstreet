@@ -538,6 +538,13 @@
 <span id="538">538</span>
 <span id="539">539</span>
 <span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 <span class="kw">use</span> <span class="ident">std::fmt::Debug</span>;
 <span class="kw">use</span> <span class="ident">std::hash::Hash</span>;
@@ -699,25 +706,32 @@
         <span class="self">self</span>.<span class="ident">draw_hover_rewrite</span>(<span class="ident">RewriteColor::ChangeAlpha</span>(<span class="ident">alpha</span>))
     }
 
-    <span class="doccomment">/// Draw the object in a hovered state by adding an outline to the normal drawing.</span>
+    <span class="doccomment">/// Draw the object in a hovered state by adding an outline to the normal drawing. The</span>
+    <span class="doccomment">/// specified `color` and `thickness` will be used when unzoomed. For the zoomed view, the</span>
+    <span class="doccomment">/// color&#39;s opacity and the thickness will be halved.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hover_outline</span>(<span class="self">self</span>, <span class="ident">color</span>: <span class="ident">Color</span>, <span class="ident">thickness</span>: <span class="ident">Distance</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">draw_normal</span>
             .<span class="ident">clone</span>()
-            .<span class="ident">expect</span>(<span class="string">&quot;first specify how to draw normally&quot;</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">p</span>) <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">hitbox</span>
-            .<span class="ident">clone</span>()
-            .<span class="ident">expect</span>(<span class="string">&quot;call hitbox first&quot;</span>)
-            .<span class="ident">to_outline</span>(<span class="ident">thickness</span>)
-        {
-            <span class="ident">draw</span> <span class="op">=</span> <span class="ident">draw</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">p</span>);
+            .<span class="ident">expect</span>(<span class="string">&quot;first specify how to draw normally&quot;</span>)
+            .<span class="ident">draw_differently_zoomed</span>();
+        <span class="kw">let</span> <span class="ident">hitbox</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">hitbox</span>.<span class="ident">as_ref</span>().<span class="ident">expect</span>(<span class="string">&quot;call hitbox first&quot;</span>);
+        <span class="kw">if</span> <span class="kw">let</span> (<span class="prelude-val">Ok</span>(<span class="ident">unzoomed</span>), <span class="prelude-val">Ok</span>(<span class="ident">zoomed</span>)) <span class="op">=</span> (
+            <span class="ident">hitbox</span>.<span class="ident">to_outline</span>(<span class="ident">thickness</span>),
+            <span class="ident">hitbox</span>.<span class="ident">to_outline</span>(<span class="ident">thickness</span> <span class="op">/</span> <span class="number">2.0</span>),
+        ) {
+            <span class="ident">draw</span>.<span class="ident">unzoomed</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">unzoomed</span>);
+            <span class="ident">draw</span>.<span class="ident">zoomed</span>.<span class="ident">push</span>(<span class="ident">color</span>.<span class="ident">multiply_alpha</span>(<span class="number">0.5</span>), <span class="ident">zoomed</span>);
         } <span class="kw">else</span> {
             <span class="macro">warn!</span>(
                 <span class="string">&quot;Can&#39;t hover_outline for {:?}. Falling back to a colored polygon&quot;</span>,
                 <span class="self">self</span>.<span class="ident">id</span>
             );
-            <span class="ident">draw</span> <span class="op">=</span> <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(<span class="ident">color</span>, <span class="self">self</span>.<span class="ident">hitbox</span>.<span class="ident">clone</span>().<span class="ident">unwrap</span>())]).<span class="ident">into</span>();
+            <span class="ident">draw</span> <span class="op">=</span> <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(
+                <span class="ident">color</span>.<span class="ident">multiply_alpha</span>(<span class="number">0.5</span>),
+                <span class="self">self</span>.<span class="ident">hitbox</span>.<span class="ident">clone</span>().<span class="ident">unwrap</span>(),
+            )])
+            .<span class="ident">into</span>();
         }
         <span class="self">self</span>.<span class="ident">draw_hovered</span>(<span class="ident">draw</span>)
     }

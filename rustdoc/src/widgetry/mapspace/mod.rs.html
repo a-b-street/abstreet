@@ -99,6 +99,16 @@
 <span id="99"> 99</span>
 <span id="100">100</span>
 <span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
 </pre><pre class="rust"><code><span class="kw">mod</span> <span class="ident">unzoomed</span>;
 <span class="kw">mod</span> <span class="ident">world</span>;
 
@@ -175,6 +185,16 @@
             <span class="self">self</span>.<span class="ident">zoomed</span>.<span class="ident">push</span>(<span class="ident">fill</span>.<span class="ident">clone</span>(), <span class="ident">p</span>.<span class="ident">clone</span>());
         }
         <span class="self">self</span>.<span class="ident">unzoomed</span>.<span class="ident">push</span>(<span class="ident">fill</span>, <span class="ident">p</span>);
+        <span class="self">self</span>
+    }
+
+    <span class="doccomment">/// Mark that this object will be drawn differently when zoomed and unzoomed, undoing the</span>
+    <span class="doccomment">/// effects of converting from a single `GeomBatch`. Idempotent.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw_differently_zoomed</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="self">Self</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">always_draw_unzoomed</span> {
+            <span class="self">self</span>.<span class="ident">always_draw_unzoomed</span> <span class="op">=</span> <span class="bool-val">false</span>;
+            <span class="self">self</span>.<span class="ident">zoomed</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">unzoomed</span>.<span class="ident">clone</span>();
+        }
         <span class="self">self</span>
     }
 
