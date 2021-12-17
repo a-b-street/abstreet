@@ -127,40 +127,6 @@ impl Pt2D {
         result
     }
 
-    // TODO Try to deprecate in favor of Ring::get_shorter_slice_btwn
-    pub fn find_pts_between(
-        pts: &[Pt2D],
-        start: Pt2D,
-        end: Pt2D,
-        threshold: Distance,
-    ) -> Option<Vec<Pt2D>> {
-        let mut result = Vec::new();
-        for pt in pts {
-            if (result.is_empty() && pt.approx_eq(start, threshold)) || (!result.is_empty()) {
-                result.push(*pt);
-            }
-            // start and end might be the same.
-            if !result.is_empty() && pt.approx_eq(end, threshold) {
-                return Some(result);
-            }
-        }
-
-        // start wasn't in the list!
-        if result.is_empty() {
-            return None;
-        }
-
-        // Go through again, looking for end
-        for pt in pts {
-            result.push(*pt);
-            if pt.approx_eq(end, threshold) {
-                return Some(result);
-            }
-        }
-        // Didn't find end
-        None
-    }
-
     pub fn to_hashable(self) -> HashablePt2D {
         HashablePt2D {
             x_nan: NotNan::new(self.x()).unwrap(),
