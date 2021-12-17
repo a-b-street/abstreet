@@ -278,7 +278,7 @@ impl State<App> for RoutePlanner {
         self.panel.draw(g);
 
         g.redraw(&self.neighborhood.fade_irrelevant);
-        g.redraw(&self.neighborhood.draw_filters);
+        self.neighborhood.draw_filters.draw(g);
         if g.canvas.is_unzoomed() {
             self.neighborhood.labels.draw(g, app);
         }

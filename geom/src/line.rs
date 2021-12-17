@@ -189,6 +189,11 @@ impl Line {
         Line::new(self.dist_along(from)?, self.dist_along(to)?)
     }
 
+    /// Returns a subset of this line, with two percentages along the line's length.
+    pub fn percent_slice(&self, from: f64, to: f64) -> Option<Line> {
+        self.slice(from * self.length(), to * self.length())
+    }
+
     pub fn middle(&self) -> Option<Pt2D> {
         self.dist_along(self.length() / 2.0)
     }

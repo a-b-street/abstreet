@@ -232,12 +232,14 @@ fn make_panel(ctx: &mut EventCtx, app: &App, boundary_ok: bool) -> Panel {
             ctx.style()
                 .btn_solid_primary
                 .text("Confirm")
+                .hotkey(Key::Enter)
                 .disabled(!boundary_ok)
                 .disabled_tooltip("You must select one contiguous boundary")
                 .build_def(ctx),
             ctx.style()
                 .btn_solid_destructive
                 .text("Cancel")
+                .hotkey(Key::Escape)
                 .build_def(ctx),
         ]),
     ]))

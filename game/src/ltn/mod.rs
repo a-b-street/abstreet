@@ -1,8 +1,9 @@
 use std::collections::{BTreeMap, BTreeSet};
 
-use geom::{Circle, Distance, Line, PolyLine, Polygon};
+use geom::{Circle, Distance, Line, Polygon};
 use map_gui::tools::DrawRoadLabels;
 use map_model::{IntersectionID, Map, Perimeter, RoadID};
+use widgetry::mapspace::ToggleZoomed;
 use widgetry::{Color, Drawable, EventCtx, GeomBatch};
 
 use crate::app::App;
@@ -29,7 +30,7 @@ pub struct Neighborhood {
     cells: Vec<Cell>,
 
     fade_irrelevant: Drawable,
-    draw_filters: Drawable,
+    draw_filters: ToggleZoomed,
     labels: DrawRoadLabels,
 }
 
@@ -84,7 +85,7 @@ impl Neighborhood {
             cells: Vec::new(),
 
             fade_irrelevant: Drawable::empty(ctx),
-            draw_filters: Drawable::empty(ctx),
+            draw_filters: ToggleZoomed::empty(ctx),
             // Temporary value
             labels: DrawRoadLabels::only_major_roads(),
         };
@@ -134,7 +135,7 @@ impl Neighborhood {
             &app.session.modal_filters,
         );
 
-        let mut batch = GeomBatch::new();
+        let mut batch = ToggleZoomed::builder();
         for (r, dist) in &app.session.modal_filters.roads {
             if !n.orig_perimeter.interior.contains(r) {
                 continue;
@@ -142,23 +143,44 @@ impl Neighborhood {
 
             let road = map.get_r(*r);
             if let Ok((pt, angle)) = road.center_pts.dist_along(*dist) {
-                let filter_len = road.get_width();
-                batch.push(Color::RED, Circle::new(pt, filter_len).to_polygon());
-                let barrier = Line::must_new(
-                    pt.project_away(0.8 * filter_len, angle.rotate_degs(90.0)),
-                    pt.project_away(0.8 * filter_len, angle.rotate_degs(-90.0)),
-                )
-                .make_polygons(Distance::meters(7.0));
-                batch.push(Color::WHITE, barrier.clone());
+                let road_width = road.get_width();
+
+                batch
+                    .unzoomed
+                    .push(Color::RED, Circle::new(pt, road_width).to_polygon());
+                batch.unzoomed.push(
+                    Color::WHITE,
+                    Line::must_new(
+                        pt.project_away(0.8 * road_width, angle.rotate_degs(90.0)),
+                        pt.project_away(0.8 * road_width, angle.rotate_degs(-90.0)),
+                    )
+                    .make_polygons(Distance::meters(7.0)),
+                );
+
+                // TODO Only cover the driving/parking lanes (and center appropriately)
+                draw_zoomed_planters(
+                    ctx,
+                    &mut batch.zoomed,
+                    Line::must_new(
+                        pt.project_away(0.3 * road_width, angle.rotate_degs(90.0)),
+                        pt.project_away(0.3 * road_width, angle.rotate_degs(-90.0)),
+                    ),
+                );
             }
         }
         for filter in app.session.modal_filters.intersections.values() {
-            batch.push(
-                Color::RED,
-                filter.geometry(app).make_polygons(Distance::meters(3.0)),
+            let line = filter.geometry(app);
+            batch
+                .unzoomed
+                .push(Color::RED, line.make_polygons(Distance::meters(3.0)));
+
+            draw_zoomed_planters(
+                ctx,
+                &mut batch.zoomed,
+                line.percent_slice(0.3, 0.7).unwrap_or(line),
             );
         }
-        n.draw_filters = batch.upload(ctx);
+        n.draw_filters = batch.build(ctx);
 
         let mut label_roads = n.perimeter.clone();
         label_roads.extend(n.orig_perimeter.interior.clone());
@@ -166,6 +188,26 @@ impl Neighborhood {
 
         n
     }
+}
+
+// Draw two planters on each end of a line. They'll be offset so that they don't exceed the
+// endpoints.
+fn draw_zoomed_planters(ctx: &EventCtx, batch: &mut GeomBatch, line: Line) {
+    let planter = GeomBatch::load_svg(ctx, "system/assets/map/planter.svg");
+    let planter_width = planter.get_dims().width;
+    let scaled_planter = planter.scale(0.3 * line.length().inner_meters() / planter_width);
+
+    batch.append(
+        scaled_planter
+            .clone()
+            .centered_on(line.must_dist_along(0.15 * line.length()))
+            .rotate(line.angle()),
+    );
+    batch.append(
+        scaled_planter
+            .centered_on(line.must_dist_along(0.85 * line.length()))
+            .rotate(line.angle()),
+    );
 }
 
 // Find all of the disconnected "cells" of reachable areas, bounded by a perimeter. This is with
@@ -332,7 +374,7 @@ impl DiagonalFilter {
     }
 
     /// Physically where is the filter placed?
-    fn geometry(&self, app: &App) -> PolyLine {
+    fn geometry(&self, app: &App) -> Line {
         let map = &app.primary.map;
         let r1 = map.get_r(self.r1);
         let r2 = map.get_r(self.r2);
@@ -351,7 +393,7 @@ impl DiagonalFilter {
         // road
         let pt1 = pl1.must_shift_right(r1.get_half_width()).last_pt();
         let pt2 = pl2.must_shift_left(r2.get_half_width()).last_pt();
-        PolyLine::must_new(vec![pt1, pt2])
+        Line::must_new(pt1, pt2)
     }
 
     fn allows_turn(&self, from: RoadID, to: RoadID) -> bool {

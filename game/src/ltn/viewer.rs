@@ -41,6 +41,7 @@ impl Viewer {
             ctx.style()
                 .btn_outline
                 .text("Adjust boundary")
+                .hotkey(Key::B)
                 .build_def(ctx),
             ctx.style()
                 .btn_outline
@@ -206,7 +207,7 @@ impl State<App> for Viewer {
         self.panel.draw(g);
         g.redraw(&self.neighborhood.fade_irrelevant);
         self.world.draw(g);
-        g.redraw(&self.neighborhood.draw_filters);
+        self.neighborhood.draw_filters.draw(g);
         // TODO Since we cover such a small area, treating multiple segments of one road as the
         // same might be nice. And we should seed the quadtree with the locations of filters and
         // arrows, possibly.
