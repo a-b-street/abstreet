@@ -272,9 +272,13 @@ fn make_world(
     }
 
     for i in &neighborhood.interior_intersections {
+        let i = map.get_i(*i);
+        if i.roads.len() != 4 {
+            continue;
+        }
         world
-            .add(Obj::InteriorIntersection(*i))
-            .hitbox(map.get_i(*i).polygon.clone())
+            .add(Obj::InteriorIntersection(i.id))
+            .hitbox(i.polygon.clone())
             .drawn_in_master_batch()
             .hover_outline(Color::BLACK, Distance::meters(5.0))
             .clickable()
