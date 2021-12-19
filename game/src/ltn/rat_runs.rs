@@ -38,15 +38,29 @@ pub fn find_rat_runs(
         }
     }
 
+    let mut params = map.routing_params().clone();
+    modal_filters.update_routing_params(&mut params);
+    let cache_custom = true;
     let mut paths: Vec<Path> = timer
         .parallelize(
             "calculate paths between entrances and exits",
             requests,
-            |req| map.pathfind(req),
+            |req| map.pathfind_with_params(req, &params, cache_custom),
         )
         .into_iter()
         .flatten()
         .collect();
+
+    // update_routing_params heavily penalizes crossing modal filters, but it doesn't prevent it
+    // completely! So strip out paths that were forced to cross a filter.
+    paths.retain(|path| {
+        !path.get_steps().iter().any(|step| match step {
+            PathStep::Lane(l) => modal_filters.roads.contains_key(&l.road),
+            PathStep::Turn(t) => !modal_filters.allows_turn(*t),
+            // Car paths don't make contraflow movements
+            _ => unreachable!(),
+        })
+    });
 
     // Some paths wind up partly using perimeter roads (or even things outside the neighborhood
     // entirely). Sort by "worse" paths that spend more time inside.

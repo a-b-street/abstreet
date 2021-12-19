@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use geom::{Circle, Distance, Line, Polygon};
 use map_gui::tools::DrawRoadLabels;
-use map_model::{IntersectionID, Map, Perimeter, RoadID};
+use map_model::{IntersectionID, Map, Perimeter, RoadID, RoutingParams, TurnID};
 use widgetry::mapspace::ToggleZoomed;
 use widgetry::{Color, Drawable, EventCtx, GeomBatch};
 
@@ -39,6 +39,25 @@ pub struct ModalFilters {
     /// For filters placed along a road, where is the filter located?
     pub roads: BTreeMap<RoadID, Distance>,
     pub intersections: BTreeMap<IntersectionID, DiagonalFilter>,
+}
+
+impl ModalFilters {
+    /// Modify RoutingParams to respect these modal filters
+    pub fn update_routing_params(&self, params: &mut RoutingParams) {
+        params.avoid_roads.extend(self.roads.keys().cloned());
+        for filter in self.intersections.values() {
+            params
+                .avoid_movements_between
+                .extend(filter.avoid_movements_between_roads());
+        }
+    }
+
+    pub fn allows_turn(&self, t: TurnID) -> bool {
+        if let Some(filter) = self.intersections.get(&t.parent) {
+            return filter.allows_turn(t.src.road, t.dst.road);
+        }
+        true
+    }
 }
 
 /// A diagonal filter exists in an intersection. It's defined by two roads (the order is
