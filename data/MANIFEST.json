@@ -531,9 +531,9 @@
       "compressed_size_bytes": 2898058
     },
     "data/input/gb/bradford/osm/center.osm": {
-      "checksum": "219ffb899a93aa388dc913e591fcd9b3",
-      "uncompressed_size_bytes": 37921614,
-      "compressed_size_bytes": 3960540
+      "checksum": "a2cf2c893c872250da8a419ebeab3cda",
+      "uncompressed_size_bytes": 9905119,
+      "compressed_size_bytes": 1091124
     },
     "data/input/gb/bradford/osm/west-yorkshire-latest.osm.pbf": {
       "checksum": "9457f7b0c887a55a070402a736aded6a",
@@ -541,9 +541,9 @@
       "compressed_size_bytes": 38704123
     },
     "data/input/gb/bradford/raw_maps/center.bin": {
-      "checksum": "937c84246c90e43f3bf30700dacde7ae",
-      "uncompressed_size_bytes": 13729490,
-      "compressed_size_bytes": 2484651
+      "checksum": "04a712c37b2957f450b277e7eba79cc2",
+      "uncompressed_size_bytes": 4322948,
+      "compressed_size_bytes": 736906
     },
     "data/input/gb/cambridge/osm/cambridgeshire-latest.osm.pbf": {
       "checksum": "fc78b2ebc96bfcd24d5117926c7b9e87",
@@ -2961,14 +2961,14 @@
       "compressed_size_bytes": 989899
     },
     "data/system/gb/bradford/maps/center.bin": {
-      "checksum": "9732a30e6dc234d9b64d5a90b1c72504",
-      "uncompressed_size_bytes": 73818036,
-      "compressed_size_bytes": 26018723
+      "checksum": "237a7d242844adedfacd7d8c867588f1",
+      "uncompressed_size_bytes": 25414575,
+      "compressed_size_bytes": 8791224
     },
     "data/system/gb/bradford/scenarios/center/background.bin": {
-      "checksum": "0a4d29fea54585cc73f77762329c1aa3",
-      "uncompressed_size_bytes": 5938966,
-      "compressed_size_bytes": 1458863
+      "checksum": "04f1ad9a09fc8a78c2bb259a1ba58318",
+      "uncompressed_size_bytes": 2227111,
+      "compressed_size_bytes": 532155
     },
     "data/system/gb/cambridge/maps/north.bin": {
       "checksum": "571fcc24be44eca3ff20dd746cccc7dc",
