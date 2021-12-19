@@ -45,10 +45,8 @@ impl Viewer {
                 .build_def(ctx),
             ctx.style()
                 .btn_outline
-                .text("Browse rat-runs")
+                .text("Examine rat-runs")
                 .hotkey(Key::R)
-                .disabled(true)
-                .disabled_tooltip("Still being prototyped")
                 .build_def(ctx),
             ctx.style()
                 .btn_outline
@@ -110,7 +108,7 @@ impl State<App> for Viewer {
                         )]
                     }));
                 }
-                "Browse rat-runs" => {
+                "Examine rat-runs" => {
                     return Transition::ConsumeState(Box::new(|state, ctx, app| {
                         let state = state.downcast::<Viewer>().ok().unwrap();
                         vec![super::rat_run_viewer::BrowseRatRuns::new_state(
