@@ -417,6 +417,9 @@ impl Panel {
             None
         }
     }
+    pub fn set_checked(&mut self, name: &str, on_off: bool) {
+        self.find_mut::<Toggle>(name).enabled = on_off
+    }
 
     pub fn text_box(&self, name: &str) -> String {
         self.find::<TextBox>(name).get_line()

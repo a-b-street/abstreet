@@ -1,15 +1,17 @@
 use std::collections::HashSet;
 
-use abstutil::Timer;
+use abstutil::{Counter, Timer};
 use map_model::{
     DirectedRoadID, IntersectionID, LaneID, Map, Path, PathConstraints, PathRequest, PathStep,
-    Position,
+    Position, RoadID,
 };
 
 use super::{ModalFilters, Neighborhood};
 
 pub struct RatRuns {
     pub paths: Vec<Path>,
+    pub count_per_road: Counter<RoadID>,
+    pub count_per_intersection: Counter<IntersectionID>,
 }
 
 pub fn find_rat_runs(
@@ -65,9 +67,33 @@ pub fn find_rat_runs(
         (pct * 1000.0) as usize
     });
 
-    // TODO Heatmap of roads used (any direction)
+    // How many rat-runs pass through each street?
+    let mut count_per_road = Counter::new();
+    let mut count_per_intersection = Counter::new();
+    for path in &paths {
+        for step in path.get_steps() {
+            match step {
+                PathStep::Lane(l) => {
+                    if neighborhood.orig_perimeter.interior.contains(&l.road) {
+                        count_per_road.inc(l.road);
+                    }
+                }
+                PathStep::Turn(t) => {
+                    if neighborhood.interior_intersections.contains(&t.parent) {
+                        count_per_intersection.inc(t.parent);
+                    }
+                }
+                // Car paths don't make contraflow movements
+                _ => unreachable!(),
+            }
+        }
+    }
 
-    RatRuns { paths }
+    RatRuns {
+        paths,
+        count_per_road,
+        count_per_intersection,
+    }
 }
 
 struct EntryExit {
