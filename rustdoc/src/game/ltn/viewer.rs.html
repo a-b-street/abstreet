@@ -287,8 +287,6 @@
 <span id="287">287</span>
 <span id="288">288</span>
 <span id="289">289</span>
-<span id="290">290</span>
-<span id="291">291</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
 <span class="kw">use</span> <span class="ident">geom::Distance</span>;
@@ -336,10 +334,8 @@
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_outline</span>
-                .<span class="ident">text</span>(<span class="string">&quot;Browse rat-runs&quot;</span>)
+                .<span class="ident">text</span>(<span class="string">&quot;Examine rat-runs&quot;</span>)
                 .<span class="ident">hotkey</span>(<span class="ident">Key::R</span>)
-                .<span class="ident">disabled</span>(<span class="bool-val">true</span>)
-                .<span class="ident">disabled_tooltip</span>(<span class="string">&quot;Still being prototyped&quot;</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_outline</span>
@@ -401,7 +397,7 @@
                         )]
                     }));
                 }
-                <span class="string">&quot;Browse rat-runs&quot;</span> =&gt; {
+                <span class="string">&quot;Examine rat-runs&quot;</span> =&gt; {
                     <span class="kw">return</span> <span class="ident">Transition::ConsumeState</span>(<span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
                         <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast</span>::<span class="op">&lt;</span><span class="ident">Viewer</span><span class="op">&gt;</span>().<span class="ident">ok</span>().<span class="ident">unwrap</span>();
                         <span class="macro">vec!</span>[<span class="ident"><span class="kw">super</span>::rat_run_viewer::BrowseRatRuns::new_state</span>(
