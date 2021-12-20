@@ -243,6 +243,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("milwaukee", "oak_creek") => "Oak Creek",
             ("mt_vernon", "burlington") => "Burlington",
             ("mt_vernon", "downtown") => "Mt. Vernon",
+            ("nyc", "fordham") => "Fordham",
             ("nyc", "lower_manhattan") => "Lower Manhattan",
             ("nyc", "midtown_manhattan") => "Midtown Manhattan",
             ("nyc", "downtown_brooklyn") => "Downtown Brooklyn",
