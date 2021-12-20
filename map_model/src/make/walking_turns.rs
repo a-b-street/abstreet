@@ -1,4 +1,4 @@
-use geom::{Distance, PolyLine, Ring};
+use geom::{Distance, PolyLine, Pt2D, Ring, EPSILON_DIST};
 
 use crate::{
     Direction, DrivingSide, Intersection, IntersectionID, Lane, LaneID, Map, Turn, TurnID, TurnType,
@@ -197,13 +197,13 @@ fn make_crosswalk(i: &Intersection, l1: &Lane, l2: &Lane) -> PolyLine {
         ),
         l2_line.pt2(),
     ])
-    .unwrap_or_else(|_| PolyLine::unchecked_new(vec![l1.endpoint(i.id), l2.endpoint(i.id)]))
+    .unwrap_or_else(|_| baseline_geometry(l1.endpoint(i.id), l2.endpoint(i.id)))
 }
 
 // TODO This doesn't handle sidewalk/shoulder transitions
 fn make_shared_sidewalk_corner(i: &Intersection, l1: &Lane, l2: &Lane) -> PolyLine {
-    // This may produce a polyline with two identical points. Nothing better to do here.
-    let baseline = PolyLine::unchecked_new(vec![l1.endpoint(i.id), l2.endpoint(i.id)]);
+    // We'll fallback to this if the fancier geometry fails.
+    let baseline = baseline_geometry(l1.endpoint(i.id), l2.endpoint(i.id));
 
     // Is point2 counter-clockwise of point1?
     let dir = if i
@@ -313,6 +313,20 @@ fn make_shared_sidewalk_corner(i: &Intersection, l1: &Lane, l2: &Lane) -> PolyLi
         return baseline;
     }
     result
+}
+
+// Never in any circumstance should we produce a polyline with only one point (or two points
+// that're equal), because it'll just crash downstream rendering logic and make a mess elsewhere.
+// Avoid that here. The result is unlikely to look correct (or be easily visible at all).
+//
+// TODO Proper fix is likely to make a turn's geometry optional.
+fn baseline_geometry(pt1: Pt2D, pt2: Pt2D) -> PolyLine {
+    PolyLine::new(vec![pt1, pt2]).unwrap_or_else(|_| {
+        PolyLine::must_new(vec![
+            pt1,
+            pt1.offset(EPSILON_DIST.inner_meters(), EPSILON_DIST.inner_meters()),
+        ])
+    })
 }
 
 fn turn_id(parent: IntersectionID, src: LaneID, dst: LaneID) -> TurnID {
