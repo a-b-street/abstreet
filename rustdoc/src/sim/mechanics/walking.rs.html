@@ -927,6 +927,11 @@
 <span id="927">927</span>
 <span id="928">928</span>
 <span id="929">929</span>
+<span id="930">930</span>
+<span id="931">931</span>
+<span id="932">932</span>
+<span id="933">933</span>
+<span id="934">934</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
@@ -1143,7 +1148,8 @@
                         <span class="ident">SidewalkPOI::DeferredParkingSpot</span> =&gt; <span class="macro">unreachable!</span>(),
                     }
                 } <span class="kw">else</span> {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PathStep::Turn</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">ped</span>.<span class="ident">path</span>.<span class="ident">current_step</span>() {
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PathStep::Turn</span>(<span class="ident">t</span>) <span class="op">|</span> <span class="ident">PathStep::ContraflowTurn</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">ped</span>.<span class="ident">path</span>.<span class="ident">current_step</span>()
+                    {
                         <span class="ident">ctx</span>.<span class="ident">intersections</span>.<span class="ident">turn_finished</span>(
                             <span class="ident">now</span>,
                             <span class="ident">AgentID::Pedestrian</span>(<span class="ident">ped</span>.<span class="ident">id</span>),
@@ -1274,11 +1280,13 @@
             .<span class="ident">remove</span>(<span class="ident">ped</span>.<span class="ident">path</span>.<span class="ident">current_step</span>().<span class="ident">as_traversable</span>(), <span class="ident">id</span>);
         <span class="ident">ctx</span>.<span class="ident">scheduler</span>.<span class="ident">cancel</span>(<span class="ident">Command::UpdatePed</span>(<span class="ident">id</span>));
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PathStep::Turn</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">ped</span>.<span class="ident">path</span>.<span class="ident">current_step</span>() {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PathStep::Turn</span>(<span class="ident">t</span>) <span class="op">|</span> <span class="ident">PathStep::ContraflowTurn</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">ped</span>.<span class="ident">path</span>.<span class="ident">current_step</span>() {
             <span class="ident">ctx</span>.<span class="ident">intersections</span>
                 .<span class="ident">agent_deleted_mid_turn</span>(<span class="ident">AgentID::Pedestrian</span>(<span class="ident">id</span>), <span class="ident">t</span>);
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">PathStep::Turn</span>(<span class="ident">t</span>)) <span class="op">=</span> <span class="ident">ped</span>.<span class="ident">path</span>.<span class="ident">maybe_next_step</span>() {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">PathStep::Turn</span>(<span class="ident">t</span>)) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">PathStep::ContraflowTurn</span>(<span class="ident">t</span>)) <span class="op">=</span>
+            <span class="ident">ped</span>.<span class="ident">path</span>.<span class="ident">maybe_next_step</span>()
+        {
             <span class="ident">ctx</span>.<span class="ident">intersections</span>.<span class="ident">cancel_request</span>(<span class="ident">AgentID::Pedestrian</span>(<span class="ident">id</span>), <span class="ident">t</span>);
         }
     }
@@ -1557,6 +1565,7 @@
                 <span class="ident">PathStep::Lane</span>(<span class="ident">l</span>) =&gt; <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">length</span>(),
                 <span class="ident">PathStep::ContraflowLane</span>(<span class="kw">_</span>) =&gt; <span class="ident">Distance::ZERO</span>,
                 <span class="ident">PathStep::Turn</span>(<span class="ident">t</span>) =&gt; <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="ident">t</span>).<span class="ident">geom</span>.<span class="ident">length</span>(),
+                <span class="ident">PathStep::ContraflowTurn</span>(<span class="kw">_</span>) =&gt; <span class="ident">Distance::ZERO</span>,
             }
         };
         <span class="kw">let</span> <span class="ident">dist_int</span> <span class="op">=</span> <span class="ident">DistanceInterval::new_walking</span>(<span class="ident">start_dist</span>, <span class="ident">end_dist</span>);
@@ -1727,7 +1736,7 @@
         <span class="ident">events</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span>,
         <span class="ident">scheduler</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Scheduler</span>,
     ) -&gt; <span class="ident">bool</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PathStep::Turn</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">next_step</span>() {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PathStep::Turn</span>(<span class="ident">t</span>) <span class="op">|</span> <span class="ident">PathStep::ContraflowTurn</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">next_step</span>() {
             <span class="kw">if</span> <span class="op">!</span><span class="ident">intersections</span>.<span class="ident">maybe_start_turn</span>(
                 <span class="ident">AgentID::Pedestrian</span>(<span class="self">self</span>.<span class="ident">id</span>),
                 <span class="ident">t</span>,
@@ -1751,6 +1760,7 @@
             <span class="ident">PathStep::Lane</span>(<span class="kw">_</span>) =&gt; <span class="ident">Distance::ZERO</span>,
             <span class="ident">PathStep::ContraflowLane</span>(<span class="ident">l</span>) =&gt; <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">length</span>(),
             <span class="ident">PathStep::Turn</span>(<span class="kw">_</span>) =&gt; <span class="ident">Distance::ZERO</span>,
+            <span class="ident">PathStep::ContraflowTurn</span>(<span class="ident">t</span>) =&gt; <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="ident">t</span>).<span class="ident">geom</span>.<span class="ident">length</span>(),
         };
         <span class="self">self</span>.<span class="ident">state</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">crossing_state</span>(<span class="ident">start_dist</span>, <span class="ident">now</span>, <span class="ident">map</span>);
         <span class="ident">peds_per_traversable</span>.<span class="ident">insert</span>(<span class="self">self</span>.<span class="ident">path</span>.<span class="ident">current_step</span>().<span class="ident">as_traversable</span>(), <span class="self">self</span>.<span class="ident">id</span>);

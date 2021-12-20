@@ -676,17 +676,6 @@
 <span id="676">676</span>
 <span id="677">677</span>
 <span id="678">678</span>
-<span id="679">679</span>
-<span id="680">680</span>
-<span id="681">681</span>
-<span id="682">682</span>
-<span id="683">683</span>
-<span id="684">684</span>
-<span id="685">685</span>
-<span id="686">686</span>
-<span id="687">687</span>
-<span id="688">688</span>
-<span id="689">689</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
@@ -1360,17 +1349,6 @@
             <span class="self">self</span>.<span class="ident">children_backwards</span>()
         } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">dst_i</span> <span class="op">==</span> <span class="ident">i</span> {
             <span class="self">self</span>.<span class="ident">children_forwards</span>()
-        } <span class="kw">else</span> {
-            <span class="macro">panic!</span>(<span class="string">&quot;{} doesn&#39;t have an endpoint at {}&quot;</span>, <span class="self">self</span>.<span class="ident">id</span>, <span class="ident">i</span>);
-        }
-    }
-
-    <span class="doccomment">/// Returns lanes from the &quot;center&quot; going out</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">outgoing_lanes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">LaneID</span>, <span class="ident">LaneType</span>)<span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">src_i</span> <span class="op">==</span> <span class="ident">i</span> {
-            <span class="self">self</span>.<span class="ident">children_forwards</span>()
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">dst_i</span> <span class="op">==</span> <span class="ident">i</span> {
-            <span class="self">self</span>.<span class="ident">children_backwards</span>()
         } <span class="kw">else</span> {
             <span class="macro">panic!</span>(<span class="string">&quot;{} doesn&#39;t have an endpoint at {}&quot;</span>, <span class="self">self</span>.<span class="ident">id</span>, <span class="ident">i</span>);
         }

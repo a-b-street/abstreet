@@ -424,8 +424,7 @@
 <span id="424">424</span>
 <span id="425">425</span>
 <span id="426">426</span>
-<span id="427">427</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">nbez</span>::{<span class="ident">Bez3o</span>, <span class="ident">BezCurve</span>, <span class="ident">Point2d</span>};
@@ -646,7 +645,6 @@
                     <span class="ident">dst</span>: <span class="ident">dst</span>.<span class="ident">id</span>,
                 },
                 <span class="ident">turn_type</span>,
-                <span class="ident">other_crosswalk_ids</span>: <span class="ident">BTreeSet::new</span>(),
                 <span class="ident">geom</span>,
             });
         }

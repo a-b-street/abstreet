@@ -508,6 +508,8 @@
 <span id="508">508</span>
 <span id="509">509</span>
 <span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cmp::Ordering</span>;
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">FindClosest</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>};
@@ -653,7 +655,7 @@
                                 );
                             }
                         }
-                        <span class="ident">PathStep::Turn</span>(<span class="ident">t</span>) =&gt; {
+                        <span class="ident">PathStep::Turn</span>(<span class="ident">t</span>) <span class="op">|</span> <span class="ident">PathStep::ContraflowTurn</span>(<span class="ident">t</span>) =&gt; {
                             <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">t</span>.<span class="ident">parent</span>);
                             <span class="ident">elevation_pts</span>.<span class="ident">push</span>((<span class="ident">current_dist</span>, <span class="ident">i</span>.<span class="ident">elevation</span>));
                             <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_traffic_signal</span>() {
@@ -833,7 +835,9 @@
                                     <span class="comment">// TODO Interpolate</span>
                                     <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">src_i</span>).<span class="ident">elevation</span>
                                 }
-                                <span class="ident">PathStep::Turn</span>(<span class="ident">t</span>) =&gt; <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">t</span>.<span class="ident">parent</span>).<span class="ident">elevation</span>,
+                                <span class="ident">PathStep::Turn</span>(<span class="ident">t</span>) <span class="op">|</span> <span class="ident">PathStep::ContraflowTurn</span>(<span class="ident">t</span>) =&gt; {
+                                    <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">t</span>.<span class="ident">parent</span>).<span class="ident">elevation</span>
+                                }
                             };
                             <span class="ident">panel</span>
                                 .<span class="ident">find_mut</span>::<span class="op">&lt;</span><span class="ident">LinePlot</span><span class="op">&lt;</span><span class="ident">Distance</span>, <span class="ident">Distance</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="string">&quot;elevation&quot;</span>)

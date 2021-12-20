@@ -613,6 +613,25 @@
 <span id="613">613</span>
 <span id="614">614</span>
 <span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
+<span id="622">622</span>
+<span id="623">623</span>
+<span id="624">624</span>
+<span id="625">625</span>
+<span id="626">626</span>
+<span id="627">627</span>
+<span id="628">628</span>
+<span id="629">629</span>
+<span id="630">630</span>
+<span id="631">631</span>
+<span id="632">632</span>
+<span id="633">633</span>
+<span id="634">634</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>, <span class="ident">Time</span>, <span class="ident">EPSILON_DIST</span>};
@@ -670,10 +689,7 @@
         }
 
         <span class="kw">for</span> <span class="ident">turn</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">turns</span> {
-            <span class="comment">// Avoid double-rendering</span>
-            <span class="kw">if</span> <span class="ident">turn</span>.<span class="ident">turn_type</span>.<span class="ident">pedestrian_crossing</span>()
-                <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">turn</span>.<span class="ident">other_crosswalk_ids</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">id</span> <span class="op">&lt;</span> <span class="ident">turn</span>.<span class="ident">id</span>)
-            {
+            <span class="kw">if</span> <span class="ident">turn</span>.<span class="ident">turn_type</span>.<span class="ident">pedestrian_crossing</span>() {
                 <span class="ident">make_crosswalk</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">default_geom</span>, <span class="ident">turn</span>, <span class="ident">map</span>, <span class="ident">app</span>.<span class="ident">cs</span>());
             }
         }
@@ -880,10 +896,6 @@
 
     <span class="kw">for</span> <span class="ident">turn</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">turns</span> {
         <span class="kw">if</span> <span class="ident">turn</span>.<span class="ident">turn_type</span> <span class="op">==</span> <span class="ident">TurnType::SharedSidewalkCorner</span> {
-            <span class="comment">// Avoid double-rendering</span>
-            <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">src</span>).<span class="ident">dst_i</span> <span class="op">!</span><span class="op">=</span> <span class="ident">i</span>.<span class="ident">id</span> {
-                <span class="kw">continue</span>;
-            }
             <span class="kw">let</span> <span class="ident">l1</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">src</span>);
             <span class="kw">let</span> <span class="ident">l2</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>);
 
@@ -893,23 +905,36 @@
                 <span class="kw">continue</span>;
             }
 
+            <span class="comment">// Is point2 counter-clockwise of point1?</span>
+            <span class="kw">let</span> <span class="ident">dir</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">i</span>
+                .<span class="ident">polygon</span>
+                .<span class="ident">center</span>()
+                .<span class="ident">angle_to</span>(<span class="ident">turn</span>.<span class="ident">geom</span>.<span class="ident">first_pt</span>())
+                .<span class="ident">simple_shortest_rotation_towards</span>(<span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">center</span>().<span class="ident">angle_to</span>(<span class="ident">turn</span>.<span class="ident">geom</span>.<span class="ident">last_pt</span>()))
+                <span class="op">&gt;</span> <span class="number">0.0</span>
+            {
+                <span class="number">1.0</span>
+            } <span class="kw">else</span> {
+                <span class="op">-</span><span class="number">1.0</span>
+            };
+
             <span class="kw">if</span> <span class="ident">l1</span>.<span class="ident">width</span> <span class="op">==</span> <span class="ident">l2</span>.<span class="ident">width</span> {
                 <span class="comment">// When two sidewalks or two shoulders meet, use the turn geometry to create some</span>
                 <span class="comment">// nice rounding.</span>
-                <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">l1</span>.<span class="ident">width</span>;
+                <span class="kw">let</span> <span class="ident">shift</span> <span class="op">=</span> <span class="ident">dir</span> <span class="op">*</span> <span class="ident">l1</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>;
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">poly</span>) <span class="op">=</span> (<span class="op">|</span><span class="op">|</span> {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">turn</span>.<span class="ident">geom</span>.<span class="ident">shift_left</span>(<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">ok</span>()<span class="question-mark">?</span>.<span class="ident">into_points</span>();
-                    <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">l2</span>.<span class="ident">first_line</span>().<span class="ident">shift_left</span>(<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">pt1</span>());
-                    <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">l2</span>.<span class="ident">first_line</span>().<span class="ident">shift_right</span>(<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">pt1</span>());
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">turn</span>.<span class="ident">geom</span>.<span class="ident">shift_either_direction</span>(<span class="op">-</span><span class="ident">shift</span>).<span class="ident">ok</span>()<span class="question-mark">?</span>.<span class="ident">into_points</span>();
+                    <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">l2</span>.<span class="ident">end_line</span>(<span class="ident">i</span>.<span class="ident">id</span>).<span class="ident">shift_either_direction</span>(<span class="ident">shift</span>).<span class="ident">pt2</span>());
+                    <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">l2</span>.<span class="ident">end_line</span>(<span class="ident">i</span>.<span class="ident">id</span>).<span class="ident">shift_either_direction</span>(<span class="op">-</span><span class="ident">shift</span>).<span class="ident">pt2</span>());
                     <span class="ident">pts</span>.<span class="ident">extend</span>(
                         <span class="ident">turn</span>.<span class="ident">geom</span>
-                            .<span class="ident">shift_right</span>(<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>)
+                            .<span class="ident">shift_either_direction</span>(<span class="ident">shift</span>)
                             .<span class="ident">ok</span>()<span class="question-mark">?</span>
                             .<span class="ident">reversed</span>()
                             .<span class="ident">into_points</span>(),
                     );
-                    <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">l1</span>.<span class="ident">last_line</span>().<span class="ident">shift_right</span>(<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">pt2</span>());
-                    <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">l1</span>.<span class="ident">last_line</span>().<span class="ident">shift_left</span>(<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">pt2</span>());
+                    <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">l1</span>.<span class="ident">end_line</span>(<span class="ident">i</span>.<span class="ident">id</span>).<span class="ident">shift_either_direction</span>(<span class="ident">shift</span>).<span class="ident">pt2</span>());
+                    <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">l1</span>.<span class="ident">end_line</span>(<span class="ident">i</span>.<span class="ident">id</span>).<span class="ident">shift_either_direction</span>(<span class="op">-</span><span class="ident">shift</span>).<span class="ident">pt2</span>());
                     <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">pts</span>[<span class="number">0</span>]);
                     <span class="comment">// Many resulting shapes aren&#39;t valid rings, but we can still triangulate them.</span>
                     <span class="prelude-val">Some</span>(<span class="ident">Polygon::buggy_new</span>(<span class="ident">pts</span>))
@@ -919,10 +944,18 @@
             } <span class="kw">else</span> {
                 <span class="comment">// When a sidewalk and a shoulder meet, use a simpler shape to connect them.</span>
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="macro">vec!</span>[
-                    <span class="ident">l2</span>.<span class="ident">first_line</span>().<span class="ident">shift_left</span>(<span class="ident">l2</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">pt1</span>(),
-                    <span class="ident">l2</span>.<span class="ident">first_line</span>().<span class="ident">shift_right</span>(<span class="ident">l2</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">pt1</span>(),
-                    <span class="ident">l1</span>.<span class="ident">last_line</span>().<span class="ident">shift_right</span>(<span class="ident">l1</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">pt2</span>(),
-                    <span class="ident">l1</span>.<span class="ident">last_line</span>().<span class="ident">shift_left</span>(<span class="ident">l1</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">pt2</span>(),
+                    <span class="ident">l2</span>.<span class="ident">end_line</span>(<span class="ident">i</span>.<span class="ident">id</span>)
+                        .<span class="ident">shift_either_direction</span>(<span class="ident">dir</span> <span class="op">*</span> <span class="ident">l2</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>)
+                        .<span class="ident">pt2</span>(),
+                    <span class="ident">l2</span>.<span class="ident">end_line</span>(<span class="ident">i</span>.<span class="ident">id</span>)
+                        .<span class="ident">shift_either_direction</span>(<span class="op">-</span><span class="ident">dir</span> <span class="op">*</span> <span class="ident">l2</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>)
+                        .<span class="ident">pt2</span>(),
+                    <span class="ident">l1</span>.<span class="ident">end_line</span>(<span class="ident">i</span>.<span class="ident">id</span>)
+                        .<span class="ident">shift_either_direction</span>(<span class="op">-</span><span class="ident">dir</span> <span class="op">*</span> <span class="ident">l1</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>)
+                        .<span class="ident">pt2</span>(),
+                    <span class="ident">l1</span>.<span class="ident">end_line</span>(<span class="ident">i</span>.<span class="ident">id</span>)
+                        .<span class="ident">shift_either_direction</span>(<span class="ident">dir</span> <span class="op">*</span> <span class="ident">l1</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>)
+                        .<span class="ident">pt2</span>(),
                 ];
                 <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">pts</span>[<span class="number">0</span>]);
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">ring</span>) <span class="op">=</span> <span class="ident">Ring::new</span>(<span class="ident">pts</span>) {
@@ -947,20 +980,27 @@
 
     <span class="kw">for</span> <span class="ident">turn</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">turns</span> {
         <span class="kw">if</span> <span class="ident">turn</span>.<span class="ident">turn_type</span> <span class="op">==</span> <span class="ident">TurnType::SharedSidewalkCorner</span> {
-            <span class="comment">// Avoid double-rendering</span>
-            <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">src</span>).<span class="ident">dst_i</span> <span class="op">!</span><span class="op">=</span> <span class="ident">i</span>.<span class="ident">id</span> {
-                <span class="kw">continue</span>;
-            }
+            <span class="kw">let</span> <span class="ident">dir</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">turn</span>
+                .<span class="ident">geom</span>
+                .<span class="ident">first_pt</span>()
+                .<span class="ident">angle_to</span>(<span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">center</span>())
+                .<span class="ident">simple_shortest_rotation_towards</span>(
+                    <span class="ident">turn</span>.<span class="ident">geom</span>.<span class="ident">first_pt</span>().<span class="ident">angle_to</span>(<span class="ident">turn</span>.<span class="ident">geom</span>.<span class="ident">last_pt</span>()),
+                )
+                <span class="op">&gt;</span> <span class="number">0.0</span>
+            {
+                <span class="number">1.0</span>
+            } <span class="kw">else</span> {
+                <span class="op">-</span><span class="number">1.0</span>
+                <span class="comment">// At a dead end we&#39;re going the long way around</span>
+            } <span class="op">*</span> <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_deadend</span>() { <span class="op">-</span><span class="number">1.0</span> } <span class="kw">else</span> { <span class="number">1.0</span> };
             <span class="kw">let</span> <span class="ident">l1</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">src</span>);
             <span class="kw">let</span> <span class="ident">l2</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>);
 
             <span class="kw">if</span> <span class="ident">l1</span>.<span class="ident">width</span> <span class="op">==</span> <span class="ident">l2</span>.<span class="ident">width</span> {
                 <span class="comment">// When two sidewalks or two shoulders meet, use the turn geometry to create some</span>
                 <span class="comment">// nice rounding.</span>
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">shift</span>(<span class="ident">l1</span>.<span class="ident">width</span>);
-                <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_config</span>().<span class="ident">driving_side</span> <span class="op">==</span> <span class="ident">DrivingSide::Right</span> {
-                    <span class="ident">width</span> <span class="kw-2">*</span><span class="op">=</span> <span class="op">-</span><span class="number">1.0</span>;
-                }
+                <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">dir</span> <span class="op">*</span> <span class="ident">shift</span>(<span class="ident">l1</span>.<span class="ident">width</span>);
 
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pl</span>) <span class="op">=</span> (<span class="op">|</span><span class="op">|</span> {
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">turn</span>.<span class="ident">geom</span>.<span class="ident">shift_either_direction</span>(<span class="ident">width</span>).<span class="ident">ok</span>()<span class="question-mark">?</span>.<span class="ident">into_points</span>();
@@ -969,15 +1009,18 @@
                     <span class="comment">// this causes &quot;zig-zaggy&quot; artifacts. The approx_eq check helps some (but not</span>
                     <span class="comment">// all) of those cases, but sometimes introduces visual &quot;gaps&quot;. This still</span>
                     <span class="comment">// needs more work.</span>
-                    <span class="kw">let</span> <span class="ident">first_line</span> <span class="op">=</span> <span class="ident">l2</span>.<span class="ident">first_line</span>().<span class="ident">shift_either_direction</span>(<span class="ident">width</span>);
-                    <span class="kw">if</span> <span class="op">!</span><span class="ident">pts</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="ident">approx_eq</span>(<span class="ident">first_line</span>.<span class="ident">pt1</span>(), <span class="ident">thickness</span>) {
-                        <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">first_line</span>.<span class="ident">pt1</span>());
-                        <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">first_line</span>.<span class="ident">unbounded_dist_along</span>(<span class="ident">thickness</span>));
+                    <span class="kw">let</span> <span class="ident">first_line</span> <span class="op">=</span> <span class="ident">l2</span>.<span class="ident">end_line</span>(<span class="ident">i</span>.<span class="ident">id</span>).<span class="ident">shift_either_direction</span>(<span class="op">-</span><span class="ident">width</span>);
+                    <span class="kw">if</span> <span class="op">!</span><span class="ident">pts</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="ident">approx_eq</span>(<span class="ident">first_line</span>.<span class="ident">pt2</span>(), <span class="ident">thickness</span>) {
+                        <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">first_line</span>.<span class="ident">pt2</span>());
+                        <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">first_line</span>.<span class="ident">unbounded_dist_along</span>(<span class="ident">first_line</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">thickness</span>));
                     }
-                    <span class="kw">let</span> <span class="ident">last_line</span> <span class="op">=</span> <span class="ident">l1</span>.<span class="ident">last_line</span>().<span class="ident">shift_either_direction</span>(<span class="ident">width</span>).<span class="ident">reversed</span>();
-                    <span class="kw">if</span> <span class="op">!</span><span class="ident">pts</span>[<span class="number">0</span>].<span class="ident">approx_eq</span>(<span class="ident">last_line</span>.<span class="ident">pt1</span>(), <span class="ident">thickness</span>) {
-                        <span class="ident">pts</span>.<span class="ident">insert</span>(<span class="number">0</span>, <span class="ident">last_line</span>.<span class="ident">pt1</span>());
-                        <span class="ident">pts</span>.<span class="ident">insert</span>(<span class="number">0</span>, <span class="ident">last_line</span>.<span class="ident">unbounded_dist_along</span>(<span class="ident">thickness</span>));
+                    <span class="kw">let</span> <span class="ident">last_line</span> <span class="op">=</span> <span class="ident">l1</span>.<span class="ident">end_line</span>(<span class="ident">i</span>.<span class="ident">id</span>).<span class="ident">shift_either_direction</span>(<span class="ident">width</span>);
+                    <span class="kw">if</span> <span class="op">!</span><span class="ident">pts</span>[<span class="number">0</span>].<span class="ident">approx_eq</span>(<span class="ident">last_line</span>.<span class="ident">pt2</span>(), <span class="ident">thickness</span>) {
+                        <span class="ident">pts</span>.<span class="ident">insert</span>(<span class="number">0</span>, <span class="ident">last_line</span>.<span class="ident">pt2</span>());
+                        <span class="ident">pts</span>.<span class="ident">insert</span>(
+                            <span class="number">0</span>,
+                            <span class="ident">last_line</span>.<span class="ident">unbounded_dist_along</span>(<span class="ident">last_line</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">thickness</span>),
+                        );
                     }
                     <span class="ident">PolyLine::deduping_new</span>(<span class="ident">pts</span>).<span class="ident">ok</span>()
                 })() {
@@ -985,22 +1028,17 @@
                 }
             } <span class="kw">else</span> {
                 <span class="comment">// When a sidewalk and a shoulder meet, use a simpler shape to connect them.</span>
-                <span class="kw">let</span> <span class="ident">direction</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_config</span>().<span class="ident">driving_side</span> <span class="op">==</span> <span class="ident">DrivingSide::Right</span> {
-                    <span class="op">-</span><span class="number">1.0</span>
-                } <span class="kw">else</span> {
-                    <span class="number">1.0</span>
-                };
-                <span class="kw">let</span> <span class="ident">last_line</span> <span class="op">=</span> <span class="ident">l1</span>
-                    .<span class="ident">last_line</span>()
-                    .<span class="ident">shift_either_direction</span>(<span class="ident">direction</span> <span class="op">*</span> <span class="ident">shift</span>(<span class="ident">l1</span>.<span class="ident">width</span>));
-                <span class="kw">let</span> <span class="ident">first_line</span> <span class="op">=</span> <span class="ident">l2</span>
-                    .<span class="ident">first_line</span>()
-                    .<span class="ident">shift_either_direction</span>(<span class="ident">direction</span> <span class="op">*</span> <span class="ident">shift</span>(<span class="ident">l2</span>.<span class="ident">width</span>));
+                <span class="kw">let</span> <span class="ident">l1_line</span> <span class="op">=</span> <span class="ident">l1</span>
+                    .<span class="ident">end_line</span>(<span class="ident">i</span>.<span class="ident">id</span>)
+                    .<span class="ident">shift_either_direction</span>(<span class="ident">dir</span> <span class="op">*</span> <span class="ident">shift</span>(<span class="ident">l1</span>.<span class="ident">width</span>));
+                <span class="kw">let</span> <span class="ident">l2_line</span> <span class="op">=</span> <span class="ident">l2</span>
+                    .<span class="ident">end_line</span>(<span class="ident">i</span>.<span class="ident">id</span>)
+                    .<span class="ident">shift_either_direction</span>(<span class="op">-</span><span class="ident">dir</span> <span class="op">*</span> <span class="ident">shift</span>(<span class="ident">l2</span>.<span class="ident">width</span>));
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) <span class="op">=</span> <span class="ident">PolyLine::deduping_new</span>(<span class="macro">vec!</span>[
-                    <span class="ident">last_line</span>.<span class="ident">reversed</span>().<span class="ident">unbounded_dist_along</span>(<span class="ident">thickness</span>),
-                    <span class="ident">last_line</span>.<span class="ident">pt2</span>(),
-                    <span class="ident">first_line</span>.<span class="ident">pt1</span>(),
-                    <span class="ident">first_line</span>.<span class="ident">unbounded_dist_along</span>(<span class="ident">thickness</span>),
+                    <span class="ident">l1_line</span>.<span class="ident">unbounded_dist_along</span>(<span class="ident">l1_line</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">thickness</span>),
+                    <span class="ident">l1_line</span>.<span class="ident">pt2</span>(),
+                    <span class="ident">l2_line</span>.<span class="ident">pt2</span>(),
+                    <span class="ident">l2_line</span>.<span class="ident">unbounded_dist_along</span>(<span class="ident">l2_line</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">thickness</span>),
                 ]) {
                     <span class="ident">curbs</span>.<span class="ident">push</span>(<span class="ident">pl</span>.<span class="ident">make_polygons</span>(<span class="ident">thickness</span>));
                 }

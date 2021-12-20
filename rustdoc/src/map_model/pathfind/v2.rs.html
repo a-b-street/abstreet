@@ -293,6 +293,12 @@
 <span id="293">293</span>
 <span id="294">294</span>
 <span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Structures related to the new road-based pathfinding</span>
 <span class="doccomment">//! (https://github.com/a-b-street/abstreet/issues/555) live here. When the transition is done,</span>
 <span class="doccomment">//! things here will probably move into pathfind/mod.rs.</span>
@@ -316,6 +322,7 @@
     <span class="doccomment">/// Opposite direction, sidewalks only</span>
     <span class="ident">Contraflow</span>(<span class="ident">DirectedRoadID</span>),
     <span class="ident">Movement</span>(<span class="ident">MovementID</span>),
+    <span class="ident">ContraflowMovement</span>(<span class="ident">MovementID</span>),
 }
 
 <span class="doccomment">/// A path between two endpoints for a particular mode. This representation is immutable and doesn&#39;t</span>
@@ -536,6 +543,11 @@
                 <span class="ident">PathStepV2::Along</span>(<span class="ident">r</span>) =&gt; <span class="ident">PathStep::Lane</span>(<span class="ident">r</span>.<span class="ident">must_get_sidewalk</span>(<span class="ident">map</span>)),
                 <span class="ident">PathStepV2::Contraflow</span>(<span class="ident">r</span>) =&gt; <span class="ident">PathStep::ContraflowLane</span>(<span class="ident">r</span>.<span class="ident">must_get_sidewalk</span>(<span class="ident">map</span>)),
                 <span class="ident">PathStepV2::Movement</span>(<span class="ident">mvmnt</span>) =&gt; <span class="ident">PathStep::Turn</span>(<span class="ident">TurnID</span> {
+                    <span class="ident">src</span>: <span class="ident">mvmnt</span>.<span class="ident">from</span>.<span class="ident">must_get_sidewalk</span>(<span class="ident">map</span>),
+                    <span class="ident">dst</span>: <span class="ident">mvmnt</span>.<span class="ident">to</span>.<span class="ident">must_get_sidewalk</span>(<span class="ident">map</span>),
+                    <span class="ident">parent</span>: <span class="ident">mvmnt</span>.<span class="ident">parent</span>,
+                }),
+                <span class="ident">PathStepV2::ContraflowMovement</span>(<span class="ident">mvmnt</span>) =&gt; <span class="ident">PathStep::ContraflowTurn</span>(<span class="ident">TurnID</span> {
                     <span class="ident">src</span>: <span class="ident">mvmnt</span>.<span class="ident">from</span>.<span class="ident">must_get_sidewalk</span>(<span class="ident">map</span>),
                     <span class="ident">dst</span>: <span class="ident">mvmnt</span>.<span class="ident">to</span>.<span class="ident">must_get_sidewalk</span>(<span class="ident">map</span>),
                     <span class="ident">parent</span>: <span class="ident">mvmnt</span>.<span class="ident">parent</span>,

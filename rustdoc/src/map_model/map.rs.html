@@ -895,12 +895,6 @@
 <span id="895">895</span>
 <span id="896">896</span>
 <span id="897">897</span>
-<span id="898">898</span>
-<span id="899">899</span>
-<span id="900">900</span>
-<span id="901">901</span>
-<span id="902">902</span>
-<span id="903">903</span>
 </pre><pre class="rust"><code><span class="doccomment">//! A bunch of (mostly read-only) queries on a Map.</span>
 
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
@@ -1224,39 +1218,35 @@
     <span class="doccomment">/// The turns may belong to two different intersections!</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_turns_from_lane</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">l</span>: <span class="ident">LaneID</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Turn</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_l</span>(<span class="ident">l</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">turns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Turn</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">get_i</span>(<span class="ident">lane</span>.<span class="ident">dst_i</span>)
+        <span class="self">self</span>.<span class="ident">get_i</span>(<span class="ident">lane</span>.<span class="ident">dst_i</span>)
             .<span class="ident">turns</span>
             .<span class="ident">iter</span>()
-            .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">src</span> <span class="op">==</span> <span class="ident">l</span>)
-            .<span class="ident">collect</span>();
-        <span class="comment">// Sidewalks/shoulders are bidirectional</span>
-        <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">is_walkable</span>() {
-            <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">get_i</span>(<span class="ident">lane</span>.<span class="ident">src_i</span>).<span class="ident">turns</span> {
-                <span class="kw">if</span> <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">src</span> <span class="op">==</span> <span class="ident">l</span> {
-                    <span class="ident">turns</span>.<span class="ident">push</span>(<span class="ident">t</span>);
-                }
-            }
-        }
-        <span class="ident">turns</span>
+            <span class="comment">// Sidewalks are bidirectional, so include turns from the source intersection</span>
+            .<span class="ident">chain</span>(
+                <span class="self">self</span>.<span class="ident">get_i</span>(<span class="ident">lane</span>.<span class="ident">src_i</span>)
+                    .<span class="ident">turns</span>
+                    .<span class="ident">iter</span>()
+                    <span class="comment">// And then don&#39;t yield them if this isn&#39;t a sidewalk</span>
+                    .<span class="ident">take_while</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">lane</span>.<span class="ident">is_walkable</span>()),
+            )
+            .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">src</span> <span class="op">==</span> <span class="ident">l</span> <span class="op">|</span><span class="op">|</span> (<span class="ident">lane</span>.<span class="ident">is_walkable</span>() <span class="op">&amp;&amp;</span> <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">dst</span> <span class="op">==</span> <span class="ident">l</span>))
+            .<span class="ident">collect</span>()
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_turns_to_lane</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">l</span>: <span class="ident">LaneID</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Turn</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_l</span>(<span class="ident">l</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">turns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Turn</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>
+
+        <span class="comment">// Sidewalks/shoulders are bidirectional</span>
+        <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">is_walkable</span>() {
+            <span class="kw">return</span> <span class="self">self</span>.<span class="ident">get_turns_from_lane</span>(<span class="ident">l</span>);
+        }
+
+        <span class="kw">let</span> <span class="ident">turns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Turn</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">get_i</span>(<span class="ident">lane</span>.<span class="ident">src_i</span>)
             .<span class="ident">turns</span>
             .<span class="ident">iter</span>()
             .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">dst</span> <span class="op">==</span> <span class="ident">l</span>)
             .<span class="ident">collect</span>();
-        <span class="comment">// Sidewalks/shoulders are bidirectional</span>
-        <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">is_walkable</span>() {
-            <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">get_i</span>(<span class="ident">lane</span>.<span class="ident">dst_i</span>).<span class="ident">turns</span> {
-                <span class="kw">if</span> <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">dst</span> <span class="op">==</span> <span class="ident">l</span> {
-                    <span class="ident">turns</span>.<span class="ident">push</span>(<span class="ident">t</span>);
-                }
-            }
-        }
         <span class="ident">turns</span>
     }
 
@@ -1272,36 +1262,34 @@
             .<span class="ident">find</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">src</span> <span class="op">==</span> <span class="ident">from</span> <span class="op">&amp;&amp;</span> <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">dst</span> <span class="op">==</span> <span class="ident">to</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_next_turns_and_lanes</span>(
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_next_turns_and_lanes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">from</span>: <span class="ident">LaneID</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="ident">Turn</span>, <span class="kw-2">&amp;</span><span class="ident">Lane</span>)<span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">get_turns_from_lane</span>(<span class="ident">from</span>)
+            .<span class="ident">into_iter</span>()
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> {
+                (
+                    <span class="ident">t</span>,
+                    <span class="self">self</span>.<span class="ident">get_l</span>(<span class="kw">if</span> <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">src</span> <span class="op">==</span> <span class="ident">from</span> { <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">dst</span> } <span class="kw">else</span> { <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">src</span> }),
+                )
+            })
+            .<span class="ident">collect</span>()
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_next_turns_and_lanes_for</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">from</span>: <span class="ident">LaneID</span>,
-        <span class="ident">parent</span>: <span class="ident">IntersectionID</span>,
+        <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>,
     ) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="ident">Turn</span>, <span class="kw-2">&amp;</span><span class="ident">Lane</span>)<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">get_i</span>(<span class="ident">parent</span>)
-            .<span class="ident">turns</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">src</span> <span class="op">==</span> <span class="ident">from</span>)
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> (<span class="ident">t</span>, <span class="self">self</span>.<span class="ident">get_l</span>(<span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">dst</span>)))
+        <span class="self">self</span>.<span class="ident">get_next_turns_and_lanes</span>(<span class="ident">from</span>)
+            .<span class="ident">into_iter</span>()
+            .<span class="ident">filter</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">l</span>)<span class="op">|</span> <span class="ident">constraints</span>.<span class="ident">can_use</span>(<span class="ident">l</span>, <span class="self">self</span>))
             .<span class="ident">collect</span>()
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_turns_for</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">from</span>: <span class="ident">LaneID</span>, <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Turn</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">turns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Turn</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">get_next_turns_and_lanes</span>(<span class="ident">from</span>, <span class="self">self</span>.<span class="ident">get_l</span>(<span class="ident">from</span>).<span class="ident">dst_i</span>)
+        <span class="self">self</span>.<span class="ident">get_next_turns_and_lanes_for</span>(<span class="ident">from</span>, <span class="ident">constraints</span>)
             .<span class="ident">into_iter</span>()
-            .<span class="ident">filter</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">l</span>)<span class="op">|</span> <span class="ident">constraints</span>.<span class="ident">can_use</span>(<span class="ident">l</span>, <span class="self">self</span>))
             .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">t</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">t</span>)
-            .<span class="ident">collect</span>();
-        <span class="comment">// Sidewalks are bidirectional</span>
-        <span class="kw">if</span> <span class="ident">constraints</span> <span class="op">==</span> <span class="ident">PathConstraints::Pedestrian</span> {
-            <span class="ident">turns</span>.<span class="ident">extend</span>(
-                <span class="self">self</span>.<span class="ident">get_next_turns_and_lanes</span>(<span class="ident">from</span>, <span class="self">self</span>.<span class="ident">get_l</span>(<span class="ident">from</span>).<span class="ident">src_i</span>)
-                    .<span class="ident">into_iter</span>()
-                    .<span class="ident">filter</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">l</span>)<span class="op">|</span> <span class="ident">constraints</span>.<span class="ident">can_use</span>(<span class="ident">l</span>, <span class="self">self</span>))
-                    .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">t</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">t</span>),
-            );
-        }
-        <span class="ident">turns</span>
+            .<span class="ident">collect</span>()
     }
 
     <span class="doccomment">/// Find all movements from one road to another that&#39;re usable by someone.</span>

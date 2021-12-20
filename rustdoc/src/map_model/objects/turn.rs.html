@@ -286,12 +286,7 @@
 <span id="286">286</span>
 <span id="287">287</span>
 <span id="288">288</span>
-<span id="289">289</span>
-<span id="290">290</span>
-<span id="291">291</span>
-<span id="292">292</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
-<span class="kw">use</span> <span class="ident">std::fmt</span>;
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::fmt</span>;
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
@@ -371,9 +366,6 @@
     <span class="comment">// TODO Some turns might not actually have geometry. Currently encoded by two equal points.</span>
     <span class="comment">// Represent more directly?</span>
     <span class="kw">pub</span> <span class="ident">geom</span>: <span class="ident">PolyLine</span>,
-    <span class="doccomment">/// Empty except for TurnType::Crosswalk and UnmarkedCrossing. Usually just one other ID,</span>
-    <span class="doccomment">/// except for the case of 4 duplicates at a degenerate intersection.</span>
-    <span class="kw">pub</span> <span class="ident">other_crosswalk_ids</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">TurnID</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Turn</span> {
