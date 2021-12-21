@@ -304,9 +304,6 @@ fn calculate_driving_lines(lane: &Lane, road: &Road) -> Vec<Polygon> {
 }
 
 fn calculate_turn_markings(map: &Map, lane: &Lane) -> Vec<Polygon> {
-    if lane.length() < Distance::meters(7.0) {
-        return Vec::new();
-    }
 
     // Does this lane connect to every other possible outbound lane of the same type, excluding
     // U-turns to the same road? If so, then there's nothing unexpected to communicate.
@@ -340,7 +337,7 @@ fn calculate_turn_markings(map: &Map, lane: &Lane) -> Vec<Polygon> {
     let thickness = Distance::meters(0.2);
 
     // The distance of the end of a straight arrow from the intersection
-    let location = Distance::meters(2.0);
+    let location = Distance::meters(4.0);
     // The length of a straight arrow (turn arrows are shorter)
     let length_max = Distance::meters(3.0);
     // The width of a double (left+right) u-turn arrow
@@ -362,6 +359,11 @@ fn calculate_turn_markings(map: &Map, lane: &Lane) -> Vec<Polygon> {
         });
     // Put the middle, not the straight line of the marking in the middle of the lane
     let offset = (right + left) / 2.0;
+
+    // If the lane is too short to fit the arrows, don't make them
+    if lane.length() < length_max + location {
+        return Vec::new();
+    }
 
     let (start_pt_unshifted, start_angle) = lane
         .lane_center_pts
