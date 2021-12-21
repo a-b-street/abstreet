@@ -304,7 +304,6 @@ fn calculate_driving_lines(lane: &Lane, road: &Road) -> Vec<Polygon> {
 }
 
 fn calculate_turn_markings(map: &Map, lane: &Lane) -> Vec<Polygon> {
-
     // Does this lane connect to every other possible outbound lane of the same type, excluding
     // U-turns to the same road? If so, then there's nothing unexpected to communicate.
     let i = map.get_i(lane.dst_i);
