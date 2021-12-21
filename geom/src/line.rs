@@ -262,6 +262,10 @@ impl InfiniteLine {
             Some(Pt2D::new(p.x() + t * r.0, p.y() + t * r.1))
         }
     }
+
+    pub fn from_pt_angle(pt: Pt2D, angle: Angle) -> InfiniteLine {
+        Line::must_new(pt, pt.project_away(Distance::meters(1.0), angle)).infinite()
+    }
 }
 
 impl fmt::Display for InfiniteLine {
