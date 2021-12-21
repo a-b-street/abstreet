@@ -1,10 +1,8 @@
 use std::cell::RefCell;
-use std::collections::HashMap;
 
-use geom::{Angle, ArrowCap, Circle, Distance, Line, PolyLine, Polygon, Pt2D};
-use map_model::{
-    BufferType, Direction, DrivingSide, Lane, LaneID, LaneType, Map, Road, RoadID, TurnID,
-};
+use geom::{Angle, ArrowCap, Circle, Distance, InfiniteLine, Line, PolyLine, Polygon, Pt2D};
+use map_model::{BufferType, Direction, DrivingSide, Lane, LaneID, LaneType, Map, Road, TurnID};
+use nbez::{Bez3o, BezCurve, Point2d};
 use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Prerender, RewriteColor};
 
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
@@ -328,33 +326,119 @@ fn calculate_turn_markings(map: &Map, lane: &Lane) -> Vec<Polygon> {
         return Vec::new();
     }
 
-    // Don't call out the strange lane-changing in intersections. Per target road, find the average
-    // turn angle.
-    let mut angles_per_road: HashMap<RoadID, Vec<Angle>> = HashMap::new();
-    for turn in map.get_turns_from_lane(lane.id) {
-        angles_per_road
-            .entry(turn.id.dst.road)
-            .or_insert_with(Vec::new)
-            .push(turn.angle());
-    }
+    // Only show one arrow per road. They should all be the same angle, so just use last.
+    let mut turn_angles_roads: Vec<_> = map
+        .get_turns_from_lane(lane.id)
+        .iter()
+        .map(|t| (t.id.dst.road, t.angle()))
+        .collect();
+    turn_angles_roads.dedup_by(|(r1, _), (r2, _)| r1 == r2);
+
+    let turn_angles: Vec<_> = turn_angles_roads.iter().map(|(_, a)| a).collect();
 
     let mut results = Vec::new();
     let thickness = Distance::meters(0.2);
 
-    let common_base = lane.lane_center_pts.exact_slice(
-        lane.length() - Distance::meters(7.0),
-        lane.length() - Distance::meters(5.0),
-    );
-    results.push(common_base.make_polygons(thickness));
+    // The distance of the end of a straight arrow from the intersection
+    let location = Distance::meters(2.0);
+    // The length of a straight arrow (turn arrows are shorter)
+    let length_max = Distance::meters(3.0);
+    // The width of a double (left+right) u-turn arrow
+    let width_max = Distance::meters(3.0)
+        .min(lane.width - 4.0 * thickness)
+        .max(Distance::ZERO);
+    // The width of the leftmost/rightmost turn arrow
+    let (left, right) = turn_angles
+        .iter()
+        .map(|a| {
+            width_max / 2.0
+                * (a.simple_shortest_rotation_towards(Angle::ZERO) / 2.0)
+                    .to_radians()
+                    .sin()
+                    .min(0.5)
+        })
+        .fold((Distance::ZERO, Distance::ZERO), |(min, max), s| {
+            (s.min(min), s.max(max))
+        });
+    // Put the middle, not the straight line of the marking in the middle of the lane
+    let offset = (right + left) / 2.0;
 
-    for (_, angles) in angles_per_road.into_iter() {
-        let avg = Angle::average(angles);
+    let (start_pt_unshifted, start_angle) = lane
+        .lane_center_pts
+        .must_dist_along(lane.length() - (length_max + location));
+    let start_pt = start_pt_unshifted.project_away(
+        offset.abs(),
+        start_angle.rotate_degs(if offset > Distance::ZERO { -90.0 } else { 90.0 }),
+    );
+
+    for turn_angle in turn_angles {
+        let half_angle =
+            Angle::degrees(turn_angle.simple_shortest_rotation_towards(Angle::ZERO) / 2.0);
+
+        let end_pt = start_pt
+            .project_away(
+                half_angle.normalized_radians().cos() * length_max,
+                start_angle,
+            )
+            .project_away(
+                half_angle.normalized_radians().sin().abs().min(0.5) * width_max,
+                start_angle
+                    + if half_angle > Angle::ZERO {
+                        Angle::degrees(90.0)
+                    } else {
+                        Angle::degrees(-90.0)
+                    },
+            );
+
+        let intersection = InfiniteLine::from_pt_angle(start_pt, start_angle)
+            .intersection(&InfiniteLine::from_pt_angle(
+                end_pt,
+                start_angle + *turn_angle,
+            ))
+            .unwrap_or(start_pt);
+        let (control_pt1, control_pt2) = if turn_angle.approx_parallel(Angle::ZERO, 5.0)
+            || start_pt.approx_eq(intersection, geom::EPSILON_DIST)
+        {
+            (
+                start_pt.project_away(length_max / 4.0, start_angle),
+                end_pt.project_away(length_max / 4.0, (start_angle + *turn_angle).opposite()),
+            )
+        } else {
+            (
+                Line::must_new(start_pt, intersection).unbounded_percent_along(2.0 / 3.0),
+                Line::must_new(end_pt, intersection).unbounded_percent_along(2.0 / 3.0),
+            )
+        };
+
+        let curve = Bez3o::new(
+            to_pt(start_pt),
+            to_pt(control_pt1),
+            to_pt(control_pt2),
+            to_pt(end_pt),
+        );
+        let pieces = 5;
+        let mut curve_pts: Vec<Pt2D> = (0..=pieces)
+            .map(|i| {
+                from_pt(
+                    curve
+                        .interp(1.0 / f64::from(pieces) * f64::from(i))
+                        .unwrap(),
+                )
+            })
+            .collect();
+        // add extra piece to ensure end segment is tangent.
+        curve_pts.push(
+            curve_pts
+                .last()
+                .unwrap()
+                .project_away(thickness, start_angle + *turn_angle),
+        );
+        curve_pts.dedup();
+
         results.push(
-            PolyLine::must_new(vec![
-                common_base.last_pt(),
-                common_base.last_pt().project_away(lane.width / 2.0, avg),
-            ])
-            .make_arrow(thickness, ArrowCap::Triangle),
+            PolyLine::new(curve_pts)
+                .unwrap()
+                .make_arrow(thickness, ArrowCap::Triangle),
         );
     }
 
@@ -483,4 +567,12 @@ fn calculate_buffer_markings(
             batch.push(dark_grey, lane.get_thick_polygon());
         }
     }
+}
+
+fn to_pt(pt: Pt2D) -> Point2d<f64> {
+    Point2d::new(pt.x(), pt.y())
+}
+
+fn from_pt(pt: Point2d<f64>) -> Pt2D {
+    Pt2D::new(pt.x, pt.y)
 }
