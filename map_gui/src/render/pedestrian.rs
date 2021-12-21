@@ -32,7 +32,7 @@ impl DrawPedestrian {
 
         if let Some(t) = input.waiting_for_turn {
             // A silly idea for peds... use hands to point at their turn?
-            let angle = input.facing + map.get_t(t).angle();
+            let angle = input.pos.angle_to(map.get_t(t).geom.middle());
             draw_default.push(
                 cs.turn_arrow,
                 PolyLine::must_new(vec![
