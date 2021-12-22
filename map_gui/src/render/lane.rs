@@ -397,12 +397,15 @@ fn calculate_turn_markings(map: &Map, lane: &Lane) -> Vec<Polygon> {
                 start_angle + *turn_angle,
             ))
             .unwrap_or(start_pt);
-        let (control_pt1, control_pt2) = if turn_angle.approx_parallel(Angle::ZERO, 5.0)
-            || start_pt.approx_eq(intersection, geom::EPSILON_DIST)
+        let (control_pt1, control_pt2) = if turn_angle.approx_parallel(
+            Angle::ZERO,
+            (length_max / (width_max / 2.0)).atan().to_degrees(),
+        ) || start_pt
+            .approx_eq(intersection, geom::EPSILON_DIST)
         {
             (
-                start_pt.project_away(length_max / 4.0, start_angle),
-                end_pt.project_away(length_max / 4.0, (start_angle + *turn_angle).opposite()),
+                start_pt.project_away(length_max / 2.0, start_angle),
+                end_pt.project_away(length_max / 2.0, (start_angle + *turn_angle).opposite()),
             )
         } else {
             (
