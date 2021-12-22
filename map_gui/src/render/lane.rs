@@ -1,8 +1,8 @@
 use std::cell::RefCell;
 
 use geom::{Angle, ArrowCap, Circle, Distance, InfiniteLine, Line, PolyLine, Polygon, Pt2D};
+use lyon_geom::{CubicBezierSegment, Point, QuadraticBezierSegment};
 use map_model::{BufferType, Direction, DrivingSide, Lane, LaneID, LaneType, Map, Road, TurnID};
-use nbez::{Bez3o, BezCurve, Point2d};
 use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Prerender, RewriteColor};
 
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
@@ -391,44 +391,45 @@ fn calculate_turn_markings(map: &Map, lane: &Lane) -> Vec<Polygon> {
                     },
             );
 
+        fn to_pt(pt: Pt2D) -> Point<f64> {
+            lyon_geom::point(pt.x(), pt.y())
+        }
+
+        fn from_pt(pt: Point<f64>) -> Pt2D {
+            Pt2D::new(pt.x, pt.y)
+        }
+
         let intersection = InfiniteLine::from_pt_angle(start_pt, start_angle)
             .intersection(&InfiniteLine::from_pt_angle(
                 end_pt,
                 start_angle + *turn_angle,
             ))
             .unwrap_or(start_pt);
-        let (control_pt1, control_pt2) = if turn_angle.approx_parallel(
+        let curve = if turn_angle.approx_parallel(
             Angle::ZERO,
             (length_max / (width_max / 2.0)).atan().to_degrees(),
-        ) || start_pt
-            .approx_eq(intersection, geom::EPSILON_DIST)
+        ) || start_pt.approx_eq(intersection, geom::EPSILON_DIST)
         {
-            (
-                start_pt.project_away(length_max / 2.0, start_angle),
-                end_pt.project_away(length_max / 2.0, (start_angle + *turn_angle).opposite()),
-            )
+            CubicBezierSegment {
+                from: to_pt(start_pt),
+                ctrl1: to_pt(start_pt.project_away(length_max / 2.0, start_angle)),
+                ctrl2: to_pt(
+                    end_pt.project_away(length_max / 2.0, (start_angle + *turn_angle).opposite()),
+                ),
+                to: to_pt(end_pt),
+            }
         } else {
-            (
-                Line::must_new(start_pt, intersection).unbounded_percent_along(2.0 / 3.0),
-                Line::must_new(end_pt, intersection).unbounded_percent_along(2.0 / 3.0),
-            )
+            QuadraticBezierSegment {
+                from: to_pt(start_pt),
+                ctrl: to_pt(intersection),
+                to: to_pt(end_pt),
+            }
+            .to_cubic()
         };
 
-        let curve = Bez3o::new(
-            to_pt(start_pt),
-            to_pt(control_pt1),
-            to_pt(control_pt2),
-            to_pt(end_pt),
-        );
         let pieces = 5;
-        let mut curve_pts: Vec<Pt2D> = (0..=pieces)
-            .map(|i| {
-                from_pt(
-                    curve
-                        .interp(1.0 / f64::from(pieces) * f64::from(i))
-                        .unwrap(),
-                )
-            })
+        let mut curve_pts: Vec<_> = (0..=pieces)
+            .map(|i| from_pt(curve.sample(1.0 / f64::from(pieces) * f64::from(i))))
             .collect();
         // add extra piece to ensure end segment is tangent.
         curve_pts.push(
@@ -571,12 +572,4 @@ fn calculate_buffer_markings(
             batch.push(dark_grey, lane.get_thick_polygon());
         }
     }
-}
-
-fn to_pt(pt: Pt2D) -> Point2d<f64> {
-    Point2d::new(pt.x(), pt.y())
-}
-
-fn from_pt(pt: Point2d<f64>) -> Pt2D {
-    Pt2D::new(pt.x, pt.y)
 }
