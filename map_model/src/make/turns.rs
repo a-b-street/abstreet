@@ -1,9 +1,9 @@
 use std::collections::{BTreeMap, HashMap, HashSet};
 
 use anyhow::Result;
-use nbez::{Bez3o, BezCurve, Point2d};
+use lyon_geom::{CubicBezierSegment, Point, QuadraticBezierSegment};
 
-use geom::{Angle, Distance, Line, PolyLine, Pt2D};
+use geom::{Angle, Distance, PolyLine, Pt2D};
 
 use crate::{Intersection, Lane, LaneID, LaneType, Map, RoadID, Turn, TurnID, TurnType};
 
@@ -224,6 +224,14 @@ fn make_vehicle_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
 }
 
 fn curvey_turn(src: &Lane, dst: &Lane, i: &Intersection) -> Result<PolyLine> {
+    fn to_pt(pt: Pt2D) -> Point<f64> {
+        lyon_geom::point(pt.x(), pt.y())
+    }
+
+    fn from_pt(pt: Point<f64>) -> Pt2D {
+        Pt2D::new(pt.x, pt.y)
+    }
+
     // The control points are straight out/in from the source/destination lanes, so
     // that the car exits and enters at the same angle as the road.
     let src_line = src.last_line();
@@ -240,7 +248,7 @@ fn curvey_turn(src: &Lane, dst: &Lane, i: &Intersection) -> Result<PolyLine> {
         .intersection(&dst_line.infinite())
         .unwrap_or(src_pt);
 
-    let (control_pt1, control_pt2) =
+    let curve =
         // U-turns and straight turns
         if src_angle.approx_parallel(dst_angle, 5.0)
         // Zero length intersections (this results in PolyLine::new returning none)
@@ -250,44 +258,27 @@ fn curvey_turn(src: &Lane, dst: &Lane, i: &Intersection) -> Result<PolyLine> {
         || !i.polygon.contains_pt(intersection)
     {
         // All get a curve scaled to the distance between the points
-        (
-            src_pt.project_away(src_pt.dist_to(dst_pt) / 2.0, src_angle),
-            dst_pt.project_away(src_pt.dist_to(dst_pt) / 2.0, dst_angle.opposite()),
-        )
+        CubicBezierSegment {
+            from: to_pt(src_pt),
+            ctrl1: to_pt(src_pt.project_away(src_pt.dist_to(dst_pt) / 2.0, src_angle)),
+            ctrl2: to_pt(dst_pt.project_away(src_pt.dist_to(dst_pt) / 2.0, dst_angle.opposite())),
+            to: to_pt(dst_pt),
+        }
     } else {
-        // Regular intersections get a quadratic bezier curve equivalent
-        (
-            Line::must_new(src_pt, intersection).unbounded_percent_along(2.0 / 3.0),
-            Line::must_new(dst_pt, intersection).unbounded_percent_along(2.0 / 3.0),
-        )
+        // Regular intersections get a quadratic bezier curve
+        QuadraticBezierSegment {
+            from: to_pt(src_pt),
+            ctrl: to_pt(intersection),
+            to: to_pt(dst_pt),
+        }.to_cubic()
     };
 
-    let curve = Bez3o::new(
-        to_pt(src_pt),
-        to_pt(control_pt1),
-        to_pt(control_pt2),
-        to_pt(dst_pt),
-    );
     let pieces = 5;
     let mut curve: Vec<Pt2D> = (0..=pieces)
-        .map(|i| {
-            from_pt(
-                curve
-                    .interp(1.0 / f64::from(pieces) * f64::from(i))
-                    .unwrap(),
-            )
-        })
+        .map(|i| from_pt(curve.sample(1.0 / f64::from(pieces) * f64::from(i))))
         .collect();
     curve.dedup();
     PolyLine::new(curve)
-}
-
-fn to_pt(pt: Pt2D) -> Point2d<f64> {
-    Point2d::new(pt.x(), pt.y())
-}
-
-fn from_pt(pt: Point2d<f64>) -> Pt2D {
-    Pt2D::new(pt.x, pt.y)
 }
 
 fn remove_merging_turns(map: &Map, input: Vec<Turn>, turn_type: TurnType) -> Vec<Turn> {
