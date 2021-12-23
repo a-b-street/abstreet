@@ -46,19 +46,19 @@ jobs:
 
       - name: Build game
         working-directory: game
-        run: cargo build --release ${features}
+        run: cargo build --release ${{ env.features }}
       - name: Build santa
         working-directory: santa
-        run: cargo build --release ${features}
+        run: cargo build --release ${{ env.features }}
       - name: Build fifteen_min
         working-directory: fifteen_min
-        run: cargo build --release ${features}
+        run: cargo build --release ${{ env.features }}
       - name: Build osm_viewer
         working-directory: osm_viewer
-        run: cargo build --release ${features}
+        run: cargo build --release ${{ env.features }}
       - name: Build parking_mapper
         working-directory: parking_mapper
-        run: cargo build --release ${features}
+        run: cargo build --release ${{ env.features }}
 
       - name: Build the CLI tool
         run: cargo build --release --bin cli
