@@ -1,7 +1,8 @@
 use std::collections::{BTreeMap, HashMap, HashSet};
 
 use anyhow::Result;
-use lyon_geom::{CubicBezierSegment, Point, QuadraticBezierSegment};
+use lyon_geom::math::F64Point;
+use lyon_geom::{CubicBezierSegment, QuadraticBezierSegment};
 
 use geom::{Angle, Distance, PolyLine, Pt2D};
 
@@ -224,11 +225,11 @@ fn make_vehicle_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
 }
 
 fn curvey_turn(src: &Lane, dst: &Lane, i: &Intersection) -> Result<PolyLine> {
-    fn to_pt(pt: Pt2D) -> Point<f64> {
-        lyon_geom::point(pt.x(), pt.y())
+    fn to_pt(pt: Pt2D) -> F64Point {
+        lyon_geom::math::point(pt.x(), pt.y())
     }
 
-    fn from_pt(pt: Point<f64>) -> Pt2D {
+    fn from_pt(pt: F64Point) -> Pt2D {
         Pt2D::new(pt.x, pt.y)
     }
 
