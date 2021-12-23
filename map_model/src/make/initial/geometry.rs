@@ -10,7 +10,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use anyhow::Result;
 
 use abstutil::wraparound_get;
-use geom::{Circle, Distance, Line, PolyLine, Polygon, Pt2D, Ring, EPSILON_DIST};
+use geom::{Circle, Distance, InfiniteLine, Line, PolyLine, Polygon, Pt2D, Ring, EPSILON_DIST};
 
 use crate::make::initial::Road;
 use crate::osm;
@@ -242,11 +242,7 @@ fn generalized_trim_back(
             // TODO I hoped this would subsume the second_half() hack above, but it sadly doesn't.
             if let Some((hit, angle)) = use_pl1.reversed().intersection(&use_pl2) {
                 // Find where the perpendicular hits the original road line
-                let perp = Line::must_new(
-                    hit,
-                    hit.project_away(Distance::meters(1.0), angle.rotate_degs(90.0)),
-                )
-                .infinite();
+                let perp = InfiniteLine::from_pt_angle(hit, angle.rotate_degs(90.0));
                 // How could something perpendicular to a shifted polyline never hit the original
                 // polyline? Also, find the hit closest to the intersection -- this matters for
                 // very curvy roads, like highway ramps.
@@ -550,11 +546,7 @@ fn on_off_ramp(
                     // Find where the perpendicular hits the original road line
                     // TODO Refactor something to go from a hit+angle on a left/right to a trimmed
                     // center.
-                    let perp = Line::must_new(
-                        hit,
-                        hit.project_away(Distance::meters(1.0), angle.rotate_degs(90.0)),
-                    )
-                    .infinite();
+                    let perp = InfiniteLine::from_pt_angle(hit, angle.rotate_degs(90.0));
                     let trimmed_thin = thin
                         .center
                         .reversed()
@@ -563,11 +555,7 @@ fn on_off_ramp(
 
                     // Do the same for the thick road
                     let (_, angle) = thick_pl.dist_along_of_point(hit)?;
-                    let perp = Line::must_new(
-                        hit,
-                        hit.project_away(Distance::meters(1.0), angle.rotate_degs(90.0)),
-                    )
-                    .infinite();
+                    let perp = InfiniteLine::from_pt_angle(hit, angle.rotate_degs(90.0));
                     let trimmed_thick = thick
                         .center
                         .reversed()
