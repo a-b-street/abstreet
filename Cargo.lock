@@ -144,7 +144,7 @@ version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3f2a05fd1bd10b2527e20a2cd32d8873d115b8b39fe219ee25f42a8aca6ba278"
 dependencies = [
- "num-traits 0.2.14",
+ "num-traits",
 ]
 
 [[package]]
@@ -390,7 +390,7 @@ checksum = "670ad68c9088c2a963aaa298cb369688cf3f9465ce5e2d4ca10e6e0098a1ce73"
 dependencies = [
  "libc",
  "num-integer",
- "num-traits 0.2.14",
+ "num-traits",
  "time",
  "winapi 0.3.9",
 ]
@@ -987,7 +987,7 @@ version = "0.22.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "da96828553a086d7b18dcebfc579bd9628b016f86590d7453c115e490fa74b80"
 dependencies = [
- "num-traits 0.2.14",
+ "num-traits",
 ]
 
 [[package]]
@@ -1077,7 +1077,7 @@ version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4fc612c5837986b7104a87a0df74a5460931f1c5274be12f8d0f40aa2f30d632"
 dependencies = [
- "num-traits 0.2.14",
+ "num-traits",
 ]
 
 [[package]]
@@ -1363,7 +1363,7 @@ dependencies = [
  "geo-types",
  "geographiclib-rs",
  "log",
- "num-traits 0.2.14",
+ "num-traits",
  "robust",
  "rstar",
 ]
@@ -1375,7 +1375,7 @@ source = "git+https://github.com/21re/rust-geo-booleanop#188f016e44a3ec737ce8e27
 dependencies = [
  "float_next_after",
  "geo-types",
- "num-traits 0.2.14",
+ "num-traits",
  "robust",
 ]
 
@@ -1385,7 +1385,7 @@ version = "0.7.2"
 source = "git+https://github.com/georust/geo#2ebbc7f8a8774d9a4a68e9a1b40bcdd22b02fac9"
 dependencies = [
  "approx",
- "num-traits 0.2.14",
+ "num-traits",
  "rstar",
 ]
 
@@ -1816,7 +1816,7 @@ dependencies = [
  "color_quant",
  "num-iter",
  "num-rational",
- "num-traits 0.2.14",
+ "num-traits",
  "png",
 ]
 
@@ -2132,7 +2132,7 @@ checksum = "6ce4e12203c428a58200b8cf1c0a3aad1cda907008ea11310bb3729593e5f933"
 dependencies = [
  "arrayvec",
  "euclid",
- "num-traits 0.2.14",
+ "num-traits",
 ]
 
 [[package]]
@@ -2213,6 +2213,7 @@ dependencies = [
  "js-sys",
  "lazy_static",
  "log",
+ "lyon_geom",
  "map_model",
  "regex",
  "rfd",
@@ -2241,8 +2242,8 @@ dependencies = [
  "geom",
  "kml",
  "log",
+ "lyon_geom",
  "md5",
- "nbez",
  "petgraph",
  "rand",
  "rand_xorshift",
@@ -2391,15 +2392,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b9f1c5b025cda876f66ef43a113f91ebc9f4ccef34843000e0adf6ebbab84e21"
 dependencies = [
  "winapi 0.3.9",
-]
-
-[[package]]
-name = "nbez"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b7c6b2f44bbfbabc30a75f197a25b6f4ba6d266f1166106c5661fdae10083aa4"
-dependencies = [
- "num-traits 0.1.43",
 ]
 
 [[package]]
@@ -2555,7 +2547,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d2cc698a63b549a70bc047073d2949cce27cd1c7b0a4a862d08a8031bc2801db"
 dependencies = [
  "autocfg",
- "num-traits 0.2.14",
+ "num-traits",
 ]
 
 [[package]]
@@ -2566,7 +2558,7 @@ checksum = "b2021c8337a54d21aca0d59a92577a029af9431cb59b909b03252b9c164fad59"
 dependencies = [
  "autocfg",
  "num-integer",
- "num-traits 0.2.14",
+ "num-traits",
 ]
 
 [[package]]
@@ -2577,16 +2569,7 @@ checksum = "12ac428b1cb17fce6f731001d307d351ec70a6d202fc2e60f7d4c5e42d8f4f07"
 dependencies = [
  "autocfg",
  "num-integer",
- "num-traits 0.2.14",
-]
-
-[[package]]
-name = "num-traits"
-version = "0.1.43"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "92e5113e9fd4cc14ded8e499429f396a20f98c772a47cc8622a736e1ec843c31"
-dependencies = [
- "num-traits 0.2.14",
+ "num-traits",
 ]
 
 [[package]]
@@ -2698,7 +2681,7 @@ dependencies = [
  "ndk 0.3.0",
  "ndk-glue 0.3.0",
  "num-derive",
- "num-traits 0.2.14",
+ "num-traits",
  "oboe-sys",
 ]
 
@@ -2732,7 +2715,7 @@ version = "2.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f100fcfb41e5385e0991f74981732049f9b896821542a219420491046baafdc2"
 dependencies = [
- "num-traits 0.2.14",
+ "num-traits",
  "serde",
 ]
 
@@ -2949,7 +2932,7 @@ dependencies = [
  "cbindgen",
  "geo",
  "libc",
- "num-traits 0.2.14",
+ "num-traits",
  "thiserror",
 ]
 
@@ -3106,7 +3089,7 @@ version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "051b398806e42b9cd04ad9ec8f81e355d0a382c543ac6672c62f5a5b452ef142"
 dependencies = [
- "num-traits 0.2.14",
+ "num-traits",
  "rand",
 ]
 
@@ -3298,7 +3281,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ce61d743ebe516592df4dd542dfe823577b811299f7bee1106feb1bbb993dbac"
 dependencies = [
  "heapless",
- "num-traits 0.2.14",
+ "num-traits",
  "pdqselect",
  "smallvec",
 ]
@@ -3510,7 +3493,7 @@ version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bd5ac56c121948b4879bba9e519852c211bcdd8f014efff766441deff0b91bdb"
 dependencies = [
- "num-traits 0.2.14",
+ "num-traits",
 ]
 
 [[package]]

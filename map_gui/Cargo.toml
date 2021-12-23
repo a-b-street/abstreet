@@ -29,8 +29,8 @@ instant = "0.1.7"
 js-sys = { version = "0.3.47", optional = true }
 lazy_static = "1.4.0"
 log = "0.4.14"
-map_model = { path = "../map_model" }
 lyon_geom = ">=0.16.2"
+map_model = { path = "../map_model" }
 regex = "1.5.4"
 rfd = "0.4.0"
 serde = "1.0.123"
