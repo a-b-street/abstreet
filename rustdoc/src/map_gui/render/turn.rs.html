@@ -220,6 +220,7 @@
 <span id="220">220</span>
 <span id="221">221</span>
 <span id="222">222</span>
+<span id="223">223</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">ArrowCap</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>};
@@ -421,7 +422,7 @@
 }
 
 <span class="comment">// Produces (circle, arrow)</span>
-<span class="kw">fn</span> <span class="ident">make_circle_geom</span>(<span class="ident">offset</span>: <span class="ident">f64</span>, <span class="ident">pl</span>: <span class="ident">PolyLine</span>, <span class="ident">angle</span>: <span class="ident">Angle</span>) -&gt; (<span class="ident">Polygon</span>, <span class="ident">Polygon</span>) {
+<span class="kw">fn</span> <span class="ident">make_circle_geom</span>(<span class="ident">offset</span>: <span class="ident">f64</span>, <span class="ident">pl</span>: <span class="ident">PolyLine</span>, <span class="ident">turn_angle</span>: <span class="ident">Angle</span>) -&gt; (<span class="ident">Polygon</span>, <span class="ident">Polygon</span>) {
     <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> <span class="number">2.0</span> <span class="op">*</span> <span class="ident">TURN_ICON_ARROW_LENGTH</span>;
     <span class="comment">// Always extend the pl first to handle short entry lanes</span>
     <span class="kw">let</span> <span class="ident">extension</span> <span class="op">=</span> <span class="ident">PolyLine::must_new</span>(<span class="macro">vec!</span>[
@@ -434,9 +435,10 @@
     <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">slice</span>.<span class="ident">middle</span>();
     <span class="kw">let</span> <span class="ident">block</span> <span class="op">=</span> <span class="ident">Circle::new</span>(<span class="ident">center</span>, <span class="ident">TURN_ICON_ARROW_LENGTH</span>).<span class="ident">to_polygon</span>();
 
+    <span class="kw">let</span> <span class="ident">arrow_angle</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">last_line</span>().<span class="ident">angle</span>().<span class="ident">opposite</span>() <span class="op">+</span> <span class="ident">turn_angle</span>;
     <span class="kw">let</span> <span class="ident">arrow</span> <span class="op">=</span> <span class="ident">PolyLine::must_new</span>(<span class="macro">vec!</span>[
-        <span class="ident">center</span>.<span class="ident">project_away</span>(<span class="ident">TURN_ICON_ARROW_LENGTH</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">angle</span>.<span class="ident">opposite</span>()),
-        <span class="ident">center</span>.<span class="ident">project_away</span>(<span class="ident">TURN_ICON_ARROW_LENGTH</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">angle</span>),
+        <span class="ident">center</span>.<span class="ident">project_away</span>(<span class="ident">TURN_ICON_ARROW_LENGTH</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">arrow_angle</span>.<span class="ident">opposite</span>()),
+        <span class="ident">center</span>.<span class="ident">project_away</span>(<span class="ident">TURN_ICON_ARROW_LENGTH</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">arrow_angle</span>),
     ])
     .<span class="ident">make_arrow</span>(<span class="ident">Distance::meters</span>(<span class="number">0.5</span>), <span class="ident">ArrowCap::Triangle</span>);
 

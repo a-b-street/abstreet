@@ -251,8 +251,8 @@
             <span class="ident">draw_default</span>.<span class="ident">push</span>(
                 <span class="ident">cs</span>.<span class="ident">turn_arrow</span>,
                 <span class="ident">PolyLine::must_new</span>(<span class="macro">vec!</span>[
-                    <span class="ident">body_pos</span>.<span class="ident">project_away</span>(<span class="ident">body_radius</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">angle</span>.<span class="ident">opposite</span>()),
-                    <span class="ident">body_pos</span>.<span class="ident">project_away</span>(<span class="ident">body_radius</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">angle</span>),
+                    <span class="ident">body_pos</span>.<span class="ident">project_away</span>(<span class="ident">body_radius</span> <span class="op">/</span> <span class="number">2.0</span>, (<span class="ident">facing</span> <span class="op">+</span> <span class="ident">angle</span>).<span class="ident">opposite</span>()),
+                    <span class="ident">body_pos</span>.<span class="ident">project_away</span>(<span class="ident">body_radius</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">facing</span> <span class="op">+</span> <span class="ident">angle</span>),
                 ])
                 .<span class="ident">make_arrow</span>(<span class="ident">Distance::meters</span>(<span class="number">0.15</span>), <span class="ident">ArrowCap::Triangle</span>),
             );

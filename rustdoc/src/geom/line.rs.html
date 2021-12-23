@@ -272,6 +272,10 @@
 <span id="272">272</span>
 <span id="273">273</span>
 <span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::fmt</span>;
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
@@ -535,6 +539,10 @@
             <span class="comment">//let u = cross(q_minus_p, Pt2D::new(r.x() / r_cross_s, r.y() / r_cross_s));</span>
             <span class="prelude-val">Some</span>(<span class="ident">Pt2D::new</span>(<span class="ident">p</span>.<span class="ident">x</span>() <span class="op">+</span> <span class="ident">t</span> <span class="op">*</span> <span class="ident">r</span>.<span class="number">0</span>, <span class="ident">p</span>.<span class="ident">y</span>() <span class="op">+</span> <span class="ident">t</span> <span class="op">*</span> <span class="ident">r</span>.<span class="number">1</span>))
         }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_pt_angle</span>(<span class="ident">pt</span>: <span class="ident">Pt2D</span>, <span class="ident">angle</span>: <span class="ident">Angle</span>) -&gt; <span class="ident">InfiniteLine</span> {
+        <span class="ident">Line::must_new</span>(<span class="ident">pt</span>, <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="ident">Distance::meters</span>(<span class="number">1.0</span>), <span class="ident">angle</span>)).<span class="ident">infinite</span>()
     }
 }
 
