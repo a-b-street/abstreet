@@ -340,6 +340,7 @@
 <span id="340">340</span>
 <span id="341">341</span>
 <span id="342">342</span>
+<span id="343">343</span>
 </pre><pre class="rust"><code><span class="doccomment">//! A collection of tools, mostly related to importing maps and scenarios. These are bundled as a</span>
 <span class="doccomment">//! single executable to reduce the cost of static linking in the release&#39;s file size.</span>
 
@@ -415,6 +416,7 @@
     <span class="doccomment">/// Reads a GeoJSON file, extracts a polygon from every feature, and writes numbered files in</span>
     <span class="doccomment">/// the https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format format as</span>
     <span class="doccomment">/// output.</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">name</span> <span class="op">=</span> <span class="string">&quot;geojson-to-osmosis&quot;</span>)]</span>
     <span class="ident">GeoJSONToOsmosis</span> {
         <span class="doccomment">/// The path to a GeoJSON file</span>
         <span class="attribute">#[<span class="ident">structopt</span>()]</span>
