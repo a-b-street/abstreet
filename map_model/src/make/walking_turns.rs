@@ -111,19 +111,26 @@ pub fn make_walking_turns(map: &Map, i: &Intersection) -> Vec<Turn> {
         }
     }
 
-    // If there are exactly two crosswalks they must be connected, so delete one.
-    if result
+    // If there are exactly two crosswalks they must be connected or opposite, so delete one.
+    // This happens at degenerate intersections with sidewalks on both sides or where a
+    //  footway crosses a road without sidewalks.
+    // If there is one crosswalk it must be opposite to a SharedSidewalkCorner, because the
+    //  above could never create just one turn and starts and ends in the same place.
+    // This happens at degenerate intersections with sidewalks on one side.
+    match result
         .iter()
         .filter(|t| t.turn_type == TurnType::Crosswalk)
         .count()
-        == 2
     {
-        result.remove(
-            result
-                .iter()
-                .position(|t| t.turn_type == TurnType::Crosswalk)
-                .unwrap(),
-        );
+        1 | 2 => {
+            result.remove(
+                result
+                    .iter()
+                    .position(|t| t.turn_type == TurnType::Crosswalk)
+                    .unwrap(),
+            );
+        }
+        _ => {}
     }
 
     result
