@@ -555,6 +555,12 @@
 <span id="555">555</span>
 <span id="556">556</span>
 <span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 <span class="kw">use</span> <span class="ident">std::fmt::Debug</span>;
 <span class="kw">use</span> <span class="ident">std::hash::Hash</span>;
@@ -588,6 +594,7 @@
 }
 
 <span class="doccomment">/// The result of a `World` handling an event</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">WorldOutcome</span><span class="op">&lt;</span><span class="ident">ID</span>: <span class="ident">ObjectID</span><span class="op">&gt;</span> {
     <span class="doccomment">/// A left click occurred while not hovering on any object</span>
     <span class="ident">ClickedFreeSpace</span>(<span class="ident">Pt2D</span>),
@@ -612,22 +619,27 @@
     <span class="doccomment">/// component owns a World that contains a few different types of objects, some of which are</span>
     <span class="doccomment">/// managed by another component that only cares about its IDs.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_id</span><span class="op">&lt;</span><span class="ident">O</span>: <span class="ident">ObjectID</span>, <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">I</span>) -&gt; <span class="ident">O</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident">WorldOutcome</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">maybe_map_id</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">f</span>(<span class="ident">id</span>))).<span class="ident">unwrap</span>()
+    }
+
+    <span class="doccomment">/// Like `map_id`, but the transformation may fail.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_map_id</span><span class="op">&lt;</span><span class="ident">O</span>: <span class="ident">ObjectID</span>, <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">I</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">WorldOutcome</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">WorldOutcome::ClickedFreeSpace</span>(<span class="ident">pt</span>) =&gt; <span class="ident">WorldOutcome::ClickedFreeSpace</span>(<span class="ident">pt</span>),
+            <span class="ident">WorldOutcome::ClickedFreeSpace</span>(<span class="ident">pt</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">WorldOutcome::ClickedFreeSpace</span>(<span class="ident">pt</span>)),
             <span class="ident">WorldOutcome::Dragging</span> {
                 <span class="ident">obj</span>,
                 <span class="ident">dx</span>,
                 <span class="ident">dy</span>,
                 <span class="ident">cursor</span>,
-            } =&gt; <span class="ident">WorldOutcome::Dragging</span> {
-                <span class="ident">obj</span>: <span class="ident">f</span>(<span class="ident">obj</span>),
+            } =&gt; <span class="prelude-val">Some</span>(<span class="ident">WorldOutcome::Dragging</span> {
+                <span class="ident">obj</span>: <span class="ident">f</span>(<span class="ident">obj</span>)<span class="question-mark">?</span>,
                 <span class="ident">dx</span>,
                 <span class="ident">dy</span>,
                 <span class="ident">cursor</span>,
-            },
-            <span class="ident">WorldOutcome::Keypress</span>(<span class="ident">action</span>, <span class="ident">id</span>) =&gt; <span class="ident">WorldOutcome::Keypress</span>(<span class="ident">action</span>, <span class="ident">f</span>(<span class="ident">id</span>)),
-            <span class="ident">WorldOutcome::ClickedObject</span>(<span class="ident">id</span>) =&gt; <span class="ident">WorldOutcome::ClickedObject</span>(<span class="ident">f</span>(<span class="ident">id</span>)),
-            <span class="ident">WorldOutcome::Nothing</span> =&gt; <span class="ident">WorldOutcome::Nothing</span>,
+            }),
+            <span class="ident">WorldOutcome::Keypress</span>(<span class="ident">action</span>, <span class="ident">id</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">WorldOutcome::Keypress</span>(<span class="ident">action</span>, <span class="ident">f</span>(<span class="ident">id</span>)<span class="question-mark">?</span>)),
+            <span class="ident">WorldOutcome::ClickedObject</span>(<span class="ident">id</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">WorldOutcome::ClickedObject</span>(<span class="ident">f</span>(<span class="ident">id</span>)<span class="question-mark">?</span>)),
+            <span class="ident">WorldOutcome::Nothing</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">WorldOutcome::Nothing</span>),
         }
     }
 }
