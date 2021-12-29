@@ -596,6 +596,14 @@
 <span id="596">596</span>
 <span id="597">597</span>
 <span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::hash_map::DefaultHasher</span>;
 <span class="kw">use</span> <span class="ident">std::fmt::Write</span>;
 <span class="kw">use</span> <span class="ident">std::hash::Hasher</span>;
@@ -886,6 +894,14 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">append_all</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">lines</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TextSpan</span><span class="op">&gt;</span>) {
         <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">lines</span> {
             <span class="self">self</span>.<span class="ident">append</span>(<span class="ident">l</span>);
+        }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove_colors_from_last_line</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">spans</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">last_mut</span>().<span class="ident">unwrap</span>();
+        <span class="kw">for</span> <span class="ident">span</span> <span class="kw">in</span> <span class="ident">spans</span> {
+            <span class="ident">span</span>.<span class="ident">fg_color</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+            <span class="ident">span</span>.<span class="ident">outline_color</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         }
     }
 

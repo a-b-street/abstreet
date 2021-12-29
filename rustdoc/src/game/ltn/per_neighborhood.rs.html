@@ -221,6 +221,8 @@
 <span id="221">221</span>
 <span id="222">222</span>
 <span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom::Distance</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools::CityPicker</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">RoadID</span>};
@@ -418,7 +420,9 @@
         }
         <span class="ident">WorldOutcome::ClickedObject</span>(<span class="ident">FilterableObj::InteriorIntersection</span>(<span class="ident">i</span>)) =&gt; {
             <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">4</span> {
-                <span class="kw">return</span> <span class="bool-val">false</span>;
+                <span class="comment">// Misleading. Nothing changes, but we&#39;ll &quot;fall through&quot; to other cases without</span>
+                <span class="comment">// this</span>
+                <span class="kw">return</span> <span class="bool-val">true</span>;
             }
 
             <span class="comment">// Toggle through all possible filters</span>
