@@ -168,101 +168,22 @@
 <span id="168">168</span>
 <span id="169">169</span>
 <span id="170">170</span>
-<span id="171">171</span>
-<span id="172">172</span>
-<span id="173">173</span>
-<span id="174">174</span>
-<span id="175">175</span>
-<span id="176">176</span>
-<span id="177">177</span>
-<span id="178">178</span>
-<span id="179">179</span>
-<span id="180">180</span>
-<span id="181">181</span>
-<span id="182">182</span>
-<span id="183">183</span>
-<span id="184">184</span>
-<span id="185">185</span>
-<span id="186">186</span>
-<span id="187">187</span>
-<span id="188">188</span>
-<span id="189">189</span>
-<span id="190">190</span>
-<span id="191">191</span>
-<span id="192">192</span>
-<span id="193">193</span>
-<span id="194">194</span>
-<span id="195">195</span>
-<span id="196">196</span>
-<span id="197">197</span>
-<span id="198">198</span>
-<span id="199">199</span>
-<span id="200">200</span>
-<span id="201">201</span>
-<span id="202">202</span>
-<span id="203">203</span>
-<span id="204">204</span>
-<span id="205">205</span>
-<span id="206">206</span>
-<span id="207">207</span>
-<span id="208">208</span>
-<span id="209">209</span>
-<span id="210">210</span>
-<span id="211">211</span>
-<span id="212">212</span>
-<span id="213">213</span>
-<span id="214">214</span>
-<span id="215">215</span>
-<span id="216">216</span>
-<span id="217">217</span>
-<span id="218">218</span>
-<span id="219">219</span>
-<span id="220">220</span>
-<span id="221">221</span>
-<span id="222">222</span>
-<span id="223">223</span>
-<span id="224">224</span>
-<span id="225">225</span>
-<span id="226">226</span>
-<span id="227">227</span>
-<span id="228">228</span>
-<span id="229">229</span>
-<span id="230">230</span>
-<span id="231">231</span>
-<span id="232">232</span>
-<span id="233">233</span>
-<span id="234">234</span>
-<span id="235">235</span>
-<span id="236">236</span>
-<span id="237">237</span>
-<span id="238">238</span>
-<span id="239">239</span>
-<span id="240">240</span>
-<span id="241">241</span>
-<span id="242">242</span>
-<span id="243">243</span>
-<span id="244">244</span>
-<span id="245">245</span>
-<span id="246">246</span>
-<span id="247">247</span>
-<span id="248">248</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
 <span class="kw">use</span> <span class="ident">geom::Distance</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">RoadID</span>};
-<span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ObjectID</span>, <span class="ident">World</span>, <span class="ident">WorldOutcome</span>};
+<span class="kw">use</span> <span class="ident">widgetry::mapspace::World</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">Widget</span>,
+    <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">Widget</span>,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::per_neighborhood</span>::{<span class="ident">Tab</span>, <span class="ident">TakeNeighborhood</span>};
-<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">DiagonalFilter</span>, <span class="ident">Neighborhood</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::per_neighborhood</span>::{<span class="ident">FilterableObj</span>, <span class="ident">Tab</span>, <span class="ident">TakeNeighborhood</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::Neighborhood</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Viewer</span> {
     <span class="ident">panel</span>: <span class="ident">Panel</span>,
     <span class="ident">neighborhood</span>: <span class="ident">Neighborhood</span>,
-    <span class="ident">world</span>: <span class="ident">World</span><span class="op">&lt;</span><span class="ident">Obj</span><span class="op">&gt;</span>,
+    <span class="ident">world</span>: <span class="ident">World</span><span class="op">&lt;</span><span class="ident">FilterableObj</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">TakeNeighborhood</span> <span class="kw">for</span> <span class="ident">Viewer</span> {
@@ -270,13 +191,6 @@
         <span class="self">self</span>.<span class="ident">neighborhood</span>
     }
 }
-
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Hash</span>)]</span>
-<span class="kw">enum</span> <span class="ident">Obj</span> {
-    <span class="ident">InteriorRoad</span>(<span class="ident">RoadID</span>),
-    <span class="ident">InteriorIntersection</span>(<span class="ident">IntersectionID</span>),
-}
-<span class="kw">impl</span> <span class="ident">ObjectID</span> <span class="kw">for</span> <span class="ident">Obj</span> {}
 
 <span class="kw">impl</span> <span class="ident">Viewer</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(
@@ -293,7 +207,6 @@
                         <span class="string">&quot;Draw traffic cells as&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
                         <span class="ident">Toggle::choice</span>(<span class="ident">ctx</span>, <span class="string">&quot;draw cells&quot;</span>, <span class="string">&quot;areas&quot;</span>, <span class="string">&quot;streets&quot;</span>, <span class="ident">Key::D</span>, <span class="bool-val">true</span>),
                     ]),
-                    <span class="string">&quot;Click a road to add or remove a modal filter&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">Text::new</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;warnings&quot;</span>),
                 ]),
             )
@@ -349,51 +262,13 @@
             <span class="kw">_</span> =&gt; {}
         }
 
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">WorldOutcome::ClickedObject</span>(<span class="ident">Obj::InteriorRoad</span>(<span class="ident">r</span>)) =&gt; {
-                <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">roads</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>).<span class="ident">is_none</span>() {
-                    <span class="comment">// Place the filter on the part of the road that was clicked</span>
-                    <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>);
-                    <span class="comment">// These calls shouldn&#39;t fail -- since we clicked a road, the cursor must be in</span>
-                    <span class="comment">// map-space. And project_pt returns a point that&#39;s guaranteed to be on the</span>
-                    <span class="comment">// polyline.</span>
-                    <span class="kw">let</span> <span class="ident">cursor_pt</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>().<span class="ident">unwrap</span>();
-                    <span class="kw">let</span> <span class="ident">pt_on_line</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">project_pt</span>(<span class="ident">cursor_pt</span>);
-                    <span class="kw">let</span> (<span class="ident">distance</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">dist_along_of_point</span>(<span class="ident">pt_on_line</span>).<span class="ident">unwrap</span>();
-
-                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">roads</span>.<span class="ident">insert</span>(<span class="ident">r</span>, <span class="ident">distance</span>);
-                }
-                <span class="comment">// TODO The cell coloring changes quite spuriously just by toggling a filter, even</span>
-                <span class="comment">// when it doesn&#39;t matter</span>
-                <span class="self">self</span>.<span class="ident">neighborhood</span> <span class="op">=</span>
-                    <span class="ident">Neighborhood::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">neighborhood</span>.<span class="ident">orig_perimeter</span>.<span class="ident">clone</span>());
-                <span class="self">self</span>.<span class="ident">neighborhood_changed</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-            }
-            <span class="ident">WorldOutcome::ClickedObject</span>(<span class="ident">Obj::InteriorIntersection</span>(<span class="ident">i</span>)) =&gt; {
-                <span class="comment">// Toggle through all possible filters</span>
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all</span> <span class="op">=</span> <span class="ident">DiagonalFilter::filters_for</span>(<span class="ident">app</span>, <span class="ident">i</span>);
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">current</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">intersections</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>) {
-                    <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">all</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span> <span class="op">==</span> <span class="ident">current</span>).<span class="ident">unwrap</span>();
-                    <span class="kw">if</span> <span class="ident">idx</span> <span class="op">==</span> <span class="ident">all</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {
-                        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">intersections</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>);
-                    } <span class="kw">else</span> {
-                        <span class="ident">app</span>.<span class="ident">session</span>
-                            .<span class="ident">modal_filters</span>
-                            .<span class="ident">intersections</span>
-                            .<span class="ident">insert</span>(<span class="ident">i</span>, <span class="ident">all</span>.<span class="ident">remove</span>(<span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>));
-                    }
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">all</span>.<span class="ident">is_empty</span>() {
-                    <span class="ident">app</span>.<span class="ident">session</span>
-                        .<span class="ident">modal_filters</span>
-                        .<span class="ident">intersections</span>
-                        .<span class="ident">insert</span>(<span class="ident">i</span>, <span class="ident">all</span>.<span class="ident">remove</span>(<span class="number">0</span>));
-                }
-
-                <span class="self">self</span>.<span class="ident">neighborhood</span> <span class="op">=</span>
-                    <span class="ident">Neighborhood::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">neighborhood</span>.<span class="ident">orig_perimeter</span>.<span class="ident">clone</span>());
-                <span class="self">self</span>.<span class="ident">neighborhood_changed</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-            }
-            <span class="kw">_</span> =&gt; {}
+        <span class="kw">let</span> <span class="ident">world_outcome</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">event</span>(<span class="ident">ctx</span>);
+        <span class="kw">if</span> <span class="ident"><span class="kw">super</span>::per_neighborhood::handle_world_outcome</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">world_outcome</span>) {
+            <span class="comment">// TODO The cell coloring changes quite spuriously just by toggling a filter, even when</span>
+            <span class="comment">// it doesn&#39;t matter</span>
+            <span class="self">self</span>.<span class="ident">neighborhood</span> <span class="op">=</span>
+                <span class="ident">Neighborhood::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">neighborhood</span>.<span class="ident">orig_perimeter</span>.<span class="ident">clone</span>());
+            <span class="self">self</span>.<span class="ident">neighborhood_changed</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
         }
 
         <span class="ident">Transition::Keep</span>
@@ -418,51 +293,34 @@
     <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
     <span class="ident">neighborhood</span>: <span class="kw-2">&amp;</span><span class="ident">Neighborhood</span>,
     <span class="ident">draw_cells_as_areas</span>: <span class="ident">bool</span>,
-) -&gt; <span class="ident">World</span><span class="op">&lt;</span><span class="ident">Obj</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">World</span><span class="op">&lt;</span><span class="ident">FilterableObj</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">world</span> <span class="op">=</span> <span class="ident">World::bounded</span>(<span class="ident">map</span>.<span class="ident">get_bounds</span>());
 
-    <span class="comment">// Could refactor this, but I suspect we&#39;ll settle on one drawing style or another. Toggling</span>
-    <span class="comment">// between the two is temporary.</span>
-    <span class="kw">if</span> <span class="ident">draw_cells_as_areas</span> {
-        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">neighborhood</span>.<span class="ident">orig_perimeter</span>.<span class="ident">interior</span> {
-            <span class="ident">world</span>
-                .<span class="ident">add</span>(<span class="ident">Obj::InteriorRoad</span>(<span class="kw-2">*</span><span class="ident">r</span>))
-                .<span class="ident">hitbox</span>(<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">get_thick_polygon</span>())
-                .<span class="ident">drawn_in_master_batch</span>()
-                .<span class="ident">hover_outline</span>(<span class="ident">Color::BLACK</span>, <span class="ident">Distance::meters</span>(<span class="number">5.0</span>))
-                .<span class="ident">clickable</span>()
-                .<span class="ident">build</span>(<span class="ident">ctx</span>);
-        }
+    <span class="ident"><span class="kw">super</span>::per_neighborhood::populate_world</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">neighborhood</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">world</span>, <span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="ident">id</span>, <span class="number">0</span>);
 
+    <span class="kw">if</span> <span class="ident">draw_cells_as_areas</span> {
         <span class="ident">world</span>.<span class="ident">draw_master_batch</span>(<span class="ident">ctx</span>, <span class="ident"><span class="kw">super</span>::draw_cells::draw_cells</span>(<span class="ident">map</span>, <span class="ident">neighborhood</span>));
     } <span class="kw">else</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw_intersections</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">debug_cell_borders</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seen_roads</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
         <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">cell</span>) <span class="kw">in</span> <span class="ident">neighborhood</span>.<span class="ident">cells</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
             <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident"><span class="kw">super</span>::draw_cells::COLORS</span>[<span class="ident">idx</span> <span class="op">%</span> <span class="ident"><span class="kw">super</span>::draw_cells::COLORS</span>.<span class="ident">len</span>()].<span class="ident">alpha</span>(<span class="number">0.9</span>);
             <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">cell</span>.<span class="ident">roads</span>.<span class="ident">keys</span>() {
-                <span class="comment">// TODO Roads with a filter belong to two cells. Avoid adding them to the world</span>
-                <span class="comment">// twice. But the drawn form (and the intersections included) needs to be adjusted</span>
-                <span class="comment">// to use two colors.</span>
+                <span class="comment">// TODO Roads with a filter belong to two cells. The drawn form (and the</span>
+                <span class="comment">// intersections included) needs to be adjusted to use two colors.</span>
                 <span class="kw">if</span> <span class="ident">seen_roads</span>.<span class="ident">contains</span>(<span class="ident">r</span>) {
                     <span class="kw">continue</span>;
                 }
                 <span class="ident">seen_roads</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">r</span>);
 
-                <span class="ident">world</span>
-                    .<span class="ident">add</span>(<span class="ident">Obj::InteriorRoad</span>(<span class="kw-2">*</span><span class="ident">r</span>))
-                    .<span class="ident">hitbox</span>(<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">get_thick_polygon</span>())
-                    .<span class="ident">draw_color</span>(<span class="ident">color</span>)
-                    .<span class="ident">hover_outline</span>(<span class="ident">Color::BLACK</span>, <span class="ident">Distance::meters</span>(<span class="number">5.0</span>))
-                    .<span class="ident">clickable</span>()
-                    .<span class="ident">build</span>(<span class="ident">ctx</span>);
+                <span class="ident">draw</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">get_thick_polygon</span>());
             }
             <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span>
                 <span class="ident"><span class="kw">crate</span>::common::intersections_from_roads</span>(<span class="kw-2">&amp;</span><span class="ident">cell</span>.<span class="ident">roads</span>.<span class="ident">keys</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>(), <span class="ident">map</span>)
             {
-                <span class="ident">draw_intersections</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>());
+                <span class="ident">draw</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>());
             }
             <span class="comment">// Draw the cell borders as outlines, for debugging. (Later, we probably want some kind</span>
             <span class="comment">// of arrow styling)</span>
@@ -472,22 +330,8 @@
                 }
             }
         }
-        <span class="ident">draw_intersections</span>.<span class="ident">append</span>(<span class="ident">debug_cell_borders</span>);
-        <span class="ident">world</span>.<span class="ident">draw_master_batch</span>(<span class="ident">ctx</span>, <span class="ident">draw_intersections</span>);
-    }
-
-    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">neighborhood</span>.<span class="ident">interior_intersections</span> {
-        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>);
-        <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">4</span> {
-            <span class="kw">continue</span>;
-        }
-        <span class="ident">world</span>
-            .<span class="ident">add</span>(<span class="ident">Obj::InteriorIntersection</span>(<span class="ident">i</span>.<span class="ident">id</span>))
-            .<span class="ident">hitbox</span>(<span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>())
-            .<span class="ident">drawn_in_master_batch</span>()
-            .<span class="ident">hover_outline</span>(<span class="ident">Color::BLACK</span>, <span class="ident">Distance::meters</span>(<span class="number">5.0</span>))
-            .<span class="ident">clickable</span>()
-            .<span class="ident">build</span>(<span class="ident">ctx</span>);
+        <span class="ident">draw</span>.<span class="ident">append</span>(<span class="ident">debug_cell_borders</span>);
+        <span class="ident">world</span>.<span class="ident">draw_master_batch</span>(<span class="ident">ctx</span>, <span class="ident">draw</span>);
     }
 
     <span class="ident">world</span>.<span class="ident">initialize_hover</span>(<span class="ident">ctx</span>);

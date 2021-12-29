@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Obj",""]],"fn":[["make_world",""]],"struct":[["BrowseRatRuns",""]]});
+initSidebarItems({"fn":[["make_world",""]],"struct":[["BrowseRatRuns",""]]});
