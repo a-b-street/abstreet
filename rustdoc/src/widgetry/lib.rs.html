@@ -234,6 +234,7 @@
 <span id="234">234</span>
 <span id="235">235</span>
 <span id="236">236</span>
+<span id="237">237</span>
 </pre><pre class="rust"><code><span class="doccomment">//! # Widgets</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! If none of these do what you need, implementing a new [`WidgetImpl`] isn&#39;t tough.</span>
@@ -311,7 +312,8 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::widgets::toggle::Toggle</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::widgets::DEFAULT_CORNER_RADIUS</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::widgets</span>::{
-    <span class="ident">ClickOutcome</span>, <span class="ident">CornerRounding</span>, <span class="ident">EdgeInsets</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
+    <span class="ident">ClickOutcome</span>, <span class="ident">CornerRounding</span>, <span class="ident">EdgeInsets</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">PanelBuilder</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>,
+    <span class="ident">WidgetOutput</span>,
 };
 
 <span class="kw">mod</span> <span class="ident">app_state</span>;

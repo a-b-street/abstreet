@@ -281,7 +281,7 @@
         }
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">WorldOutcome::ClickedObject</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident"><span class="kw">super</span>::viewer::Viewer::new_state</span>(
+            <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident"><span class="kw">super</span>::connectivity::Viewer::new_state</span>(
                 <span class="ident">ctx</span>,
                 <span class="ident">app</span>,
                 <span class="ident">Neighborhood::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">neighborhoods</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>].<span class="ident">perimeter</span>.<span class="ident">clone</span>()),

@@ -442,6 +442,7 @@
 <span id="442">442</span>
 <span id="443">443</span>
 <span id="444">444</span>
+<span id="445">445</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">maplit::btreeset</span>;
@@ -457,12 +458,13 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">browse::BrowseNeighborhoods</span>;
 
 <span class="kw">mod</span> <span class="ident">browse</span>;
+<span class="kw">mod</span> <span class="ident">connectivity</span>;
 <span class="kw">mod</span> <span class="ident">draw_cells</span>;
+<span class="kw">mod</span> <span class="ident">per_neighborhood</span>;
 <span class="kw">mod</span> <span class="ident">rat_run_viewer</span>;
 <span class="kw">mod</span> <span class="ident">rat_runs</span>;
 <span class="kw">mod</span> <span class="ident">route</span>;
 <span class="kw">mod</span> <span class="ident">select_boundary</span>;
-<span class="kw">mod</span> <span class="ident">viewer</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Neighborhood</span> {
     <span class="comment">// These&#39;re fixed</span>
