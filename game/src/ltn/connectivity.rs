@@ -1,20 +1,19 @@
 use std::collections::HashSet;
 
 use geom::Distance;
-use map_model::{IntersectionID, RoadID};
-use widgetry::mapspace::{ObjectID, World, WorldOutcome};
+use widgetry::mapspace::World;
 use widgetry::{
-    Color, EventCtx, GeomBatch, GfxCtx, Key, Outcome, Panel, State, Text, TextExt, Toggle, Widget,
+    EventCtx, GeomBatch, GfxCtx, Key, Outcome, Panel, State, Text, TextExt, Toggle, Widget,
 };
 
-use super::per_neighborhood::{Tab, TakeNeighborhood};
-use super::{DiagonalFilter, Neighborhood};
+use super::per_neighborhood::{FilterableObj, Tab, TakeNeighborhood};
+use super::Neighborhood;
 use crate::app::{App, Transition};
 
 pub struct Viewer {
     panel: Panel,
     neighborhood: Neighborhood,
-    world: World<Obj>,
+    world: World<FilterableObj>,
 }
 
 impl TakeNeighborhood for Viewer {
@@ -22,13 +21,6 @@ impl TakeNeighborhood for Viewer {
         self.neighborhood
     }
 }
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-enum Obj {
-    InteriorRoad(RoadID),
-    InteriorIntersection(IntersectionID),
-}
-impl ObjectID for Obj {}
 
 impl Viewer {
     pub fn new_state(
@@ -45,7 +37,6 @@ impl Viewer {
                         "Draw traffic cells as".text_widget(ctx).centered_vert(),
                         Toggle::choice(ctx, "draw cells", "areas", "streets", Key::D, true),
                     ]),
-                    "Click a road to add or remove a modal filter".text_widget(ctx),
                     Text::new().into_widget(ctx).named("warnings"),
                 ]),
             )
@@ -101,51 +92,13 @@ impl State<App> for Viewer {
             _ => {}
         }
 
-        match self.world.event(ctx) {
-            WorldOutcome::ClickedObject(Obj::InteriorRoad(r)) => {
-                if app.session.modal_filters.roads.remove(&r).is_none() {
-                    // Place the filter on the part of the road that was clicked
-                    let road = app.primary.map.get_r(r);
-                    // These calls shouldn't fail -- since we clicked a road, the cursor must be in
-                    // map-space. And project_pt returns a point that's guaranteed to be on the
-                    // polyline.
-                    let cursor_pt = ctx.canvas.get_cursor_in_map_space().unwrap();
-                    let pt_on_line = road.center_pts.project_pt(cursor_pt);
-                    let (distance, _) = road.center_pts.dist_along_of_point(pt_on_line).unwrap();
-
-                    app.session.modal_filters.roads.insert(r, distance);
-                }
-                // TODO The cell coloring changes quite spuriously just by toggling a filter, even
-                // when it doesn't matter
-                self.neighborhood =
-                    Neighborhood::new(ctx, app, self.neighborhood.orig_perimeter.clone());
-                self.neighborhood_changed(ctx, app);
-            }
-            WorldOutcome::ClickedObject(Obj::InteriorIntersection(i)) => {
-                // Toggle through all possible filters
-                let mut all = DiagonalFilter::filters_for(app, i);
-                if let Some(current) = app.session.modal_filters.intersections.get(&i) {
-                    let idx = all.iter().position(|x| x == current).unwrap();
-                    if idx == all.len() - 1 {
-                        app.session.modal_filters.intersections.remove(&i);
-                    } else {
-                        app.session
-                            .modal_filters
-                            .intersections
-                            .insert(i, all.remove(idx + 1));
-                    }
-                } else if !all.is_empty() {
-                    app.session
-                        .modal_filters
-                        .intersections
-                        .insert(i, all.remove(0));
-                }
-
-                self.neighborhood =
-                    Neighborhood::new(ctx, app, self.neighborhood.orig_perimeter.clone());
-                self.neighborhood_changed(ctx, app);
-            }
-            _ => {}
+        let world_outcome = self.world.event(ctx);
+        if super::per_neighborhood::handle_world_outcome(ctx, app, world_outcome) {
+            // TODO The cell coloring changes quite spuriously just by toggling a filter, even when
+            // it doesn't matter
+            self.neighborhood =
+                Neighborhood::new(ctx, app, self.neighborhood.orig_perimeter.clone());
+            self.neighborhood_changed(ctx, app);
         }
 
         Transition::Keep
@@ -170,51 +123,34 @@ fn make_world(
     app: &App,
     neighborhood: &Neighborhood,
     draw_cells_as_areas: bool,
-) -> World<Obj> {
+) -> World<FilterableObj> {
     let map = &app.primary.map;
     let mut world = World::bounded(map.get_bounds());
 
-    // Could refactor this, but I suspect we'll settle on one drawing style or another. Toggling
-    // between the two is temporary.
-    if draw_cells_as_areas {
-        for r in &neighborhood.orig_perimeter.interior {
-            world
-                .add(Obj::InteriorRoad(*r))
-                .hitbox(map.get_r(*r).get_thick_polygon())
-                .drawn_in_master_batch()
-                .hover_outline(Color::BLACK, Distance::meters(5.0))
-                .clickable()
-                .build(ctx);
-        }
+    super::per_neighborhood::populate_world(ctx, app, neighborhood, &mut world, |id| id, 0);
 
+    if draw_cells_as_areas {
         world.draw_master_batch(ctx, super::draw_cells::draw_cells(map, neighborhood));
     } else {
-        let mut draw_intersections = GeomBatch::new();
+        let mut draw = GeomBatch::new();
         let mut debug_cell_borders = GeomBatch::new();
         let mut seen_roads = HashSet::new();
         for (idx, cell) in neighborhood.cells.iter().enumerate() {
             let color = super::draw_cells::COLORS[idx % super::draw_cells::COLORS.len()].alpha(0.9);
             for r in cell.roads.keys() {
-                // TODO Roads with a filter belong to two cells. Avoid adding them to the world
-                // twice. But the drawn form (and the intersections included) needs to be adjusted
-                // to use two colors.
+                // TODO Roads with a filter belong to two cells. The drawn form (and the
+                // intersections included) needs to be adjusted to use two colors.
                 if seen_roads.contains(r) {
                     continue;
                 }
                 seen_roads.insert(*r);
 
-                world
-                    .add(Obj::InteriorRoad(*r))
-                    .hitbox(map.get_r(*r).get_thick_polygon())
-                    .draw_color(color)
-                    .hover_outline(Color::BLACK, Distance::meters(5.0))
-                    .clickable()
-                    .build(ctx);
+                draw.push(color, map.get_r(*r).get_thick_polygon());
             }
             for i in
                 crate::common::intersections_from_roads(&cell.roads.keys().cloned().collect(), map)
             {
-                draw_intersections.push(color, map.get_i(i).polygon.clone());
+                draw.push(color, map.get_i(i).polygon.clone());
             }
             // Draw the cell borders as outlines, for debugging. (Later, we probably want some kind
             // of arrow styling)
@@ -224,22 +160,8 @@ fn make_world(
                 }
             }
         }
-        draw_intersections.append(debug_cell_borders);
-        world.draw_master_batch(ctx, draw_intersections);
-    }
-
-    for i in &neighborhood.interior_intersections {
-        let i = map.get_i(*i);
-        if i.roads.len() != 4 {
-            continue;
-        }
-        world
-            .add(Obj::InteriorIntersection(i.id))
-            .hitbox(i.polygon.clone())
-            .drawn_in_master_batch()
-            .hover_outline(Color::BLACK, Distance::meters(5.0))
-            .clickable()
-            .build(ctx);
+        draw.append(debug_cell_borders);
+        world.draw_master_batch(ctx, draw);
     }
 
     world.initialize_hover(ctx);

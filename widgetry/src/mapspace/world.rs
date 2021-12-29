@@ -527,6 +527,16 @@ impl<ID: ObjectID> World<ID> {
     pub fn get_hovering(&self) -> Option<ID> {
         self.hovering
     }
+
+    /// Change an object's tooltip. Returns true for success, false if the object didn't exist.
+    pub fn override_tooltip(&mut self, id: &ID, tooltip: Option<Text>) -> bool {
+        if let Some(obj) = self.objects.get_mut(id) {
+            obj.tooltip = tooltip;
+            true
+        } else {
+            false
+        }
+    }
 }
 
 /// If you don't ever need to refer to objects in a `World`, you can auto-assign dummy IDs.

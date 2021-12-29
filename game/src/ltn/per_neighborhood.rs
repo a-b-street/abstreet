@@ -1,10 +1,13 @@
+use geom::Distance;
 use map_gui::tools::CityPicker;
+use map_model::{IntersectionID, RoadID};
+use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::{
-    EventCtx, HorizontalAlignment, Key, Panel, PanelBuilder, State, VerticalAlignment, Widget,
-    DEFAULT_CORNER_RADIUS,
+    Color, EventCtx, HorizontalAlignment, Key, Panel, PanelBuilder, State, TextExt,
+    VerticalAlignment, Widget, DEFAULT_CORNER_RADIUS,
 };
 
-use super::{BrowseNeighborhoods, Neighborhood};
+use super::{BrowseNeighborhoods, DiagonalFilter, Neighborhood};
 use crate::app::{App, Transition};
 
 #[derive(PartialEq)]
@@ -40,6 +43,7 @@ impl Tab {
                     .build_def(ctx),
             ]),
             self.make_buttons(ctx),
+            "Click a road or intersection to add or remove a modal filter".text_widget(ctx),
             per_tab_contents.tab_body(ctx),
         ]))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
@@ -120,5 +124,98 @@ impl Tab {
             );
         }
         Widget::row(row)
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum FilterableObj {
+    InteriorRoad(RoadID),
+    InteriorIntersection(IntersectionID),
+}
+impl ObjectID for FilterableObj {}
+
+/// Adds clickable objects for managing filters on roads and intersections. The caller is
+/// responsible for base drawing behavior, initialize_hover, etc.
+pub fn populate_world<T: ObjectID, F: Fn(FilterableObj) -> T>(
+    ctx: &mut EventCtx,
+    app: &App,
+    neighborhood: &Neighborhood,
+    world: &mut World<T>,
+    wrap_id: F,
+    zorder: usize,
+) {
+    let map = &app.primary.map;
+
+    for r in &neighborhood.orig_perimeter.interior {
+        world
+            .add(wrap_id(FilterableObj::InteriorRoad(*r)))
+            .hitbox(map.get_r(*r).get_thick_polygon())
+            .zorder(zorder)
+            .drawn_in_master_batch()
+            .hover_outline(Color::BLACK, Distance::meters(5.0))
+            .clickable()
+            .build(ctx);
+    }
+
+    for i in &neighborhood.interior_intersections {
+        world
+            .add(wrap_id(FilterableObj::InteriorIntersection(*i)))
+            .hitbox(map.get_i(*i).polygon.clone())
+            .zorder(zorder)
+            .drawn_in_master_batch()
+            .hover_outline(Color::BLACK, Distance::meters(5.0))
+            .clickable()
+            .build(ctx);
+    }
+}
+
+/// If true, the neighborhood has changed and the caller should recalculate stuff
+pub fn handle_world_outcome(
+    ctx: &mut EventCtx,
+    app: &mut App,
+    outcome: WorldOutcome<FilterableObj>,
+) -> bool {
+    match outcome {
+        WorldOutcome::ClickedObject(FilterableObj::InteriorRoad(r)) => {
+            if app.session.modal_filters.roads.remove(&r).is_none() {
+                // Place the filter on the part of the road that was clicked
+                let road = app.primary.map.get_r(r);
+                // These calls shouldn't fail -- since we clicked a road, the cursor must be in
+                // map-space. And project_pt returns a point that's guaranteed to be on the
+                // polyline.
+                let cursor_pt = ctx.canvas.get_cursor_in_map_space().unwrap();
+                let pt_on_line = road.center_pts.project_pt(cursor_pt);
+                let (distance, _) = road.center_pts.dist_along_of_point(pt_on_line).unwrap();
+
+                app.session.modal_filters.roads.insert(r, distance);
+            }
+            true
+        }
+        WorldOutcome::ClickedObject(FilterableObj::InteriorIntersection(i)) => {
+            if app.primary.map.get_i(i).roads.len() != 4 {
+                return false;
+            }
+
+            // Toggle through all possible filters
+            let mut all = DiagonalFilter::filters_for(app, i);
+            if let Some(current) = app.session.modal_filters.intersections.get(&i) {
+                let idx = all.iter().position(|x| x == current).unwrap();
+                if idx == all.len() - 1 {
+                    app.session.modal_filters.intersections.remove(&i);
+                } else {
+                    app.session
+                        .modal_filters
+                        .intersections
+                        .insert(i, all.remove(idx + 1));
+                }
+            } else if !all.is_empty() {
+                app.session
+                    .modal_filters
+                    .intersections
+                    .insert(i, all.remove(0));
+            }
+            true
+        }
+        _ => false,
     }
 }

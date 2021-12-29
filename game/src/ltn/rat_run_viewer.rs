@@ -1,13 +1,12 @@
 use geom::ArrowCap;
 use map_gui::tools::ColorNetwork;
-use map_model::{IntersectionID, RoadID, NORMAL_LANE_THICKNESS};
-use widgetry::mapspace::{ObjectID, ToggleZoomed, World};
+use map_model::NORMAL_LANE_THICKNESS;
+use widgetry::mapspace::{ToggleZoomed, World};
 use widgetry::{
-    Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, State, Text, TextExt, Toggle,
-    Widget,
+    Color, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text, TextExt, Toggle, Widget,
 };
 
-use super::per_neighborhood::{Tab, TakeNeighborhood};
+use super::per_neighborhood::{FilterableObj, Tab, TakeNeighborhood};
 use super::rat_runs::{find_rat_runs, RatRuns};
 use super::Neighborhood;
 use crate::app::{App, Transition};
@@ -19,7 +18,7 @@ pub struct BrowseRatRuns {
 
     draw_path: ToggleZoomed,
     draw_heatmap: ToggleZoomed,
-    world: World<Obj>,
+    world: World<FilterableObj>,
     neighborhood: Neighborhood,
 }
 
@@ -144,8 +143,6 @@ impl BrowseRatRuns {
 
 impl State<App> for BrowseRatRuns {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        ctx.canvas_movement();
-
         if let Outcome::Clicked(x) = self.panel.event(ctx) {
             match x.as_ref() {
                 "previous rat run" => {
@@ -166,8 +163,18 @@ impl State<App> for BrowseRatRuns {
             }
         }
 
-        // Just trigger tooltips; no other interactions possible
-        let _ = self.world.event(ctx);
+        // TODO Bit weird to allow this while showing individual paths, since we don't draw the
+        // world
+        let world_outcome = self.world.event(ctx);
+        if super::per_neighborhood::handle_world_outcome(ctx, app, world_outcome) {
+            // TODO We could be a bit more efficient here, but simplest to just start over with a
+            // new state
+            return Transition::Replace(BrowseRatRuns::new_state(
+                ctx,
+                app,
+                Neighborhood::new(ctx, app, self.neighborhood.orig_perimeter.clone()),
+            ));
+        }
 
         Transition::Keep
     }
@@ -190,46 +197,35 @@ impl State<App> for BrowseRatRuns {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-enum Obj {
-    InteriorRoad(RoadID),
-    InteriorIntersection(IntersectionID),
-}
-impl ObjectID for Obj {}
-
 fn make_world(
     ctx: &mut EventCtx,
     app: &App,
     neighborhood: &Neighborhood,
     rat_runs: &RatRuns,
-) -> World<Obj> {
+) -> World<FilterableObj> {
     let map = &app.primary.map;
     let mut world = World::bounded(map.get_bounds());
 
+    super::per_neighborhood::populate_world(ctx, app, neighborhood, &mut world, |id| id, 0);
+
+    // Bit hacky. Go through and fill out tooltips for the objects just added to the world.
     for r in &neighborhood.orig_perimeter.interior {
-        world
-            .add(Obj::InteriorRoad(*r))
-            .hitbox(map.get_r(*r).get_thick_polygon())
-            .drawn_in_master_batch()
-            // TODO Not sure if tooltip() without this should imply it?
-            .draw_hovered(GeomBatch::new())
-            .tooltip(Text::from(format!(
+        assert!(world.override_tooltip(
+            &FilterableObj::InteriorRoad(*r),
+            Some(Text::from(format!(
                 "{} rat-runs cross this street",
                 rat_runs.count_per_road.get(*r)
             )))
-            .build(ctx);
+        ));
     }
     for i in &neighborhood.interior_intersections {
-        world
-            .add(Obj::InteriorIntersection(*i))
-            .hitbox(map.get_i(*i).polygon.clone())
-            .drawn_in_master_batch()
-            .draw_hovered(GeomBatch::new())
-            .tooltip(Text::from(format!(
+        assert!(world.override_tooltip(
+            &FilterableObj::InteriorIntersection(*i),
+            Some(Text::from(format!(
                 "{} rat-runs cross this intersection",
                 rat_runs.count_per_intersection.get(*i)
             )))
-            .build(ctx);
+        ));
     }
 
     world.initialize_hover(ctx);
