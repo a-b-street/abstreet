@@ -5,8 +5,8 @@ use map_gui::tools::CityPicker;
 use map_model::{IntersectionID, RoadID};
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::{
-    Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, State, TextExt,
-    Toggle, VerticalAlignment, Widget,
+    Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, State, Text,
+    TextExt, Toggle, VerticalAlignment, Widget,
 };
 
 use super::{BrowseNeighborhoods, DiagonalFilter, Neighborhood};
@@ -58,17 +58,41 @@ impl Viewer {
                 Toggle::choice(ctx, "draw cells", "areas", "streets", Key::C, true),
             ]),
             "Click a road to add or remove a modal filter".text_widget(ctx),
+            Text::new().into_widget(ctx).named("warnings"),
         ]))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
         .build(ctx);
 
-        let world = make_world(ctx, app, &neighborhood, panel.is_checked("draw cells"));
-
-        Box::new(Viewer {
+        let mut viewer = Viewer {
             panel,
             neighborhood,
-            world,
-        })
+            world: World::unbounded(),
+        };
+        viewer.neighborhood_changed(ctx, app);
+        Box::new(viewer)
+    }
+
+    fn neighborhood_changed(&mut self, ctx: &mut EventCtx, app: &App) {
+        self.world = make_world(
+            ctx,
+            app,
+            &self.neighborhood,
+            self.panel.is_checked("draw cells"),
+        );
+        let disconnected_cells = self
+            .neighborhood
+            .cells
+            .iter()
+            .filter(|c| c.borders.is_empty())
+            .count();
+        // TODO Also add a red outline to them or something
+        let warning = if disconnected_cells == 0 {
+            String::new()
+        } else {
+            format!("{} cells are totally disconnected", disconnected_cells)
+        };
+        self.panel
+            .replace(ctx, "warnings", warning.text_widget(ctx));
     }
 }
 
@@ -159,12 +183,7 @@ impl State<App> for Viewer {
                 // when it doesn't matter
                 self.neighborhood =
                     Neighborhood::new(ctx, app, self.neighborhood.orig_perimeter.clone());
-                self.world = make_world(
-                    ctx,
-                    app,
-                    &self.neighborhood,
-                    self.panel.is_checked("draw cells"),
-                );
+                self.neighborhood_changed(ctx, app);
             }
             WorldOutcome::ClickedObject(Obj::InteriorIntersection(i)) => {
                 // Toggle through all possible filters
@@ -188,12 +207,7 @@ impl State<App> for Viewer {
 
                 self.neighborhood =
                     Neighborhood::new(ctx, app, self.neighborhood.orig_perimeter.clone());
-                self.world = make_world(
-                    ctx,
-                    app,
-                    &self.neighborhood,
-                    self.panel.is_checked("draw cells"),
-                );
+                self.neighborhood_changed(ctx, app);
             }
             _ => {}
         }
