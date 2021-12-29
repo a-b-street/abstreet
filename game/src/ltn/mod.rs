@@ -1,5 +1,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 
+use maplit::btreeset;
+
 use geom::{Circle, Distance, Line, Polygon};
 use map_gui::tools::DrawRoadLabels;
 use map_model::{IntersectionID, Map, Perimeter, RoadID, RoutingParams, TurnID};
@@ -83,6 +85,8 @@ pub struct Cell {
     /// cells, and the DistanceInterval indicates the split. The distances are over the road's
     /// center line length.
     pub roads: BTreeMap<RoadID, DistanceInterval>,
+    /// Intersections where this cell touches the boundary of the neighborhood.
+    pub borders: BTreeSet<IntersectionID>,
 }
 
 /// An interval along a road's length, with start < end.
@@ -244,7 +248,7 @@ fn find_cells(
         if visited.contains(start) || modal_filters.roads.contains_key(start) {
             continue;
         }
-        let cell = floodfill(map, *start, perimeter, modal_filters);
+        let cell = floodfill(map, *start, perimeter, borders, &modal_filters);
         visited.extend(cell.roads.keys().cloned());
         cells.push(cell);
     }
@@ -255,6 +259,7 @@ fn find_cells(
         if borders.contains(&road.src_i) {
             let mut cell = Cell {
                 roads: BTreeMap::new(),
+                borders: btreeset! { road.src_i },
             };
             cell.roads.insert(
                 road.id,
@@ -268,6 +273,7 @@ fn find_cells(
         if borders.contains(&road.dst_i) {
             let mut cell = Cell {
                 roads: BTreeMap::new(),
+                borders: btreeset! { road.dst_i },
             };
             cell.roads.insert(
                 road.id,
@@ -287,10 +293,12 @@ fn floodfill(
     map: &Map,
     start: RoadID,
     perimeter: &Perimeter,
+    neighborhood_borders: &BTreeSet<IntersectionID>,
     modal_filters: &ModalFilters,
 ) -> Cell {
     // We don't need a priority queue
     let mut visited_roads: BTreeMap<RoadID, DistanceInterval> = BTreeMap::new();
+    let mut cell_borders = BTreeSet::new();
     let mut queue = vec![start];
 
     // The caller should handle this case
@@ -311,6 +319,9 @@ fn floodfill(
         for i in [current.src_i, current.dst_i] {
             for next in &map.get_i(i).roads {
                 if !perimeter.interior.contains(next) {
+                    if neighborhood_borders.contains(&i) {
+                        cell_borders.insert(i);
+                    }
                     continue;
                 }
                 if let Some(filter) = modal_filters.intersections.get(&i) {
@@ -344,6 +355,7 @@ fn floodfill(
 
     Cell {
         roads: visited_roads,
+        borders: cell_borders,
     }
 }
 

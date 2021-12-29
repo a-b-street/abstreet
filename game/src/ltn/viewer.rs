@@ -240,6 +240,7 @@ fn make_world(
         world.draw_master_batch(ctx, super::draw_cells::draw_cells(map, neighborhood));
     } else {
         let mut draw_intersections = GeomBatch::new();
+        let mut debug_cell_borders = GeomBatch::new();
         let mut seen_roads = HashSet::new();
         for (idx, cell) in neighborhood.cells.iter().enumerate() {
             let color = super::draw_cells::COLORS[idx % super::draw_cells::COLORS.len()].alpha(0.9);
@@ -265,7 +266,15 @@ fn make_world(
             {
                 draw_intersections.push(color, map.get_i(i).polygon.clone());
             }
+            // Draw the cell borders as outlines, for debugging. (Later, we probably want some kind
+            // of arrow styling)
+            for i in &cell.borders {
+                if let Ok(p) = map.get_i(*i).polygon.to_outline(Distance::meters(2.0)) {
+                    debug_cell_borders.push(color.alpha(1.0), p);
+                }
+            }
         }
+        draw_intersections.append(debug_cell_borders);
         world.draw_master_batch(ctx, draw_intersections);
     }
 
