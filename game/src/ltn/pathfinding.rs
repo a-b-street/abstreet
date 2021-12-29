@@ -6,7 +6,7 @@ use widgetry::{
     Color, EventCtx, GfxCtx, Line, Outcome, Panel, RoundedF64, Spinner, State, Text, Widget,
 };
 
-use super::per_neighborhood::{Tab, TakeNeighborhood};
+use super::per_neighborhood::{FilterableObj, Tab, TakeNeighborhood};
 use super::Neighborhood;
 use crate::app::{App, Transition};
 use crate::common::{cmp_dist, cmp_duration, InputWaypoints, WaypointID};
@@ -14,7 +14,7 @@ use crate::common::{cmp_dist, cmp_duration, InputWaypoints, WaypointID};
 pub struct RoutePlanner {
     panel: Panel,
     waypoints: InputWaypoints,
-    world: World<ID>,
+    world: World<Obj>,
 
     neighborhood: Neighborhood,
 }
@@ -26,12 +26,13 @@ impl TakeNeighborhood for RoutePlanner {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-enum ID {
+enum Obj {
     RouteAfterFilters,
     RouteBeforeFilters,
     Waypoint(WaypointID),
+    Filterable(FilterableObj),
 }
-impl ObjectID for ID {}
+impl ObjectID for Obj {}
 
 impl RoutePlanner {
     pub fn new_state(
@@ -42,9 +43,10 @@ impl RoutePlanner {
         let mut rp = RoutePlanner {
             panel: Panel::empty(ctx),
             waypoints: InputWaypoints::new(app),
-            world: World::bounded(app.primary.map.get_bounds()),
+            world: World::unbounded(),
             neighborhood,
         };
+
         rp.update(ctx, app);
         Box::new(rp)
     }
@@ -75,16 +77,29 @@ impl RoutePlanner {
 
         let mut world = self.calculate_paths(ctx, app);
         self.waypoints
-            .rebuild_world(ctx, &mut world, ID::Waypoint, 2);
+            .rebuild_world(ctx, &mut world, Obj::Waypoint, 3);
         world.initialize_hover(ctx);
         world.rebuilt_during_drag(&self.world);
         self.world = world;
     }
 
     /// Also has the side effect of changing a note in the panel
-    fn calculate_paths(&mut self, ctx: &mut EventCtx, app: &App) -> World<ID> {
+    fn calculate_paths(&mut self, ctx: &mut EventCtx, app: &App) -> World<Obj> {
         let map = &app.primary.map;
         let mut world = World::bounded(map.get_bounds());
+
+        // TODO It's expensive to do this as we constantly drag the route!
+        super::per_neighborhood::populate_world(
+            ctx,
+            app,
+            &self.neighborhood,
+            &mut world,
+            Obj::Filterable,
+            // TODO Put these on top of the routes, so we can click and filter roads part of the
+            // route. We lose the tooltip though; probably should put that in the panel instead
+            // anyway.
+            2,
+        );
 
         // First the route respecting the filters
         let (total_time_after, total_dist_after) = {
@@ -123,7 +138,7 @@ impl RoutePlanner {
                 txt.add_line(Line(format!("Distance: {}", total_dist)));
 
                 world
-                    .add(ID::RouteAfterFilters)
+                    .add(Obj::RouteAfterFilters)
                     .hitbox(Polygon::union_all(hitbox_pieces))
                     .zorder(0)
                     .draw(draw_route)
@@ -167,7 +182,7 @@ impl RoutePlanner {
                 let mut txt = Text::new();
                 // If these two stats are the same, assume the two paths are equivalent
                 if total_time == total_time_after && total_dist == total_dist_after {
-                    world.delete(ID::RouteAfterFilters);
+                    world.delete(Obj::RouteAfterFilters);
                     txt.add_line(Line(
                         "The route is the same before/after the new modal filters",
                     ));
@@ -206,7 +221,7 @@ impl RoutePlanner {
                 }
 
                 world
-                    .add(ID::RouteBeforeFilters)
+                    .add(Obj::RouteBeforeFilters)
                     .hitbox(Polygon::union_all(hitbox_pieces))
                     // If the two routes partly overlap, put the "before" on top, since it has
                     // the comparison stats.
@@ -224,8 +239,25 @@ impl RoutePlanner {
 
 impl State<App> for RoutePlanner {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        let world_outcome_for_waypoints = self.world.event(ctx).map_id(|id| match id {
-            ID::Waypoint(id) => id,
+        let world_outcome = self.world.event(ctx);
+        // TODO map_id can only extract one case. Do a bit of a hack to handle filter managament
+        // first.
+        if let Some(outcome) = world_outcome.clone().maybe_map_id(|id| match id {
+            Obj::Filterable(id) => Some(id),
+            _ => None,
+        }) {
+            if super::per_neighborhood::handle_world_outcome(ctx, app, outcome) {
+                // Recalculate the neighborhood
+                self.neighborhood =
+                    Neighborhood::new(ctx, app, self.neighborhood.orig_perimeter.clone());
+                self.update(ctx, app);
+                return Transition::Keep;
+            }
+            // Fall through. Clicking free space and other ID-less outcomes will match here, but we
+            // don't want them to.
+        }
+        let world_outcome_for_waypoints = world_outcome.map_id(|id| match id {
+            Obj::Waypoint(id) => id,
             _ => unreachable!(),
         });
 
@@ -239,7 +271,7 @@ impl State<App> for RoutePlanner {
                 // Recompute paths
                 let mut world = self.calculate_paths(ctx, app);
                 self.waypoints
-                    .rebuild_world(ctx, &mut world, ID::Waypoint, 2);
+                    .rebuild_world(ctx, &mut world, Obj::Waypoint, 2);
                 world.initialize_hover(ctx);
                 world.rebuilt_during_drag(&self.world);
                 self.world = world;

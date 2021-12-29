@@ -31,6 +31,7 @@ pub struct World<ID: ObjectID> {
 }
 
 /// The result of a `World` handling an event
+#[derive(Clone)]
 pub enum WorldOutcome<ID: ObjectID> {
     /// A left click occurred while not hovering on any object
     ClickedFreeSpace(Pt2D),
@@ -55,22 +56,27 @@ impl<I: ObjectID> WorldOutcome<I> {
     /// component owns a World that contains a few different types of objects, some of which are
     /// managed by another component that only cares about its IDs.
     pub fn map_id<O: ObjectID, F: Fn(I) -> O>(self, f: F) -> WorldOutcome<O> {
+        self.maybe_map_id(|id| Some(f(id))).unwrap()
+    }
+
+    /// Like `map_id`, but the transformation may fail.
+    pub fn maybe_map_id<O: ObjectID, F: Fn(I) -> Option<O>>(self, f: F) -> Option<WorldOutcome<O>> {
         match self {
-            WorldOutcome::ClickedFreeSpace(pt) => WorldOutcome::ClickedFreeSpace(pt),
+            WorldOutcome::ClickedFreeSpace(pt) => Some(WorldOutcome::ClickedFreeSpace(pt)),
             WorldOutcome::Dragging {
                 obj,
                 dx,
                 dy,
                 cursor,
-            } => WorldOutcome::Dragging {
-                obj: f(obj),
+            } => Some(WorldOutcome::Dragging {
+                obj: f(obj)?,
                 dx,
                 dy,
                 cursor,
-            },
-            WorldOutcome::Keypress(action, id) => WorldOutcome::Keypress(action, f(id)),
-            WorldOutcome::ClickedObject(id) => WorldOutcome::ClickedObject(f(id)),
-            WorldOutcome::Nothing => WorldOutcome::Nothing,
+            }),
+            WorldOutcome::Keypress(action, id) => Some(WorldOutcome::Keypress(action, f(id)?)),
+            WorldOutcome::ClickedObject(id) => Some(WorldOutcome::ClickedObject(f(id)?)),
+            WorldOutcome::Nothing => Some(WorldOutcome::Nothing),
         }
     }
 }

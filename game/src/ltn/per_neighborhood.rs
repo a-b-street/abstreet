@@ -89,7 +89,7 @@ impl Tab {
             })),
             "Pathfinding" => Transition::ConsumeState(Box::new(|state, ctx, app| {
                 let state = state.downcast::<T>().ok().unwrap();
-                vec![super::route::RoutePlanner::new_state(
+                vec![super::pathfinding::RoutePlanner::new_state(
                     ctx,
                     app,
                     state.take_neighborhood(),

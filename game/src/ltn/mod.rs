@@ -15,10 +15,10 @@ pub use browse::BrowseNeighborhoods;
 mod browse;
 mod connectivity;
 mod draw_cells;
+mod pathfinding;
 mod per_neighborhood;
 mod rat_run_viewer;
 mod rat_runs;
-mod route;
 mod select_boundary;
 
 pub struct Neighborhood {
