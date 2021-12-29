@@ -236,7 +236,7 @@ impl State<App> for RoutePlanner {
 
                 return Transition::ConsumeState(Box::new(|state, ctx, app| {
                     let state = state.downcast::<RoutePlanner>().ok().unwrap();
-                    vec![super::viewer::Viewer::new_state(
+                    vec![super::connectivity::Viewer::new_state(
                         ctx,
                         app,
                         state.neighborhood,

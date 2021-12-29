@@ -163,7 +163,7 @@ impl State<App> for SelectBoundary {
                 "Confirm" => {
                     let mut perimeters = self.merge_selected();
                     assert_eq!(perimeters.len(), 1);
-                    return Transition::Replace(super::viewer::Viewer::new_state(
+                    return Transition::Replace(super::connectivity::Viewer::new_state(
                         ctx,
                         app,
                         Neighborhood::new(ctx, app, perimeters.pop().unwrap()),

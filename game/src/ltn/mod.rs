@@ -13,12 +13,13 @@ use crate::app::App;
 pub use browse::BrowseNeighborhoods;
 
 mod browse;
+mod connectivity;
 mod draw_cells;
+mod per_neighborhood;
 mod rat_run_viewer;
 mod rat_runs;
 mod route;
 mod select_boundary;
-mod viewer;
 
 pub struct Neighborhood {
     // These're fixed

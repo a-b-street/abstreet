@@ -1,21 +1,26 @@
 use std::collections::HashSet;
 
 use geom::Distance;
-use map_gui::tools::CityPicker;
 use map_model::{IntersectionID, RoadID};
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::{
-    Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, State, Text,
-    TextExt, Toggle, VerticalAlignment, Widget,
+    Color, EventCtx, GeomBatch, GfxCtx, Key, Outcome, Panel, State, Text, TextExt, Toggle, Widget,
 };
 
-use super::{BrowseNeighborhoods, DiagonalFilter, Neighborhood};
+use super::per_neighborhood::{Tab, TakeNeighborhood};
+use super::{DiagonalFilter, Neighborhood};
 use crate::app::{App, Transition};
 
 pub struct Viewer {
     panel: Panel,
     neighborhood: Neighborhood,
     world: World<Obj>,
+}
+
+impl TakeNeighborhood for Viewer {
+    fn take_neighborhood(self) -> Neighborhood {
+        self.neighborhood
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -31,37 +36,18 @@ impl Viewer {
         app: &App,
         neighborhood: Neighborhood,
     ) -> Box<dyn State<App>> {
-        let panel = Panel::new_builder(Widget::col(vec![
-            map_gui::tools::app_header(ctx, app, "Low traffic neighborhoods"),
-            ctx.style()
-                .btn_outline
-                .text("Browse neighborhoods")
-                .hotkey(Key::Escape)
-                .build_def(ctx),
-            ctx.style()
-                .btn_outline
-                .text("Adjust boundary")
-                .hotkey(Key::B)
-                .build_def(ctx),
-            ctx.style()
-                .btn_outline
-                .text("Examine rat-runs")
-                .hotkey(Key::R)
-                .build_def(ctx),
-            ctx.style()
-                .btn_outline
-                .text("Pathfind")
-                .hotkey(Key::P)
-                .build_def(ctx),
-            Widget::row(vec![
-                "Draw traffic cells as".text_widget(ctx).centered_vert(),
-                Toggle::choice(ctx, "draw cells", "areas", "streets", Key::C, true),
+        let panel = Tab::Connectivity.make_panel(
+            ctx,
+            app,
+            Widget::col(vec![
+                Widget::row(vec![
+                    "Draw traffic cells as".text_widget(ctx).centered_vert(),
+                    Toggle::choice(ctx, "draw cells", "areas", "streets", Key::D, true),
+                ]),
+                "Click a road to add or remove a modal filter".text_widget(ctx),
+                Text::new().into_widget(ctx).named("warnings"),
             ]),
-            "Click a road to add or remove a modal filter".text_widget(ctx),
-            Text::new().into_widget(ctx).named("warnings"),
-        ]))
-        .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
-        .build(ctx);
+        );
 
         let mut viewer = Viewer {
             panel,
@@ -99,61 +85,9 @@ impl Viewer {
 impl State<App> for Viewer {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
-                "Home" => {
-                    return Transition::Clear(vec![crate::pregame::TitleScreen::new_state(
-                        ctx, app,
-                    )]);
-                }
-                "change map" => {
-                    return Transition::Push(CityPicker::new_state(
-                        ctx,
-                        app,
-                        Box::new(|ctx, app| {
-                            Transition::Replace(BrowseNeighborhoods::new_state(ctx, app))
-                        }),
-                    ));
-                }
-                "Browse neighborhoods" => {
-                    return Transition::Pop;
-                }
-                "Adjust boundary" => {
-                    return Transition::ConsumeState(Box::new(|state, ctx, app| {
-                        let perimeter = state
-                            .downcast::<Viewer>()
-                            .ok()
-                            .unwrap()
-                            .neighborhood
-                            .orig_perimeter;
-                        vec![super::select_boundary::SelectBoundary::new_state(
-                            ctx,
-                            app,
-                            Some(perimeter),
-                        )]
-                    }));
-                }
-                "Examine rat-runs" => {
-                    return Transition::ConsumeState(Box::new(|state, ctx, app| {
-                        let state = state.downcast::<Viewer>().ok().unwrap();
-                        vec![super::rat_run_viewer::BrowseRatRuns::new_state(
-                            ctx,
-                            app,
-                            state.neighborhood,
-                        )]
-                    }));
-                }
-                "Pathfind" => {
-                    return Transition::ConsumeState(Box::new(|state, ctx, app| {
-                        let state = state.downcast::<Viewer>().ok().unwrap();
-                        vec![super::route::RoutePlanner::new_state(
-                            ctx,
-                            app,
-                            state.neighborhood,
-                        )]
-                    }));
-                }
-                _ => unreachable!(),
-            },
+            Outcome::Clicked(x) => {
+                return Tab::Connectivity.must_handle_action::<Viewer>(ctx, app, x.as_ref());
+            }
             Outcome::Changed(_) => {
                 self.world = make_world(
                     ctx,

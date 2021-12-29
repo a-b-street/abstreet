@@ -100,7 +100,7 @@ impl State<App> for BrowseNeighborhoods {
         }
 
         if let WorldOutcome::ClickedObject(id) = self.world.event(ctx) {
-            return Transition::Push(super::viewer::Viewer::new_state(
+            return Transition::Push(super::connectivity::Viewer::new_state(
                 ctx,
                 app,
                 Neighborhood::new(ctx, app, self.neighborhoods[&id].perimeter.clone()),

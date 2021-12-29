@@ -3,10 +3,11 @@ use map_gui::tools::ColorNetwork;
 use map_model::{IntersectionID, RoadID, NORMAL_LANE_THICKNESS};
 use widgetry::mapspace::{ObjectID, ToggleZoomed, World};
 use widgetry::{
-    Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State,
-    Text, TextExt, Toggle, VerticalAlignment, Widget,
+    Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, State, Text, TextExt, Toggle,
+    Widget,
 };
 
+use super::per_neighborhood::{Tab, TakeNeighborhood};
 use super::rat_runs::{find_rat_runs, RatRuns};
 use super::Neighborhood;
 use crate::app::{App, Transition};
@@ -20,6 +21,12 @@ pub struct BrowseRatRuns {
     draw_heatmap: ToggleZoomed,
     world: World<Obj>,
     neighborhood: Neighborhood,
+}
+
+impl TakeNeighborhood for BrowseRatRuns {
+    fn take_neighborhood(self) -> Neighborhood {
+        self.neighborhood
+    }
 }
 
 impl BrowseRatRuns {
@@ -60,64 +67,49 @@ impl BrowseRatRuns {
 
     fn recalculate(&mut self, ctx: &mut EventCtx, app: &App) {
         if self.rat_runs.paths.is_empty() {
-            self.panel = Panel::new_builder(Widget::col(vec![
-                ctx.style()
-                    .btn_outline
-                    .text("Back to editing modal filters")
-                    .hotkey(Key::Escape)
-                    .build_def(ctx),
-                "No rat runs detected".text_widget(ctx),
-            ]))
-            .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
-            .build(ctx);
+            self.panel = Tab::RatRuns.make_panel(ctx, app, "No rat runs detected".text_widget(ctx));
             return;
         }
 
-        self.panel = Panel::new_builder(Widget::col(vec![
-            ctx.style()
-                .btn_outline
-                .text("Back to editing modal filters")
-                .hotkey(Key::Escape)
-                .build_def(ctx),
-            Line("Warning: preliminary results")
-                .fg(Color::RED)
-                .into_widget(ctx),
-            Widget::row(vec![
-                "Rat runs:".text_widget(ctx).centered_vert(),
-                ctx.style()
-                    .btn_prev()
-                    .disabled(self.current_idx == 0)
-                    .hotkey(Key::LeftArrow)
-                    .build_widget(ctx, "previous rat run"),
-                Text::from(
-                    Line(format!(
-                        "{}/{}",
-                        self.current_idx + 1,
-                        self.rat_runs.paths.len()
-                    ))
-                    .secondary(),
-                )
-                .into_widget(ctx)
-                .centered_vert(),
-                ctx.style()
-                    .btn_next()
-                    .disabled(self.current_idx == self.rat_runs.paths.len() - 1)
-                    .hotkey(Key::RightArrow)
-                    .build_widget(ctx, "next rat run"),
+        self.panel = Tab::RatRuns.make_panel(
+            ctx,
+            app,
+            Widget::col(vec![
+                Widget::row(vec![
+                    "Rat runs:".text_widget(ctx).centered_vert(),
+                    ctx.style()
+                        .btn_prev()
+                        .disabled(self.current_idx == 0)
+                        .hotkey(Key::LeftArrow)
+                        .build_widget(ctx, "previous rat run"),
+                    Text::from(
+                        Line(format!(
+                            "{}/{}",
+                            self.current_idx + 1,
+                            self.rat_runs.paths.len()
+                        ))
+                        .secondary(),
+                    )
+                    .into_widget(ctx)
+                    .centered_vert(),
+                    ctx.style()
+                        .btn_next()
+                        .disabled(self.current_idx == self.rat_runs.paths.len() - 1)
+                        .hotkey(Key::RightArrow)
+                        .build_widget(ctx, "next rat run"),
+                ]),
+                // TODO This should disable the individual path controls, or maybe even be a different
+                // state entirely...
+                Toggle::checkbox(
+                    ctx,
+                    "show heatmap of all rat-runs",
+                    Key::R,
+                    self.panel
+                        .maybe_is_checked("show heatmap of all rat-runs")
+                        .unwrap_or(true),
+                ),
             ]),
-            // TODO This should disable the individual path controls, or maybe even be a different
-            // state entirely...
-            Toggle::checkbox(
-                ctx,
-                "show heatmap of all rat-runs",
-                Key::R,
-                self.panel
-                    .maybe_is_checked("show heatmap of all rat-runs")
-                    .unwrap_or(true),
-            ),
-        ]))
-        .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
-        .build(ctx);
+        );
 
         let mut draw_path = ToggleZoomed::builder();
         let color = Color::RED;
@@ -152,16 +144,6 @@ impl State<App> for BrowseRatRuns {
 
         if let Outcome::Clicked(x) = self.panel.event(ctx) {
             match x.as_ref() {
-                "Back to editing modal filters" => {
-                    return Transition::ConsumeState(Box::new(|state, ctx, app| {
-                        let state = state.downcast::<BrowseRatRuns>().ok().unwrap();
-                        vec![super::viewer::Viewer::new_state(
-                            ctx,
-                            app,
-                            state.neighborhood,
-                        )]
-                    }));
-                }
                 "previous rat run" => {
                     self.current_idx -= 1;
                     self.panel
@@ -174,7 +156,9 @@ impl State<App> for BrowseRatRuns {
                         .set_checked("show heatmap of all rat-runs", false);
                     self.recalculate(ctx, app);
                 }
-                _ => unreachable!(),
+                x => {
+                    return Tab::Connectivity.must_handle_action::<BrowseRatRuns>(ctx, app, x);
+                }
             }
         }
 
