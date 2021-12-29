@@ -195,7 +195,9 @@ pub fn handle_world_outcome(
         }
         WorldOutcome::ClickedObject(FilterableObj::InteriorIntersection(i)) => {
             if app.primary.map.get_i(i).roads.len() != 4 {
-                return false;
+                // Misleading. Nothing changes, but we'll "fall through" to other cases without
+                // this
+                return true;
             }
 
             // Toggle through all possible filters

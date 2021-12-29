@@ -1,4 +1,4 @@
-use geom::{Distance, Duration, Polygon};
+use geom::{Distance, Duration};
 use map_model::NORMAL_LANE_THICKNESS;
 use sim::{TripEndpoint, TripMode};
 use widgetry::mapspace::{ObjectID, ToggleZoomed, World};
@@ -15,6 +15,7 @@ pub struct RoutePlanner {
     panel: Panel,
     waypoints: InputWaypoints,
     world: World<Obj>,
+    draw_routes: ToggleZoomed,
 
     neighborhood: Neighborhood,
 }
@@ -27,8 +28,6 @@ impl TakeNeighborhood for RoutePlanner {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 enum Obj {
-    RouteAfterFilters,
-    RouteBeforeFilters,
     Waypoint(WaypointID),
     Filterable(FilterableObj),
 }
@@ -44,9 +43,9 @@ impl RoutePlanner {
             panel: Panel::empty(ctx),
             waypoints: InputWaypoints::new(app),
             world: World::unbounded(),
+            draw_routes: ToggleZoomed::empty(ctx),
             neighborhood,
         };
-
         rp.update(ctx, app);
         Box::new(rp)
     }
@@ -65,7 +64,7 @@ impl RoutePlanner {
                 Line("Increase to see how vehicles may try to detour in heavy traffic").secondary(),
             ])
             .into_widget(ctx),
-            Text::new().into_widget(ctx).named("note"),
+            Text::new().into_widget(ctx).named("results"),
         ]);
         let mut panel = Tab::Pathfinding
             .panel_builder(ctx, app, contents)
@@ -75,31 +74,29 @@ impl RoutePlanner {
         panel.restore(ctx, &self.panel);
         self.panel = panel;
 
-        let mut world = self.calculate_paths(ctx, app);
-        self.waypoints
-            .rebuild_world(ctx, &mut world, Obj::Waypoint, 3);
-        world.initialize_hover(ctx);
-        world.rebuilt_during_drag(&self.world);
-        self.world = world;
-    }
-
-    /// Also has the side effect of changing a note in the panel
-    fn calculate_paths(&mut self, ctx: &mut EventCtx, app: &App) -> World<Obj> {
-        let map = &app.primary.map;
-        let mut world = World::bounded(map.get_bounds());
-
-        // TODO It's expensive to do this as we constantly drag the route!
+        let mut world = World::bounded(app.primary.map.get_bounds());
         super::per_neighborhood::populate_world(
             ctx,
             app,
             &self.neighborhood,
             &mut world,
             Obj::Filterable,
-            // TODO Put these on top of the routes, so we can click and filter roads part of the
-            // route. We lose the tooltip though; probably should put that in the panel instead
-            // anyway.
-            2,
+            0,
         );
+        self.waypoints
+            .rebuild_world(ctx, &mut world, Obj::Waypoint, 1);
+        world.initialize_hover(ctx);
+        world.rebuilt_during_drag(&self.world);
+        self.world = world;
+
+        self.recalculate_paths(ctx, app);
+    }
+
+    // Updates the panel and draw_routes
+    fn recalculate_paths(&mut self, ctx: &mut EventCtx, app: &App) {
+        let map = &app.primary.map;
+        let mut results = Text::new();
+        let mut draw = ToggleZoomed::builder();
 
         // First the route respecting the filters
         let (total_time_after, total_dist_after) = {
@@ -108,8 +105,6 @@ impl RoutePlanner {
             params.main_road_penalty = self.panel.spinner::<RoundedF64>("main road penalty").0;
             let cache_custom = true;
 
-            let mut draw_route = ToggleZoomed::builder();
-            let mut hitbox_pieces = Vec::new();
             let mut total_time = Duration::ZERO;
             let mut total_dist = Distance::ZERO;
             for pair in self.waypoints.get_waypoints().windows(2) {
@@ -119,11 +114,8 @@ impl RoutePlanner {
                         .and_then(|path| path.trace(map).map(|pl| (path, pl)))
                 {
                     let shape = pl.make_polygons(5.0 * NORMAL_LANE_THICKNESS);
-                    draw_route
-                        .unzoomed
-                        .push(Color::RED.alpha(0.8), shape.clone());
-                    draw_route.zoomed.push(Color::RED.alpha(0.5), shape.clone());
-                    hitbox_pieces.push(shape);
+                    draw.unzoomed.push(Color::RED.alpha(0.8), shape.clone());
+                    draw.zoomed.push(Color::RED.alpha(0.5), shape);
 
                     // Use estimate_duration and not the original cost from pathfinding, since that
                     // includes huge penalties when the route is forced to cross a filter
@@ -131,20 +123,10 @@ impl RoutePlanner {
                     total_dist += path.total_length();
                 }
             }
-            if !hitbox_pieces.is_empty() {
-                let mut txt = Text::new();
-                txt.add_line(Line("Route respecting the new modal filters"));
-                txt.add_line(Line(format!("Time: {}", total_time)));
-                txt.add_line(Line(format!("Distance: {}", total_dist)));
-
-                world
-                    .add(Obj::RouteAfterFilters)
-                    .hitbox(Polygon::union_all(hitbox_pieces))
-                    .zorder(0)
-                    .draw(draw_route)
-                    .hover_outline(Color::BLACK, Distance::meters(2.0))
-                    .tooltip(txt)
-                    .build(ctx);
+            if total_dist != Distance::ZERO {
+                results.add_line(Line("Route respecting the new modal filters").fg(Color::BLUE));
+                results.add_line(Line(format!("Time: {}", total_time)));
+                results.add_line(Line(format!("Distance: {}", total_dist)));
             }
 
             (total_time, total_dist)
@@ -152,8 +134,7 @@ impl RoutePlanner {
 
         // Then the one ignoring filters
         {
-            let mut draw_route = ToggleZoomed::builder();
-            let mut hitbox_pieces = Vec::new();
+            let mut draw_old_route = ToggleZoomed::builder();
             let mut total_time = Duration::ZERO;
             let mut total_dist = Distance::ZERO;
             let mut params = map.routing_params().clone();
@@ -166,74 +147,53 @@ impl RoutePlanner {
                         .and_then(|path| path.trace(map).map(|pl| (path, pl)))
                 {
                     let shape = pl.make_polygons(5.0 * NORMAL_LANE_THICKNESS);
-                    draw_route
+                    draw_old_route
                         .unzoomed
                         .push(Color::BLUE.alpha(0.8), shape.clone());
-                    draw_route
-                        .zoomed
-                        .push(Color::BLUE.alpha(0.5), shape.clone());
-                    hitbox_pieces.push(shape);
+                    draw_old_route.zoomed.push(Color::BLUE.alpha(0.5), shape);
 
                     total_time += path.estimate_duration(map, None);
                     total_dist += path.total_length();
                 }
             }
-            if !hitbox_pieces.is_empty() {
-                let mut txt = Text::new();
+            if total_dist != Distance::ZERO {
                 // If these two stats are the same, assume the two paths are equivalent
                 if total_time == total_time_after && total_dist == total_dist_after {
-                    world.delete(Obj::RouteAfterFilters);
-                    txt.add_line(Line(
+                    draw = draw_old_route;
+                    results = Text::new();
+                    results.add_line(Line(
                         "The route is the same before/after the new modal filters",
                     ));
-                    txt.add_line(Line(format!("Time: {}", total_time)));
-                    txt.add_line(Line(format!("Distance: {}", total_dist)));
-
-                    let label = Text::new().into_widget(ctx);
-                    self.panel.replace(ctx, "note", label);
+                    results.add_line(Line(format!("Time: {}", total_time)));
+                    results.add_line(Line(format!("Distance: {}", total_dist)));
                 } else {
-                    txt.add_line(Line("Route before the new modal filters"));
-                    txt.add_line(Line(format!("Time: {}", total_time)));
-                    txt.add_line(Line(format!("Distance: {}", total_dist)));
+                    draw.append(draw_old_route);
+                    results.add_line(Line("Route before the new modal filters").fg(Color::RED));
                     cmp_duration(
-                        &mut txt,
+                        &mut results,
                         app,
                         total_time - total_time_after,
                         "shorter",
                         "longer",
                     );
+                    // Remove formatting -- red/green gets confusing with the blue/red of the two
+                    // routes
+                    results.remove_colors_from_last_line();
                     cmp_dist(
-                        &mut txt,
+                        &mut results,
                         app,
                         total_dist - total_dist_after,
                         "shorter",
                         "longer",
                     );
-
-                    let label = Text::from_all(vec![
-                        Line("Blue path").fg(Color::BLUE),
-                        Line(" before adding filters, "),
-                        Line("red path").fg(Color::RED),
-                        Line(" after new filters"),
-                    ])
-                    .into_widget(ctx);
-                    self.panel.replace(ctx, "note", label);
+                    results.remove_colors_from_last_line();
                 }
-
-                world
-                    .add(Obj::RouteBeforeFilters)
-                    .hitbox(Polygon::union_all(hitbox_pieces))
-                    // If the two routes partly overlap, put the "before" on top, since it has
-                    // the comparison stats.
-                    .zorder(1)
-                    .draw(draw_route)
-                    .hover_outline(Color::BLACK, Distance::meters(2.0))
-                    .tooltip(txt)
-                    .build(ctx);
             }
         }
 
-        world
+        self.draw_routes = draw.build(ctx);
+        let label = results.into_widget(ctx);
+        self.panel.replace(ctx, "results", label);
     }
 }
 
@@ -270,13 +230,7 @@ impl State<App> for RoutePlanner {
 
         if let Outcome::Changed(ref x) = panel_outcome {
             if x == "main road penalty" {
-                // Recompute paths
-                let mut world = self.calculate_paths(ctx, app);
-                self.waypoints
-                    .rebuild_world(ctx, &mut world, Obj::Waypoint, 2);
-                world.initialize_hover(ctx);
-                world.rebuilt_during_drag(&self.world);
-                self.world = world;
+                self.recalculate_paths(ctx, app);
             }
         }
 
@@ -294,6 +248,7 @@ impl State<App> for RoutePlanner {
         self.panel.draw(g);
 
         g.redraw(&self.neighborhood.fade_irrelevant);
+        self.draw_routes.draw(g);
         self.neighborhood.draw_filters.draw(g);
         if g.canvas.is_unzoomed() {
             self.neighborhood.labels.draw(g, app);

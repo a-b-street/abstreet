@@ -87,6 +87,12 @@ impl ToggleZoomedBuilder {
         self
     }
 
+    pub fn append(&mut self, other: ToggleZoomedBuilder) {
+        assert_eq!(self.always_draw_unzoomed, other.always_draw_unzoomed);
+        self.unzoomed.append(other.unzoomed);
+        self.zoomed.append(other.zoomed);
+    }
+
     pub fn build(self, ctx: &EventCtx) -> ToggleZoomed {
         if self.always_draw_unzoomed {
             assert!(self.zoomed.is_empty());

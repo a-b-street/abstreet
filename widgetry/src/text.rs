@@ -291,6 +291,14 @@ impl Text {
         }
     }
 
+    pub fn remove_colors_from_last_line(&mut self) {
+        let (_, spans) = self.lines.last_mut().unwrap();
+        for span in spans {
+            span.fg_color = None;
+            span.outline_color = None;
+        }
+    }
+
     pub fn is_empty(&self) -> bool {
         self.lines.is_empty()
     }
