@@ -232,6 +232,8 @@
 <span id="232">232</span>
 <span id="233">233</span>
 <span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom::ArrowCap</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools::ColorNetwork</span>;
 <span class="kw">use</span> <span class="ident">map_model::NORMAL_LANE_THICKNESS</span>;
@@ -392,7 +394,9 @@
                     <span class="self">self</span>.<span class="ident">recalculate</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 }
                 <span class="ident">x</span> =&gt; {
-                    <span class="kw">return</span> <span class="ident">Tab::Connectivity</span>.<span class="ident">must_handle_action</span>::<span class="op">&lt;</span><span class="ident">BrowseRatRuns</span><span class="op">&gt;</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">x</span>);
+                    <span class="kw">return</span> <span class="ident">Tab::Connectivity</span>
+                        .<span class="ident">handle_action</span>::<span class="op">&lt;</span><span class="ident">BrowseRatRuns</span><span class="op">&gt;</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">x</span>)
+                        .<span class="ident">unwrap</span>();
                 }
             }
         }
