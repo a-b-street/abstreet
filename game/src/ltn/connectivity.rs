@@ -79,7 +79,9 @@ impl State<App> for Viewer {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => {
-                return Tab::Connectivity.must_handle_action::<Viewer>(ctx, app, x.as_ref());
+                return Tab::Connectivity
+                    .handle_action::<Viewer>(ctx, app, x.as_ref())
+                    .unwrap();
             }
             Outcome::Changed(_) => {
                 self.world = make_world(

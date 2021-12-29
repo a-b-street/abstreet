@@ -49,13 +49,13 @@ impl Tab {
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
     }
 
-    pub fn must_handle_action<T: TakeNeighborhood + State<App>>(
+    pub fn handle_action<T: TakeNeighborhood + State<App>>(
         self,
         ctx: &mut EventCtx,
         app: &mut App,
         action: &str,
-    ) -> Transition {
-        match action {
+    ) -> Option<Transition> {
+        Some(match action {
             "Home" => Transition::Clear(vec![crate::pregame::TitleScreen::new_state(ctx, app)]),
             "change map" => Transition::Push(CityPicker::new_state(
                 ctx,
@@ -95,8 +95,10 @@ impl Tab {
                     state.take_neighborhood(),
                 )]
             })),
-            _ => unreachable!(),
-        }
+            _ => {
+                return None;
+            }
+        })
     }
 
     fn make_buttons(self, ctx: &mut EventCtx) -> Widget {

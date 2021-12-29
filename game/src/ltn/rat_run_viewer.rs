@@ -158,7 +158,9 @@ impl State<App> for BrowseRatRuns {
                     self.recalculate(ctx, app);
                 }
                 x => {
-                    return Tab::Connectivity.must_handle_action::<BrowseRatRuns>(ctx, app, x);
+                    return Tab::Connectivity
+                        .handle_action::<BrowseRatRuns>(ctx, app, x)
+                        .unwrap();
                 }
             }
         }

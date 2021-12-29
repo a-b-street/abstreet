@@ -263,7 +263,9 @@ impl State<App> for RoutePlanner {
 
         let panel_outcome = self.panel.event(ctx);
         if let Outcome::Clicked(ref x) = panel_outcome {
-            return Tab::Pathfinding.must_handle_action::<RoutePlanner>(ctx, app, x);
+            if let Some(t) = Tab::Pathfinding.handle_action::<RoutePlanner>(ctx, app, x) {
+                return t;
+            }
         }
 
         if let Outcome::Changed(ref x) = panel_outcome {
