@@ -6,7 +6,7 @@ use map_model::{
     Position, RoadID,
 };
 
-use super::{ModalFilters, Neighborhood};
+use super::{Cell, ModalFilters, Neighborhood};
 
 pub struct RatRuns {
     pub paths: Vec<Path>,
@@ -20,20 +20,28 @@ pub fn find_rat_runs(
     modal_filters: &ModalFilters,
     timer: &mut Timer,
 ) -> RatRuns {
-    let entrances = find_entrances(map, neighborhood);
-    let exits = find_exits(map, neighborhood);
-
-    // Look for all possible paths from an entrance to an exit, only if they connect to different
-    // major roads.
+    // The overall approach: look for all possible paths from an entrance to an exit, only if they
+    // connect to different major roads.
+    //
+    // But an entrance and exit to _what_? If we try to route from the entrance to one cell to the
+    // exit of another, then the route will make strange U-turns and probably use the perimeter. By
+    // definition, two cells aren't reachable without using the perimeter. So restrict our search
+    // to pairs of entrances/exits in the _same_ cell.
     let mut requests = Vec::new();
-    for entrance in &entrances {
-        for exit in &exits {
-            if entrance.major_road_name != exit.major_road_name {
-                requests.push(PathRequest::vehicle(
-                    Position::start(entrance.lane),
-                    Position::end(exit.lane, map),
-                    PathConstraints::Car,
-                ));
+
+    for cell in &neighborhood.cells {
+        let entrances = find_entrances(map, neighborhood, cell);
+        let exits = find_exits(map, neighborhood, cell);
+
+        for entrance in &entrances {
+            for exit in &exits {
+                if entrance.major_road_name != exit.major_road_name {
+                    requests.push(PathRequest::vehicle(
+                        Position::start(entrance.lane),
+                        Position::end(exit.lane, map),
+                        PathConstraints::Car,
+                    ));
+                }
             }
         }
     }
@@ -62,24 +70,11 @@ pub fn find_rat_runs(
         })
     });
 
-    // Some paths wind up partly using perimeter roads (or even things outside the neighborhood
-    // entirely). Sort by "worse" paths that spend more time inside.
-    paths.sort_by_key(|path| {
-        let mut roads_inside = 0;
-        let mut roads_outside = 0;
-        for step in path.get_steps() {
-            if let PathStep::Lane(l) = step {
-                if neighborhood.orig_perimeter.interior.contains(&l.road) {
-                    roads_inside += 1;
-                } else {
-                    roads_outside += 1;
-                }
-            }
-        }
-        let pct = (roads_outside as f64) / (roads_outside + roads_inside) as f64;
-        // f64 isn't Ord, just approximate by 1/10th of a percent
-        (pct * 1000.0) as usize
-    });
+    // TODO Rank the likeliness of each rat run by
+    // 1) Calculating a path between similar start/endpoints -- travelling along the perimeter,
+    //    starting and ending on a specific road that makes sense. (We have to pick the 'direction'
+    //    along the perimeter roads that's sensible.)
+    // 2) Comparing that time to the time for cutting through
 
     // How many rat-runs pass through each street?
     let mut count_per_road = Counter::new();
@@ -117,14 +112,14 @@ struct EntryExit {
     major_road_name: String,
 }
 
-fn find_entrances(map: &Map, neighborhood: &Neighborhood) -> Vec<EntryExit> {
+fn find_entrances(map: &Map, neighborhood: &Neighborhood, cell: &Cell) -> Vec<EntryExit> {
     let mut entrances = Vec::new();
-    for i in &neighborhood.borders {
+    for i in &cell.borders {
         if let Some(major_road_name) = find_major_road_name(map, neighborhood, *i) {
             let mut seen: HashSet<DirectedRoadID> = HashSet::new();
             for l in map.get_i(*i).get_outgoing_lanes(map, PathConstraints::Car) {
                 let dr = map.get_l(l).get_directed_parent();
-                if !seen.contains(&dr) && neighborhood.orig_perimeter.interior.contains(&dr.road) {
+                if !seen.contains(&dr) && cell.roads.contains_key(&dr.road) {
                     entrances.push(EntryExit {
                         lane: l,
                         major_road_name: major_road_name.clone(),
@@ -137,14 +132,14 @@ fn find_entrances(map: &Map, neighborhood: &Neighborhood) -> Vec<EntryExit> {
     entrances
 }
 
-fn find_exits(map: &Map, neighborhood: &Neighborhood) -> Vec<EntryExit> {
+fn find_exits(map: &Map, neighborhood: &Neighborhood, cell: &Cell) -> Vec<EntryExit> {
     let mut exits = Vec::new();
-    for i in &neighborhood.borders {
+    for i in &cell.borders {
         if let Some(major_road_name) = find_major_road_name(map, neighborhood, *i) {
             let mut seen: HashSet<DirectedRoadID> = HashSet::new();
             for l in map.get_i(*i).get_incoming_lanes(map, PathConstraints::Car) {
                 let dr = map.get_l(l).get_directed_parent();
-                if !seen.contains(&dr) && neighborhood.orig_perimeter.interior.contains(&dr.road) {
+                if !seen.contains(&dr) && cell.roads.contains_key(&dr.road) {
                     exits.push(EntryExit {
                         lane: l,
                         major_road_name: major_road_name.clone(),
