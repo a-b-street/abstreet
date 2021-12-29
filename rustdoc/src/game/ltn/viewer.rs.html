@@ -287,6 +287,15 @@
 <span id="287">287</span>
 <span id="288">288</span>
 <span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
 <span class="kw">use</span> <span class="ident">geom::Distance</span>;
@@ -529,6 +538,7 @@
         <span class="ident">world</span>.<span class="ident">draw_master_batch</span>(<span class="ident">ctx</span>, <span class="ident"><span class="kw">super</span>::draw_cells::draw_cells</span>(<span class="ident">map</span>, <span class="ident">neighborhood</span>));
     } <span class="kw">else</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw_intersections</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">debug_cell_borders</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seen_roads</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
         <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">cell</span>) <span class="kw">in</span> <span class="ident">neighborhood</span>.<span class="ident">cells</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
             <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident"><span class="kw">super</span>::draw_cells::COLORS</span>[<span class="ident">idx</span> <span class="op">%</span> <span class="ident"><span class="kw">super</span>::draw_cells::COLORS</span>.<span class="ident">len</span>()].<span class="ident">alpha</span>(<span class="number">0.9</span>);
@@ -554,7 +564,15 @@
             {
                 <span class="ident">draw_intersections</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>());
             }
+            <span class="comment">// Draw the cell borders as outlines, for debugging. (Later, we probably want some kind</span>
+            <span class="comment">// of arrow styling)</span>
+            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">cell</span>.<span class="ident">borders</span> {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">p</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">2.0</span>)) {
+                    <span class="ident">debug_cell_borders</span>.<span class="ident">push</span>(<span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">1.0</span>), <span class="ident">p</span>);
+                }
+            }
         }
+        <span class="ident">draw_intersections</span>.<span class="ident">append</span>(<span class="ident">debug_cell_borders</span>);
         <span class="ident">world</span>.<span class="ident">draw_master_batch</span>(<span class="ident">ctx</span>, <span class="ident">draw_intersections</span>);
     }
 
