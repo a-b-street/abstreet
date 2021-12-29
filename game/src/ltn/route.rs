@@ -3,10 +3,10 @@ use map_model::NORMAL_LANE_THICKNESS;
 use sim::{TripEndpoint, TripMode};
 use widgetry::mapspace::{ObjectID, ToggleZoomed, World};
 use widgetry::{
-    Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, RoundedF64, Spinner,
-    State, Text, VerticalAlignment, Widget,
+    Color, EventCtx, GfxCtx, Line, Outcome, Panel, RoundedF64, Spinner, State, Text, Widget,
 };
 
+use super::per_neighborhood::{Tab, TakeNeighborhood};
 use super::Neighborhood;
 use crate::app::{App, Transition};
 use crate::common::{cmp_dist, cmp_duration, InputWaypoints, WaypointID};
@@ -17,6 +17,12 @@ pub struct RoutePlanner {
     world: World<ID>,
 
     neighborhood: Neighborhood,
+}
+
+impl TakeNeighborhood for RoutePlanner {
+    fn take_neighborhood(self) -> Neighborhood {
+        self.neighborhood
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
@@ -44,12 +50,7 @@ impl RoutePlanner {
     }
 
     fn update(&mut self, ctx: &mut EventCtx, app: &App) {
-        let mut panel = Panel::new_builder(Widget::col(vec![
-            ctx.style()
-                .btn_outline
-                .text("Back to editing modal filters")
-                .hotkey(Key::Escape)
-                .build_def(ctx),
+        let contents = Widget::col(vec![
             self.waypoints.get_panel_widget(ctx),
             Widget::row(vec![
                 Line("Slow-down factor for main roads:")
@@ -63,11 +64,12 @@ impl RoutePlanner {
             ])
             .into_widget(ctx),
             Text::new().into_widget(ctx).named("note"),
-        ]))
-        .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
-        // Hovering on waypoint cards
-        .ignore_initial_events()
-        .build(ctx);
+        ]);
+        let mut panel = Tab::Pathfinding
+            .panel_builder(ctx, app, contents)
+            // Hovering on waypoint cards
+            .ignore_initial_events()
+            .build(ctx);
         panel.restore(ctx, &self.panel);
         self.panel = panel;
 
@@ -229,20 +231,7 @@ impl State<App> for RoutePlanner {
 
         let panel_outcome = self.panel.event(ctx);
         if let Outcome::Clicked(ref x) = panel_outcome {
-            if x == "Back to editing modal filters" {
-                // We'll cache a custom pathfinder per set of avoided roads. Avoid leaking memory
-                // by clearing this out
-                app.primary.map.clear_custom_pathfinder_cache();
-
-                return Transition::ConsumeState(Box::new(|state, ctx, app| {
-                    let state = state.downcast::<RoutePlanner>().ok().unwrap();
-                    vec![super::connectivity::Viewer::new_state(
-                        ctx,
-                        app,
-                        state.neighborhood,
-                    )]
-                }));
-            }
+            return Tab::Pathfinding.must_handle_action::<RoutePlanner>(ctx, app, x);
         }
 
         if let Outcome::Changed(ref x) = panel_outcome {
@@ -277,5 +266,11 @@ impl State<App> for RoutePlanner {
         }
 
         self.world.draw(g);
+    }
+
+    fn on_destroy(&mut self, _: &mut EventCtx, app: &mut App) {
+        // We'll cache a custom pathfinder per set of avoided roads. Avoid leaking memory by
+        // clearing this out
+        app.primary.map.clear_custom_pathfinder_cache();
     }
 }

@@ -1,6 +1,6 @@
 use map_gui::tools::CityPicker;
 use widgetry::{
-    EventCtx, HorizontalAlignment, Key, Panel, State, VerticalAlignment, Widget,
+    EventCtx, HorizontalAlignment, Key, Panel, PanelBuilder, State, VerticalAlignment, Widget,
     DEFAULT_CORNER_RADIUS,
 };
 
@@ -19,7 +19,12 @@ pub trait TakeNeighborhood {
 }
 
 impl Tab {
-    pub fn make_panel(self, ctx: &mut EventCtx, app: &App, per_tab_contents: Widget) -> Panel {
+    pub fn panel_builder(
+        self,
+        ctx: &mut EventCtx,
+        app: &App,
+        per_tab_contents: Widget,
+    ) -> PanelBuilder {
         Panel::new_builder(Widget::col(vec![
             map_gui::tools::app_header(ctx, app, "Low traffic neighborhoods"),
             Widget::row(vec![
@@ -38,7 +43,6 @@ impl Tab {
             per_tab_contents.tab_body(ctx),
         ]))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
-        .build(ctx)
     }
 
     pub fn must_handle_action<T: TakeNeighborhood + State<App>>(

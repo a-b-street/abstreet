@@ -11,7 +11,7 @@ use abstutil::CloneableAny;
 use geom::{CornerRadii, Distance, Percent, Polygon};
 
 use crate::widgets::containers::{Container, Nothing};
-pub use crate::widgets::panel::Panel;
+pub use crate::widgets::panel::{Panel, PanelBuilder};
 use crate::{
     Button, Choice, Color, DeferDraw, Drawable, Dropdown, EventCtx, GeomBatch, GfxCtx, JustDraw,
     OutlineStyle, ScreenDims, ScreenPt, ScreenRectangle, Toggle,

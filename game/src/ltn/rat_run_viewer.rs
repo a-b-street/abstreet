@@ -67,49 +67,53 @@ impl BrowseRatRuns {
 
     fn recalculate(&mut self, ctx: &mut EventCtx, app: &App) {
         if self.rat_runs.paths.is_empty() {
-            self.panel = Tab::RatRuns.make_panel(ctx, app, "No rat runs detected".text_widget(ctx));
+            self.panel = Tab::RatRuns
+                .panel_builder(ctx, app, "No rat runs detected".text_widget(ctx))
+                .build(ctx);
             return;
         }
 
-        self.panel = Tab::RatRuns.make_panel(
-            ctx,
-            app,
-            Widget::col(vec![
-                Widget::row(vec![
-                    "Rat runs:".text_widget(ctx).centered_vert(),
-                    ctx.style()
-                        .btn_prev()
-                        .disabled(self.current_idx == 0)
-                        .hotkey(Key::LeftArrow)
-                        .build_widget(ctx, "previous rat run"),
-                    Text::from(
-                        Line(format!(
-                            "{}/{}",
-                            self.current_idx + 1,
-                            self.rat_runs.paths.len()
-                        ))
-                        .secondary(),
-                    )
-                    .into_widget(ctx)
-                    .centered_vert(),
-                    ctx.style()
-                        .btn_next()
-                        .disabled(self.current_idx == self.rat_runs.paths.len() - 1)
-                        .hotkey(Key::RightArrow)
-                        .build_widget(ctx, "next rat run"),
+        self.panel = Tab::RatRuns
+            .panel_builder(
+                ctx,
+                app,
+                Widget::col(vec![
+                    Widget::row(vec![
+                        "Rat runs:".text_widget(ctx).centered_vert(),
+                        ctx.style()
+                            .btn_prev()
+                            .disabled(self.current_idx == 0)
+                            .hotkey(Key::LeftArrow)
+                            .build_widget(ctx, "previous rat run"),
+                        Text::from(
+                            Line(format!(
+                                "{}/{}",
+                                self.current_idx + 1,
+                                self.rat_runs.paths.len()
+                            ))
+                            .secondary(),
+                        )
+                        .into_widget(ctx)
+                        .centered_vert(),
+                        ctx.style()
+                            .btn_next()
+                            .disabled(self.current_idx == self.rat_runs.paths.len() - 1)
+                            .hotkey(Key::RightArrow)
+                            .build_widget(ctx, "next rat run"),
+                    ]),
+                    // TODO This should disable the individual path controls, or maybe even be a different
+                    // state entirely...
+                    Toggle::checkbox(
+                        ctx,
+                        "show heatmap of all rat-runs",
+                        Key::R,
+                        self.panel
+                            .maybe_is_checked("show heatmap of all rat-runs")
+                            .unwrap_or(true),
+                    ),
                 ]),
-                // TODO This should disable the individual path controls, or maybe even be a different
-                // state entirely...
-                Toggle::checkbox(
-                    ctx,
-                    "show heatmap of all rat-runs",
-                    Key::R,
-                    self.panel
-                        .maybe_is_checked("show heatmap of all rat-runs")
-                        .unwrap_or(true),
-                ),
-            ]),
-        );
+            )
+            .build(ctx);
 
         let mut draw_path = ToggleZoomed::builder();
         let color = Color::RED;

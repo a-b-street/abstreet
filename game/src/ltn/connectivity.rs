@@ -36,18 +36,20 @@ impl Viewer {
         app: &App,
         neighborhood: Neighborhood,
     ) -> Box<dyn State<App>> {
-        let panel = Tab::Connectivity.make_panel(
-            ctx,
-            app,
-            Widget::col(vec![
-                Widget::row(vec![
-                    "Draw traffic cells as".text_widget(ctx).centered_vert(),
-                    Toggle::choice(ctx, "draw cells", "areas", "streets", Key::D, true),
+        let panel = Tab::Connectivity
+            .panel_builder(
+                ctx,
+                app,
+                Widget::col(vec![
+                    Widget::row(vec![
+                        "Draw traffic cells as".text_widget(ctx).centered_vert(),
+                        Toggle::choice(ctx, "draw cells", "areas", "streets", Key::D, true),
+                    ]),
+                    "Click a road to add or remove a modal filter".text_widget(ctx),
+                    Text::new().into_widget(ctx).named("warnings"),
                 ]),
-                "Click a road to add or remove a modal filter".text_widget(ctx),
-                Text::new().into_widget(ctx).named("warnings"),
-            ]),
-        );
+            )
+            .build(ctx);
 
         let mut viewer = Viewer {
             panel,
