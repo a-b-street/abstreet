@@ -129,13 +129,14 @@ fn make_world(
 
     super::per_neighborhood::populate_world(ctx, app, neighborhood, &mut world, |id| id, 0);
 
+    let (draw_areas, cell_colors) = super::draw_cells::draw_cells(map, neighborhood);
     if draw_cells_as_areas {
-        world.draw_master_batch(ctx, super::draw_cells::draw_cells(map, neighborhood));
+        world.draw_master_batch(ctx, draw_areas);
     } else {
         let mut draw = GeomBatch::new();
         let mut debug_cell_borders = GeomBatch::new();
         for (idx, cell) in neighborhood.cells.iter().enumerate() {
-            let color = super::draw_cells::COLORS[idx % super::draw_cells::COLORS.len()].alpha(0.9);
+            let color = cell_colors[idx].alpha(0.9);
             for (r, interval) in &cell.roads {
                 let road = map.get_r(*r);
                 draw.push(

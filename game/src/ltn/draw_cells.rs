@@ -1,4 +1,4 @@
-use std::collections::VecDeque;
+use std::collections::{HashSet, VecDeque};
 
 use geom::{Distance, Polygon, Pt2D};
 use map_gui::tools::Grid;
@@ -7,7 +7,7 @@ use widgetry::{Color, GeomBatch};
 
 use super::Neighborhood;
 
-pub const COLORS: [Color; 6] = [
+const COLORS: [Color; 6] = [
     Color::BLUE,
     Color::YELLOW,
     Color::GREEN,
@@ -17,8 +17,9 @@ pub const COLORS: [Color; 6] = [
 ];
 
 /// Partition a neighborhood's boundary polygon based on the cells. Currently this discretizes
-/// space into a grid, so the results don't look perfect, but it's fast.
-pub fn draw_cells(map: &Map, neighborhood: &Neighborhood) -> GeomBatch {
+/// space into a grid, so the results don't look perfect, but it's fast. Also returns the color for
+/// each cell, so that adjacent cells have different colors.
+pub fn draw_cells(map: &Map, neighborhood: &Neighborhood) -> (GeomBatch, Vec<Color>) {
     let boundary_polygon = neighborhood
         .orig_perimeter
         .clone()
@@ -72,7 +73,8 @@ pub fn draw_cells(map: &Map, neighborhood: &Neighborhood) -> GeomBatch {
         grid.data[grid_idx] = Some(boundary_marker);
     }
 
-    diffusion(&mut grid, boundary_marker);
+    let adjacencies = diffusion(&mut grid, boundary_marker);
+    let cell_colors = color_cells(neighborhood.cells.len(), adjacencies);
 
     // Just draw rectangles based on the grid
     // TODO We should be able to generate actual polygons per cell using the contours crate
@@ -89,10 +91,8 @@ pub fn draw_cells(map: &Map, neighborhood: &Neighborhood) -> GeomBatch {
                 bounds.min_x + resolution_m * (x as f64 + 0.5),
                 bounds.min_y + resolution_m * (y as f64 + 0.5),
             );
-            // TODO If two cells are adjacent, assign different colors
-            let color = COLORS[cell_idx % COLORS.len()].alpha(0.5);
             batch.push(
-                color,
+                cell_colors[*cell_idx].alpha(0.5),
                 Polygon::rectangle_centered(
                     tile_center,
                     Distance::meters(resolution_m),
@@ -101,10 +101,12 @@ pub fn draw_cells(map: &Map, neighborhood: &Neighborhood) -> GeomBatch {
             );
         }
     }
-    batch
+    (batch, cell_colors)
 }
 
-fn diffusion(grid: &mut Grid<Option<usize>>, boundary_marker: usize) {
+/// Returns a set of adjacent indices. The pairs are symmetric -- (x, y) and (y, x) will both be
+/// populated. Adjacency with boundary_marker doesn't count.
+fn diffusion(grid: &mut Grid<Option<usize>>, boundary_marker: usize) -> HashSet<(usize, usize)> {
     // Grid indices to propagate
     let mut queue: VecDeque<usize> = VecDeque::new();
 
@@ -118,6 +120,8 @@ fn diffusion(grid: &mut Grid<Option<usize>>, boundary_marker: usize) {
         }
     }
 
+    let mut adjacencies = HashSet::new();
+
     while !queue.is_empty() {
         let current_idx = queue.pop_front().unwrap();
         let current_color = grid.data[current_idx].unwrap();
@@ -128,13 +132,48 @@ fn diffusion(grid: &mut Grid<Option<usize>>, boundary_marker: usize) {
         // example.
         for (next_x, next_y) in grid.orthogonal_neighbors(current_x, current_y) {
             let next_idx = grid.idx(next_x, next_y);
-            if grid.data[next_idx].is_none() {
+            if let Some(prev_color) = grid.data[next_idx] {
+                // If the color doesn't match our current_color, we've found the border between two
+                // cells.
+                if current_color != prev_color
+                    && current_color != boundary_marker
+                    && prev_color != boundary_marker
+                {
+                    adjacencies.insert((current_color, prev_color));
+                    adjacencies.insert((prev_color, current_color));
+                }
+                // If a color has been assigned, don't flood any further.
+            } else {
                 grid.data[next_idx] = Some(current_color);
                 queue.push_back(next_idx);
             }
-            // If a color has been assigned, don't flood any further. If the color doesn't match
-            // our current_color, we've found the border between two cells. But we don't need to do
-            // anything with that border.
         }
     }
+
+    adjacencies
+}
+
+fn color_cells(num_cells: usize, adjacencies: HashSet<(usize, usize)>) -> Vec<Color> {
+    // This is the same greedy logic as Perimeter::calculate_coloring
+    let mut assigned_colors = Vec::new();
+    for this_idx in 0..num_cells {
+        let mut available_colors: Vec<bool> = std::iter::repeat(true).take(COLORS.len()).collect();
+        // Find all neighbors
+        for other_idx in 0..num_cells {
+            if adjacencies.contains(&(this_idx, other_idx)) {
+                // We assign colors in order, so any neighbor index smaller than us has been
+                // chosen
+                if other_idx < this_idx {
+                    available_colors[assigned_colors[other_idx]] = false;
+                }
+            }
+        }
+        if let Some(color) = available_colors.iter().position(|x| *x) {
+            assigned_colors.push(color);
+        } else {
+            warn!("color_cells ran out of colors");
+            assigned_colors.push(0);
+        }
+    }
+    assigned_colors.into_iter().map(|idx| COLORS[idx]).collect()
 }
