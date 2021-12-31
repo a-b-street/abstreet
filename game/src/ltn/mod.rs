@@ -82,9 +82,9 @@ pub struct DiagonalFilter {
 
 /// A partitioning of the interior of a neighborhood based on driving connectivity
 pub struct Cell {
-    /// Most roads are fully in one cell. Roads with modal filters on them are split between two
-    /// cells, and the DistanceInterval indicates the split. The distances are over the road's
-    /// center line length.
+    /// Most roads are fully in one cell. Roads with modal filters on them are sometimes split
+    /// between two cells, and the DistanceInterval indicates the split. The distances are over the
+    /// road's center line length.
     pub roads: BTreeMap<RoadID, DistanceInterval>,
     /// Intersections where this cell touches the boundary of the neighborhood.
     pub borders: BTreeSet<IntersectionID>,
@@ -297,9 +297,9 @@ fn floodfill(
     neighborhood_borders: &BTreeSet<IntersectionID>,
     modal_filters: &ModalFilters,
 ) -> Cell {
-    // We don't need a priority queue
     let mut visited_roads: BTreeMap<RoadID, DistanceInterval> = BTreeMap::new();
     let mut cell_borders = BTreeSet::new();
+    // We don't need a priority queue
     let mut queue = vec![start];
 
     // The caller should handle this case
@@ -331,20 +331,32 @@ fn floodfill(
                     }
                 }
                 if let Some(filter_dist) = modal_filters.roads.get(next) {
-                    // Which end of the filtered road have we reached?
                     let next_road = map.get_r(*next);
+                    // Which ends of the filtered road have we reached?
+                    let mut visited_start = next_road.src_i == i;
+                    let mut visited_end = next_road.dst_i == i;
+                    // We may have visited previously from the other side.
+                    if let Some(interval) = visited_roads.get(next) {
+                        if interval.start == Distance::ZERO {
+                            visited_start = true;
+                        }
+                        if interval.end == next_road.length() {
+                            visited_end = true;
+                        }
+                    }
                     visited_roads.insert(
                         *next,
-                        if next_road.src_i == i {
-                            DistanceInterval {
-                                start: Distance::ZERO,
-                                end: *filter_dist,
-                            }
-                        } else {
-                            DistanceInterval {
-                                start: *filter_dist,
-                                end: next_road.length(),
-                            }
+                        DistanceInterval {
+                            start: if visited_start {
+                                Distance::ZERO
+                            } else {
+                                *filter_dist
+                            },
+                            end: if visited_end {
+                                next_road.length()
+                            } else {
+                                *filter_dist
+                            },
                         },
                     );
                 } else {

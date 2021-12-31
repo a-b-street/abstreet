@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 use geom::Distance;
 use widgetry::mapspace::World;
 use widgetry::{
@@ -136,18 +134,16 @@ fn make_world(
     } else {
         let mut draw = GeomBatch::new();
         let mut debug_cell_borders = GeomBatch::new();
-        let mut seen_roads = HashSet::new();
         for (idx, cell) in neighborhood.cells.iter().enumerate() {
             let color = super::draw_cells::COLORS[idx % super::draw_cells::COLORS.len()].alpha(0.9);
-            for r in cell.roads.keys() {
-                // TODO Roads with a filter belong to two cells. The drawn form (and the
-                // intersections included) needs to be adjusted to use two colors.
-                if seen_roads.contains(r) {
-                    continue;
-                }
-                seen_roads.insert(*r);
-
-                draw.push(color, map.get_r(*r).get_thick_polygon());
+            for (r, interval) in &cell.roads {
+                let road = map.get_r(*r);
+                draw.push(
+                    color,
+                    road.center_pts
+                        .exact_slice(interval.start, interval.end)
+                        .make_polygons(road.get_width()),
+                );
             }
             for i in
                 crate::common::intersections_from_roads(&cell.roads.keys().cloned().collect(), map)
