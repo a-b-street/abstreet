@@ -177,6 +177,14 @@
 <span id="177">177</span>
 <span id="178">178</span>
 <span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
@@ -189,11 +197,12 @@
 <span class="kw">const</span> <span class="ident">COLORS</span>: [<span class="ident">Color</span>; <span class="number">6</span>] <span class="op">=</span> [
     <span class="ident">Color::BLUE</span>,
     <span class="ident">Color::YELLOW</span>,
-    <span class="ident">Color::GREEN</span>,
+    <span class="ident">Color::RED</span>,
     <span class="ident">Color::PURPLE</span>,
     <span class="ident">Color::PINK</span>,
     <span class="ident">Color::ORANGE</span>,
 ];
+<span class="kw">const</span> <span class="ident">CAR_FREE_COLOR</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::GREEN</span>;
 
 <span class="doccomment">/// Partition a neighborhood&#39;s boundary polygon based on the cells. Currently this discretizes</span>
 <span class="doccomment">/// space into a grid, so the results don&#39;t look perfect, but it&#39;s fast. Also returns the color for</span>
@@ -253,7 +262,14 @@
     }
 
     <span class="kw">let</span> <span class="ident">adjacencies</span> <span class="op">=</span> <span class="ident">diffusion</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">grid</span>, <span class="ident">boundary_marker</span>);
-    <span class="kw">let</span> <span class="ident">cell_colors</span> <span class="op">=</span> <span class="ident">color_cells</span>(<span class="ident">neighborhood</span>.<span class="ident">cells</span>.<span class="ident">len</span>(), <span class="ident">adjacencies</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cell_colors</span> <span class="op">=</span> <span class="ident">color_cells</span>(<span class="ident">neighborhood</span>.<span class="ident">cells</span>.<span class="ident">len</span>(), <span class="ident">adjacencies</span>);
+
+    <span class="comment">// Color car-free cells in a special way</span>
+    <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">cell</span>) <span class="kw">in</span> <span class="ident">neighborhood</span>.<span class="ident">cells</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
+        <span class="kw">if</span> <span class="ident">cell</span>.<span class="ident">car_free</span> {
+            <span class="ident">cell_colors</span>[<span class="ident">idx</span>] <span class="op">=</span> <span class="ident">CAR_FREE_COLOR</span>;
+        }
+    }
 
     <span class="comment">// Just draw rectangles based on the grid</span>
     <span class="comment">// TODO We should be able to generate actual polygons per cell using the contours crate</span>

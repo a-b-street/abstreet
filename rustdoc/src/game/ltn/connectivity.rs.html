@@ -229,7 +229,7 @@
             .<span class="ident">neighborhood</span>
             .<span class="ident">cells</span>
             .<span class="ident">iter</span>()
-            .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">borders</span>.<span class="ident">is_empty</span>())
+            .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">borders</span>.<span class="ident">is_empty</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">c</span>.<span class="ident">car_free</span>)
             .<span class="ident">count</span>();
         <span class="comment">// TODO Also add a red outline to them or something</span>
         <span class="kw">let</span> <span class="ident">warning</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">disconnected_cells</span> <span class="op">==</span> <span class="number">0</span> {
