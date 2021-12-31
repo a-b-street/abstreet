@@ -13,7 +13,7 @@ pub use self::v1::{Path, PathRequest, PathStep};
 pub use self::v2::{PathStepV2, PathV2};
 pub use self::vehicles::vehicle_cost;
 pub use self::walking::WalkingNode;
-use crate::{osm, Lane, LaneID, LaneType, Map, MovementID, RoadID, TurnType};
+use crate::{osm, Lane, LaneID, LaneType, Map, MovementID, Road, RoadID, TurnType};
 
 mod engine;
 mod node_map;
@@ -113,6 +113,12 @@ impl PathConstraints {
             }
         }
         false
+    }
+
+    /// Can an agent use a road in either direction? There are some subtle exceptions with using
+    /// bus-only lanes for turns.
+    pub fn can_use_road(self, road: &Road, map: &Map) -> bool {
+        road.lanes.iter().any(|lane| self.can_use(lane, map))
     }
 
     /// Strict for bikes. If there are bike lanes, not allowed to use other lanes.

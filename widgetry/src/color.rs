@@ -68,7 +68,7 @@ impl Texture {
 }
 
 impl Color {
-    // TODO Won't this confuse the shader? :P
+    // TODO Won't this confuse the shader?
     pub const CLEAR: Color = Color::rgba_f(1.0, 0.0, 0.0, 0.0);
     pub const BLACK: Color = Color::rgb_f(0.0, 0.0, 0.0);
     pub const WHITE: Color = Color::rgb_f(1.0, 1.0, 1.0);
@@ -110,6 +110,7 @@ impl Color {
         Color::rgb_f(f, f, f)
     }
 
+    /// Note this is incorrect for `Color::CLEAR`. Can't fix in a const fn.
     pub const fn alpha(&self, a: f32) -> Color {
         Color::rgba_f(self.r, self.g, self.b, a)
     }
