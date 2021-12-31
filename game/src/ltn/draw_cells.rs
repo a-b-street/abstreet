@@ -10,11 +10,12 @@ use super::Neighborhood;
 const COLORS: [Color; 6] = [
     Color::BLUE,
     Color::YELLOW,
-    Color::GREEN,
+    Color::RED,
     Color::PURPLE,
     Color::PINK,
     Color::ORANGE,
 ];
+const CAR_FREE_COLOR: Color = Color::GREEN;
 
 /// Partition a neighborhood's boundary polygon based on the cells. Currently this discretizes
 /// space into a grid, so the results don't look perfect, but it's fast. Also returns the color for
@@ -74,7 +75,14 @@ pub fn draw_cells(map: &Map, neighborhood: &Neighborhood) -> (GeomBatch, Vec<Col
     }
 
     let adjacencies = diffusion(&mut grid, boundary_marker);
-    let cell_colors = color_cells(neighborhood.cells.len(), adjacencies);
+    let mut cell_colors = color_cells(neighborhood.cells.len(), adjacencies);
+
+    // Color car-free cells in a special way
+    for (idx, cell) in neighborhood.cells.iter().enumerate() {
+        if cell.car_free {
+            cell_colors[idx] = CAR_FREE_COLOR;
+        }
+    }
 
     // Just draw rectangles based on the grid
     // TODO We should be able to generate actual polygons per cell using the contours crate

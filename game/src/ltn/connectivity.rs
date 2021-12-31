@@ -60,7 +60,7 @@ impl Viewer {
             .neighborhood
             .cells
             .iter()
-            .filter(|c| c.borders.is_empty())
+            .filter(|c| c.borders.is_empty() && !c.car_free)
             .count();
         // TODO Also add a red outline to them or something
         let warning = if disconnected_cells == 0 {

@@ -4,7 +4,7 @@ use maplit::btreeset;
 
 use geom::{Circle, Distance, Line, Polygon};
 use map_gui::tools::DrawRoadLabels;
-use map_model::{IntersectionID, Map, Perimeter, RoadID, RoutingParams, TurnID};
+use map_model::{IntersectionID, Map, PathConstraints, Perimeter, RoadID, RoutingParams, TurnID};
 use widgetry::mapspace::ToggleZoomed;
 use widgetry::{Color, Drawable, EventCtx, GeomBatch};
 
@@ -88,6 +88,8 @@ pub struct Cell {
     pub roads: BTreeMap<RoadID, DistanceInterval>,
     /// Intersections where this cell touches the boundary of the neighborhood.
     pub borders: BTreeSet<IntersectionID>,
+    /// This cell only contains roads that ban cars.
+    pub car_free: bool,
 }
 
 /// An interval along a road's length, with start < end.
@@ -245,11 +247,17 @@ fn find_cells(
     let mut cells = Vec::new();
     let mut visited = BTreeSet::new();
 
+    let mut no_car_roads = Vec::new();
     for start in &perimeter.interior {
         if visited.contains(start) || modal_filters.roads.contains_key(start) {
             continue;
         }
-        let cell = floodfill(map, *start, perimeter, borders, &modal_filters);
+        let start = *start;
+        if !PathConstraints::Car.can_use_road(map.get_r(start), map) {
+            no_car_roads.push(start);
+            continue;
+        }
+        let cell = floodfill(map, start, perimeter, borders, &modal_filters);
         visited.extend(cell.roads.keys().cloned());
         cells.push(cell);
     }
@@ -261,6 +269,7 @@ fn find_cells(
             let mut cell = Cell {
                 roads: BTreeMap::new(),
                 borders: btreeset! { road.src_i },
+                car_free: false,
             };
             cell.roads.insert(
                 road.id,
@@ -275,6 +284,7 @@ fn find_cells(
             let mut cell = Cell {
                 roads: BTreeMap::new(),
                 borders: btreeset! { road.dst_i },
+                car_free: false,
             };
             cell.roads.insert(
                 road.id,
@@ -285,6 +295,34 @@ fn find_cells(
             );
             cells.push(cell);
         }
+    }
+
+    // Roads already banning cars should still contribute a cell, so the cell coloring can still
+    // account for them
+    //
+    // TODO Should we attempt to merge adjacent cells like this? If we have lots of tiny pieces of
+    // bike-only roads, they'll each get their own cell
+    for r in no_car_roads {
+        let mut cell = Cell {
+            roads: BTreeMap::new(),
+            borders: BTreeSet::new(),
+            car_free: true,
+        };
+        let road = map.get_r(r);
+        if borders.contains(&road.src_i) {
+            cell.borders.insert(road.src_i);
+        }
+        if borders.contains(&road.dst_i) {
+            cell.borders.insert(road.dst_i);
+        }
+        cell.roads.insert(
+            road.id,
+            DistanceInterval {
+                start: Distance::ZERO,
+                end: road.length(),
+            },
+        );
+        cells.push(cell);
     }
 
     cells
@@ -304,6 +342,7 @@ fn floodfill(
 
     // The caller should handle this case
     assert!(!modal_filters.roads.contains_key(&start));
+    assert!(PathConstraints::Car.can_use_road(map.get_r(start), map));
 
     while !queue.is_empty() {
         let current = map.get_r(queue.pop().unwrap());
@@ -319,6 +358,7 @@ fn floodfill(
         );
         for i in [current.src_i, current.dst_i] {
             for next in &map.get_i(i).roads {
+                let next_road = map.get_r(*next);
                 if !perimeter.interior.contains(next) {
                     if neighborhood_borders.contains(&i) {
                         cell_borders.insert(i);
@@ -331,7 +371,6 @@ fn floodfill(
                     }
                 }
                 if let Some(filter_dist) = modal_filters.roads.get(next) {
-                    let next_road = map.get_r(*next);
                     // Which ends of the filtered road have we reached?
                     let mut visited_start = next_road.src_i == i;
                     let mut visited_end = next_road.dst_i == i;
@@ -359,9 +398,15 @@ fn floodfill(
                             },
                         },
                     );
-                } else {
-                    queue.push(*next);
+                    continue;
                 }
+
+                if !PathConstraints::Car.can_use_road(next_road, map) {
+                    // The road is only for bikes/pedestrians to start with
+                    continue;
+                }
+
+                queue.push(*next);
             }
         }
     }
@@ -369,6 +414,7 @@ fn floodfill(
     Cell {
         roads: visited_roads,
         borders: cell_borders,
+        car_free: false,
     }
 }
 

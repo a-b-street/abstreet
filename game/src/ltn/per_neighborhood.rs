@@ -1,6 +1,6 @@
 use geom::Distance;
 use map_gui::tools::CityPicker;
-use map_model::{IntersectionID, RoadID};
+use map_model::{IntersectionID, PathConstraints, RoadID};
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::{
     Color, EventCtx, HorizontalAlignment, Key, Panel, PanelBuilder, State, TextExt,
@@ -177,11 +177,17 @@ pub fn handle_world_outcome(
     app: &mut App,
     outcome: WorldOutcome<FilterableObj>,
 ) -> bool {
+    let map = &app.primary.map;
     match outcome {
         WorldOutcome::ClickedObject(FilterableObj::InteriorRoad(r)) => {
+            let road = map.get_r(r);
+            // Filtering on a road that's already marked bike-only doesn't make sense
+            if !PathConstraints::Car.can_use_road(road, map) {
+                return true;
+            }
+
             if app.session.modal_filters.roads.remove(&r).is_none() {
                 // Place the filter on the part of the road that was clicked
-                let road = app.primary.map.get_r(r);
                 // These calls shouldn't fail -- since we clicked a road, the cursor must be in
                 // map-space. And project_pt returns a point that's guaranteed to be on the
                 // polyline.
@@ -194,7 +200,7 @@ pub fn handle_world_outcome(
             true
         }
         WorldOutcome::ClickedObject(FilterableObj::InteriorIntersection(i)) => {
-            if app.primary.map.get_i(i).roads.len() != 4 {
+            if map.get_i(i).roads.len() != 4 {
                 // Misleading. Nothing changes, but we'll "fall through" to other cases without
                 // this
                 return true;
