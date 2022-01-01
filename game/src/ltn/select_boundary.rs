@@ -5,7 +5,7 @@ use map_model::{Block, Perimeter};
 use widgetry::mapspace::ToggleZoomed;
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::{
-    Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, State, TextExt,
+    Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, Text, TextExt,
     VerticalAlignment, Widget,
 };
 
@@ -95,9 +95,13 @@ impl SelectBoundary {
             .hover_alpha(0.8)
             .clickable();
         if self.selected.contains(&id) {
-            obj = obj.hotkey(Key::Space, "remove")
+            obj = obj
+                .hotkey(Key::Space, "remove")
+                .hotkey(Key::LeftShift, "remove")
         } else {
-            obj = obj.hotkey(Key::Space, "add")
+            obj = obj
+                .hotkey(Key::Space, "add")
+                .hotkey(Key::LeftControl, "add")
         }
         obj.build(ctx);
         self.blocks.insert(id, block);
@@ -225,9 +229,23 @@ fn make_panel(ctx: &mut EventCtx, app: &App, boundary_ok: bool) -> Panel {
         "Draw a custom boundary for a neighborhood"
             .text_widget(ctx)
             .centered_vert(),
-        "Click to add/remove a block".text_widget(ctx),
-        "Hold LCtrl and paint blocks to add".text_widget(ctx),
-        "Hold LShift and paint blocks to remove".text_widget(ctx),
+        Text::from_all(vec![
+            Line("Click").fg(ctx.style().text_hotkey_color),
+            Line(" to add/remove a block"),
+        ])
+        .into_widget(ctx),
+        Text::from_all(vec![
+            Line("Hold "),
+            Line(Key::LeftControl.describe()).fg(ctx.style().text_hotkey_color),
+            Line(" and paint over blocks to add"),
+        ])
+        .into_widget(ctx),
+        Text::from_all(vec![
+            Line("Hold "),
+            Line(Key::LeftShift.describe()).fg(ctx.style().text_hotkey_color),
+            Line(" and paint over blocks to remove"),
+        ])
+        .into_widget(ctx),
         Widget::row(vec![
             ctx.style()
                 .btn_solid_primary
