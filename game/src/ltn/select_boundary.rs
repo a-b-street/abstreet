@@ -10,23 +10,24 @@ use widgetry::{
 };
 
 use crate::app::{App, Transition};
+use crate::ltn::partition::NeighborhoodID;
 use crate::ltn::Neighborhood;
 
-const UNSELECTED: Color = Color::BLUE;
 const SELECTED: Color = Color::CYAN;
 
 pub struct SelectBoundary {
     panel: Panel,
-    id_counter: usize,
-    blocks: BTreeMap<Obj, Block>,
-    world: World<Obj>,
-    selected: BTreeSet<Obj>,
+    // These are always single, unmerged blocks
+    blocks: BTreeMap<BlockID, Block>,
+    world: World<BlockID>,
+    selected: BTreeSet<BlockID>,
     draw_outline: ToggleZoomed,
+    block_to_neighborhood: BTreeMap<BlockID, NeighborhoodID>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-struct Obj(usize);
-impl ObjectID for Obj {}
+struct BlockID(usize);
+impl ObjectID for BlockID {}
 
 impl SelectBoundary {
     pub fn new_state(
@@ -36,11 +37,11 @@ impl SelectBoundary {
     ) -> Box<dyn State<App>> {
         let mut state = SelectBoundary {
             panel: make_panel(ctx, app, false),
-            id_counter: 0,
             blocks: BTreeMap::new(),
             world: World::bounded(app.primary.map.get_bounds()),
             selected: BTreeSet::new(),
             draw_outline: ToggleZoomed::empty(ctx),
+            block_to_neighborhood: BTreeMap::new(),
         };
 
         ctx.loading_screen("calculate all blocks", |ctx, timer| {
@@ -48,18 +49,26 @@ impl SelectBoundary {
             let perimeters = Perimeter::find_all_single_blocks(&app.primary.map);
             timer.stop("find single blocks");
 
+            let mut blocks = Vec::new();
             timer.start_iter("blockify", perimeters.len());
             for perimeter in perimeters {
                 timer.next();
                 match perimeter.to_block(&app.primary.map) {
                     Ok(block) => {
-                        let id = state.new_id();
-                        state.add_block(ctx, id, UNSELECTED, block);
+                        blocks.push(block);
                     }
                     Err(err) => {
                         warn!("Failed to make a block from a perimeter: {}", err);
                     }
                 }
+            }
+
+            for (idx, block) in blocks.into_iter().enumerate() {
+                let id = BlockID(idx);
+                let neighborhood = app.session.partitioning.neighborhood_containing(&block);
+                state.block_to_neighborhood.insert(id, neighborhood);
+                let color = app.session.partitioning.neighborhoods[&neighborhood].1;
+                state.add_block(ctx, id, color, block);
             }
         });
 
@@ -80,13 +89,7 @@ impl SelectBoundary {
         Box::new(state)
     }
 
-    fn new_id(&mut self) -> Obj {
-        let id = Obj(self.id_counter);
-        self.id_counter += 1;
-        id
-    }
-
-    fn add_block(&mut self, ctx: &mut EventCtx, id: Obj, color: Color, block: Block) {
+    fn add_block(&mut self, ctx: &mut EventCtx, id: BlockID, color: Color, block: Block) {
         let mut obj = self
             .world
             .add(id)
@@ -115,7 +118,7 @@ impl SelectBoundary {
         Perimeter::merge_all(perimeters, false)
     }
 
-    fn block_changed(&mut self, ctx: &mut EventCtx, app: &App, id: Obj) {
+    fn block_changed(&mut self, ctx: &mut EventCtx, app: &App, id: BlockID) {
         let block = self.blocks.remove(&id).unwrap();
         self.world.delete_before_replacement(id);
         self.add_block(
@@ -124,7 +127,10 @@ impl SelectBoundary {
             if self.selected.contains(&id) {
                 SELECTED
             } else {
-                UNSELECTED
+                // Use the original color. This assumes the partitioning has been updated, of
+                // course
+                let neighborhood = self.block_to_neighborhood[&id];
+                app.session.partitioning.neighborhoods[&neighborhood].1
             },
             block,
         );
@@ -167,6 +173,7 @@ impl State<App> for SelectBoundary {
                 "Confirm" => {
                     let mut perimeters = self.merge_selected();
                     assert_eq!(perimeters.len(), 1);
+                    // TODO Persist the partitioning
                     return Transition::Replace(super::connectivity::Viewer::new_state(
                         ctx,
                         app,
