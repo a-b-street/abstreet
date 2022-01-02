@@ -72,7 +72,7 @@ impl Tab {
                 vec![super::select_boundary::SelectBoundary::new_state(
                     ctx,
                     app,
-                    Some(state.take_neighborhood().orig_perimeter),
+                    state.take_neighborhood().orig_perimeter,
                 )]
             })),
             "Connectivity" => Transition::ConsumeState(Box::new(|state, ctx, app| {

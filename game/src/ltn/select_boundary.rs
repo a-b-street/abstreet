@@ -1,7 +1,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use geom::Distance;
-use map_model::{Block, Perimeter};
+use map_model::{Block, Perimeter, RoadID};
 use widgetry::mapspace::ToggleZoomed;
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::{
@@ -17,12 +17,14 @@ const SELECTED: Color = Color::CYAN;
 
 pub struct SelectBoundary {
     panel: Panel,
-    // These are always single, unmerged blocks
+    // These are always single, unmerged blocks. Thus, these blocks never change -- only their
+    // color and assignment to a neighborhood.
     blocks: BTreeMap<BlockID, Block>,
     world: World<BlockID>,
     selected: BTreeSet<BlockID>,
     draw_outline: ToggleZoomed,
     block_to_neighborhood: BTreeMap<BlockID, NeighborhoodID>,
+    frontier: BTreeSet<BlockID>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -33,15 +35,17 @@ impl SelectBoundary {
     pub fn new_state(
         ctx: &mut EventCtx,
         app: &App,
-        initial_boundary: Option<Perimeter>,
+        // TODO Take NeighborhoodID?
+        initial_boundary: Perimeter,
     ) -> Box<dyn State<App>> {
         let mut state = SelectBoundary {
-            panel: make_panel(ctx, app, false),
+            panel: make_panel(ctx, app),
             blocks: BTreeMap::new(),
             world: World::bounded(app.primary.map.get_bounds()),
             selected: BTreeSet::new(),
             draw_outline: ToggleZoomed::empty(ctx),
             block_to_neighborhood: BTreeMap::new(),
+            frontier: BTreeSet::new(),
         };
 
         ctx.loading_screen("calculate all blocks", |ctx, timer| {
@@ -67,47 +71,60 @@ impl SelectBoundary {
                 let id = BlockID(idx);
                 let neighborhood = app.session.partitioning.neighborhood_containing(&block);
                 state.block_to_neighborhood.insert(id, neighborhood);
-                let color = app.session.partitioning.neighborhoods[&neighborhood].1;
-                state.add_block(ctx, id, color, block);
+                if initial_boundary.contains(&block.perimeter) {
+                    state.selected.insert(id);
+                }
+                state.blocks.insert(id, block);
+            }
+            state.frontier = calculate_frontier(&initial_boundary, &state.blocks);
+
+            // Fill out the world initially
+            for id in state.blocks.keys().cloned().collect::<Vec<_>>() {
+                state.add_block(ctx, app, id);
             }
         });
-
-        if let Some(perimeter) = initial_boundary {
-            let mut included = Vec::new();
-            for (id, block) in &state.blocks {
-                if perimeter.contains(&block.perimeter) {
-                    included.push(*id);
-                }
-            }
-            for id in included {
-                state.selected.insert(id);
-                state.block_changed(ctx, app, id);
-            }
-        }
 
         state.world.initialize_hover(ctx);
         Box::new(state)
     }
 
-    fn add_block(&mut self, ctx: &mut EventCtx, id: BlockID, color: Color, block: Block) {
-        let mut obj = self
-            .world
-            .add(id)
-            .hitbox(block.polygon.clone())
-            .draw_color(color.alpha(0.5))
-            .hover_alpha(0.8)
-            .clickable();
-        if self.selected.contains(&id) {
-            obj = obj
-                .hotkey(Key::Space, "remove")
-                .hotkey(Key::LeftShift, "remove")
+    fn add_block(&mut self, ctx: &mut EventCtx, app: &App, id: BlockID) {
+        let color = if self.selected.contains(&id) {
+            SELECTED
         } else {
-            obj = obj
-                .hotkey(Key::Space, "add")
-                .hotkey(Key::LeftControl, "add")
+            // Use the original color. This assumes the partitioning has been updated, of
+            // course
+            let neighborhood = self.block_to_neighborhood[&id];
+            app.session.partitioning.neighborhoods[&neighborhood].1
+        };
+
+        if self.frontier.contains(&id) {
+            let mut obj = self
+                .world
+                .add(id)
+                .hitbox(self.blocks[&id].polygon.clone())
+                .draw_color(color.alpha(0.5))
+                .hover_alpha(0.8)
+                .clickable();
+            if self.selected.contains(&id) {
+                obj = obj
+                    .hotkey(Key::Space, "remove")
+                    .hotkey(Key::LeftShift, "remove")
+            } else {
+                obj = obj
+                    .hotkey(Key::Space, "add")
+                    .hotkey(Key::LeftControl, "add")
+            }
+            obj.build(ctx);
+        } else {
+            // If we can't immediately add/remove the block, fade it out and don't allow clicking
+            // it
+            self.world
+                .add(id)
+                .hitbox(self.blocks[&id].polygon.clone())
+                .draw_color(color.alpha(0.3))
+                .build(ctx);
         }
-        obj.build(ctx);
-        self.blocks.insert(id, block);
     }
 
     fn merge_selected(&self) -> Vec<Perimeter> {
@@ -118,48 +135,52 @@ impl SelectBoundary {
         Perimeter::merge_all(perimeters, false)
     }
 
+    // This block was in the previous frontier; its inclusion in self.selected has changed.
     fn block_changed(&mut self, ctx: &mut EventCtx, app: &App, id: BlockID) {
-        let block = self.blocks.remove(&id).unwrap();
-        self.world.delete_before_replacement(id);
-        self.add_block(
-            ctx,
-            id,
+        let mut perimeters = self.merge_selected();
+        if perimeters.len() != 1 {
+            // We split the current neighborhood in two.
+            // TODO Figure out how to handle this. For now, don't allow and revert
             if self.selected.contains(&id) {
-                SELECTED
+                self.selected.remove(&id);
             } else {
-                // Use the original color. This assumes the partitioning has been updated, of
-                // course
-                let neighborhood = self.block_to_neighborhood[&id];
-                app.session.partitioning.neighborhoods[&neighborhood].1
-            },
-            block,
-        );
+                self.selected.insert(id);
+            }
+            let label =
+                "Splitting this neighborhood in two is currently unsupported".text_widget(ctx);
+            self.panel.replace(ctx, "warning", label);
+            return;
+        }
+
+        let old_frontier = std::mem::take(&mut self.frontier);
+        let new_perimeter = perimeters.pop().unwrap();
+        self.frontier = calculate_frontier(&new_perimeter, &self.blocks);
+
+        // Redraw all of the blocks that changed
+        let mut changed_blocks: Vec<BlockID> = old_frontier
+            .symmetric_difference(&self.frontier)
+            .cloned()
+            .collect();
+        // And always the current block
+        changed_blocks.push(id);
+        for changed in changed_blocks {
+            self.world.delete_before_replacement(changed);
+            self.add_block(ctx, app, changed);
+        }
 
         // Draw the outline of the current blocks
-        let mut valid_blocks = 0;
         let mut batch = ToggleZoomed::builder();
-
-        for perimeter in self.merge_selected() {
-            if let Ok(block) = perimeter.to_block(&app.primary.map) {
-                // Alternate colors, to help people figure out where two disjoint boundaries exist
-                // TODO Ideally have more than 2 colors to cycle through
-                let color = if valid_blocks % 2 == 0 {
-                    Color::RED
-                } else {
-                    Color::GREEN
-                };
-                valid_blocks += 1;
-
-                if let Ok(outline) = block.polygon.to_outline(Distance::meters(10.0)) {
-                    batch.unzoomed.push(color, outline);
-                }
-                if let Ok(outline) = block.polygon.to_outline(Distance::meters(5.0)) {
-                    batch.zoomed.push(color.alpha(0.5), outline);
-                }
+        if let Ok(block) = new_perimeter.to_block(&app.primary.map) {
+            if let Ok(outline) = block.polygon.to_outline(Distance::meters(10.0)) {
+                batch.unzoomed.push(Color::RED, outline);
+            }
+            if let Ok(outline) = block.polygon.to_outline(Distance::meters(5.0)) {
+                batch.zoomed.push(Color::RED.alpha(0.5), outline);
             }
         }
+        // TODO If this fails, maybe also revert
         self.draw_outline = batch.build(ctx);
-        self.panel = make_panel(ctx, app, valid_blocks == 1);
+        self.panel = make_panel(ctx, app);
     }
 }
 
@@ -187,11 +208,11 @@ impl State<App> for SelectBoundary {
         match self.world.event(ctx) {
             WorldOutcome::Keypress("add", id) => {
                 self.selected.insert(id);
-                self.block_changed(ctx, app, id);
+                self.block_changed(ctx, app, id)
             }
             WorldOutcome::Keypress("remove", id) => {
                 self.selected.remove(&id);
-                self.block_changed(ctx, app, id);
+                self.block_changed(ctx, app, id)
             }
             WorldOutcome::ClickedObject(id) => {
                 if self.selected.contains(&id) {
@@ -199,7 +220,7 @@ impl State<App> for SelectBoundary {
                 } else {
                     self.selected.insert(id);
                 }
-                self.block_changed(ctx, app, id);
+                self.block_changed(ctx, app, id)
             }
             _ => {}
         }
@@ -230,7 +251,7 @@ impl State<App> for SelectBoundary {
     }
 }
 
-fn make_panel(ctx: &mut EventCtx, app: &App, boundary_ok: bool) -> Panel {
+fn make_panel(ctx: &mut EventCtx, app: &App) -> Panel {
     Panel::new_builder(Widget::col(vec![
         map_gui::tools::app_header(ctx, app, "Low traffic neighborhoods"),
         "Draw a custom boundary for a neighborhood"
@@ -258,8 +279,6 @@ fn make_panel(ctx: &mut EventCtx, app: &App, boundary_ok: bool) -> Panel {
                 .btn_solid_primary
                 .text("Confirm")
                 .hotkey(Key::Enter)
-                .disabled(!boundary_ok)
-                .disabled_tooltip("You must select one contiguous boundary")
                 .build_def(ctx),
             ctx.style()
                 .btn_solid_destructive
@@ -267,7 +286,26 @@ fn make_panel(ctx: &mut EventCtx, app: &App, boundary_ok: bool) -> Panel {
                 .hotkey(Key::Escape)
                 .build_def(ctx),
         ]),
+        Text::new().into_widget(ctx).named("warning"),
     ]))
     .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
     .build(ctx)
+}
+
+// Blocks on the "frontier" are adjacent to the perimeter, either just inside or outside.
+fn calculate_frontier(perim: &Perimeter, blocks: &BTreeMap<BlockID, Block>) -> BTreeSet<BlockID> {
+    let perim_roads: BTreeSet<RoadID> = perim.roads.iter().map(|id| id.road).collect();
+
+    let mut frontier = BTreeSet::new();
+    for (block_id, block) in blocks {
+        for road_side_id in &block.perimeter.roads {
+            // If the perimeter has this RoadSideID on the same side, we're just inside. If it has
+            // the other side, just on the outside. Either way, on the frontier.
+            if perim_roads.contains(&road_side_id.road) {
+                frontier.insert(*block_id);
+                break;
+            }
+        }
+    }
+    frontier
 }
