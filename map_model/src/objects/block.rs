@@ -1,4 +1,5 @@
 use std::collections::{BTreeSet, HashMap, HashSet};
+use std::fmt;
 
 use anyhow::Result;
 
@@ -162,9 +163,7 @@ impl Perimeter {
         }
 
         if debug_failures {
-            println!("\nCommon: {:?}", common);
-            self.debug();
-            other.debug();
+            println!("\nCommon: {:?}\n{:?}\n{:?}", common, self, other);
         }
 
         // Check if all of the common roads are at the end of each perimeter,
@@ -396,19 +395,22 @@ impl Perimeter {
         Block::from_perimeter(map, self)
     }
 
-    fn debug(&self) {
-        println!("Perimeter:");
-        for id in &self.roads {
-            println!("- {:?} of {}", id.side, id.road);
-        }
-    }
-
     /// Does this perimeter completely enclose the other?
     pub fn contains(&self, other: &Perimeter) -> bool {
         other
             .roads
             .iter()
             .all(|id| self.interior.contains(&id.road) || self.roads.contains(id))
+    }
+}
+
+impl fmt::Debug for Perimeter {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        writeln!(f, "Perimeter:")?;
+        for id in &self.roads {
+            writeln!(f, "- {:?} of {}", id.side, id.road)?;
+        }
+        Ok(())
     }
 }
 

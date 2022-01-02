@@ -82,13 +82,13 @@ impl Partitioning {
         Partitioning { neighborhoods }
     }
 
-    pub fn neighborhood_containing(&self, find_block: &Block) -> NeighborhoodID {
+    pub fn neighborhood_containing(&self, find_block: &Block) -> Option<NeighborhoodID> {
         // TODO We could probably build this mapping up when we do Perimeter::merge_all
         for (id, (block, _)) in &self.neighborhoods {
             if block.perimeter.contains(&find_block.perimeter) {
-                return *id;
+                return Some(*id);
             }
         }
-        panic!("Can't find neighborhood containing some block");
+        None
     }
 }

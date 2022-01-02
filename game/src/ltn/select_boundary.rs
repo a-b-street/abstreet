@@ -69,8 +69,16 @@ impl SelectBoundary {
 
             for (idx, block) in blocks.into_iter().enumerate() {
                 let id = BlockID(idx);
-                let neighborhood = app.session.partitioning.neighborhood_containing(&block);
-                state.block_to_neighborhood.insert(id, neighborhood);
+                if let Some(neighborhood) = app.session.partitioning.neighborhood_containing(&block)
+                {
+                    state.block_to_neighborhood.insert(id, neighborhood);
+                } else {
+                    // TODO What happened?
+                    error!(
+                        "Block doesn't belong to any neighborhood?! {:?}",
+                        block.perimeter
+                    );
+                }
                 if initial_boundary.contains(&block.perimeter) {
                     state.selected.insert(id);
                 }
@@ -91,11 +99,13 @@ impl SelectBoundary {
     fn add_block(&mut self, ctx: &mut EventCtx, app: &App, id: BlockID) {
         let color = if self.selected.contains(&id) {
             SELECTED
-        } else {
+        } else if let Some(neighborhood) = self.block_to_neighborhood.get(&id) {
             // Use the original color. This assumes the partitioning has been updated, of
             // course
-            let neighborhood = self.block_to_neighborhood[&id];
-            app.session.partitioning.neighborhoods[&neighborhood].1
+            app.session.partitioning.neighborhoods[neighborhood].1
+        } else {
+            // TODO A broken case, block has no neighborhood
+            Color::RED
         };
 
         if self.frontier.contains(&id) {
