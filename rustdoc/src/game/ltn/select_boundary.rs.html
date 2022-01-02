@@ -264,10 +264,55 @@
 <span id="264">264</span>
 <span id="265">265</span>
 <span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">geom::Distance</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Block</span>, <span class="ident">Perimeter</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Block</span>, <span class="ident">Perimeter</span>, <span class="ident">RoadID</span>};
 <span class="kw">use</span> <span class="ident">widgetry::mapspace::ToggleZoomed</span>;
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ObjectID</span>, <span class="ident">World</span>, <span class="ident">WorldOutcome</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
@@ -276,37 +321,42 @@
 };
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ltn::partition::NeighborhoodID</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ltn::Neighborhood</span>;
 
-<span class="kw">const</span> <span class="ident">UNSELECTED</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::BLUE</span>;
 <span class="kw">const</span> <span class="ident">SELECTED</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::CYAN</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SelectBoundary</span> {
     <span class="ident">panel</span>: <span class="ident">Panel</span>,
-    <span class="ident">id_counter</span>: <span class="ident">usize</span>,
-    <span class="ident">blocks</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">Obj</span>, <span class="ident">Block</span><span class="op">&gt;</span>,
-    <span class="ident">world</span>: <span class="ident">World</span><span class="op">&lt;</span><span class="ident">Obj</span><span class="op">&gt;</span>,
-    <span class="ident">selected</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">Obj</span><span class="op">&gt;</span>,
+    <span class="comment">// These are always single, unmerged blocks. Thus, these blocks never change -- only their</span>
+    <span class="comment">// color and assignment to a neighborhood.</span>
+    <span class="ident">blocks</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">BlockID</span>, <span class="ident">Block</span><span class="op">&gt;</span>,
+    <span class="ident">world</span>: <span class="ident">World</span><span class="op">&lt;</span><span class="ident">BlockID</span><span class="op">&gt;</span>,
+    <span class="ident">selected</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">BlockID</span><span class="op">&gt;</span>,
     <span class="ident">draw_outline</span>: <span class="ident">ToggleZoomed</span>,
+    <span class="ident">block_to_neighborhood</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">BlockID</span>, <span class="ident">NeighborhoodID</span><span class="op">&gt;</span>,
+    <span class="ident">frontier</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">BlockID</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Hash</span>)]</span>
-<span class="kw">struct</span> <span class="ident">Obj</span>(<span class="ident">usize</span>);
-<span class="kw">impl</span> <span class="ident">ObjectID</span> <span class="kw">for</span> <span class="ident">Obj</span> {}
+<span class="kw">struct</span> <span class="ident">BlockID</span>(<span class="ident">usize</span>);
+<span class="kw">impl</span> <span class="ident">ObjectID</span> <span class="kw">for</span> <span class="ident">BlockID</span> {}
 
 <span class="kw">impl</span> <span class="ident">SelectBoundary</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
         <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-        <span class="ident">initial_boundary</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Perimeter</span><span class="op">&gt;</span>,
+        <span class="comment">// TODO Take NeighborhoodID?</span>
+        <span class="ident">initial_boundary</span>: <span class="ident">Perimeter</span>,
     ) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">SelectBoundary</span> {
-            <span class="ident">panel</span>: <span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="bool-val">false</span>),
-            <span class="ident">id_counter</span>: <span class="number">0</span>,
+            <span class="ident">panel</span>: <span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
             <span class="ident">blocks</span>: <span class="ident">BTreeMap::new</span>(),
             <span class="ident">world</span>: <span class="ident">World::bounded</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>()),
             <span class="ident">selected</span>: <span class="ident">BTreeSet::new</span>(),
             <span class="ident">draw_outline</span>: <span class="ident">ToggleZoomed::empty</span>(<span class="ident">ctx</span>),
+            <span class="ident">block_to_neighborhood</span>: <span class="ident">BTreeMap::new</span>(),
+            <span class="ident">frontier</span>: <span class="ident">BTreeSet::new</span>(),
         };
 
         <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;calculate all blocks&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
@@ -314,63 +364,78 @@
             <span class="kw">let</span> <span class="ident">perimeters</span> <span class="op">=</span> <span class="ident">Perimeter::find_all_single_blocks</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>);
             <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;find single blocks&quot;</span>);
 
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">blocks</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
             <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;blockify&quot;</span>, <span class="ident">perimeters</span>.<span class="ident">len</span>());
             <span class="kw">for</span> <span class="ident">perimeter</span> <span class="kw">in</span> <span class="ident">perimeters</span> {
                 <span class="ident">timer</span>.<span class="ident">next</span>();
                 <span class="kw">match</span> <span class="ident">perimeter</span>.<span class="ident">to_block</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>) {
                     <span class="prelude-val">Ok</span>(<span class="ident">block</span>) =&gt; {
-                        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">new_id</span>();
-                        <span class="ident">state</span>.<span class="ident">add_block</span>(<span class="ident">ctx</span>, <span class="ident">id</span>, <span class="ident">UNSELECTED</span>, <span class="ident">block</span>);
+                        <span class="ident">blocks</span>.<span class="ident">push</span>(<span class="ident">block</span>);
                     }
                     <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
                         <span class="macro">warn!</span>(<span class="string">&quot;Failed to make a block from a perimeter: {}&quot;</span>, <span class="ident">err</span>);
                     }
                 }
             }
-        });
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">perimeter</span>) <span class="op">=</span> <span class="ident">initial_boundary</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">included</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-            <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">block</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">state</span>.<span class="ident">blocks</span> {
-                <span class="kw">if</span> <span class="ident">perimeter</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">block</span>.<span class="ident">perimeter</span>) {
-                    <span class="ident">included</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">id</span>);
+            <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">block</span>) <span class="kw">in</span> <span class="ident">blocks</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
+                <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">BlockID</span>(<span class="ident">idx</span>);
+                <span class="kw">let</span> <span class="ident">neighborhood</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">neighborhood_containing</span>(<span class="kw-2">&amp;</span><span class="ident">block</span>);
+                <span class="ident">state</span>.<span class="ident">block_to_neighborhood</span>.<span class="ident">insert</span>(<span class="ident">id</span>, <span class="ident">neighborhood</span>);
+                <span class="kw">if</span> <span class="ident">initial_boundary</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">block</span>.<span class="ident">perimeter</span>) {
+                    <span class="ident">state</span>.<span class="ident">selected</span>.<span class="ident">insert</span>(<span class="ident">id</span>);
                 }
+                <span class="ident">state</span>.<span class="ident">blocks</span>.<span class="ident">insert</span>(<span class="ident">id</span>, <span class="ident">block</span>);
             }
-            <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="ident">included</span> {
-                <span class="ident">state</span>.<span class="ident">selected</span>.<span class="ident">insert</span>(<span class="ident">id</span>);
-                <span class="ident">state</span>.<span class="ident">block_changed</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>);
+            <span class="ident">state</span>.<span class="ident">frontier</span> <span class="op">=</span> <span class="ident">calculate_frontier</span>(<span class="kw-2">&amp;</span><span class="ident">initial_boundary</span>, <span class="kw-2">&amp;</span><span class="ident">state</span>.<span class="ident">blocks</span>);
+
+            <span class="comment">// Fill out the world initially</span>
+            <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="ident">state</span>.<span class="ident">blocks</span>.<span class="ident">keys</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>() {
+                <span class="ident">state</span>.<span class="ident">add_block</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>);
             }
-        }
+        });
 
         <span class="ident">state</span>.<span class="ident">world</span>.<span class="ident">initialize_hover</span>(<span class="ident">ctx</span>);
         <span class="ident">Box::new</span>(<span class="ident">state</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">new_id</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">Obj</span> {
-        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">Obj</span>(<span class="self">self</span>.<span class="ident">id_counter</span>);
-        <span class="self">self</span>.<span class="ident">id_counter</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-        <span class="ident">id</span>
-    }
-
-    <span class="kw">fn</span> <span class="ident">add_block</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">id</span>: <span class="ident">Obj</span>, <span class="ident">color</span>: <span class="ident">Color</span>, <span class="ident">block</span>: <span class="ident">Block</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">obj</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">world</span>
-            .<span class="ident">add</span>(<span class="ident">id</span>)
-            .<span class="ident">hitbox</span>(<span class="ident">block</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>())
-            .<span class="ident">draw_color</span>(<span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>))
-            .<span class="ident">hover_alpha</span>(<span class="number">0.8</span>)
-            .<span class="ident">clickable</span>();
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">selected</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>) {
-            <span class="ident">obj</span> <span class="op">=</span> <span class="ident">obj</span>
-                .<span class="ident">hotkey</span>(<span class="ident">Key::Space</span>, <span class="string">&quot;remove&quot;</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">Key::LeftShift</span>, <span class="string">&quot;remove&quot;</span>)
+    <span class="kw">fn</span> <span class="ident">add_block</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">BlockID</span>) {
+        <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">selected</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>) {
+            <span class="ident">SELECTED</span>
         } <span class="kw">else</span> {
-            <span class="ident">obj</span> <span class="op">=</span> <span class="ident">obj</span>
-                .<span class="ident">hotkey</span>(<span class="ident">Key::Space</span>, <span class="string">&quot;add&quot;</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">Key::LeftControl</span>, <span class="string">&quot;add&quot;</span>)
+            <span class="comment">// Use the original color. This assumes the partitioning has been updated, of</span>
+            <span class="comment">// course</span>
+            <span class="kw">let</span> <span class="ident">neighborhood</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">block_to_neighborhood</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>];
+            <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">neighborhoods</span>[<span class="kw-2">&amp;</span><span class="ident">neighborhood</span>].<span class="number">1</span>
+        };
+
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">frontier</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>) {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">obj</span> <span class="op">=</span> <span class="self">self</span>
+                .<span class="ident">world</span>
+                .<span class="ident">add</span>(<span class="ident">id</span>)
+                .<span class="ident">hitbox</span>(<span class="self">self</span>.<span class="ident">blocks</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>].<span class="ident">polygon</span>.<span class="ident">clone</span>())
+                .<span class="ident">draw_color</span>(<span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>))
+                .<span class="ident">hover_alpha</span>(<span class="number">0.8</span>)
+                .<span class="ident">clickable</span>();
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">selected</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>) {
+                <span class="ident">obj</span> <span class="op">=</span> <span class="ident">obj</span>
+                    .<span class="ident">hotkey</span>(<span class="ident">Key::Space</span>, <span class="string">&quot;remove&quot;</span>)
+                    .<span class="ident">hotkey</span>(<span class="ident">Key::LeftShift</span>, <span class="string">&quot;remove&quot;</span>)
+            } <span class="kw">else</span> {
+                <span class="ident">obj</span> <span class="op">=</span> <span class="ident">obj</span>
+                    .<span class="ident">hotkey</span>(<span class="ident">Key::Space</span>, <span class="string">&quot;add&quot;</span>)
+                    .<span class="ident">hotkey</span>(<span class="ident">Key::LeftControl</span>, <span class="string">&quot;add&quot;</span>)
+            }
+            <span class="ident">obj</span>.<span class="ident">build</span>(<span class="ident">ctx</span>);
+        } <span class="kw">else</span> {
+            <span class="comment">// If we can&#39;t immediately add/remove the block, fade it out and don&#39;t allow clicking</span>
+            <span class="comment">// it</span>
+            <span class="self">self</span>.<span class="ident">world</span>
+                .<span class="ident">add</span>(<span class="ident">id</span>)
+                .<span class="ident">hitbox</span>(<span class="self">self</span>.<span class="ident">blocks</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>].<span class="ident">polygon</span>.<span class="ident">clone</span>())
+                .<span class="ident">draw_color</span>(<span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.3</span>))
+                .<span class="ident">build</span>(<span class="ident">ctx</span>);
         }
-        <span class="ident">obj</span>.<span class="ident">build</span>(<span class="ident">ctx</span>);
-        <span class="self">self</span>.<span class="ident">blocks</span>.<span class="ident">insert</span>(<span class="ident">id</span>, <span class="ident">block</span>);
     }
 
     <span class="kw">fn</span> <span class="ident">merge_selected</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Perimeter</span><span class="op">&gt;</span> {
@@ -381,45 +446,52 @@
         <span class="ident">Perimeter::merge_all</span>(<span class="ident">perimeters</span>, <span class="bool-val">false</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">block_changed</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">Obj</span>) {
-        <span class="kw">let</span> <span class="ident">block</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">blocks</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>).<span class="ident">unwrap</span>();
-        <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">delete_before_replacement</span>(<span class="ident">id</span>);
-        <span class="self">self</span>.<span class="ident">add_block</span>(
-            <span class="ident">ctx</span>,
-            <span class="ident">id</span>,
+    <span class="comment">// This block was in the previous frontier; its inclusion in self.selected has changed.</span>
+    <span class="kw">fn</span> <span class="ident">block_changed</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">BlockID</span>) {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">perimeters</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">merge_selected</span>();
+        <span class="kw">if</span> <span class="ident">perimeters</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">1</span> {
+            <span class="comment">// We split the current neighborhood in two.</span>
+            <span class="comment">// TODO Figure out how to handle this. For now, don&#39;t allow and revert</span>
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">selected</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>) {
-                <span class="ident">SELECTED</span>
+                <span class="self">self</span>.<span class="ident">selected</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>);
             } <span class="kw">else</span> {
-                <span class="ident">UNSELECTED</span>
-            },
-            <span class="ident">block</span>,
-        );
+                <span class="self">self</span>.<span class="ident">selected</span>.<span class="ident">insert</span>(<span class="ident">id</span>);
+            }
+            <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span>
+                <span class="string">&quot;Splitting this neighborhood in two is currently unsupported&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>);
+            <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;warning&quot;</span>, <span class="ident">label</span>);
+            <span class="kw">return</span>;
+        }
+
+        <span class="kw">let</span> <span class="ident">old_frontier</span> <span class="op">=</span> <span class="ident">std::mem::take</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">frontier</span>);
+        <span class="kw">let</span> <span class="ident">new_perimeter</span> <span class="op">=</span> <span class="ident">perimeters</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
+        <span class="self">self</span>.<span class="ident">frontier</span> <span class="op">=</span> <span class="ident">calculate_frontier</span>(<span class="kw-2">&amp;</span><span class="ident">new_perimeter</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">blocks</span>);
+
+        <span class="comment">// Redraw all of the blocks that changed</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">changed_blocks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BlockID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">old_frontier</span>
+            .<span class="ident">symmetric_difference</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">frontier</span>)
+            .<span class="ident">cloned</span>()
+            .<span class="ident">collect</span>();
+        <span class="comment">// And always the current block</span>
+        <span class="ident">changed_blocks</span>.<span class="ident">push</span>(<span class="ident">id</span>);
+        <span class="kw">for</span> <span class="ident">changed</span> <span class="kw">in</span> <span class="ident">changed_blocks</span> {
+            <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">delete_before_replacement</span>(<span class="ident">changed</span>);
+            <span class="self">self</span>.<span class="ident">add_block</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">changed</span>);
+        }
 
         <span class="comment">// Draw the outline of the current blocks</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">valid_blocks</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">ToggleZoomed::builder</span>();
-
-        <span class="kw">for</span> <span class="ident">perimeter</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">merge_selected</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">block</span>) <span class="op">=</span> <span class="ident">perimeter</span>.<span class="ident">to_block</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>) {
-                <span class="comment">// Alternate colors, to help people figure out where two disjoint boundaries exist</span>
-                <span class="comment">// TODO Ideally have more than 2 colors to cycle through</span>
-                <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">valid_blocks</span> <span class="op">%</span> <span class="number">2</span> <span class="op">==</span> <span class="number">0</span> {
-                    <span class="ident">Color::RED</span>
-                } <span class="kw">else</span> {
-                    <span class="ident">Color::GREEN</span>
-                };
-                <span class="ident">valid_blocks</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">outline</span>) <span class="op">=</span> <span class="ident">block</span>.<span class="ident">polygon</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">10.0</span>)) {
-                    <span class="ident">batch</span>.<span class="ident">unzoomed</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">outline</span>);
-                }
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">outline</span>) <span class="op">=</span> <span class="ident">block</span>.<span class="ident">polygon</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">5.0</span>)) {
-                    <span class="ident">batch</span>.<span class="ident">zoomed</span>.<span class="ident">push</span>(<span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="ident">outline</span>);
-                }
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">block</span>) <span class="op">=</span> <span class="ident">new_perimeter</span>.<span class="ident">to_block</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>) {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">outline</span>) <span class="op">=</span> <span class="ident">block</span>.<span class="ident">polygon</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">10.0</span>)) {
+                <span class="ident">batch</span>.<span class="ident">unzoomed</span>.<span class="ident">push</span>(<span class="ident">Color::RED</span>, <span class="ident">outline</span>);
+            }
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">outline</span>) <span class="op">=</span> <span class="ident">block</span>.<span class="ident">polygon</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">5.0</span>)) {
+                <span class="ident">batch</span>.<span class="ident">zoomed</span>.<span class="ident">push</span>(<span class="ident">Color::RED</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="ident">outline</span>);
             }
         }
+        <span class="comment">// TODO If this fails, maybe also revert</span>
         <span class="self">self</span>.<span class="ident">draw_outline</span> <span class="op">=</span> <span class="ident">batch</span>.<span class="ident">build</span>(<span class="ident">ctx</span>);
-        <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">valid_blocks</span> <span class="op">==</span> <span class="number">1</span>);
+        <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
     }
 }
 
@@ -433,6 +505,7 @@
                 <span class="string">&quot;Confirm&quot;</span> =&gt; {
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">perimeters</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">merge_selected</span>();
                     <span class="macro">assert_eq!</span>(<span class="ident">perimeters</span>.<span class="ident">len</span>(), <span class="number">1</span>);
+                    <span class="comment">// TODO Persist the partitioning</span>
                     <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident"><span class="kw">super</span>::connectivity::Viewer::new_state</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">app</span>,
@@ -446,11 +519,11 @@
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="ident">WorldOutcome::Keypress</span>(<span class="string">&quot;add&quot;</span>, <span class="ident">id</span>) =&gt; {
                 <span class="self">self</span>.<span class="ident">selected</span>.<span class="ident">insert</span>(<span class="ident">id</span>);
-                <span class="self">self</span>.<span class="ident">block_changed</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>);
+                <span class="self">self</span>.<span class="ident">block_changed</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>)
             }
             <span class="ident">WorldOutcome::Keypress</span>(<span class="string">&quot;remove&quot;</span>, <span class="ident">id</span>) =&gt; {
                 <span class="self">self</span>.<span class="ident">selected</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>);
-                <span class="self">self</span>.<span class="ident">block_changed</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>);
+                <span class="self">self</span>.<span class="ident">block_changed</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>)
             }
             <span class="ident">WorldOutcome::ClickedObject</span>(<span class="ident">id</span>) =&gt; {
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">selected</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>) {
@@ -458,7 +531,7 @@
                 } <span class="kw">else</span> {
                     <span class="self">self</span>.<span class="ident">selected</span>.<span class="ident">insert</span>(<span class="ident">id</span>);
                 }
-                <span class="self">self</span>.<span class="ident">block_changed</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>);
+                <span class="self">self</span>.<span class="ident">block_changed</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>)
             }
             <span class="kw">_</span> =&gt; {}
         }
@@ -489,7 +562,7 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">make_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">boundary_ok</span>: <span class="ident">bool</span>) -&gt; <span class="ident">Panel</span> {
+<span class="kw">fn</span> <span class="ident">make_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Panel</span> {
     <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
         <span class="ident">map_gui::tools::app_header</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="string">&quot;Low traffic neighborhoods&quot;</span>),
         <span class="string">&quot;Draw a custom boundary for a neighborhood&quot;</span>
@@ -517,8 +590,6 @@
                 .<span class="ident">btn_solid_primary</span>
                 .<span class="ident">text</span>(<span class="string">&quot;Confirm&quot;</span>)
                 .<span class="ident">hotkey</span>(<span class="ident">Key::Enter</span>)
-                .<span class="ident">disabled</span>(<span class="op">!</span><span class="ident">boundary_ok</span>)
-                .<span class="ident">disabled_tooltip</span>(<span class="string">&quot;You must select one contiguous boundary&quot;</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_solid_destructive</span>
@@ -526,9 +597,28 @@
                 .<span class="ident">hotkey</span>(<span class="ident">Key::Escape</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         ]),
+        <span class="ident">Text::new</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;warning&quot;</span>),
     ]))
     .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Left</span>, <span class="ident">VerticalAlignment::Top</span>)
     .<span class="ident">build</span>(<span class="ident">ctx</span>)
+}
+
+<span class="comment">// Blocks on the &quot;frontier&quot; are adjacent to the perimeter, either just inside or outside.</span>
+<span class="kw">fn</span> <span class="ident">calculate_frontier</span>(<span class="ident">perim</span>: <span class="kw-2">&amp;</span><span class="ident">Perimeter</span>, <span class="ident">blocks</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">BlockID</span>, <span class="ident">Block</span><span class="op">&gt;</span>) -&gt; <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">BlockID</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">perim_roads</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">perim</span>.<span class="ident">roads</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="ident">id</span>.<span class="ident">road</span>).<span class="ident">collect</span>();
+
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">frontier</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
+    <span class="kw">for</span> (<span class="ident">block_id</span>, <span class="ident">block</span>) <span class="kw">in</span> <span class="ident">blocks</span> {
+        <span class="kw">for</span> <span class="ident">road_side_id</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">block</span>.<span class="ident">perimeter</span>.<span class="ident">roads</span> {
+            <span class="comment">// If the perimeter has this RoadSideID on the same side, we&#39;re just inside. If it has</span>
+            <span class="comment">// the other side, just on the outside. Either way, on the frontier.</span>
+            <span class="kw">if</span> <span class="ident">perim_roads</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">road_side_id</span>.<span class="ident">road</span>) {
+                <span class="ident">frontier</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">block_id</span>);
+                <span class="kw">break</span>;
+            }
+        }
+    }
+    <span class="ident">frontier</span>
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>

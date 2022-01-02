@@ -229,6 +229,10 @@
 <span id="229">229</span>
 <span id="230">230</span>
 <span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom::Distance</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools::CityPicker</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">PathConstraints</span>, <span class="ident">RoadID</span>};
@@ -240,6 +244,7 @@
 
 <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">BrowseNeighborhoods</span>, <span class="ident">DiagonalFilter</span>, <span class="ident">Neighborhood</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ltn::partition::Partitioning</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Tab</span> {
@@ -291,7 +296,10 @@
             <span class="string">&quot;change map&quot;</span> =&gt; <span class="ident">Transition::Push</span>(<span class="ident">CityPicker::new_state</span>(
                 <span class="ident">ctx</span>,
                 <span class="ident">app</span>,
-                <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> <span class="ident">Transition::Replace</span>(<span class="ident">BrowseNeighborhoods::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))),
+                <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span> <span class="op">=</span> <span class="ident">Partitioning::empty</span>();
+                    <span class="ident">Transition::Replace</span>(<span class="ident">BrowseNeighborhoods::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))
+                }),
             )),
             <span class="string">&quot;Browse neighborhoods&quot;</span> =&gt; <span class="ident">Transition::Pop</span>,
             <span class="string">&quot;Adjust boundary&quot;</span> =&gt; <span class="ident">Transition::ConsumeState</span>(<span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
@@ -299,7 +307,7 @@
                 <span class="macro">vec!</span>[<span class="ident"><span class="kw">super</span>::select_boundary::SelectBoundary::new_state</span>(
                     <span class="ident">ctx</span>,
                     <span class="ident">app</span>,
-                    <span class="prelude-val">Some</span>(<span class="ident">state</span>.<span class="ident">take_neighborhood</span>().<span class="ident">orig_perimeter</span>),
+                    <span class="ident">state</span>.<span class="ident">take_neighborhood</span>().<span class="ident">orig_perimeter</span>,
                 )]
             })),
             <span class="string">&quot;Connectivity&quot;</span> =&gt; <span class="ident">Transition::ConsumeState</span>(<span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {

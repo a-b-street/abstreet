@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["COLORS",""]],"fn":[["detect_neighborhoods",""]],"struct":[["BrowseNeighborhoods",""],["Obj",""]]});
+initSidebarItems({"fn":[["detect_neighborhoods",""]],"struct":[["BrowseNeighborhoods",""]]});

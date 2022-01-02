@@ -1,0 +1,1 @@
+initSidebarItems({"constant":[["COLORS",""]],"struct":[["NeighborhoodID","An opaque ID, won’t be contiguous as we adjust boundaries"],["Partitioning",""]]});
