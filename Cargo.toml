@@ -46,3 +46,6 @@ polylabel = { git = "https://github.com/urschrei/polylabel-rs" }
 # Waiting on release of PR: https://github.com/georust/geo/pull/654
 geo = { git = "https://github.com/georust/geo" }
 geo-types = { git = "https://github.com/georust/geo" }
+
+# Some proposed changes for winit, reversing hscroll on windows and mac
+winit = { git = "https://github.com/emilk/winit", branch = "fix-mac-hscroll" }
