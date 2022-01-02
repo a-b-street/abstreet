@@ -11,10 +11,12 @@ use widgetry::{Color, Drawable, EventCtx, GeomBatch};
 use crate::app::App;
 
 pub use browse::BrowseNeighborhoods;
+pub use partition::Partitioning;
 
 mod browse;
 mod connectivity;
 mod draw_cells;
+mod partition;
 mod pathfinding;
 mod per_neighborhood;
 mod rat_run_viewer;

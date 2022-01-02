@@ -9,6 +9,7 @@ use widgetry::{
 
 use super::{BrowseNeighborhoods, DiagonalFilter, Neighborhood};
 use crate::app::{App, Transition};
+use crate::ltn::partition::Partitioning;
 
 #[derive(PartialEq)]
 pub enum Tab {
@@ -60,7 +61,10 @@ impl Tab {
             "change map" => Transition::Push(CityPicker::new_state(
                 ctx,
                 app,
-                Box::new(|ctx, app| Transition::Replace(BrowseNeighborhoods::new_state(ctx, app))),
+                Box::new(|ctx, app| {
+                    app.session.partitioning = Partitioning::empty();
+                    Transition::Replace(BrowseNeighborhoods::new_state(ctx, app))
+                }),
             )),
             "Browse neighborhoods" => Transition::Pop,
             "Adjust boundary" => Transition::ConsumeState(Box::new(|state, ctx, app| {

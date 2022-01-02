@@ -764,6 +764,7 @@ pub struct SessionState {
     pub mode_shift: Cached<(MapName, usize), crate::ungap::ModeShiftData>,
 
     // Specific to LTN
+    pub partitioning: crate::ltn::Partitioning,
     pub modal_filters: crate::ltn::ModalFilters,
 }
 
@@ -788,6 +789,7 @@ impl SessionState {
             ungap_current_trip_name: None,
             mode_shift: Cached::new(),
 
+            partitioning: crate::ltn::Partitioning::empty(),
             modal_filters: crate::ltn::ModalFilters::default(),
         }
     }
