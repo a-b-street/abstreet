@@ -126,7 +126,7 @@ impl Canvas {
                         self.zoom(scroll_y, self.cursor);
                     } else {
                         // Woo, inversion is different for the two. :P
-                        self.cam_x += scroll_x * PAN_SPEED;
+                        self.cam_x -= scroll_x * PAN_SPEED;
                         self.cam_y -= scroll_y * PAN_SPEED;
                     }
                 }
