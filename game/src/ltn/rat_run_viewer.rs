@@ -184,7 +184,11 @@ impl State<App> for BrowseRatRuns {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
 
-        if self.panel.is_checked("show heatmap of all rat-runs") {
+        if self
+            .panel
+            .maybe_is_checked("show heatmap of all rat-runs")
+            .unwrap_or(false)
+        {
             self.draw_heatmap.draw(g);
             self.world.draw(g);
         } else {
