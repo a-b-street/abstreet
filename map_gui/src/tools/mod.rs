@@ -142,6 +142,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("bath_riverside", "center") => "Bath Riverside",
             ("bicester", "center") => "Bicester",
             ("bradford", "center") => "Bradford",
+            ("bristol", "east") => "East Bristol",
             ("cambridge", "north") => "North Cambridge",
             ("castlemead", "center") => "Castlemead",
             ("chapelford", "center") => "Chapelford (Cheshire)",

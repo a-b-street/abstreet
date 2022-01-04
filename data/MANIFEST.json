@@ -545,6 +545,21 @@
       "uncompressed_size_bytes": 4322948,
       "compressed_size_bytes": 736906
     },
+    "data/input/gb/bristol/osm/bristol-latest.osm.pbf": {
+      "checksum": "447950aaa72680fd382479414ed3edc9",
+      "uncompressed_size_bytes": 15064333,
+      "compressed_size_bytes": 15051366
+    },
+    "data/input/gb/bristol/osm/east.osm": {
+      "checksum": "7ea8c000e6f745ecc55599a8b452ac9f",
+      "uncompressed_size_bytes": 19993669,
+      "compressed_size_bytes": 1953412
+    },
+    "data/input/gb/bristol/raw_maps/east.bin": {
+      "checksum": "5c69ea387f582d8fac11a1895d2e7074",
+      "uncompressed_size_bytes": 5882568,
+      "compressed_size_bytes": 1086801
+    },
     "data/input/gb/cambridge/osm/cambridgeshire-latest.osm.pbf": {
       "checksum": "fc78b2ebc96bfcd24d5117926c7b9e87",
       "uncompressed_size_bytes": 23006168,
@@ -2979,6 +2994,16 @@
       "checksum": "04f1ad9a09fc8a78c2bb259a1ba58318",
       "uncompressed_size_bytes": 2227111,
       "compressed_size_bytes": 532155
+    },
+    "data/system/gb/bristol/maps/east.bin": {
+      "checksum": "2c4c184fa6b26b38414d41df775c6061",
+      "uncompressed_size_bytes": 12004297,
+      "compressed_size_bytes": 4403870
+    },
+    "data/system/gb/bristol/scenarios/east/background.bin": {
+      "checksum": "8813ec3aa62a3f8bee57222f2dfc15b6",
+      "uncompressed_size_bytes": 1340458,
+      "compressed_size_bytes": 313746
     },
     "data/system/gb/cambridge/maps/north.bin": {
       "checksum": "e63f0219fb7f3942ca622540b962c460",
