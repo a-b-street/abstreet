@@ -82,6 +82,17 @@ pub fn load_all_objects<T: DeserializeOwned>(dir: String) -> Vec<(String, T)> {
 }
 
 /// Just list all things from a directory, return sorted by name, with file extension removed.
+///
+/// Hidden files (starting with `.`) are filtered out.
 pub fn list_all_objects(dir: String) -> Vec<String> {
-    list_dir(dir).into_iter().map(basename).collect()
+    list_dir(dir)
+        .into_iter()
+        .filter_map(|x| {
+            if x.starts_with(".") {
+                None
+            } else {
+                Some(basename(x))
+            }
+        })
+        .collect()
 }
