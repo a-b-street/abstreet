@@ -462,6 +462,10 @@ impl Block {
             //
             // Note this logic is similar to how we find SharedSidewalkCorners. Don't rely on that
             // existing, since the outermost lane mightn't be a sidewalk.
+            //
+            // If the ring.doubles_back(), don't bother. If we tried to trace the boundary, it
+            // usually breaks the final Ring we produce. Better to skip bad intersection polygons
+            // and still produce a reasonable looking block.
             let prev_i = if keep_lane_orientation {
                 lane1.src_i
             } else {
@@ -473,11 +477,13 @@ impl Block {
             if let Some(last_pt) = pts.last() {
                 let prev_i = map.get_i(prev_i);
                 if let Some(ring) = prev_i.polygon.get_outer_ring() {
-                    // At dead-ends, trace around the intersection on the longer side
-                    let longer = prev_i.is_deadend();
-                    if let Some(slice) = ring.get_slice_between(*last_pt, pl.first_pt(), longer) {
-                        // TODO Only if it doesn't have repeat points?
-                        pts.extend(slice.into_points());
+                    if !ring.doubles_back() {
+                        // At dead-ends, trace around the intersection on the longer side
+                        let longer = prev_i.is_deadend();
+                        if let Some(slice) = ring.get_slice_between(*last_pt, pl.first_pt(), longer)
+                        {
+                            pts.extend(slice.into_points());
+                        }
                     }
                 }
             }
@@ -488,9 +494,11 @@ impl Block {
         // the first time.
         let first_intersection = map.get_i(first_intersection.unwrap());
         if let Some(ring) = first_intersection.polygon.get_outer_ring() {
-            let longer = first_intersection.is_deadend();
-            if let Some(slice) = ring.get_slice_between(*pts.last().unwrap(), pts[0], longer) {
-                pts.extend(slice.into_points());
+            if !ring.doubles_back() {
+                let longer = first_intersection.is_deadend();
+                if let Some(slice) = ring.get_slice_between(*pts.last().unwrap(), pts[0], longer) {
+                    pts.extend(slice.into_points());
+                }
             }
         }
         pts.push(pts[0]);
