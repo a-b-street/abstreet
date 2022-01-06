@@ -1,8 +1,10 @@
 use std::fmt;
 
+use geo::algorithm::simplify::Simplify;
 use ordered_float::NotNan;
 use serde::{Deserialize, Serialize};
 
+use crate::conversions::pts_to_line_string;
 use crate::{
     deserialize_f64, serialize_f64, trim_f64, Angle, Distance, GPSBounds, LonLat, EPSILON_DIST,
 };
@@ -132,6 +134,16 @@ impl Pt2D {
             x_nan: NotNan::new(self.x()).unwrap(),
             y_nan: NotNan::new(self.y()).unwrap(),
         }
+    }
+
+    /// Simplifies a list of points using Ramer-Douglas-Peuckr
+    pub fn simplify_rdp(pts: Vec<Pt2D>, epsilon: f64) -> Vec<Pt2D> {
+        pts_to_line_string(&pts)
+            .simplify(&epsilon)
+            .into_points()
+            .into_iter()
+            .map(|pt| pt.into())
+            .collect()
     }
 }
 

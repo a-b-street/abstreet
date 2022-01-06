@@ -25,6 +25,7 @@ pub use crate::time::Time;
 mod angle;
 mod bounds;
 mod circle;
+mod conversions;
 mod distance;
 mod duration;
 mod find_closest;

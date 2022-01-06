@@ -119,15 +119,15 @@ pub fn split_up_roads(map: &mut RawMap, mut input: OsmExtract, timer: &mut Timer
                     i1,
                     i2: *i2,
                 };
-                // Note we populate this before dedupe_angles, so even if some points are removed,
-                // we can still associate them to the road.
+                // Note we populate this before simplify_linestring, so even if some points are
+                // removed, we can still associate them to the road.
                 for (idx, pt) in pts.iter().enumerate() {
                     if idx != 0 && idx != pts.len() - 1 {
                         pt_to_road.insert(pt.to_hashable(), id);
                     }
                 }
 
-                r.center_points = dedupe_angles(std::mem::take(&mut pts));
+                r.center_points = simplify_linestring(std::mem::take(&mut pts));
                 // Start a new road
                 map.roads.insert(id, r.clone());
                 r.osm_tags.remove(osm::ENDPT_FWD);
@@ -233,8 +233,12 @@ pub fn split_up_roads(map: &mut RawMap, mut input: OsmExtract, timer: &mut Timer
     }
 }
 
-// TODO Consider doing this in PolyLine::new always. extend() there does this too.
-fn dedupe_angles(pts: Vec<Pt2D>) -> Vec<Pt2D> {
+// TODO Consider doing this in PolyLine::new always. extend() there also attempts the angle
+// deduping.
+fn simplify_linestring(pts: Vec<Pt2D>) -> Vec<Pt2D> {
+    // Remove interior points that have nearly the same angle as the previous line segment
+    //
+    // TODO Possibly the RDP simplification below would handle this (and way more robustly)
     let mut result: Vec<Pt2D> = Vec::new();
     for pt in pts {
         let l = result.len();
@@ -247,7 +251,17 @@ fn dedupe_angles(pts: Vec<Pt2D>) -> Vec<Pt2D> {
         }
         result.push(pt);
     }
-    result
+
+    // Also reduce the number of points along curves. They're wasteful, and when they're too close
+    // together, actually break PolyLine shifting:
+    // https://github.com/a-b-street/abstreet/issues/833
+    //
+    // The epsilon is in units of meters; points closer than this will get simplified. 0.1 is too
+    // loose -- a curve with too many points was still broken, but 1.0 was too aggressive -- curves
+    // got noticeably flattened. At 0.5, some intersetion polygons get a bit worse, but only in
+    // places where they were already pretty broken.
+    let epsilon = 0.5;
+    Pt2D::simplify_rdp(result, epsilon)
 }
 
 /// Many "roundabouts" like https://www.openstreetmap.org/way/427144965 are so tiny that they wind

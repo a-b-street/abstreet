@@ -5,6 +5,7 @@ use aabb_quadtree::QuadTree;
 use geo::algorithm::contains::Contains;
 use geo::prelude::{ClosestPoint, EuclideanDistance};
 
+use crate::conversions::pts_to_line_string;
 use crate::{Bounds, Distance, Pt2D};
 
 // TODO Maybe use https://crates.io/crates/spatial-join proximity maps
@@ -86,12 +87,4 @@ where
             .min_by_key(|(_, _, dist)| *dist)
             .map(|(k, pt, _)| (k, pt))
     }
-}
-
-fn pts_to_line_string(raw_pts: &[Pt2D]) -> geo::LineString<f64> {
-    let pts: Vec<geo::Point<f64>> = raw_pts
-        .iter()
-        .map(|pt| geo::Point::new(pt.x(), pt.y()))
-        .collect();
-    pts.into()
 }
