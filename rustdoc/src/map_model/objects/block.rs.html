@@ -503,6 +503,14 @@
 <span id="503">503</span>
 <span id="504">504</span>
 <span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
@@ -967,6 +975,10 @@
             <span class="comment">//</span>
             <span class="comment">// Note this logic is similar to how we find SharedSidewalkCorners. Don&#39;t rely on that</span>
             <span class="comment">// existing, since the outermost lane mightn&#39;t be a sidewalk.</span>
+            <span class="comment">//</span>
+            <span class="comment">// If the ring.doubles_back(), don&#39;t bother. If we tried to trace the boundary, it</span>
+            <span class="comment">// usually breaks the final Ring we produce. Better to skip bad intersection polygons</span>
+            <span class="comment">// and still produce a reasonable looking block.</span>
             <span class="kw">let</span> <span class="ident">prev_i</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">keep_lane_orientation</span> {
                 <span class="ident">lane1</span>.<span class="ident">src_i</span>
             } <span class="kw">else</span> {
@@ -978,11 +990,13 @@
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">last_pt</span>) <span class="op">=</span> <span class="ident">pts</span>.<span class="ident">last</span>() {
                 <span class="kw">let</span> <span class="ident">prev_i</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">prev_i</span>);
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ring</span>) <span class="op">=</span> <span class="ident">prev_i</span>.<span class="ident">polygon</span>.<span class="ident">get_outer_ring</span>() {
-                    <span class="comment">// At dead-ends, trace around the intersection on the longer side</span>
-                    <span class="kw">let</span> <span class="ident">longer</span> <span class="op">=</span> <span class="ident">prev_i</span>.<span class="ident">is_deadend</span>();
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">slice</span>) <span class="op">=</span> <span class="ident">ring</span>.<span class="ident">get_slice_between</span>(<span class="kw-2">*</span><span class="ident">last_pt</span>, <span class="ident">pl</span>.<span class="ident">first_pt</span>(), <span class="ident">longer</span>) {
-                        <span class="comment">// TODO Only if it doesn&#39;t have repeat points?</span>
-                        <span class="ident">pts</span>.<span class="ident">extend</span>(<span class="ident">slice</span>.<span class="ident">into_points</span>());
+                    <span class="kw">if</span> <span class="op">!</span><span class="ident">ring</span>.<span class="ident">doubles_back</span>() {
+                        <span class="comment">// At dead-ends, trace around the intersection on the longer side</span>
+                        <span class="kw">let</span> <span class="ident">longer</span> <span class="op">=</span> <span class="ident">prev_i</span>.<span class="ident">is_deadend</span>();
+                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">slice</span>) <span class="op">=</span> <span class="ident">ring</span>.<span class="ident">get_slice_between</span>(<span class="kw-2">*</span><span class="ident">last_pt</span>, <span class="ident">pl</span>.<span class="ident">first_pt</span>(), <span class="ident">longer</span>)
+                        {
+                            <span class="ident">pts</span>.<span class="ident">extend</span>(<span class="ident">slice</span>.<span class="ident">into_points</span>());
+                        }
                     }
                 }
             }
@@ -993,9 +1007,11 @@
         <span class="comment">// the first time.</span>
         <span class="kw">let</span> <span class="ident">first_intersection</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">first_intersection</span>.<span class="ident">unwrap</span>());
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ring</span>) <span class="op">=</span> <span class="ident">first_intersection</span>.<span class="ident">polygon</span>.<span class="ident">get_outer_ring</span>() {
-            <span class="kw">let</span> <span class="ident">longer</span> <span class="op">=</span> <span class="ident">first_intersection</span>.<span class="ident">is_deadend</span>();
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">slice</span>) <span class="op">=</span> <span class="ident">ring</span>.<span class="ident">get_slice_between</span>(<span class="kw-2">*</span><span class="ident">pts</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>(), <span class="ident">pts</span>[<span class="number">0</span>], <span class="ident">longer</span>) {
-                <span class="ident">pts</span>.<span class="ident">extend</span>(<span class="ident">slice</span>.<span class="ident">into_points</span>());
+            <span class="kw">if</span> <span class="op">!</span><span class="ident">ring</span>.<span class="ident">doubles_back</span>() {
+                <span class="kw">let</span> <span class="ident">longer</span> <span class="op">=</span> <span class="ident">first_intersection</span>.<span class="ident">is_deadend</span>();
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">slice</span>) <span class="op">=</span> <span class="ident">ring</span>.<span class="ident">get_slice_between</span>(<span class="kw-2">*</span><span class="ident">pts</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>(), <span class="ident">pts</span>[<span class="number">0</span>], <span class="ident">longer</span>) {
+                    <span class="ident">pts</span>.<span class="ident">extend</span>(<span class="ident">slice</span>.<span class="ident">into_points</span>());
+                }
             }
         }
         <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">pts</span>[<span class="number">0</span>]);
