@@ -12,3 +12,5 @@ data/system/gb/bristol/maps/east.bin
     1061 single blocks (1 failures to blockify), 7 partial merges, 1 failures to blockify partitions
 data/system/gb/london/maps/camden.bin
     3519 single blocks (9 failures to blockify), 33 partial merges, 0 failures to blockify partitions
+data/system/gb/london/maps/southwark.bin
+    3487 single blocks (5 failures to blockify), 42 partial merges, 1 failures to blockify partitions

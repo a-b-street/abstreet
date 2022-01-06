@@ -268,6 +268,13 @@ impl Perimeter {
     pub fn collapse_deadends(&mut self) {
         self.undo_invariant();
 
+        // TODO Workaround https://github.com/a-b-street/abstreet/issues/834. If this is a loop
+        // around a disconnected fragment of road, don't touch it
+        if self.roads.len() == 2 && self.roads[0].road == self.roads[1].road {
+            self.restore_invariant();
+            return;
+        }
+
         // If the dead-end straddles the loop, it's confusing. Just rotate until that's not true.
         while self.roads[0].road == self.roads.last().unwrap().road {
             self.roads.rotate_left(1);

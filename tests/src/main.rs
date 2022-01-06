@@ -256,6 +256,7 @@ fn test_blockfinding() -> Result<()> {
         MapName::new("gb", "leeds", "north"),
         MapName::new("gb", "bristol", "east"),
         MapName::new("gb", "london", "camden"),
+        MapName::new("gb", "london", "southwark"),
     ] {
         let map = map_model::Map::load_synchronously(name.path(), &mut timer);
         let mut single_blocks = Perimeter::find_all_single_blocks(&map);
