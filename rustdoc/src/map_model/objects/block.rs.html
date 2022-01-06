@@ -511,6 +511,13 @@
 <span id="511">511</span>
 <span id="512">512</span>
 <span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
@@ -780,6 +787,13 @@
     <span class="doccomment">/// contain the dead-end.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">collapse_deadends</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
         <span class="self">self</span>.<span class="ident">undo_invariant</span>();
+
+        <span class="comment">// TODO Workaround https://github.com/a-b-street/abstreet/issues/834. If this is a loop</span>
+        <span class="comment">// around a disconnected fragment of road, don&#39;t touch it</span>
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">2</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">roads</span>[<span class="number">0</span>].<span class="ident">road</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">roads</span>[<span class="number">1</span>].<span class="ident">road</span> {
+            <span class="self">self</span>.<span class="ident">restore_invariant</span>();
+            <span class="kw">return</span>;
+        }
 
         <span class="comment">// If the dead-end straddles the loop, it&#39;s confusing. Just rotate until that&#39;s not true.</span>
         <span class="kw">while</span> <span class="self">self</span>.<span class="ident">roads</span>[<span class="number">0</span>].<span class="ident">road</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="ident">road</span> {
