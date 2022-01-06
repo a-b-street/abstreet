@@ -1061,6 +1061,30 @@
 <span id="1061">1061</span>
 <span id="1062">1062</span>
 <span id="1063">1063</span>
+<span id="1064">1064</span>
+<span id="1065">1065</span>
+<span id="1066">1066</span>
+<span id="1067">1067</span>
+<span id="1068">1068</span>
+<span id="1069">1069</span>
+<span id="1070">1070</span>
+<span id="1071">1071</span>
+<span id="1072">1072</span>
+<span id="1073">1073</span>
+<span id="1074">1074</span>
+<span id="1075">1075</span>
+<span id="1076">1076</span>
+<span id="1077">1077</span>
+<span id="1078">1078</span>
+<span id="1079">1079</span>
+<span id="1080">1080</span>
+<span id="1081">1081</span>
+<span id="1082">1082</span>
+<span id="1083">1083</span>
+<span id="1084">1084</span>
+<span id="1085">1085</span>
+<span id="1086">1086</span>
+<span id="1087">1087</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
 <span class="kw">use</span> <span class="ident">abstio::MapName</span>;
@@ -1219,6 +1243,10 @@
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
                         .<span class="ident">btn_outline</span>
                         .<span class="ident">text</span>(<span class="string">&quot;import color-scheme&quot;</span>)
+                        .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                    <span class="ident">ctx</span>.<span class="ident">style</span>()
+                        .<span class="ident">btn_outline</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;find bad intersection polygons&quot;</span>)
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                     <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)) {
                         <span class="ident">ctx</span>.<span class="ident">style</span>()
@@ -1450,6 +1478,14 @@
                         <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">draw_map</span> <span class="op">=</span>
                             <span class="ident">DrawMap::new</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>, <span class="ident">timer</span>);
                     });
+                }
+                <span class="string">&quot;find bad intersection polygons&quot;</span> =&gt; {
+                    <span class="self">self</span>.<span class="ident">search_results</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">SearchResults</span> {
+                        <span class="ident">query</span>: <span class="string">&quot;bad intersection polygons&quot;</span>.<span class="ident">to_string</span>(),
+                        <span class="ident">num_matches</span>: <span class="number">0</span>,
+                        <span class="ident">draw</span>: <span class="ident">draw_bad_intersections</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+                    });
+                    <span class="self">self</span>.<span class="ident">reset_info</span>(<span class="ident">ctx</span>);
                 }
                 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
                 <span class="string">&quot;undo all merged roads&quot;</span> =&gt; {
@@ -2123,6 +2159,18 @@
             ))
         }),
     )
+}
+
+<span class="kw">fn</span> <span class="ident">draw_bad_intersections</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Drawable</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
+    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">all_intersections</span>() {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ring</span>) <span class="op">=</span> <span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">get_outer_ring</span>() {
+            <span class="kw">if</span> <span class="ident">ring</span>.<span class="ident">doubles_back</span>() {
+                <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::RED</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>), <span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>());
+            }
+        }
+    }
+    <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>)
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>

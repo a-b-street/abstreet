@@ -679,6 +679,8 @@
 <span id="679">679</span>
 <span id="680">680</span>
 <span id="681">681</span>
+<span id="682">682</span>
+<span id="683">683</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::convert::TryFrom</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
@@ -1039,6 +1041,8 @@
         <span class="ident">points</span>.<span class="ident">k_nearest_concave_hull</span>(<span class="ident">concavity</span>).<span class="ident">into</span>()
     }
 
+    <span class="doccomment">/// Find the &quot;pole of inaccessibility&quot; -- the most distant internal point from the polygon</span>
+    <span class="doccomment">/// outline</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">polylabel</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Pt2D</span> {
         <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">polylabel::polylabel</span>(<span class="kw-2">&amp;</span><span class="ident">to_geo</span>(<span class="self">self</span>.<span class="ident">points</span>()), <span class="kw-2">&amp;</span><span class="number">1.0</span>).<span class="ident">unwrap</span>();
         <span class="ident">Pt2D::new</span>(<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>())
