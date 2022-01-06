@@ -503,10 +503,6 @@
 <span id="503">503</span>
 <span id="504">504</span>
 <span id="505">505</span>
-<span id="506">506</span>
-<span id="507">507</span>
-<span id="508">508</span>
-<span id="509">509</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
@@ -932,15 +928,10 @@
             <span class="kw">let</span> <span class="ident">lane1</span> <span class="op">=</span> <span class="ident">pair</span>[<span class="number">0</span>].<span class="ident">get_outermost_lane</span>(<span class="ident">map</span>);
             <span class="kw">let</span> <span class="ident">road1</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">lane1</span>.<span class="ident">id</span>);
             <span class="kw">let</span> <span class="ident">lane2</span> <span class="op">=</span> <span class="ident">pair</span>[<span class="number">1</span>].<span class="ident">get_outermost_lane</span>(<span class="ident">map</span>);
-            <span class="comment">// TODO What about tracing along a road with exactly one lane? False error. I&#39;m not</span>
-            <span class="comment">// sure looking at lanes here is helpful at all...</span>
-            <span class="kw">if</span> <span class="ident">lane1</span>.<span class="ident">id</span> <span class="op">==</span> <span class="ident">lane2</span>.<span class="ident">id</span> {
-                <span class="macro">bail!</span>(
-                    <span class="string">&quot;Perimeter road has duplicate adjacent roads at {}: {:?}&quot;</span>,
-                    <span class="ident">lane1</span>.<span class="ident">id</span>,
-                    <span class="ident">perimeter</span>.<span class="ident">roads</span>
-                );
-            }
+            <span class="comment">// If lane1 and lane2 are the same, then it just means we found a dead-end road with</span>
+            <span class="comment">// exactly one lane, which is usually a footway or cycleway that legitimately is a</span>
+            <span class="comment">// dead-end, or connects to some other road we didn&#39;t import. We&#39;ll just trace around</span>
+            <span class="comment">// it like a normal dead-end road.</span>
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pl</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">pair</span>[<span class="number">0</span>].<span class="ident">side</span> {
                 <span class="ident">SideOfRoad::Right</span> =&gt; <span class="ident">road1</span>.<span class="ident">center_pts</span>.<span class="ident">must_shift_right</span>(<span class="ident">road1</span>.<span class="ident">get_half_width</span>()),
                 <span class="ident">SideOfRoad::Left</span> =&gt; <span class="ident">road1</span>.<span class="ident">center_pts</span>.<span class="ident">must_shift_left</span>(<span class="ident">road1</span>.<span class="ident">get_half_width</span>()),
@@ -990,6 +981,7 @@
                     <span class="comment">// At dead-ends, trace around the intersection on the longer side</span>
                     <span class="kw">let</span> <span class="ident">longer</span> <span class="op">=</span> <span class="ident">prev_i</span>.<span class="ident">is_deadend</span>();
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">slice</span>) <span class="op">=</span> <span class="ident">ring</span>.<span class="ident">get_slice_between</span>(<span class="kw-2">*</span><span class="ident">last_pt</span>, <span class="ident">pl</span>.<span class="ident">first_pt</span>(), <span class="ident">longer</span>) {
+                        <span class="comment">// TODO Only if it doesn&#39;t have repeat points?</span>
                         <span class="ident">pts</span>.<span class="ident">extend</span>(<span class="ident">slice</span>.<span class="ident">into_points</span>());
                     }
                 }

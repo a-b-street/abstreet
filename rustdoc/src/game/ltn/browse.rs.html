@@ -122,17 +122,23 @@
 <span id="122">122</span>
 <span id="123">123</span>
 <span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
 <span class="kw">use</span> <span class="ident">geom::Distance</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">CityPicker</span>, <span class="ident">DrawRoadLabels</span>, <span class="ident">Navigator</span>, <span class="ident">URLManager</span>};
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">World</span>, <span class="ident">WorldOutcome</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">TextExt</span>,
+    <span class="ident">lctrl</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">TextExt</span>,
     <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::Neighborhood</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::debug::DebugMode</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ltn::partition</span>::{<span class="ident">NeighborhoodID</span>, <span class="ident">Partitioning</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BrowseNeighborhoods</span> {
@@ -210,6 +216,10 @@
                         .<span class="ident">clone</span>(),
                 ),
             ));
+        }
+
+        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">lctrl</span>(<span class="ident">Key::D</span>)) {
+            <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">DebugMode::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
         }
 
         <span class="ident">Transition::Keep</span>
