@@ -9,11 +9,12 @@ use rand::seq::SliceRandom;
 use abstio::{CityName, MapName};
 use abstutil::Timer;
 use geom::{Distance, Duration, Time};
-use map_model::{IntersectionID, Map};
+use map_model::{IntersectionID, Map, Perimeter};
 use sim::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
 
 fn main() -> Result<()> {
     abstutil::logger::setup();
+    test_blockfinding()?;
     test_lane_changing(&import_map(abstio::path(
         "../tests/input/lane_selection.osm",
     )))?;
@@ -237,5 +238,53 @@ fn test_lane_changing(map: &Map) -> Result<()> {
         );
     }
 
+    Ok(())
+}
+
+/// Generate single blocks and merged LTN-style blocks for some maps, counting the number of
+/// failures. Store in a goldenfile, so somebody can manually do a visual diff if anything changes.
+fn test_blockfinding() -> Result<()> {
+    let mut timer = Timer::new("test blockfinding");
+    let path = abstio::path("../tests/goldenfiles/blockfinding.txt");
+    let mut f = File::create(path)?;
+
+    for name in vec![
+        MapName::seattle("montlake"),
+        MapName::seattle("downtown"),
+        MapName::seattle("lakeslice"),
+        MapName::new("us", "phoenix", "tempe"),
+        MapName::new("gb", "leeds", "north"),
+        MapName::new("gb", "bristol", "east"),
+        MapName::new("gb", "london", "camden"),
+    ] {
+        let map = map_model::Map::load_synchronously(name.path(), &mut timer);
+        let mut single_blocks = Perimeter::find_all_single_blocks(&map);
+        let num_singles_originally = single_blocks.len();
+        single_blocks.retain(|x| x.clone().to_block(&map).is_ok());
+        let num_singles_blockified = single_blocks.len();
+
+        let partitions = Perimeter::partition_by_predicate(single_blocks, |r| {
+            map.get_r(r).get_rank() == map_model::osm::RoadRank::Local
+        });
+        let mut num_partial_merges = 0;
+        let mut merged = Vec::new();
+        for perimeters in partitions {
+            let newly_merged = Perimeter::merge_all(perimeters, false);
+            if newly_merged.len() > 1 {
+                num_partial_merges += 1;
+            }
+            merged.extend(newly_merged);
+        }
+
+        let mut num_merged_block_failures = 0;
+        for perimeter in merged {
+            if perimeter.to_block(&map).is_err() {
+                num_merged_block_failures += 1;
+            }
+        }
+
+        writeln!(f, "{}", name.path())?;
+        writeln!(f, "    {} single blocks ({} failures to blockify), {} partial merges, {} failures to blockify partitions", num_singles_originally, num_singles_originally - num_singles_blockified, num_partial_merges, num_merged_block_failures)?;
+    }
     Ok(())
 }
