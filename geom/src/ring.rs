@@ -22,18 +22,18 @@ impl Ring {
             bail!("Can't make a ring with mismatching first/last points");
         }
 
-        if pts.windows(2).any(|pair| pair[0] == pair[1]) {
-            bail!("Ring has ~dupe adjacent pts");
+        if let Some(pair) = pts.windows(2).find(|pair| pair[0] == pair[1]) {
+            bail!("Ring has duplicate adjacent points near {}", pair[0]);
         }
 
         let result = Ring { pts };
 
         let mut seen_pts = HashSet::new();
         for pt in result.pts.iter().skip(1) {
+            if seen_pts.contains(&pt.to_hashable()) {
+                bail!("Ring has repeat non-adjacent points near {}", pt);
+            }
             seen_pts.insert(pt.to_hashable());
-        }
-        if seen_pts.len() != result.pts.len() - 1 {
-            bail!("Ring has repeat non-adjacent points");
         }
 
         Ok(result)

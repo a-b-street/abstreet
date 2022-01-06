@@ -423,15 +423,10 @@ impl Block {
             let lane1 = pair[0].get_outermost_lane(map);
             let road1 = map.get_parent(lane1.id);
             let lane2 = pair[1].get_outermost_lane(map);
-            // TODO What about tracing along a road with exactly one lane? False error. I'm not
-            // sure looking at lanes here is helpful at all...
-            if lane1.id == lane2.id {
-                bail!(
-                    "Perimeter road has duplicate adjacent roads at {}: {:?}",
-                    lane1.id,
-                    perimeter.roads
-                );
-            }
+            // If lane1 and lane2 are the same, then it just means we found a dead-end road with
+            // exactly one lane, which is usually a footway or cycleway that legitimately is a
+            // dead-end, or connects to some other road we didn't import. We'll just trace around
+            // it like a normal dead-end road.
             let mut pl = match pair[0].side {
                 SideOfRoad::Right => road1.center_pts.must_shift_right(road1.get_half_width()),
                 SideOfRoad::Left => road1.center_pts.must_shift_left(road1.get_half_width()),
@@ -481,6 +476,7 @@ impl Block {
                     // At dead-ends, trace around the intersection on the longer side
                     let longer = prev_i.is_deadend();
                     if let Some(slice) = ring.get_slice_between(*last_pt, pl.first_pt(), longer) {
+                        // TODO Only if it doesn't have repeat points?
                         pts.extend(slice.into_points());
                     }
                 }

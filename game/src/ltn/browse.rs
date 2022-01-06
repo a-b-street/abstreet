@@ -3,12 +3,13 @@ use geom::Distance;
 use map_gui::tools::{CityPicker, DrawRoadLabels, Navigator, URLManager};
 use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::{
-    Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, State, TextExt,
+    lctrl, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, State, TextExt,
     VerticalAlignment, Widget,
 };
 
 use super::Neighborhood;
 use crate::app::{App, Transition};
+use crate::debug::DebugMode;
 use crate::ltn::partition::{NeighborhoodID, Partitioning};
 
 pub struct BrowseNeighborhoods {
@@ -86,6 +87,10 @@ impl State<App> for BrowseNeighborhoods {
                         .clone(),
                 ),
             ));
+        }
+
+        if ctx.input.pressed(lctrl(Key::D)) {
+            return Transition::Push(DebugMode::new_state(ctx, app));
         }
 
         Transition::Keep
