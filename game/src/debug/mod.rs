@@ -157,6 +157,10 @@ impl DebugMode {
                         .btn_outline
                         .text("import color-scheme")
                         .build_def(ctx),
+                    ctx.style()
+                        .btn_outline
+                        .text("find bad intersection polygons")
+                        .build_def(ctx),
                     if cfg!(not(target_arch = "wasm32")) {
                         ctx.style()
                             .btn_outline
@@ -387,6 +391,14 @@ impl State<App> for DebugMode {
                         app.primary.draw_map =
                             DrawMap::new(ctx, &app.primary.map, &app.opts, &app.cs, timer);
                     });
+                }
+                "find bad intersection polygons" => {
+                    self.search_results = Some(SearchResults {
+                        query: "bad intersection polygons".to_string(),
+                        num_matches: 0,
+                        draw: draw_bad_intersections(ctx, app),
+                    });
+                    self.reset_info(ctx);
                 }
                 #[cfg(not(target_arch = "wasm32"))]
                 "undo all merged roads" => {
@@ -1060,4 +1072,16 @@ fn reimport_map(
             ))
         }),
     )
+}
+
+fn draw_bad_intersections(ctx: &mut EventCtx, app: &App) -> Drawable {
+    let mut batch = GeomBatch::new();
+    for i in app.primary.map.all_intersections() {
+        if let Some(ring) = i.polygon.get_outer_ring() {
+            if ring.doubles_back() {
+                batch.push(Color::RED.alpha(0.8), i.polygon.clone());
+            }
+        }
+    }
+    ctx.upload(batch)
 }

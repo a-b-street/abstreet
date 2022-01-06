@@ -207,6 +207,48 @@ impl Ring {
         }
         self
     }
+
+    /// Find the "pole of inaccessibility" -- the most distant internal point from the polygon
+    /// outline
+    pub fn polylabel(&self) -> Pt2D {
+        // TODO Refactor to_geo?
+        let polygon = geo::Polygon::new(
+            geo::LineString::from(
+                self.pts
+                    .iter()
+                    .map(|pt| geo::Point::new(pt.x(), pt.y()))
+                    .collect::<Vec<_>>(),
+            ),
+            Vec::new(),
+        );
+        let pt = polylabel::polylabel(&polygon, &1.0).unwrap();
+        Pt2D::new(pt.x(), pt.y())
+    }
+
+    /// Look for "bad" rings that double back on themselves. These're likely to cause many
+    /// downstream problems. "Bad" means the order of points doesn't match the order when sorting
+    /// by angle from the center.
+    ///
+    /// TODO I spot many false positives. Look for better definitions -- maybe self-intersecting
+    /// polygons?
+    pub fn doubles_back(&self) -> bool {
+        // Skip the first=last point
+        let mut orig = self.pts.clone();
+        orig.pop();
+        // Polylabel is better than center; sometimes the center is very close to an edge
+        let center = self.polylabel();
+
+        let mut sorted = orig.clone();
+        sorted.sort_by_key(|pt| pt.angle_to(center).normalized_degrees() as i64);
+
+        // Align things again
+        while sorted[0] != orig[0] {
+            sorted.rotate_right(1);
+        }
+
+        // Do they match up?
+        orig != sorted
+    }
 }
 
 impl fmt::Display for Ring {
