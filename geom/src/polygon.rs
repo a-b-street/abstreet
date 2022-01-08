@@ -6,6 +6,7 @@ use geo::algorithm::area::Area;
 use geo::algorithm::convex_hull::ConvexHull;
 use geo::algorithm::intersects::Intersects;
 use geo::algorithm::simplifyvw::SimplifyVWPreserve;
+use geo::algorithm::winding_order::{Winding, WindingOrder};
 use geo_booleanop::boolean::BooleanOp;
 use serde::{Deserialize, Serialize};
 
@@ -550,6 +551,23 @@ impl Polygon {
 
     pub fn simplify(&self, epsilon: f64) -> Polygon {
         to_geo(self.points()).simplifyvw_preserve(&epsilon).into()
+    }
+
+    /// If `None`, we don't know if the polygon is clockwise or counter-clockwise
+    pub fn is_clockwise(&self) -> Option<bool> {
+        // TODO Maybe the algorithm doesnt handle closed linestrings?
+        /*let ls = geo::LineString::from(
+            self.points.iter().skip(1)
+                .map(|pt| geo::Point::new(pt.x(), pt.y()))
+                .collect::<Vec<_>>(),
+        );
+        let winding = ls.winding_order()?;*/
+
+        let ring = self.get_outer_ring()?;
+        let winding = geo::LineString::from(ring).winding_order()?;
+        // Because of Y inversion or who knows what else, the results appear to be exactly the
+        // opposite of what's expected
+        Some(winding == WindingOrder::CounterClockwise)
     }
 }
 

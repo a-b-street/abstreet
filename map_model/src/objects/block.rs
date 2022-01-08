@@ -39,14 +39,9 @@ impl Perimeter {
         let mut roads = Vec::new();
         // We need to track which side of the road we're at, but also which direction we're facing
         let mut current_road_side = start_road_side;
-        // TODO  hmmm
-        let start_lane = start_road_side.get_outermost_lane(map);
-        // TODO Wrong near the crashing Bristol ones
-        let mut current_intersection = if start_lane.is_walkable() {
-            start_lane.dst_i
-        } else {
-            start_lane.src_i
-        };
+        // Picking the dst_i is an arbitrary choice. At the end, we'll force the perimeter to be
+        // oriented clockwise.
+        let mut current_intersection = map.get_r(start_road_side.road).dst_i;
         loop {
             let i = map.get_i(current_intersection);
             if i.is_border() {
@@ -81,10 +76,30 @@ impl Perimeter {
             }
         }
         assert_eq!(roads[0], *roads.last().unwrap());
-        Ok(Perimeter {
+
+        // Force the result to always be clockwise. To detect the winding order, we have to feed in
+        // a linestring to start -- instead of doing the expensive to_block, use a faster
+        // approximation.
+        //
+        // There shouldn't be any cases where to_block_cheap fails, but to_block would succeed, so
+        // the error handling here is OK.
+        let mut perim = Perimeter {
             roads,
             interior: BTreeSet::new(),
-        })
+        };
+
+        // But even the winding order check gets confused by these, so first...
+        //perim.collapse_deadends();
+
+        let mut cheap_block = perim.to_block_cheap(map)?;
+        // If we can't determine the winding order, then... just keep this order and hope for the
+        // best
+        if cheap_block.polygon.is_clockwise() == Some(false) {
+            error!("found a CCW, reversing it!!!");
+            cheap_block.perimeter.roads.reverse();
+        }
+
+        Ok(cheap_block.perimeter)
     }
 
     /// This calculates all single block perimeters for the entire map. The resulting list does not
@@ -410,34 +425,10 @@ impl Perimeter {
     }
 
     pub fn to_block(self, map: &Map) -> Result<Block> {
-        Block::from_perimeter(map, self)
-    }
-
-    /// Does this perimeter completely enclose the other?
-    pub fn contains(&self, other: &Perimeter) -> bool {
-        other
-            .roads
-            .iter()
-            .all(|id| self.interior.contains(&id.road) || self.roads.contains(id))
-    }
-}
-
-impl fmt::Debug for Perimeter {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        writeln!(f, "Perimeter:")?;
-        for id in &self.roads {
-            writeln!(f, "- {:?} of {}", id.side, id.road)?;
-        }
-        Ok(())
-    }
-}
-
-impl Block {
-    fn from_perimeter(map: &Map, perimeter: Perimeter) -> Result<Block> {
         // Trace along the perimeter and build the polygon
         let mut pts: Vec<Pt2D> = Vec::new();
         let mut first_intersection = None;
-        for pair in perimeter.roads.windows(2) {
+        for pair in self.roads.windows(2) {
             let lane1 = pair[0].get_outermost_lane(map);
             let road1 = map.get_parent(lane1.id);
             let lane2 = pair[1].get_outermost_lane(map);
@@ -526,6 +517,48 @@ impl Block {
         // in the map geometry that should be properly fixed.
         //let polygon = Polygon::buggy_new(pts);
 
-        Ok(Block { perimeter, polygon })
+        Ok(Block {
+            perimeter: self,
+            polygon,
+        })
+    }
+
+    /// Just use intersection center points
+    pub fn to_block_cheap(self, map: &Map) -> Result<Block> {
+        let mut pts = Vec::new();
+        for pair in self.roads.windows(2) {
+            let road1 = map.get_r(pair[0].road);
+            let road2 = map.get_r(pair[1].road);
+
+            // If they're the same, we're doubling back at a dead-end, just skip
+            if road1.id != road2.id {
+                pts.push(map.get_i(road1.common_endpt(road2)).polygon.center());
+            }
+        }
+        pts.push(pts[0]);
+        pts.dedup();
+        let polygon = Ring::new(pts)?.into_polygon();
+        Ok(Block {
+            perimeter: self,
+            polygon,
+        })
+    }
+
+    /// Does this perimeter completely enclose the other?
+    pub fn contains(&self, other: &Perimeter) -> bool {
+        other
+            .roads
+            .iter()
+            .all(|id| self.interior.contains(&id.road) || self.roads.contains(id))
+    }
+}
+
+impl fmt::Debug for Perimeter {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        writeln!(f, "Perimeter:")?;
+        for id in &self.roads {
+            writeln!(f, "- {:?} of {}", id.side, id.road)?;
+        }
+        Ok(())
     }
 }
