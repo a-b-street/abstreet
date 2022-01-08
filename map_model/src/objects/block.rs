@@ -83,17 +83,18 @@ impl Perimeter {
         //
         // There shouldn't be any cases where to_block_cheap fails, but to_block would succeed, so
         // the error handling here is OK.
-        let perim = Perimeter {
+        let mut perim = Perimeter {
             roads,
             interior: BTreeSet::new(),
         };
 
         // But even the winding order check gets confused by these, so first...
-        //perim.collapse_deadends();
+        perim.collapse_deadends();
 
-        let mut cheap_block = perim.to_block_cheap(map)?;
+        let mut cheap_block = perim.to_block(map)?;
         // If we can't determine the winding order, then... just keep this order and hope for the
         // best
+        info!("Clockwise of this guy? using cheap poly {:?}", cheap_block.polygon.is_clockwise());
         if cheap_block.polygon.is_clockwise() == Some(false) {
             error!("found a CCW, reversing it!!!");
             cheap_block.perimeter.roads.reverse();
@@ -524,7 +525,7 @@ impl Perimeter {
     }
 
     /// Just use intersection center points
-    pub fn to_block_cheap(self, map: &Map) -> Result<Block> {
+    fn to_block_cheap(self, map: &Map) -> Result<Block> {
         let mut pts = Vec::new();
         for pair in self.roads.windows(2) {
             let road1 = map.get_r(pair[0].road);

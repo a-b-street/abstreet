@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 use std::fmt;
-use std::io::Write;
+use std::fmt::Write;
 
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
@@ -252,15 +252,14 @@ impl Ring {
     }
 
     /// Print the coordinates of this ring as a `geo::LineString` for easy bug reports
-    pub fn as_geo_linestring(&self) -> Result<String> {
-        let mut output = Vec::new();
-        writeln!(output, "let line_string = geo_types::line_string![")?;
+    pub fn as_geo_linestring(&self) -> String {
+        let mut output = String::new();
+        writeln!(output, "let line_string = geo_types::line_string![").unwrap();
         for pt in &self.pts {
-            writeln!(output, "  (x: {}, y: {}),", pt.x(), pt.y())?;
+            writeln!(output, "  (x: {}, y: {}),", pt.x(), pt.y()).unwrap();
         }
-        writeln!(output, "];")?;
-        let x = String::from_utf8(output)?;
-        Ok(x)
+        writeln!(output, "];").unwrap();
+        output
     }
 }
 

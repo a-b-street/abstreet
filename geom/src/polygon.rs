@@ -571,6 +571,10 @@ impl Polygon {
     }
 }
 
+fn is_counter_clockwise(pt1: Pt2D, pt2: Pt2D, pt3: Pt2D) -> bool {
+    (pt3.y() - pt1.y()) * (pt2.x() - pt1.x()) > (pt2.y() - pt1.y()) * (pt3.x() - pt1.x())
+}
+
 impl fmt::Display for Polygon {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         writeln!(
