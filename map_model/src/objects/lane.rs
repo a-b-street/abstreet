@@ -368,6 +368,7 @@ impl Lane {
 
     /// This is just based on typical driving sides. Bidirectional or contraflow cycletracks as
     /// input may produce weird results.
+    // TODO Reconsider this -- it's confusing
     pub fn get_nearest_side_of_road(&self, map: &Map) -> RoadSideID {
         let side = match (self.dir, map.get_config().driving_side) {
             (Direction::Fwd, DrivingSide::Right) => SideOfRoad::Right,

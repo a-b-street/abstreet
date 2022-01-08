@@ -6,7 +6,7 @@ use anyhow::Result;
 use abstutil::wraparound_get;
 use geom::{Polygon, Pt2D, Ring};
 
-use crate::{Direction, LaneID, Map, RoadID, RoadSideID, SideOfRoad};
+use crate::{Direction, Map, RoadID, RoadSideID, SideOfRoad};
 
 /// A block is defined by a perimeter that traces along the sides of roads. Inside the perimeter,
 /// the block may contain buildings and interior roads. In the simple case, a block represents a
@@ -35,12 +35,18 @@ impl Perimeter {
     /// Starting at any lane, snap to the nearest side of that road, then begin tracing a single
     /// block, with no interior roads. This will fail if a map boundary is reached. The results are
     /// unusual when crossing the entrance to a tunnel or bridge.
-    pub fn single_block(map: &Map, start: LaneID) -> Result<Perimeter> {
+    pub fn single_block(map: &Map, start_road_side: RoadSideID) -> Result<Perimeter> {
         let mut roads = Vec::new();
-        let start_road_side = map.get_l(start).get_nearest_side_of_road(map);
         // We need to track which side of the road we're at, but also which direction we're facing
         let mut current_road_side = start_road_side;
-        let mut current_intersection = map.get_l(start).dst_i;
+        // TODO  hmmm
+        let start_lane = start_road_side.get_outermost_lane(map);
+        // TODO Wrong near the crashing Bristol ones
+        let mut current_intersection = if start_lane.is_walkable() {
+            start_lane.dst_i
+        } else {
+            start_lane.src_i
+        };
         loop {
             let i = map.get_i(current_intersection);
             if i.is_border() {
@@ -86,24 +92,29 @@ impl Perimeter {
     pub fn find_all_single_blocks(map: &Map) -> Vec<Perimeter> {
         let mut seen = HashSet::new();
         let mut perimeters = Vec::new();
-        for lane in map.all_lanes() {
-            let side = lane.get_nearest_side_of_road(map);
-            if seen.contains(&side) {
-                continue;
-            }
-            match Perimeter::single_block(map, lane.id) {
-                Ok(perimeter) => {
-                    seen.extend(perimeter.roads.clone());
-                    perimeters.push(perimeter);
+        for road in map.all_roads() {
+            for side_of_road in [SideOfRoad::Left, SideOfRoad::Right] {
+                let side = RoadSideID {
+                    road: road.id,
+                    side: side_of_road,
+                };
+                if seen.contains(&side) {
+                    continue;
                 }
-                Err(err) => {
-                    // The logs are quite spammy and not helpful yet, since they're all expected
-                    // cases near the map boundary
-                    if false {
-                        warn!("Failed from {}: {}", lane.id, err);
+                match Perimeter::single_block(map, side) {
+                    Ok(perimeter) => {
+                        seen.extend(perimeter.roads.clone());
+                        perimeters.push(perimeter);
                     }
-                    // Don't try again
-                    seen.insert(side);
+                    Err(err) => {
+                        // The logs are quite spammy and not helpful yet, since they're all expected
+                        // cases near the map boundary
+                        if false {
+                            warn!("Failed from {:?}: {}", side, err);
+                        }
+                        // Don't try again
+                        seen.insert(side);
+                    }
                 }
             }
         }
