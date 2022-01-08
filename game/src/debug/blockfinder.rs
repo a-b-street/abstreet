@@ -315,6 +315,12 @@ impl SimpleState<App> for OneBlock {
                 ));
             }
             "Debug polygon" => {
+                // Also dump some stuff to STDOUT
+                if let Some(ring) = self.block.polygon.get_outer_ring() {
+                    println!("Is clockwise? {:?}", self.block.polygon.is_clockwise());
+                    println!("{}", ring.as_geo_linestring().unwrap());
+                }
+
                 return Transition::Push(polygons::PolygonDebugger::new_state(
                     ctx,
                     "pt",

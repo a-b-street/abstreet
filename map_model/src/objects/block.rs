@@ -83,7 +83,7 @@ impl Perimeter {
         //
         // There shouldn't be any cases where to_block_cheap fails, but to_block would succeed, so
         // the error handling here is OK.
-        let mut perim = Perimeter {
+        let perim = Perimeter {
             roads,
             interior: BTreeSet::new(),
         };
