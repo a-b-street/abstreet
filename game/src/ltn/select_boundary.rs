@@ -137,17 +137,17 @@ impl SelectBoundary {
         }
     }
 
-    fn merge_selected(&self) -> Vec<Perimeter> {
+    fn merge_selected(&self, app: &App) -> Vec<Perimeter> {
         let mut perimeters = Vec::new();
         for id in &self.selected {
             perimeters.push(self.blocks[&id].perimeter.clone());
         }
-        Perimeter::merge_all(perimeters, false)
+        Perimeter::merge_all(&app.primary.map, perimeters, false)
     }
 
     // This block was in the previous frontier; its inclusion in self.selected has changed.
     fn block_changed(&mut self, ctx: &mut EventCtx, app: &App, id: BlockID) {
-        let mut perimeters = self.merge_selected();
+        let mut perimeters = self.merge_selected(app);
         if perimeters.len() != 1 {
             // We split the current neighborhood in two.
             // TODO Figure out how to handle this. For now, don't allow and revert
@@ -202,7 +202,7 @@ impl State<App> for SelectBoundary {
                     return Transition::Pop;
                 }
                 "Confirm" => {
-                    let mut perimeters = self.merge_selected();
+                    let mut perimeters = self.merge_selected(app);
                     assert_eq!(perimeters.len(), 1);
                     // TODO Persist the partitioning
                     return Transition::Replace(super::connectivity::Viewer::new_state(

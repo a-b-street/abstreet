@@ -270,7 +270,7 @@ fn test_blockfinding() -> Result<()> {
         let mut num_partial_merges = 0;
         let mut merged = Vec::new();
         for perimeters in partitions {
-            let newly_merged = Perimeter::merge_all(perimeters, false);
+            let newly_merged = Perimeter::merge_all(&map, perimeters, false);
             if newly_merged.len() > 1 {
                 num_partial_merges += 1;
             }

@@ -51,7 +51,7 @@ impl Partitioning {
         let mut merged = Vec::new();
         for perimeters in partitions {
             // If we got more than one result back, merging partially failed. Oh well?
-            merged.extend(Perimeter::merge_all(perimeters, false));
+            merged.extend(Perimeter::merge_all(map, perimeters, false));
         }
 
         let mut colors = Perimeter::calculate_coloring(&merged, COLORS.len())
