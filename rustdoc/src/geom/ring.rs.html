@@ -280,8 +280,21 @@
 <span id="280">280</span>
 <span id="281">281</span>
 <span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
+<span class="kw">use</span> <span class="ident">std::fmt::Write</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
@@ -530,6 +543,17 @@
 
         <span class="comment">// Do they match up?</span>
         <span class="ident">orig</span> <span class="op">!</span><span class="op">=</span> <span class="ident">sorted</span>
+    }
+
+    <span class="doccomment">/// Print the coordinates of this ring as a `geo::LineString` for easy bug reports</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_geo_linestring</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">String::new</span>();
+        <span class="macro">writeln!</span>(<span class="ident">output</span>, <span class="string">&quot;let line_string = geo_types::line_string![&quot;</span>).<span class="ident">unwrap</span>();
+        <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">pts</span> {
+            <span class="macro">writeln!</span>(<span class="ident">output</span>, <span class="string">&quot;  (x: {}, y: {}),&quot;</span>, <span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>()).<span class="ident">unwrap</span>();
+        }
+        <span class="macro">writeln!</span>(<span class="ident">output</span>, <span class="string">&quot;];&quot;</span>).<span class="ident">unwrap</span>();
+        <span class="ident">output</span>
     }
 }
 
