@@ -1,5 +1,6 @@
 use std::collections::HashSet;
 use std::fmt;
+use std::fmt::Write;
 
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
@@ -248,6 +249,17 @@ impl Ring {
 
         // Do they match up?
         orig != sorted
+    }
+
+    /// Print the coordinates of this ring as a `geo::LineString` for easy bug reports
+    pub fn as_geo_linestring(&self) -> String {
+        let mut output = String::new();
+        writeln!(output, "let line_string = geo_types::line_string![").unwrap();
+        for pt in &self.pts {
+            writeln!(output, "  (x: {}, y: {}),", pt.x(), pt.y()).unwrap();
+        }
+        writeln!(output, "];").unwrap();
+        output
     }
 }
 

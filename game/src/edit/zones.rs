@@ -4,7 +4,7 @@ use enumset::EnumSet;
 use maplit::btreeset;
 
 use map_gui::tools::ColorDiscrete;
-use map_model::{AccessRestrictions, PathConstraints, RoadID};
+use map_model::{AccessRestrictions, CommonEndpoint, PathConstraints, RoadID};
 use sim::TripMode;
 use widgetry::mapspace::ToggleZoomed;
 use widgetry::{
@@ -179,7 +179,9 @@ fn draw_zone(ctx: &mut EventCtx, app: &App, members: &BTreeSet<RoadID>) -> (Togg
         colorer.add_r(r.id, "restricted road");
         for next in map.get_next_roads(r.id) {
             if !members.contains(&next) {
-                colorer.add_i(r.common_endpt(map.get_r(next)), "entrance/exit");
+                if let CommonEndpoint::One(i) = r.common_endpoint(map.get_r(next)) {
+                    colorer.add_i(i, "entrance/exit");
+                }
             }
         }
     }

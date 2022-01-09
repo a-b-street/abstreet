@@ -368,6 +368,7 @@ impl Lane {
 
     /// This is just based on typical driving sides. Bidirectional or contraflow cycletracks as
     /// input may produce weird results.
+    // TODO Reconsider this -- it's confusing
     pub fn get_nearest_side_of_road(&self, map: &Map) -> RoadSideID {
         let side = match (self.dir, map.get_config().driving_side) {
             (Direction::Fwd, DrivingSide::Right) => SideOfRoad::Right,
@@ -450,28 +451,43 @@ impl Lane {
         Some(part.split(';').flat_map(parse_turn_type_from_osm).collect())
     }
 
-    /// If the lanes share one endpoint, returns it. If they share two -- because they belong to
-    /// the same road or there are two different roads connecting the same pair of intersections --
-    /// then return `None`. If they share no common endpoint, panic.
-    /// (This is a weird API, really should be an enum with 3 cases)
-    pub fn common_endpt(&self, other: &Lane) -> Option<IntersectionID> {
-        #![allow(clippy::suspicious_operation_groupings)]
-        let src = self.src_i == other.src_i || self.src_i == other.dst_i;
-        let dst = self.dst_i == other.src_i || self.dst_i == other.dst_i;
-        if src && dst {
-            return None;
-        }
-        if src {
-            return Some(self.src_i);
-        }
-        if dst {
-            return Some(self.dst_i);
-        }
-        panic!("{} and {} have no common_endpt", self.id, other.id);
+    pub fn common_endpoint(&self, other: &Lane) -> CommonEndpoint {
+        CommonEndpoint::new((self.src_i, self.dst_i), (other.src_i, other.dst_i))
     }
 
     pub fn get_thick_polygon(&self) -> Polygon {
         self.lane_center_pts.make_polygons(self.width)
+    }
+}
+
+pub enum CommonEndpoint {
+    /// Two lanes/roads share one endpoint
+    One(IntersectionID),
+    /// Two lanes/roads share both endpoints, because they both belong to the same road, or there
+    /// are two different roads connecting the same pair of intersections
+    Both,
+    /// Two lanes/roads don't have any common endpoints
+    None,
+}
+
+impl CommonEndpoint {
+    pub fn new(
+        obj1: (IntersectionID, IntersectionID),
+        obj2: (IntersectionID, IntersectionID),
+    ) -> CommonEndpoint {
+        #![allow(clippy::suspicious_operation_groupings)]
+        let src = obj1.0 == obj2.0 || obj1.0 == obj2.1;
+        let dst = obj1.1 == obj2.0 || obj1.1 == obj2.1;
+        if src && dst {
+            return CommonEndpoint::Both;
+        }
+        if src {
+            return CommonEndpoint::One(obj1.0);
+        }
+        if dst {
+            return CommonEndpoint::One(obj1.1);
+        }
+        CommonEndpoint::None
     }
 }
 

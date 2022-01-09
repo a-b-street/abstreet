@@ -12,12 +12,12 @@ use geom::{Bounds, Distance, Duration, GPSBounds, Polygon, Pt2D, Ring, Time};
 
 use crate::raw::{OriginalRoad, RawMap};
 use crate::{
-    osm, Area, AreaID, AreaType, Building, BuildingID, BuildingType, CompressedMovementID,
-    ControlStopSign, ControlTrafficSignal, DirectedRoadID, Direction, Intersection, IntersectionID,
-    Lane, LaneID, LaneType, Map, MapEdits, Movement, MovementID, OffstreetParking, ParkingLot,
-    ParkingLotID, Path, PathConstraints, PathRequest, PathV2, Pathfinder, Position, Road, RoadID,
-    RoutingParams, TransitRoute, TransitRouteID, TransitStop, TransitStopID, Turn, TurnID,
-    TurnType, Zone,
+    osm, Area, AreaID, AreaType, Building, BuildingID, BuildingType, CommonEndpoint,
+    CompressedMovementID, ControlStopSign, ControlTrafficSignal, DirectedRoadID, Direction,
+    Intersection, IntersectionID, Lane, LaneID, LaneType, Map, MapEdits, Movement, MovementID,
+    OffstreetParking, ParkingLot, ParkingLotID, Path, PathConstraints, PathRequest, PathV2,
+    Pathfinder, Position, Road, RoadID, RoutingParams, TransitRoute, TransitRouteID, TransitStop,
+    TransitStopID, Turn, TurnID, TurnType, Zone,
 };
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -871,7 +871,10 @@ impl Map {
         let to = self.get_r(to);
         turn_type == unprotected_turn_type
             && from.get_detailed_rank() < to.get_detailed_rank()
-            && self.get_i(from.common_endpt(to)).is_stop_sign()
+            && match from.common_endpoint(to) {
+                CommonEndpoint::One(i) => self.get_i(i).is_stop_sign(),
+                _ => false,
+            }
     }
 
     /// Modifies the map in-place, removing parts not essential for the bike network tool.

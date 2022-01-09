@@ -6,7 +6,7 @@ use anyhow::Result;
 use abstutil::wraparound_get;
 use geom::{Polygon, Pt2D, Ring};
 
-use crate::{Direction, LaneID, Map, RoadID, RoadSideID, SideOfRoad};
+use crate::{CommonEndpoint, Direction, LaneID, Map, RoadID, RoadSideID, SideOfRoad};
 
 /// A block is defined by a perimeter that traces along the sides of roads. Inside the perimeter,
 /// the block may contain buildings and interior roads. In the simple case, a block represents a
@@ -127,6 +127,7 @@ impl Perimeter {
     ///
     /// Note this may modify both perimeters and still return `false`. The modification is just to
     /// rotate the order of the road loop; this doesn't logically change the perimeter.
+    // TODO Would it be cleaner to return a Result here and always restore the invariant?
     fn try_to_merge(&mut self, other: &mut Perimeter, debug_failures: bool) -> bool {
         self.undo_invariant();
         other.undo_invariant();
@@ -399,34 +400,10 @@ impl Perimeter {
     }
 
     pub fn to_block(self, map: &Map) -> Result<Block> {
-        Block::from_perimeter(map, self)
-    }
-
-    /// Does this perimeter completely enclose the other?
-    pub fn contains(&self, other: &Perimeter) -> bool {
-        other
-            .roads
-            .iter()
-            .all(|id| self.interior.contains(&id.road) || self.roads.contains(id))
-    }
-}
-
-impl fmt::Debug for Perimeter {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        writeln!(f, "Perimeter:")?;
-        for id in &self.roads {
-            writeln!(f, "- {:?} of {}", id.side, id.road)?;
-        }
-        Ok(())
-    }
-}
-
-impl Block {
-    fn from_perimeter(map: &Map, perimeter: Perimeter) -> Result<Block> {
         // Trace along the perimeter and build the polygon
         let mut pts: Vec<Pt2D> = Vec::new();
         let mut first_intersection = None;
-        for pair in perimeter.roads.windows(2) {
+        for pair in self.roads.windows(2) {
             let lane1 = pair[0].get_outermost_lane(map);
             let road1 = map.get_parent(lane1.id);
             let lane2 = pair[1].get_outermost_lane(map);
@@ -445,9 +422,9 @@ impl Block {
                 // We're doubling back at a dead-end. Always follow the orientation of the lane.
                 true
             } else {
-                match lane1.common_endpt(lane2) {
-                    Some(i) => i == lane1.dst_i,
-                    None => {
+                match lane1.common_endpoint(lane2) {
+                    CommonEndpoint::One(i) => i == lane1.dst_i,
+                    CommonEndpoint::Both => {
                         // Two different roads link the same two intersections. I don't think we
                         // can decide the order of points other than seeing which endpoint is
                         // closest to our last point.
@@ -458,6 +435,11 @@ impl Block {
                             true
                         }
                     }
+                    CommonEndpoint::None => bail!(
+                        "{} and {} don't share a common endpoint",
+                        lane1.id,
+                        lane2.id
+                    ),
                 }
             };
             if !keep_lane_orientation {
@@ -515,6 +497,27 @@ impl Block {
         // in the map geometry that should be properly fixed.
         //let polygon = Polygon::buggy_new(pts);
 
-        Ok(Block { perimeter, polygon })
+        Ok(Block {
+            perimeter: self,
+            polygon,
+        })
+    }
+
+    /// Does this perimeter completely enclose the other?
+    pub fn contains(&self, other: &Perimeter) -> bool {
+        other
+            .roads
+            .iter()
+            .all(|id| self.interior.contains(&id.road) || self.roads.contains(id))
+    }
+}
+
+impl fmt::Debug for Perimeter {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        writeln!(f, "Perimeter:")?;
+        for id in &self.roads {
+            writeln!(f, "- {:?} of {}", id.side, id.road)?;
+        }
+        Ok(())
     }
 }

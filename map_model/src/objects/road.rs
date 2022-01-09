@@ -10,8 +10,8 @@ use geom::{Distance, PolyLine, Polygon, Speed};
 
 use crate::raw::{OriginalRoad, RestrictionType};
 use crate::{
-    osm, AccessRestrictions, DrivingSide, IntersectionID, Lane, LaneID, LaneSpec, LaneType, Map,
-    PathConstraints, TransitStopID, Zone,
+    osm, AccessRestrictions, CommonEndpoint, DrivingSide, IntersectionID, Lane, LaneID, LaneSpec,
+    LaneType, Map, PathConstraints, TransitStopID, Zone,
 };
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -444,21 +444,13 @@ impl Road {
         bike
     }
 
-    /// Returns the common intersection between two roads, panicking if they're not adjacent
-    // TODO Doesn't handle two roads between the same pair of intersections
-    pub fn common_endpt(&self, other: &Road) -> IntersectionID {
-        #![allow(clippy::suspicious_operation_groupings)] // false positive
-        if self.src_i == other.src_i || self.src_i == other.dst_i {
-            self.src_i
-        } else if self.dst_i == other.src_i || self.dst_i == other.dst_i {
-            self.dst_i
-        } else {
-            panic!("{} and {} don't share an endpoint", self.id, other.id);
-        }
+    pub fn common_endpoint(&self, other: &Road) -> CommonEndpoint {
+        CommonEndpoint::new((self.src_i, self.dst_i), (other.src_i, other.dst_i))
     }
 
     /// Returns the other intersection of this road, panicking if this road doesn't connect to the
     /// input
+    /// TODO This should use CommonEndpoint
     pub fn other_endpt(&self, i: IntersectionID) -> IntersectionID {
         if self.src_i == i {
             self.dst_i

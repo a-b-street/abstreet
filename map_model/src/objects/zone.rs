@@ -10,7 +10,7 @@ use std::collections::BTreeSet;
 use enumset::EnumSet;
 use serde::{Deserialize, Serialize};
 
-use crate::{IntersectionID, Map, PathConstraints, RoadID};
+use crate::{CommonEndpoint, IntersectionID, Map, PathConstraints, RoadID};
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct AccessRestrictions {
@@ -76,7 +76,10 @@ fn floodfill(map: &Map, start: RoadID) -> Zone {
             if r.access_restrictions == match_constraints && merge_zones {
                 queue.push(r.id);
             } else {
-                borders.insert(map.get_r(current).common_endpt(r));
+                // TODO Handle other cases
+                if let CommonEndpoint::One(i) = map.get_r(current).common_endpoint(r) {
+                    borders.insert(i);
+                }
             }
         }
     }

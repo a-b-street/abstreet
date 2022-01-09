@@ -49,8 +49,8 @@ pub use crate::objects::building::{
 };
 pub use crate::objects::intersection::{Intersection, IntersectionID, IntersectionType};
 pub use crate::objects::lane::{
-    BufferType, Lane, LaneID, LaneSpec, LaneType, NORMAL_LANE_THICKNESS, PARKING_LOT_SPOT_LENGTH,
-    SIDEWALK_THICKNESS,
+    BufferType, CommonEndpoint, Lane, LaneID, LaneSpec, LaneType, NORMAL_LANE_THICKNESS,
+    PARKING_LOT_SPOT_LENGTH, SIDEWALK_THICKNESS,
 };
 pub use crate::objects::movement::{CompressedMovementID, Movement, MovementID};
 pub use crate::objects::parking_lot::{ParkingLot, ParkingLotID};
