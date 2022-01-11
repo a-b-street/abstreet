@@ -91,11 +91,6 @@
 <span id="91">91</span>
 <span id="92">92</span>
 <span id="93">93</span>
-<span id="94">94</span>
-<span id="95">95</span>
-<span id="96">96</span>
-<span id="97">97</span>
-<span id="98">98</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
@@ -185,13 +180,8 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">list_all_objects</span>(<span class="ident">dir</span>: <span class="ident">String</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
     <span class="ident">list_dir</span>(<span class="ident">dir</span>)
         .<span class="ident">into_iter</span>()
-        .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> {
-            <span class="kw">if</span> <span class="ident">x</span>.<span class="ident">starts_with</span>(<span class="string">&quot;.&quot;</span>) {
-                <span class="prelude-val">None</span>
-            } <span class="kw">else</span> {
-                <span class="prelude-val">Some</span>(<span class="ident">basename</span>(<span class="ident">x</span>))
-            }
-        })
+        .<span class="ident">map</span>(<span class="ident">basename</span>)
+        .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="op">!</span><span class="ident">x</span>.<span class="ident">starts_with</span>(<span class="string">&quot;.&quot;</span>))
         .<span class="ident">collect</span>()
 }
 </code></pre></div>
