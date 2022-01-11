@@ -87,12 +87,7 @@ pub fn load_all_objects<T: DeserializeOwned>(dir: String) -> Vec<(String, T)> {
 pub fn list_all_objects(dir: String) -> Vec<String> {
     list_dir(dir)
         .into_iter()
-        .filter_map(|x| {
-            if x.starts_with(".") {
-                None
-            } else {
-                Some(basename(x))
-            }
-        })
+        .map(basename)
+        .filter(|x| !x.starts_with("."))
         .collect()
 }
