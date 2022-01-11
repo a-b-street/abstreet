@@ -187,6 +187,9 @@
 <span id="187">187</span>
 <span id="188">188</span>
 <span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
@@ -207,6 +210,7 @@
     ];
 }
 <span class="kw">const</span> <span class="ident">CAR_FREE_COLOR</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::GREEN</span>;
+<span class="kw">const</span> <span class="ident">DISCONNECTED_COLOR</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::RED</span>;
 
 <span class="doccomment">/// Partition a neighborhood&#39;s boundary polygon based on the cells. Currently this discretizes</span>
 <span class="doccomment">/// space into a grid, so the results don&#39;t look perfect, but it&#39;s fast. Also returns the color for</span>
@@ -272,6 +276,8 @@
     <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">cell</span>) <span class="kw">in</span> <span class="ident">neighborhood</span>.<span class="ident">cells</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
         <span class="kw">if</span> <span class="ident">cell</span>.<span class="ident">car_free</span> {
             <span class="ident">cell_colors</span>[<span class="ident">idx</span>] <span class="op">=</span> <span class="ident">CAR_FREE_COLOR</span>;
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">cell</span>.<span class="ident">is_disconnected</span>() {
+            <span class="ident">cell_colors</span>[<span class="ident">idx</span>] <span class="op">=</span> <span class="ident">DISCONNECTED_COLOR</span>;
         }
     }
 

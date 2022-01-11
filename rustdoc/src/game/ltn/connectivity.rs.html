@@ -194,7 +194,6 @@
 <span id="194">194</span>
 <span id="195">195</span>
 <span id="196">196</span>
-<span id="197">197</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom::Distance</span>;
 <span class="kw">use</span> <span class="ident">widgetry::mapspace::World</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
@@ -274,7 +273,6 @@
             .<span class="ident">iter</span>()
             .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">is_disconnected</span>())
             .<span class="ident">count</span>();
-        <span class="comment">// TODO Also add a red outline to them or something</span>
         <span class="kw">let</span> <span class="ident">warning</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">disconnected_cells</span> <span class="op">==</span> <span class="number">0</span> {
             <span class="ident">String::new</span>()
         } <span class="kw">else</span> {
