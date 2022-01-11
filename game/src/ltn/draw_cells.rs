@@ -18,6 +18,7 @@ lazy_static::lazy_static! {
     ];
 }
 const CAR_FREE_COLOR: Color = Color::GREEN;
+const DISCONNECTED_COLOR: Color = Color::RED;
 
 /// Partition a neighborhood's boundary polygon based on the cells. Currently this discretizes
 /// space into a grid, so the results don't look perfect, but it's fast. Also returns the color for
@@ -83,6 +84,8 @@ pub fn draw_cells(map: &Map, neighborhood: &Neighborhood) -> (GeomBatch, Vec<Col
     for (idx, cell) in neighborhood.cells.iter().enumerate() {
         if cell.car_free {
             cell_colors[idx] = CAR_FREE_COLOR;
+        } else if cell.is_disconnected() {
+            cell_colors[idx] = DISCONNECTED_COLOR;
         }
     }
 

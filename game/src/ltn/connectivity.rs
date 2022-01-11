@@ -77,7 +77,6 @@ impl Viewer {
             .iter()
             .filter(|c| c.is_disconnected())
             .count();
-        // TODO Also add a red outline to them or something
         let warning = if disconnected_cells == 0 {
             String::new()
         } else {
