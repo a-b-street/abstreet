@@ -4,6 +4,7 @@ use widgetry::{
     EventCtx, GeomBatch, GfxCtx, Key, Outcome, Panel, State, Text, TextExt, Toggle, Widget,
 };
 
+use super::auto::Heuristic;
 use super::per_neighborhood::{FilterableObj, Tab, TakeNeighborhood};
 use super::Neighborhood;
 use crate::app::{App, Transition};
@@ -36,12 +37,20 @@ impl Viewer {
                         Toggle::choice(ctx, "draw cells", "areas", "streets", Key::D, true),
                     ]),
                     Text::new().into_widget(ctx).named("warnings"),
-                    ctx.style()
-                        .btn_outline
-                        .text("Automatically stop rat-runs")
-                        .hotkey(Key::A)
-                        .tooltip("Warning: uses experimental heuristics to place filters")
-                        .build_def(ctx),
+                    Widget::row(vec![
+                        Widget::dropdown(
+                            ctx,
+                            "heuristic",
+                            // TODO Session state
+                            Heuristic::Greedy,
+                            Heuristic::choices(),
+                        ),
+                        ctx.style()
+                            .btn_outline
+                            .text("Automatically stop rat-runs")
+                            .hotkey(Key::A)
+                            .build_def(ctx),
+                    ]),
                 ]),
             )
             .build(ctx);
@@ -85,7 +94,8 @@ impl State<App> for Viewer {
             Outcome::Clicked(x) => {
                 if x == "Automatically stop rat-runs" {
                     ctx.loading_screen("automatically filter a neighborhood", |ctx, timer| {
-                        crate::ltn::auto::greedy_heuristic(ctx, app, &self.neighborhood, timer);
+                        let heuristic: Heuristic = self.panel.dropdown_value("heuristic");
+                        heuristic.apply(ctx, app, &self.neighborhood, timer);
                     });
                     self.neighborhood =
                         Neighborhood::new(ctx, app, self.neighborhood.orig_perimeter.clone());
@@ -97,13 +107,15 @@ impl State<App> for Viewer {
                     .handle_action::<Viewer>(ctx, app, x.as_ref())
                     .unwrap();
             }
-            Outcome::Changed(_) => {
-                self.world = make_world(
-                    ctx,
-                    app,
-                    &self.neighborhood,
-                    self.panel.is_checked("draw cells"),
-                );
+            Outcome::Changed(x) => {
+                if x == "draw cells" {
+                    self.world = make_world(
+                        ctx,
+                        app,
+                        &self.neighborhood,
+                        self.panel.is_checked("draw cells"),
+                    );
+                }
             }
             _ => {}
         }
