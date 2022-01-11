@@ -7,14 +7,16 @@ use widgetry::{Color, GeomBatch};
 
 use super::Neighborhood;
 
-const COLORS: [Color; 6] = [
-    Color::BLUE,
-    Color::YELLOW,
-    Color::RED,
-    Color::PURPLE,
-    Color::PINK,
-    Color::ORANGE,
-];
+lazy_static::lazy_static! {
+    static ref COLORS: [Color; 6] = [
+        Color::BLUE,
+        Color::YELLOW,
+        Color::hex("#3CAEA3"),
+        Color::PURPLE,
+        Color::PINK,
+        Color::ORANGE,
+    ];
+}
 const CAR_FREE_COLOR: Color = Color::GREEN;
 
 /// Partition a neighborhood's boundary polygon based on the cells. Currently this discretizes
