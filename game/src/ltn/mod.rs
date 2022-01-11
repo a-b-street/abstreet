@@ -64,6 +64,72 @@ impl ModalFilters {
         }
         true
     }
+
+    /// Draw all modal filters. If `only_neighborhood` is specified, only draw filters belonging to
+    /// one area.
+    pub fn draw(
+        &self,
+        ctx: &EventCtx,
+        map: &Map,
+        only_neighborhood: Option<&Neighborhood>,
+    ) -> ToggleZoomed {
+        let mut batch = ToggleZoomed::builder();
+        for (r, dist) in &self.roads {
+            if only_neighborhood
+                .map(|n| !n.orig_perimeter.interior.contains(r))
+                .unwrap_or(false)
+            {
+                continue;
+            }
+
+            let road = map.get_r(*r);
+            if let Ok((pt, angle)) = road.center_pts.dist_along(*dist) {
+                let road_width = road.get_width();
+
+                batch
+                    .unzoomed
+                    .push(Color::RED, Circle::new(pt, road_width).to_polygon());
+                batch.unzoomed.push(
+                    Color::WHITE,
+                    Line::must_new(
+                        pt.project_away(0.8 * road_width, angle.rotate_degs(90.0)),
+                        pt.project_away(0.8 * road_width, angle.rotate_degs(-90.0)),
+                    )
+                    .make_polygons(Distance::meters(7.0)),
+                );
+
+                // TODO Only cover the driving/parking lanes (and center appropriately)
+                draw_zoomed_planters(
+                    ctx,
+                    &mut batch.zoomed,
+                    Line::must_new(
+                        pt.project_away(0.3 * road_width, angle.rotate_degs(90.0)),
+                        pt.project_away(0.3 * road_width, angle.rotate_degs(-90.0)),
+                    ),
+                );
+            }
+        }
+        for (i, filter) in &self.intersections {
+            if only_neighborhood
+                .map(|n| !n.interior_intersections.contains(i))
+                .unwrap_or(false)
+            {
+                continue;
+            }
+
+            let line = filter.geometry(map);
+            batch
+                .unzoomed
+                .push(Color::RED, line.make_polygons(Distance::meters(3.0)));
+
+            draw_zoomed_planters(
+                ctx,
+                &mut batch.zoomed,
+                line.percent_slice(0.3, 0.7).unwrap_or(line),
+            );
+        }
+        batch.build(ctx)
+    }
 }
 
 /// A diagonal filter exists in an intersection. It's defined by two roads (the order is
@@ -172,52 +238,7 @@ impl Neighborhood {
             &app.session.modal_filters,
         );
 
-        let mut batch = ToggleZoomed::builder();
-        for (r, dist) in &app.session.modal_filters.roads {
-            if !n.orig_perimeter.interior.contains(r) {
-                continue;
-            }
-
-            let road = map.get_r(*r);
-            if let Ok((pt, angle)) = road.center_pts.dist_along(*dist) {
-                let road_width = road.get_width();
-
-                batch
-                    .unzoomed
-                    .push(Color::RED, Circle::new(pt, road_width).to_polygon());
-                batch.unzoomed.push(
-                    Color::WHITE,
-                    Line::must_new(
-                        pt.project_away(0.8 * road_width, angle.rotate_degs(90.0)),
-                        pt.project_away(0.8 * road_width, angle.rotate_degs(-90.0)),
-                    )
-                    .make_polygons(Distance::meters(7.0)),
-                );
-
-                // TODO Only cover the driving/parking lanes (and center appropriately)
-                draw_zoomed_planters(
-                    ctx,
-                    &mut batch.zoomed,
-                    Line::must_new(
-                        pt.project_away(0.3 * road_width, angle.rotate_degs(90.0)),
-                        pt.project_away(0.3 * road_width, angle.rotate_degs(-90.0)),
-                    ),
-                );
-            }
-        }
-        for filter in app.session.modal_filters.intersections.values() {
-            let line = filter.geometry(app);
-            batch
-                .unzoomed
-                .push(Color::RED, line.make_polygons(Distance::meters(3.0)));
-
-            draw_zoomed_planters(
-                ctx,
-                &mut batch.zoomed,
-                line.percent_slice(0.3, 0.7).unwrap_or(line),
-            );
-        }
-        n.draw_filters = batch.build(ctx);
+        n.draw_filters = app.session.modal_filters.draw(ctx, map, Some(&n));
 
         let mut label_roads = n.perimeter.clone();
         label_roads.extend(n.orig_perimeter.interior.clone());
@@ -475,8 +496,7 @@ impl DiagonalFilter {
     }
 
     /// Physically where is the filter placed?
-    fn geometry(&self, app: &App) -> Line {
-        let map = &app.primary.map;
+    fn geometry(&self, map: &Map) -> Line {
         let r1 = map.get_r(self.r1);
         let r2 = map.get_r(self.r2);
 

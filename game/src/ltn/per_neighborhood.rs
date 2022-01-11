@@ -66,7 +66,10 @@ impl Tab {
                     Transition::Replace(BrowseNeighborhoods::new_state(ctx, app))
                 }),
             )),
-            "Browse neighborhoods" => Transition::Pop,
+            "Browse neighborhoods" => {
+                // Recalculate the state to redraw any changed filters
+                Transition::Replace(BrowseNeighborhoods::new_state(ctx, app))
+            }
             "Adjust boundary" => Transition::ConsumeState(Box::new(|state, ctx, app| {
                 let state = state.downcast::<T>().ok().unwrap();
                 vec![super::select_boundary::SelectBoundary::new_state(
