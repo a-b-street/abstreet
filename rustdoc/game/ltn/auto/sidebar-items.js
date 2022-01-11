@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["Heuristic",""]],"fn":[["brute_force",""],["greedy",""],["try_to_filter_road",""]]});

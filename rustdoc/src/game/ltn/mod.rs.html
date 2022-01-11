@@ -503,6 +503,15 @@
 <span id="503">503</span>
 <span id="504">504</span>
 <span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">maplit::btreeset</span>;
@@ -518,6 +527,7 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">browse::BrowseNeighborhoods</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">partition::Partitioning</span>;
 
+<span class="kw">mod</span> <span class="ident">auto</span>;
 <span class="kw">mod</span> <span class="ident">browse</span>;
 <span class="kw">mod</span> <span class="ident">connectivity</span>;
 <span class="kw">mod</span> <span class="ident">draw_cells</span>;
@@ -597,6 +607,14 @@
     <span class="kw">pub</span> <span class="ident">borders</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
     <span class="doccomment">/// This cell only contains roads that ban cars.</span>
     <span class="kw">pub</span> <span class="ident">car_free</span>: <span class="ident">bool</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">Cell</span> {
+    <span class="doccomment">/// A cell is disconnected if it&#39;s not connected to a perimeter road. (The exception is cells</span>
+    <span class="doccomment">/// containing roads that by their OSM classification already ban cars.)</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_disconnected</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">borders</span>.<span class="ident">is_empty</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">car_free</span>
+    }
 }
 
 <span class="doccomment">/// An interval along a road&#39;s length, with start &lt; end.</span>
