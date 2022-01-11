@@ -13,6 +13,7 @@ use crate::app::App;
 pub use browse::BrowseNeighborhoods;
 pub use partition::Partitioning;
 
+mod auto;
 mod browse;
 mod connectivity;
 mod draw_cells;
@@ -92,6 +93,14 @@ pub struct Cell {
     pub borders: BTreeSet<IntersectionID>,
     /// This cell only contains roads that ban cars.
     pub car_free: bool,
+}
+
+impl Cell {
+    /// A cell is disconnected if it's not connected to a perimeter road. (The exception is cells
+    /// containing roads that by their OSM classification already ban cars.)
+    pub fn is_disconnected(&self) -> bool {
+        self.borders.is_empty() && !self.car_free
+    }
 }
 
 /// An interval along a road's length, with start < end.

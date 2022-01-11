@@ -36,6 +36,12 @@ impl Viewer {
                         Toggle::choice(ctx, "draw cells", "areas", "streets", Key::D, true),
                     ]),
                     Text::new().into_widget(ctx).named("warnings"),
+                    ctx.style()
+                        .btn_outline
+                        .text("Automatically stop rat-runs")
+                        .hotkey(Key::A)
+                        .tooltip("Warning: uses experimental heuristics to place filters")
+                        .build_def(ctx),
                 ]),
             )
             .build(ctx);
@@ -60,7 +66,7 @@ impl Viewer {
             .neighborhood
             .cells
             .iter()
-            .filter(|c| c.borders.is_empty() && !c.car_free)
+            .filter(|c| c.is_disconnected())
             .count();
         // TODO Also add a red outline to them or something
         let warning = if disconnected_cells == 0 {
@@ -77,6 +83,16 @@ impl State<App> for Viewer {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => {
+                if x == "Automatically stop rat-runs" {
+                    ctx.loading_screen("automatically filter a neighborhood", |ctx, timer| {
+                        crate::ltn::auto::greedy_heuristic(ctx, app, &self.neighborhood, timer);
+                    });
+                    self.neighborhood =
+                        Neighborhood::new(ctx, app, self.neighborhood.orig_perimeter.clone());
+                    self.neighborhood_changed(ctx, app);
+                    return Transition::Keep;
+                }
+
                 return Tab::Connectivity
                     .handle_action::<Viewer>(ctx, app, x.as_ref())
                     .unwrap();
