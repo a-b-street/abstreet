@@ -512,6 +512,26 @@
 <span id="512">512</span>
 <span id="513">513</span>
 <span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">maplit::btreeset</span>;
@@ -577,6 +597,72 @@
             <span class="kw">return</span> <span class="ident">filter</span>.<span class="ident">allows_turn</span>(<span class="ident">t</span>.<span class="ident">src</span>.<span class="ident">road</span>, <span class="ident">t</span>.<span class="ident">dst</span>.<span class="ident">road</span>);
         }
         <span class="bool-val">true</span>
+    }
+
+    <span class="doccomment">/// Draw all modal filters. If `only_neighborhood` is specified, only draw filters belonging to</span>
+    <span class="doccomment">/// one area.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
+        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
+        <span class="ident">only_neighborhood</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Neighborhood</span><span class="op">&gt;</span>,
+    ) -&gt; <span class="ident">ToggleZoomed</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">ToggleZoomed::builder</span>();
+        <span class="kw">for</span> (<span class="ident">r</span>, <span class="ident">dist</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">roads</span> {
+            <span class="kw">if</span> <span class="ident">only_neighborhood</span>
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">n</span><span class="op">|</span> <span class="op">!</span><span class="ident">n</span>.<span class="ident">orig_perimeter</span>.<span class="ident">interior</span>.<span class="ident">contains</span>(<span class="ident">r</span>))
+                .<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>)
+            {
+                <span class="kw">continue</span>;
+            }
+
+            <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>((<span class="ident">pt</span>, <span class="ident">angle</span>)) <span class="op">=</span> <span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">dist_along</span>(<span class="kw-2">*</span><span class="ident">dist</span>) {
+                <span class="kw">let</span> <span class="ident">road_width</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">get_width</span>();
+
+                <span class="ident">batch</span>
+                    .<span class="ident">unzoomed</span>
+                    .<span class="ident">push</span>(<span class="ident">Color::RED</span>, <span class="ident">Circle::new</span>(<span class="ident">pt</span>, <span class="ident">road_width</span>).<span class="ident">to_polygon</span>());
+                <span class="ident">batch</span>.<span class="ident">unzoomed</span>.<span class="ident">push</span>(
+                    <span class="ident">Color::WHITE</span>,
+                    <span class="ident">Line::must_new</span>(
+                        <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="number">0.8</span> <span class="op">*</span> <span class="ident">road_width</span>, <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="number">90.0</span>)),
+                        <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="number">0.8</span> <span class="op">*</span> <span class="ident">road_width</span>, <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="op">-</span><span class="number">90.0</span>)),
+                    )
+                    .<span class="ident">make_polygons</span>(<span class="ident">Distance::meters</span>(<span class="number">7.0</span>)),
+                );
+
+                <span class="comment">// TODO Only cover the driving/parking lanes (and center appropriately)</span>
+                <span class="ident">draw_zoomed_planters</span>(
+                    <span class="ident">ctx</span>,
+                    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">batch</span>.<span class="ident">zoomed</span>,
+                    <span class="ident">Line::must_new</span>(
+                        <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="number">0.3</span> <span class="op">*</span> <span class="ident">road_width</span>, <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="number">90.0</span>)),
+                        <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="number">0.3</span> <span class="op">*</span> <span class="ident">road_width</span>, <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="op">-</span><span class="number">90.0</span>)),
+                    ),
+                );
+            }
+        }
+        <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">filter</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">intersections</span> {
+            <span class="kw">if</span> <span class="ident">only_neighborhood</span>
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">n</span><span class="op">|</span> <span class="op">!</span><span class="ident">n</span>.<span class="ident">interior_intersections</span>.<span class="ident">contains</span>(<span class="ident">i</span>))
+                .<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>)
+            {
+                <span class="kw">continue</span>;
+            }
+
+            <span class="kw">let</span> <span class="ident">line</span> <span class="op">=</span> <span class="ident">filter</span>.<span class="ident">geometry</span>(<span class="ident">map</span>);
+            <span class="ident">batch</span>
+                .<span class="ident">unzoomed</span>
+                .<span class="ident">push</span>(<span class="ident">Color::RED</span>, <span class="ident">line</span>.<span class="ident">make_polygons</span>(<span class="ident">Distance::meters</span>(<span class="number">3.0</span>)));
+
+            <span class="ident">draw_zoomed_planters</span>(
+                <span class="ident">ctx</span>,
+                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">batch</span>.<span class="ident">zoomed</span>,
+                <span class="ident">line</span>.<span class="ident">percent_slice</span>(<span class="number">0.3</span>, <span class="number">0.7</span>).<span class="ident">unwrap_or</span>(<span class="ident">line</span>),
+            );
+        }
+        <span class="ident">batch</span>.<span class="ident">build</span>(<span class="ident">ctx</span>)
     }
 }
 
@@ -686,52 +772,7 @@
             <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>,
         );
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">ToggleZoomed::builder</span>();
-        <span class="kw">for</span> (<span class="ident">r</span>, <span class="ident">dist</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">roads</span> {
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">n</span>.<span class="ident">orig_perimeter</span>.<span class="ident">interior</span>.<span class="ident">contains</span>(<span class="ident">r</span>) {
-                <span class="kw">continue</span>;
-            }
-
-            <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>((<span class="ident">pt</span>, <span class="ident">angle</span>)) <span class="op">=</span> <span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">dist_along</span>(<span class="kw-2">*</span><span class="ident">dist</span>) {
-                <span class="kw">let</span> <span class="ident">road_width</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">get_width</span>();
-
-                <span class="ident">batch</span>
-                    .<span class="ident">unzoomed</span>
-                    .<span class="ident">push</span>(<span class="ident">Color::RED</span>, <span class="ident">Circle::new</span>(<span class="ident">pt</span>, <span class="ident">road_width</span>).<span class="ident">to_polygon</span>());
-                <span class="ident">batch</span>.<span class="ident">unzoomed</span>.<span class="ident">push</span>(
-                    <span class="ident">Color::WHITE</span>,
-                    <span class="ident">Line::must_new</span>(
-                        <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="number">0.8</span> <span class="op">*</span> <span class="ident">road_width</span>, <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="number">90.0</span>)),
-                        <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="number">0.8</span> <span class="op">*</span> <span class="ident">road_width</span>, <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="op">-</span><span class="number">90.0</span>)),
-                    )
-                    .<span class="ident">make_polygons</span>(<span class="ident">Distance::meters</span>(<span class="number">7.0</span>)),
-                );
-
-                <span class="comment">// TODO Only cover the driving/parking lanes (and center appropriately)</span>
-                <span class="ident">draw_zoomed_planters</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">batch</span>.<span class="ident">zoomed</span>,
-                    <span class="ident">Line::must_new</span>(
-                        <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="number">0.3</span> <span class="op">*</span> <span class="ident">road_width</span>, <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="number">90.0</span>)),
-                        <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="number">0.3</span> <span class="op">*</span> <span class="ident">road_width</span>, <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="op">-</span><span class="number">90.0</span>)),
-                    ),
-                );
-            }
-        }
-        <span class="kw">for</span> <span class="ident">filter</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">intersections</span>.<span class="ident">values</span>() {
-            <span class="kw">let</span> <span class="ident">line</span> <span class="op">=</span> <span class="ident">filter</span>.<span class="ident">geometry</span>(<span class="ident">app</span>);
-            <span class="ident">batch</span>
-                .<span class="ident">unzoomed</span>
-                .<span class="ident">push</span>(<span class="ident">Color::RED</span>, <span class="ident">line</span>.<span class="ident">make_polygons</span>(<span class="ident">Distance::meters</span>(<span class="number">3.0</span>)));
-
-            <span class="ident">draw_zoomed_planters</span>(
-                <span class="ident">ctx</span>,
-                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">batch</span>.<span class="ident">zoomed</span>,
-                <span class="ident">line</span>.<span class="ident">percent_slice</span>(<span class="number">0.3</span>, <span class="number">0.7</span>).<span class="ident">unwrap_or</span>(<span class="ident">line</span>),
-            );
-        }
-        <span class="ident">n</span>.<span class="ident">draw_filters</span> <span class="op">=</span> <span class="ident">batch</span>.<span class="ident">build</span>(<span class="ident">ctx</span>);
+        <span class="ident">n</span>.<span class="ident">draw_filters</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>, <span class="ident">map</span>, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">n</span>));
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">label_roads</span> <span class="op">=</span> <span class="ident">n</span>.<span class="ident">perimeter</span>.<span class="ident">clone</span>();
         <span class="ident">label_roads</span>.<span class="ident">extend</span>(<span class="ident">n</span>.<span class="ident">orig_perimeter</span>.<span class="ident">interior</span>.<span class="ident">clone</span>());
@@ -989,8 +1030,7 @@
     }
 
     <span class="doccomment">/// Physically where is the filter placed?</span>
-    <span class="kw">fn</span> <span class="ident">geometry</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Line</span> {
-        <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
+    <span class="kw">fn</span> <span class="ident">geometry</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">Line</span> {
         <span class="kw">let</span> <span class="ident">r1</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">r1</span>);
         <span class="kw">let</span> <span class="ident">r2</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">r2</span>);
 
