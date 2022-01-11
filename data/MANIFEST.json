@@ -1040,6 +1040,11 @@
       "uncompressed_size_bytes": 92242713,
       "compressed_size_bytes": 92217564
     },
+    "data/input/gb/london/osm/hackney.osm": {
+      "checksum": "944a2d10c6fe6e45d34d8f1ee598d3d8",
+      "uncompressed_size_bytes": 69290534,
+      "compressed_size_bytes": 7697161
+    },
     "data/input/gb/london/osm/kennington.osm": {
       "checksum": "60e61ad6d93c87c24aca866ad418ca35",
       "uncompressed_size_bytes": 7997541,
@@ -1074,6 +1079,11 @@
       "checksum": "1c34426a00f12b1dfa65bee3e86f8aca",
       "uncompressed_size_bytes": 32471235,
       "compressed_size_bytes": 6672713
+    },
+    "data/input/gb/london/raw_maps/hackney.bin": {
+      "checksum": "f43b752d160d4e9769d31d832cd97846",
+      "uncompressed_size_bytes": 18906781,
+      "compressed_size_bytes": 3823498
     },
     "data/input/gb/london/raw_maps/kennington.bin": {
       "checksum": "545b069917fd64074b04e81ab7f6f3f9",
@@ -3560,6 +3570,11 @@
       "uncompressed_size_bytes": 65833922,
       "compressed_size_bytes": 24952050
     },
+    "data/system/gb/london/maps/hackney.bin": {
+      "checksum": "e3bb3772af26d95152eb593f4efa2bc3",
+      "uncompressed_size_bytes": 48279032,
+      "compressed_size_bytes": 18232520
+    },
     "data/system/gb/london/maps/kennington.bin": {
       "checksum": "59e52651738f77b7829fa5ec9dbe7f7d",
       "uncompressed_size_bytes": 4592058,
@@ -3594,6 +3609,11 @@
       "checksum": "9aa15e1189e4d901e7ff7aa045757c5f",
       "uncompressed_size_bytes": 10208891,
       "compressed_size_bytes": 2707246
+    },
+    "data/system/gb/london/scenarios/hackney/background.bin": {
+      "checksum": "792ca2fcf5fb661eb6825583b414b447",
+      "uncompressed_size_bytes": 5519859,
+      "compressed_size_bytes": 1432520
     },
     "data/system/gb/london/scenarios/kennington/background.bin": {
       "checksum": "bdd77a3265489630fe8e931e7ebb89f6",

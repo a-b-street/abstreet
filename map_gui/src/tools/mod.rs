@@ -170,6 +170,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("london", "a5") => "London A5 (Hyde Park to Edgware)",
             ("london", "bermondsey") => "Bermondsey",
             ("london", "camden") => "Camden",
+            ("london", "hackney") => "Hackney",
             ("london", "kennington") => "Kennington (London)",
             ("london", "kingston_upon_thames") => "Kingston upon Thames",
             ("london", "southbank") => "Southbank",
