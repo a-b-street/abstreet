@@ -1,10 +1,12 @@
+use std::collections::HashSet;
+
 use abstutil::Timer;
 use geom::Distance;
 use map_gui::tools::{CityPicker, DrawRoadLabels, Navigator, URLManager};
 use widgetry::mapspace::{ToggleZoomed, World, WorldOutcome};
 use widgetry::{
     lctrl, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, State, TextExt,
-    VerticalAlignment, Widget,
+    Toggle, VerticalAlignment, Widget,
 };
 
 use super::Neighborhood;
@@ -17,6 +19,7 @@ pub struct BrowseNeighborhoods {
     world: World<NeighborhoodID>,
     labels: DrawRoadLabels,
     draw_all_filters: ToggleZoomed,
+    draw_boundary_roads: ToggleZoomed,
 }
 
 impl BrowseNeighborhoods {
@@ -39,6 +42,7 @@ impl BrowseNeighborhoods {
                     .build_widget(ctx, "search")
                     .align_right(),
             ]),
+            Toggle::checkbox(ctx, "highlight boundary roads", Key::H, true),
         ]))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
         .build(ctx);
@@ -47,6 +51,7 @@ impl BrowseNeighborhoods {
             world,
             labels: DrawRoadLabels::only_major_roads(),
             draw_all_filters,
+            draw_boundary_roads: draw_boundary_roads(ctx, app),
         })
     }
 }
@@ -103,6 +108,9 @@ impl State<App> for BrowseNeighborhoods {
         self.panel.draw(g);
         self.world.draw(g);
         self.draw_all_filters.draw(g);
+        if self.panel.is_checked("highlight boundary roads") {
+            self.draw_boundary_roads.draw(g);
+        }
         if g.canvas.is_unzoomed() {
             self.labels.draw(g, app);
         }
@@ -130,4 +138,42 @@ fn detect_neighborhoods(
             .build(ctx);
     }
     world
+}
+
+fn draw_boundary_roads(ctx: &EventCtx, app: &App) -> ToggleZoomed {
+    let mut seen_roads = HashSet::new();
+    let mut seen_borders = HashSet::new();
+    let mut batch = ToggleZoomed::builder();
+    for (block, _) in app.session.partitioning.neighborhoods.values() {
+        for id in &block.perimeter.roads {
+            let r = id.road;
+            if seen_roads.contains(&r) {
+                continue;
+            }
+            seen_roads.insert(r);
+            let road = app.primary.map.get_r(r);
+            batch
+                .unzoomed
+                .push(Color::RED.alpha(0.8), road.get_thick_polygon());
+            batch
+                .zoomed
+                .push(Color::RED.alpha(0.5), road.get_thick_polygon());
+
+            for i in [road.src_i, road.dst_i] {
+                if seen_borders.contains(&i) {
+                    continue;
+                }
+                seen_borders.insert(i);
+                batch.unzoomed.push(
+                    Color::RED.alpha(0.8),
+                    app.primary.map.get_i(i).polygon.clone(),
+                );
+                batch.zoomed.push(
+                    Color::RED.alpha(0.5),
+                    app.primary.map.get_i(i).polygon.clone(),
+                );
+            }
+        }
+    }
+    batch.build(ctx)
 }
