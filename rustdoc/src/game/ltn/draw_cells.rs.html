@@ -185,6 +185,8 @@
 <span id="185">185</span>
 <span id="186">186</span>
 <span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
@@ -194,14 +196,16 @@
 
 <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::Neighborhood</span>;
 
-<span class="kw">const</span> <span class="ident">COLORS</span>: [<span class="ident">Color</span>; <span class="number">6</span>] <span class="op">=</span> [
-    <span class="ident">Color::BLUE</span>,
-    <span class="ident">Color::YELLOW</span>,
-    <span class="ident">Color::RED</span>,
-    <span class="ident">Color::PURPLE</span>,
-    <span class="ident">Color::PINK</span>,
-    <span class="ident">Color::ORANGE</span>,
-];
+<span class="macro">lazy_static::lazy_static!</span> {
+    <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">COLORS</span>: [<span class="ident">Color</span>; <span class="number">6</span>] <span class="op">=</span> [
+        <span class="ident">Color::BLUE</span>,
+        <span class="ident">Color::YELLOW</span>,
+        <span class="ident">Color::hex</span>(<span class="string">&quot;#3CAEA3&quot;</span>),
+        <span class="ident">Color::PURPLE</span>,
+        <span class="ident">Color::PINK</span>,
+        <span class="ident">Color::ORANGE</span>,
+    ];
+}
 <span class="kw">const</span> <span class="ident">CAR_FREE_COLOR</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::GREEN</span>;
 
 <span class="doccomment">/// Partition a neighborhood&#39;s boundary polygon based on the cells. Currently this discretizes</span>
