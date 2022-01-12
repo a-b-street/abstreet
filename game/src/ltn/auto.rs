@@ -58,7 +58,7 @@ impl Heuristic {
         match self {
             Heuristic::Greedy => greedy(ctx, app, neighborhood, timer),
             Heuristic::BruteForce => brute_force(ctx, app, neighborhood, timer),
-            Heuristic::OnlyOneBorder => only_one_border(app),
+            Heuristic::OnlyOneBorder => only_one_border(app, neighborhood),
         }
     }
 }

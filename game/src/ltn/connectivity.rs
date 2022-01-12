@@ -107,7 +107,7 @@ impl State<App> for Viewer {
                     .unwrap();
             }
             Outcome::Changed(x) => {
-                if x == "draw cells" {
+                if x == "streets" || x == "areas" {
                     self.world = make_world(
                         ctx,
                         app,
