@@ -319,6 +319,16 @@
 <span id="319">319</span>
 <span id="320">320</span>
 <span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">geom::Distance</span>;
@@ -331,13 +341,13 @@
 };
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ltn::partition::NeighborhoodID</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ltn::Neighborhood</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ltn::NeighborhoodID</span>;
 
 <span class="kw">const</span> <span class="ident">SELECTED</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::CYAN</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SelectBoundary</span> {
     <span class="ident">panel</span>: <span class="ident">Panel</span>,
+    <span class="ident">id</span>: <span class="ident">NeighborhoodID</span>,
     <span class="comment">// These are always single, unmerged blocks. Thus, these blocks never change -- only their</span>
     <span class="comment">// color and assignment to a neighborhood.</span>
     <span class="ident">blocks</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">BlockID</span>, <span class="ident">Block</span><span class="op">&gt;</span>,
@@ -353,14 +363,15 @@
 <span class="kw">impl</span> <span class="ident">ObjectID</span> <span class="kw">for</span> <span class="ident">BlockID</span> {}
 
 <span class="kw">impl</span> <span class="ident">SelectBoundary</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-        <span class="comment">// TODO Take NeighborhoodID?</span>
-        <span class="ident">initial_boundary</span>: <span class="ident">Perimeter</span>,
-    ) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">NeighborhoodID</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">initial_boundary</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">neighborhoods</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>]
+            .<span class="number">0</span>
+            .<span class="ident">perimeter</span>
+            .<span class="ident">clone</span>();
+
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">SelectBoundary</span> {
             <span class="ident">panel</span>: <span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+            <span class="ident">id</span>,
             <span class="ident">blocks</span>: <span class="ident">BTreeMap::new</span>(),
             <span class="ident">world</span>: <span class="ident">World::bounded</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>()),
             <span class="ident">selected</span>: <span class="ident">BTreeSet::new</span>(),
@@ -525,12 +536,21 @@
                 <span class="string">&quot;Confirm&quot;</span> =&gt; {
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">perimeters</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">merge_selected</span>();
                     <span class="macro">assert_eq!</span>(<span class="ident">perimeters</span>.<span class="ident">len</span>(), <span class="number">1</span>);
-                    <span class="comment">// TODO Persist the partitioning</span>
-                    <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident"><span class="kw">super</span>::connectivity::Viewer::new_state</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">app</span>,
-                        <span class="ident">Neighborhood::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">perimeters</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>()),
-                    ));
+                    <span class="comment">// Persist the partitioning</span>
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">block</span>) <span class="op">=</span> <span class="ident">perimeters</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>().<span class="ident">to_block</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>) {
+                        <span class="comment">// TODO May need to recalculate colors!</span>
+                        <span class="ident">app</span>.<span class="ident">session</span>
+                            .<span class="ident">partitioning</span>
+                            .<span class="ident">neighborhoods</span>
+                            .<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">id</span>)
+                            .<span class="ident">unwrap</span>()
+                            .<span class="number">0</span> <span class="op">=</span> <span class="ident">block</span>;
+                        <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident"><span class="kw">super</span>::connectivity::Viewer::new_state</span>(
+                            <span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">id</span>,
+                        ));
+                    } <span class="kw">else</span> {
+                        <span class="comment">// TODO Is it possible we wound up with a broken block?</span>
+                    }
                 }
                 <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
             }
