@@ -55,11 +55,15 @@ impl Heuristic {
 
         // TODO If we already have no rat-runs, stop
 
+        app.session.modal_filters.before_edit();
+
         match self {
             Heuristic::Greedy => greedy(ctx, app, neighborhood, timer),
             Heuristic::BruteForce => brute_force(ctx, app, neighborhood, timer),
             Heuristic::OnlyOneBorder => only_one_border(app, neighborhood),
         }
+
+        app.session.modal_filters.cancel_empty_edit();
     }
 }
 

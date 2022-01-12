@@ -34,6 +34,9 @@ impl BrowseRatRuns {
         app: &App,
         neighborhood: Neighborhood,
     ) -> Box<dyn State<App>> {
+        // TODO To handle undo. Going to switch to taking a NeighborhoodID instead!
+        let neighborhood = Neighborhood::new(ctx, app, neighborhood.orig_perimeter);
+
         let rat_runs = ctx.loading_screen("find rat runs", |_, timer| {
             find_rat_runs(
                 &app.primary.map,
@@ -158,7 +161,7 @@ impl State<App> for BrowseRatRuns {
                     self.recalculate(ctx, app);
                 }
                 x => {
-                    return Tab::Connectivity
+                    return Tab::RatRuns
                         .handle_action::<BrowseRatRuns>(ctx, app, x)
                         .unwrap();
                 }

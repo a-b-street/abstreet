@@ -25,6 +25,9 @@ impl Viewer {
         app: &App,
         neighborhood: Neighborhood,
     ) -> Box<dyn State<App>> {
+        // TODO To handle undo. Going to switch to taking a NeighborhoodID instead!
+        let neighborhood = Neighborhood::new(ctx, app, neighborhood.orig_perimeter);
+
         let mut viewer = Viewer {
             panel: Panel::empty(ctx),
             neighborhood,

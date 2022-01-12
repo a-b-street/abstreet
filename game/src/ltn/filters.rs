@@ -8,12 +8,15 @@ use widgetry::{Color, EventCtx, GeomBatch};
 use super::Neighborhood;
 use crate::app::App;
 
-/// Stored in App session state
-#[derive(Default)]
+/// Stored in App session state. Before making any changes, call `before_edit`.
+#[derive(Clone, Default)]
 pub struct ModalFilters {
     /// For filters placed along a road, where is the filter located?
     pub roads: BTreeMap<RoadID, Distance>,
     pub intersections: BTreeMap<IntersectionID, DiagonalFilter>,
+
+    /// Edit history is preserved recursively
+    pub previous_version: Box<Option<ModalFilters>>,
 }
 
 /// A diagonal filter exists in an intersection. It's defined by two roads (the order is
@@ -34,6 +37,25 @@ pub struct DiagonalFilter {
 }
 
 impl ModalFilters {
+    /// Call before making any changes to preserve edit history
+    pub fn before_edit(&mut self) {
+        let copy = self.clone();
+        self.previous_version = Box::new(Some(copy));
+    }
+
+    /// If it's possible no edits were made, undo the previous call to `before_edit` and collapse
+    /// the redundant piece of history.
+    pub fn cancel_empty_edit(&mut self) {
+        if let Some(prev) = self.previous_version.take() {
+            if self.roads == prev.roads && self.intersections == prev.intersections {
+                self.previous_version = prev.previous_version;
+            } else {
+                // There was a real difference, keep
+                self.previous_version = Box::new(Some(prev));
+            }
+        }
+    }
+
     /// Modify RoutingParams to respect these modal filters
     pub fn update_routing_params(&self, params: &mut RoutingParams) {
         params.avoid_roads.extend(self.roads.keys().cloned());

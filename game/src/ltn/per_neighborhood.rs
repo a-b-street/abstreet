@@ -62,15 +62,9 @@ impl Tab {
                     ctx.style()
                         .btn_plain
                         .icon("system/assets/tools/undo.svg")
-                        .disabled(true)
+                        .disabled(app.session.modal_filters.previous_version.is_none())
                         .hotkey(lctrl(Key::Z))
                         .build_widget(ctx, "undo"),
-                    ctx.style()
-                        .btn_plain
-                        .icon("system/assets/tools/redo.svg")
-                        .disabled(true)
-                        .hotkey(lctrl(Key::Y))
-                        .build_widget(ctx, "redo"),
                 ]),
             ])
             .section(ctx),
@@ -107,34 +101,32 @@ impl Tab {
                     state.take_neighborhood().orig_perimeter,
                 )]
             })),
-            "Connectivity" => Transition::ConsumeState(Box::new(|state, ctx, app| {
-                let state = state.downcast::<T>().ok().unwrap();
-                vec![super::connectivity::Viewer::new_state(
-                    ctx,
-                    app,
-                    state.take_neighborhood(),
-                )]
-            })),
-            "Rat runs" => Transition::ConsumeState(Box::new(|state, ctx, app| {
-                let state = state.downcast::<T>().ok().unwrap();
-                vec![super::rat_run_viewer::BrowseRatRuns::new_state(
-                    ctx,
-                    app,
-                    state.take_neighborhood(),
-                )]
-            })),
-            "Pathfinding" => Transition::ConsumeState(Box::new(|state, ctx, app| {
-                let state = state.downcast::<T>().ok().unwrap();
-                vec![super::pathfinding::RoutePlanner::new_state(
-                    ctx,
-                    app,
-                    state.take_neighborhood(),
-                )]
-            })),
+            "Connectivity" => Tab::Connectivity.switch_to_state::<T>(),
+            "Rat runs" => Tab::RatRuns.switch_to_state::<T>(),
+            "Pathfinding" => Tab::Pathfinding.switch_to_state::<T>(),
+            "undo" => {
+                let prev = app.session.modal_filters.previous_version.take().unwrap();
+                app.session.modal_filters = prev;
+                // Recreate the current state. This will reset any panel state (checkboxes and
+                // dropdowns)
+                self.switch_to_state::<T>()
+            }
             _ => {
                 return None;
             }
         })
+    }
+
+    fn switch_to_state<T: TakeNeighborhood + State<App>>(self) -> Transition {
+        Transition::ConsumeState(Box::new(move |state, ctx, app| {
+            let state = state.downcast::<T>().ok().unwrap();
+            let n = state.take_neighborhood();
+            vec![match self {
+                Tab::Connectivity => super::connectivity::Viewer::new_state(ctx, app, n),
+                Tab::RatRuns => super::rat_run_viewer::BrowseRatRuns::new_state(ctx, app, n),
+                Tab::Pathfinding => super::pathfinding::RoutePlanner::new_state(ctx, app, n),
+            }]
+        }))
     }
 
     fn make_buttons(self, ctx: &mut EventCtx) -> Widget {
@@ -223,6 +215,7 @@ pub fn handle_world_outcome(
                 return true;
             }
 
+            app.session.modal_filters.before_edit();
             if app.session.modal_filters.roads.remove(&r).is_none() {
                 // Place the filter on the part of the road that was clicked
                 // These calls shouldn't fail -- since we clicked a road, the cursor must be in
@@ -244,6 +237,7 @@ pub fn handle_world_outcome(
             }
 
             // Toggle through all possible filters
+            app.session.modal_filters.before_edit();
             let mut all = DiagonalFilter::filters_for(app, i);
             if let Some(current) = app.session.modal_filters.intersections.get(&i) {
                 let idx = all.iter().position(|x| x == current).unwrap();

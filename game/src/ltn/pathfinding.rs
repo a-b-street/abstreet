@@ -39,6 +39,9 @@ impl RoutePlanner {
         app: &mut App,
         neighborhood: Neighborhood,
     ) -> Box<dyn State<App>> {
+        // TODO To handle undo. Going to switch to taking a NeighborhoodID instead!
+        let neighborhood = Neighborhood::new(ctx, app, neighborhood.orig_perimeter);
+
         let mut rp = RoutePlanner {
             panel: Panel::empty(ctx),
             waypoints: InputWaypoints::new(app),
