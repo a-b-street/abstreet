@@ -139,6 +139,38 @@
 <span id="139">139</span>
 <span id="140">140</span>
 <span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Experiments to make a neighborhood be low-traffic by automatically placing filters to prevent all rat runs.</span>
 
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
@@ -160,6 +192,9 @@
     <span class="doccomment">/// Try adding one filter to every possible road, counting the rat-runs after. Choose the next</span>
     <span class="doccomment">/// step by the least resulting rat runs.</span>
     <span class="ident">BruteForce</span>,
+    <span class="doccomment">/// Per cell, close all borders except for one. This doesn&#39;t affect connectivity, but prevents</span>
+    <span class="doccomment">/// all rat-runs.</span>
+    <span class="ident">OnlyOneBorder</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Heuristic</span> {
@@ -167,6 +202,7 @@
         <span class="macro">vec!</span>[
             <span class="ident">Choice::new</span>(<span class="string">&quot;greedy&quot;</span>, <span class="ident">Heuristic::Greedy</span>),
             <span class="ident">Choice::new</span>(<span class="string">&quot;brute-force&quot;</span>, <span class="ident">Heuristic::BruteForce</span>),
+            <span class="ident">Choice::new</span>(<span class="string">&quot;only one border&quot;</span>, <span class="ident">Heuristic::OnlyOneBorder</span>),
         ]
     }
 
@@ -195,6 +231,7 @@
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident">Heuristic::Greedy</span> =&gt; <span class="ident">greedy</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">neighborhood</span>, <span class="ident">timer</span>),
             <span class="ident">Heuristic::BruteForce</span> =&gt; <span class="ident">brute_force</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">neighborhood</span>, <span class="ident">timer</span>),
+            <span class="ident">Heuristic::OnlyOneBorder</span> =&gt; <span class="ident">only_one_border</span>(<span class="ident">app</span>),
         }
     }
 }
@@ -255,6 +292,33 @@
 
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">r</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">best</span> {
         <span class="ident">try_to_filter_road</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">neighborhood</span>, <span class="ident">r</span>).<span class="ident">unwrap</span>();
+    }
+}
+
+<span class="kw">fn</span> <span class="ident">only_one_border</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">neighborhood</span>: <span class="kw-2">&amp;</span><span class="ident">Neighborhood</span>) {
+    <span class="kw">for</span> <span class="ident">cell</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">neighborhood</span>.<span class="ident">cells</span> {
+        <span class="kw">if</span> <span class="ident">cell</span>.<span class="ident">borders</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">1</span> {
+            <span class="comment">// TODO How to pick which one to leave open?</span>
+            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">cell</span>.<span class="ident">borders</span>.<span class="ident">iter</span>().<span class="ident">skip</span>(<span class="number">1</span>) {
+                <span class="comment">// Find the road in this cell connected to this border</span>
+                <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">cell</span>.<span class="ident">roads</span>.<span class="ident">keys</span>() {
+                    <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
+                    <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">src_i</span> <span class="op">==</span> <span class="kw-2">*</span><span class="ident">i</span> {
+                        <span class="ident">app</span>.<span class="ident">session</span>
+                            .<span class="ident">modal_filters</span>
+                            .<span class="ident">roads</span>
+                            .<span class="ident">insert</span>(<span class="ident">road</span>.<span class="ident">id</span>, <span class="number">0.1</span> <span class="op">*</span> <span class="ident">road</span>.<span class="ident">length</span>());
+                        <span class="kw">break</span>;
+                    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">dst_i</span> <span class="op">==</span> <span class="kw-2">*</span><span class="ident">i</span> {
+                        <span class="ident">app</span>.<span class="ident">session</span>
+                            .<span class="ident">modal_filters</span>
+                            .<span class="ident">roads</span>
+                            .<span class="ident">insert</span>(<span class="ident">road</span>.<span class="ident">id</span>, <span class="number">0.9</span> <span class="op">*</span> <span class="ident">road</span>.<span class="ident">length</span>());
+                        <span class="kw">break</span>;
+                    }
+                }
+            }
+        }
     }
 }
 
