@@ -1,8 +1,6 @@
 use geom::{Angle, ArrowCap, Distance, PolyLine};
 use widgetry::mapspace::World;
-use widgetry::{
-    EventCtx, GeomBatch, GfxCtx, Key, Outcome, Panel, State, Text, TextExt, Toggle, Widget,
-};
+use widgetry::{EventCtx, GeomBatch, GfxCtx, Key, Outcome, Panel, State, TextExt, Toggle, Widget};
 
 use super::auto::Heuristic;
 use super::per_neighborhood::{FilterableObj, Tab, TakeNeighborhood};
@@ -27,55 +25,16 @@ impl Viewer {
         app: &App,
         neighborhood: Neighborhood,
     ) -> Box<dyn State<App>> {
-        let panel = Tab::Connectivity
-            .panel_builder(
-                ctx,
-                app,
-                Widget::col(vec![
-                    Widget::row(vec![
-                        "Draw traffic cells as".text_widget(ctx).centered_vert(),
-                        Toggle::choice(ctx, "draw cells", "areas", "streets", Key::D, true),
-                    ]),
-                    Widget::row(vec![
-                        "Draw entrances/exits as".text_widget(ctx).centered_vert(),
-                        Toggle::choice(ctx, "draw borders", "arrows", "outlines", Key::E, true),
-                    ]),
-                    Text::new().into_widget(ctx).named("warnings"),
-                    Widget::row(vec![
-                        Widget::dropdown(
-                            ctx,
-                            "heuristic",
-                            // TODO Session state
-                            Heuristic::OnlyOneBorder,
-                            Heuristic::choices(),
-                        ),
-                        ctx.style()
-                            .btn_outline
-                            .text("Automatically stop rat-runs")
-                            .hotkey(Key::A)
-                            .build_def(ctx),
-                    ]),
-                ]),
-            )
-            .build(ctx);
-
         let mut viewer = Viewer {
-            panel,
+            panel: Panel::empty(ctx),
             neighborhood,
             world: World::unbounded(),
         };
-        viewer.neighborhood_changed(ctx, app);
+        viewer.update(ctx, app);
         Box::new(viewer)
     }
 
-    fn neighborhood_changed(&mut self, ctx: &mut EventCtx, app: &App) {
-        self.world = make_world(
-            ctx,
-            app,
-            &self.neighborhood,
-            self.panel.is_checked("draw cells"),
-            self.panel.is_checked("draw borders"),
-        );
+    fn update(&mut self, ctx: &mut EventCtx, app: &App) {
         let disconnected_cells = self
             .neighborhood
             .cells
@@ -87,8 +46,55 @@ impl Viewer {
         } else {
             format!("{} cells are totally disconnected", disconnected_cells)
         };
-        self.panel
-            .replace(ctx, "warnings", warning.text_widget(ctx));
+
+        // TODO panel.restore isn't preserving the dropdowns or checkboxes?!
+        let draw_cells = self.panel.maybe_is_checked("draw cells").unwrap_or(true);
+        let draw_borders = self.panel.maybe_is_checked("draw borders").unwrap_or(true);
+        let heuristic = self
+            .panel
+            .maybe_dropdown_value("heuristic")
+            .unwrap_or(Heuristic::OnlyOneBorder);
+
+        self.panel = Tab::Connectivity
+            .panel_builder(
+                ctx,
+                app,
+                Widget::col(vec![
+                    Widget::row(vec![
+                        "Draw traffic cells as".text_widget(ctx).centered_vert(),
+                        Toggle::choice(ctx, "draw cells", "areas", "streets", Key::D, draw_cells),
+                    ]),
+                    Widget::row(vec![
+                        "Draw entrances/exits as".text_widget(ctx).centered_vert(),
+                        Toggle::choice(
+                            ctx,
+                            "draw borders",
+                            "arrows",
+                            "outlines",
+                            Key::E,
+                            draw_borders,
+                        ),
+                    ]),
+                    warning.text_widget(ctx),
+                    Widget::row(vec![
+                        Widget::dropdown(ctx, "heuristic", heuristic, Heuristic::choices()),
+                        ctx.style()
+                            .btn_outline
+                            .text("Automatically stop rat-runs")
+                            .hotkey(Key::A)
+                            .build_def(ctx),
+                    ]),
+                ]),
+            )
+            .build(ctx);
+
+        self.world = make_world(
+            ctx,
+            app,
+            &self.neighborhood,
+            self.panel.is_checked("draw cells"),
+            self.panel.is_checked("draw borders"),
+        );
     }
 }
 
@@ -103,7 +109,7 @@ impl State<App> for Viewer {
                     });
                     self.neighborhood =
                         Neighborhood::new(ctx, app, self.neighborhood.orig_perimeter.clone());
-                    self.neighborhood_changed(ctx, app);
+                    self.update(ctx, app);
                     return Transition::Keep;
                 }
 
@@ -127,11 +133,9 @@ impl State<App> for Viewer {
 
         let world_outcome = self.world.event(ctx);
         if super::per_neighborhood::handle_world_outcome(ctx, app, world_outcome) {
-            // TODO The cell coloring changes quite spuriously just by toggling a filter, even when
-            // it doesn't matter
             self.neighborhood =
                 Neighborhood::new(ctx, app, self.neighborhood.orig_perimeter.clone());
-            self.neighborhood_changed(ctx, app);
+            self.update(ctx, app);
         }
 
         Transition::Keep

@@ -3,7 +3,7 @@ use map_gui::tools::CityPicker;
 use map_model::{IntersectionID, PathConstraints, RoadID};
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::{
-    Color, EventCtx, HorizontalAlignment, Key, Panel, PanelBuilder, State, TextExt,
+    lctrl, Color, EventCtx, HorizontalAlignment, Image, Key, Panel, PanelBuilder, State, TextExt,
     VerticalAlignment, Widget, DEFAULT_CORNER_RADIUS,
 };
 
@@ -44,8 +44,37 @@ impl Tab {
                     .build_def(ctx),
             ]),
             self.make_buttons(ctx),
-            "Click a road or intersection to add or remove a modal filter".text_widget(ctx),
-            per_tab_contents.tab_body(ctx),
+            Widget::col(vec![
+                Widget::row(vec![
+                    Image::from_path("system/assets/tools/pencil.svg").into_widget(ctx),
+                    "Click a road or intersection to add or remove a modal filter"
+                        .text_widget(ctx)
+                        .centered_vert(),
+                ]),
+                Widget::row(vec![
+                    format!(
+                        "{} filters added",
+                        app.session.modal_filters.roads.len()
+                            + app.session.modal_filters.intersections.len()
+                    )
+                    .text_widget(ctx)
+                    .centered_vert(),
+                    ctx.style()
+                        .btn_plain
+                        .icon("system/assets/tools/undo.svg")
+                        .disabled(true)
+                        .hotkey(lctrl(Key::Z))
+                        .build_widget(ctx, "undo"),
+                    ctx.style()
+                        .btn_plain
+                        .icon("system/assets/tools/redo.svg")
+                        .disabled(true)
+                        .hotkey(lctrl(Key::Y))
+                        .build_widget(ctx, "redo"),
+                ]),
+            ])
+            .section(ctx),
+            per_tab_contents.section(ctx),
         ]))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
     }
@@ -178,7 +207,8 @@ pub fn populate_world<T: ObjectID, F: Fn(FilterableObj) -> T>(
     }
 }
 
-/// If true, the neighborhood has changed and the caller should recalculate stuff
+/// If true, the neighborhood has changed and the caller should recalculate stuff, including the
+/// panel
 pub fn handle_world_outcome(
     ctx: &mut EventCtx,
     app: &mut App,
