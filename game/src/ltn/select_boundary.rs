@@ -10,13 +10,13 @@ use widgetry::{
 };
 
 use crate::app::{App, Transition};
-use crate::ltn::partition::NeighborhoodID;
-use crate::ltn::Neighborhood;
+use crate::ltn::NeighborhoodID;
 
 const SELECTED: Color = Color::CYAN;
 
 pub struct SelectBoundary {
     panel: Panel,
+    id: NeighborhoodID,
     // These are always single, unmerged blocks. Thus, these blocks never change -- only their
     // color and assignment to a neighborhood.
     blocks: BTreeMap<BlockID, Block>,
@@ -32,14 +32,15 @@ struct BlockID(usize);
 impl ObjectID for BlockID {}
 
 impl SelectBoundary {
-    pub fn new_state(
-        ctx: &mut EventCtx,
-        app: &App,
-        // TODO Take NeighborhoodID?
-        initial_boundary: Perimeter,
-    ) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &App, id: NeighborhoodID) -> Box<dyn State<App>> {
+        let initial_boundary = app.session.partitioning.neighborhoods[&id]
+            .0
+            .perimeter
+            .clone();
+
         let mut state = SelectBoundary {
             panel: make_panel(ctx, app),
+            id,
             blocks: BTreeMap::new(),
             world: World::bounded(app.primary.map.get_bounds()),
             selected: BTreeSet::new(),
@@ -204,12 +205,21 @@ impl State<App> for SelectBoundary {
                 "Confirm" => {
                     let mut perimeters = self.merge_selected();
                     assert_eq!(perimeters.len(), 1);
-                    // TODO Persist the partitioning
-                    return Transition::Replace(super::connectivity::Viewer::new_state(
-                        ctx,
-                        app,
-                        Neighborhood::new(ctx, app, perimeters.pop().unwrap()),
-                    ));
+                    // Persist the partitioning
+                    if let Ok(block) = perimeters.pop().unwrap().to_block(&app.primary.map) {
+                        // TODO May need to recalculate colors!
+                        app.session
+                            .partitioning
+                            .neighborhoods
+                            .get_mut(&self.id)
+                            .unwrap()
+                            .0 = block;
+                        return Transition::Replace(super::connectivity::Viewer::new_state(
+                            ctx, app, self.id,
+                        ));
+                    } else {
+                        // TODO Is it possible we wound up with a broken block?
+                    }
                 }
                 _ => unreachable!(),
             }

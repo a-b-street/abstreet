@@ -6,8 +6,8 @@ use widgetry::{
     Color, EventCtx, GfxCtx, Line, Outcome, Panel, RoundedF64, Spinner, State, Text, Widget,
 };
 
-use super::per_neighborhood::{FilterableObj, Tab, TakeNeighborhood};
-use super::Neighborhood;
+use super::per_neighborhood::{FilterableObj, Tab};
+use super::{Neighborhood, NeighborhoodID};
 use crate::app::{App, Transition};
 use crate::common::{cmp_dist, cmp_duration, InputWaypoints, WaypointID};
 
@@ -20,12 +20,6 @@ pub struct RoutePlanner {
     neighborhood: Neighborhood,
 }
 
-impl TakeNeighborhood for RoutePlanner {
-    fn take_neighborhood(self) -> Neighborhood {
-        self.neighborhood
-    }
-}
-
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 enum Obj {
     Waypoint(WaypointID),
@@ -34,13 +28,8 @@ enum Obj {
 impl ObjectID for Obj {}
 
 impl RoutePlanner {
-    pub fn new_state(
-        ctx: &mut EventCtx,
-        app: &mut App,
-        neighborhood: Neighborhood,
-    ) -> Box<dyn State<App>> {
-        // TODO To handle undo. Going to switch to taking a NeighborhoodID instead!
-        let neighborhood = Neighborhood::new(ctx, app, neighborhood.orig_perimeter);
+    pub fn new_state(ctx: &mut EventCtx, app: &App, id: NeighborhoodID) -> Box<dyn State<App>> {
+        let neighborhood = Neighborhood::new(ctx, app, id);
 
         let mut rp = RoutePlanner {
             panel: Panel::empty(ctx),
@@ -210,9 +199,7 @@ impl State<App> for RoutePlanner {
             _ => None,
         }) {
             if super::per_neighborhood::handle_world_outcome(ctx, app, outcome) {
-                // Recalculate the neighborhood
-                self.neighborhood =
-                    Neighborhood::new(ctx, app, self.neighborhood.orig_perimeter.clone());
+                self.neighborhood = Neighborhood::new(ctx, app, self.neighborhood.id);
                 self.update(ctx, app);
                 return Transition::Keep;
             }
@@ -226,7 +213,7 @@ impl State<App> for RoutePlanner {
 
         let panel_outcome = self.panel.event(ctx);
         if let Outcome::Clicked(ref x) = panel_outcome {
-            if let Some(t) = Tab::Pathfinding.handle_action::<RoutePlanner>(ctx, app, x) {
+            if let Some(t) = Tab::Pathfinding.handle_action(ctx, app, x, self.neighborhood.id) {
                 return t;
             }
         }

@@ -12,7 +12,7 @@ use crate::app::App;
 
 pub use browse::BrowseNeighborhoods;
 pub use filters::{DiagonalFilter, ModalFilters};
-pub use partition::Partitioning;
+pub use partition::{NeighborhoodID, Partitioning};
 
 mod auto;
 mod browse;
@@ -27,6 +27,8 @@ mod rat_runs;
 mod select_boundary;
 
 pub struct Neighborhood {
+    id: NeighborhoodID,
+
     // These're fixed
     orig_perimeter: Perimeter,
     perimeter: BTreeSet<RoadID>,
@@ -69,10 +71,15 @@ pub struct DistanceInterval {
 }
 
 impl Neighborhood {
-    fn new(ctx: &EventCtx, app: &App, orig_perimeter: Perimeter) -> Neighborhood {
+    fn new(ctx: &EventCtx, app: &App, id: NeighborhoodID) -> Neighborhood {
         let map = &app.primary.map;
+        let orig_perimeter = app.session.partitioning.neighborhoods[&id]
+            .0
+            .perimeter
+            .clone();
 
         let mut n = Neighborhood {
+            id,
             orig_perimeter,
             perimeter: BTreeSet::new(),
             borders: BTreeSet::new(),

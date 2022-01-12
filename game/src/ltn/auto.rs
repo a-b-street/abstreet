@@ -167,7 +167,7 @@ fn try_to_filter_road(
         .roads
         .insert(r, road.length() / 2.0);
     // TODO This is expensive; can we just do the connectivity work and not drawing?
-    let new_neighborhood = Neighborhood::new(ctx, app, neighborhood.orig_perimeter.clone());
+    let new_neighborhood = Neighborhood::new(ctx, app, neighborhood.id);
     if new_neighborhood.cells.iter().any(|c| c.is_disconnected()) {
         app.session.modal_filters.roads.remove(&r).unwrap();
         None

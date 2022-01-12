@@ -3,23 +3,18 @@ use map_gui::tools::CityPicker;
 use map_model::{IntersectionID, PathConstraints, RoadID};
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::{
-    lctrl, Color, EventCtx, HorizontalAlignment, Image, Key, Panel, PanelBuilder, State, TextExt,
+    lctrl, Color, EventCtx, HorizontalAlignment, Image, Key, Panel, PanelBuilder, TextExt,
     VerticalAlignment, Widget, DEFAULT_CORNER_RADIUS,
 };
 
-use super::{BrowseNeighborhoods, DiagonalFilter, Neighborhood};
+use super::{BrowseNeighborhoods, DiagonalFilter, Neighborhood, NeighborhoodID, Partitioning};
 use crate::app::{App, Transition};
-use crate::ltn::partition::Partitioning;
 
 #[derive(PartialEq)]
 pub enum Tab {
     Connectivity,
     RatRuns,
     Pathfinding,
-}
-
-pub trait TakeNeighborhood {
-    fn take_neighborhood(self) -> Neighborhood;
 }
 
 impl Tab {
@@ -73,11 +68,12 @@ impl Tab {
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
     }
 
-    pub fn handle_action<T: TakeNeighborhood + State<App>>(
+    pub fn handle_action(
         self,
         ctx: &mut EventCtx,
         app: &mut App,
         action: &str,
+        id: NeighborhoodID,
     ) -> Option<Transition> {
         Some(match action {
             "Home" => Transition::Clear(vec![crate::pregame::TitleScreen::new_state(ctx, app)]),
@@ -93,23 +89,18 @@ impl Tab {
                 // Recalculate the state to redraw any changed filters
                 Transition::Replace(BrowseNeighborhoods::new_state(ctx, app))
             }
-            "Adjust boundary" => Transition::ConsumeState(Box::new(|state, ctx, app| {
-                let state = state.downcast::<T>().ok().unwrap();
-                vec![super::select_boundary::SelectBoundary::new_state(
-                    ctx,
-                    app,
-                    state.take_neighborhood().orig_perimeter,
-                )]
-            })),
-            "Connectivity" => Tab::Connectivity.switch_to_state::<T>(),
-            "Rat runs" => Tab::RatRuns.switch_to_state::<T>(),
-            "Pathfinding" => Tab::Pathfinding.switch_to_state::<T>(),
+            "Adjust boundary" => Transition::Replace(
+                super::select_boundary::SelectBoundary::new_state(ctx, app, id),
+            ),
+            "Connectivity" => Tab::Connectivity.switch_to_state(ctx, app, id),
+            "Rat runs" => Tab::RatRuns.switch_to_state(ctx, app, id),
+            "Pathfinding" => Tab::Pathfinding.switch_to_state(ctx, app, id),
             "undo" => {
                 let prev = app.session.modal_filters.previous_version.take().unwrap();
                 app.session.modal_filters = prev;
                 // Recreate the current state. This will reset any panel state (checkboxes and
                 // dropdowns)
-                self.switch_to_state::<T>()
+                self.switch_to_state(ctx, app, id)
             }
             _ => {
                 return None;
@@ -117,16 +108,12 @@ impl Tab {
         })
     }
 
-    fn switch_to_state<T: TakeNeighborhood + State<App>>(self) -> Transition {
-        Transition::ConsumeState(Box::new(move |state, ctx, app| {
-            let state = state.downcast::<T>().ok().unwrap();
-            let n = state.take_neighborhood();
-            vec![match self {
-                Tab::Connectivity => super::connectivity::Viewer::new_state(ctx, app, n),
-                Tab::RatRuns => super::rat_run_viewer::BrowseRatRuns::new_state(ctx, app, n),
-                Tab::Pathfinding => super::pathfinding::RoutePlanner::new_state(ctx, app, n),
-            }]
-        }))
+    fn switch_to_state(self, ctx: &mut EventCtx, app: &App, id: NeighborhoodID) -> Transition {
+        Transition::Replace(match self {
+            Tab::Connectivity => super::connectivity::Viewer::new_state(ctx, app, id),
+            Tab::RatRuns => super::rat_run_viewer::BrowseRatRuns::new_state(ctx, app, id),
+            Tab::Pathfinding => super::pathfinding::RoutePlanner::new_state(ctx, app, id),
+        })
     }
 
     fn make_buttons(self, ctx: &mut EventCtx) -> Widget {

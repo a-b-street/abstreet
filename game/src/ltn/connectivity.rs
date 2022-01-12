@@ -3,8 +3,8 @@ use widgetry::mapspace::World;
 use widgetry::{EventCtx, GeomBatch, GfxCtx, Key, Outcome, Panel, State, TextExt, Toggle, Widget};
 
 use super::auto::Heuristic;
-use super::per_neighborhood::{FilterableObj, Tab, TakeNeighborhood};
-use super::Neighborhood;
+use super::per_neighborhood::{FilterableObj, Tab};
+use super::{Neighborhood, NeighborhoodID};
 use crate::app::{App, Transition};
 
 pub struct Viewer {
@@ -13,20 +13,9 @@ pub struct Viewer {
     world: World<FilterableObj>,
 }
 
-impl TakeNeighborhood for Viewer {
-    fn take_neighborhood(self) -> Neighborhood {
-        self.neighborhood
-    }
-}
-
 impl Viewer {
-    pub fn new_state(
-        ctx: &mut EventCtx,
-        app: &App,
-        neighborhood: Neighborhood,
-    ) -> Box<dyn State<App>> {
-        // TODO To handle undo. Going to switch to taking a NeighborhoodID instead!
-        let neighborhood = Neighborhood::new(ctx, app, neighborhood.orig_perimeter);
+    pub fn new_state(ctx: &mut EventCtx, app: &App, id: NeighborhoodID) -> Box<dyn State<App>> {
+        let neighborhood = Neighborhood::new(ctx, app, id);
 
         let mut viewer = Viewer {
             panel: Panel::empty(ctx),
@@ -110,14 +99,13 @@ impl State<App> for Viewer {
                         let heuristic: Heuristic = self.panel.dropdown_value("heuristic");
                         heuristic.apply(ctx, app, &self.neighborhood, timer);
                     });
-                    self.neighborhood =
-                        Neighborhood::new(ctx, app, self.neighborhood.orig_perimeter.clone());
+                    self.neighborhood = Neighborhood::new(ctx, app, self.neighborhood.id);
                     self.update(ctx, app);
                     return Transition::Keep;
                 }
 
                 return Tab::Connectivity
-                    .handle_action::<Viewer>(ctx, app, x.as_ref())
+                    .handle_action(ctx, app, x.as_ref(), self.neighborhood.id)
                     .unwrap();
             }
             Outcome::Changed(x) => {
@@ -136,8 +124,7 @@ impl State<App> for Viewer {
 
         let world_outcome = self.world.event(ctx);
         if super::per_neighborhood::handle_world_outcome(ctx, app, world_outcome) {
-            self.neighborhood =
-                Neighborhood::new(ctx, app, self.neighborhood.orig_perimeter.clone());
+            self.neighborhood = Neighborhood::new(ctx, app, self.neighborhood.id);
             self.update(ctx, app);
         }
 

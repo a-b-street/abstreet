@@ -6,9 +6,9 @@ use widgetry::{
     Color, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text, TextExt, Toggle, Widget,
 };
 
-use super::per_neighborhood::{FilterableObj, Tab, TakeNeighborhood};
+use super::per_neighborhood::{FilterableObj, Tab};
 use super::rat_runs::{find_rat_runs, RatRuns};
-use super::Neighborhood;
+use super::{Neighborhood, NeighborhoodID};
 use crate::app::{App, Transition};
 
 pub struct BrowseRatRuns {
@@ -22,20 +22,9 @@ pub struct BrowseRatRuns {
     neighborhood: Neighborhood,
 }
 
-impl TakeNeighborhood for BrowseRatRuns {
-    fn take_neighborhood(self) -> Neighborhood {
-        self.neighborhood
-    }
-}
-
 impl BrowseRatRuns {
-    pub fn new_state(
-        ctx: &mut EventCtx,
-        app: &App,
-        neighborhood: Neighborhood,
-    ) -> Box<dyn State<App>> {
-        // TODO To handle undo. Going to switch to taking a NeighborhoodID instead!
-        let neighborhood = Neighborhood::new(ctx, app, neighborhood.orig_perimeter);
+    pub fn new_state(ctx: &mut EventCtx, app: &App, id: NeighborhoodID) -> Box<dyn State<App>> {
+        let neighborhood = Neighborhood::new(ctx, app, id);
 
         let rat_runs = ctx.loading_screen("find rat runs", |_, timer| {
             find_rat_runs(
@@ -162,7 +151,7 @@ impl State<App> for BrowseRatRuns {
                 }
                 x => {
                     return Tab::RatRuns
-                        .handle_action::<BrowseRatRuns>(ctx, app, x)
+                        .handle_action(ctx, app, x, self.neighborhood.id)
                         .unwrap();
                 }
             }
@@ -174,11 +163,7 @@ impl State<App> for BrowseRatRuns {
         if super::per_neighborhood::handle_world_outcome(ctx, app, world_outcome) {
             // TODO We could be a bit more efficient here, but simplest to just start over with a
             // new state
-            return Transition::Replace(BrowseRatRuns::new_state(
-                ctx,
-                app,
-                Neighborhood::new(ctx, app, self.neighborhood.orig_perimeter.clone()),
-            ));
+            return Transition::Replace(BrowseRatRuns::new_state(ctx, app, self.neighborhood.id));
         }
 
         Transition::Keep

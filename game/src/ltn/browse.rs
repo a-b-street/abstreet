@@ -9,10 +9,9 @@ use widgetry::{
     Toggle, VerticalAlignment, Widget,
 };
 
-use super::Neighborhood;
+use super::{NeighborhoodID, Partitioning};
 use crate::app::{App, Transition};
 use crate::debug::DebugMode;
-use crate::ltn::partition::{NeighborhoodID, Partitioning};
 
 pub struct BrowseNeighborhoods {
     panel: Panel,
@@ -83,18 +82,7 @@ impl State<App> for BrowseNeighborhoods {
         }
 
         if let WorldOutcome::ClickedObject(id) = self.world.event(ctx) {
-            return Transition::Push(super::connectivity::Viewer::new_state(
-                ctx,
-                app,
-                Neighborhood::new(
-                    ctx,
-                    app,
-                    app.session.partitioning.neighborhoods[&id]
-                        .0
-                        .perimeter
-                        .clone(),
-                ),
-            ));
+            return Transition::Push(super::connectivity::Viewer::new_state(ctx, app, id));
         }
 
         if ctx.input.pressed(lctrl(Key::D)) {
