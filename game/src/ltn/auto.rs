@@ -19,6 +19,9 @@ pub enum Heuristic {
     /// Try adding one filter to every possible road, counting the rat-runs after. Choose the next
     /// step by the least resulting rat runs.
     BruteForce,
+    /// Per cell, close all borders except for one. This doesn't affect connectivity, but prevents
+    /// all rat-runs.
+    OnlyOneBorder,
 }
 
 impl Heuristic {
@@ -26,6 +29,7 @@ impl Heuristic {
         vec![
             Choice::new("greedy", Heuristic::Greedy),
             Choice::new("brute-force", Heuristic::BruteForce),
+            Choice::new("only one border", Heuristic::OnlyOneBorder),
         ]
     }
 
@@ -54,6 +58,7 @@ impl Heuristic {
         match self {
             Heuristic::Greedy => greedy(ctx, app, neighborhood, timer),
             Heuristic::BruteForce => brute_force(ctx, app, neighborhood, timer),
+            Heuristic::OnlyOneBorder => only_one_border(app),
         }
     }
 }
@@ -114,6 +119,33 @@ fn brute_force(ctx: &EventCtx, app: &mut App, neighborhood: &Neighborhood, timer
 
     if let Some((r, _)) = best {
         try_to_filter_road(ctx, app, neighborhood, r).unwrap();
+    }
+}
+
+fn only_one_border(app: &mut App, neighborhood: &Neighborhood) {
+    for cell in &neighborhood.cells {
+        if cell.borders.len() > 1 {
+            // TODO How to pick which one to leave open?
+            for i in cell.borders.iter().skip(1) {
+                // Find the road in this cell connected to this border
+                for r in cell.roads.keys() {
+                    let road = app.primary.map.get_r(*r);
+                    if road.src_i == *i {
+                        app.session
+                            .modal_filters
+                            .roads
+                            .insert(road.id, 0.1 * road.length());
+                        break;
+                    } else if road.dst_i == *i {
+                        app.session
+                            .modal_filters
+                            .roads
+                            .insert(road.id, 0.9 * road.length());
+                        break;
+                    }
+                }
+            }
+        }
     }
 }
 
