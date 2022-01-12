@@ -194,7 +194,54 @@
 <span id="194">194</span>
 <span id="195">195</span>
 <span id="196">196</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom::Distance</span>;
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>};
 <span class="kw">use</span> <span class="ident">widgetry::mapspace::World</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">Widget</span>,
@@ -232,6 +279,10 @@
                         <span class="string">&quot;Draw traffic cells as&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
                         <span class="ident">Toggle::choice</span>(<span class="ident">ctx</span>, <span class="string">&quot;draw cells&quot;</span>, <span class="string">&quot;areas&quot;</span>, <span class="string">&quot;streets&quot;</span>, <span class="ident">Key::D</span>, <span class="bool-val">true</span>),
                     ]),
+                    <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+                        <span class="string">&quot;Draw entrances/exits as&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
+                        <span class="ident">Toggle::choice</span>(<span class="ident">ctx</span>, <span class="string">&quot;draw borders&quot;</span>, <span class="string">&quot;arrows&quot;</span>, <span class="string">&quot;outlines&quot;</span>, <span class="ident">Key::E</span>, <span class="bool-val">true</span>),
+                    ]),
                     <span class="ident">Text::new</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;warnings&quot;</span>),
                     <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                         <span class="ident">Widget::dropdown</span>(
@@ -266,6 +317,7 @@
             <span class="ident">app</span>,
             <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">neighborhood</span>,
             <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;draw cells&quot;</span>),
+            <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;draw borders&quot;</span>),
         );
         <span class="kw">let</span> <span class="ident">disconnected_cells</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">neighborhood</span>
@@ -303,12 +355,13 @@
                     .<span class="ident">unwrap</span>();
             }
             <span class="ident">Outcome::Changed</span>(<span class="ident">x</span>) =&gt; {
-                <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;streets&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;areas&quot;</span> {
+                <span class="kw">if</span> <span class="ident">x</span> <span class="op">!</span><span class="op">=</span> <span class="string">&quot;heuristic&quot;</span> {
                     <span class="self">self</span>.<span class="ident">world</span> <span class="op">=</span> <span class="ident">make_world</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">app</span>,
                         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">neighborhood</span>,
                         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;draw cells&quot;</span>),
+                        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;draw borders&quot;</span>),
                     );
                 }
             }
@@ -346,6 +399,7 @@
     <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
     <span class="ident">neighborhood</span>: <span class="kw-2">&amp;</span><span class="ident">Neighborhood</span>,
     <span class="ident">draw_cells_as_areas</span>: <span class="ident">bool</span>,
+    <span class="ident">draw_borders_as_arrows</span>: <span class="ident">bool</span>,
 ) -&gt; <span class="ident">World</span><span class="op">&lt;</span><span class="ident">FilterableObj</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">world</span> <span class="op">=</span> <span class="ident">World::bounded</span>(<span class="ident">map</span>.<span class="ident">get_bounds</span>());
@@ -357,7 +411,6 @@
         <span class="ident">world</span>.<span class="ident">draw_master_batch</span>(<span class="ident">ctx</span>, <span class="ident">draw_areas</span>);
     } <span class="kw">else</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">debug_cell_borders</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
         <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">cell</span>) <span class="kw">in</span> <span class="ident">neighborhood</span>.<span class="ident">cells</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
             <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident">cell_colors</span>[<span class="ident">idx</span>].<span class="ident">alpha</span>(<span class="number">0.9</span>);
             <span class="kw">for</span> (<span class="ident">r</span>, <span class="ident">interval</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">cell</span>.<span class="ident">roads</span> {
@@ -374,17 +427,58 @@
             {
                 <span class="ident">draw</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>());
             }
-            <span class="comment">// Draw the cell borders as outlines, for debugging. (Later, we probably want some kind</span>
-            <span class="comment">// of arrow styling)</span>
-            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">cell</span>.<span class="ident">borders</span> {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">p</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">2.0</span>)) {
-                    <span class="ident">debug_cell_borders</span>.<span class="ident">push</span>(<span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">1.0</span>), <span class="ident">p</span>);
-                }
-            }
         }
-        <span class="ident">draw</span>.<span class="ident">append</span>(<span class="ident">debug_cell_borders</span>);
         <span class="ident">world</span>.<span class="ident">draw_master_batch</span>(<span class="ident">ctx</span>, <span class="ident">draw</span>);
     }
+
+    <span class="comment">// Draw the borders of each cell</span>
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
+    <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">cell</span>) <span class="kw">in</span> <span class="ident">neighborhood</span>.<span class="ident">cells</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
+        <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident">cell_colors</span>[<span class="ident">idx</span>];
+        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">cell</span>.<span class="ident">borders</span> {
+            <span class="kw">if</span> <span class="ident">draw_borders_as_arrows</span> {
+                <span class="kw">let</span> <span class="ident">angles</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Angle</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">cell</span>
+                    .<span class="ident">roads</span>
+                    .<span class="ident">keys</span>()
+                    .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> {
+                        <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
+                        <span class="comment">// Design choice: when we have a filter right at the entrance of a</span>
+                        <span class="comment">// neighborhood, it creates its own little cell allowing access to just the</span>
+                        <span class="comment">// very beginning of the road. Let&#39;s not draw arrows for that.</span>
+                        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">roads</span>.<span class="ident">contains_key</span>(<span class="ident">r</span>) {
+                            <span class="prelude-val">None</span>
+                        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">src_i</span> <span class="op">==</span> <span class="kw-2">*</span><span class="ident">i</span> {
+                            <span class="prelude-val">Some</span>(<span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">first_line</span>().<span class="ident">angle</span>())
+                        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">dst_i</span> <span class="op">==</span> <span class="kw-2">*</span><span class="ident">i</span> {
+                            <span class="prelude-val">Some</span>(<span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">last_line</span>().<span class="ident">angle</span>().<span class="ident">opposite</span>())
+                        } <span class="kw">else</span> {
+                            <span class="prelude-val">None</span>
+                        }
+                    })
+                    .<span class="ident">collect</span>();
+                <span class="comment">// Tiny cell with a filter right at the border</span>
+                <span class="kw">if</span> <span class="ident">angles</span>.<span class="ident">is_empty</span>() {
+                    <span class="kw">continue</span>;
+                }
+                <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">center</span>();
+                <span class="kw">let</span> <span class="ident">angle</span> <span class="op">=</span> <span class="ident">Angle::average</span>(<span class="ident">angles</span>);
+
+                <span class="comment">// TODO Consider showing borders with one-way roads. For now, always point the</span>
+                <span class="comment">// arrow into the neighborhood</span>
+                <span class="ident">draw</span>.<span class="ident">push</span>(
+                    <span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>),
+                    <span class="ident">PolyLine::must_new</span>(<span class="macro">vec!</span>[
+                        <span class="ident">center</span>.<span class="ident">project_away</span>(<span class="ident">Distance::meters</span>(<span class="number">30.0</span>), <span class="ident">angle</span>.<span class="ident">opposite</span>()),
+                        <span class="ident">center</span>.<span class="ident">project_away</span>(<span class="ident">Distance::meters</span>(<span class="number">10.0</span>), <span class="ident">angle</span>.<span class="ident">opposite</span>()),
+                    ])
+                    .<span class="ident">make_arrow</span>(<span class="ident">Distance::meters</span>(<span class="number">6.0</span>), <span class="ident">ArrowCap::Triangle</span>),
+                );
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">p</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">2.0</span>)) {
+                <span class="ident">draw</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">p</span>);
+            }
+        }
+    }
+    <span class="ident">world</span>.<span class="ident">draw_master_batch</span>(<span class="ident">ctx</span>, <span class="ident">draw</span>);
 
     <span class="ident">world</span>.<span class="ident">initialize_hover</span>(<span class="ident">ctx</span>);
 
