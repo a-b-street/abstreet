@@ -1,4 +1,4 @@
-use geom::Distance;
+use geom::{Angle, ArrowCap, Distance, PolyLine};
 use widgetry::mapspace::World;
 use widgetry::{
     EventCtx, GeomBatch, GfxCtx, Key, Outcome, Panel, State, Text, TextExt, Toggle, Widget,
@@ -36,6 +36,10 @@ impl Viewer {
                         "Draw traffic cells as".text_widget(ctx).centered_vert(),
                         Toggle::choice(ctx, "draw cells", "areas", "streets", Key::D, true),
                     ]),
+                    Widget::row(vec![
+                        "Draw entrances/exits as".text_widget(ctx).centered_vert(),
+                        Toggle::choice(ctx, "draw borders", "arrows", "outlines", Key::E, true),
+                    ]),
                     Text::new().into_widget(ctx).named("warnings"),
                     Widget::row(vec![
                         Widget::dropdown(
@@ -70,6 +74,7 @@ impl Viewer {
             app,
             &self.neighborhood,
             self.panel.is_checked("draw cells"),
+            self.panel.is_checked("draw borders"),
         );
         let disconnected_cells = self
             .neighborhood
@@ -107,12 +112,13 @@ impl State<App> for Viewer {
                     .unwrap();
             }
             Outcome::Changed(x) => {
-                if x == "streets" || x == "areas" {
+                if x != "heuristic" {
                     self.world = make_world(
                         ctx,
                         app,
                         &self.neighborhood,
                         self.panel.is_checked("draw cells"),
+                        self.panel.is_checked("draw borders"),
                     );
                 }
             }
@@ -150,6 +156,7 @@ fn make_world(
     app: &App,
     neighborhood: &Neighborhood,
     draw_cells_as_areas: bool,
+    draw_borders_as_arrows: bool,
 ) -> World<FilterableObj> {
     let map = &app.primary.map;
     let mut world = World::bounded(map.get_bounds());
@@ -161,7 +168,6 @@ fn make_world(
         world.draw_master_batch(ctx, draw_areas);
     } else {
         let mut draw = GeomBatch::new();
-        let mut debug_cell_borders = GeomBatch::new();
         for (idx, cell) in neighborhood.cells.iter().enumerate() {
             let color = cell_colors[idx].alpha(0.9);
             for (r, interval) in &cell.roads {
@@ -178,17 +184,58 @@ fn make_world(
             {
                 draw.push(color, map.get_i(i).polygon.clone());
             }
-            // Draw the cell borders as outlines, for debugging. (Later, we probably want some kind
-            // of arrow styling)
-            for i in &cell.borders {
-                if let Ok(p) = map.get_i(*i).polygon.to_outline(Distance::meters(2.0)) {
-                    debug_cell_borders.push(color.alpha(1.0), p);
-                }
-            }
         }
-        draw.append(debug_cell_borders);
         world.draw_master_batch(ctx, draw);
     }
+
+    // Draw the borders of each cell
+    let mut draw = GeomBatch::new();
+    for (idx, cell) in neighborhood.cells.iter().enumerate() {
+        let color = cell_colors[idx];
+        for i in &cell.borders {
+            if draw_borders_as_arrows {
+                let angles: Vec<Angle> = cell
+                    .roads
+                    .keys()
+                    .filter_map(|r| {
+                        let road = map.get_r(*r);
+                        // Design choice: when we have a filter right at the entrance of a
+                        // neighborhood, it creates its own little cell allowing access to just the
+                        // very beginning of the road. Let's not draw arrows for that.
+                        if app.session.modal_filters.roads.contains_key(r) {
+                            None
+                        } else if road.src_i == *i {
+                            Some(road.center_pts.first_line().angle())
+                        } else if road.dst_i == *i {
+                            Some(road.center_pts.last_line().angle().opposite())
+                        } else {
+                            None
+                        }
+                    })
+                    .collect();
+                // Tiny cell with a filter right at the border
+                if angles.is_empty() {
+                    continue;
+                }
+                let center = map.get_i(*i).polygon.center();
+                let angle = Angle::average(angles);
+
+                // TODO Consider showing borders with one-way roads. For now, always point the
+                // arrow into the neighborhood
+                draw.push(
+                    color.alpha(0.8),
+                    PolyLine::must_new(vec![
+                        center.project_away(Distance::meters(30.0), angle.opposite()),
+                        center.project_away(Distance::meters(10.0), angle.opposite()),
+                    ])
+                    .make_arrow(Distance::meters(6.0), ArrowCap::Triangle),
+                );
+            } else if let Ok(p) = map.get_i(*i).polygon.to_outline(Distance::meters(2.0)) {
+                draw.push(color, p);
+            }
+        }
+    }
+    world.draw_master_batch(ctx, draw);
 
     world.initialize_hover(ctx);
 

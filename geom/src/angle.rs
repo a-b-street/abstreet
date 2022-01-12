@@ -122,3 +122,16 @@ impl std::ops::Neg for Angle {
         Angle::new_rads(-self.0)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_average() {
+        assert_eq!(
+            Angle::degrees(30.0),
+            Angle::average(vec![Angle::degrees(30.0)])
+        );
+    }
+}
