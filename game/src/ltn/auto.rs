@@ -135,14 +135,14 @@ fn only_one_border(app: &mut App, neighborhood: &Neighborhood) {
                             .modal_filters
                             .roads
                             .insert(road.id, 0.1 * road.length());
-                        break;
                     } else if road.dst_i == *i {
                         app.session
                             .modal_filters
                             .roads
                             .insert(road.id, 0.9 * road.length());
-                        break;
                     }
+                    // Sometimes a cell has multiple roads connecing to the same border, so don't
+                    // stop looking even once we add one filter
                 }
             }
         }

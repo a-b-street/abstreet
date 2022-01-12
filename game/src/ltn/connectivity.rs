@@ -42,7 +42,7 @@ impl Viewer {
                             ctx,
                             "heuristic",
                             // TODO Session state
-                            Heuristic::Greedy,
+                            Heuristic::OnlyOneBorder,
                             Heuristic::choices(),
                         ),
                         ctx.style()
