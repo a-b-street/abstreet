@@ -231,7 +231,7 @@
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident">Heuristic::Greedy</span> =&gt; <span class="ident">greedy</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">neighborhood</span>, <span class="ident">timer</span>),
             <span class="ident">Heuristic::BruteForce</span> =&gt; <span class="ident">brute_force</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">neighborhood</span>, <span class="ident">timer</span>),
-            <span class="ident">Heuristic::OnlyOneBorder</span> =&gt; <span class="ident">only_one_border</span>(<span class="ident">app</span>),
+            <span class="ident">Heuristic::OnlyOneBorder</span> =&gt; <span class="ident">only_one_border</span>(<span class="ident">app</span>, <span class="ident">neighborhood</span>),
         }
     }
 }

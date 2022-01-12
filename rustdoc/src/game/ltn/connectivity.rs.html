@@ -303,7 +303,7 @@
                     .<span class="ident">unwrap</span>();
             }
             <span class="ident">Outcome::Changed</span>(<span class="ident">x</span>) =&gt; {
-                <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;draw cells&quot;</span> {
+                <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;streets&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;areas&quot;</span> {
                     <span class="self">self</span>.<span class="ident">world</span> <span class="op">=</span> <span class="ident">make_world</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">app</span>,
