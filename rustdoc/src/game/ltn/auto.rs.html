@@ -171,6 +171,10 @@
 <span id="171">171</span>
 <span id="172">172</span>
 <span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Experiments to make a neighborhood be low-traffic by automatically placing filters to prevent all rat runs.</span>
 
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
@@ -228,11 +232,15 @@
 
         <span class="comment">// TODO If we already have no rat-runs, stop</span>
 
+        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">before_edit</span>();
+
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident">Heuristic::Greedy</span> =&gt; <span class="ident">greedy</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">neighborhood</span>, <span class="ident">timer</span>),
             <span class="ident">Heuristic::BruteForce</span> =&gt; <span class="ident">brute_force</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">neighborhood</span>, <span class="ident">timer</span>),
             <span class="ident">Heuristic::OnlyOneBorder</span> =&gt; <span class="ident">only_one_border</span>(<span class="ident">app</span>, <span class="ident">neighborhood</span>),
         }
+
+        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">cancel_empty_edit</span>();
     }
 }
 
