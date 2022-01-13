@@ -157,13 +157,13 @@ fn make_world(
 
     super::per_neighborhood::populate_world(ctx, app, neighborhood, &mut world, |id| id, 0);
 
-    let (draw_areas, cell_colors) = super::draw_cells::draw_cells(map, neighborhood);
+    let render_cells = super::draw_cells::RenderCells::new(map, neighborhood);
     if draw_cells_as_areas {
-        world.draw_master_batch(ctx, draw_areas);
+        world.draw_master_batch(ctx, render_cells.draw_grid());
     } else {
         let mut draw = GeomBatch::new();
         for (idx, cell) in neighborhood.cells.iter().enumerate() {
-            let color = cell_colors[idx].alpha(0.9);
+            let color = render_cells.colors[idx].alpha(0.9);
             for (r, interval) in &cell.roads {
                 let road = map.get_r(*r);
                 draw.push(
@@ -185,7 +185,7 @@ fn make_world(
     // Draw the borders of each cell
     let mut draw = GeomBatch::new();
     for (idx, cell) in neighborhood.cells.iter().enumerate() {
-        let color = cell_colors[idx];
+        let color = render_cells.colors[idx];
         for i in &cell.borders {
             if draw_borders_as_arrows {
                 let angles: Vec<Angle> = cell

@@ -1,6 +1,6 @@
 use std::collections::{HashSet, VecDeque};
 
-use geom::{Distance, Polygon, Pt2D};
+use geom::{Bounds, Distance, Polygon, Pt2D};
 use map_gui::tools::Grid;
 use map_model::Map;
 use widgetry::{Color, GeomBatch};
@@ -20,101 +20,124 @@ lazy_static::lazy_static! {
 const CAR_FREE_COLOR: Color = Color::GREEN;
 const DISCONNECTED_COLOR: Color = Color::RED;
 
-/// Partition a neighborhood's boundary polygon based on the cells. Currently this discretizes
-/// space into a grid, so the results don't look perfect, but it's fast. Also returns the color for
-/// each cell, so that adjacent cells have different colors.
-pub fn draw_cells(map: &Map, neighborhood: &Neighborhood) -> (GeomBatch, Vec<Color>) {
-    let boundary_polygon = neighborhood
-        .orig_perimeter
-        .clone()
-        .to_block(map)
-        .unwrap()
-        .polygon;
-    // Make a 2D grid covering the polygon. Each tile in the grid contains a cell index, which will
-    // become a color by the end. None means no cell is assigned yet.
-    let bounds = boundary_polygon.get_bounds();
-    let resolution_m = 10.0;
-    let mut grid: Grid<Option<usize>> = Grid::new(
-        (bounds.width() / resolution_m).ceil() as usize,
-        (bounds.height() / resolution_m).ceil() as usize,
-        None,
-    );
+const RESOLUTION_M: f64 = 10.0;
 
-    // Initially fill out the grid based on the roads in each cell
-    for (cell_idx, cell) in neighborhood.cells.iter().enumerate() {
-        for (r, interval) in &cell.roads {
-            let road = map.get_r(*r);
-            // Walk along the center line. We could look at the road's thickness and fill out
-            // points based on that, but the diffusion should take care of it.
-            for (pt, _) in road
-                .center_pts
-                .exact_slice(interval.start, interval.end)
-                .step_along(Distance::meters(resolution_m / 2.0), Distance::ZERO)
-            {
-                let grid_idx = grid.idx(
-                    ((pt.x() - bounds.min_x) / resolution_m) as usize,
-                    ((pt.y() - bounds.min_y) / resolution_m) as usize,
-                );
-                // If roads from two different cells are close enough to clobber originally, oh
-                // well?
-                grid.data[grid_idx] = Some(cell_idx);
-            }
-        }
-    }
-    // Also mark the boundary polygon, so we can prevent the diffusion from "leaking" outside the
-    // area. The grid covers the rectangular bounds of the polygon. Rather than make an enum with 3
-    // cases, just assign a new index to mean "boundary."
-    let boundary_marker = neighborhood.cells.len();
-    for (pt, _) in geom::PolyLine::unchecked_new(boundary_polygon.into_ring().into_points())
-        .step_along(Distance::meters(resolution_m / 2.0), Distance::ZERO)
-    {
-        // TODO Refactor helpers to transform between map-space and the grid tiles. Possibly Grid
-        // should know about this.
-        let grid_idx = grid.idx(
-            ((pt.x() - bounds.min_x) / resolution_m) as usize,
-            ((pt.y() - bounds.min_y) / resolution_m) as usize,
+pub struct RenderCells {
+    /// The grid only covers the boundary polygon of the neighborhood. The values are cell indices,
+    /// and `Some(num_cells)` marks the boundary of the neighborhood.
+    grid: Grid<Option<usize>>,
+    /// Colors per cell, such that adjacent cells are colored differently
+    pub colors: Vec<Color>,
+    /// Bounds of the neighborhood boundary polygon
+    bounds: Bounds,
+    /// The number of cells, used as a sentinel value in the grid
+    boundary_marker: usize,
+}
+
+/// Partition a neighborhood's boundary polygon based on the cells. This discretizes
+/// space into a grid, so the results don't look perfect, but it's fast.
+impl RenderCells {
+    pub fn new(map: &Map, neighborhood: &Neighborhood) -> RenderCells {
+        let boundary_polygon = neighborhood
+            .orig_perimeter
+            .clone()
+            .to_block(map)
+            .unwrap()
+            .polygon;
+        // Make a 2D grid covering the polygon. Each tile in the grid contains a cell index, which
+        // will become a color by the end. None means no cell is assigned yet.
+        let bounds = boundary_polygon.get_bounds();
+        let mut grid: Grid<Option<usize>> = Grid::new(
+            (bounds.width() / RESOLUTION_M).ceil() as usize,
+            (bounds.height() / RESOLUTION_M).ceil() as usize,
+            None,
         );
-        grid.data[grid_idx] = Some(boundary_marker);
-    }
 
-    let adjacencies = diffusion(&mut grid, boundary_marker);
-    let mut cell_colors = color_cells(neighborhood.cells.len(), adjacencies);
-
-    // Color car-free cells in a special way
-    for (idx, cell) in neighborhood.cells.iter().enumerate() {
-        if cell.car_free {
-            cell_colors[idx] = CAR_FREE_COLOR;
-        } else if cell.is_disconnected() {
-            cell_colors[idx] = DISCONNECTED_COLOR;
-        }
-    }
-
-    // Just draw rectangles based on the grid
-    // TODO We should be able to generate actual polygons per cell using the contours crate
-    // TODO Also it'd look nicer to render this "underneath" the roads and intersections, at the
-    // layer where areas are shown now
-    let mut batch = GeomBatch::new();
-    for (idx, value) in grid.data.iter().enumerate() {
-        if let Some(cell_idx) = value {
-            if *cell_idx == boundary_marker {
-                continue;
+        // Initially fill out the grid based on the roads in each cell
+        for (cell_idx, cell) in neighborhood.cells.iter().enumerate() {
+            for (r, interval) in &cell.roads {
+                let road = map.get_r(*r);
+                // Walk along the center line. We could look at the road's thickness and fill out
+                // points based on that, but the diffusion should take care of it.
+                for (pt, _) in road
+                    .center_pts
+                    .exact_slice(interval.start, interval.end)
+                    .step_along(Distance::meters(RESOLUTION_M / 2.0), Distance::ZERO)
+                {
+                    let grid_idx = grid.idx(
+                        ((pt.x() - bounds.min_x) / RESOLUTION_M) as usize,
+                        ((pt.y() - bounds.min_y) / RESOLUTION_M) as usize,
+                    );
+                    // If roads from two different cells are close enough to clobber originally, oh
+                    // well?
+                    grid.data[grid_idx] = Some(cell_idx);
+                }
             }
-            let (x, y) = grid.xy(idx);
-            let tile_center = Pt2D::new(
-                bounds.min_x + resolution_m * (x as f64 + 0.5),
-                bounds.min_y + resolution_m * (y as f64 + 0.5),
+        }
+        // Also mark the boundary polygon, so we can prevent the diffusion from "leaking" outside
+        // the area. The grid covers the rectangular bounds of the polygon. Rather than make an
+        // enum with 3 cases, just assign a new index to mean "boundary."
+        let boundary_marker = neighborhood.cells.len();
+        for (pt, _) in geom::PolyLine::unchecked_new(boundary_polygon.into_ring().into_points())
+            .step_along(Distance::meters(RESOLUTION_M / 2.0), Distance::ZERO)
+        {
+            // TODO Refactor helpers to transform between map-space and the grid tiles. Possibly
+            // Grid should know about this.
+            let grid_idx = grid.idx(
+                ((pt.x() - bounds.min_x) / RESOLUTION_M) as usize,
+                ((pt.y() - bounds.min_y) / RESOLUTION_M) as usize,
             );
-            batch.push(
-                cell_colors[*cell_idx].alpha(0.5),
-                Polygon::rectangle_centered(
-                    tile_center,
-                    Distance::meters(resolution_m),
-                    Distance::meters(resolution_m),
-                ),
-            );
+            grid.data[grid_idx] = Some(boundary_marker);
+        }
+
+        let adjacencies = diffusion(&mut grid, boundary_marker);
+        let mut cell_colors = color_cells(neighborhood.cells.len(), adjacencies);
+
+        // Color car-free cells in a special way
+        for (idx, cell) in neighborhood.cells.iter().enumerate() {
+            if cell.car_free {
+                cell_colors[idx] = CAR_FREE_COLOR;
+            } else if cell.is_disconnected() {
+                cell_colors[idx] = DISCONNECTED_COLOR;
+            }
+        }
+
+        RenderCells {
+            grid,
+            colors: cell_colors,
+            bounds,
+            boundary_marker,
         }
     }
-    (batch, cell_colors)
+
+    /// Just draw rectangles based on the grid
+    pub fn draw_grid(&self) -> GeomBatch {
+        // TODO We should be able to generate actual polygons per cell using the contours crate
+        // TODO Also it'd look nicer to render this "underneath" the roads and intersections, at the
+        // layer where areas are shown now
+        let mut batch = GeomBatch::new();
+        for (idx, value) in self.grid.data.iter().enumerate() {
+            if let Some(cell_idx) = value {
+                if *cell_idx == self.boundary_marker {
+                    continue;
+                }
+                let (x, y) = self.grid.xy(idx);
+                let tile_center = Pt2D::new(
+                    self.bounds.min_x + RESOLUTION_M * (x as f64 + 0.5),
+                    self.bounds.min_y + RESOLUTION_M * (y as f64 + 0.5),
+                );
+                batch.push(
+                    self.colors[*cell_idx].alpha(0.5),
+                    Polygon::rectangle_centered(
+                        tile_center,
+                        Distance::meters(RESOLUTION_M),
+                        Distance::meters(RESOLUTION_M),
+                    ),
+                );
+            }
+        }
+        batch
+    }
 }
 
 /// Returns a set of adjacent indices. The pairs are symmetric -- (x, y) and (y, x) will both be
