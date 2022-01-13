@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["detect_neighborhoods",""],["draw_boundary_roads",""]],"struct":[["BrowseNeighborhoods",""]]});
+initSidebarItems({"fn":[["detect_neighborhoods",""],["draw_boundary_roads",""],["export_geojson",""]],"struct":[["BrowseNeighborhoods",""]]});

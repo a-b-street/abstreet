@@ -165,11 +165,128 @@
 <span id="165">165</span>
 <span id="166">166</span>
 <span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
+<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
+
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
-<span class="kw">use</span> <span class="ident">geom::Distance</span>;
-<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">CityPicker</span>, <span class="ident">DrawRoadLabels</span>, <span class="ident">Navigator</span>, <span class="ident">URLManager</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>};
+<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">CityPicker</span>, <span class="ident">DrawRoadLabels</span>, <span class="ident">Navigator</span>, <span class="ident">PopupMsg</span>, <span class="ident">URLManager</span>};
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ToggleZoomed</span>, <span class="ident">World</span>, <span class="ident">WorldOutcome</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">lctrl</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">TextExt</span>,
@@ -209,6 +326,10 @@
                     .<span class="ident">align_right</span>(),
             ]),
             <span class="ident">Toggle::checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;highlight boundary roads&quot;</span>, <span class="ident">Key::H</span>, <span class="bool-val">true</span>),
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_outline</span>
+                .<span class="ident">text</span>(<span class="string">&quot;Export to GeoJSON&quot;</span>)
+                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         ]))
         .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Left</span>, <span class="ident">VerticalAlignment::Top</span>)
         .<span class="ident">build</span>(<span class="ident">ctx</span>);
@@ -243,6 +364,18 @@
                 }
                 <span class="string">&quot;search&quot;</span> =&gt; {
                     <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">Navigator::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+                }
+                <span class="string">&quot;Export to GeoJSON&quot;</span> =&gt; {
+                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="kw">match</span> <span class="ident">export_geojson</span>(<span class="ident">app</span>) {
+                        <span class="prelude-val">Ok</span>(<span class="ident">path</span>) =&gt; <span class="ident">PopupMsg::new_state</span>(
+                            <span class="ident">ctx</span>,
+                            <span class="string">&quot;LTNs exported&quot;</span>,
+                            <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">&quot;Data exported to {}&quot;</span>, <span class="ident">path</span>)],
+                        ),
+                        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
+                            <span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;Export failed&quot;</span>, <span class="macro">vec!</span>[<span class="ident">err</span>.<span class="ident">to_string</span>()])
+                        }
+                    });
                 }
                 <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
             }
@@ -331,6 +464,103 @@
         }
     }
     <span class="ident">batch</span>.<span class="ident">build</span>(<span class="ident">ctx</span>)
+}
+
+<span class="kw">fn</span> <span class="ident">export_geojson</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>) {
+        <span class="macro">bail!</span>(<span class="string">&quot;Export only supported in the installed version&quot;</span>);
+    }
+
+    <span class="kw">use</span> <span class="ident">geo::algorithm::map_coords::MapCoordsInplace</span>;
+    <span class="kw">use</span> <span class="ident">geojson</span>::{<span class="ident">Feature</span>, <span class="ident">FeatureCollection</span>, <span class="ident">GeoJson</span>, <span class="ident">Geometry</span>, <span class="ident">Value</span>};
+    <span class="kw">use</span> <span class="ident">std::io::Write</span>;
+
+    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">features</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+
+    <span class="comment">// All neighborhood boundaries</span>
+    <span class="kw">for</span> (<span class="kw">_</span>, (<span class="ident">block</span>, <span class="ident">color</span>)) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">neighborhoods</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">feature</span> <span class="op">=</span> <span class="ident">Feature</span> {
+            <span class="ident">bbox</span>: <span class="prelude-val">None</span>,
+            <span class="ident">geometry</span>: <span class="prelude-val">Some</span>(<span class="ident">block</span>.<span class="ident">polygon</span>.<span class="ident">to_geojson</span>(<span class="prelude-val">None</span>)),
+            <span class="ident">id</span>: <span class="prelude-val">None</span>,
+            <span class="ident">properties</span>: <span class="prelude-val">None</span>,
+            <span class="ident">foreign_members</span>: <span class="prelude-val">None</span>,
+        };
+        <span class="ident">feature</span>.<span class="ident">set_property</span>(<span class="string">&quot;type&quot;</span>, <span class="string">&quot;neighborhood&quot;</span>);
+        <span class="ident">feature</span>.<span class="ident">set_property</span>(<span class="string">&quot;fill&quot;</span>, <span class="ident">color</span>.<span class="ident">as_hex</span>());
+        <span class="ident">features</span>.<span class="ident">push</span>(<span class="ident">feature</span>);
+    }
+
+    <span class="comment">// TODO Cells per neighborhood -- contouring the gridded version is hard!</span>
+
+    <span class="comment">// All modal filters</span>
+    <span class="kw">for</span> (<span class="ident">r</span>, <span class="ident">dist</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">roads</span> {
+        <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>((<span class="ident">pt</span>, <span class="ident">angle</span>)) <span class="op">=</span> <span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">dist_along</span>(<span class="kw-2">*</span><span class="ident">dist</span>) {
+            <span class="kw">let</span> <span class="ident">road_width</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">get_width</span>();
+            <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="ident">PolyLine::must_new</span>(<span class="macro">vec!</span>[
+                <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="number">0.8</span> <span class="op">*</span> <span class="ident">road_width</span>, <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="number">90.0</span>)),
+                <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="number">0.8</span> <span class="op">*</span> <span class="ident">road_width</span>, <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="op">-</span><span class="number">90.0</span>)),
+            ]);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">feature</span> <span class="op">=</span> <span class="ident">Feature</span> {
+                <span class="ident">bbox</span>: <span class="prelude-val">None</span>,
+                <span class="ident">geometry</span>: <span class="prelude-val">Some</span>(<span class="ident">pl</span>.<span class="ident">to_geojson</span>(<span class="prelude-val">None</span>)),
+                <span class="ident">id</span>: <span class="prelude-val">None</span>,
+                <span class="ident">properties</span>: <span class="prelude-val">None</span>,
+                <span class="ident">foreign_members</span>: <span class="prelude-val">None</span>,
+            };
+            <span class="ident">feature</span>.<span class="ident">set_property</span>(<span class="string">&quot;type&quot;</span>, <span class="string">&quot;road filter&quot;</span>);
+            <span class="ident">feature</span>.<span class="ident">set_property</span>(<span class="string">&quot;stroke&quot;</span>, <span class="string">&quot;red&quot;</span>);
+            <span class="ident">features</span>.<span class="ident">push</span>(<span class="ident">feature</span>);
+        }
+    }
+    <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">filter</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">intersections</span> {
+        <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="ident">filter</span>.<span class="ident">geometry</span>(<span class="ident">map</span>).<span class="ident">to_polyline</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">feature</span> <span class="op">=</span> <span class="ident">Feature</span> {
+            <span class="ident">bbox</span>: <span class="prelude-val">None</span>,
+            <span class="ident">geometry</span>: <span class="prelude-val">Some</span>(<span class="ident">pl</span>.<span class="ident">to_geojson</span>(<span class="prelude-val">None</span>)),
+            <span class="ident">id</span>: <span class="prelude-val">None</span>,
+            <span class="ident">properties</span>: <span class="prelude-val">None</span>,
+            <span class="ident">foreign_members</span>: <span class="prelude-val">None</span>,
+        };
+        <span class="ident">feature</span>.<span class="ident">set_property</span>(<span class="string">&quot;type&quot;</span>, <span class="string">&quot;diagonal filter&quot;</span>);
+        <span class="ident">feature</span>.<span class="ident">set_property</span>(<span class="string">&quot;stroke&quot;</span>, <span class="string">&quot;red&quot;</span>);
+        <span class="ident">features</span>.<span class="ident">push</span>(<span class="ident">feature</span>);
+    }
+
+    <span class="comment">// Transform to WGS84</span>
+    <span class="kw">let</span> <span class="ident">gps_bounds</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_gps_bounds</span>();
+    <span class="kw">for</span> <span class="ident">feature</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">features</span> {
+        <span class="comment">// geojson to geo</span>
+        <span class="comment">// This could be a Polygon, MultiPolygon, LineString</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">geom</span>: <span class="ident">geo::Geometry</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">feature</span>.<span class="ident">geometry</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>().<span class="ident">value</span>.<span class="ident">try_into</span>()<span class="question-mark">?</span>;
+
+        <span class="ident">geom</span>.<span class="ident">map_coords_inplace</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">gps</span> <span class="op">=</span> <span class="ident">Pt2D::new</span>(<span class="ident">c</span>.<span class="number">0</span>, <span class="ident">c</span>.<span class="number">1</span>).<span class="ident">to_gps</span>(<span class="ident">gps_bounds</span>);
+            (<span class="ident">gps</span>.<span class="ident">x</span>(), <span class="ident">gps</span>.<span class="ident">y</span>())
+        });
+
+        <span class="comment">// geo to geojson</span>
+        <span class="ident">feature</span>.<span class="ident">geometry</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Geometry</span> {
+            <span class="ident">bbox</span>: <span class="prelude-val">None</span>,
+            <span class="ident">value</span>: <span class="ident">Value::from</span>(<span class="kw-2">&amp;</span><span class="ident">geom</span>),
+            <span class="ident">foreign_members</span>: <span class="prelude-val">None</span>,
+        });
+    }
+
+    <span class="kw">let</span> <span class="ident">gj</span> <span class="op">=</span> <span class="ident">GeoJson::FeatureCollection</span>(<span class="ident">FeatureCollection</span> {
+        <span class="ident">features</span>,
+        <span class="ident">bbox</span>: <span class="prelude-val">None</span>,
+        <span class="ident">foreign_members</span>: <span class="prelude-val">None</span>,
+    });
+
+    <span class="comment">// Don&#39;t use abstio::write_json; it writes to local storage in web, where we want to eventually</span>
+    <span class="comment">// make the browser download something</span>
+    <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;ltn_{}.geojson&quot;</span>, <span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">map</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">std::fs::File::create</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>)<span class="question-mark">?</span>;
+    <span class="macro">write!</span>(<span class="ident">file</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">serde_json::to_string_pretty</span>(<span class="kw-2">&amp;</span><span class="ident">gj</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">path</span>)
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
