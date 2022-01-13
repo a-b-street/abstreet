@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `game&#x2F;src&#x2F;app.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>app.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../game/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `game&#x2F;src&#x2F;app.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>app.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../game/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -967,7 +968,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">prebaked</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Analytics</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">prebaked</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="number">2</span>
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_prebaked</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">prebaked</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">MapName</span>, <span class="ident">String</span>, <span class="ident">Analytics</span>)<span class="op">&gt;</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_prebaked</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">prebaked</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">MapName</span>, <span class="ident">String</span>, <span class="ident">Analytics</span>)<span class="op">&gt;</span>) {
         <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">prebaked</span> <span class="op">=</span> <span class="ident">prebaked</span>;
 
         <span class="kw">if</span> <span class="bool-val">false</span> {
@@ -1029,7 +1030,7 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="ident">opts</span>: <span class="ident">DrawOptions</span>, <span class="ident">show_objs</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">ShowObject</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">opts</span>: <span class="ident">DrawOptions</span>, <span class="ident">show_objs</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">ShowObject</span>) {
         <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
         <span class="kw">let</span> <span class="ident">draw_map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">draw_map</span>;
 
@@ -1101,7 +1102,7 @@
             <span class="kw">let</span> <span class="ident">objects</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_renderables_back_to_front</span>(
                 <span class="ident">g</span>.<span class="ident">get_screen_bounds</span>(),
                 <span class="ident">g</span>.<span class="ident">prerender</span>,
-                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">cache</span>,
+                <span class="kw-2">&amp;mut</span> <span class="ident">cache</span>,
                 <span class="ident">show_objs</span>,
             );
 
@@ -1146,7 +1147,7 @@
     }
 
     <span class="doccomment">/// Assumes some defaults.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">recalculate_current_selection</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">recalculate_current_selection</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) {
         <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span>
             <span class="self">self</span>.<span class="ident">calculate_current_selection</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">ShowEverything::new</span>(), <span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>);
     }
@@ -1189,7 +1190,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">objects</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_renderables_back_to_front</span>(
             <span class="ident">Circle::new</span>(<span class="ident">pt</span>, <span class="ident">Distance::meters</span>(<span class="number">3.0</span>)).<span class="ident">get_bounds</span>(),
             <span class="ident">ctx</span>.<span class="ident">prerender</span>,
-            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">cache</span>,
+            <span class="kw-2">&amp;mut</span> <span class="ident">cache</span>,
             <span class="ident">show_objs</span>,
         );
         <span class="ident">objects</span>.<span class="ident">reverse</span>();
@@ -1358,7 +1359,7 @@
     }
 
     <span class="doccomment">/// Ensure the map edits are blank, reset the simulation, and blank out prebaked results.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_everything</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_everything</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) {
         <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;reset map and sim&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
             <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="self">self</span>, <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">new_edits</span>());
             <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">recalculate_pathfinding_after_edits</span>(<span class="ident">timer</span>);
@@ -1370,9 +1371,9 @@
 
     <span class="doccomment">/// This swaps the primary and secondary PerMaps. Depending on what state the rest of the app</span>
     <span class="doccomment">/// is in, things like IDs might totally change!</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">swap_map</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">swap_map</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
         <span class="kw">let</span> <span class="ident">secondary</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">secondary</span>.<span class="ident">take</span>().<span class="ident">expect</span>(<span class="string">&quot;no secondary map set&quot;</span>);
-        <span class="kw">let</span> <span class="ident">primary</span> <span class="op">=</span> <span class="ident">std::mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">primary</span>, <span class="ident">secondary</span>);
+        <span class="kw">let</span> <span class="ident">primary</span> <span class="op">=</span> <span class="ident">std::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">primary</span>, <span class="ident">secondary</span>);
         <span class="self">self</span>.<span class="ident">secondary</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">primary</span>);
     }
 }
@@ -1380,8 +1381,8 @@
 <span class="kw">impl</span> <span class="ident">App</span> {
     <span class="doccomment">/// If an intersection was clicked, return its ID.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">click_on_intersection</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
+        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
         <span class="ident">label</span>: <span class="ident">S</span>,
     ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ID::Intersection</span>(<span class="ident">i</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
@@ -1409,27 +1410,27 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cs</span>
     }
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">mut_cs</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ColorScheme</span> {
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">cs</span>
+    <span class="kw">fn</span> <span class="ident">mut_cs</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">ColorScheme</span> {
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">cs</span>
     }
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">draw_map</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">DrawMap</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">draw_map</span>
     }
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">mut_draw_map</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">DrawMap</span> {
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">draw_map</span>
+    <span class="kw">fn</span> <span class="ident">mut_draw_map</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">DrawMap</span> {
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">draw_map</span>
     }
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">opts</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Options</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">opts</span>
     }
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">mut_opts</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Options</span> {
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">opts</span>
+    <span class="kw">fn</span> <span class="ident">mut_opts</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Options</span> {
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">opts</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">map_switched</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">map</span>: <span class="ident">Map</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) {
+    <span class="kw">fn</span> <span class="ident">map_switched</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">map</span>: <span class="ident">Map</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) {
         <span class="kw">let</span> <span class="ident">sim</span> <span class="op">=</span> <span class="ident">Sim::new</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">current_flags</span>.<span class="ident">sim_flags</span>.<span class="ident">opts</span>.<span class="ident">clone</span>());
 
         <span class="ident">CameraState::save</span>(<span class="ident">ctx</span>.<span class="ident">canvas</span>, <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>());
@@ -1446,17 +1447,17 @@
         <span class="self">self</span>.<span class="ident">secondary</span> <span class="op">=</span> <span class="prelude-val">None</span>;
     }
 
-    <span class="kw">fn</span> <span class="ident">draw_with_opts</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="ident">opts</span>: <span class="ident">DrawOptions</span>) {
+    <span class="kw">fn</span> <span class="ident">draw_with_opts</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">opts</span>: <span class="ident">DrawOptions</span>) {
         <span class="self">self</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">opts</span>, <span class="kw-2">&amp;</span><span class="ident">ShowEverything::new</span>());
     }
     <span class="kw">fn</span> <span class="ident">make_warper</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
         <span class="ident">pt</span>: <span class="ident">Pt2D</span>,
         <span class="ident">target_cam_zoom</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>,
         <span class="ident">id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span>,
     ) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">Warping::new_state</span>(<span class="ident">ctx</span>, <span class="ident">pt</span>, <span class="ident">target_cam_zoom</span>, <span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">primary</span>)
+        <span class="ident">Warping::new_state</span>(<span class="ident">ctx</span>, <span class="ident">pt</span>, <span class="ident">target_cam_zoom</span>, <span class="ident">id</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">primary</span>)
     }
 }
 
@@ -1568,11 +1569,11 @@
         <span class="ident">flags</span>: <span class="ident">Flags</span>,
         <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">Options</span>,
         <span class="ident">cs</span>: <span class="kw-2">&amp;</span><span class="ident">ColorScheme</span>,
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
+        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
+        <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>,
     ) -&gt; <span class="ident">PerMap</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">name</span>) <span class="op">=</span> <span class="ident">flags</span>.<span class="ident">study_area</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">add_study_area</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map</span>, <span class="ident">name</span>) {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">add_study_area</span>(<span class="kw-2">&amp;mut</span> <span class="ident">map</span>, <span class="ident">name</span>) {
                 <span class="macro">error!</span>(<span class="string">&quot;Didn&#39;t apply study area {}: {}&quot;</span>, <span class="ident">name</span>, <span class="ident">err</span>);
             }
         }
@@ -1601,17 +1602,17 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">init_camera_for_loaded_map</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">splash</span>: <span class="ident">bool</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">init_camera_for_loaded_map</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">splash</span>: <span class="ident">bool</span>) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">current_flags</span>.<span class="ident">sim_flags</span>.<span class="ident">make_rng</span>();
         <span class="kw">let</span> <span class="ident">rand_focus_pt</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">map</span>
             .<span class="ident">all_buildings</span>()
-            .<span class="ident">choose</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>)
+            .<span class="ident">choose</span>(<span class="kw-2">&amp;mut</span> <span class="ident">rng</span>)
             .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">canonical_point</span>(<span class="ident">ID::Building</span>(<span class="ident">b</span>.<span class="ident">id</span>)))
             .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> {
                 <span class="self">self</span>.<span class="ident">map</span>
                     .<span class="ident">all_lanes</span>()
-                    .<span class="ident">choose</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>)
+                    .<span class="ident">choose</span>(<span class="kw-2">&amp;mut</span> <span class="ident">rng</span>)
                     .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">canonical_point</span>(<span class="ident">ID::Lane</span>(<span class="ident">l</span>.<span class="ident">id</span>)))
             })
             .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>().<span class="ident">center</span>());
@@ -1625,10 +1626,10 @@
     }
 
     <span class="doccomment">/// Returns whatever was there</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_sim</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">Sim</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_sim</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">Sim</span> {
         <span class="self">self</span>.<span class="ident">dirty_from_edits</span> <span class="op">=</span> <span class="bool-val">false</span>;
         <span class="ident">std::mem::replace</span>(
-            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">sim</span>,
+            <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">sim</span>,
             <span class="ident">Sim::new</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">map</span>, <span class="self">self</span>.<span class="ident">current_flags</span>.<span class="ident">sim_flags</span>.<span class="ident">opts</span>.<span class="ident">clone</span>()),
         )
     }
@@ -1714,11 +1715,11 @@
         <span class="ident">PerObjectActions</span> { <span class="ident">click_action</span>: <span class="prelude-val">None</span> }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">reset</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">reset</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
         <span class="self">self</span>.<span class="ident">click_action</span> <span class="op">=</span> <span class="prelude-val">None</span>;
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">left_click</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">label</span>: <span class="ident">S</span>) -&gt; <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">left_click</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">label</span>: <span class="ident">S</span>) -&gt; <span class="ident">bool</span> {
         <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">click_action</span>.<span class="ident">is_none</span>());
         <span class="self">self</span>.<span class="ident">click_action</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">label</span>.<span class="ident">into</span>());
         <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>()
@@ -1733,7 +1734,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">SimCallback</span> <span class="kw">for</span> <span class="ident">FindDelayedIntersections</span> {
-    <span class="kw">fn</span> <span class="ident">run</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">sim</span>: <span class="kw-2">&amp;</span><span class="ident">Sim</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">run</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">sim</span>: <span class="kw-2">&amp;</span><span class="ident">Sim</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">currently_delayed</span> <span class="op">=</span> <span class="ident">sim</span>.<span class="ident">delayed_intersections</span>(<span class="self">self</span>.<span class="ident">report_limit</span>);
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="ident">t</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">currently_delayed</span>.<span class="ident">get</span>(<span class="number">0</span>) {
             <span class="ident">sim</span>.<span class="ident">time</span>() <span class="op">-</span> <span class="kw-2">*</span><span class="ident">t</span> <span class="op">&gt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">halt_limit</span>
@@ -1744,11 +1745,11 @@
 }
 
 <span class="kw">impl</span> <span class="ident">SharedAppState</span> <span class="kw">for</span> <span class="ident">App</span> {
-    <span class="kw">fn</span> <span class="ident">before_event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+    <span class="kw">fn</span> <span class="ident">before_event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
         <span class="self">self</span>.<span class="ident">per_obj</span>.<span class="ident">reset</span>();
     }
 
-    <span class="kw">fn</span> <span class="ident">draw_default</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>) {
+    <span class="kw">fn</span> <span class="ident">draw_default</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>) {
         <span class="self">self</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">DrawOptions::new</span>(), <span class="kw-2">&amp;</span><span class="ident">ShowEverything::new</span>());
     }
 
@@ -1799,13 +1800,13 @@
         <span class="ident">CameraState::save</span>(<span class="ident">canvas</span>, <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>());
     }
 
-    <span class="kw">fn</span> <span class="ident">free_memory</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+    <span class="kw">fn</span> <span class="ident">free_memory</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
         <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">draw_map</span>.<span class="ident">free_memory</span>();
     }
 }
 
 <span class="doccomment">/// Load an extra GeoJSON file, and add the area to the map dynamically.</span>
-<span class="kw">fn</span> <span class="ident">add_study_area</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Map</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">add_study_area</span>(<span class="ident">map</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Map</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">require_in_bounds</span> <span class="op">=</span> <span class="bool-val">true</span>;
     <span class="kw">for</span> (<span class="ident">polygon</span>, <span class="ident">tags</span>) <span class="kw">in</span> <span class="ident">Polygon::from_geojson_bytes</span>(
         <span class="kw-2">&amp;</span><span class="ident">abstio::slurp_file</span>(<span class="ident">abstio::path</span>(<span class="macro">format!</span>(<span class="string">&quot;system/study_areas/{}.geojson&quot;</span>, <span class="ident">name</span>)))<span class="question-mark">?</span>,
@@ -1818,5 +1819,4 @@
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="game" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
-    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
 </body></html>

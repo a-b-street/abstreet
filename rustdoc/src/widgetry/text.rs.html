@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry&#x2F;src&#x2F;text.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>text.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../widgetry/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry&#x2F;src&#x2F;text.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>text.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../widgetry/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -863,16 +864,16 @@
         <span class="self">self</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_line</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">line</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">TextSpan</span><span class="op">&gt;</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_line</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">line</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">TextSpan</span><span class="op">&gt;</span>) {
         <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">push</span>((<span class="prelude-val">None</span>, <span class="macro">vec!</span>[<span class="ident">line</span>.<span class="ident">into</span>()]));
     }
 
     <span class="comment">// TODO Just one user...</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">highlight_last_line</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">highlight</span>: <span class="ident">Color</span>) {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">highlight_last_line</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">highlight</span>: <span class="ident">Color</span>) {
         <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">last_mut</span>().<span class="ident">unwrap</span>().<span class="number">0</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">highlight</span>);
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">line</span>: <span class="ident">TextSpan</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">line</span>: <span class="ident">TextSpan</span>) {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">is_empty</span>() {
             <span class="self">self</span>.<span class="ident">add_line</span>(<span class="ident">line</span>);
             <span class="kw">return</span>;
@@ -881,7 +882,7 @@
         <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">last_mut</span>().<span class="ident">unwrap</span>().<span class="number">1</span>.<span class="ident">push</span>(<span class="ident">line</span>);
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_appended</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">lines</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TextSpan</span><span class="op">&gt;</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_appended</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">lines</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TextSpan</span><span class="op">&gt;</span>) {
         <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">l</span>) <span class="kw">in</span> <span class="ident">lines</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
             <span class="kw">if</span> <span class="ident">idx</span> <span class="op">==</span> <span class="number">0</span> {
                 <span class="self">self</span>.<span class="ident">add_line</span>(<span class="ident">l</span>);
@@ -891,13 +892,13 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">append_all</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">lines</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TextSpan</span><span class="op">&gt;</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">append_all</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">lines</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TextSpan</span><span class="op">&gt;</span>) {
         <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">lines</span> {
             <span class="self">self</span>.<span class="ident">append</span>(<span class="ident">l</span>);
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove_colors_from_last_line</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove_colors_from_last_line</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
         <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">spans</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">last_mut</span>().<span class="ident">unwrap</span>();
         <span class="kw">for</span> <span class="ident">span</span> <span class="kw">in</span> <span class="ident">spans</span> {
             <span class="ident">span</span>.<span class="ident">fg_color</span> <span class="op">=</span> <span class="prelude-val">None</span>;
@@ -909,7 +910,7 @@
         <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">is_empty</span>()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extend</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Text</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extend</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Text</span>) {
         <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">extend</span>(<span class="ident">other</span>.<span class="ident">lines</span>);
     }
 
@@ -1072,13 +1073,13 @@
     <span class="comment">// Just set a sufficiently large view box</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">svg</span> <span class="op">=</span> <span class="string">r##&quot;&lt;svg width=&quot;9999&quot; height=&quot;9999&quot; viewBox=&quot;0 0 9999 9999&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;&gt;&quot;##</span>.<span class="ident">to_string</span>();
 
-    <span class="macro">write!</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">svg</span>, <span class="string">r##&quot;&lt;text x=&quot;0&quot; y=&quot;0&quot; xml:space=&quot;preserve&quot;&gt;&quot;##</span>,).<span class="ident">unwrap</span>();
+    <span class="macro">write!</span>(<span class="kw-2">&amp;mut</span> <span class="ident">svg</span>, <span class="string">r##&quot;&lt;text x=&quot;0&quot; y=&quot;0&quot; xml:space=&quot;preserve&quot;&gt;&quot;##</span>,).<span class="ident">unwrap</span>();
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">contents</span> <span class="op">=</span> <span class="ident">String::new</span>();
     <span class="kw">for</span> <span class="ident">span</span> <span class="kw">in</span> <span class="ident">spans</span> {
         <span class="kw">let</span> <span class="ident">fg_color</span> <span class="op">=</span> <span class="ident">span</span>.<span class="ident">fg_color_for_style</span>(<span class="kw-2">&amp;</span><span class="ident">assets</span>.<span class="ident">style</span>.<span class="ident">borrow</span>());
         <span class="macro">write!</span>(
-            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">contents</span>,
+            <span class="kw-2">&amp;mut</span> <span class="ident">contents</span>,
             <span class="string">r##&quot;&lt;tspan font-size=&quot;{}&quot; font-family=&quot;{}&quot; {} fill=&quot;{}&quot; fill-opacity=&quot;{}&quot; {}{}&gt;{}&lt;/tspan&gt;&quot;##</span>,
             <span class="ident">span</span>.<span class="ident">size</span>,
             <span class="ident">span</span>.<span class="ident">font</span>.<span class="ident">family</span>(),
@@ -1103,14 +1104,14 @@
         )
         .<span class="ident">unwrap</span>();
     }
-    <span class="macro">write!</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">svg</span>, <span class="string">&quot;{}&lt;/text&gt;&lt;/svg&gt;&quot;</span>, <span class="ident">contents</span>).<span class="ident">unwrap</span>();
+    <span class="macro">write!</span>(<span class="kw-2">&amp;mut</span> <span class="ident">svg</span>, <span class="string">&quot;{}&lt;/text&gt;&lt;/svg&gt;&quot;</span>, <span class="ident">contents</span>).<span class="ident">unwrap</span>();
 
     <span class="kw">let</span> <span class="ident">svg_tree</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">usvg::Tree::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">svg</span>, <span class="kw-2">&amp;</span><span class="ident">assets</span>.<span class="ident">text_opts</span>.<span class="ident">borrow</span>()) {
         <span class="prelude-val">Ok</span>(<span class="ident">t</span>) =&gt; <span class="ident">t</span>,
         <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;render_line({}): {}&quot;</span>, <span class="ident">contents</span>, <span class="ident">err</span>),
     };
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-    <span class="kw">match</span> <span class="ident"><span class="kw">crate</span>::svg::add_svg_inner</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">batch</span>, <span class="ident">svg_tree</span>, <span class="ident">tolerance</span>) {
+    <span class="kw">match</span> <span class="ident"><span class="kw">crate</span>::svg::add_svg_inner</span>(<span class="kw-2">&amp;mut</span> <span class="ident">batch</span>, <span class="ident">svg_tree</span>, <span class="ident">tolerance</span>) {
         <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="ident">batch</span>,
         <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;render_line({}): {}&quot;</span>, <span class="ident">contents</span>, <span class="ident">err</span>),
     }
@@ -1154,28 +1155,28 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">svg</span> <span class="op">=</span> <span class="string">r##&quot;&lt;svg width=&quot;9999&quot; height=&quot;9999&quot; viewBox=&quot;0 0 9999 9999&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;&gt;&quot;##</span>.<span class="ident">to_string</span>();
 
         <span class="macro">write!</span>(
-            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">svg</span>,
+            <span class="kw-2">&amp;mut</span> <span class="ident">svg</span>,
             <span class="string">r##&quot;&lt;path id=&quot;txtpath&quot; fill=&quot;none&quot; stroke=&quot;none&quot; d=&quot;&quot;##</span>
         )
         .<span class="ident">unwrap</span>();
         <span class="macro">write!</span>(
-            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">svg</span>,
+            <span class="kw-2">&amp;mut</span> <span class="ident">svg</span>,
             <span class="string">&quot;M {} {}&quot;</span>,
             <span class="ident">path</span>.<span class="ident">points</span>()[<span class="number">0</span>].<span class="ident">x</span>(),
             <span class="ident">path</span>.<span class="ident">points</span>()[<span class="number">0</span>].<span class="ident">y</span>()
         )
         .<span class="ident">unwrap</span>();
         <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">path</span>.<span class="ident">points</span>().<span class="ident">iter</span>().<span class="ident">skip</span>(<span class="number">1</span>) {
-            <span class="macro">write!</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">svg</span>, <span class="string">&quot; L {} {}&quot;</span>, <span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>()).<span class="ident">unwrap</span>();
+            <span class="macro">write!</span>(<span class="kw-2">&amp;mut</span> <span class="ident">svg</span>, <span class="string">&quot; L {} {}&quot;</span>, <span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>()).<span class="ident">unwrap</span>();
         }
-        <span class="macro">write!</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">svg</span>, <span class="string">&quot;\&quot; /&gt;&quot;</span>).<span class="ident">unwrap</span>();
+        <span class="macro">write!</span>(<span class="kw-2">&amp;mut</span> <span class="ident">svg</span>, <span class="string">&quot;\&quot; /&gt;&quot;</span>).<span class="ident">unwrap</span>();
         <span class="comment">// We need to subtract and account for the length of the text</span>
         <span class="kw">let</span> <span class="ident">start_offset</span> <span class="op">=</span> (<span class="ident">path</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">inner_meters</span>()
             <span class="op">-</span> (<span class="ident">Text::from</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">text</span>).<span class="ident">dims</span>(<span class="ident">assets</span>).<span class="ident">width</span> <span class="op">*</span> <span class="ident">scale</span>) <span class="op">/</span> <span class="number">2.0</span>;
 
         <span class="kw">let</span> <span class="ident">fg_color</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">fg_color_for_style</span>(<span class="kw-2">&amp;</span><span class="ident">assets</span>.<span class="ident">style</span>.<span class="ident">borrow</span>());
         <span class="macro">write!</span>(
-            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">svg</span>,
+            <span class="kw-2">&amp;mut</span> <span class="ident">svg</span>,
             <span class="string">r##&quot;&lt;text xml:space=&quot;preserve&quot; font-size=&quot;{}&quot; font-family=&quot;{}&quot; {} fill=&quot;{}&quot; fill-opacity=&quot;{}&quot; startOffset=&quot;{}&quot;&gt;&quot;##</span>,
             <span class="comment">// This is seemingly the easiest way to do this. We could .scale() the whole batch</span>
             <span class="comment">// after, but then we have to re-translate it to the proper spot</span>
@@ -1193,7 +1194,7 @@
             .<span class="ident">unwrap</span>();
 
         <span class="macro">write!</span>(
-            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">svg</span>,
+            <span class="kw-2">&amp;mut</span> <span class="ident">svg</span>,
             <span class="string">r##&quot;&lt;textPath href=&quot;#txtpath&quot;&gt;{}&lt;/textPath&gt;&lt;/text&gt;&lt;/svg&gt;&quot;##</span>,
             <span class="self">self</span>.<span class="ident">text</span>
         )
@@ -1204,7 +1205,7 @@
             <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;curvey({}): {}&quot;</span>, <span class="self">self</span>.<span class="ident">text</span>, <span class="ident">err</span>),
         };
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="kw">match</span> <span class="ident"><span class="kw">crate</span>::svg::add_svg_inner</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">batch</span>, <span class="ident">svg_tree</span>, <span class="ident">tolerance</span>) {
+        <span class="kw">match</span> <span class="ident"><span class="kw">crate</span>::svg::add_svg_inner</span>(<span class="kw-2">&amp;mut</span> <span class="ident">batch</span>, <span class="ident">svg_tree</span>, <span class="ident">tolerance</span>) {
             <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="ident">batch</span>,
             <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;curvey({}): {}&quot;</span>, <span class="self">self</span>.<span class="ident">text</span>, <span class="ident">err</span>),
         }
@@ -1212,5 +1213,4 @@
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="widgetry" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
-    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
 </body></html>

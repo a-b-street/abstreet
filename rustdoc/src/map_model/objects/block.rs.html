@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model&#x2F;src&#x2F;objects&#x2F;block.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>block.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../map_model/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model&#x2F;src&#x2F;objects&#x2F;block.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>block.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../map_model/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -635,13 +636,13 @@
 
     <span class="doccomment">/// A perimeter has the first and last road matching up, but that&#39;s confusing to</span>
     <span class="doccomment">/// work with. Temporarily undo that.</span>
-    <span class="kw">fn</span> <span class="ident">undo_invariant</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+    <span class="kw">fn</span> <span class="ident">undo_invariant</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
         <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">roads</span>[<span class="number">0</span>]), <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">pop</span>());
     }
 
     <span class="doccomment">/// Restore the first=last invariant. Methods may temporarily break this, but must restore it</span>
     <span class="doccomment">/// before returning.</span>
-    <span class="kw">fn</span> <span class="ident">restore_invariant</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+    <span class="kw">fn</span> <span class="ident">restore_invariant</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
         <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">roads</span>[<span class="number">0</span>]);
     }
 
@@ -651,7 +652,7 @@
     <span class="doccomment">/// Note this may modify both perimeters and still return `false`. The modification is just to</span>
     <span class="doccomment">/// rotate the order of the road loop; this doesn&#39;t logically change the perimeter.</span>
     <span class="comment">// TODO Would it be cleaner to return a Result here and always restore the invariant?</span>
-    <span class="kw">fn</span> <span class="ident">try_to_merge</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Perimeter</span>, <span class="ident">debug_failures</span>: <span class="ident">bool</span>) -&gt; <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">try_to_merge</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Perimeter</span>, <span class="ident">debug_failures</span>: <span class="ident">bool</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">undo_invariant</span>();
         <span class="ident">other</span>.<span class="ident">undo_invariant</span>();
 
@@ -732,10 +733,10 @@
         }
 
         <span class="comment">// This order assumes everything is clockwise to start with.</span>
-        <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">other</span>.<span class="ident">roads</span>);
+        <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">other</span>.<span class="ident">roads</span>);
 
         <span class="self">self</span>.<span class="ident">interior</span>.<span class="ident">extend</span>(<span class="ident">common</span>);
-        <span class="self">self</span>.<span class="ident">interior</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">other</span>.<span class="ident">interior</span>);
+        <span class="self">self</span>.<span class="ident">interior</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">other</span>.<span class="ident">interior</span>);
 
         <span class="comment">// Restore the first=last invariant</span>
         <span class="self">self</span>.<span class="ident">restore_invariant</span>();
@@ -752,7 +753,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">merge_all</span>(<span class="kw-2">mut</span> <span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Perimeter</span><span class="op">&gt;</span>, <span class="ident">stepwise_debug</span>: <span class="ident">bool</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Perimeter</span><span class="op">&gt;</span> {
         <span class="comment">// Internal dead-ends break merging, so first collapse of those. Do this before even</span>
         <span class="comment">// looking for neighbors, since find_common_roads doesn&#39;t understand dead-ends.</span>
-        <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">input</span> {
+        <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">input</span> {
             <span class="ident">p</span>.<span class="ident">collapse_deadends</span>();
         }
 
@@ -766,8 +767,8 @@
                     <span class="kw">continue</span>;
                 }
 
-                <span class="kw">for</span> <span class="ident">other</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">results</span> {
-                    <span class="kw">if</span> <span class="ident">other</span>.<span class="ident">try_to_merge</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">perimeter</span>, <span class="ident">stepwise_debug</span>) {
+                <span class="kw">for</span> <span class="ident">other</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">results</span> {
+                    <span class="kw">if</span> <span class="ident">other</span>.<span class="ident">try_to_merge</span>(<span class="kw-2">&amp;mut</span> <span class="ident">perimeter</span>, <span class="ident">stepwise_debug</span>) {
                         <span class="comment">// To debug, return after any single change</span>
                         <span class="ident">debug</span> <span class="op">=</span> <span class="ident">stepwise_debug</span>;
                         <span class="kw">continue</span> <span class="lifetime">&#39;INPUT</span>;
@@ -789,7 +790,7 @@
 
     <span class="doccomment">/// If the perimeter follows any dead-end roads, &quot;collapse&quot; them and instead make the perimeter</span>
     <span class="doccomment">/// contain the dead-end.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">collapse_deadends</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">collapse_deadends</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
         <span class="self">self</span>.<span class="ident">undo_invariant</span>();
 
         <span class="comment">// TODO Workaround https://github.com/a-b-street/abstreet/issues/834. If this is a loop</span>
@@ -1036,7 +1037,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Perimeter</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;Perimeter:&quot;</span>)<span class="question-mark">?</span>;
         <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">roads</span> {
             <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;- {:?} of {}&quot;</span>, <span class="ident">id</span>.<span class="ident">side</span>, <span class="ident">id</span>.<span class="ident">road</span>)<span class="question-mark">?</span>;
@@ -1046,5 +1047,4 @@
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
-    <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script>
 </body></html>

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `game&#x2F;src&#x2F;ltn&#x2F;draw_cells.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>draw_cells.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../game/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `game&#x2F;src&#x2F;ltn&#x2F;draw_cells.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>draw_cells.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../game/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -213,8 +214,40 @@
 <span id="213">213</span>
 <span id="214">214</span>
 <span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 
+<span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">map_gui::tools::Grid</span>;
 <span class="kw">use</span> <span class="ident">map_model::Map</span>;
@@ -305,7 +338,7 @@
             <span class="ident">grid</span>.<span class="ident">data</span>[<span class="ident">grid_idx</span>] <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">boundary_marker</span>);
         }
 
-        <span class="kw">let</span> <span class="ident">adjacencies</span> <span class="op">=</span> <span class="ident">diffusion</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">grid</span>, <span class="ident">boundary_marker</span>);
+        <span class="kw">let</span> <span class="ident">adjacencies</span> <span class="op">=</span> <span class="ident">diffusion</span>(<span class="kw-2">&amp;mut</span> <span class="ident">grid</span>, <span class="ident">boundary_marker</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cell_colors</span> <span class="op">=</span> <span class="ident">color_cells</span>(<span class="ident">neighborhood</span>.<span class="ident">cells</span>.<span class="ident">len</span>(), <span class="ident">adjacencies</span>);
 
         <span class="comment">// Color car-free cells in a special way</span>
@@ -353,11 +386,41 @@
         }
         <span class="ident">batch</span>
     }
+
+    <span class="doccomment">/// Per cell, glue together all of the rectangles into a single multipolygon</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_multipolygons</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">geo::MultiPolygon</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">polygons_per_cell</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">std::iter::repeat_with</span>(<span class="ident">Vec::new</span>)
+            .<span class="ident">take</span>(<span class="self">self</span>.<span class="ident">boundary_marker</span>)
+            .<span class="ident">collect</span>();
+        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">value</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">grid</span>.<span class="ident">data</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">cell_idx</span>) <span class="op">=</span> <span class="ident">value</span> {
+                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">cell_idx</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">boundary_marker</span> {
+                    <span class="kw">continue</span>;
+                }
+                <span class="kw">let</span> (<span class="ident">x</span>, <span class="ident">y</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">grid</span>.<span class="ident">xy</span>(<span class="ident">idx</span>);
+                <span class="kw">let</span> <span class="ident">tile_center</span> <span class="op">=</span> <span class="ident">Pt2D::new</span>(
+                    <span class="self">self</span>.<span class="ident">bounds</span>.<span class="ident">min_x</span> <span class="op">+</span> <span class="ident">RESOLUTION_M</span> <span class="op">*</span> (<span class="ident">x</span> <span class="kw">as</span> <span class="ident">f64</span> <span class="op">+</span> <span class="number">0.5</span>),
+                    <span class="self">self</span>.<span class="ident">bounds</span>.<span class="ident">min_y</span> <span class="op">+</span> <span class="ident">RESOLUTION_M</span> <span class="op">*</span> (<span class="ident">y</span> <span class="kw">as</span> <span class="ident">f64</span> <span class="op">+</span> <span class="number">0.5</span>),
+                );
+                <span class="ident">polygons_per_cell</span>[<span class="kw-2">*</span><span class="ident">cell_idx</span>].<span class="ident">push</span>(<span class="ident">Polygon::rectangle_centered</span>(
+                    <span class="ident">tile_center</span>,
+                    <span class="ident">Distance::meters</span>(<span class="ident">RESOLUTION_M</span>),
+                    <span class="ident">Distance::meters</span>(<span class="ident">RESOLUTION_M</span>),
+                ));
+            }
+        }
+
+        <span class="ident">timer</span>.<span class="ident">parallelize</span>(
+            <span class="string">&quot;Unioning polygons for one cell&quot;</span>,
+            <span class="ident">polygons_per_cell</span>,
+            <span class="ident">Polygon::union_all_into_multipolygon</span>,
+        )
+    }
 }
 
 <span class="doccomment">/// Returns a set of adjacent indices. The pairs are symmetric -- (x, y) and (y, x) will both be</span>
 <span class="doccomment">/// populated. Adjacency with boundary_marker doesn&#39;t count.</span>
-<span class="kw">fn</span> <span class="ident">diffusion</span>(<span class="ident">grid</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Grid</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">boundary_marker</span>: <span class="ident">usize</span>) -&gt; <span class="ident">HashSet</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">usize</span>)<span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">diffusion</span>(<span class="ident">grid</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Grid</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">boundary_marker</span>: <span class="ident">usize</span>) -&gt; <span class="ident">HashSet</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">usize</span>)<span class="op">&gt;</span> {
     <span class="comment">// Grid indices to propagate</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">queue</span>: <span class="ident">VecDeque</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">VecDeque::new</span>();
 
@@ -430,5 +493,4 @@
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
-    <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script>
 </body></html>

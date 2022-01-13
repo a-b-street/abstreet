@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model&#x2F;src&#x2F;raw.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>raw.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../map_model/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model&#x2F;src&#x2F;raw.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>raw.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../map_model/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -819,7 +820,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">OriginalRoad</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="macro">write!</span>(
             <span class="ident">f</span>,
             <span class="string">&quot;OriginalRoad({} from {} to {}&quot;</span>,
@@ -828,7 +829,7 @@
     }
 }
 <span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">OriginalRoad</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>)
     }
 }
@@ -947,7 +948,7 @@
         <span class="kw">let</span> (<span class="ident">poly</span>, <span class="ident">debug</span>) <span class="op">=</span> <span class="ident">initial::intersection_polygon</span>(
             <span class="ident">id</span>,
             <span class="ident">intersection_roads</span>,
-            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">roads</span>,
+            <span class="kw-2">&amp;mut</span> <span class="ident">roads</span>,
             <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">intersections</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>].<span class="ident">trim_roads_for_merging</span>,
         )<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>((
@@ -977,7 +978,7 @@
             <span class="ident">initial::intersection_polygon</span>(
                 <span class="ident">id</span>,
                 <span class="self">self</span>.<span class="ident">roads_per_intersection</span>(<span class="ident">id</span>).<span class="ident">into_iter</span>().<span class="ident">collect</span>(),
-                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">roads</span>,
+                <span class="kw-2">&amp;mut</span> <span class="ident">roads</span>,
                 <span class="comment">// TODO Not sure if we should use this or not</span>
                 <span class="kw-2">&amp;</span><span class="ident">BTreeMap::new</span>(),
             )
@@ -1002,7 +1003,7 @@
         <span class="self">self</span>.<span class="ident">roads_per_intersection</span>(<span class="ident">i</span>).<span class="ident">is_empty</span>()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delete_intersection</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">id</span>: <span class="ident">osm::NodeID</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delete_intersection</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">id</span>: <span class="ident">osm::NodeID</span>) {
         <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">can_delete_intersection</span>(<span class="ident">id</span>) {
             <span class="macro">panic!</span>(
                 <span class="string">&quot;Can&#39;t delete_intersection {}, must have roads connected&quot;</span>,
@@ -1012,7 +1013,7 @@
         <span class="self">self</span>.<span class="ident">intersections</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>).<span class="ident">unwrap</span>();
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">move_intersection</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">id</span>: <span class="ident">osm::NodeID</span>, <span class="ident">point</span>: <span class="ident">Pt2D</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">move_intersection</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">id</span>: <span class="ident">osm::NodeID</span>, <span class="ident">point</span>: <span class="ident">Pt2D</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">intersections</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>).<span class="ident">unwrap</span>().<span class="ident">point</span> <span class="op">=</span> <span class="ident">point</span>;
 
         <span class="comment">// Update all the roads.</span>
@@ -1057,7 +1058,7 @@
 
     <span class="doccomment">/// (the surviving intersection, the deleted intersection, deleted roads, new roads)</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">merge_short_road</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">short</span>: <span class="ident">OriginalRoad</span>,
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(
         <span class="ident">osm::NodeID</span>,
@@ -1184,7 +1185,7 @@
         }
 
         <span class="comment">// If we&#39;re deleting the target of a simple restriction somewhere, update it.</span>
-        <span class="kw">for</span> (<span class="ident">from_id</span>, <span class="ident">road</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">roads</span> {
+        <span class="kw">for</span> (<span class="ident">from_id</span>, <span class="ident">road</span>) <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">roads</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fix_trs</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
             <span class="kw">for</span> (<span class="ident">rt</span>, <span class="ident">to</span>) <span class="kw">in</span> <span class="ident">road</span>.<span class="ident">turn_restrictions</span>.<span class="ident">drain</span>(..) {
                 <span class="kw">if</span> <span class="ident">to</span> <span class="op">==</span> <span class="ident">short</span> <span class="op">&amp;&amp;</span> <span class="ident">rt</span> <span class="op">==</span> <span class="ident">RestrictionType::BanTurns</span> {
@@ -1234,7 +1235,7 @@
     }
 
     <span class="doccomment">/// Look for short roads that should be merged, and mark them as junction=intersection.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">auto_mark_junctions</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">auto_mark_junctions</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">threshold</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">20.0</span>);
 
         <span class="comment">// Simplest start: look for short roads connected to traffic signals.</span>
@@ -1279,9 +1280,9 @@
     <span class="doccomment">/// We don&#39;t want to run these during the OSM-&gt;RawMap import stage, because we want to use the</span>
     <span class="doccomment">/// map_editor tool to debug the RawMap.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run_all_simplifications</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">consolidate_all_intersections</span>: <span class="ident">bool</span>,
-        <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
+        <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>,
     ) {
         <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;trimming dead-end cycleways (round 1)&quot;</span>);
         <span class="ident"><span class="kw">crate</span>::make::collapse_intersections::trim_deadends</span>(<span class="self">self</span>);
@@ -1504,5 +1505,4 @@
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="map_model" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
-    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
 </body></html>

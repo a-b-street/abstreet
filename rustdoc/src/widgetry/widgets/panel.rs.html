@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry&#x2F;src&#x2F;widgets&#x2F;panel.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>panel.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../widgetry/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry&#x2F;src&#x2F;widgets&#x2F;panel.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>panel.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../widgetry/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -756,11 +757,11 @@
     }
 
     <span class="doccomment">/// Returns an empty panel. `event` and `draw` will have no effect.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">Panel</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">Panel</span> {
         <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[])).<span class="ident">build_custom</span>(<span class="ident">ctx</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">update_container_dims_for_canvas_dims</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">canvas_dims</span>: <span class="ident">ScreenDims</span>) {
+    <span class="kw">fn</span> <span class="ident">update_container_dims_for_canvas_dims</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">canvas_dims</span>: <span class="ident">ScreenDims</span>) {
         <span class="kw">let</span> <span class="ident">new_container_dims</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">dims</span> {
             <span class="ident">Dims::MaxPercent</span>(<span class="ident">w</span>, <span class="ident">h</span>) =&gt; <span class="ident">ScreenDims::new</span>(
                 <span class="self">self</span>.<span class="ident">contents_dims</span>.<span class="ident">width</span>.<span class="ident">min</span>(<span class="ident">w</span>.<span class="ident">inner</span>() <span class="op">*</span> <span class="ident">canvas_dims</span>.<span class="ident">width</span>),
@@ -779,7 +780,7 @@
         <span class="self">self</span>.<span class="ident">container_dims</span> <span class="op">=</span> <span class="ident">new_container_dims</span>;
     }
 
-    <span class="kw">fn</span> <span class="ident">recompute_scrollbar_layout</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) {
+    <span class="kw">fn</span> <span class="ident">recompute_scrollbar_layout</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) {
         <span class="kw">let</span> <span class="ident">old_scrollable_x</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">scrollable_x</span>;
         <span class="kw">let</span> <span class="ident">old_scrollable_y</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">scrollable_y</span>;
         <span class="kw">let</span> <span class="ident">old_scroll_offset</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">scroll_offset</span>();
@@ -836,7 +837,7 @@
                 <span class="ident">slider</span>.<span class="ident">widget</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">Slider</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>().<span class="ident">dragging</span> <span class="op">=</span> <span class="bool-val">true</span>;
             }
 
-            <span class="kw">let</span> <span class="ident">old_top_level</span> <span class="op">=</span> <span class="ident">std::mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">top_level</span>, <span class="ident">Widget::nothing</span>());
+            <span class="kw">let</span> <span class="ident">old_top_level</span> <span class="op">=</span> <span class="ident">std::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">top_level</span>, <span class="ident">Widget::nothing</span>());
             <span class="self">self</span>.<span class="ident">top_level</span> <span class="op">=</span> <span class="ident">Widget::custom_col</span>(<span class="macro">vec!</span>[<span class="ident">old_top_level</span>, <span class="ident">slider</span>]);
         }
 
@@ -854,7 +855,7 @@
                 <span class="ident">slider</span>.<span class="ident">widget</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">Slider</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>().<span class="ident">dragging</span> <span class="op">=</span> <span class="bool-val">true</span>;
             }
 
-            <span class="kw">let</span> <span class="ident">old_top_level</span> <span class="op">=</span> <span class="ident">std::mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">top_level</span>, <span class="ident">Widget::nothing</span>());
+            <span class="kw">let</span> <span class="ident">old_top_level</span> <span class="op">=</span> <span class="ident">std::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">top_level</span>, <span class="ident">Widget::nothing</span>());
             <span class="self">self</span>.<span class="ident">top_level</span> <span class="op">=</span> <span class="ident">Widget::custom_row</span>(<span class="macro">vec!</span>[<span class="ident">old_top_level</span>, <span class="ident">slider</span>]);
         }
 
@@ -870,12 +871,12 @@
     <span class="comment">// TODO: this method potentially gets called multiple times in a render pass as an</span>
     <span class="comment">// optimization, we could replace all the current call sites with a &quot;dirty&quot; flag, e.g.</span>
     <span class="comment">// `set_needs_layout()` and then call `layout_if_needed()` once at the last possible moment</span>
-    <span class="kw">fn</span> <span class="ident">recompute_layout</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">recompute_bg</span>: <span class="ident">bool</span>) {
+    <span class="kw">fn</span> <span class="ident">recompute_layout</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">recompute_bg</span>: <span class="ident">bool</span>) {
         <span class="self">self</span>.<span class="ident">invalidate_flexbox</span>();
         <span class="self">self</span>.<span class="ident">recompute_layout_if_needed</span>(<span class="ident">ctx</span>, <span class="ident">recompute_bg</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">invalidate_flexbox</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+    <span class="kw">fn</span> <span class="ident">invalidate_flexbox</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
         <span class="self">self</span>.<span class="ident">cached_flexbox</span> <span class="op">=</span> <span class="prelude-val">None</span>;
     }
 
@@ -891,7 +892,7 @@
             .<span class="ident">unwrap</span>();
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">nodes</span> <span class="op">=</span> <span class="macro">vec!</span>[];
-        <span class="self">self</span>.<span class="ident">top_level</span>.<span class="ident">get_flexbox</span>(<span class="ident">root</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">stretch</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">nodes</span>);
+        <span class="self">self</span>.<span class="ident">top_level</span>.<span class="ident">get_flexbox</span>(<span class="ident">root</span>, <span class="kw-2">&amp;mut</span> <span class="ident">stretch</span>, <span class="kw-2">&amp;mut</span> <span class="ident">nodes</span>);
         <span class="ident">nodes</span>.<span class="ident">reverse</span>();
 
         <span class="comment">// TODO Express more simply. Constraining this seems useless.</span>
@@ -912,7 +913,7 @@
         (<span class="ident">stretch</span>, <span class="ident">nodes</span>, <span class="ident">effective_dims</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">recompute_layout_if_needed</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">recompute_bg</span>: <span class="ident">bool</span>) {
+    <span class="kw">fn</span> <span class="ident">recompute_layout_if_needed</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">recompute_bg</span>: <span class="ident">bool</span>) {
         <span class="self">self</span>.<span class="ident">recompute_scrollbar_layout</span>(<span class="ident">ctx</span>);
         <span class="kw">let</span> (<span class="ident">stretch</span>, <span class="ident">nodes</span>, <span class="ident">effective_dims</span>) <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">cached_flexbox</span>
@@ -927,7 +928,7 @@
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">nodes</span> <span class="op">=</span> <span class="ident">nodes</span>.<span class="ident">clone</span>();
             <span class="self">self</span>.<span class="ident">top_level</span>.<span class="ident">apply_flexbox</span>(
                 <span class="kw-2">&amp;</span><span class="ident">stretch</span>,
-                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">nodes</span>,
+                <span class="kw-2">&amp;mut</span> <span class="ident">nodes</span>,
                 <span class="ident">top_left</span>.<span class="ident">x</span>,
                 <span class="ident">top_left</span>.<span class="ident">y</span>,
                 <span class="ident">offset</span>,
@@ -956,7 +957,7 @@
         (<span class="ident">x</span>, <span class="ident">y</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">update_scroll_sliders</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">offset</span>: (<span class="ident">f64</span>, <span class="ident">f64</span>)) -&gt; <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">update_scroll_sliders</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">offset</span>: (<span class="ident">f64</span>, <span class="ident">f64</span>)) -&gt; <span class="ident">bool</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">changed</span> <span class="op">=</span> <span class="bool-val">false</span>;
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">scrollable_x</span> {
             <span class="ident">changed</span> <span class="op">=</span> <span class="bool-val">true</span>;
@@ -981,13 +982,13 @@
         <span class="ident">changed</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">set_scroll_offset</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">offset</span>: (<span class="ident">f64</span>, <span class="ident">f64</span>)) {
+    <span class="kw">fn</span> <span class="ident">set_scroll_offset</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">offset</span>: (<span class="ident">f64</span>, <span class="ident">f64</span>)) {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">update_scroll_sliders</span>(<span class="ident">ctx</span>, <span class="ident">offset</span>) {
             <span class="self">self</span>.<span class="ident">recompute_layout_if_needed</span>(<span class="ident">ctx</span>, <span class="bool-val">false</span>);
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">Outcome</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">Outcome</span> {
         <span class="kw">if</span> (<span class="self">self</span>.<span class="ident">scrollable_x</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">scrollable_y</span>)
             <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>
                 .<span class="ident">canvas</span>
@@ -1017,7 +1018,7 @@
 
         <span class="kw">let</span> <span class="ident">before</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">scroll_offset</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">WidgetOutput::new</span>();
-        <span class="self">self</span>.<span class="ident">top_level</span>.<span class="ident">widget</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">output</span>);
+        <span class="self">self</span>.<span class="ident">top_level</span>.<span class="ident">widget</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;mut</span> <span class="ident">output</span>);
 
         <span class="kw">if</span> <span class="ident">output</span>.<span class="ident">redo_layout</span> {
             <span class="self">self</span>.<span class="ident">recompute_layout</span>(<span class="ident">ctx</span>, <span class="bool-val">true</span>);
@@ -1034,7 +1035,7 @@
         <span class="ident">output</span>.<span class="ident">outcome</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>) {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">rect</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">clip_rect</span> {
             <span class="ident">g</span>.<span class="ident">enable_clipping</span>(<span class="ident">rect</span>.<span class="ident">clone</span>());
             <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">mark_covered_area</span>(<span class="ident">rect</span>.<span class="ident">clone</span>());
@@ -1075,11 +1076,11 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_all_click_actions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">actions</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
-        <span class="self">self</span>.<span class="ident">top_level</span>.<span class="ident">get_all_click_actions</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">actions</span>);
+        <span class="self">self</span>.<span class="ident">top_level</span>.<span class="ident">get_all_click_actions</span>(<span class="kw-2">&amp;mut</span> <span class="ident">actions</span>);
         <span class="ident">actions</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">restore</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">prev</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">restore</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">prev</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) {
         <span class="self">self</span>.<span class="ident">set_scroll_offset</span>(<span class="ident">ctx</span>, <span class="ident">prev</span>.<span class="ident">scroll_offset</span>());
 
         <span class="self">self</span>.<span class="ident">top_level</span>.<span class="ident">restore</span>(<span class="ident">ctx</span>, <span class="ident">prev</span>);
@@ -1090,11 +1091,11 @@
         });
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">restore_scroll</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">prev</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">restore_scroll</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">prev</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) {
         <span class="self">self</span>.<span class="ident">set_scroll_offset</span>(<span class="ident">ctx</span>, <span class="ident">prev</span>.<span class="ident">scroll_offset</span>());
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">scroll_to_member</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">name</span>: <span class="ident">String</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">scroll_to_member</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">name</span>: <span class="ident">String</span>) {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">w</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">top_level</span>.<span class="ident">find</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>) {
             <span class="kw">let</span> <span class="ident">y1</span> <span class="op">=</span> <span class="ident">w</span>.<span class="ident">rect</span>.<span class="ident">y1</span>;
             <span class="self">self</span>.<span class="ident">set_scroll_offset</span>(<span class="ident">ctx</span>, (<span class="number">0.0</span>, <span class="ident">y1</span>));
@@ -1110,11 +1111,11 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">slider</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Slider</span> {
         <span class="self">self</span>.<span class="ident">find</span>(<span class="ident">name</span>)
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">slider_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Slider</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">slider_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Slider</span> {
         <span class="self">self</span>.<span class="ident">find_mut</span>(<span class="ident">name</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">take_menu_choice</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">T</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">take_menu_choice</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">T</span> {
         <span class="self">self</span>.<span class="ident">find_mut</span>::<span class="op">&lt;</span><span class="ident">Menu</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">name</span>).<span class="ident">take_current_choice</span>()
     }
 
@@ -1128,7 +1129,7 @@
             <span class="prelude-val">None</span>
         }
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_checked</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">on_off</span>: <span class="ident">bool</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_checked</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">on_off</span>: <span class="ident">bool</span>) {
         <span class="self">self</span>.<span class="ident">find_mut</span>::<span class="op">&lt;</span><span class="ident">Toggle</span><span class="op">&gt;</span>(<span class="ident">name</span>).<span class="ident">enabled</span> <span class="op">=</span> <span class="ident">on_off</span>
     }
 
@@ -1140,7 +1141,7 @@
         <span class="self">self</span>.<span class="ident">find</span>::<span class="op">&lt;</span><span class="ident">Spinner</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">name</span>).<span class="ident">current</span>
     }
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">modify_spinner</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">SpinnerValue</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
         <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
         <span class="ident">delta</span>: <span class="ident">T</span>,
@@ -1168,7 +1169,7 @@
 
     <span class="doccomment">/// Consumes the autocomplete widget. It&#39;s fine if the panel survives past this event; the</span>
     <span class="doccomment">/// autocomplete just needs to be interacted with again to produce more values.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">autocomplete_done</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Clone</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">autocomplete_done</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Clone</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">find_mut</span>::<span class="op">&lt;</span><span class="ident">Autocomplete</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">name</span>).<span class="ident">take_final_value</span>()
     }
 
@@ -1205,7 +1206,7 @@
             .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">panic!</span>(<span class="string">&quot;Can&#39;t find widget {}&quot;</span>, <span class="ident">name</span>))
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find_mut</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">WidgetImpl</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find_mut</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">WidgetImpl</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">T</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">w</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">top_level</span>.<span class="ident">find_mut</span>(<span class="ident">name</span>) {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">w</span>.<span class="ident">widget</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() {
                 <span class="ident">x</span>
@@ -1219,18 +1220,18 @@
 
     <span class="doccomment">/// Swap the inner content of a `container` widget with `new_inner_content`.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">swap_inner_content</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
         <span class="ident">container_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">new_inner_content</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Widget</span>,
+        <span class="ident">new_inner_content</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Widget</span>,
     ) {
-        <span class="kw">let</span> <span class="ident">old_container</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Container</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">find_mut</span>(<span class="ident">container_name</span>);
+        <span class="kw">let</span> <span class="ident">old_container</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Container</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">find_mut</span>(<span class="ident">container_name</span>);
         <span class="macro">assert_eq!</span>(
             <span class="ident">old_container</span>.<span class="ident">members</span>.<span class="ident">len</span>(),
             <span class="number">1</span>,
             <span class="string">&quot;method only intended to be used for containers created with `Widget::container`&quot;</span>
         );
-        <span class="ident">std::mem::swap</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">old_container</span>.<span class="ident">members</span>[<span class="number">0</span>], <span class="ident">new_inner_content</span>);
+        <span class="ident">std::mem::swap</span>(<span class="kw-2">&amp;mut</span> <span class="ident">old_container</span>.<span class="ident">members</span>[<span class="number">0</span>], <span class="ident">new_inner_content</span>);
         <span class="self">self</span>.<span class="ident">recompute_layout</span>(<span class="ident">ctx</span>, <span class="bool-val">true</span>);
     }
 
@@ -1248,7 +1249,7 @@
         <span class="self">self</span>.<span class="ident">top_level</span>.<span class="ident">rect</span>.<span class="ident">dims</span>()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">align</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">horiz</span>: <span class="ident">HorizontalAlignment</span>, <span class="ident">vert</span>: <span class="ident">VerticalAlignment</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">align</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">horiz</span>: <span class="ident">HorizontalAlignment</span>, <span class="ident">vert</span>: <span class="ident">VerticalAlignment</span>) {
         <span class="self">self</span>.<span class="ident">horiz</span> <span class="op">=</span> <span class="ident">horiz</span>;
         <span class="self">self</span>.<span class="ident">vert</span> <span class="op">=</span> <span class="ident">vert</span>;
         <span class="comment">// TODO Recompute layout and fire no_op_event?</span>
@@ -1256,7 +1257,7 @@
 
     <span class="doccomment">/// All margins/padding/etc from the previous widget are retained. The ID is set on the new</span>
     <span class="doccomment">/// widget; no need to do that yourself.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">mut</span> <span class="ident">new</span>: <span class="ident">Widget</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">mut</span> <span class="ident">new</span>: <span class="ident">Widget</span>) {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">new_id</span>) <span class="op">=</span> <span class="ident">new</span>.<span class="ident">id</span> {
             <span class="macro">assert_eq!</span>(<span class="ident">id</span>, <span class="ident">new_id</span>);
         }
@@ -1274,11 +1275,11 @@
     }
 
     <span class="doccomment">/// Removes a widget from the panel. Does not recalculate layout!</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">take</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">Widget</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">take</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">Widget</span> {
         <span class="self">self</span>.<span class="ident">top_level</span>.<span class="ident">take</span>(<span class="ident">id</span>).<span class="ident">unwrap</span>()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clicked_outside</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clicked_outside</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">bool</span> {
         <span class="comment">// TODO No great way to populate OSD from here with &quot;click to cancel&quot;</span>
         <span class="op">!</span><span class="self">self</span>.<span class="ident">top_level</span>.<span class="ident">rect</span>.<span class="ident">contains</span>(<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor</span>()) <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>()
     }
@@ -1304,12 +1305,12 @@
 }
 
 <span class="kw">impl</span> <span class="ident">PanelBuilder</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">Panel</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">Panel</span> {
         <span class="self">self</span>.<span class="ident">top_level</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">top_level</span>.<span class="ident">padding</span>(<span class="number">16</span>).<span class="ident">bg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>.<span class="ident">panel_bg</span>);
         <span class="self">self</span>.<span class="ident">build_custom</span>(<span class="ident">ctx</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_custom</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">Panel</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_custom</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">Panel</span> {
         <span class="kw">let</span> <span class="ident">ignore_initial_events</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">ignore_initial_events</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel</span> {
             <span class="ident">top_level</span>: <span class="self">self</span>.<span class="ident">top_level</span>,
@@ -1422,5 +1423,4 @@
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
-    <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script>
 </body></html>

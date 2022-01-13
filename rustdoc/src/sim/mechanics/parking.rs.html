@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim&#x2F;src&#x2F;mechanics&#x2F;parking.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>parking.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../sim/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim&#x2F;src&#x2F;mechanics&#x2F;parking.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>parking.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../sim/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
 <span id="4">   4</span>
@@ -1097,15 +1098,15 @@
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ParkingSim</span> {
     <span class="doccomment">/// Returns any cars that got very abruptly evicted from existence, and also cars actively</span>
     <span class="doccomment">/// moving into a deleted spot.</span>
-    <span class="kw">fn</span> <span class="ident">handle_live_edits</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) -&gt; (<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkedCar</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CarID</span><span class="op">&gt;</span>);
+    <span class="kw">fn</span> <span class="ident">handle_live_edits</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) -&gt; (<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkedCar</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CarID</span><span class="op">&gt;</span>);
     <span class="kw">fn</span> <span class="ident">get_free_onstreet_spots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">l</span>: <span class="ident">LaneID</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span>;
     <span class="kw">fn</span> <span class="ident">get_free_offstreet_spots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">b</span>: <span class="ident">BuildingID</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span>;
     <span class="kw">fn</span> <span class="ident">get_free_lot_spots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pl</span>: <span class="ident">ParkingLotID</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span>;
-    <span class="kw">fn</span> <span class="ident">reserve_spot</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">spot</span>: <span class="ident">ParkingSpot</span>, <span class="ident">car</span>: <span class="ident">CarID</span>);
+    <span class="kw">fn</span> <span class="ident">reserve_spot</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">spot</span>: <span class="ident">ParkingSpot</span>, <span class="ident">car</span>: <span class="ident">CarID</span>);
     <span class="doccomment">/// Needed when abruptly deleting a car, in case they&#39;re being deleted during their last step.</span>
-    <span class="kw">fn</span> <span class="ident">unreserve_spot</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">car</span>: <span class="ident">CarID</span>);
-    <span class="kw">fn</span> <span class="ident">remove_parked_car</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">p</span>: <span class="ident">ParkedCar</span>);
-    <span class="kw">fn</span> <span class="ident">add_parked_car</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">p</span>: <span class="ident">ParkedCar</span>);
+    <span class="kw">fn</span> <span class="ident">unreserve_spot</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">car</span>: <span class="ident">CarID</span>);
+    <span class="kw">fn</span> <span class="ident">remove_parked_car</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">p</span>: <span class="ident">ParkedCar</span>);
+    <span class="kw">fn</span> <span class="ident">add_parked_car</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">p</span>: <span class="ident">ParkedCar</span>);
     <span class="kw">fn</span> <span class="ident">get_draw_cars</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">LaneID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawCarInput</span><span class="op">&gt;</span>;
     <span class="kw">fn</span> <span class="ident">get_draw_cars_in_lots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">LaneID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawCarInput</span><span class="op">&gt;</span>;
     <span class="kw">fn</span> <span class="ident">get_draw_car</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">CarID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DrawCarInput</span><span class="op">&gt;</span>;
@@ -1144,7 +1145,7 @@
         <span class="ident">target</span>: <span class="ident">BuildingID</span>,
         <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
     ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PathStep</span><span class="op">&gt;</span>, <span class="ident">ParkingSpot</span>, <span class="ident">Position</span>)<span class="op">&gt;</span>;
-    <span class="kw">fn</span> <span class="ident">collect_events</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">collect_events</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span>;
     <span class="kw">fn</span> <span class="ident">all_parked_car_positions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Position</span>, <span class="ident">PersonID</span>)<span class="op">&gt;</span>;
     <span class="kw">fn</span> <span class="ident">bldg_to_parked_cars</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">b</span>: <span class="ident">BuildingID</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CarID</span><span class="op">&gt;</span>;
 }
@@ -1159,7 +1160,7 @@
 <span class="kw">impl</span> <span class="ident">ParkingSimState</span> {
     <span class="doccomment">/// Counterintuitive: any spots located in blackholes are just not represented here. If somebody</span>
     <span class="doccomment">/// tries to drive from a blackholed spot, they couldn&#39;t reach most places.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">infinite</span>: <span class="ident">bool</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) -&gt; <span class="ident">ParkingSimState</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">infinite</span>: <span class="ident">bool</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) -&gt; <span class="ident">ParkingSimState</span> {
         <span class="kw">if</span> <span class="ident">infinite</span> {
             <span class="ident">ParkingSimState::Infinite</span>(<span class="ident">InfiniteParkingSimState::new</span>(<span class="ident">map</span>))
         } <span class="kw">else</span> {
@@ -1223,7 +1224,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">NormalParkingSimState</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) -&gt; <span class="ident">NormalParkingSimState</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) -&gt; <span class="ident">NormalParkingSimState</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sim</span> <span class="op">=</span> <span class="ident">NormalParkingSimState</span> {
             <span class="ident">parked_cars</span>: <span class="ident">BTreeMap::new</span>(),
             <span class="ident">occupants</span>: <span class="ident">BTreeMap::new</span>(),
@@ -1286,7 +1287,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">ParkingSim</span> <span class="kw">for</span> <span class="ident">NormalParkingSimState</span> {
-    <span class="kw">fn</span> <span class="ident">handle_live_edits</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) -&gt; (<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkedCar</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CarID</span><span class="op">&gt;</span>) {
+    <span class="kw">fn</span> <span class="ident">handle_live_edits</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) -&gt; (<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkedCar</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CarID</span><span class="op">&gt;</span>) {
         <span class="kw">let</span> (<span class="ident">filled_before</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_all_parking_spots</span>();
         <span class="kw">let</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">NormalParkingSimState::new</span>(<span class="ident">map</span>, <span class="ident">timer</span>);
         <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">avail_after</span>) <span class="op">=</span> <span class="ident">new</span>.<span class="ident">get_all_parking_spots</span>();
@@ -1360,7 +1361,7 @@
         <span class="ident">spots</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">reserve_spot</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">spot</span>: <span class="ident">ParkingSpot</span>, <span class="ident">car</span>: <span class="ident">CarID</span>) {
+    <span class="kw">fn</span> <span class="ident">reserve_spot</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">spot</span>: <span class="ident">ParkingSpot</span>, <span class="ident">car</span>: <span class="ident">CarID</span>) {
         <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">is_free</span>(<span class="ident">spot</span>));
         <span class="self">self</span>.<span class="ident">reserved_spots</span>.<span class="ident">insert</span>(<span class="ident">spot</span>, <span class="ident">car</span>);
 
@@ -1378,11 +1379,11 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">unreserve_spot</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">car</span>: <span class="ident">CarID</span>) {
+    <span class="kw">fn</span> <span class="ident">unreserve_spot</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">car</span>: <span class="ident">CarID</span>) {
         <span class="self">self</span>.<span class="ident">reserved_spots</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="kw">_</span>, <span class="ident">c</span><span class="op">|</span> <span class="ident">car</span> <span class="op">!</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">c</span>);
     }
 
-    <span class="kw">fn</span> <span class="ident">remove_parked_car</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">p</span>: <span class="ident">ParkedCar</span>) {
+    <span class="kw">fn</span> <span class="ident">remove_parked_car</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">p</span>: <span class="ident">ParkedCar</span>) {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">parked_cars</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">p</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>).<span class="ident">is_none</span>() {
             <span class="macro">panic!</span>(<span class="string">&quot;remove_parked_car {:?} missing from parked_cars&quot;</span>, <span class="ident">p</span>);
         }
@@ -1393,7 +1394,7 @@
             .<span class="ident">push</span>(<span class="ident">Event::CarLeftParkingSpot</span>(<span class="ident">p</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>, <span class="ident">p</span>.<span class="ident">spot</span>));
     }
 
-    <span class="kw">fn</span> <span class="ident">add_parked_car</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">p</span>: <span class="ident">ParkedCar</span>) {
+    <span class="kw">fn</span> <span class="ident">add_parked_car</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">p</span>: <span class="ident">ParkedCar</span>) {
         <span class="self">self</span>.<span class="ident">events</span>
             .<span class="ident">push</span>(<span class="ident">Event::CarReachedParkingSpot</span>(<span class="ident">p</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>, <span class="ident">p</span>.<span class="ident">spot</span>));
 
@@ -1700,8 +1701,8 @@
         <span class="prelude-val">None</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">collect_events</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span> {
-        <span class="ident">std::mem::take</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">events</span>)
+    <span class="kw">fn</span> <span class="ident">collect_events</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span> {
+        <span class="ident">std::mem::take</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">events</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">all_parked_car_positions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Position</span>, <span class="ident">PersonID</span>)<span class="op">&gt;</span> {
@@ -1905,7 +1906,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">ParkingSim</span> <span class="kw">for</span> <span class="ident">InfiniteParkingSimState</span> {
-    <span class="kw">fn</span> <span class="ident">handle_live_edits</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) -&gt; (<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkedCar</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CarID</span><span class="op">&gt;</span>) {
+    <span class="kw">fn</span> <span class="ident">handle_live_edits</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) -&gt; (<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkedCar</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CarID</span><span class="op">&gt;</span>) {
         <span class="comment">// Can live edits possibly affect anything?</span>
         <span class="kw">let</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">InfiniteParkingSimState::new</span>(<span class="ident">map</span>);
         <span class="self">self</span>.<span class="ident">driving_to_offstreet</span> <span class="op">=</span> <span class="ident">new</span>.<span class="ident">driving_to_offstreet</span>;
@@ -1927,16 +1928,16 @@
         <span class="ident">Vec::new</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">reserve_spot</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">spot</span>: <span class="ident">ParkingSpot</span>, <span class="ident">car</span>: <span class="ident">CarID</span>) {
+    <span class="kw">fn</span> <span class="ident">reserve_spot</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">spot</span>: <span class="ident">ParkingSpot</span>, <span class="ident">car</span>: <span class="ident">CarID</span>) {
         <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">is_free</span>(<span class="ident">spot</span>));
         <span class="self">self</span>.<span class="ident">reserved_spots</span>.<span class="ident">insert</span>(<span class="ident">spot</span>, <span class="ident">car</span>);
     }
 
-    <span class="kw">fn</span> <span class="ident">unreserve_spot</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">car</span>: <span class="ident">CarID</span>) {
+    <span class="kw">fn</span> <span class="ident">unreserve_spot</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">car</span>: <span class="ident">CarID</span>) {
         <span class="self">self</span>.<span class="ident">reserved_spots</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="kw">_</span>, <span class="ident">c</span><span class="op">|</span> <span class="ident">car</span> <span class="op">!</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">c</span>);
     }
 
-    <span class="kw">fn</span> <span class="ident">remove_parked_car</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">p</span>: <span class="ident">ParkedCar</span>) {
+    <span class="kw">fn</span> <span class="ident">remove_parked_car</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">p</span>: <span class="ident">ParkedCar</span>) {
         <span class="self">self</span>.<span class="ident">parked_cars</span>
             .<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">p</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>)
             .<span class="ident">expect</span>(<span class="string">&quot;remove_parked_car missing from parked_cars&quot;</span>);
@@ -1951,7 +1952,7 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">add_parked_car</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">p</span>: <span class="ident">ParkedCar</span>) {
+    <span class="kw">fn</span> <span class="ident">add_parked_car</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">p</span>: <span class="ident">ParkedCar</span>) {
         <span class="self">self</span>.<span class="ident">events</span>
             .<span class="ident">push</span>(<span class="ident">Event::CarReachedParkingSpot</span>(<span class="ident">p</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>, <span class="ident">p</span>.<span class="ident">spot</span>));
 
@@ -2113,8 +2114,8 @@
         <span class="prelude-val">None</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">collect_events</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span> {
-        <span class="ident">std::mem::take</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">events</span>)
+    <span class="kw">fn</span> <span class="ident">collect_events</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span> {
+        <span class="ident">std::mem::take</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">events</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">all_parked_car_positions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Position</span>, <span class="ident">PersonID</span>)<span class="op">&gt;</span> {
@@ -2144,5 +2145,4 @@
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sim" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
-    <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script>
 </body></html>
