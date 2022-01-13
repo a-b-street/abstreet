@@ -1248,6 +1248,7 @@ dependencies = [
  "downcast-rs",
  "enumset",
  "futures-channel",
+ "geo",
  "geojson",
  "geom",
  "getrandom",

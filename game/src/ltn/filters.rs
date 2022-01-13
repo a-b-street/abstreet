@@ -186,7 +186,7 @@ impl DiagonalFilter {
     }
 
     /// Physically where is the filter placed?
-    fn geometry(&self, map: &Map) -> Line {
+    pub fn geometry(&self, map: &Map) -> Line {
         let r1 = map.get_r(self.r1);
         let r2 = map.get_r(self.r2);
 
