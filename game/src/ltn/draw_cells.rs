@@ -1,5 +1,6 @@
 use std::collections::{HashSet, VecDeque};
 
+use abstutil::Timer;
 use geom::{Bounds, Distance, Polygon, Pt2D};
 use map_gui::tools::Grid;
 use map_model::Map;
@@ -137,6 +138,36 @@ impl RenderCells {
             }
         }
         batch
+    }
+
+    /// Per cell, glue together all of the rectangles into a single multipolygon
+    pub fn to_multipolygons(&self, timer: &mut Timer) -> Vec<geo::MultiPolygon<f64>> {
+        let mut polygons_per_cell: Vec<Vec<Polygon>> = std::iter::repeat_with(Vec::new)
+            .take(self.boundary_marker)
+            .collect();
+        for (idx, value) in self.grid.data.iter().enumerate() {
+            if let Some(cell_idx) = value {
+                if *cell_idx == self.boundary_marker {
+                    continue;
+                }
+                let (x, y) = self.grid.xy(idx);
+                let tile_center = Pt2D::new(
+                    self.bounds.min_x + RESOLUTION_M * (x as f64 + 0.5),
+                    self.bounds.min_y + RESOLUTION_M * (y as f64 + 0.5),
+                );
+                polygons_per_cell[*cell_idx].push(Polygon::rectangle_centered(
+                    tile_center,
+                    Distance::meters(RESOLUTION_M),
+                    Distance::meters(RESOLUTION_M),
+                ));
+            }
+        }
+
+        timer.parallelize(
+            "Unioning polygons for one cell",
+            polygons_per_cell,
+            Polygon::union_all_into_multipolygon,
+        )
     }
 }
 

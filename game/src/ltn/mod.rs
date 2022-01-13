@@ -18,6 +18,7 @@ mod auto;
 mod browse;
 mod connectivity;
 mod draw_cells;
+mod export;
 mod filters;
 mod partition;
 mod pathfinding;

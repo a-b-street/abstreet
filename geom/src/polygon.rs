@@ -342,7 +342,20 @@ impl Polygon {
         result
     }
 
-    // TODO Result won't be a nice Ring
+    /// Union all of the polygons into one geo::MultiPolygon
+    pub fn union_all_into_multipolygon(mut list: Vec<Polygon>) -> geo::MultiPolygon<f64> {
+        // TODO Not sure why this happened, or if this is really valid to construct...
+        if list.is_empty() {
+            return geo::MultiPolygon(Vec::new());
+        }
+
+        let mut result = geo::MultiPolygon(vec![to_geo(list.pop().unwrap().points())]);
+        for p in list {
+            result = result.union(&to_geo(p.points()));
+        }
+        result
+    }
+
     pub fn intersection(&self, other: &Polygon) -> Vec<Polygon> {
         from_multi(to_geo(self.points()).intersection(&to_geo(other.points())))
     }
