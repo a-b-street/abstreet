@@ -69,6 +69,19 @@ impl RenderCells {
                         ((pt.x() - bounds.min_x) / RESOLUTION_M) as usize,
                         ((pt.y() - bounds.min_y) / RESOLUTION_M) as usize,
                     );
+                    // Due to tunnels/bridges, sometimes a road belongs to a neighborhood, but
+                    // leaks outside the neighborhood's boundary. Avoid crashing. The real fix is
+                    // to better define boundaries in the face of z-order changes.
+                    //
+                    // Example is https://www.openstreetmap.org/way/87298633
+                    if grid_idx >= grid.data.len() {
+                        warn!(
+                            "{} leaks outside its neighborhood's boundary polygon, near {}",
+                            road.id, pt
+                        );
+                        continue;
+                    }
+
                     // If roads from two different cells are close enough to clobber originally, oh
                     // well?
                     grid.data[grid_idx] = Some(cell_idx);
