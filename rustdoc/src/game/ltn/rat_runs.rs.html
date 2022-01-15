@@ -173,6 +173,17 @@
 <span id="172">172</span>
 <span id="173">173</span>
 <span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Counter</span>, <span class="ident">Timer</span>};
@@ -181,7 +192,8 @@
     <span class="ident">Position</span>, <span class="ident">RoadID</span>,
 };
 
-<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">Cell</span>, <span class="ident">ModalFilters</span>, <span class="ident">Neighborhood</span>};
+<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">Cell</span>, <span class="ident">Neighborhood</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app::App</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RatRuns</span> {
     <span class="kw">pub</span> <span class="ident">paths</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span>,
@@ -189,12 +201,22 @@
     <span class="kw">pub</span> <span class="ident">count_per_intersection</span>: <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find_rat_runs</span>(
-    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    <span class="ident">neighborhood</span>: <span class="kw-2">&amp;</span><span class="ident">Neighborhood</span>,
-    <span class="ident">modal_filters</span>: <span class="kw-2">&amp;</span><span class="ident">ModalFilters</span>,
-    <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>,
-) -&gt; <span class="ident">RatRuns</span> {
+<span class="kw">impl</span> <span class="ident">RatRuns</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">quiet_and_total_streets</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">neighborhood</span>: <span class="kw-2">&amp;</span><span class="ident">Neighborhood</span>) -&gt; (<span class="ident">usize</span>, <span class="ident">usize</span>) {
+        <span class="kw">let</span> <span class="ident">quiet_streets</span> <span class="op">=</span> <span class="ident">neighborhood</span>
+            .<span class="ident">orig_perimeter</span>
+            .<span class="ident">interior</span>
+            .<span class="ident">iter</span>()
+            .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">count_per_road</span>.<span class="ident">get</span>(<span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">r</span>) <span class="op">==</span> <span class="number">0</span>)
+            .<span class="ident">count</span>();
+        <span class="kw">let</span> <span class="ident">total_streets</span> <span class="op">=</span> <span class="ident">neighborhood</span>.<span class="ident">orig_perimeter</span>.<span class="ident">interior</span>.<span class="ident">len</span>();
+        (<span class="ident">quiet_streets</span>, <span class="ident">total_streets</span>)
+    }
+}
+
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find_rat_runs</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">neighborhood</span>: <span class="kw-2">&amp;</span><span class="ident">Neighborhood</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) -&gt; <span class="ident">RatRuns</span> {
+    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
+    <span class="kw">let</span> <span class="ident">modal_filters</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>;
     <span class="comment">// The overall approach: look for all possible paths from an entrance to an exit, only if they</span>
     <span class="comment">// connect to different major roads.</span>
     <span class="comment">//</span>
