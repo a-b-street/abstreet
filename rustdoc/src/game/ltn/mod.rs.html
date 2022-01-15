@@ -333,7 +333,6 @@
 <span id="332">332</span>
 <span id="333">333</span>
 <span id="334">334</span>
-<span id="335">335</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">maplit::btreeset</span>;
@@ -506,7 +505,7 @@
             <span class="ident">no_car_roads</span>.<span class="ident">push</span>(<span class="ident">start</span>);
             <span class="kw">continue</span>;
         }
-        <span class="kw">let</span> <span class="ident">cell</span> <span class="op">=</span> <span class="ident">floodfill</span>(<span class="ident">map</span>, <span class="ident">start</span>, <span class="ident">perimeter</span>, <span class="ident">borders</span>, <span class="kw-2">&amp;</span><span class="ident">modal_filters</span>);
+        <span class="kw">let</span> <span class="ident">cell</span> <span class="op">=</span> <span class="ident">floodfill</span>(<span class="ident">map</span>, <span class="ident">start</span>, <span class="ident">borders</span>, <span class="kw-2">&amp;</span><span class="ident">modal_filters</span>);
         <span class="ident">visited</span>.<span class="ident">extend</span>(<span class="ident">cell</span>.<span class="ident">roads</span>.<span class="ident">keys</span>().<span class="ident">cloned</span>());
         <span class="ident">cells</span>.<span class="ident">push</span>(<span class="ident">cell</span>);
     }
@@ -580,7 +579,6 @@
 <span class="kw">fn</span> <span class="ident">floodfill</span>(
     <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
     <span class="ident">start</span>: <span class="ident">RoadID</span>,
-    <span class="ident">perimeter</span>: <span class="kw-2">&amp;</span><span class="ident">Perimeter</span>,
     <span class="ident">neighborhood_borders</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
     <span class="ident">modal_filters</span>: <span class="kw-2">&amp;</span><span class="ident">ModalFilters</span>,
 ) -&gt; <span class="ident">Cell</span> {

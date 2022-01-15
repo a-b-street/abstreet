@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["detect_neighborhoods",""],["draw_boundary_roads",""]],"struct":[["BrowseNeighborhoods",""]]});
+initSidebarItems({"enum":[["Style",""]],"fn":[["draw_boundary_roads",""],["make_world",""]],"struct":[["BrowseNeighborhoods",""]]});
