@@ -151,6 +151,17 @@ impl RoadSideID {
             SideOfRoad::Left => &r.lanes[0],
         }
     }
+
+    pub fn other_side(self) -> RoadSideID {
+        RoadSideID {
+            road: self.road,
+            side: if self.side == SideOfRoad::Left {
+                SideOfRoad::Right
+            } else {
+                SideOfRoad::Left
+            },
+        }
+    }
 }
 
 /// A Road represents a segment between exactly two Intersections. It contains Lanes as children.
