@@ -1,15 +1,14 @@
 use std::collections::HashSet;
 
-use abstutil::Timer;
 use geom::Distance;
 use map_gui::tools::{CityPicker, DrawRoadLabels, Navigator, PopupMsg, URLManager};
 use widgetry::mapspace::{ToggleZoomed, World, WorldOutcome};
 use widgetry::{
-    lctrl, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, State, TextExt,
-    Toggle, VerticalAlignment, Widget,
+    lctrl, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, State,
+    TextExt, Toggle, VerticalAlignment, Widget,
 };
 
-use super::{NeighborhoodID, Partitioning};
+use super::{Neighborhood, NeighborhoodID, Partitioning};
 use crate::app::{App, Transition};
 use crate::debug::DebugMode;
 
@@ -25,8 +24,14 @@ impl BrowseNeighborhoods {
     pub fn new_state(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
         URLManager::update_url_map_name(app);
 
+        let style = Style::SimpleColoring;
         let world = ctx.loading_screen("calculate neighborhoods", |ctx, timer| {
-            detect_neighborhoods(ctx, app, timer)
+            // TODO Or if the map doesn't match? Do we take care of this in SessionState for
+            // anything?!
+            if app.session.partitioning.neighborhoods.is_empty() {
+                app.session.partitioning = Partitioning::seed_using_heuristics(app, timer);
+            }
+            make_world(ctx, app, style)
         });
         let draw_all_filters = app.session.modal_filters.draw(ctx, &app.primary.map, None);
 
@@ -42,6 +47,18 @@ impl BrowseNeighborhoods {
                     .align_right(),
             ]),
             Toggle::checkbox(ctx, "highlight boundary roads", Key::H, true),
+            Widget::row(vec![
+                "Draw neighborhoods:".text_widget(ctx).centered_vert(),
+                Widget::dropdown(
+                    ctx,
+                    "style",
+                    style,
+                    vec![
+                        Choice::new("simple", Style::SimpleColoring),
+                        Choice::new("cells", Style::Cells),
+                    ],
+                ),
+            ]),
             ctx.style()
                 .btn_outline
                 .text("Export to GeoJSON")
@@ -61,8 +78,8 @@ impl BrowseNeighborhoods {
 
 impl State<App> for BrowseNeighborhoods {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        if let Outcome::Clicked(x) = self.panel.event(ctx) {
-            match x.as_ref() {
+        match self.panel.event(ctx) {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "Home" => {
                     return Transition::Clear(vec![crate::pregame::TitleScreen::new_state(
                         ctx, app,
@@ -99,7 +116,13 @@ impl State<App> for BrowseNeighborhoods {
                     });
                 }
                 _ => unreachable!(),
+            },
+            Outcome::Changed(_) => {
+                self.world = ctx.loading_screen("change style", |ctx, _| {
+                    make_world(ctx, app, self.panel.dropdown_value("style"))
+                });
             }
+            _ => {}
         }
 
         if let WorldOutcome::ClickedObject(id) = self.world.event(ctx) {
@@ -126,25 +149,35 @@ impl State<App> for BrowseNeighborhoods {
     }
 }
 
-fn detect_neighborhoods(
-    ctx: &mut EventCtx,
-    app: &mut App,
-    timer: &mut Timer,
-) -> World<NeighborhoodID> {
-    // TODO Or if the map doesn't match? Do we take care of this in SessionState for anything?!
-    if app.session.partitioning.neighborhoods.is_empty() {
-        app.session.partitioning = Partitioning::seed_using_heuristics(app, timer);
-    }
-
+fn make_world(ctx: &mut EventCtx, app: &App, style: Style) -> World<NeighborhoodID> {
     let mut world = World::bounded(app.primary.map.get_bounds());
     for (id, (block, color)) in &app.session.partitioning.neighborhoods {
-        world
-            .add(*id)
-            .hitbox(block.polygon.clone())
-            .draw_color(color.alpha(0.5))
-            .hover_outline(Color::BLACK, Distance::meters(5.0))
-            .clickable()
-            .build(ctx);
+        match style {
+            Style::SimpleColoring => {
+                world
+                    .add(*id)
+                    .hitbox(block.polygon.clone())
+                    .draw_color(color.alpha(0.5))
+                    .hover_outline(Color::BLACK, Distance::meters(5.0))
+                    .clickable()
+                    .build(ctx);
+            }
+            Style::Cells => {
+                // TODO The cell colors are confusing alongside the other neighborhood colors. I
+                // tried greying out everything else, but then the view is too jumpy.
+                let map = &app.primary.map;
+                let neighborhood = Neighborhood::new(ctx, app, *id);
+                let render_cells = super::draw_cells::RenderCells::new(map, &neighborhood);
+                let hovered_batch = render_cells.draw_grid();
+                world
+                    .add(*id)
+                    .hitbox(block.polygon.clone())
+                    .draw_color(color.alpha(0.5))
+                    .draw_hovered(hovered_batch)
+                    .clickable()
+                    .build(ctx);
+            }
+        }
     }
     world
 }
@@ -185,4 +218,10 @@ fn draw_boundary_roads(ctx: &EventCtx, app: &App) -> ToggleZoomed {
         }
     }
     batch.build(ctx)
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+enum Style {
+    SimpleColoring,
+    Cells,
 }

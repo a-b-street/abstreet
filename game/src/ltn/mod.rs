@@ -170,7 +170,7 @@ fn find_cells(
             no_car_roads.push(start);
             continue;
         }
-        let cell = floodfill(map, start, perimeter, borders, &modal_filters);
+        let cell = floodfill(map, start, borders, &modal_filters);
         visited.extend(cell.roads.keys().cloned());
         cells.push(cell);
     }
@@ -244,7 +244,6 @@ fn find_cells(
 fn floodfill(
     map: &Map,
     start: RoadID,
-    perimeter: &Perimeter,
     neighborhood_borders: &BTreeSet<IntersectionID>,
     modal_filters: &ModalFilters,
 ) -> Cell {
