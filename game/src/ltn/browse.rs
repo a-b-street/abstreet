@@ -1,11 +1,12 @@
 use std::collections::HashSet;
 
+use abstutil::Timer;
 use geom::Distance;
 use map_gui::tools::{CityPicker, DrawRoadLabels, Navigator, PopupMsg, URLManager};
 use widgetry::mapspace::{ToggleZoomed, World, WorldOutcome};
 use widgetry::{
-    lctrl, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, State,
-    TextExt, Toggle, VerticalAlignment, Widget,
+    lctrl, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, RewriteColor,
+    State, TextExt, Toggle, VerticalAlignment, Widget,
 };
 
 use super::{Neighborhood, NeighborhoodID, Partitioning};
@@ -31,7 +32,7 @@ impl BrowseNeighborhoods {
             if app.session.partitioning.neighborhoods.is_empty() {
                 app.session.partitioning = Partitioning::seed_using_heuristics(app, timer);
             }
-            make_world(ctx, app, style)
+            make_world(ctx, app, style, timer)
         });
         let draw_all_filters = app.session.modal_filters.draw(ctx, &app.primary.map, None);
 
@@ -56,6 +57,7 @@ impl BrowseNeighborhoods {
                     vec![
                         Choice::new("simple", Style::SimpleColoring),
                         Choice::new("cells", Style::Cells),
+                        Choice::new("quietness", Style::Quietness),
                     ],
                 ),
             ]),
@@ -118,8 +120,8 @@ impl State<App> for BrowseNeighborhoods {
                 _ => unreachable!(),
             },
             Outcome::Changed(_) => {
-                self.world = ctx.loading_screen("change style", |ctx, _| {
-                    make_world(ctx, app, self.panel.dropdown_value("style"))
+                self.world = ctx.loading_screen("change style", |ctx, timer| {
+                    make_world(ctx, app, self.panel.dropdown_value("style"), timer)
                 });
             }
             _ => {}
@@ -149,8 +151,14 @@ impl State<App> for BrowseNeighborhoods {
     }
 }
 
-fn make_world(ctx: &mut EventCtx, app: &App, style: Style) -> World<NeighborhoodID> {
+fn make_world(
+    ctx: &mut EventCtx,
+    app: &App,
+    style: Style,
+    timer: &mut Timer,
+) -> World<NeighborhoodID> {
     let mut world = World::bounded(app.primary.map.get_bounds());
+    let map = &app.primary.map;
     for (id, (block, color)) in &app.session.partitioning.neighborhoods {
         match style {
             Style::SimpleColoring => {
@@ -165,15 +173,35 @@ fn make_world(ctx: &mut EventCtx, app: &App, style: Style) -> World<Neighborhood
             Style::Cells => {
                 // TODO The cell colors are confusing alongside the other neighborhood colors. I
                 // tried greying out everything else, but then the view is too jumpy.
-                let map = &app.primary.map;
                 let neighborhood = Neighborhood::new(ctx, app, *id);
                 let render_cells = super::draw_cells::RenderCells::new(map, &neighborhood);
-                let hovered_batch = render_cells.draw_grid();
+                let hovered_batch = render_cells
+                    .draw_grid()
+                    .color(RewriteColor::ChangeAlpha(0.8));
                 world
                     .add(*id)
                     .hitbox(block.polygon.clone())
                     .draw_color(color.alpha(0.5))
                     .draw_hovered(hovered_batch)
+                    .clickable()
+                    .build(ctx);
+            }
+            Style::Quietness => {
+                let neighborhood = Neighborhood::new(ctx, app, *id);
+                let rat_runs = super::rat_runs::find_rat_runs(app, &neighborhood, timer);
+                let (quiet_streets, total_streets) =
+                    rat_runs.quiet_and_total_streets(&neighborhood);
+                let pct = if total_streets == 0 {
+                    0.0
+                } else {
+                    1.0 - (quiet_streets as f64 / total_streets as f64)
+                };
+                let color = app.cs.good_to_bad_red.eval(pct);
+                world
+                    .add(*id)
+                    .hitbox(block.polygon.clone())
+                    .draw_color(color.alpha(0.5))
+                    .hover_outline(Color::BLACK, Distance::meters(5.0))
                     .clickable()
                     .build(ctx);
             }
@@ -224,4 +252,5 @@ fn draw_boundary_roads(ctx: &EventCtx, app: &App) -> ToggleZoomed {
 enum Style {
     SimpleColoring,
     Cells,
+    Quietness,
 }

@@ -28,12 +28,7 @@ impl BrowseRatRuns {
         let neighborhood = Neighborhood::new(ctx, app, id);
 
         let rat_runs = ctx.loading_screen("find rat runs", |_, timer| {
-            find_rat_runs(
-                &app.primary.map,
-                &neighborhood,
-                &app.session.modal_filters,
-                timer,
-            )
+            find_rat_runs(app, &neighborhood, timer)
         });
         let mut colorer = ColorNetwork::no_fading(app);
         colorer.ranked_roads(rat_runs.count_per_road.clone(), &app.cs.good_to_bad_red);
@@ -58,7 +53,8 @@ impl BrowseRatRuns {
     }
 
     fn recalculate(&mut self, ctx: &mut EventCtx, app: &App) {
-        let total_streets = self.neighborhood.orig_perimeter.interior.len();
+        let (quiet_streets, total_streets) =
+            self.rat_runs.quiet_and_total_streets(&self.neighborhood);
 
         if self.rat_runs.paths.is_empty() {
             self.panel = Tab::RatRuns
@@ -69,7 +65,7 @@ impl BrowseRatRuns {
                         ctx,
                         Text::from(Line(format!(
                             "{} / {} streets have no through-traffic",
-                            total_streets, total_streets
+                            quiet_streets, total_streets
                         ))),
                         1.0,
                     ),
@@ -77,14 +73,6 @@ impl BrowseRatRuns {
                 .build(ctx);
             return;
         }
-
-        let quiet_streets = self
-            .neighborhood
-            .orig_perimeter
-            .interior
-            .iter()
-            .filter(|r| self.rat_runs.count_per_road.get(**r) == 0)
-            .count();
 
         self.panel = Tab::RatRuns
             .panel_builder(

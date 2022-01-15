@@ -6,7 +6,8 @@ use map_model::{
     Position, RoadID,
 };
 
-use super::{Cell, ModalFilters, Neighborhood};
+use super::{Cell, Neighborhood};
+use crate::app::App;
 
 pub struct RatRuns {
     pub paths: Vec<Path>,
@@ -14,12 +15,22 @@ pub struct RatRuns {
     pub count_per_intersection: Counter<IntersectionID>,
 }
 
-pub fn find_rat_runs(
-    map: &Map,
-    neighborhood: &Neighborhood,
-    modal_filters: &ModalFilters,
-    timer: &mut Timer,
-) -> RatRuns {
+impl RatRuns {
+    pub fn quiet_and_total_streets(&self, neighborhood: &Neighborhood) -> (usize, usize) {
+        let quiet_streets = neighborhood
+            .orig_perimeter
+            .interior
+            .iter()
+            .filter(|r| self.count_per_road.get(**r) == 0)
+            .count();
+        let total_streets = neighborhood.orig_perimeter.interior.len();
+        (quiet_streets, total_streets)
+    }
+}
+
+pub fn find_rat_runs(app: &App, neighborhood: &Neighborhood, timer: &mut Timer) -> RatRuns {
+    let map = &app.primary.map;
+    let modal_filters = &app.session.modal_filters;
     // The overall approach: look for all possible paths from an entrance to an exit, only if they
     // connect to different major roads.
     //

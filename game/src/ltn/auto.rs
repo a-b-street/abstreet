@@ -68,12 +68,7 @@ impl Heuristic {
 }
 
 fn greedy(ctx: &EventCtx, app: &mut App, neighborhood: &Neighborhood, timer: &mut Timer) {
-    let rat_runs = find_rat_runs(
-        &app.primary.map,
-        &neighborhood,
-        &app.session.modal_filters,
-        timer,
-    );
+    let rat_runs = find_rat_runs(app, &neighborhood, timer);
     // TODO How should we break ties? Some rat-runs are worse than others; use that weight?
     // TODO Should this operation be per cell instead? We could hover on a road belonging to that
     // cell to select it
@@ -107,7 +102,7 @@ fn brute_force(ctx: &EventCtx, app: &mut App, neighborhood: &Neighborhood, timer
         if let Some(new) = try_to_filter_road(ctx, app, neighborhood, *r) {
             let num_rat_runs =
                 // This spams too many logs, and can't be used within a start_iter anyway
-                find_rat_runs(&app.primary.map, &new, &app.session.modal_filters, &mut Timer::throwaway())
+                find_rat_runs(app, &new, &mut Timer::throwaway())
                     .paths
                     .len();
             // TODO Again, break ties. Just the number of paths is kind of a weak metric.
