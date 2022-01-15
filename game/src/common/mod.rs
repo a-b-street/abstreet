@@ -511,3 +511,28 @@ pub fn jump_to_time_upon_startup(
         })
     })
 }
+
+pub fn percentage_bar(ctx: &EventCtx, txt: Text, pct_green: f64) -> Widget {
+    let bad_color = Color::RED;
+    let good_color = Color::GREEN;
+
+    let total_width = 450.0;
+    let height = 32.0;
+    let radius = 4.0;
+
+    let mut batch = GeomBatch::new();
+    // Background
+    batch.push(
+        bad_color,
+        Polygon::rounded_rectangle(total_width, height, radius),
+    );
+    // Foreground
+    if let Some(poly) = Polygon::maybe_rounded_rectangle(pct_green * total_width, height, radius) {
+        batch.push(good_color, poly);
+    }
+    // Text
+    let label = txt.render_autocropped(ctx);
+    let dims = label.get_dims();
+    batch.append(label.translate(10.0, height / 2.0 - dims.height / 2.0));
+    batch.into_widget(ctx)
+}

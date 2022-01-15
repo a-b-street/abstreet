@@ -2,18 +2,17 @@ use std::collections::HashSet;
 
 use abstio::Manifest;
 use abstutil::{prettyprint_bytes, prettyprint_usize, Counter, Timer};
-use geom::{Distance, Duration, Polygon, UnitFmt};
+use geom::{Distance, Duration, UnitFmt};
 use map_gui::load::FileLoader;
 use map_gui::tools::{open_browser, ColorNetwork};
 use map_gui::ID;
 use map_model::{PathRequest, PathStepV2, RoadID};
 use sim::{Scenario, TripEndpoint, TripMode};
 use widgetry::mapspace::ToggleZoomed;
-use widgetry::{
-    Color, EventCtx, GeomBatch, GfxCtx, Line, Outcome, Panel, Spinner, State, Text, TextExt, Widget,
-};
+use widgetry::{EventCtx, GfxCtx, Line, Outcome, Panel, Spinner, State, Text, TextExt, Widget};
 
 use crate::app::{App, Transition};
+use crate::common::percentage_bar;
 use crate::ungap::{Layers, Tab, TakeLayers};
 
 pub struct ShowGaps {
@@ -478,31 +477,6 @@ impl ModeShiftData {
             count_per_road,
         };
     }
-}
-
-fn percentage_bar(ctx: &mut EventCtx, txt: Text, pct_green: f64) -> Widget {
-    let car_color = Color::RED;
-    let bike_color = Color::GREEN;
-
-    let total_width = 450.0;
-    let height = 32.0;
-    let radius = 4.0;
-
-    let mut batch = GeomBatch::new();
-    // Background
-    batch.push(
-        car_color,
-        Polygon::rounded_rectangle(total_width, height, radius),
-    );
-    // Foreground
-    if let Some(poly) = Polygon::maybe_rounded_rectangle(pct_green * total_width, height, radius) {
-        batch.push(bike_color, poly);
-    }
-    // Text
-    let label = txt.render_autocropped(ctx);
-    let dims = label.get_dims();
-    batch.append(label.translate(10.0, height / 2.0 - dims.height / 2.0));
-    batch.into_widget(ctx)
 }
 
 fn pct(value: usize, total: usize) -> f64 {

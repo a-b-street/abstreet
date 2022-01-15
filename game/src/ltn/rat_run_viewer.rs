@@ -10,6 +10,7 @@ use super::per_neighborhood::{FilterableObj, Tab};
 use super::rat_runs::{find_rat_runs, RatRuns};
 use super::{Neighborhood, NeighborhoodID};
 use crate::app::{App, Transition};
+use crate::common::percentage_bar;
 
 pub struct BrowseRatRuns {
     panel: Panel,
@@ -57,12 +58,33 @@ impl BrowseRatRuns {
     }
 
     fn recalculate(&mut self, ctx: &mut EventCtx, app: &App) {
+        let total_streets = self.neighborhood.orig_perimeter.interior.len();
+
         if self.rat_runs.paths.is_empty() {
             self.panel = Tab::RatRuns
-                .panel_builder(ctx, app, "No rat runs detected".text_widget(ctx))
+                .panel_builder(
+                    ctx,
+                    app,
+                    percentage_bar(
+                        ctx,
+                        Text::from(Line(format!(
+                            "{} / {} streets have no through-traffic",
+                            total_streets, total_streets
+                        ))),
+                        1.0,
+                    ),
+                )
                 .build(ctx);
             return;
         }
+
+        let quiet_streets = self
+            .neighborhood
+            .orig_perimeter
+            .interior
+            .iter()
+            .filter(|r| self.rat_runs.count_per_road.get(**r) == 0)
+            .count();
 
         self.panel = Tab::RatRuns
             .panel_builder(
@@ -101,6 +123,14 @@ impl BrowseRatRuns {
                         self.panel
                             .maybe_is_checked("show heatmap of all rat-runs")
                             .unwrap_or(true),
+                    ),
+                    percentage_bar(
+                        ctx,
+                        Text::from(Line(format!(
+                            "{} / {} streets have no through-traffic",
+                            quiet_streets, total_streets
+                        ))),
+                        (quiet_streets as f64) / (total_streets as f64),
                     ),
                 ]),
             )
