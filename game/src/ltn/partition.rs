@@ -22,8 +22,10 @@ pub struct NeighborhoodID(usize);
 // Some states want this
 impl widgetry::mapspace::ObjectID for NeighborhoodID {}
 
+#[derive(Clone)]
 pub struct Partitioning {
     pub neighborhoods: BTreeMap<NeighborhoodID, (Block, Color)>,
+    // TODO Stash the single blocks here -- they never change
 }
 
 impl Partitioning {

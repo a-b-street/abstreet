@@ -1,5 +1,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 
+use anyhow::Result;
+
 use geom::Distance;
 use map_model::{Block, Perimeter, RoadID};
 use widgetry::mapspace::ToggleZoomed;
@@ -10,7 +12,7 @@ use widgetry::{
 };
 
 use crate::app::{App, Transition};
-use crate::ltn::NeighborhoodID;
+use crate::ltn::{NeighborhoodID, Partitioning};
 
 const SELECTED: Color = Color::CYAN;
 
@@ -25,6 +27,8 @@ pub struct SelectBoundary {
     draw_outline: ToggleZoomed,
     block_to_neighborhood: BTreeMap<BlockID, NeighborhoodID>,
     frontier: BTreeSet<BlockID>,
+
+    orig_partitioning: Partitioning,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -47,6 +51,8 @@ impl SelectBoundary {
             draw_outline: ToggleZoomed::empty(ctx),
             block_to_neighborhood: BTreeMap::new(),
             frontier: BTreeSet::new(),
+
+            orig_partitioning: app.session.partitioning.clone(),
         };
 
         ctx.loading_screen("calculate all blocks", |ctx, timer| {
@@ -139,14 +145,6 @@ impl SelectBoundary {
         }
     }
 
-    fn merge_selected(&self) -> Vec<Perimeter> {
-        let mut perimeters = Vec::new();
-        for id in &self.selected {
-            perimeters.push(self.blocks[&id].perimeter.clone());
-        }
-        Perimeter::merge_all(perimeters, false)
-    }
-
     fn redraw_outline(&mut self, ctx: &mut EventCtx, app: &App, perimeter: Perimeter) {
         // Draw the outline of the current blocks
         let mut batch = ToggleZoomed::builder();
@@ -163,40 +161,124 @@ impl SelectBoundary {
     }
 
     // This block was in the previous frontier; its inclusion in self.selected has changed.
-    fn block_changed(&mut self, ctx: &mut EventCtx, app: &App, id: BlockID) {
-        let mut perimeters = self.merge_selected();
-        if perimeters.len() != 1 {
-            // We split the current neighborhood in two.
-            // TODO Figure out how to handle this. For now, don't allow and revert
-            if self.selected.contains(&id) {
-                self.selected.remove(&id);
-            } else {
-                self.selected.insert(id);
+    fn block_changed(&mut self, ctx: &mut EventCtx, app: &mut App, id: BlockID) {
+        match self.try_block_changed(app, id) {
+            Ok(()) => {
+                let old_frontier = std::mem::take(&mut self.frontier);
+                let new_perimeter = &app.session.partitioning.neighborhoods[&self.id].0.perimeter;
+                self.frontier = calculate_frontier(new_perimeter, &self.blocks);
+
+                // Redraw all of the blocks that changed
+                let mut changed_blocks: Vec<BlockID> = old_frontier
+                    .symmetric_difference(&self.frontier)
+                    .cloned()
+                    .collect();
+                // And always the current block
+                changed_blocks.push(id);
+                for changed in changed_blocks {
+                    self.world.delete_before_replacement(changed);
+                    self.add_block(ctx, app, changed);
+                }
+
+                // TODO Pass in the Block
+                self.redraw_outline(ctx, app, new_perimeter.clone());
+                self.panel = make_panel(ctx, app);
             }
-            let label =
-                "Splitting this neighborhood in two is currently unsupported".text_widget(ctx);
-            self.panel.replace(ctx, "warning", label);
-            return;
+            Err(err) => {
+                if self.selected.contains(&id) {
+                    self.selected.remove(&id);
+                } else {
+                    self.selected.insert(id);
+                }
+                let label = err.to_string().text_widget(ctx);
+                self.panel.replace(ctx, "warning", label);
+            }
         }
+    }
 
-        let old_frontier = std::mem::take(&mut self.frontier);
-        let new_perimeter = perimeters.pop().unwrap();
-        self.frontier = calculate_frontier(&new_perimeter, &self.blocks);
-
-        // Redraw all of the blocks that changed
-        let mut changed_blocks: Vec<BlockID> = old_frontier
-            .symmetric_difference(&self.frontier)
-            .cloned()
-            .collect();
-        // And always the current block
-        changed_blocks.push(id);
-        for changed in changed_blocks {
-            self.world.delete_before_replacement(changed);
-            self.add_block(ctx, app, changed);
+    fn make_merged_block(&self, app: &App, input: Vec<BlockID>) -> Result<Block> {
+        let mut perimeters = Vec::new();
+        for id in input {
+            perimeters.push(self.blocks[&id].perimeter.clone());
         }
+        let mut merged = Perimeter::merge_all(perimeters, false);
+        if merged.len() != 1 {
+            bail!(format!(
+                "Splitting this neighborhood into {} pieces is currently unsupported",
+                merged.len()
+            ));
+        }
+        merged.pop().unwrap().to_block(&app.primary.map)
+    }
 
-        self.redraw_outline(ctx, app, new_perimeter);
-        self.panel = make_panel(ctx, app);
+    fn try_block_changed(&mut self, app: &mut App, id: BlockID) -> Result<()> {
+        // The simple case -- we're taking a block from another neighborhood
+        if self.selected.contains(&id) {
+            let old_owner = app
+                .session
+                .partitioning
+                .neighborhood_containing(&self.blocks[&id])
+                .unwrap();
+            assert_ne!(old_owner, self.id);
+
+            // Is the newly expanded neighborhood a valid perimeter?
+            let current_neighborhood_block =
+                self.make_merged_block(app, self.selected.iter().cloned().collect())?;
+
+            // Is the old owner neighborhood, minus this block, still valid?
+            let old_blocks: Vec<BlockID> = self
+                .block_to_neighborhood
+                .iter()
+                .filter_map(|(block, neighborhood)| {
+                    if *block != id && *neighborhood == old_owner {
+                        Some(*block)
+                    } else {
+                        None
+                    }
+                })
+                .collect();
+            if old_blocks.is_empty() {
+                app.session
+                    .partitioning
+                    .neighborhoods
+                    .get_mut(&self.id)
+                    .unwrap()
+                    .0 = current_neighborhood_block;
+                // The old neighborhood is destroyed!
+                app.session
+                    .partitioning
+                    .neighborhoods
+                    .remove(&old_owner)
+                    .unwrap();
+            } else {
+                let old_neighborhood_block = self.make_merged_block(app, old_blocks)?;
+                // Great! Do the transfer.
+                // TODO May need to recalculate colors!
+                app.session
+                    .partitioning
+                    .neighborhoods
+                    .get_mut(&self.id)
+                    .unwrap()
+                    .0 = current_neighborhood_block;
+                app.session
+                    .partitioning
+                    .neighborhoods
+                    .get_mut(&old_owner)
+                    .unwrap()
+                    .0 = old_neighborhood_block;
+            }
+
+            self.block_to_neighborhood.insert(id, self.id);
+            Ok(())
+        } else {
+            // Figure out who we're giving the block to
+            // 1) Find _any_ RoadSideID in the block matching the current neighborhood perimeter
+            // 2) If another neighborhood's perimeter contains the other side of the road, cool --
+            //    it's them
+            // 3) If not, we're getting rid of a block near the edge of a map. Make that block
+            //    become its own new neighborhood.
+            bail!("Removing a block not supported yet");
+        }
     }
 }
 
@@ -205,26 +287,15 @@ impl State<App> for SelectBoundary {
         if let Outcome::Clicked(x) = self.panel.event(ctx) {
             match x.as_ref() {
                 "Cancel" => {
-                    return Transition::Pop;
+                    app.session.partitioning = self.orig_partitioning.clone();
+                    return Transition::Replace(super::connectivity::Viewer::new_state(
+                        ctx, app, self.id,
+                    ));
                 }
                 "Confirm" => {
-                    let mut perimeters = self.merge_selected();
-                    assert_eq!(perimeters.len(), 1);
-                    // Persist the partitioning
-                    if let Ok(block) = perimeters.pop().unwrap().to_block(&app.primary.map) {
-                        // TODO May need to recalculate colors!
-                        app.session
-                            .partitioning
-                            .neighborhoods
-                            .get_mut(&self.id)
-                            .unwrap()
-                            .0 = block;
-                        return Transition::Replace(super::connectivity::Viewer::new_state(
-                            ctx, app, self.id,
-                        ));
-                    } else {
-                        // TODO Is it possible we wound up with a broken block?
-                    }
+                    return Transition::Replace(super::connectivity::Viewer::new_state(
+                        ctx, app, self.id,
+                    ));
                 }
                 _ => unreachable!(),
             }
