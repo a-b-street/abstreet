@@ -64,7 +64,9 @@ impl State<App> for BrowseNeighborhoods {
         if let Outcome::Clicked(x) = self.panel.event(ctx) {
             match x.as_ref() {
                 "Home" => {
-                    return Transition::Pop;
+                    return Transition::Clear(vec![crate::pregame::TitleScreen::new_state(
+                        ctx, app,
+                    )]);
                 }
                 "change map" => {
                     return Transition::Push(CityPicker::new_state(
