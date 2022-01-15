@@ -270,14 +270,17 @@ fn floodfill(
             },
         );
         for i in [current.src_i, current.dst_i] {
+            // It's possible for one border intersection to have two roads in the interior of the
+            // neighborhood. Don't consider a turn between those roads through this intersection as
+            // counting as connectivity -- we're right at the boundary road, so it's like leaving
+            // and re-entering the neighborhood.
+            if neighborhood_borders.contains(&i) {
+                cell_borders.insert(i);
+                continue;
+            }
+
             for next in &map.get_i(i).roads {
                 let next_road = map.get_r(*next);
-                if !perimeter.interior.contains(next) {
-                    if neighborhood_borders.contains(&i) {
-                        cell_borders.insert(i);
-                    }
-                    continue;
-                }
                 if let Some(filter) = modal_filters.intersections.get(&i) {
                     if !filter.allows_turn(current.id, *next) {
                         continue;
