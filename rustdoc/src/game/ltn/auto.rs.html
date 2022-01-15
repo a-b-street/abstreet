@@ -317,14 +317,14 @@
                             .<span class="ident">modal_filters</span>
                             .<span class="ident">roads</span>
                             .<span class="ident">insert</span>(<span class="ident">road</span>.<span class="ident">id</span>, <span class="number">0.1</span> <span class="op">*</span> <span class="ident">road</span>.<span class="ident">length</span>());
+                        <span class="kw">break</span>;
                     } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">dst_i</span> <span class="op">==</span> <span class="kw-2">*</span><span class="ident">i</span> {
                         <span class="ident">app</span>.<span class="ident">session</span>
                             .<span class="ident">modal_filters</span>
                             .<span class="ident">roads</span>
                             .<span class="ident">insert</span>(<span class="ident">road</span>.<span class="ident">id</span>, <span class="number">0.9</span> <span class="op">*</span> <span class="ident">road</span>.<span class="ident">length</span>());
+                        <span class="kw">break</span>;
                     }
-                    <span class="comment">// Sometimes a cell has multiple roads connecing to the same border, so don&#39;t</span>
-                    <span class="comment">// stop looking even once we add one filter</span>
                 }
             }
         }
