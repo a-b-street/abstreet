@@ -25,7 +25,8 @@ impl widgetry::mapspace::ObjectID for NeighborhoodID {}
 #[derive(Clone)]
 pub struct Partitioning {
     pub neighborhoods: BTreeMap<NeighborhoodID, (Block, Color)>,
-    // TODO Stash the single blocks here -- they never change
+    // The single / unmerged blocks never change
+    pub single_blocks: Vec<Block>,
 }
 
 impl Partitioning {
@@ -33,19 +34,25 @@ impl Partitioning {
     pub fn empty() -> Partitioning {
         Partitioning {
             neighborhoods: BTreeMap::new(),
+            single_blocks: Vec::new(),
         }
     }
 
     pub fn seed_using_heuristics(app: &App, timer: &mut Timer) -> Partitioning {
         let map = &app.primary.map;
         timer.start("find single blocks");
-        let mut single_blocks = Perimeter::find_all_single_blocks(map);
-        // TODO Ew! Expensive! But the merged neighborhoods differ widely from blockfinder if we don't.
-        single_blocks.retain(|x| x.clone().to_block(map).is_ok());
+        let mut single_blocks = Vec::new();
+        let mut single_block_perims = Vec::new();
+        for perim in Perimeter::find_all_single_blocks(map) {
+            if let Ok(block) = perim.to_block(map) {
+                single_block_perims.push(block.perimeter.clone());
+                single_blocks.push(block);
+            }
+        }
         timer.stop("find single blocks");
 
         timer.start("partition");
-        let partitions = Perimeter::partition_by_predicate(single_blocks, |r| {
+        let partitions = Perimeter::partition_by_predicate(single_block_perims, |r| {
             // "Interior" roads of a neighborhood aren't classified as arterial
             map.get_r(r).get_rank() == RoadRank::Local
         });
@@ -81,7 +88,10 @@ impl Partitioning {
             let color = COLORS[color_idx % COLORS.len()];
             neighborhoods.insert(NeighborhoodID(neighborhoods.len()), (block, color));
         }
-        Partitioning { neighborhoods }
+        Partitioning {
+            neighborhoods,
+            single_blocks,
+        }
     }
 
     pub fn neighborhood_containing(&self, find_block: &Block) -> Option<NeighborhoodID> {

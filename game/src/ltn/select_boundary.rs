@@ -55,49 +55,28 @@ impl SelectBoundary {
             orig_partitioning: app.session.partitioning.clone(),
         };
 
-        ctx.loading_screen("calculate all blocks", |ctx, timer| {
-            timer.start("find single blocks");
-            let perimeters = Perimeter::find_all_single_blocks(&app.primary.map);
-            timer.stop("find single blocks");
-
-            let mut blocks = Vec::new();
-            timer.start_iter("blockify", perimeters.len());
-            for perimeter in perimeters {
-                timer.next();
-                match perimeter.to_block(&app.primary.map) {
-                    Ok(block) => {
-                        blocks.push(block);
-                    }
-                    Err(err) => {
-                        warn!("Failed to make a block from a perimeter: {}", err);
-                    }
-                }
+        for (idx, block) in app.session.partitioning.single_blocks.iter().enumerate() {
+            let id = BlockID(idx);
+            if let Some(neighborhood) = app.session.partitioning.neighborhood_containing(block) {
+                state.block_to_neighborhood.insert(id, neighborhood);
+            } else {
+                // TODO What happened?
+                error!(
+                    "Block doesn't belong to any neighborhood?! {:?}",
+                    block.perimeter
+                );
             }
-
-            for (idx, block) in blocks.into_iter().enumerate() {
-                let id = BlockID(idx);
-                if let Some(neighborhood) = app.session.partitioning.neighborhood_containing(&block)
-                {
-                    state.block_to_neighborhood.insert(id, neighborhood);
-                } else {
-                    // TODO What happened?
-                    error!(
-                        "Block doesn't belong to any neighborhood?! {:?}",
-                        block.perimeter
-                    );
-                }
-                if initial_boundary.contains(&block.perimeter) {
-                    state.selected.insert(id);
-                }
-                state.blocks.insert(id, block);
+            if initial_boundary.contains(&block.perimeter) {
+                state.selected.insert(id);
             }
-            state.frontier = calculate_frontier(&initial_boundary, &state.blocks);
+            state.blocks.insert(id, block.clone());
+        }
+        state.frontier = calculate_frontier(&initial_boundary, &state.blocks);
 
-            // Fill out the world initially
-            for id in state.blocks.keys().cloned().collect::<Vec<_>>() {
-                state.add_block(ctx, app, id);
-            }
-        });
+        // Fill out the world initially
+        for id in state.blocks.keys().cloned().collect::<Vec<_>>() {
+            state.add_block(ctx, app, id);
+        }
 
         state.redraw_outline(ctx, app, initial_boundary);
         state.world.initialize_hover(ctx);
