@@ -93,6 +93,7 @@ impl SelectBoundary {
             }
         });
 
+        state.redraw_outline(ctx, app, initial_boundary);
         state.world.initialize_hover(ctx);
         Box::new(state)
     }
@@ -146,6 +147,21 @@ impl SelectBoundary {
         Perimeter::merge_all(perimeters, false)
     }
 
+    fn redraw_outline(&mut self, ctx: &mut EventCtx, app: &App, perimeter: Perimeter) {
+        // Draw the outline of the current blocks
+        let mut batch = ToggleZoomed::builder();
+        if let Ok(block) = perimeter.to_block(&app.primary.map) {
+            if let Ok(outline) = block.polygon.to_outline(Distance::meters(10.0)) {
+                batch.unzoomed.push(Color::RED, outline);
+            }
+            if let Ok(outline) = block.polygon.to_outline(Distance::meters(5.0)) {
+                batch.zoomed.push(Color::RED.alpha(0.5), outline);
+            }
+        }
+        // TODO If this fails, maybe also revert
+        self.draw_outline = batch.build(ctx);
+    }
+
     // This block was in the previous frontier; its inclusion in self.selected has changed.
     fn block_changed(&mut self, ctx: &mut EventCtx, app: &App, id: BlockID) {
         let mut perimeters = self.merge_selected();
@@ -179,18 +195,7 @@ impl SelectBoundary {
             self.add_block(ctx, app, changed);
         }
 
-        // Draw the outline of the current blocks
-        let mut batch = ToggleZoomed::builder();
-        if let Ok(block) = new_perimeter.to_block(&app.primary.map) {
-            if let Ok(outline) = block.polygon.to_outline(Distance::meters(10.0)) {
-                batch.unzoomed.push(Color::RED, outline);
-            }
-            if let Ok(outline) = block.polygon.to_outline(Distance::meters(5.0)) {
-                batch.zoomed.push(Color::RED.alpha(0.5), outline);
-            }
-        }
-        // TODO If this fails, maybe also revert
-        self.draw_outline = batch.build(ctx);
+        self.redraw_outline(ctx, app, new_perimeter);
         self.panel = make_panel(ctx, app);
     }
 }
