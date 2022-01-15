@@ -385,6 +385,16 @@
 <span id="384">384</span>
 <span id="385">385</span>
 <span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
@@ -531,8 +541,11 @@
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">try_block_changed</span>(<span class="ident">app</span>, <span class="ident">id</span>) {
             <span class="prelude-val">Ok</span>(()) =&gt; {
                 <span class="kw">let</span> <span class="ident">old_frontier</span> <span class="op">=</span> <span class="ident">std::mem::take</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">frontier</span>);
-                <span class="kw">let</span> <span class="ident">new_perimeter</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">neighborhoods</span>[<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">id</span>].<span class="number">0</span>.<span class="ident">perimeter</span>;
-                <span class="self">self</span>.<span class="ident">frontier</span> <span class="op">=</span> <span class="ident">calculate_frontier</span>(<span class="ident">new_perimeter</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">blocks</span>);
+                <span class="kw">let</span> <span class="ident">new_perimeter</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">neighborhoods</span>[<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">id</span>]
+                    .<span class="number">0</span>
+                    .<span class="ident">perimeter</span>
+                    .<span class="ident">clone</span>();
+                <span class="self">self</span>.<span class="ident">frontier</span> <span class="op">=</span> <span class="ident">calculate_frontier</span>(<span class="kw-2">&amp;</span><span class="ident">new_perimeter</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">blocks</span>);
 
                 <span class="comment">// Redraw all of the blocks that changed</span>
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">changed_blocks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BlockID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">old_frontier</span>
@@ -541,13 +554,21 @@
                     .<span class="ident">collect</span>();
                 <span class="comment">// And always the current block</span>
                 <span class="ident">changed_blocks</span>.<span class="ident">push</span>(<span class="ident">id</span>);
+
+                <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">recalculate_coloring</span>() {
+                    <span class="comment">// The coloring of neighborhoods changed; this could possibly have impact far</span>
+                    <span class="comment">// away. Just redraw all blocks.</span>
+                    <span class="ident">changed_blocks</span>.<span class="ident">clear</span>();
+                    <span class="ident">changed_blocks</span>.<span class="ident">extend</span>(<span class="self">self</span>.<span class="ident">blocks</span>.<span class="ident">keys</span>().<span class="ident">cloned</span>());
+                }
+
                 <span class="kw">for</span> <span class="ident">changed</span> <span class="kw">in</span> <span class="ident">changed_blocks</span> {
                     <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">delete_before_replacement</span>(<span class="ident">changed</span>);
                     <span class="self">self</span>.<span class="ident">add_block</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">changed</span>);
                 }
 
                 <span class="comment">// TODO Pass in the Block</span>
-                <span class="self">self</span>.<span class="ident">redraw_outline</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">new_perimeter</span>.<span class="ident">clone</span>());
+                <span class="self">self</span>.<span class="ident">redraw_outline</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">new_perimeter</span>);
                 <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
             }
             <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
@@ -619,7 +640,6 @@
             } <span class="kw">else</span> {
                 <span class="kw">let</span> <span class="ident">old_neighborhood_block</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_merged_block</span>(<span class="ident">app</span>, <span class="ident">old_blocks</span>)<span class="question-mark">?</span>;
                 <span class="comment">// Great! Do the transfer.</span>
-                <span class="comment">// TODO May need to recalculate colors!</span>
                 <span class="ident">app</span>.<span class="ident">session</span>
                     .<span class="ident">partitioning</span>
                     .<span class="ident">neighborhoods</span>
