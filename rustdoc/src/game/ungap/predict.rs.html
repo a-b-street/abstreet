@@ -487,48 +487,21 @@
 <span id="486">486</span>
 <span id="487">487</span>
 <span id="488">488</span>
-<span id="489">489</span>
-<span id="490">490</span>
-<span id="491">491</span>
-<span id="492">492</span>
-<span id="493">493</span>
-<span id="494">494</span>
-<span id="495">495</span>
-<span id="496">496</span>
-<span id="497">497</span>
-<span id="498">498</span>
-<span id="499">499</span>
-<span id="500">500</span>
-<span id="501">501</span>
-<span id="502">502</span>
-<span id="503">503</span>
-<span id="504">504</span>
-<span id="505">505</span>
-<span id="506">506</span>
-<span id="507">507</span>
-<span id="508">508</span>
-<span id="509">509</span>
-<span id="510">510</span>
-<span id="511">511</span>
-<span id="512">512</span>
-<span id="513">513</span>
-<span id="514">514</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
 <span class="kw">use</span> <span class="ident">abstio::Manifest</span>;
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_bytes</span>, <span class="ident">prettyprint_usize</span>, <span class="ident">Counter</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Polygon</span>, <span class="ident">UnitFmt</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">UnitFmt</span>};
 <span class="kw">use</span> <span class="ident">map_gui::load::FileLoader</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">open_browser</span>, <span class="ident">ColorNetwork</span>};
 <span class="kw">use</span> <span class="ident">map_gui::ID</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">PathRequest</span>, <span class="ident">PathStepV2</span>, <span class="ident">RoadID</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">Scenario</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>};
 <span class="kw">use</span> <span class="ident">widgetry::mapspace::ToggleZoomed</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Spinner</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>,
-};
+<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Spinner</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::common::percentage_bar</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ungap</span>::{<span class="ident">Layers</span>, <span class="ident">Tab</span>, <span class="ident">TakeLayers</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ShowGaps</span> {
@@ -993,31 +966,6 @@
             <span class="ident">count_per_road</span>,
         };
     }
-}
-
-<span class="kw">fn</span> <span class="ident">percentage_bar</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">txt</span>: <span class="ident">Text</span>, <span class="ident">pct_green</span>: <span class="ident">f64</span>) -&gt; <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="ident">car_color</span> <span class="op">=</span> <span class="ident">Color::RED</span>;
-    <span class="kw">let</span> <span class="ident">bike_color</span> <span class="op">=</span> <span class="ident">Color::GREEN</span>;
-
-    <span class="kw">let</span> <span class="ident">total_width</span> <span class="op">=</span> <span class="number">450.0</span>;
-    <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> <span class="number">32.0</span>;
-    <span class="kw">let</span> <span class="ident">radius</span> <span class="op">=</span> <span class="number">4.0</span>;
-
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-    <span class="comment">// Background</span>
-    <span class="ident">batch</span>.<span class="ident">push</span>(
-        <span class="ident">car_color</span>,
-        <span class="ident">Polygon::rounded_rectangle</span>(<span class="ident">total_width</span>, <span class="ident">height</span>, <span class="ident">radius</span>),
-    );
-    <span class="comment">// Foreground</span>
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">poly</span>) <span class="op">=</span> <span class="ident">Polygon::maybe_rounded_rectangle</span>(<span class="ident">pct_green</span> <span class="op">*</span> <span class="ident">total_width</span>, <span class="ident">height</span>, <span class="ident">radius</span>) {
-        <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">bike_color</span>, <span class="ident">poly</span>);
-    }
-    <span class="comment">// Text</span>
-    <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="ident">txt</span>.<span class="ident">render_autocropped</span>(<span class="ident">ctx</span>);
-    <span class="kw">let</span> <span class="ident">dims</span> <span class="op">=</span> <span class="ident">label</span>.<span class="ident">get_dims</span>();
-    <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">label</span>.<span class="ident">translate</span>(<span class="number">10.0</span>, <span class="ident">height</span> <span class="op">/</span> <span class="number">2.0</span> <span class="op">-</span> <span class="ident">dims</span>.<span class="ident">height</span> <span class="op">/</span> <span class="number">2.0</span>));
-    <span class="ident">batch</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
 }
 
 <span class="kw">fn</span> <span class="ident">pct</span>(<span class="ident">value</span>: <span class="ident">usize</span>, <span class="ident">total</span>: <span class="ident">usize</span>) -&gt; <span class="ident">f64</span> {

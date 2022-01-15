@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["make_top_panel",""],["pct",""],["percentage_bar",""]],"struct":[["CandidateTrip",""],["Filters",""],["ModeShiftData",""],["NetworkGaps",""],["Results",""],["ShowGaps",""]]});
+initSidebarItems({"fn":[["make_top_panel",""],["pct",""]],"struct":[["CandidateTrip",""],["Filters",""],["ModeShiftData",""],["NetworkGaps",""],["Results",""],["ShowGaps",""]]});
