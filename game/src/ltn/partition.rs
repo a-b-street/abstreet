@@ -62,9 +62,6 @@ impl Partitioning {
             // If we got more than one result back, merging partially failed. Oh well?
             merged.extend(Perimeter::merge_all(perimeters, false));
         }
-
-        let mut colors = Perimeter::calculate_coloring(&merged, COLORS.len())
-            .unwrap_or_else(|| (0..merged.len()).collect());
         timer.stop("partition");
 
         timer.start_iter("blockify", merged.len());
@@ -76,22 +73,38 @@ impl Partitioning {
                     blocks.push(block);
                 }
                 Err(err) => {
-                    warn!("Failed to make a block from a perimeter: {}", err);
-                    // We assigned a color, so don't let the indices get out of sync!
-                    colors.remove(blocks.len());
+                    warn!("Failed to make a block from a merged perimeter: {}", err);
                 }
             }
         }
 
         let mut neighborhoods = BTreeMap::new();
-        for (block, color_idx) in blocks.into_iter().zip(colors.into_iter()) {
-            let color = COLORS[color_idx % COLORS.len()];
-            neighborhoods.insert(NeighborhoodID(neighborhoods.len()), (block, color));
+        for block in blocks {
+            neighborhoods.insert(NeighborhoodID(neighborhoods.len()), (block, Color::RED));
         }
-        Partitioning {
+        let mut p = Partitioning {
             neighborhoods,
             single_blocks,
+        };
+        p.recalculate_coloring();
+        p
+    }
+
+    /// True if the coloring changed
+    pub fn recalculate_coloring(&mut self) -> bool {
+        let perims: Vec<Perimeter> = self
+            .neighborhoods
+            .values()
+            .map(|pair| pair.0.perimeter.clone())
+            .collect();
+        let colors = Perimeter::calculate_coloring(&perims, COLORS.len())
+            .unwrap_or_else(|| (0..perims.len()).collect());
+        let orig_coloring: Vec<Color> = self.neighborhoods.values().map(|pair| pair.1).collect();
+        for (pair, color_idx) in self.neighborhoods.values_mut().zip(colors.into_iter()) {
+            pair.1 = COLORS[color_idx % COLORS.len()];
         }
+        let new_coloring: Vec<Color> = self.neighborhoods.values().map(|pair| pair.1).collect();
+        orig_coloring != new_coloring
     }
 
     pub fn neighborhood_containing(&self, find_block: &Block) -> Option<NeighborhoodID> {

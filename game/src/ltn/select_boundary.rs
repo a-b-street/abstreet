@@ -144,8 +144,11 @@ impl SelectBoundary {
         match self.try_block_changed(app, id) {
             Ok(()) => {
                 let old_frontier = std::mem::take(&mut self.frontier);
-                let new_perimeter = &app.session.partitioning.neighborhoods[&self.id].0.perimeter;
-                self.frontier = calculate_frontier(new_perimeter, &self.blocks);
+                let new_perimeter = app.session.partitioning.neighborhoods[&self.id]
+                    .0
+                    .perimeter
+                    .clone();
+                self.frontier = calculate_frontier(&new_perimeter, &self.blocks);
 
                 // Redraw all of the blocks that changed
                 let mut changed_blocks: Vec<BlockID> = old_frontier
@@ -154,13 +157,21 @@ impl SelectBoundary {
                     .collect();
                 // And always the current block
                 changed_blocks.push(id);
+
+                if app.session.partitioning.recalculate_coloring() {
+                    // The coloring of neighborhoods changed; this could possibly have impact far
+                    // away. Just redraw all blocks.
+                    changed_blocks.clear();
+                    changed_blocks.extend(self.blocks.keys().cloned());
+                }
+
                 for changed in changed_blocks {
                     self.world.delete_before_replacement(changed);
                     self.add_block(ctx, app, changed);
                 }
 
                 // TODO Pass in the Block
-                self.redraw_outline(ctx, app, new_perimeter.clone());
+                self.redraw_outline(ctx, app, new_perimeter);
                 self.panel = make_panel(ctx, app);
             }
             Err(err) => {
@@ -232,7 +243,6 @@ impl SelectBoundary {
             } else {
                 let old_neighborhood_block = self.make_merged_block(app, old_blocks)?;
                 // Great! Do the transfer.
-                // TODO May need to recalculate colors!
                 app.session
                     .partitioning
                     .neighborhoods
