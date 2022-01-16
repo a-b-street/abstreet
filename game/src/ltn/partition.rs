@@ -1,5 +1,6 @@
 use std::collections::BTreeMap;
 
+use abstio::MapName;
 use abstutil::Timer;
 use map_model::osm::RoadRank;
 use map_model::{Block, Perimeter};
@@ -24,6 +25,7 @@ impl widgetry::mapspace::ObjectID for NeighborhoodID {}
 
 #[derive(Clone)]
 pub struct Partitioning {
+    pub map: MapName,
     pub neighborhoods: BTreeMap<NeighborhoodID, (Block, Color)>,
     // The single / unmerged blocks never change
     pub single_blocks: Vec<Block>,
@@ -33,6 +35,7 @@ impl Partitioning {
     /// Only valid before the LTN tool has been activated this session
     pub fn empty() -> Partitioning {
         Partitioning {
+            map: MapName::new("zz", "temp", "orary"),
             neighborhoods: BTreeMap::new(),
             single_blocks: Vec::new(),
         }
@@ -83,6 +86,7 @@ impl Partitioning {
             neighborhoods.insert(NeighborhoodID(neighborhoods.len()), (block, Color::RED));
         }
         let mut p = Partitioning {
+            map: map.get_name().clone(),
             neighborhoods,
             single_blocks,
         };

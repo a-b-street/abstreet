@@ -27,9 +27,7 @@ impl BrowseNeighborhoods {
 
         let style = Style::SimpleColoring;
         let world = ctx.loading_screen("calculate neighborhoods", |ctx, timer| {
-            // TODO Or if the map doesn't match? Do we take care of this in SessionState for
-            // anything?!
-            if app.session.partitioning.neighborhoods.is_empty() {
+            if &app.session.partitioning.map != app.primary.map.get_name() {
                 app.session.partitioning = Partitioning::seed_using_heuristics(app, timer);
             }
             make_world(ctx, app, style, timer)
@@ -92,9 +90,6 @@ impl State<App> for BrowseNeighborhoods {
                         ctx,
                         app,
                         Box::new(|ctx, app| {
-                            // TODO If we leave the LTN tool and change maps elsewhere, this won't
-                            // work! Do we have per-map session state?
-                            app.session.partitioning = Partitioning::empty();
                             Transition::Replace(BrowseNeighborhoods::new_state(ctx, app))
                         }),
                     ));
