@@ -118,8 +118,13 @@
 <span id="117">117</span>
 <span id="118">118</span>
 <span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
 
+<span class="kw">use</span> <span class="ident">abstio::MapName</span>;
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
 <span class="kw">use</span> <span class="ident">map_model::osm::RoadRank</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Block</span>, <span class="ident">Perimeter</span>};
@@ -144,6 +149,7 @@
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Partitioning</span> {
+    <span class="kw">pub</span> <span class="ident">map</span>: <span class="ident">MapName</span>,
     <span class="kw">pub</span> <span class="ident">neighborhoods</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">NeighborhoodID</span>, (<span class="ident">Block</span>, <span class="ident">Color</span>)<span class="op">&gt;</span>,
     <span class="comment">// The single / unmerged blocks never change</span>
     <span class="kw">pub</span> <span class="ident">single_blocks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Block</span><span class="op">&gt;</span>,
@@ -153,6 +159,7 @@
     <span class="doccomment">/// Only valid before the LTN tool has been activated this session</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>() -&gt; <span class="ident">Partitioning</span> {
         <span class="ident">Partitioning</span> {
+            <span class="ident">map</span>: <span class="ident">MapName::new</span>(<span class="string">&quot;zz&quot;</span>, <span class="string">&quot;temp&quot;</span>, <span class="string">&quot;orary&quot;</span>),
             <span class="ident">neighborhoods</span>: <span class="ident">BTreeMap::new</span>(),
             <span class="ident">single_blocks</span>: <span class="ident">Vec::new</span>(),
         }
@@ -203,6 +210,7 @@
             <span class="ident">neighborhoods</span>.<span class="ident">insert</span>(<span class="ident">NeighborhoodID</span>(<span class="ident">neighborhoods</span>.<span class="ident">len</span>()), (<span class="ident">block</span>, <span class="ident">Color::RED</span>));
         }
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">Partitioning</span> {
+            <span class="ident">map</span>: <span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">clone</span>(),
             <span class="ident">neighborhoods</span>,
             <span class="ident">single_blocks</span>,
         };
