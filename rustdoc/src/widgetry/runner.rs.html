@@ -710,7 +710,7 @@
                 <span class="kw">use</span> <span class="ident">std::io::Read</span>;
 
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">file</span> <span class="op">=</span>
-                    <span class="ident">std::fs::File::open</span>(<span class="ident">path</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="macro">panic!</span>(<span class="string">&quot;Couldn&#39;t read {}&quot;</span>, <span class="ident">path</span>));
+                    <span class="ident">fs_err::File::open</span>(<span class="ident">path</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="macro">panic!</span>(<span class="string">&quot;Couldn&#39;t read {}&quot;</span>, <span class="ident">path</span>));
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
                 <span class="ident">file</span>.<span class="ident">read_to_end</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buffer</span>)
                     .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="macro">panic!</span>(<span class="string">&quot;Couldn&#39;t read all of {}&quot;</span>, <span class="ident">path</span>));

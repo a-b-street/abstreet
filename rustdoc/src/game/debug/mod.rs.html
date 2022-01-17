@@ -1491,7 +1491,7 @@
                 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
                 <span class="string">&quot;undo all merged roads&quot;</span> =&gt; {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span>
-                        <span class="ident">std::fs::rename</span>(<span class="string">&quot;merge_osm_ways.json&quot;</span>, <span class="string">&quot;UNDO_merge_osm_ways.json&quot;</span>)
+                        <span class="ident">fs_err::rename</span>(<span class="string">&quot;merge_osm_ways.json&quot;</span>, <span class="string">&quot;UNDO_merge_osm_ways.json&quot;</span>)
                     {
                         <span class="macro">warn!</span>(<span class="string">&quot;No merged road file? {}&quot;</span>, <span class="ident">err</span>);
                     }
@@ -2145,7 +2145,7 @@
             <span class="kw">if</span> <span class="op">!</span><span class="ident">success</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ways</span>) <span class="op">=</span> <span class="ident">rollback</span> {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span>
-                        <span class="ident">std::fs::copy</span>(<span class="string">&quot;merge_osm_ways.json&quot;</span>, <span class="string">&quot;BROKEN_merge_osm_ways.json&quot;</span>)
+                        <span class="ident">fs_err::copy</span>(<span class="string">&quot;merge_osm_ways.json&quot;</span>, <span class="string">&quot;BROKEN_merge_osm_ways.json&quot;</span>)
                     {
                         <span class="macro">warn!</span>(<span class="string">&quot;No merged road file? {}&quot;</span>, <span class="ident">err</span>);
                     }

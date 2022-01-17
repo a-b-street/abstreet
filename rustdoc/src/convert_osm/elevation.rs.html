@@ -158,11 +158,11 @@
 <span id="157">157</span>
 <span id="158">158</span>
 <span id="159">159</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::fs::File</span>;
-<span class="kw">use</span> <span class="ident">std::io</span>::{<span class="ident">BufRead</span>, <span class="ident">BufReader</span>, <span class="ident">BufWriter</span>, <span class="ident">Write</span>};
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::io</span>::{<span class="ident">BufRead</span>, <span class="ident">BufReader</span>, <span class="ident">BufWriter</span>, <span class="ident">Write</span>};
 <span class="kw">use</span> <span class="ident">std::process::Command</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
+<span class="kw">use</span> <span class="ident">fs_err::File</span>;
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">PolyLine</span>};
 <span class="kw">use</span> <span class="ident">map_model::raw</span>::{<span class="ident">OriginalRoad</span>, <span class="ident">RawMap</span>};
@@ -172,8 +172,8 @@
     <span class="comment">// it&#39;s tedious to call timer.stop().</span>
     <span class="kw">let</span> <span class="ident">ids</span> <span class="op">=</span> <span class="ident">generate_input</span>(<span class="ident">map</span>)<span class="question-mark">?</span>;
 
-    <span class="ident">std::fs::create_dir_all</span>(<span class="string">&quot;elevation_output&quot;</span>)<span class="question-mark">?</span>;
-    <span class="ident">std::fs::create_dir_all</span>(<span class="ident">abstio::path_shared_input</span>(<span class="string">&quot;elevation&quot;</span>))<span class="question-mark">?</span>;
+    <span class="ident">fs_err::create_dir_all</span>(<span class="string">&quot;elevation_output&quot;</span>)<span class="question-mark">?</span>;
+    <span class="ident">fs_err::create_dir_all</span>(<span class="ident">abstio::path_shared_input</span>(<span class="string">&quot;elevation&quot;</span>))<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">pwd</span> <span class="op">=</span> <span class="ident">std::env::current_dir</span>()<span class="question-mark">?</span>.<span class="ident">display</span>().<span class="ident">to_string</span>();
     <span class="comment">// Because elevation_lookups has so many dependencies, just depend on Docker.</span>
     <span class="comment">// TODO This is only going to run on Linux, unless we can also build images for other OSes.</span>
@@ -218,16 +218,16 @@
     <span class="ident">scrape_output</span>(<span class="ident">map</span>, <span class="ident">ids</span>)<span class="question-mark">?</span>;
 
     <span class="comment">// Clean up temporary files</span>
-    <span class="ident">std::fs::remove_file</span>(<span class="string">&quot;elevation_input/query&quot;</span>)<span class="question-mark">?</span>;
-    <span class="ident">std::fs::remove_dir</span>(<span class="string">&quot;elevation_input&quot;</span>)<span class="question-mark">?</span>;
-    <span class="ident">std::fs::remove_file</span>(<span class="string">&quot;elevation_output/query&quot;</span>)<span class="question-mark">?</span>;
-    <span class="ident">std::fs::remove_dir</span>(<span class="string">&quot;elevation_output&quot;</span>)<span class="question-mark">?</span>;
+    <span class="ident">fs_err::remove_file</span>(<span class="string">&quot;elevation_input/query&quot;</span>)<span class="question-mark">?</span>;
+    <span class="ident">fs_err::remove_dir</span>(<span class="string">&quot;elevation_input&quot;</span>)<span class="question-mark">?</span>;
+    <span class="ident">fs_err::remove_file</span>(<span class="string">&quot;elevation_output/query&quot;</span>)<span class="question-mark">?</span>;
+    <span class="ident">fs_err::remove_dir</span>(<span class="string">&quot;elevation_output&quot;</span>)<span class="question-mark">?</span>;
 
     <span class="prelude-val">Ok</span>(())
 }
 
 <span class="kw">fn</span> <span class="ident">generate_input</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">RawMap</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="ident">std::fs::create_dir_all</span>(<span class="string">&quot;elevation_input&quot;</span>)<span class="question-mark">?</span>;
+    <span class="ident">fs_err::create_dir_all</span>(<span class="string">&quot;elevation_input&quot;</span>)<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">BufWriter::new</span>(<span class="ident">File::create</span>(<span class="string">&quot;elevation_input/query&quot;</span>)<span class="question-mark">?</span>);
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ids</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">r</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">roads</span> {

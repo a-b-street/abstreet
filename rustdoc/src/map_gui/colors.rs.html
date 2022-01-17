@@ -496,10 +496,10 @@
 </pre><pre class="rust"><code><span class="doccomment">//! A color scheme groups colors used for different map, dynamic, and UI elements in one place, to</span>
 <span class="doccomment">//! encourage deduplication. The player can also switch between different color schemes.</span>
 
-<span class="kw">use</span> <span class="ident">std::fs::File</span>;
 <span class="kw">use</span> <span class="ident">std::io::Write</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
+<span class="kw">use</span> <span class="ident">fs_err::File</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="ident">map_model::osm::RoadRank</span>;

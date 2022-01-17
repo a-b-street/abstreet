@@ -292,10 +292,10 @@
 <span id="291">291</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Integration tests</span>
 
-<span class="kw">use</span> <span class="ident">std::fs::File</span>;
 <span class="kw">use</span> <span class="ident">std::io::Write</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
+<span class="kw">use</span> <span class="ident">fs_err::File</span>;
 <span class="kw">use</span> <span class="ident">rand::seq::SliceRandom</span>;
 
 <span class="kw">use</span> <span class="ident">abstio</span>::{<span class="ident">CityName</span>, <span class="ident">MapName</span>};

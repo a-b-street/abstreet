@@ -125,7 +125,7 @@
 
 <span class="kw">fn</span> <span class="ident">parse_trips</span>(<span class="ident">csv_path</span>: <span class="ident">String</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExternalPerson</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">people</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">for</span> <span class="ident">rec</span> <span class="kw">in</span> <span class="ident">csv::Reader::from_reader</span>(<span class="ident">std::fs::File::open</span>(<span class="ident">csv_path</span>)<span class="question-mark">?</span>).<span class="ident">deserialize</span>() {
+    <span class="kw">for</span> <span class="ident">rec</span> <span class="kw">in</span> <span class="ident">csv::Reader::from_reader</span>(<span class="ident">fs_err::File::open</span>(<span class="ident">csv_path</span>)<span class="question-mark">?</span>).<span class="ident">deserialize</span>() {
         <span class="kw">let</span> <span class="ident">rec</span>: <span class="ident">Record</span> <span class="op">=</span> <span class="ident">rec</span><span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">mode</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">rec</span>.<span class="ident">agent_type</span>.<span class="ident">as_ref</span>() {
             <span class="string">&quot;v&quot;</span> =&gt; <span class="ident">TripMode::Drive</span>,

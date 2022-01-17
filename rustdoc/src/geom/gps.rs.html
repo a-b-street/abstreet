@@ -196,10 +196,10 @@
 <span id="195">195</span>
 <span id="196">196</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::fmt</span>;
-<span class="kw">use</span> <span class="ident">std::fs::File</span>;
 <span class="kw">use</span> <span class="ident">std::io</span>::{<span class="ident">BufRead</span>, <span class="ident">BufReader</span>, <span class="ident">Write</span>};
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
+<span class="kw">use</span> <span class="ident">fs_err::File</span>;
 <span class="kw">use</span> <span class="ident">geojson</span>::{<span class="ident">GeoJson</span>, <span class="ident">Value</span>};
 <span class="kw">use</span> <span class="ident">ordered_float::NotNan</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};

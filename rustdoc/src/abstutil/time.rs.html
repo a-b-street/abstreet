@@ -586,10 +586,10 @@
 <span id="585">585</span>
 <span id="586">586</span>
 <span id="587">587</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::fs::File</span>;
-<span class="kw">use</span> <span class="ident">std::io</span>::{<span class="ident">stdout</span>, <span class="ident">BufReader</span>, <span class="ident">ErrorKind</span>, <span class="ident">Read</span>, <span class="ident">Write</span>};
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::io</span>::{<span class="ident">stdout</span>, <span class="ident">BufReader</span>, <span class="ident">ErrorKind</span>, <span class="ident">Read</span>, <span class="ident">Write</span>};
 
 <span class="kw">use</span> <span class="ident">anyhow</span>::{<span class="ident">Context</span>, <span class="prelude-ty">Result</span>};
+<span class="kw">use</span> <span class="ident">fs_err::File</span>;
 <span class="kw">use</span> <span class="ident">instant::Instant</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">PROGRESS_FREQUENCY_SECONDS</span>};

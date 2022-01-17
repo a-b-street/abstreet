@@ -103,10 +103,10 @@
 <span id="102">102</span>
 <span id="103">103</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
-<span class="kw">use</span> <span class="ident">std::fs::File</span>;
 <span class="kw">use</span> <span class="ident">std::io</span>::{<span class="ident">BufReader</span>, <span class="ident">BufWriter</span>};
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
+<span class="kw">use</span> <span class="ident">fs_err::File</span>;
 <span class="kw">use</span> <span class="ident">geo::prelude::Contains</span>;
 <span class="kw">use</span> <span class="ident">geo</span>::{<span class="ident">LineString</span>, <span class="ident">Point</span>, <span class="ident">Polygon</span>};
 <span class="kw">use</span> <span class="ident">osmio::obj_types::ArcOSMObj</span>;

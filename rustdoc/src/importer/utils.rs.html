@@ -208,7 +208,7 @@
         <span class="kw">return</span>;
     }
     <span class="comment">// Create the directory</span>
-    <span class="ident">std::fs::create_dir_all</span>(<span class="ident">Path::new</span>(<span class="kw-2">&amp;</span><span class="ident">output</span>).<span class="ident">parent</span>().<span class="ident">unwrap</span>())
+    <span class="ident">fs_err::create_dir_all</span>(<span class="ident">Path::new</span>(<span class="kw-2">&amp;</span><span class="ident">output</span>).<span class="ident">parent</span>().<span class="ident">unwrap</span>())
         .<span class="ident">expect</span>(<span class="string">&quot;Creating parent dir failed&quot;</span>);
 
     <span class="kw">let</span> <span class="ident">tmp</span> <span class="op">=</span> <span class="string">&quot;tmp_output&quot;</span>;
@@ -225,10 +225,10 @@
         };
         <span class="macro">println!</span>(<span class="string">&quot;- Unzipping into {}&quot;</span>, <span class="ident">unzip_to</span>);
         <span class="ident">must_run_cmd</span>(<span class="ident">Command::new</span>(<span class="kw-2">&amp;</span><span class="ident">config</span>.<span class="ident">unzip</span>).<span class="ident">arg</span>(<span class="ident">tmp</span>).<span class="ident">arg</span>(<span class="string">&quot;-d&quot;</span>).<span class="ident">arg</span>(<span class="ident">unzip_to</span>));
-        <span class="ident">std::fs::remove_file</span>(<span class="ident">tmp</span>).<span class="ident">unwrap</span>();
+        <span class="ident">fs_err::remove_file</span>(<span class="ident">tmp</span>).<span class="ident">unwrap</span>();
     } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">url</span>.<span class="ident">ends_with</span>(<span class="string">&quot;.gz&quot;</span>) {
         <span class="macro">println!</span>(<span class="string">&quot;- Gunzipping&quot;</span>);
-        <span class="ident">std::fs::rename</span>(<span class="ident">tmp</span>, <span class="macro">format!</span>(<span class="string">&quot;{}.gz&quot;</span>, <span class="ident">output</span>)).<span class="ident">unwrap</span>();
+        <span class="ident">fs_err::rename</span>(<span class="ident">tmp</span>, <span class="macro">format!</span>(<span class="string">&quot;{}.gz&quot;</span>, <span class="ident">output</span>)).<span class="ident">unwrap</span>();
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">gunzip_cmd</span> <span class="op">=</span> <span class="ident">Command::new</span>(<span class="kw-2">&amp;</span><span class="ident">config</span>.<span class="ident">gunzip</span>);
         <span class="kw">for</span> <span class="ident">arg</span> <span class="kw">in</span> <span class="ident">config</span>.<span class="ident">gunzip_args</span>.<span class="ident">split_ascii_whitespace</span>() {
@@ -236,7 +236,7 @@
         }
         <span class="ident">must_run_cmd</span>(<span class="ident">gunzip_cmd</span>.<span class="ident">arg</span>(<span class="macro">format!</span>(<span class="string">&quot;{}.gz&quot;</span>, <span class="ident">output</span>)));
     } <span class="kw">else</span> {
-        <span class="ident">std::fs::rename</span>(<span class="ident">tmp</span>, <span class="ident">output</span>).<span class="ident">unwrap</span>();
+        <span class="ident">fs_err::rename</span>(<span class="ident">tmp</span>, <span class="ident">output</span>).<span class="ident">unwrap</span>();
     }
 }
 
@@ -255,12 +255,12 @@
         <span class="kw">return</span>;
     }
     <span class="comment">// Create the directory</span>
-    <span class="ident">std::fs::create_dir_all</span>(<span class="ident">Path::new</span>(<span class="kw-2">&amp;</span><span class="ident">output</span>).<span class="ident">parent</span>().<span class="ident">unwrap</span>())
+    <span class="ident">fs_err::create_dir_all</span>(<span class="ident">Path::new</span>(<span class="kw-2">&amp;</span><span class="ident">output</span>).<span class="ident">parent</span>().<span class="ident">unwrap</span>())
         .<span class="ident">expect</span>(<span class="string">&quot;Creating parent dir failed&quot;</span>);
 
     <span class="kw">let</span> <span class="ident">tmp</span> <span class="op">=</span> <span class="string">&quot;tmp_output&quot;</span>;
     <span class="kw">if</span> <span class="ident">Path::new</span>(<span class="kw-2">&amp;</span><span class="ident">output</span>.<span class="ident">replace</span>(<span class="string">&quot;.bin&quot;</span>, <span class="string">&quot;.kml&quot;</span>)).<span class="ident">exists</span>() {
-        <span class="ident">std::fs::copy</span>(<span class="ident">output</span>.<span class="ident">replace</span>(<span class="string">&quot;.bin&quot;</span>, <span class="string">&quot;.kml&quot;</span>), <span class="ident">tmp</span>).<span class="ident">unwrap</span>();
+        <span class="ident">fs_err::copy</span>(<span class="ident">output</span>.<span class="ident">replace</span>(<span class="string">&quot;.bin&quot;</span>, <span class="string">&quot;.kml&quot;</span>), <span class="ident">tmp</span>).<span class="ident">unwrap</span>();
     } <span class="kw">else</span> {
         <span class="macro">println!</span>(<span class="string">&quot;- Missing {}, so downloading {}&quot;</span>, <span class="ident">output</span>, <span class="ident">url</span>);
         <span class="ident">abstio::download_to_file</span>(<span class="ident">url</span>, <span class="prelude-val">None</span>, <span class="ident">tmp</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
@@ -272,7 +272,7 @@
     <span class="ident">abstio::write_binary</span>(<span class="ident">output</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;</span><span class="ident">shapes</span>);
     <span class="comment">// Keep the intermediate file; otherwise we inadvertently grab new upstream data when</span>
     <span class="comment">// changing some binary formats</span>
-    <span class="ident">std::fs::rename</span>(<span class="ident">tmp</span>, <span class="ident">output</span>.<span class="ident">replace</span>(<span class="string">&quot;.bin&quot;</span>, <span class="string">&quot;.kml&quot;</span>)).<span class="ident">unwrap</span>();
+    <span class="ident">fs_err::rename</span>(<span class="ident">tmp</span>, <span class="ident">output</span>.<span class="ident">replace</span>(<span class="string">&quot;.bin&quot;</span>, <span class="string">&quot;.kml&quot;</span>)).<span class="ident">unwrap</span>();
 }
 
 <span class="doccomment">/// Uses osmconvert to clip the input .osm (or .pbf) against a polygon and produce some output.</span>
@@ -290,7 +290,7 @@
         <span class="kw">return</span>;
     }
     <span class="comment">// Create the output directory if needed</span>
-    <span class="ident">std::fs::create_dir_all</span>(<span class="ident">Path::new</span>(<span class="kw-2">&amp;</span><span class="ident">output</span>).<span class="ident">parent</span>().<span class="ident">unwrap</span>())
+    <span class="ident">fs_err::create_dir_all</span>(<span class="ident">Path::new</span>(<span class="kw-2">&amp;</span><span class="ident">output</span>).<span class="ident">parent</span>().<span class="ident">unwrap</span>())
         .<span class="ident">expect</span>(<span class="string">&quot;Creating parent dir failed&quot;</span>);
 
     <span class="macro">println!</span>(<span class="string">&quot;- Clipping {} to {}&quot;</span>, <span class="ident">input</span>, <span class="ident">clipping_polygon</span>);

@@ -102,7 +102,7 @@
 
     <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;capturing images&quot;</span>, <span class="ident">num_tiles_x</span> <span class="op">*</span> <span class="ident">num_tiles_y</span>);
     <span class="ident">state</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">=</span> <span class="ident">zoom</span>;
-    <span class="ident">std::fs::create_dir_all</span>(<span class="ident">dir_path</span>)<span class="question-mark">?</span>;
+    <span class="ident">fs_err::create_dir_all</span>(<span class="ident">dir_path</span>)<span class="question-mark">?</span>;
 
     <span class="comment">// See https://github.com/a-b-street/abstreet/issues/671 for context. Some maps are so large</span>
     <span class="comment">// and detailed that they drain all memory on some video cards. As a workaround, just free up</span>
