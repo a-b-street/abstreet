@@ -67,8 +67,8 @@ pub async fn download_to_file<I1: AsRef<str>, I2: AsRef<str>>(
     let bytes = download_bytes(url, post_body, &mut tx).await?;
     let path = path.as_ref();
     || -> Result<()> {
-        std::fs::create_dir_all(std::path::Path::new(path).parent().unwrap())?;
-        let mut file = std::fs::File::create(path)?;
+        fs_err::create_dir_all(std::path::Path::new(path).parent().unwrap())?;
+        let mut file = fs_err::File::create(path)?;
         file.write_all(&bytes)?;
         Ok(())
     }()

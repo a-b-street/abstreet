@@ -586,7 +586,7 @@ fn time_to_id() -> i64 {
 /// synthetic maps that will never go bad -- there will always be a pipeline to import a .osm file,
 /// so actually, .osm is a stable-over-time format.
 fn dump_to_osm(map: &RawMap) -> Result<(), std::io::Error> {
-    let mut f = std::fs::File::create("synthetic_export.osm")?;
+    let mut f = fs_err::File::create("synthetic_export.osm")?;
     writeln!(f, r#"<?xml version='1.0' encoding='UTF-8'?>"#)?;
     writeln!(f, r#"<osm>"#)?;
     writeln!(

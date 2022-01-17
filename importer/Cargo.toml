@@ -38,3 +38,4 @@ structopt = "0.3.23"
 hashbrown = "0.9.1"
 libc = { version = "0.2.94", features=["extra_traits"] }
 num-integer = { version = "0.1.44", features=["i128", "std"] }
+fs-err = "2.6.0"

@@ -1,7 +1,7 @@
-use std::fs::File;
 use std::io::{stdout, BufReader, ErrorKind, Read, Write};
 
 use anyhow::{Context, Result};
+use fs_err::File;
 use instant::Instant;
 
 use crate::{prettyprint_usize, PROGRESS_FREQUENCY_SECONDS};

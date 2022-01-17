@@ -16,7 +16,7 @@ pub async fn download(config: &ImporterConfiguration, output: String, url: &str)
         return;
     }
     // Create the directory
-    std::fs::create_dir_all(Path::new(&output).parent().unwrap())
+    fs_err::create_dir_all(Path::new(&output).parent().unwrap())
         .expect("Creating parent dir failed");
 
     let tmp = "tmp_output";
@@ -33,10 +33,10 @@ pub async fn download(config: &ImporterConfiguration, output: String, url: &str)
         };
         println!("- Unzipping into {}", unzip_to);
         must_run_cmd(Command::new(&config.unzip).arg(tmp).arg("-d").arg(unzip_to));
-        std::fs::remove_file(tmp).unwrap();
+        fs_err::remove_file(tmp).unwrap();
     } else if url.ends_with(".gz") {
         println!("- Gunzipping");
-        std::fs::rename(tmp, format!("{}.gz", output)).unwrap();
+        fs_err::rename(tmp, format!("{}.gz", output)).unwrap();
 
         let mut gunzip_cmd = Command::new(&config.gunzip);
         for arg in config.gunzip_args.split_ascii_whitespace() {
@@ -44,7 +44,7 @@ pub async fn download(config: &ImporterConfiguration, output: String, url: &str)
         }
         must_run_cmd(gunzip_cmd.arg(format!("{}.gz", output)));
     } else {
-        std::fs::rename(tmp, output).unwrap();
+        fs_err::rename(tmp, output).unwrap();
     }
 }
 
@@ -63,12 +63,12 @@ pub async fn download_kml(
         return;
     }
     // Create the directory
-    std::fs::create_dir_all(Path::new(&output).parent().unwrap())
+    fs_err::create_dir_all(Path::new(&output).parent().unwrap())
         .expect("Creating parent dir failed");
 
     let tmp = "tmp_output";
     if Path::new(&output.replace(".bin", ".kml")).exists() {
-        std::fs::copy(output.replace(".bin", ".kml"), tmp).unwrap();
+        fs_err::copy(output.replace(".bin", ".kml"), tmp).unwrap();
     } else {
         println!("- Missing {}, so downloading {}", output, url);
         abstio::download_to_file(url, None, tmp).await.unwrap();
@@ -80,7 +80,7 @@ pub async fn download_kml(
     abstio::write_binary(output.clone(), &shapes);
     // Keep the intermediate file; otherwise we inadvertently grab new upstream data when
     // changing some binary formats
-    std::fs::rename(tmp, output.replace(".bin", ".kml")).unwrap();
+    fs_err::rename(tmp, output.replace(".bin", ".kml")).unwrap();
 }
 
 /// Uses osmconvert to clip the input .osm (or .pbf) against a polygon and produce some output.
@@ -98,7 +98,7 @@ fn osmconvert(
         return;
     }
     // Create the output directory if needed
-    std::fs::create_dir_all(Path::new(&output).parent().unwrap())
+    fs_err::create_dir_all(Path::new(&output).parent().unwrap())
         .expect("Creating parent dir failed");
 
     println!("- Clipping {} to {}", input, clipping_polygon);

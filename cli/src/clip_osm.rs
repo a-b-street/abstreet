@@ -1,8 +1,8 @@
 use std::collections::HashSet;
-use std::fs::File;
 use std::io::{BufReader, BufWriter};
 
 use anyhow::Result;
+use fs_err::File;
 use geo::prelude::Contains;
 use geo::{LineString, Point, Polygon};
 use osmio::obj_types::ArcOSMObj;

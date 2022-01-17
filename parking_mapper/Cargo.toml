@@ -11,6 +11,7 @@ default = ["map_gui/native", "reqwest", "widgetry/native-backend"]
 abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
 anyhow = "1.0.38"
+fs-err = "2.6.0"
 geom = { path = "../geom" }
 log = "0.4.14"
 map_gui = { path = "../map_gui" }

@@ -125,7 +125,7 @@ impl ObjectDebugger {
             // The tempfile crate doesn't actually have a way to get the path... so just do this.
             let path = format!("{}/abst_obj.json", std::env::temp_dir().display());
             {
-                let mut f = std::fs::File::create(&path).unwrap();
+                let mut f = fs_err::File::create(&path).unwrap();
                 writeln!(f, "{}", json_string).unwrap();
             }
             // Don't wait for the command to complet.

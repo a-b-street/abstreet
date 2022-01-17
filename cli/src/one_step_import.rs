@@ -61,7 +61,7 @@ pub async fn run(
 
         let pbf = city.input_path(format!("osm/{}.pbf", abstutil::basename(&url)));
         osm = city.input_path(format!("osm/{}.osm", name));
-        std::fs::create_dir_all(std::path::Path::new(&osm).parent().unwrap())
+        fs_err::create_dir_all(std::path::Path::new(&osm).parent().unwrap())
             .expect("Creating parent dir failed");
 
         // Download it!

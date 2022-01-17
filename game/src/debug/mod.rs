@@ -403,7 +403,7 @@ impl State<App> for DebugMode {
                 #[cfg(not(target_arch = "wasm32"))]
                 "undo all merged roads" => {
                     if let Err(err) =
-                        std::fs::rename("merge_osm_ways.json", "UNDO_merge_osm_ways.json")
+                        fs_err::rename("merge_osm_ways.json", "UNDO_merge_osm_ways.json")
                     {
                         warn!("No merged road file? {}", err);
                     }
@@ -1057,7 +1057,7 @@ fn reimport_map(
             if !success {
                 if let Some(ways) = rollback {
                     if let Err(err) =
-                        std::fs::copy("merge_osm_ways.json", "BROKEN_merge_osm_ways.json")
+                        fs_err::copy("merge_osm_ways.json", "BROKEN_merge_osm_ways.json")
                     {
                         warn!("No merged road file? {}", err);
                     }

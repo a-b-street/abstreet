@@ -1,7 +1,7 @@
 use std::collections::HashMap;
-use std::fs::File;
 
 use anyhow::Result;
+use fs_err::File;
 use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
 use serde::Deserialize;

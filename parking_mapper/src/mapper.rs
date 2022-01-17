@@ -492,8 +492,9 @@ impl State<App> for ChangeWay {
 }
 
 fn generate_osmc(data: &BTreeMap<WayID, Value>, in_seattle: bool, timer: &mut Timer) -> Result<()> {
-    use std::fs::File;
     use std::io::Write;
+
+    use fs_err::File;
 
     use abstutil::Tags;
 

@@ -1,8 +1,8 @@
 use std::collections::BTreeSet;
-use std::fs::File;
 use std::io::Write;
 
 use anyhow::Result;
+use fs_err::File;
 
 use map_gui::tools::PopupMsg;
 use sim::{TripID, TripMode};

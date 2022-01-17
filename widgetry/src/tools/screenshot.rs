@@ -28,7 +28,7 @@ pub(crate) fn screenshot_everything<A: SharedAppState>(
 
     timer.start_iter("capturing images", num_tiles_x * num_tiles_y);
     state.canvas.cam_zoom = zoom;
-    std::fs::create_dir_all(dir_path)?;
+    fs_err::create_dir_all(dir_path)?;
 
     // See https://github.com/a-b-street/abstreet/issues/671 for context. Some maps are so large
     // and detailed that they drain all memory on some video cards. As a workaround, just free up

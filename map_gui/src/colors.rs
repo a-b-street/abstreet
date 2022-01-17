@@ -1,10 +1,10 @@
 //! A color scheme groups colors used for different map, dynamic, and UI elements in one place, to
 //! encourage deduplication. The player can also switch between different color schemes.
 
-use std::fs::File;
 use std::io::Write;
 
 use anyhow::Result;
+use fs_err::File;
 use serde::{Deserialize, Serialize};
 
 use map_model::osm::RoadRank;

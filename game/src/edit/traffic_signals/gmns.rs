@@ -22,7 +22,7 @@ use crate::App;
 pub fn import(map: &Map, i: IntersectionID, path: &str) -> Result<ControlTrafficSignal> {
     let i = map.get_i(i);
     let mut matches_per_plan: BTreeMap<String, Vec<Record>> = BTreeMap::new();
-    for rec in csv::Reader::from_reader(std::fs::File::open(path)?).deserialize() {
+    for rec in csv::Reader::from_reader(fs_err::File::open(path)?).deserialize() {
         let rec: Record = rec?;
         if !rec.osm_ids.contains(&i.orig_id) {
             continue;

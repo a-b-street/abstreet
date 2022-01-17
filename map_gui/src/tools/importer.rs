@@ -188,7 +188,7 @@ fn grab_geojson_from_clipboard() -> Result<()> {
             contents
         );
     }
-    let mut f = std::fs::File::create("boundary.geojson")?;
+    let mut f = fs_err::File::create("boundary.geojson")?;
     write!(f, "{}", contents)?;
     Ok(())
 }

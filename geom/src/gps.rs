@@ -1,8 +1,8 @@
 use std::fmt;
-use std::fs::File;
 use std::io::{BufRead, BufReader, Write};
 
 use anyhow::Result;
+use fs_err::File;
 use geojson::{GeoJson, Value};
 use ordered_float::NotNan;
 use serde::{Deserialize, Serialize};

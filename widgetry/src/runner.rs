@@ -222,7 +222,7 @@ impl Settings {
                 use std::io::Read;
 
                 let mut file =
-                    std::fs::File::open(path).unwrap_or_else(|_| panic!("Couldn't read {}", path));
+                    fs_err::File::open(path).unwrap_or_else(|_| panic!("Couldn't read {}", path));
                 let mut buffer = Vec::new();
                 file.read_to_end(&mut buffer)
                     .unwrap_or_else(|_| panic!("Couldn't read all of {}", path));

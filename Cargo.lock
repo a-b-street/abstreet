@@ -24,6 +24,7 @@ dependencies = [
  "abstutil",
  "anyhow",
  "bincode",
+ "fs-err",
  "futures-channel",
  "include_dir",
  "instant",
@@ -44,6 +45,7 @@ dependencies = [
  "bincode",
  "console_log",
  "env_logger",
+ "fs-err",
  "instant",
  "itertools 0.10.1",
  "log",
@@ -430,6 +432,7 @@ dependencies = [
  "abstutil",
  "anyhow",
  "csv",
+ "fs-err",
  "geo",
  "geojson",
  "geom",
@@ -577,6 +580,7 @@ dependencies = [
  "abstutil",
  "anyhow",
  "csv",
+ "fs-err",
  "geom",
  "kml",
  "log",
@@ -1123,6 +1127,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "fs-err"
+version = "2.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5ebd3504ad6116843b8375ad70df74e7bfe83cac77a1f3fe73200c844d43bfe0"
+
+[[package]]
 name = "fuchsia-zircon"
 version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1247,6 +1257,7 @@ dependencies = [
  "csv",
  "downcast-rs",
  "enumset",
+ "fs-err",
  "futures-channel",
  "geo",
  "geojson",
@@ -1419,6 +1430,7 @@ dependencies = [
  "abstutil",
  "anyhow",
  "earcutr",
+ "fs-err",
  "geo",
  "geo-booleanop",
  "geojson",
@@ -1832,6 +1844,7 @@ dependencies = [
  "collisions",
  "convert_osm",
  "csv",
+ "fs-err",
  "gdal",
  "geo",
  "geojson",
@@ -2181,6 +2194,7 @@ dependencies = [
  "aabb-quadtree",
  "abstio",
  "abstutil",
+ "fs-err",
  "geom",
  "getrandom",
  "log",
@@ -2206,6 +2220,7 @@ dependencies = [
  "colorous",
  "contour",
  "flate2",
+ "fs-err",
  "futures",
  "futures-channel",
  "geojson",
@@ -2812,6 +2827,7 @@ dependencies = [
  "abstio",
  "abstutil",
  "anyhow",
+ "fs-err",
  "geom",
  "log",
  "map_gui",
@@ -3516,6 +3532,7 @@ dependencies = [
  "ctrlc",
  "downcast-rs",
  "enum_dispatch",
+ "fs-err",
  "geom",
  "instant",
  "libm 0.2.1",
@@ -3793,6 +3810,7 @@ dependencies = [
  "abstutil",
  "anyhow",
  "convert_osm",
+ "fs-err",
  "geom",
  "map_model",
  "rand",
@@ -4092,6 +4110,7 @@ dependencies = [
  "abstutil",
  "anyhow",
  "flate2",
+ "fs-err",
  "futures-channel",
  "geom",
  "md5",
@@ -4402,6 +4421,7 @@ dependencies = [
  "abstutil",
  "anyhow",
  "downcast-rs",
+ "fs-err",
  "geojson",
  "geom",
  "glow",

@@ -1,10 +1,10 @@
 //! Normal file IO using the filesystem
 
-use std::fs::File;
 use std::io::{stdout, BufReader, BufWriter, Read, Write};
 use std::path::Path;
 
 use anyhow::{Context, Result};
+use fs_err::File;
 use instant::Instant;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
@@ -21,7 +21,7 @@ pub fn file_exists<I: AsRef<str>>(path: I) -> bool {
 /// Returns full paths
 pub fn list_dir(path: String) -> Vec<String> {
     let mut files: Vec<String> = Vec::new();
-    match std::fs::read_dir(&path) {
+    match fs_err::read_dir(&path) {
         Ok(iter) => {
             for entry in iter {
                 files.push(entry.unwrap().path().to_str().unwrap().to_string());
@@ -61,7 +61,7 @@ fn maybe_write_json<T: Serialize>(path: &str, obj: &T) -> Result<()> {
     if !path.ends_with(".json") {
         panic!("write_json needs {} to end with .json", path);
     }
-    std::fs::create_dir_all(std::path::Path::new(path).parent().unwrap())
+    fs_err::create_dir_all(std::path::Path::new(path).parent().unwrap())
         .expect("Creating parent dir failed");
 
     let mut file = File::create(path)?;
@@ -81,7 +81,7 @@ fn maybe_write_binary<T: Serialize>(path: &str, obj: &T) -> Result<()> {
         panic!("write_binary needs {} to end with .bin", path);
     }
 
-    std::fs::create_dir_all(std::path::Path::new(path).parent().unwrap())
+    fs_err::create_dir_all(std::path::Path::new(path).parent().unwrap())
         .expect("Creating parent dir failed");
 
     let file = BufWriter::new(File::create(path)?);
@@ -98,7 +98,7 @@ pub fn write_binary<T: Serialize>(path: String, obj: &T) {
 /// Idempotent
 pub fn delete_file<I: AsRef<str>>(path: I) {
     let path = path.as_ref();
-    if std::fs::remove_file(path).is_ok() {
+    if fs_err::remove_file(path).is_ok() {
         info!("Deleted {}", path);
     } else {
         info!("{} doesn't exist, so not deleting it", path);

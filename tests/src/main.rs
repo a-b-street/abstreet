@@ -1,9 +1,9 @@
 //! Integration tests
 
-use std::fs::File;
 use std::io::Write;
 
 use anyhow::Result;
+use fs_err::File;
 use rand::seq::SliceRandom;
 
 use abstio::{CityName, MapName};

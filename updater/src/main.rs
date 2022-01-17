@@ -1,9 +1,9 @@
 use std::collections::BTreeMap;
-use std::fs::File;
 use std::io::{BufReader, Read};
 use std::process::Command;
 
 use anyhow::Result;
+use fs_err::File;
 use structopt::StructOpt;
 use walkdir::WalkDir;
 
@@ -126,7 +126,7 @@ async fn download_updates(version: String, minimal: bool, delete_local: bool, dl
                 continue;
             }
 
-            std::fs::create_dir_all(std::path::Path::new(&path).parent().unwrap()).unwrap();
+            fs_err::create_dir_all(std::path::Path::new(&path).parent().unwrap()).unwrap();
             match download_file(&version, &path, dl_from_local).await {
                 Ok(bytes) => {
                     println!(
@@ -221,7 +221,7 @@ fn upload(version: &str) {
             }
             // Always do this -- even if nothing changed, compressed_size_bytes isn't filled out by
             // generate_manifest.
-            entry.compressed_size_bytes = std::fs::metadata(&remote_path)
+            entry.compressed_size_bytes = fs_err::metadata(&remote_path)
                 .unwrap_or_else(|_| panic!("Compressed {} not there?", remote_path))
                 .len();
             (path, entry)
@@ -269,7 +269,7 @@ fn incremental_upload(version: String) {
                 if truth.entries.get(&path).map(|x| &x.checksum) != Some(&entry.checksum) {
                     let remote_path = format!("{}/{}.gz", remote_base, path);
                     compress(&path, &remote_path);
-                    entry.compressed_size_bytes = std::fs::metadata(&remote_path)
+                    entry.compressed_size_bytes = fs_err::metadata(&remote_path)
                         .unwrap_or_else(|_| panic!("Compressed {} not there?", remote_path))
                         .len();
                     Some((path, entry))
@@ -339,7 +339,7 @@ fn generate_manifest(truth: &Manifest) -> Manifest {
             // If the file's modtime is newer than 12 hours or the uncompressed size has changed,
             // calculate md5sum. Otherwise assume no change. This heuristic saves lots of time and
             // doesn't stress my poor SSD as much.
-            let metadata = std::fs::metadata(&orig_path).unwrap();
+            let metadata = fs_err::metadata(&orig_path).unwrap();
             let uncompressed_size_bytes = metadata.len();
             let recent_modtime = metadata.modified().unwrap().elapsed().unwrap()
                 < std::time::Duration::from_secs(60 * 60 * 12);
@@ -388,7 +388,7 @@ fn md5sum(path: &str) -> String {
 
 fn rm(path: &str) {
     println!("> rm {}", path);
-    match std::fs::remove_file(path) {
+    match fs_err::remove_file(path) {
         Ok(_) => {}
         Err(e) => match e.kind() {
             std::io::ErrorKind::NotFound => {
@@ -444,7 +444,7 @@ fn remove_empty_directories(root: &str) {
                 println!("> Removing empty directory {}", x);
                 // This fails if the directory isn't empty, which is a good sanity check. If
                 // something weird happened, just bail.
-                std::fs::remove_dir(&x).unwrap();
+                fs_err::remove_dir(&x).unwrap();
             }
         }
     }
@@ -454,7 +454,7 @@ fn compress(path: &str, remote_path: &str) {
     assert!(!path.ends_with(".gz"));
     assert!(remote_path.ends_with(".gz"));
 
-    std::fs::create_dir_all(std::path::Path::new(remote_path).parent().unwrap()).unwrap();
+    fs_err::create_dir_all(std::path::Path::new(remote_path).parent().unwrap()).unwrap();
     println!("> compressing {}", path);
     let mut input = BufReader::new(File::open(path).unwrap());
     let out = File::create(remote_path).unwrap();

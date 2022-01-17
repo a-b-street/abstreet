@@ -1,8 +1,8 @@
 use std::collections::BTreeSet;
-use std::fs::File;
 use std::io::Write;
 
 use anyhow::Result;
+use fs_err::File;
 
 use abstutil::prettyprint_usize;
 use geom::{Distance, Duration, Polygon, Pt2D};

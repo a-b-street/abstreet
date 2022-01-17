@@ -1,8 +1,8 @@
-use std::fs::File;
 use std::io::{BufRead, BufReader, BufWriter, Write};
 use std::process::Command;
 
 use anyhow::Result;
+use fs_err::File;
 
 use geom::{Distance, PolyLine};
 use map_model::raw::{OriginalRoad, RawMap};
@@ -12,8 +12,8 @@ pub fn add_data(map: &mut RawMap) -> Result<()> {
     // it's tedious to call timer.stop().
     let ids = generate_input(map)?;
 
-    std::fs::create_dir_all("elevation_output")?;
-    std::fs::create_dir_all(abstio::path_shared_input("elevation"))?;
+    fs_err::create_dir_all("elevation_output")?;
+    fs_err::create_dir_all(abstio::path_shared_input("elevation"))?;
     let pwd = std::env::current_dir()?.display().to_string();
     // Because elevation_lookups has so many dependencies, just depend on Docker.
     // TODO This is only going to run on Linux, unless we can also build images for other OSes.
@@ -58,16 +58,16 @@ pub fn add_data(map: &mut RawMap) -> Result<()> {
     scrape_output(map, ids)?;
 
     // Clean up temporary files
-    std::fs::remove_file("elevation_input/query")?;
-    std::fs::remove_dir("elevation_input")?;
-    std::fs::remove_file("elevation_output/query")?;
-    std::fs::remove_dir("elevation_output")?;
+    fs_err::remove_file("elevation_input/query")?;
+    fs_err::remove_dir("elevation_input")?;
+    fs_err::remove_file("elevation_output/query")?;
+    fs_err::remove_dir("elevation_output")?;
 
     Ok(())
 }
 
 fn generate_input(map: &RawMap) -> Result<Vec<OriginalRoad>> {
-    std::fs::create_dir_all("elevation_input")?;
+    fs_err::create_dir_all("elevation_input")?;
     let mut f = BufWriter::new(File::create("elevation_input/query")?);
     let mut ids = Vec::new();
     for (id, r) in &map.roads {

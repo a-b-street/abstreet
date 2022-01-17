@@ -119,7 +119,7 @@ pub fn write_geojson_file(ctx: &EventCtx, app: &App, timer: &mut Timer) -> Resul
     // Don't use abstio::write_json; it writes to local storage in web, where we want to eventually
     // make the browser download something
     let path = format!("ltn_{}.geojson", map.get_name().map);
-    let mut file = std::fs::File::create(&path)?;
+    let mut file = fs_err::File::create(&path)?;
     write!(file, "{}", serde_json::to_string_pretty(&gj)?)?;
     Ok(path)
 }

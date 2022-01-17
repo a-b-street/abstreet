@@ -33,7 +33,7 @@ pub fn run(csv_path: String, map: String) -> Result<()> {
 
 fn parse_trips(csv_path: String) -> Result<Vec<ExternalPerson>> {
     let mut people = Vec::new();
-    for rec in csv::Reader::from_reader(std::fs::File::open(csv_path)?).deserialize() {
+    for rec in csv::Reader::from_reader(fs_err::File::open(csv_path)?).deserialize() {
         let rec: Record = rec?;
         let mode = match rec.agent_type.as_ref() {
             "v" => TripMode::Drive,

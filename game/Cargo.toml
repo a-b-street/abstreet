@@ -50,3 +50,4 @@ sim = { path = "../sim" }
 structopt = "0.3.23"
 wasm-bindgen = { version = "0.2.70", optional = true }
 widgetry = { path = "../widgetry" }
+fs-err = "2.6.0"

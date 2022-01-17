@@ -1,8 +1,8 @@
 use std::collections::{BTreeMap, BTreeSet, VecDeque};
-use std::fs::File;
 use std::io::Write;
 
 use anyhow::Result;
+use fs_err::File;
 use serde::{Deserialize, Serialize};
 
 use abstutil::Counter;

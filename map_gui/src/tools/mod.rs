@@ -327,8 +327,7 @@ pub fn find_exe(cmd: &str) -> String {
         } else {
             format!("{}/{}", dir, cmd)
         };
-        use std::fs::metadata;
-        if let Ok(metadata) = metadata(&path) {
+        if let Ok(metadata) = fs_err::metadata(&path) {
             if metadata.is_file() {
                 return path;
             } else {

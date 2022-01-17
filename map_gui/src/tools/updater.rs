@@ -1,6 +1,6 @@
 use std::collections::BTreeSet;
-use std::fs::File;
 
+use fs_err::File;
 use futures_channel::mpsc;
 
 use abstio::{DataPacks, Manifest, MapName};
@@ -136,7 +136,7 @@ async fn download_cities(
                 // TODO Instead of holding everything in memory like this, we could also try to
                 // stream the gunzipping and output writing
                 info!("Decompressing {}", path);
-                std::fs::create_dir_all(std::path::Path::new(&local_path).parent().unwrap())
+                fs_err::create_dir_all(std::path::Path::new(&local_path).parent().unwrap())
                     .unwrap();
                 let mut out = File::create(&local_path).unwrap();
                 let mut decoder = flate2::read::GzDecoder::new(&bytes[..]);

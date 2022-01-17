@@ -9,6 +9,7 @@ abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
 anyhow = "1.0.38"
 flate2 = "1.0.20"
+fs-err = "2.6.0"
 futures-channel = { version = "0.3.12"}
 geom = { path = "../geom" }
 md5 = "0.7.0"

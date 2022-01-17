@@ -1,7 +1,7 @@
 use std::collections::{BTreeMap, HashMap, HashSet};
-use std::fs::File;
 
 use anyhow::Result;
+use fs_err::File;
 use serde::Deserialize;
 
 use abstutil::MultiMap;
