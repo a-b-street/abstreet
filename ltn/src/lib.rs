@@ -2,12 +2,32 @@
 
 use widgetry::Settings;
 
+pub use browse::BrowseNeighborhoods;
+pub use filters::{DiagonalFilter, ModalFilters};
+pub use neighborhood::{Cell, DistanceInterval, Neighborhood};
+pub use partition::{NeighborhoodID, Partitioning};
+
+#[macro_use]
+extern crate anyhow;
 #[macro_use]
 extern crate log;
 
-mod viewer;
+mod auto;
+mod browse;
+mod connectivity;
+mod draw_cells;
+mod export;
+mod filters;
+mod neighborhood;
+mod partition;
+mod pathfinding;
+mod per_neighborhood;
+mod rat_run_viewer;
+mod rat_runs;
+mod select_boundary;
 
-type App = map_gui::SimpleApp<()>;
+type App = map_gui::SimpleApp<Session>;
+type Transition = widgetry::Transition<App>;
 
 pub fn main() {
     let settings = Settings::new("Low traffic neighborhoods");
@@ -20,15 +40,19 @@ fn run(mut settings: Settings) {
         .read_svg(Box::new(abstio::slurp_bytes))
         .canvas_settings(options.canvas_settings.clone());
     widgetry::run(settings, |ctx| {
-        map_gui::SimpleApp::new(ctx, options, (), |ctx, app| {
+        let session = Session {
+            partitioning: Partitioning::empty(),
+            modal_filters: ModalFilters::default(),
+        };
+        map_gui::SimpleApp::new(ctx, options, session, |ctx, app| {
             vec![
                 map_gui::tools::TitleScreen::new_state(
                     ctx,
                     app,
                     map_gui::tools::Executable::LTN,
-                    Box::new(|ctx, app, _| viewer::Viewer::new_state(ctx, app)),
+                    Box::new(|ctx, app, _| BrowseNeighborhoods::new_state(ctx, app)),
                 ),
-                viewer::Viewer::new_state(ctx, app),
+                BrowseNeighborhoods::new_state(ctx, app),
             ]
         })
     });
@@ -46,4 +70,9 @@ pub fn run_wasm(root_dom_id: String, assets_base_url: String, assets_are_gzipped
         .assets_are_gzipped(assets_are_gzipped);
 
     run(settings);
+}
+
+struct Session {
+    pub partitioning: Partitioning,
+    pub modal_filters: ModalFilters,
 }

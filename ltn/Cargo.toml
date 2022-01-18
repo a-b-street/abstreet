@@ -14,9 +14,18 @@ wasm = ["getrandom/js", "map_gui/wasm", "wasm-bindgen", "widgetry/wasm-backend"]
 [dependencies]
 abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
+anyhow = "1.0.38"
+fs-err = "2.6.0"
+geo = "0.18"
+geojson = { version = "0.22.0", features = ["geo-types"] }
+geom = { path = "../geom" }
 getrandom = { version = "0.2.3", optional = true }
+lazy_static = "1.4.0"
 log = "0.4"
+maplit = "1.0.2"
 map_gui = { path = "../map_gui" }
 map_model = { path = "../map_model" }
+serde_json = "1.0.61"
+sim = { path = "../sim" }
 wasm-bindgen = { version = "0.2.70", optional = true }
 widgetry = { path = "../widgetry" }

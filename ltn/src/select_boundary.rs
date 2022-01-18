@@ -11,8 +11,7 @@ use widgetry::{
     VerticalAlignment, Widget,
 };
 
-use crate::app::{App, Transition};
-use crate::ltn::{NeighborhoodID, Partitioning};
+use crate::{App, NeighborhoodID, Partitioning, Transition};
 
 const SELECTED: Color = Color::CYAN;
 
@@ -46,7 +45,7 @@ impl SelectBoundary {
             panel: make_panel(ctx, app),
             id,
             blocks: BTreeMap::new(),
-            world: World::bounded(app.primary.map.get_bounds()),
+            world: World::bounded(app.map.get_bounds()),
             selected: BTreeSet::new(),
             draw_outline: ToggleZoomed::empty(ctx),
             block_to_neighborhood: BTreeMap::new(),
@@ -127,7 +126,7 @@ impl SelectBoundary {
     fn redraw_outline(&mut self, ctx: &mut EventCtx, app: &App, perimeter: Perimeter) {
         // Draw the outline of the current blocks
         let mut batch = ToggleZoomed::builder();
-        if let Ok(block) = perimeter.to_block(&app.primary.map) {
+        if let Ok(block) = perimeter.to_block(&app.map) {
             if let Ok(outline) = block.polygon.to_outline(Distance::meters(10.0)) {
                 batch.unzoomed.push(Color::RED, outline);
             }
@@ -204,7 +203,7 @@ impl SelectBoundary {
                 merged.len()
             ));
         }
-        merged.pop().unwrap().to_block(&app.primary.map)
+        merged.pop().unwrap().to_block(&app.map)
     }
 
     // Ok(Some(x)) means the current neighborhood was destroyed, and the caller should switch to

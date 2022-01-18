@@ -7,7 +7,7 @@ use map_model::{
 };
 
 use super::{Cell, Neighborhood};
-use crate::app::App;
+use crate::App;
 
 pub struct RatRuns {
     pub paths: Vec<Path>,
@@ -29,7 +29,7 @@ impl RatRuns {
 }
 
 pub fn find_rat_runs(app: &App, neighborhood: &Neighborhood, timer: &mut Timer) -> RatRuns {
-    let map = &app.primary.map;
+    let map = &app.map;
     let modal_filters = &app.session.modal_filters;
     // The overall approach: look for all possible paths from an entrance to an exit, only if they
     // connect to different major roads.

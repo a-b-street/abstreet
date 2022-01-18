@@ -6,7 +6,7 @@ use map_model::osm::RoadRank;
 use map_model::{Block, Perimeter};
 use widgetry::Color;
 
-use crate::app::App;
+use crate::App;
 
 const COLORS: [Color; 6] = [
     Color::BLUE,
@@ -42,7 +42,7 @@ impl Partitioning {
     }
 
     pub fn seed_using_heuristics(app: &App, timer: &mut Timer) -> Partitioning {
-        let map = &app.primary.map;
+        let map = &app.map;
         timer.start("find single blocks");
         let mut single_blocks = Vec::new();
         let mut single_block_perims = Vec::new();

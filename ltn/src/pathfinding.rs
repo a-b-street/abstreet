@@ -8,8 +8,8 @@ use widgetry::{
 
 use super::per_neighborhood::{FilterableObj, Tab};
 use super::{Neighborhood, NeighborhoodID};
-use crate::app::{App, Transition};
 use crate::common::{cmp_dist, cmp_duration, InputWaypoints, WaypointID};
+use crate::{App, Transition};
 
 pub struct RoutePlanner {
     panel: Panel,
@@ -66,7 +66,7 @@ impl RoutePlanner {
         panel.restore(ctx, &self.panel);
         self.panel = panel;
 
-        let mut world = World::bounded(app.primary.map.get_bounds());
+        let mut world = World::bounded(app.map.get_bounds());
         super::per_neighborhood::populate_world(
             ctx,
             app,
@@ -86,7 +86,7 @@ impl RoutePlanner {
 
     // Updates the panel and draw_routes
     fn recalculate_paths(&mut self, ctx: &mut EventCtx, app: &App) {
-        let map = &app.primary.map;
+        let map = &app.map;
         let mut results = Text::new();
         let mut draw = ToggleZoomed::builder();
 
@@ -250,6 +250,6 @@ impl State<App> for RoutePlanner {
     fn on_destroy(&mut self, _: &mut EventCtx, app: &mut App) {
         // We'll cache a custom pathfinder per set of avoided roads. Avoid leaking memory by
         // clearing this out
-        app.primary.map.clear_custom_pathfinder_cache();
+        app.map.clear_custom_pathfinder_cache();
     }
 }

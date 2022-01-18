@@ -32,7 +32,6 @@ mod devtools;
 mod edit;
 mod info;
 mod layer;
-mod ltn;
 mod pregame;
 mod sandbox;
 mod ungap;
@@ -97,9 +96,6 @@ struct Args {
     /// Launch Ungap the Map, a bike network planning tool
     #[structopt(long)]
     ungap: bool,
-    /// Start a low-traffic neighborhood planner
-    #[structopt(long)]
-    ltn: bool,
     /// Start by listing internal developer tools
     #[structopt(long)]
     devtools: bool,
@@ -141,7 +137,6 @@ enum Mode {
     Sandbox,
     Proposals,
     Ungap,
-    Ltn,
     Devtools,
     LoadKML(String),
     Gameplay(GameplayMode),
@@ -183,8 +178,6 @@ fn run(mut settings: Settings) {
             Mode::Proposals
         } else if args.ungap {
             Mode::Ungap
-        } else if args.ltn {
-            Mode::Ltn
         } else if args.devtools {
             Mode::Devtools
         } else if let Some(kml) = args.load_kml {
@@ -562,7 +555,6 @@ fn finish_app_setup(
                 let layers = ungap::Layers::new(ctx, app);
                 ungap::ExploreMap::new_state(ctx, app, layers)
             }
-            Mode::Ltn => ltn::BrowseNeighborhoods::new_state(ctx, app),
             Mode::Devtools => devtools::DevToolsMode::new_state(ctx, app),
             Mode::LoadKML(path) => crate::devtools::kml::ViewKML::new_state(ctx, app, Some(path)),
         }

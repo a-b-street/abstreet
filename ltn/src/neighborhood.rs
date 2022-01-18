@@ -8,41 +8,24 @@ use map_model::{IntersectionID, Map, PathConstraints, Perimeter, RoadID};
 use widgetry::mapspace::ToggleZoomed;
 use widgetry::{Drawable, EventCtx, GeomBatch};
 
-use crate::app::App;
-
-pub use browse::BrowseNeighborhoods;
-pub use filters::{DiagonalFilter, ModalFilters};
-pub use partition::{NeighborhoodID, Partitioning};
-
-mod auto;
-mod browse;
-mod connectivity;
-mod draw_cells;
-mod export;
-mod filters;
-mod partition;
-mod pathfinding;
-mod per_neighborhood;
-mod rat_run_viewer;
-mod rat_runs;
-mod select_boundary;
+use crate::{App, ModalFilters, NeighborhoodID};
 
 pub struct Neighborhood {
-    id: NeighborhoodID,
+    pub id: NeighborhoodID,
 
     // These're fixed
-    orig_perimeter: Perimeter,
-    perimeter: BTreeSet<RoadID>,
-    borders: BTreeSet<IntersectionID>,
-    interior_intersections: BTreeSet<IntersectionID>,
+    pub orig_perimeter: Perimeter,
+    pub perimeter: BTreeSet<RoadID>,
+    pub borders: BTreeSet<IntersectionID>,
+    pub interior_intersections: BTreeSet<IntersectionID>,
 
     // The cells change as a result of modal filters, which're stored for all neighborhoods in
     // app.session.
-    cells: Vec<Cell>,
+    pub cells: Vec<Cell>,
 
-    fade_irrelevant: Drawable,
-    draw_filters: ToggleZoomed,
-    labels: DrawRoadLabels,
+    pub fade_irrelevant: Drawable,
+    pub draw_filters: ToggleZoomed,
+    pub labels: DrawRoadLabels,
 }
 
 /// A partitioning of the interior of a neighborhood based on driving connectivity
@@ -72,8 +55,8 @@ pub struct DistanceInterval {
 }
 
 impl Neighborhood {
-    fn new(ctx: &EventCtx, app: &App, id: NeighborhoodID) -> Neighborhood {
-        let map = &app.primary.map;
+    pub fn new(ctx: &EventCtx, app: &App, id: NeighborhoodID) -> Neighborhood {
+        let map = &app.map;
         let orig_perimeter = app.session.partitioning.neighborhoods[&id]
             .0
             .perimeter

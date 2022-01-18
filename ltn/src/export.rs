@@ -5,7 +5,7 @@ use geom::{PolyLine, Pt2D};
 use widgetry::EventCtx;
 
 use super::Neighborhood;
-use crate::app::App;
+use crate::App;
 
 pub fn write_geojson_file(ctx: &EventCtx, app: &App, timer: &mut Timer) -> Result<String> {
     if cfg!(target_arch = "wasm32") {
@@ -16,7 +16,7 @@ pub fn write_geojson_file(ctx: &EventCtx, app: &App, timer: &mut Timer) -> Resul
     use geojson::{Feature, FeatureCollection, GeoJson, Geometry, Value};
     use std::io::Write;
 
-    let map = &app.primary.map;
+    let map = &app.map;
     let mut features = Vec::new();
 
     // All neighborhood boundaries

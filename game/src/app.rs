@@ -762,10 +762,6 @@ pub struct SessionState {
     pub ungap_current_trip_name: Option<String>,
     // Map and edit change key
     pub mode_shift: Cached<(MapName, usize), crate::ungap::ModeShiftData>,
-
-    // Specific to LTN
-    pub partitioning: crate::ltn::Partitioning,
-    pub modal_filters: crate::ltn::ModalFilters,
 }
 
 impl SessionState {
@@ -788,9 +784,6 @@ impl SessionState {
             routing_preferences: crate::ungap::RoutingPreferences::default(),
             ungap_current_trip_name: None,
             mode_shift: Cached::new(),
-
-            partitioning: crate::ltn::Partitioning::empty(),
-            modal_filters: crate::ltn::ModalFilters::default(),
         }
     }
 }

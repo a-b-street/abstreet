@@ -8,7 +8,7 @@ use widgetry::{
 };
 
 use super::{BrowseNeighborhoods, DiagonalFilter, Neighborhood, NeighborhoodID, Partitioning};
-use crate::app::{App, Transition};
+use crate::{App, Transition};
 
 #[derive(PartialEq)]
 pub enum Tab {
@@ -76,7 +76,12 @@ impl Tab {
         id: NeighborhoodID,
     ) -> Option<Transition> {
         Some(match action {
-            "Home" => Transition::Clear(vec![crate::pregame::TitleScreen::new_state(ctx, app)]),
+            "Home" => Transition::Clear(vec![map_gui::tools::TitleScreen::new_state(
+                ctx,
+                app,
+                map_gui::tools::Executable::LTN,
+                Box::new(|ctx, app, _| BrowseNeighborhoods::new_state(ctx, app)),
+            )]),
             "change map" => Transition::Push(CityPicker::new_state(
                 ctx,
                 app,
@@ -161,7 +166,7 @@ pub fn populate_world<T: ObjectID, F: Fn(FilterableObj) -> T>(
     wrap_id: F,
     zorder: usize,
 ) {
-    let map = &app.primary.map;
+    let map = &app.map;
 
     for r in &neighborhood.orig_perimeter.interior {
         world
@@ -193,7 +198,7 @@ pub fn handle_world_outcome(
     app: &mut App,
     outcome: WorldOutcome<FilterableObj>,
 ) -> bool {
-    let map = &app.primary.map;
+    let map = &app.map;
     match outcome {
         WorldOutcome::ClickedObject(FilterableObj::InteriorRoad(r)) => {
             let road = map.get_r(r);

@@ -6,7 +6,7 @@ use widgetry::{Choice, EventCtx};
 
 use super::rat_runs::find_rat_runs;
 use super::Neighborhood;
-use crate::app::App;
+use crate::App;
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum Heuristic {
@@ -128,7 +128,7 @@ fn only_one_border(app: &mut App, neighborhood: &Neighborhood) {
             for i in cell.borders.iter().skip(1) {
                 // Find the road in this cell connected to this border
                 for r in cell.roads.keys() {
-                    let road = app.primary.map.get_r(*r);
+                    let road = app.map.get_r(*r);
                     if road.src_i == *i {
                         app.session
                             .modal_filters
@@ -156,7 +156,7 @@ fn try_to_filter_road(
     neighborhood: &Neighborhood,
     r: RoadID,
 ) -> Option<Neighborhood> {
-    let road = app.primary.map.get_r(r);
+    let road = app.map.get_r(r);
     app.session
         .modal_filters
         .roads
