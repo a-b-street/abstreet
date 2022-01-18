@@ -38,6 +38,7 @@ fn enter_state(ctx: &mut EventCtx, app: &mut App, args: Vec<&str>) -> Box<dyn St
             let layers = crate::ungap::Layers::new(ctx, app);
             crate::ungap::ExploreMap::new_state(ctx, app, layers)
         }
+        // TODO Remove
         "--ltn" => crate::ltn::BrowseNeighborhoods::new_state(ctx, app),
         "--devtools" => crate::devtools::DevToolsMode::new_state(ctx, app),
         _ => unreachable!(),

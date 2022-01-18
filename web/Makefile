@@ -7,7 +7,7 @@ REPO_ROOT:=$(shell git rev-parse --show-toplevel)
 # Section: Tasks (Phony targets)
 ##
 
-APPS=abstreet fifteen_min osm_viewer santa widgetry_demo map_editor
+APPS=abstreet fifteen_min osm_viewer santa widgetry_demo map_editor ltn
 
 .PHONY: server clean dev release $(APPS)
 .PRECIOUS: src/%/wasm_pkg
@@ -129,3 +129,9 @@ build/dist/santa/santa.bundle.js: build/widgetry.js build/santa/santa.js
 map_editor: build/dist/map_editor/wasm_pkg build/dist/map_editor/map_editor.bundle.js build/dist/map_editor.html
 
 build/dist/map_editor/map_editor.bundle.js: build/widgetry.js build/map_editor/map_editor.js
+
+## LTN
+
+ltn: build/dist/ltn/wasm_pkg build/dist/ltn/ltn.bundle.js build/dist/ltn.html
+
+build/dist/ltn/ltn.bundle.js: build/widgetry.js build/ltn/ltn.js
