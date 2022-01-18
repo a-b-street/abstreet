@@ -2113,6 +2113,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "ltn"
+version = "0.1.0"
+dependencies = [
+ "abstio",
+ "abstutil",
+ "getrandom",
+ "log",
+ "map_gui",
+ "map_model",
+ "wasm-bindgen",
+ "widgetry",
+]
+
+[[package]]
 name = "lttb"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"

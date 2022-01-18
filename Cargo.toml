@@ -11,6 +11,7 @@ members = [
   "geom",
   "headless",
   "importer",
+  "ltn",
   "kml",
   "map_editor",
   "map_gui",
