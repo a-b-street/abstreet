@@ -9,8 +9,8 @@ use widgetry::{
 use super::per_neighborhood::{FilterableObj, Tab};
 use super::rat_runs::{find_rat_runs, RatRuns};
 use super::{Neighborhood, NeighborhoodID};
-use crate::app::{App, Transition};
 use crate::common::percentage_bar;
+use crate::{App, Transition};
 
 pub struct BrowseRatRuns {
     panel: Panel,
@@ -127,7 +127,7 @@ impl BrowseRatRuns {
         let mut draw_path = ToggleZoomed::builder();
         let color = Color::RED;
         let path = &self.rat_runs.paths[self.current_idx];
-        if let Some(pl) = path.trace(&app.primary.map) {
+        if let Some(pl) = path.trace(&app.map) {
             // TODO This produces a really buggy shape sometimes!
             let shape = pl.make_arrow(3.0 * NORMAL_LANE_THICKNESS, ArrowCap::Triangle);
             draw_path.unzoomed.push(color.alpha(0.8), shape.clone());
@@ -215,7 +215,7 @@ fn make_world(
     neighborhood: &Neighborhood,
     rat_runs: &RatRuns,
 ) -> World<FilterableObj> {
-    let map = &app.primary.map;
+    let map = &app.map;
     let mut world = World::bounded(map.get_bounds());
 
     super::per_neighborhood::populate_world(ctx, app, neighborhood, &mut world, |id| id, 0);

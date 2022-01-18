@@ -26,6 +26,7 @@ contour = "0.4.0"
 csv = "1.1.4"
 downcast-rs = "1.2.0"
 enumset = "1.0.3"
+fs-err = "2.6.0"
 futures-channel = { version = "0.3.12"}
 geo = "0.18"
 geojson = { version = "0.22.0", features = ["geo-types"] }
@@ -50,4 +51,3 @@ sim = { path = "../sim" }
 structopt = "0.3.23"
 wasm-bindgen = { version = "0.2.70", optional = true }
 widgetry = { path = "../widgetry" }
-fs-err = "2.6.0"

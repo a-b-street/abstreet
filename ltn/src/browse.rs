@@ -5,13 +5,12 @@ use geom::Distance;
 use map_gui::tools::{CityPicker, DrawRoadLabels, Navigator, PopupMsg, URLManager};
 use widgetry::mapspace::{ToggleZoomed, World, WorldOutcome};
 use widgetry::{
-    lctrl, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, RewriteColor,
-    State, TextExt, Toggle, VerticalAlignment, Widget,
+    Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, RewriteColor, State,
+    TextExt, Toggle, VerticalAlignment, Widget,
 };
 
 use super::{Neighborhood, NeighborhoodID, Partitioning};
-use crate::app::{App, Transition};
-use crate::debug::DebugMode;
+use crate::{App, Transition};
 
 pub struct BrowseNeighborhoods {
     panel: Panel,
@@ -27,12 +26,12 @@ impl BrowseNeighborhoods {
 
         let style = Style::SimpleColoring;
         let world = ctx.loading_screen("calculate neighborhoods", |ctx, timer| {
-            if &app.session.partitioning.map != app.primary.map.get_name() {
+            if &app.session.partitioning.map != app.map.get_name() {
                 app.session.partitioning = Partitioning::seed_using_heuristics(app, timer);
             }
             make_world(ctx, app, style, timer)
         });
-        let draw_all_filters = app.session.modal_filters.draw(ctx, &app.primary.map, None);
+        let draw_all_filters = app.session.modal_filters.draw(ctx, &app.map, None);
 
         let panel = Panel::new_builder(Widget::col(vec![
             map_gui::tools::app_header(ctx, app, "Low traffic neighborhoods"),
@@ -81,8 +80,11 @@ impl State<App> for BrowseNeighborhoods {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "Home" => {
-                    return Transition::Clear(vec![crate::pregame::TitleScreen::new_state(
-                        ctx, app,
+                    return Transition::Clear(vec![map_gui::tools::TitleScreen::new_state(
+                        ctx,
+                        app,
+                        map_gui::tools::Executable::LTN,
+                        Box::new(|ctx, app, _| BrowseNeighborhoods::new_state(ctx, app)),
                     )]);
                 }
                 "change map" => {
@@ -126,10 +128,6 @@ impl State<App> for BrowseNeighborhoods {
             return Transition::Push(super::connectivity::Viewer::new_state(ctx, app, id));
         }
 
-        if ctx.input.pressed(lctrl(Key::D)) {
-            return Transition::Push(DebugMode::new_state(ctx, app));
-        }
-
         Transition::Keep
     }
 
@@ -152,8 +150,8 @@ fn make_world(
     style: Style,
     timer: &mut Timer,
 ) -> World<NeighborhoodID> {
-    let mut world = World::bounded(app.primary.map.get_bounds());
-    let map = &app.primary.map;
+    let mut world = World::bounded(app.map.get_bounds());
+    let map = &app.map;
     for (id, (block, color)) in &app.session.partitioning.neighborhoods {
         match style {
             Style::SimpleColoring => {
@@ -216,7 +214,7 @@ fn draw_boundary_roads(ctx: &EventCtx, app: &App) -> ToggleZoomed {
                 continue;
             }
             seen_roads.insert(r);
-            let road = app.primary.map.get_r(r);
+            let road = app.map.get_r(r);
             batch
                 .unzoomed
                 .push(Color::RED.alpha(0.8), road.get_thick_polygon());
@@ -229,14 +227,12 @@ fn draw_boundary_roads(ctx: &EventCtx, app: &App) -> ToggleZoomed {
                     continue;
                 }
                 seen_borders.insert(i);
-                batch.unzoomed.push(
-                    Color::RED.alpha(0.8),
-                    app.primary.map.get_i(i).polygon.clone(),
-                );
-                batch.zoomed.push(
-                    Color::RED.alpha(0.5),
-                    app.primary.map.get_i(i).polygon.clone(),
-                );
+                batch
+                    .unzoomed
+                    .push(Color::RED.alpha(0.8), app.map.get_i(i).polygon.clone());
+                batch
+                    .zoomed
+                    .push(Color::RED.alpha(0.5), app.map.get_i(i).polygon.clone());
             }
         }
     }

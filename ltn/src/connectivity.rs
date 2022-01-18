@@ -5,7 +5,7 @@ use widgetry::{EventCtx, GeomBatch, GfxCtx, Key, Outcome, Panel, State, TextExt,
 use super::auto::Heuristic;
 use super::per_neighborhood::{FilterableObj, Tab};
 use super::{Neighborhood, NeighborhoodID};
-use crate::app::{App, Transition};
+use crate::{App, Transition};
 
 pub struct Viewer {
     panel: Panel,
@@ -152,7 +152,7 @@ fn make_world(
     draw_cells_as_areas: bool,
     draw_borders_as_arrows: bool,
 ) -> World<FilterableObj> {
-    let map = &app.primary.map;
+    let map = &app.map;
     let mut world = World::bounded(map.get_bounds());
 
     super::per_neighborhood::populate_world(ctx, app, neighborhood, &mut world, |id| id, 0);

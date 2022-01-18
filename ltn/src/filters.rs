@@ -6,7 +6,7 @@ use widgetry::mapspace::ToggleZoomed;
 use widgetry::{Color, EventCtx, GeomBatch};
 
 use super::Neighborhood;
-use crate::app::App;
+use crate::App;
 
 /// Stored in App session state. Before making any changes, call `before_edit`.
 #[derive(Clone, Default)]
@@ -143,7 +143,7 @@ impl ModalFilters {
 impl DiagonalFilter {
     /// Find all possible diagonal filters at an intersection
     pub fn filters_for(app: &App, i: IntersectionID) -> Vec<DiagonalFilter> {
-        let map = &app.primary.map;
+        let map = &app.map;
         let roads = map.get_i(i).get_roads_sorted_by_incoming_angle(map);
         // TODO Handle >4-ways
         if roads.len() != 4 {
