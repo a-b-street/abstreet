@@ -174,7 +174,7 @@ fn make_world(
                 );
             }
             for i in
-                crate::common::intersections_from_roads(&cell.roads.keys().cloned().collect(), map)
+                map_gui::tools::intersections_from_roads(&cell.roads.keys().cloned().collect(), map)
             {
                 draw.push(color, map.get_i(i).polygon.clone());
             }

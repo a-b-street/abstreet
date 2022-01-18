@@ -6,7 +6,7 @@ use widgetry::{
     RewriteColor, StackAxis, Text, Widget,
 };
 
-use crate::app::App;
+use crate::AppLike;
 
 /// Click to add waypoints, drag them, see the list on a panel and delete them. The caller owns the
 /// Panel and the World, since there's probably more stuff there too.
@@ -26,8 +26,8 @@ struct Waypoint {
 }
 
 impl InputWaypoints {
-    pub fn new(app: &App) -> InputWaypoints {
-        let map = &app.primary.map;
+    pub fn new(app: &dyn AppLike) -> InputWaypoints {
+        let map = app.map();
         let mut snap_to_endpts = FindClosest::new(map.get_bounds());
         for i in map.all_intersections() {
             if i.is_border() {
@@ -45,7 +45,7 @@ impl InputWaypoints {
     }
 
     /// The caller should call `rebuild_world` after this
-    pub fn overwrite(&mut self, app: &App, waypoints: Vec<TripEndpoint>) {
+    pub fn overwrite(&mut self, app: &dyn AppLike, waypoints: Vec<TripEndpoint>) {
         self.waypoints.clear();
         for at in waypoints {
             self.waypoints.push(Waypoint::new(app, at));
@@ -139,7 +139,7 @@ impl InputWaypoints {
     /// route and call `get_panel_widget` and `rebuild_world` again.
     pub fn event(
         &mut self,
-        app: &mut App,
+        app: &dyn AppLike,
         panel_outcome: Outcome,
         world_outcome: WorldOutcome<WaypointID>,
     ) -> bool {
@@ -239,8 +239,8 @@ impl InputWaypoints {
 }
 
 impl Waypoint {
-    fn new(app: &App, at: TripEndpoint) -> Waypoint {
-        let map = &app.primary.map;
+    fn new(app: &dyn AppLike, at: TripEndpoint) -> Waypoint {
+        let map = app.map();
         let (center, label) = match at {
             TripEndpoint::Bldg(b) => {
                 let b = map.get_b(b);
@@ -248,7 +248,10 @@ impl Waypoint {
             }
             TripEndpoint::Border(i) => {
                 let i = map.get_i(i);
-                (i.polygon.center(), i.name(app.opts.language.as_ref(), map))
+                (
+                    i.polygon.center(),
+                    i.name(app.opts().language.as_ref(), map),
+                )
             }
             TripEndpoint::SuddenlyAppear(pos) => (pos.pt(map), pos.to_string()),
         };

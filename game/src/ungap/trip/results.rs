@@ -1,7 +1,7 @@
 use std::cmp::Ordering;
 
 use geom::{Circle, Distance, Duration, FindClosest, PolyLine, Polygon};
-use map_gui::tools::PopupMsg;
+use map_gui::tools::{cmp_dist, cmp_duration, PopupMsg};
 use map_model::{Path, PathStep, NORMAL_LANE_THICKNESS};
 use sim::{TripEndpoint, TripMode};
 use widgetry::mapspace::{ToggleZoomed, ToggleZoomedBuilder};
@@ -12,7 +12,6 @@ use widgetry::{
 
 use super::{before_after_button, RoutingPreferences};
 use crate::app::{App, Transition};
-use crate::common::{cmp_dist, cmp_duration};
 
 /// A temporary structure that the caller should unpack and use as needed.
 pub struct BuiltRoute {

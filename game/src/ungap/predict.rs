@@ -4,7 +4,7 @@ use abstio::Manifest;
 use abstutil::{prettyprint_bytes, prettyprint_usize, Counter, Timer};
 use geom::{Distance, Duration, UnitFmt};
 use map_gui::load::FileLoader;
-use map_gui::tools::{open_browser, ColorNetwork};
+use map_gui::tools::{open_browser, percentage_bar, ColorNetwork};
 use map_gui::ID;
 use map_model::{PathRequest, PathStepV2, RoadID};
 use sim::{Scenario, TripEndpoint, TripMode};
@@ -12,7 +12,6 @@ use widgetry::mapspace::ToggleZoomed;
 use widgetry::{EventCtx, GfxCtx, Line, Outcome, Panel, Spinner, State, Text, TextExt, Widget};
 
 use crate::app::{App, Transition};
-use crate::common::percentage_bar;
 use crate::ungap::{Layers, Tab, TakeLayers};
 
 pub struct ShowGaps {

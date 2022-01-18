@@ -1,11 +1,12 @@
 use std::collections::BTreeSet;
 
+use map_gui::tools::intersections_from_roads;
 use map_gui::ID;
 use map_model::{IntersectionID, RoadID};
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, RewriteColor, Widget};
 
 use crate::app::App;
-use crate::common::{intersections_from_roads, CommonState};
+use crate::common::CommonState;
 
 /// A tool for selecting multiple roads.
 pub struct RoadSelector {
