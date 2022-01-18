@@ -142,8 +142,8 @@ pub fn snap_driveway(
         .get(&center)
         .ok_or_else(|| anyhow!("parking lot center didn't snap to a sidewalk"))?;
     let sidewalk_line = match Line::new(center.to_pt2d(), sidewalk_pos.pt(map)) {
-        Some(l) => trim_path(polygon, l),
-        None => {
+        Ok(l) => trim_path(polygon, l),
+        Err(_) => {
             bail!("front path has 0 length");
         }
     };
@@ -205,7 +205,7 @@ fn infer_spots(lot_polygon: &Polygon, aisles: &[Vec<Pt2D>]) -> Vec<(Pt2D, Angle)
             for pair in lines.windows(2) {
                 let l1 = &pair[0];
                 let l2 = &pair[1];
-                if let Some(back) = Line::new(l1.pt2(), l2.pt2()) {
+                if let Ok(back) = Line::new(l1.pt2(), l2.pt2()) {
                     if l1.intersection(l2).is_none()
                         && l1.angle().approx_eq(l2.angle(), 5.0)
                         && line_valid(lot_polygon, aisles, l1, &finalized_lines)

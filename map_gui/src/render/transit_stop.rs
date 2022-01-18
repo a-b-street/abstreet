@@ -45,11 +45,10 @@ impl DrawTransitStop {
         batch.append(icon.autocrop().centered_on(center));
         batch.push(
             cs.stop_sign_pole,
-            Line::new(
+            Line::must_new(
                 center.project_away(RADIUS, Angle::degrees(90.0)),
                 center.project_away(1.5 * RADIUS, Angle::degrees(90.0)),
             )
-            .unwrap()
             .make_polygons(Distance::meters(0.3)),
         );
 

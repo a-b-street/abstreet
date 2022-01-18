@@ -147,7 +147,7 @@ impl DrawBuilding {
                     for (low, high) in bldg.polygon.points().iter().zip(roof.points().iter()) {
                         // Sometimes building height is 0!
                         // https://www.openstreetmap.org/way/390547658
-                        if let Some(l) = Line::new(*low, *high) {
+                        if let Ok(l) = Line::new(*low, *high) {
                             wall_beams.push(l);
                         }
                     }

@@ -1,5 +1,6 @@
 use std::fmt;
 
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
 use crate::{Angle, Distance, PolyLine, Polygon, Pt2D, EPSILON_DIST};
@@ -10,12 +11,12 @@ use crate::{Angle, Distance, PolyLine, Polygon, Pt2D, EPSILON_DIST};
 pub struct Line(Pt2D, Pt2D);
 
 impl Line {
-    /// Creates a line segment between two points. None if the points are the same.
-    pub fn new(pt1: Pt2D, pt2: Pt2D) -> Option<Line> {
+    /// Creates a line segment between two points, which must not be the same
+    pub fn new(pt1: Pt2D, pt2: Pt2D) -> Result<Line> {
         if pt1.dist_to(pt2) <= EPSILON_DIST {
-            return None;
+            bail!("Line from {:?} to {:?} too small", pt1, pt2);
         }
-        Some(Line(pt1, pt2))
+        Ok(Line(pt1, pt2))
     }
 
     /// Equivalent to `Line::new(pt1, pt2).unwrap()`. Use this to effectively document an assertion
@@ -152,10 +153,10 @@ impl Line {
     }
 
     /// Returns a point along the line segment, unless the distance exceeds the segment's length.
-    pub fn dist_along(&self, dist: Distance) -> Option<Pt2D> {
+    pub fn dist_along(&self, dist: Distance) -> Result<Pt2D> {
         let len = self.length();
         if dist < Distance::ZERO || dist > len {
-            return None;
+            bail!("dist_along({}) of a length {} line", dist, len);
         }
         self.percent_along(dist / len)
     }
@@ -175,26 +176,26 @@ impl Line {
             self.pt1().y() + percent * (self.pt2().y() - self.pt1().y()),
         )
     }
-    pub fn percent_along(&self, percent: f64) -> Option<Pt2D> {
+    pub fn percent_along(&self, percent: f64) -> Result<Pt2D> {
         if !(0.0..=1.0).contains(&percent) {
-            return None;
+            bail!("percent_along({}) of some line outside [0, 1]", percent);
         }
-        Some(self.unbounded_percent_along(percent))
+        Ok(self.unbounded_percent_along(percent))
     }
 
-    pub fn slice(&self, from: Distance, to: Distance) -> Option<Line> {
+    pub fn slice(&self, from: Distance, to: Distance) -> Result<Line> {
         if from < Distance::ZERO || to < Distance::ZERO || from >= to {
-            return None;
+            bail!("slice({}, {}) makes no sense", from, to);
         }
         Line::new(self.dist_along(from)?, self.dist_along(to)?)
     }
 
     /// Returns a subset of this line, with two percentages along the line's length.
-    pub fn percent_slice(&self, from: f64, to: f64) -> Option<Line> {
+    pub fn percent_slice(&self, from: f64, to: f64) -> Result<Line> {
         self.slice(from * self.length(), to * self.length())
     }
 
-    pub fn middle(&self) -> Option<Pt2D> {
+    pub fn middle(&self) -> Result<Pt2D> {
         self.dist_along(self.length() / 2.0)
     }
 

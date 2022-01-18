@@ -740,7 +740,7 @@ impl Pedestrian {
                 let line = &map.get_pl(pl).sidewalk_line;
                 (
                     line.percent_along(time_int.percent(now))
-                        .unwrap_or_else(|| line.pt1()),
+                        .unwrap_or_else(|_| line.pt1()),
                     line.angle(),
                 )
             }
@@ -749,18 +749,18 @@ impl Pedestrian {
                 (
                     line.reversed()
                         .percent_along(time_int.percent(now))
-                        .unwrap_or_else(|| line.pt1()),
+                        .unwrap_or_else(|_| line.pt1()),
                     line.angle().opposite(),
                 )
             }
             PedState::StartingToBike(_, ref line, ref time_int) => (
                 line.percent_along(time_int.percent(now))
-                    .unwrap_or_else(|| line.pt1()),
+                    .unwrap_or_else(|_| line.pt1()),
                 line.angle(),
             ),
             PedState::FinishingBiking(_, ref line, ref time_int) => (
                 line.percent_along(time_int.percent(now))
-                    .unwrap_or_else(|| line.pt1()),
+                    .unwrap_or_else(|_| line.pt1()),
                 line.angle(),
             ),
             PedState::WaitingForBus(_, _) => {

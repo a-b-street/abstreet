@@ -130,7 +130,7 @@ pub fn intersection_polygon(
                 idx.to_string(),
                 Circle::new(r.sorting_pt, Distance::meters(1.0)).to_polygon(),
             ));
-            if let Some(l) = Line::new(intersection_center, r.sorting_pt) {
+            if let Ok(l) = Line::new(intersection_center, r.sorting_pt) {
                 debug.push((idx.to_string(), l.make_polygons(Distance::meters(0.5))));
             }
         }

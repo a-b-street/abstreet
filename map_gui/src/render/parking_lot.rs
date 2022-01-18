@@ -53,7 +53,7 @@ impl DrawParkingLot {
                 Distance::ZERO,
                 orig_line.length() - app.map().get_l(lot.sidewalk_pos.lane()).width / 2.0,
             )
-            .unwrap_or_else(|| orig_line.clone());
+            .unwrap_or_else(|_| orig_line.clone());
 
         let mut batch = GeomBatch::new();
         // TODO This isn't getting clipped to the parking lot boundary properly, so just stick

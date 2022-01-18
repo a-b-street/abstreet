@@ -320,10 +320,10 @@ impl<
             let right = cell_width * (self.buckets_x.len() - 1) as f64;
 
             let border_lines = vec![
-                Line::new(Pt2D::zero(), Pt2D::new(right, 0.0)).unwrap(),
-                Line::new(Pt2D::new(right, 0.0), Pt2D::new(right, bottom)).unwrap(),
-                Line::new(Pt2D::new(right, bottom), Pt2D::new(0.0, bottom)).unwrap(),
-                Line::new(Pt2D::new(0.0, bottom), Pt2D::zero()).unwrap(),
+                Line::must_new(Pt2D::zero(), Pt2D::new(right, 0.0)),
+                Line::must_new(Pt2D::new(right, 0.0), Pt2D::new(right, bottom)),
+                Line::must_new(Pt2D::new(right, bottom), Pt2D::new(0.0, bottom)),
+                Line::must_new(Pt2D::new(0.0, bottom), Pt2D::zero()),
             ];
             for line in border_lines {
                 let border_poly = line.make_polygons(Distance::meters(3.0));
@@ -356,8 +356,7 @@ impl<
                     let tick_length = 8.0;
                     let tick_thickness = 2.0;
                     let start = Pt2D::new(x1 + cell_width - tick_length, y1 - tick_thickness / 2.0);
-                    let line = Line::new(start, start.offset(tick_length, 0.0))
-                        .unwrap()
+                    let line = Line::must_new(start, start.offset(tick_length, 0.0))
                         .make_polygons(Distance::meters(tick_thickness));
                     y_axis_scale.push(ctx.style().text_secondary_color, line);
                 }
@@ -393,8 +392,7 @@ impl<
                 let tick_length = 8.0;
                 let tick_thickness = 2.0;
                 let start = Pt2D::new(x1, y1 - 2.0);
-                let line = Line::new(start, start.offset(0.0, tick_length))
-                    .unwrap()
+                let line = Line::must_new(start, start.offset(0.0, tick_length))
                     .make_polygons(Distance::meters(tick_thickness));
                 x_axis_scale.push(ctx.style().text_secondary_color, line);
             }

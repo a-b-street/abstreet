@@ -328,8 +328,7 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
             let line_bottom = bottom_of_top_bar + text_v_padding / 2.0 + 2.0;
             batch.push(
                 ctx.style().text_secondary_color.shade(0.2),
-                geom::Line::new(Pt2D::new(x, line_top), Pt2D::new(x, line_bottom))
-                    .unwrap()
+                geom::Line::must_new(Pt2D::new(x, line_top), Pt2D::new(x, line_bottom))
                     .make_polygons(line_thickness),
             );
         }
@@ -339,8 +338,7 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
             let line_top = line_bottom - text_v_padding / 2.0 - 2.0;
             batch.push(
                 ctx.style().text_secondary_color.shade(0.2),
-                geom::Line::new(Pt2D::new(x, line_top), Pt2D::new(x, line_bottom))
-                    .unwrap()
+                geom::Line::must_new(Pt2D::new(x, line_top), Pt2D::new(x, line_bottom))
                     .make_polygons(line_thickness),
             );
         }
@@ -537,7 +535,7 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
             )
             .for_each(|(interval, y)| {
                 let start = Pt2D::new(0.0, y);
-                let line = geom::Line::new(start, start.offset(line_length, 0.0)).unwrap();
+                let line = geom::Line::must_new(start, start.offset(line_length, 0.0));
                 let poly = line.make_polygons(Distance::meters(line_thickness));
                 y_axis_ticks.push(ctx.style().text_secondary_color, poly);
 

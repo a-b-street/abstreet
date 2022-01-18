@@ -50,8 +50,8 @@ pub fn make_all_buildings(
         if let Some(sidewalk_pos) = sidewalk_pts.get(&bldg_center) {
             let b = &input[&orig_id];
             let sidewalk_line = match Line::new(bldg_center.to_pt2d(), sidewalk_pos.pt(map)) {
-                Some(l) => trim_path(&b.polygon, l),
-                None => {
+                Ok(l) => trim_path(&b.polygon, l),
+                Err(_) => {
                     warn!(
                         "Skipping building {} because front path has 0 length",
                         orig_id

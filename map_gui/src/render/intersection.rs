@@ -595,7 +595,7 @@ fn make_unmarked_crossing(batch: &mut GeomBatch, turn: &Turn, map: &Map, cs: &Co
     let band_width = Distance::meters(0.1);
     let total_width = map.get_l(turn.id.src).width;
     if let Some(line) = crosswalk_line(turn) {
-        if let Some(slice) = line.slice(total_width, line.length() - total_width) {
+        if let Ok(slice) = line.slice(total_width, line.length() - total_width) {
             batch.push(
                 color,
                 slice
@@ -623,7 +623,7 @@ fn crosswalk_line(turn: &Turn) -> Option<Line> {
         );
         return None;
     }
-    Line::new(pts[1], pts[2])
+    Line::new(pts[1], pts[2]).ok()
 }
 
 // TODO copied from DrawLane
