@@ -1205,6 +1205,21 @@
       "uncompressed_size_bytes": 13618526,
       "compressed_size_bytes": 2672357
     },
+    "data/input/gb/newcastle_upon_tyne/osm/center.osm": {
+      "checksum": "d01ad56e7b1bac5951552787258f06ef",
+      "uncompressed_size_bytes": 17838587,
+      "compressed_size_bytes": 2006178
+    },
+    "data/input/gb/newcastle_upon_tyne/osm/tyne-and-wear-latest.osm.pbf": {
+      "checksum": "dd9a8ee80f8e3e10a360982f345b24b1",
+      "uncompressed_size_bytes": 18698410,
+      "compressed_size_bytes": 18667608
+    },
+    "data/input/gb/newcastle_upon_tyne/raw_maps/center.bin": {
+      "checksum": "cc3630ac627487cb5befc1bff15e5196",
+      "uncompressed_size_bytes": 5714124,
+      "compressed_size_bytes": 1104136
+    },
     "data/input/gb/northwick_park/osm/center.osm": {
       "checksum": "2c08bf6cbd7b2d656d41eefb019fcbd6",
       "uncompressed_size_bytes": 11873400,
@@ -3759,6 +3774,16 @@
       "checksum": "0463923602806fa71c9498bbba6a6793",
       "uncompressed_size_bytes": 3704732,
       "compressed_size_bytes": 1000947
+    },
+    "data/system/gb/newcastle_upon_tyne/maps/center.bin": {
+      "checksum": "d3dc51dfb4d919138b1fd37ebab62159",
+      "uncompressed_size_bytes": 21551154,
+      "compressed_size_bytes": 8124307
+    },
+    "data/system/gb/newcastle_upon_tyne/scenarios/center/background.bin": {
+      "checksum": "439e9de331fb9843c150d361e8b477b3",
+      "uncompressed_size_bytes": 1798011,
+      "compressed_size_bytes": 439993
     },
     "data/system/gb/northwick_park/maps/center.bin": {
       "checksum": "02a7e6d5e5e725080d0e7de09c490b37",

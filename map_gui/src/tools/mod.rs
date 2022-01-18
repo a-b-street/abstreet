@@ -180,6 +180,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("micklefield", "center") => "Micklefield",
             ("newborough_road", "center") => "Newborough Road",
             ("newcastle_great_park", "center") => "Newcastle Great Park",
+            ("newcastle_upon_tyne", "center") => "Newcastle upon Tyne",
             ("northwick_park", "center") => "Northwick Park",
             ("poundbury", "center") => "Poundbury",
             ("priors_hall", "center") => "Priors Hall",
