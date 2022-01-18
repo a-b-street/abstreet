@@ -35,16 +35,17 @@ pub fn main() {
 }
 
 fn run(mut settings: Settings) {
-    let options = map_gui::options::Options::load_or_default();
+    let mut opts = map_gui::options::Options::load_or_default();
+    opts.color_scheme = map_gui::colors::ColorSchemeChoice::DayMode;
     settings = settings
         .read_svg(Box::new(abstio::slurp_bytes))
-        .canvas_settings(options.canvas_settings.clone());
+        .canvas_settings(opts.canvas_settings.clone());
     widgetry::run(settings, |ctx| {
         let session = Session {
             partitioning: Partitioning::empty(),
             modal_filters: ModalFilters::default(),
         };
-        map_gui::SimpleApp::new(ctx, options, session, |ctx, app| {
+        map_gui::SimpleApp::new(ctx, opts, session, |ctx, app| {
             vec![
                 map_gui::tools::TitleScreen::new_state(
                     ctx,
