@@ -1,4 +1,5 @@
 use geom::{Distance, Duration};
+use map_gui::tools::{cmp_dist, cmp_duration, InputWaypoints, WaypointID};
 use map_model::NORMAL_LANE_THICKNESS;
 use sim::{TripEndpoint, TripMode};
 use widgetry::mapspace::{ObjectID, ToggleZoomed, World};
@@ -8,7 +9,6 @@ use widgetry::{
 
 use super::per_neighborhood::{FilterableObj, Tab};
 use super::{Neighborhood, NeighborhoodID};
-use crate::common::{cmp_dist, cmp_duration, InputWaypoints, WaypointID};
 use crate::{App, Transition};
 
 pub struct RoutePlanner {

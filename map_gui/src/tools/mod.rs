@@ -1,7 +1,10 @@
 //! Assorted tools and UI states that're useful for applications built to display maps.
 
+use std::collections::BTreeSet;
+
 use abstio::MapName;
 use geom::Polygon;
+use map_model::{IntersectionID, Map, RoadID};
 use widgetry::{lctrl, EventCtx, GfxCtx, Key, Line, Text, Widget};
 
 pub use self::camera::{CameraState, DefaultMap};
@@ -14,8 +17,11 @@ pub use self::minimap::{Minimap, MinimapControls};
 pub use self::navigate::Navigator;
 pub use self::title_screen::{Executable, TitleScreen};
 pub use self::turn_explorer::TurnExplorer;
-pub use self::ui::{ChooseSomething, FilePicker, PopupMsg, PromptInput};
+pub use self::ui::{
+    cmp_dist, cmp_duration, percentage_bar, ChooseSomething, FilePicker, PopupMsg, PromptInput,
+};
 pub use self::url::URLManager;
+pub use self::waypoints::{InputWaypoints, WaypointID};
 use crate::AppLike;
 
 #[cfg(not(target_arch = "wasm32"))]
@@ -41,6 +47,7 @@ mod ui;
 #[cfg(not(target_arch = "wasm32"))]
 mod updater;
 mod url;
+mod waypoints;
 
 // Update this ___before___ pushing the commit with "[rebuild] [release]".
 const NEXT_RELEASE: &str = "0.3.8";
@@ -373,4 +380,20 @@ pub fn app_header(ctx: &EventCtx, app: &dyn AppLike, title: &str) -> Widget {
         ]),
         change_map_btn(ctx, app),
     ])
+}
+
+pub fn intersections_from_roads(roads: &BTreeSet<RoadID>, map: &Map) -> BTreeSet<IntersectionID> {
+    let mut results = BTreeSet::new();
+    for r in roads {
+        let r = map.get_r(*r);
+        for i in [r.src_i, r.dst_i] {
+            if results.contains(&i) {
+                continue;
+            }
+            if map.get_i(i).roads.iter().all(|r| roads.contains(r)) {
+                results.insert(i);
+            }
+        }
+    }
+    results
 }

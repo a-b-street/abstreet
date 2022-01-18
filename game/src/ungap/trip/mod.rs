@@ -1,3 +1,4 @@
+use map_gui::tools::{InputWaypoints, WaypointID};
 use map_model::RoutingParams;
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::{
@@ -6,7 +7,6 @@ use widgetry::{
 
 use self::results::RouteDetails;
 use crate::app::{App, Transition};
-use crate::common::{InputWaypoints, WaypointID};
 use crate::ungap::{Layers, Tab, TakeLayers};
 
 mod files;

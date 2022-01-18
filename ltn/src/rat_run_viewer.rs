@@ -1,5 +1,5 @@
 use geom::ArrowCap;
-use map_gui::tools::ColorNetwork;
+use map_gui::tools::{percentage_bar, ColorNetwork};
 use map_model::NORMAL_LANE_THICKNESS;
 use widgetry::mapspace::{ToggleZoomed, World};
 use widgetry::{
@@ -9,7 +9,6 @@ use widgetry::{
 use super::per_neighborhood::{FilterableObj, Tab};
 use super::rat_runs::{find_rat_runs, RatRuns};
 use super::{Neighborhood, NeighborhoodID};
-use crate::common::percentage_bar;
 use crate::{App, Transition};
 
 pub struct BrowseRatRuns {

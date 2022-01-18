@@ -72,7 +72,7 @@ pub fn run_wasm(root_dom_id: String, assets_base_url: String, assets_are_gzipped
     run(settings);
 }
 
-struct Session {
+pub struct Session {
     pub partitioning: Partitioning,
     pub modal_filters: ModalFilters,
 }

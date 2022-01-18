@@ -1,9 +1,7 @@
-use std::cmp::Ordering;
 use std::collections::BTreeSet;
 
-use geom::{Distance, Duration, Polygon, Time};
+use geom::{Duration, Polygon, Time};
 use map_gui::ID;
-use map_model::{IntersectionID, Map, RoadID};
 use sim::{AgentType, TripMode, TripPhaseType};
 use widgetry::{
     lctrl, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel, ScreenDims,
@@ -13,7 +11,6 @@ use widgetry::{
 pub use self::route_sketcher::RouteSketcher;
 pub use self::select::RoadSelector;
 pub use self::warp::{warp_to_id, Warping};
-pub use self::waypoints::{InputWaypoints, WaypointID};
 use crate::app::App;
 use crate::app::Transition;
 use crate::info::{ContextualActions, InfoPanel, Tab};
@@ -23,7 +20,6 @@ mod route_sketcher;
 mod select;
 pub mod share;
 mod warp;
-mod waypoints;
 
 // TODO This is now just used in two modes...
 pub struct CommonState {
@@ -370,55 +366,6 @@ pub fn cmp_duration_shorter(app: &App, after: Duration, before: Duration) -> Vec
     }
 }
 
-/// Shorter is better
-pub fn cmp_dist(txt: &mut Text, app: &App, dist: Distance, shorter: &str, longer: &str) {
-    match dist.cmp(&Distance::ZERO) {
-        Ordering::Less => {
-            txt.add_line(
-                Line(format!(
-                    "{} {}",
-                    (-dist).to_string(&app.opts.units),
-                    shorter
-                ))
-                .fg(Color::GREEN),
-            );
-        }
-        Ordering::Greater => {
-            txt.add_line(
-                Line(format!("{} {}", dist.to_string(&app.opts.units), longer)).fg(Color::RED),
-            );
-        }
-        Ordering::Equal => {}
-    }
-}
-
-/// Shorter is better
-pub fn cmp_duration(txt: &mut Text, app: &App, duration: Duration, shorter: &str, longer: &str) {
-    match duration.cmp(&Duration::ZERO) {
-        Ordering::Less => {
-            txt.add_line(
-                Line(format!(
-                    "{} {}",
-                    (-duration).to_string(&app.opts.units),
-                    shorter
-                ))
-                .fg(Color::GREEN),
-            );
-        }
-        Ordering::Greater => {
-            txt.add_line(
-                Line(format!(
-                    "{} {}",
-                    duration.to_string(&app.opts.units),
-                    longer
-                ))
-                .fg(Color::RED),
-            );
-        }
-        Ordering::Equal => {}
-    }
-}
-
 pub fn color_for_mode(app: &App, m: TripMode) -> Color {
     match m {
         TripMode::Walk => app.cs.unzoomed_pedestrian,
@@ -449,22 +396,6 @@ pub fn color_for_trip_phase(app: &App, tpt: TripPhaseType) -> Color {
         TripPhaseType::Cancelled | TripPhaseType::Finished => unreachable!(),
         TripPhaseType::DelayedStart => Color::YELLOW,
     }
-}
-
-pub fn intersections_from_roads(roads: &BTreeSet<RoadID>, map: &Map) -> BTreeSet<IntersectionID> {
-    let mut results = BTreeSet::new();
-    for r in roads {
-        let r = map.get_r(*r);
-        for i in [r.src_i, r.dst_i] {
-            if results.contains(&i) {
-                continue;
-            }
-            if map.get_i(i).roads.iter().all(|r| roads.contains(r)) {
-                results.insert(i);
-            }
-        }
-    }
-    results
 }
 
 pub fn checkbox_per_mode(
@@ -510,29 +441,4 @@ pub fn jump_to_time_upon_startup(
             }
         })
     })
-}
-
-pub fn percentage_bar(ctx: &EventCtx, txt: Text, pct_green: f64) -> Widget {
-    let bad_color = Color::RED;
-    let good_color = Color::GREEN;
-
-    let total_width = 450.0;
-    let height = 32.0;
-    let radius = 4.0;
-
-    let mut batch = GeomBatch::new();
-    // Background
-    batch.push(
-        bad_color,
-        Polygon::rounded_rectangle(total_width, height, radius),
-    );
-    // Foreground
-    if let Some(poly) = Polygon::maybe_rounded_rectangle(pct_green * total_width, height, radius) {
-        batch.push(good_color, poly);
-    }
-    // Text
-    let label = txt.render_autocropped(ctx);
-    let dims = label.get_dims();
-    batch.append(label.translate(10.0, height / 2.0 - dims.height / 2.0));
-    batch.into_widget(ctx)
 }
