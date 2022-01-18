@@ -299,14 +299,16 @@
 <span id="298">298</span>
 <span id="299">299</span>
 <span id="300">300</span>
+<span id="301">301</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
+<span class="kw">use</span> <span class="ident">map_gui::tools::intersections_from_roads</span>;
 <span class="kw">use</span> <span class="ident">map_gui::ID</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">RoadID</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">RewriteColor</span>, <span class="ident">Widget</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app::App</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::common</span>::{<span class="ident">intersections_from_roads</span>, <span class="ident">CommonState</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::common::CommonState</span>;
 
 <span class="doccomment">/// A tool for selecting multiple roads.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RoadSelector</span> {

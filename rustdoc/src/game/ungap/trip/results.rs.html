@@ -510,11 +510,10 @@
 <span id="509">509</span>
 <span id="510">510</span>
 <span id="511">511</span>
-<span id="512">512</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cmp::Ordering</span>;
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">FindClosest</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>};
-<span class="kw">use</span> <span class="ident">map_gui::tools::PopupMsg</span>;
+<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">cmp_dist</span>, <span class="ident">cmp_duration</span>, <span class="ident">PopupMsg</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Path</span>, <span class="ident">PathStep</span>, <span class="ident">NORMAL_LANE_THICKNESS</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>};
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ToggleZoomed</span>, <span class="ident">ToggleZoomedBuilder</span>};
@@ -525,7 +524,6 @@
 
 <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">before_after_button</span>, <span class="ident">RoutingPreferences</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::common</span>::{<span class="ident">cmp_dist</span>, <span class="ident">cmp_duration</span>};
 
 <span class="doccomment">/// A temporary structure that the caller should unpack and use as needed.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BuiltRoute</span> {
