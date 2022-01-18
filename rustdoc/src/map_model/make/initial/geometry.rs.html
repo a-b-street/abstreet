@@ -818,7 +818,7 @@
                 <span class="ident">idx</span>.<span class="ident">to_string</span>(),
                 <span class="ident">Circle::new</span>(<span class="ident">r</span>.<span class="ident">sorting_pt</span>, <span class="ident">Distance::meters</span>(<span class="number">1.0</span>)).<span class="ident">to_polygon</span>(),
             ));
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="ident">Line::new</span>(<span class="ident">intersection_center</span>, <span class="ident">r</span>.<span class="ident">sorting_pt</span>) {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="ident">Line::new</span>(<span class="ident">intersection_center</span>, <span class="ident">r</span>.<span class="ident">sorting_pt</span>) {
                 <span class="ident">debug</span>.<span class="ident">push</span>((<span class="ident">idx</span>.<span class="ident">to_string</span>(), <span class="ident">l</span>.<span class="ident">make_polygons</span>(<span class="ident">Distance::meters</span>(<span class="number">0.5</span>))));
             }
         }

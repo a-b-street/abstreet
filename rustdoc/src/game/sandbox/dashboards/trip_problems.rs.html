@@ -517,8 +517,6 @@
 <span id="516">516</span>
 <span id="517">517</span>
 <span id="518">518</span>
-<span id="519">519</span>
-<span id="520">520</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cmp::Ordering</span>;
 <span class="kw">use</span> <span class="ident">std::fmt::Display</span>;
 
@@ -841,10 +839,10 @@
             <span class="kw">let</span> <span class="ident">right</span> <span class="op">=</span> <span class="ident">cell_width</span> <span class="op">*</span> (<span class="self">self</span>.<span class="ident">buckets_x</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>) <span class="kw">as</span> <span class="ident">f64</span>;
 
             <span class="kw">let</span> <span class="ident">border_lines</span> <span class="op">=</span> <span class="macro">vec!</span>[
-                <span class="ident">Line::new</span>(<span class="ident">Pt2D::zero</span>(), <span class="ident">Pt2D::new</span>(<span class="ident">right</span>, <span class="number">0.0</span>)).<span class="ident">unwrap</span>(),
-                <span class="ident">Line::new</span>(<span class="ident">Pt2D::new</span>(<span class="ident">right</span>, <span class="number">0.0</span>), <span class="ident">Pt2D::new</span>(<span class="ident">right</span>, <span class="ident">bottom</span>)).<span class="ident">unwrap</span>(),
-                <span class="ident">Line::new</span>(<span class="ident">Pt2D::new</span>(<span class="ident">right</span>, <span class="ident">bottom</span>), <span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="ident">bottom</span>)).<span class="ident">unwrap</span>(),
-                <span class="ident">Line::new</span>(<span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="ident">bottom</span>), <span class="ident">Pt2D::zero</span>()).<span class="ident">unwrap</span>(),
+                <span class="ident">Line::must_new</span>(<span class="ident">Pt2D::zero</span>(), <span class="ident">Pt2D::new</span>(<span class="ident">right</span>, <span class="number">0.0</span>)),
+                <span class="ident">Line::must_new</span>(<span class="ident">Pt2D::new</span>(<span class="ident">right</span>, <span class="number">0.0</span>), <span class="ident">Pt2D::new</span>(<span class="ident">right</span>, <span class="ident">bottom</span>)),
+                <span class="ident">Line::must_new</span>(<span class="ident">Pt2D::new</span>(<span class="ident">right</span>, <span class="ident">bottom</span>), <span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="ident">bottom</span>)),
+                <span class="ident">Line::must_new</span>(<span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="ident">bottom</span>), <span class="ident">Pt2D::zero</span>()),
             ];
             <span class="kw">for</span> <span class="ident">line</span> <span class="kw">in</span> <span class="ident">border_lines</span> {
                 <span class="kw">let</span> <span class="ident">border_poly</span> <span class="op">=</span> <span class="ident">line</span>.<span class="ident">make_polygons</span>(<span class="ident">Distance::meters</span>(<span class="number">3.0</span>));
@@ -877,8 +875,7 @@
                     <span class="kw">let</span> <span class="ident">tick_length</span> <span class="op">=</span> <span class="number">8.0</span>;
                     <span class="kw">let</span> <span class="ident">tick_thickness</span> <span class="op">=</span> <span class="number">2.0</span>;
                     <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">Pt2D::new</span>(<span class="ident">x1</span> <span class="op">+</span> <span class="ident">cell_width</span> <span class="op">-</span> <span class="ident">tick_length</span>, <span class="ident">y1</span> <span class="op">-</span> <span class="ident">tick_thickness</span> <span class="op">/</span> <span class="number">2.0</span>);
-                    <span class="kw">let</span> <span class="ident">line</span> <span class="op">=</span> <span class="ident">Line::new</span>(<span class="ident">start</span>, <span class="ident">start</span>.<span class="ident">offset</span>(<span class="ident">tick_length</span>, <span class="number">0.0</span>))
-                        .<span class="ident">unwrap</span>()
+                    <span class="kw">let</span> <span class="ident">line</span> <span class="op">=</span> <span class="ident">Line::must_new</span>(<span class="ident">start</span>, <span class="ident">start</span>.<span class="ident">offset</span>(<span class="ident">tick_length</span>, <span class="number">0.0</span>))
                         .<span class="ident">make_polygons</span>(<span class="ident">Distance::meters</span>(<span class="ident">tick_thickness</span>));
                     <span class="ident">y_axis_scale</span>.<span class="ident">push</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_secondary_color</span>, <span class="ident">line</span>);
                 }
@@ -914,8 +911,7 @@
                 <span class="kw">let</span> <span class="ident">tick_length</span> <span class="op">=</span> <span class="number">8.0</span>;
                 <span class="kw">let</span> <span class="ident">tick_thickness</span> <span class="op">=</span> <span class="number">2.0</span>;
                 <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">Pt2D::new</span>(<span class="ident">x1</span>, <span class="ident">y1</span> <span class="op">-</span> <span class="number">2.0</span>);
-                <span class="kw">let</span> <span class="ident">line</span> <span class="op">=</span> <span class="ident">Line::new</span>(<span class="ident">start</span>, <span class="ident">start</span>.<span class="ident">offset</span>(<span class="number">0.0</span>, <span class="ident">tick_length</span>))
-                    .<span class="ident">unwrap</span>()
+                <span class="kw">let</span> <span class="ident">line</span> <span class="op">=</span> <span class="ident">Line::must_new</span>(<span class="ident">start</span>, <span class="ident">start</span>.<span class="ident">offset</span>(<span class="number">0.0</span>, <span class="ident">tick_length</span>))
                     .<span class="ident">make_polygons</span>(<span class="ident">Distance::meters</span>(<span class="ident">tick_thickness</span>));
                 <span class="ident">x_axis_scale</span>.<span class="ident">push</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_secondary_color</span>, <span class="ident">line</span>);
             }

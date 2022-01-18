@@ -664,8 +664,6 @@
 <span id="663">663</span>
 <span id="664">664</span>
 <span id="665">665</span>
-<span id="666">666</span>
-<span id="667">667</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std::io::Write</span>;
 
@@ -996,8 +994,7 @@
             <span class="kw">let</span> <span class="ident">line_bottom</span> <span class="op">=</span> <span class="ident">bottom_of_top_bar</span> <span class="op">+</span> <span class="ident">text_v_padding</span> <span class="op">/</span> <span class="number">2.0</span> <span class="op">+</span> <span class="number">2.0</span>;
             <span class="ident">batch</span>.<span class="ident">push</span>(
                 <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_secondary_color</span>.<span class="ident">shade</span>(<span class="number">0.2</span>),
-                <span class="ident">geom::Line::new</span>(<span class="ident">Pt2D::new</span>(<span class="ident">x</span>, <span class="ident">line_top</span>), <span class="ident">Pt2D::new</span>(<span class="ident">x</span>, <span class="ident">line_bottom</span>))
-                    .<span class="ident">unwrap</span>()
+                <span class="ident">geom::Line::must_new</span>(<span class="ident">Pt2D::new</span>(<span class="ident">x</span>, <span class="ident">line_top</span>), <span class="ident">Pt2D::new</span>(<span class="ident">x</span>, <span class="ident">line_bottom</span>))
                     .<span class="ident">make_polygons</span>(<span class="ident">line_thickness</span>),
             );
         }
@@ -1007,8 +1004,7 @@
             <span class="kw">let</span> <span class="ident">line_top</span> <span class="op">=</span> <span class="ident">line_bottom</span> <span class="op">-</span> <span class="ident">text_v_padding</span> <span class="op">/</span> <span class="number">2.0</span> <span class="op">-</span> <span class="number">2.0</span>;
             <span class="ident">batch</span>.<span class="ident">push</span>(
                 <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_secondary_color</span>.<span class="ident">shade</span>(<span class="number">0.2</span>),
-                <span class="ident">geom::Line::new</span>(<span class="ident">Pt2D::new</span>(<span class="ident">x</span>, <span class="ident">line_top</span>), <span class="ident">Pt2D::new</span>(<span class="ident">x</span>, <span class="ident">line_bottom</span>))
-                    .<span class="ident">unwrap</span>()
+                <span class="ident">geom::Line::must_new</span>(<span class="ident">Pt2D::new</span>(<span class="ident">x</span>, <span class="ident">line_top</span>), <span class="ident">Pt2D::new</span>(<span class="ident">x</span>, <span class="ident">line_bottom</span>))
                     .<span class="ident">make_polygons</span>(<span class="ident">line_thickness</span>),
             );
         }
@@ -1205,7 +1201,7 @@
             )
             .<span class="ident">for_each</span>(<span class="op">|</span>(<span class="ident">interval</span>, <span class="ident">y</span>)<span class="op">|</span> {
                 <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="ident">y</span>);
-                <span class="kw">let</span> <span class="ident">line</span> <span class="op">=</span> <span class="ident">geom::Line::new</span>(<span class="ident">start</span>, <span class="ident">start</span>.<span class="ident">offset</span>(<span class="ident">line_length</span>, <span class="number">0.0</span>)).<span class="ident">unwrap</span>();
+                <span class="kw">let</span> <span class="ident">line</span> <span class="op">=</span> <span class="ident">geom::Line::must_new</span>(<span class="ident">start</span>, <span class="ident">start</span>.<span class="ident">offset</span>(<span class="ident">line_length</span>, <span class="number">0.0</span>));
                 <span class="kw">let</span> <span class="ident">poly</span> <span class="op">=</span> <span class="ident">line</span>.<span class="ident">make_polygons</span>(<span class="ident">Distance::meters</span>(<span class="ident">line_thickness</span>));
                 <span class="ident">y_axis_ticks</span>.<span class="ident">push</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_secondary_color</span>, <span class="ident">poly</span>);
 

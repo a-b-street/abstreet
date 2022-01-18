@@ -84,7 +84,7 @@
         <span class="kw">let</span> <span class="ident">z</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span>;
         <span class="ident">Warper</span> {
             <span class="ident">started</span>: <span class="ident">Instant::now</span>(),
-            <span class="ident">line</span>: <span class="ident">Line::new</span>(<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">center_to_map_pt</span>(), <span class="ident">pt</span>),
+            <span class="ident">line</span>: <span class="ident">Line::new</span>(<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">center_to_map_pt</span>(), <span class="ident">pt</span>).<span class="ident">ok</span>(),
             <span class="ident">cam_zoom</span>: (<span class="ident">z</span>, <span class="ident">target_cam_zoom</span>.<span class="ident">unwrap_or</span>(<span class="ident">z</span>)),
         }
     }

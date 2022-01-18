@@ -199,9 +199,6 @@
 <span id="198">198</span>
 <span id="199">199</span>
 <span id="200">200</span>
-<span id="201">201</span>
-<span id="202">202</span>
-<span id="203">203</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Pt2D</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -256,23 +253,20 @@
             <span class="comment">// Horizontal</span>
             <span class="ident">batch</span>.<span class="ident">push</span>(
                 <span class="ident">Color::grey</span>(<span class="number">0.5</span>),
-                <span class="ident">geom::Line::new</span>(<span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="ident">y</span>), <span class="ident">Pt2D::new</span>(<span class="ident">width</span>, <span class="ident">y</span>))
-                    .<span class="ident">unwrap</span>()
+                <span class="ident">geom::Line::must_new</span>(<span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="ident">y</span>), <span class="ident">Pt2D::new</span>(<span class="ident">width</span>, <span class="ident">y</span>))
                     .<span class="ident">make_polygons</span>(<span class="ident">thickness</span>),
             );
             <span class="comment">// Vertical</span>
             <span class="ident">batch</span>.<span class="ident">push</span>(
                 <span class="ident">Color::grey</span>(<span class="number">0.5</span>),
-                <span class="ident">geom::Line::new</span>(<span class="ident">Pt2D::new</span>(<span class="ident">x</span>, <span class="number">0.0</span>), <span class="ident">Pt2D::new</span>(<span class="ident">x</span>, <span class="ident">height</span>))
-                    .<span class="ident">unwrap</span>()
+                <span class="ident">geom::Line::must_new</span>(<span class="ident">Pt2D::new</span>(<span class="ident">x</span>, <span class="number">0.0</span>), <span class="ident">Pt2D::new</span>(<span class="ident">x</span>, <span class="ident">height</span>))
                     .<span class="ident">make_polygons</span>(<span class="ident">thickness</span>),
             );
         }
         <span class="comment">// Draw the diagonal, since we&#39;re comparing things on the same scale</span>
         <span class="ident">batch</span>.<span class="ident">push</span>(
             <span class="ident">Color::grey</span>(<span class="number">0.5</span>),
-            <span class="ident">geom::Line::new</span>(<span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="ident">height</span>), <span class="ident">Pt2D::new</span>(<span class="ident">width</span>, <span class="number">0.0</span>))
-                .<span class="ident">unwrap</span>()
+            <span class="ident">geom::Line::must_new</span>(<span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="ident">height</span>), <span class="ident">Pt2D::new</span>(<span class="ident">width</span>, <span class="number">0.0</span>))
                 .<span class="ident">make_polygons</span>(<span class="ident">thickness</span>),
         );
 
@@ -363,11 +357,11 @@
                 <span class="kw">let</span> <span class="ident">thickness</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">2.0</span>);
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
                 <span class="comment">// Horizontal</span>
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="ident">geom::Line::new</span>(<span class="ident">Pt2D::new</span>(<span class="ident">rect</span>.<span class="ident">x1</span>, <span class="ident">cursor</span>.<span class="ident">y</span>), <span class="ident">cursor</span>.<span class="ident">to_pt</span>()) {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="ident">geom::Line::new</span>(<span class="ident">Pt2D::new</span>(<span class="ident">rect</span>.<span class="ident">x1</span>, <span class="ident">cursor</span>.<span class="ident">y</span>), <span class="ident">cursor</span>.<span class="ident">to_pt</span>()) {
                     <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::WHITE</span>, <span class="ident">l</span>.<span class="ident">make_polygons</span>(<span class="ident">thickness</span>));
                 }
                 <span class="comment">// Vertical</span>
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="ident">geom::Line::new</span>(<span class="ident">Pt2D::new</span>(<span class="ident">cursor</span>.<span class="ident">x</span>, <span class="ident">rect</span>.<span class="ident">y2</span>), <span class="ident">cursor</span>.<span class="ident">to_pt</span>()) {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="ident">geom::Line::new</span>(<span class="ident">Pt2D::new</span>(<span class="ident">cursor</span>.<span class="ident">x</span>, <span class="ident">rect</span>.<span class="ident">y2</span>), <span class="ident">cursor</span>.<span class="ident">to_pt</span>()) {
                     <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::WHITE</span>, <span class="ident">l</span>.<span class="ident">make_polygons</span>(<span class="ident">thickness</span>));
                 }
 

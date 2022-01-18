@@ -85,7 +85,6 @@
 <span id="84">84</span>
 <span id="85">85</span>
 <span id="86">86</span>
-<span id="87">87</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Line</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Map</span>, <span class="ident">TransitStop</span>, <span class="ident">TransitStopID</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>};
@@ -133,11 +132,10 @@
         <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">icon</span>.<span class="ident">autocrop</span>().<span class="ident">centered_on</span>(<span class="ident">center</span>));
         <span class="ident">batch</span>.<span class="ident">push</span>(
             <span class="ident">cs</span>.<span class="ident">stop_sign_pole</span>,
-            <span class="ident">Line::new</span>(
+            <span class="ident">Line::must_new</span>(
                 <span class="ident">center</span>.<span class="ident">project_away</span>(<span class="ident">RADIUS</span>, <span class="ident">Angle::degrees</span>(<span class="number">90.0</span>)),
                 <span class="ident">center</span>.<span class="ident">project_away</span>(<span class="number">1.5</span> <span class="op">*</span> <span class="ident">RADIUS</span>, <span class="ident">Angle::degrees</span>(<span class="number">90.0</span>)),
             )
-            .<span class="ident">unwrap</span>()
             .<span class="ident">make_polygons</span>(<span class="ident">Distance::meters</span>(<span class="number">0.3</span>)),
         );
 
