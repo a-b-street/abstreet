@@ -1,4 +1,4 @@
-use abstio::{CityName, MapName};
+use sim::Scenario;
 use widgetry::{EventCtx, State};
 
 use crate::app::App;
@@ -29,7 +29,7 @@ fn enter_state(ctx: &mut EventCtx, app: &mut App, args: Vec<&str>) -> Box<dyn St
             app,
             GameplayMode::PlayScenario(
                 app.primary.map.get_name().clone(),
-                default_scenario_for_map(app.primary.map.get_name()),
+                Scenario::default_scenario_for_map(app.primary.map.get_name()),
                 Vec::new(),
             ),
         ),
@@ -41,20 +41,4 @@ fn enter_state(ctx: &mut EventCtx, app: &mut App, args: Vec<&str>) -> Box<dyn St
         "--devtools" => crate::devtools::DevToolsMode::new_state(ctx, app),
         _ => unreachable!(),
     }
-}
-
-pub fn default_scenario_for_map(name: &MapName) -> String {
-    if name.city == CityName::seattle()
-        && abstio::file_exists(abstio::path_scenario(name, "weekday"))
-    {
-        return "weekday".to_string();
-    }
-    if name.city.country == "gb" {
-        for x in ["background", "base_with_bg"] {
-            if abstio::file_exists(abstio::path_scenario(name, x)) {
-                return x.to_string();
-            }
-        }
-    }
-    "home_to_work".to_string()
 }

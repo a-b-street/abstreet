@@ -67,7 +67,7 @@ impl State<App> for ShowGaps {
                 } else if x == "Calculate" {
                     let change_key = app.primary.map.get_edits_change_key();
                     let map_name = app.primary.map.get_name().clone();
-                    let scenario_name = crate::pregame::default_scenario_for_map(&map_name);
+                    let scenario_name = Scenario::default_scenario_for_map(&map_name);
                     return Transition::Push(FileLoader::<App, Scenario>::new_state(
                         ctx,
                         abstio::path_scenario(&map_name, &scenario_name),
@@ -179,7 +179,7 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
             .section(ctx),
         ];
     } else {
-        let scenario_name = crate::pregame::default_scenario_for_map(&map_name);
+        let scenario_name = Scenario::default_scenario_for_map(&map_name);
         if scenario_name == "home_to_work" {
             col =
                 vec!["This city doesn't have travel demand model data available".text_widget(ctx)];

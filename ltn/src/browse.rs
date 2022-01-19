@@ -3,9 +3,10 @@ use std::collections::HashSet;
 use abstutil::Timer;
 use geom::Distance;
 use map_gui::tools::{CityPicker, DrawRoadLabels, Navigator, PopupMsg, URLManager};
+use sim::Scenario;
 use widgetry::mapspace::{ToggleZoomed, World, WorldOutcome};
 use widgetry::{
-    Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, State, TextExt,
+    Line, Text, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, State, TextExt,
     Toggle, VerticalAlignment, Widget,
 };
 
@@ -66,6 +67,11 @@ impl BrowseNeighborhoods {
                 .btn_outline
                 .text("Export to GeoJSON")
                 .build_def(ctx),
+            Widget::col(vec![
+                "Predict proposal impact".text_widget(ctx),
+                impact_widget(ctx, app),
+            ])
+            .section(ctx),
         ]))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
         .build(ctx);
@@ -115,6 +121,9 @@ impl State<App> for BrowseNeighborhoods {
                             PopupMsg::new_state(ctx, "Export failed", vec![err.to_string()])
                         }
                     });
+                }
+                "Calculate" => {
+                    return Transition::Push(super::impact::ShowResults::new_state(ctx, app));
                 }
                 _ => unreachable!(),
             },
@@ -242,4 +251,28 @@ pub enum Style {
     SimpleColoring,
     Cells,
     Quietness,
+}
+
+fn impact_widget(ctx: &EventCtx, app: &App) -> Widget {
+    let map_name = app.map.get_name();
+    let scenario_name = Scenario::default_scenario_for_map(&map_name);
+    if scenario_name == "home_to_work" {
+        return "This city doesn't have travel demand model data available".text_widget(ctx);
+    }
+    let size = abstio::Manifest::load()
+        .get_entry(&abstio::path_scenario(&map_name, &scenario_name))
+        .map(|entry| abstutil::prettyprint_bytes(entry.compressed_size_bytes))
+        .unwrap_or_else(|| "???".to_string());
+    Widget::col(vec![
+        Text::from_multiline(vec![
+            Line("Predicting impact of your proposal may take a moment."),
+            Line("The application may freeze up during that time."),
+            Line(format!("We need to load a {} file", size)),
+        ])
+        .into_widget(ctx),
+        ctx.style()
+            .btn_solid_primary
+            .text("Calculate")
+            .build_def(ctx),
+    ])
 }

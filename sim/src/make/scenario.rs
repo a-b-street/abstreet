@@ -7,7 +7,7 @@ use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
 use serde::{Deserialize, Serialize};
 
-use abstio::MapName;
+use abstio::{CityName, MapName};
 use abstutil::{prettyprint_usize, Counter, Timer};
 use geom::{Distance, Speed, Time};
 use map_model::{BuildingID, Map, OffstreetParking, RoadID};
@@ -281,6 +281,23 @@ impl Scenario {
 
     pub fn all_trips(&self) -> impl Iterator<Item = &IndividTrip> {
         self.people.iter().flat_map(|p| p.trips.iter())
+    }
+
+    pub fn default_scenario_for_map(name: &MapName) -> String {
+        if name.city == CityName::seattle()
+            && abstio::file_exists(abstio::path_scenario(name, "weekday"))
+        {
+            return "weekday".to_string();
+        }
+        if name.city.country == "gb" {
+            for x in ["background", "base_with_bg"] {
+                if abstio::file_exists(abstio::path_scenario(name, x)) {
+                    return x.to_string();
+                }
+            }
+        }
+        // Dynamically generated -- arguably this is an absence of a default scenario
+        "home_to_work".to_string()
     }
 }
 
