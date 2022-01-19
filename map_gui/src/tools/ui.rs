@@ -4,6 +4,7 @@ use std::cmp::Ordering;
 
 use anyhow::Result;
 
+use abstutil::prettyprint_usize;
 use geom::{Distance, Duration, Polygon};
 use widgetry::{
     hotkeys, Choice, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Menu, Outcome,
@@ -314,5 +315,26 @@ pub fn cmp_duration(
             );
         }
         Ordering::Equal => {}
+    }
+}
+
+/// Less is better
+pub fn cmp_count(txt: &mut Text, before: usize, after: usize) {
+    match after.cmp(&before) {
+        std::cmp::Ordering::Equal => {
+            txt.add_line(Line("same"));
+        }
+        std::cmp::Ordering::Less => {
+            txt.add_appended(vec![
+                Line(prettyprint_usize(before - after)).fg(Color::GREEN),
+                Line(" less"),
+            ]);
+        }
+        std::cmp::Ordering::Greater => {
+            txt.add_appended(vec![
+                Line(prettyprint_usize(after - before)).fg(Color::RED),
+                Line(" more"),
+            ]);
+        }
     }
 }

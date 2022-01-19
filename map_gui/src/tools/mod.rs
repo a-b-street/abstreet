@@ -19,7 +19,8 @@ pub use self::title_screen::{Executable, TitleScreen};
 pub use self::trip_files::{TripManagement, TripManagementState};
 pub use self::turn_explorer::TurnExplorer;
 pub use self::ui::{
-    cmp_dist, cmp_duration, percentage_bar, ChooseSomething, FilePicker, PopupMsg, PromptInput,
+    cmp_count, cmp_dist, cmp_duration, percentage_bar, ChooseSomething, FilePicker, PopupMsg,
+    PromptInput,
 };
 pub use self::url::URLManager;
 pub use self::waypoints::{InputWaypoints, WaypointID};

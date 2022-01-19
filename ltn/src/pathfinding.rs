@@ -126,6 +126,8 @@ impl RoutePlanner {
         let mut draw = ToggleZoomed::builder();
 
         // First the route respecting the filters
+        // TODO Like in rat_runs, we need to actually enforce this, not just penalize... though,
+        // should it matter except for when a cell is disconnected?
         let (total_time_after, total_dist_after) = {
             let mut params = map.routing_params().clone();
             app.session.modal_filters.update_routing_params(&mut params);

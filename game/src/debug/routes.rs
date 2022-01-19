@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use abstutil::{prettyprint_usize, Counter, Timer};
 use geom::{Duration, Polygon};
 use map_gui::colors::ColorSchemeChoice;
-use map_gui::tools::ColorNetwork;
+use map_gui::tools::{cmp_count, ColorNetwork};
 use map_gui::{AppLike, ID};
 use map_model::{
     DirectedRoadID, Direction, PathRequest, RoadID, RoutingParams, Traversable,
@@ -450,7 +450,7 @@ impl State<App> for AllRoutesExplorer {
                 let baseline = self.baseline_counts.get(r);
                 let current = self.current_counts.get(r);
                 let mut txt = Text::new();
-                txt.append_all(cmp_count(current, baseline));
+                cmp_count(&mut txt, baseline, current);
                 txt.add_line(format!("{} baseline", prettyprint_usize(baseline)));
                 txt.add_line(format!("{} now", prettyprint_usize(current)));
                 self.tooltip = Some(txt);
@@ -488,26 +488,6 @@ fn calculate_demand(app: &App, requests: &[PathRequest], timer: &mut Timer) -> C
         }
     }
     counter
-}
-
-fn cmp_count(after: usize, before: usize) -> Vec<TextSpan> {
-    match after.cmp(&before) {
-        std::cmp::Ordering::Equal => {
-            vec![Line("same")]
-        }
-        std::cmp::Ordering::Less => {
-            vec![
-                Line(prettyprint_usize(before - after)).fg(Color::GREEN),
-                Line(" less"),
-            ]
-        }
-        std::cmp::Ordering::Greater => {
-            vec![
-                Line(prettyprint_usize(after - before)).fg(Color::RED),
-                Line(" more"),
-            ]
-        }
-    }
 }
 
 /// Evaluate why an alternative path wasn't chosen, by showing the cost to reach every road from
