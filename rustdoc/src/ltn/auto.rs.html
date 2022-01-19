@@ -181,7 +181,7 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::Neighborhood</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::App</span>;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Heuristic</span> {
     <span class="doccomment">/// Find the road with the most rat-runs that can be closed without creating a disconnected</span>
     <span class="doccomment">/// cell, and filter it.</span>

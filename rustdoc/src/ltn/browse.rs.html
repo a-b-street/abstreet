@@ -246,6 +246,8 @@
 <span id="245">245</span>
 <span id="246">246</span>
 <span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
@@ -272,12 +274,11 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident">URLManager::update_url_map_name</span>(<span class="ident">app</span>);
 
-        <span class="kw">let</span> <span class="ident">style</span> <span class="op">=</span> <span class="ident">Style::SimpleColoring</span>;
         <span class="kw">let</span> <span class="ident">world</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;calculate neighborhoods&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
             <span class="kw">if</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">map</span> <span class="op">!</span><span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_name</span>() {
                 <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span> <span class="op">=</span> <span class="ident">Partitioning::seed_using_heuristics</span>(<span class="ident">app</span>, <span class="ident">timer</span>);
             }
-            <span class="ident">make_world</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">style</span>, <span class="ident">timer</span>)
+            <span class="ident">make_world</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">timer</span>)
         });
         <span class="kw">let</span> <span class="ident">draw_all_filters</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>, <span class="prelude-val">None</span>);
 
@@ -292,13 +293,18 @@
                     .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;search&quot;</span>)
                     .<span class="ident">align_right</span>(),
             ]),
-            <span class="ident">Toggle::checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;highlight boundary roads&quot;</span>, <span class="ident">Key::H</span>, <span class="bool-val">true</span>),
+            <span class="ident">Toggle::checkbox</span>(
+                <span class="ident">ctx</span>,
+                <span class="string">&quot;highlight boundary roads&quot;</span>,
+                <span class="ident">Key::H</span>,
+                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">highlight_boundary_roads</span>,
+            ),
             <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                 <span class="string">&quot;Draw neighborhoods:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
                 <span class="ident">Widget::dropdown</span>(
                     <span class="ident">ctx</span>,
                     <span class="string">&quot;style&quot;</span>,
-                    <span class="ident">style</span>,
+                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_neighborhood_style</span>,
                     <span class="macro">vec!</span>[
                         <span class="ident">Choice::new</span>(<span class="string">&quot;simple&quot;</span>, <span class="ident">Style::SimpleColoring</span>),
                         <span class="ident">Choice::new</span>(<span class="string">&quot;cells&quot;</span>, <span class="ident">Style::Cells</span>),
@@ -365,9 +371,12 @@
                 <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
             },
             <span class="ident">Outcome::Changed</span>(<span class="kw">_</span>) =&gt; {
-                <span class="self">self</span>.<span class="ident">world</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;change style&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
-                    <span class="ident">make_world</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;style&quot;</span>), <span class="ident">timer</span>)
-                });
+                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">highlight_boundary_roads</span> <span class="op">=</span>
+                    <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;highlight boundary roads&quot;</span>);
+                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_neighborhood_style</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;style&quot;</span>);
+
+                <span class="self">self</span>.<span class="ident">world</span> <span class="op">=</span>
+                    <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;change style&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> <span class="ident">make_world</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">timer</span>));
             }
             <span class="kw">_</span> =&gt; {}
         }
@@ -392,16 +401,11 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">make_world</span>(
-    <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-    <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-    <span class="ident">style</span>: <span class="ident">Style</span>,
-    <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>,
-) -&gt; <span class="ident">World</span><span class="op">&lt;</span><span class="ident">NeighborhoodID</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">make_world</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) -&gt; <span class="ident">World</span><span class="op">&lt;</span><span class="ident">NeighborhoodID</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">world</span> <span class="op">=</span> <span class="ident">World::bounded</span>(<span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>());
     <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>;
     <span class="kw">for</span> (<span class="ident">id</span>, (<span class="ident">block</span>, <span class="ident">color</span>)) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">neighborhoods</span> {
-        <span class="kw">match</span> <span class="ident">style</span> {
+        <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_neighborhood_style</span> {
             <span class="ident">Style::SimpleColoring</span> =&gt; {
                 <span class="ident">world</span>
                     .<span class="ident">add</span>(<span class="kw-2">*</span><span class="ident">id</span>)
@@ -488,7 +492,7 @@
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">enum</span> <span class="ident">Style</span> {
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Style</span> {
     <span class="ident">SimpleColoring</span>,
     <span class="ident">Cells</span>,
     <span class="ident">Quietness</span>,

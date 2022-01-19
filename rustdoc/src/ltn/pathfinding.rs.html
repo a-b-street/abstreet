@@ -254,6 +254,14 @@
 <span id="253">253</span>
 <span id="254">254</span>
 <span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>};
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">cmp_dist</span>, <span class="ident">cmp_duration</span>, <span class="ident">InputWaypoints</span>, <span class="ident">WaypointID</span>};
 <span class="kw">use</span> <span class="ident">map_model::NORMAL_LANE_THICKNESS</span>;
@@ -305,7 +313,13 @@
                 <span class="ident">Line</span>(<span class="string">&quot;Slow-down factor for main roads:&quot;</span>)
                     .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
                     .<span class="ident">centered_vert</span>(),
-                <span class="ident">Spinner::f64_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;main road penalty&quot;</span>, (<span class="number">1.0</span>, <span class="number">10.0</span>), <span class="number">1.0</span>, <span class="number">0.5</span>),
+                <span class="ident">Spinner::f64_widget</span>(
+                    <span class="ident">ctx</span>,
+                    <span class="string">&quot;main road penalty&quot;</span>,
+                    (<span class="number">1.0</span>, <span class="number">10.0</span>),
+                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">main_road_penalty</span>,
+                    <span class="number">0.5</span>,
+                ),
             ]),
             <span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
                 <span class="ident">Line</span>(<span class="string">&quot;1 means free-flow traffic conditions&quot;</span>).<span class="ident">secondary</span>(),
@@ -350,7 +364,7 @@
         <span class="kw">let</span> (<span class="ident">total_time_after</span>, <span class="ident">total_dist_after</span>) <span class="op">=</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">routing_params</span>().<span class="ident">clone</span>();
             <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">update_routing_params</span>(<span class="kw-2">&amp;mut</span> <span class="ident">params</span>);
-            <span class="ident">params</span>.<span class="ident">main_road_penalty</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">spinner</span>::<span class="op">&lt;</span><span class="ident">RoundedF64</span><span class="op">&gt;</span>(<span class="string">&quot;main road penalty&quot;</span>).<span class="number">0</span>;
+            <span class="ident">params</span>.<span class="ident">main_road_penalty</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">main_road_penalty</span>;
             <span class="kw">let</span> <span class="ident">cache_custom</span> <span class="op">=</span> <span class="bool-val">true</span>;
 
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_time</span> <span class="op">=</span> <span class="ident">Duration::ZERO</span>;
@@ -386,7 +400,7 @@
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_time</span> <span class="op">=</span> <span class="ident">Duration::ZERO</span>;
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_dist</span> <span class="op">=</span> <span class="ident">Distance::ZERO</span>;
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">routing_params</span>().<span class="ident">clone</span>();
-            <span class="ident">params</span>.<span class="ident">main_road_penalty</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">spinner</span>::<span class="op">&lt;</span><span class="ident">RoundedF64</span><span class="op">&gt;</span>(<span class="string">&quot;main road penalty&quot;</span>).<span class="number">0</span>;
+            <span class="ident">params</span>.<span class="ident">main_road_penalty</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">main_road_penalty</span>;
             <span class="kw">let</span> <span class="ident">cache_custom</span> <span class="op">=</span> <span class="bool-val">true</span>;
             <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>().<span class="ident">windows</span>(<span class="number">2</span>) {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">path</span>, <span class="ident">pl</span>)) <span class="op">=</span>
@@ -476,6 +490,8 @@
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Changed</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) <span class="op">=</span> <span class="ident">panel_outcome</span> {
             <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;main road penalty&quot;</span> {
+                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">main_road_penalty</span> <span class="op">=</span>
+                    <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">spinner</span>::<span class="op">&lt;</span><span class="ident">RoundedF64</span><span class="op">&gt;</span>(<span class="string">&quot;main road penalty&quot;</span>).<span class="number">0</span>;
                 <span class="self">self</span>.<span class="ident">recalculate_paths</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
             }
         }
