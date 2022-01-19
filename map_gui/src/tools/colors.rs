@@ -227,7 +227,7 @@ impl DivergingScale {
     }
 
     pub fn eval(&self, value: f64) -> Option<Color> {
-        let value = value.max(self.min).min(self.max);
+        let value = value.clamp(self.min, self.max);
         if let Some((from, to)) = self.ignore {
             if value >= from && value <= to {
                 return None;

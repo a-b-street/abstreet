@@ -1,14 +1,14 @@
 use abstio::MapName;
 use abstutil::{prettyprint_usize, Counter, Timer};
 use map_gui::load::FileLoader;
-use map_gui::tools::{cmp_count, ColorNetwork};
+use map_gui::tools::{cmp_count, ColorNetwork, DivergingScale};
 use map_gui::ID;
 use map_model::{PathRequest, PathStepV2, RoadID};
 use sim::{Scenario, TripEndpoint, TripMode};
 use widgetry::mapspace::ToggleZoomed;
 use widgetry::{
-    Choice, EventCtx, GfxCtx, HorizontalAlignment, Line, Panel, SimpleState, State, Text, TextExt,
-    VerticalAlignment, Widget,
+    Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Line, Panel, SimpleState, State, Text,
+    TextExt, VerticalAlignment, Widget,
 };
 
 use crate::{App, Transition};
@@ -29,6 +29,7 @@ pub struct Results {
     before_counts: Counter<RoadID>,
     after_draw_heatmap: ToggleZoomed,
     after_counts: Counter<RoadID>,
+    relative_draw_heatmap: ToggleZoomed,
 }
 
 impl Results {
@@ -60,6 +61,7 @@ impl Results {
             before_counts: Counter::new(),
             after_draw_heatmap: ToggleZoomed::empty(ctx),
             after_counts: Counter::new(),
+            relative_draw_heatmap: ToggleZoomed::empty(ctx),
         };
         results.recalculate_impact(ctx, app, timer);
         results
@@ -114,6 +116,31 @@ impl Results {
         let mut colorer = ColorNetwork::no_fading(app);
         colorer.ranked_roads(self.after_counts.clone(), &app.cs.good_to_bad_red);
         self.after_draw_heatmap = colorer.build(ctx);
+
+        // Relative diff
+        let mut colorer = ColorNetwork::no_fading(app);
+        // TODO I really need help understanding how to do this. If the average isn't 1.0 (meaning
+        // no change), then the colors are super wacky.
+        let scale = DivergingScale::new(Color::hex("#5D9630"), Color::WHITE, Color::hex("#A32015"))
+            .range(0.0, 2.0);
+
+        let mut min_ratio: f64 = 100000.0;
+        let mut max_ratio: f64 = 0.0;
+
+        for (r, before, after) in self
+            .before_counts
+            .clone()
+            .compare(self.after_counts.clone())
+        {
+            let ratio = (after as f64) / (before as f64);
+            if let Some(c) = scale.eval(ratio) {
+                colorer.add_r(r, c);
+            }
+            min_ratio = min_ratio.min(ratio);
+            max_ratio = max_ratio.max(ratio);
+        }
+        info!("The ratios were between {min_ratio:.2} and {max_ratio:.2}");
+        self.relative_draw_heatmap = colorer.build(ctx);
     }
 }
 
@@ -121,6 +148,7 @@ impl Results {
 enum Layer {
     Before,
     After,
+    Relative,
 }
 
 pub struct ShowResults {
@@ -152,7 +180,7 @@ impl ShowResults {
             );
         }
 
-        let layer = Layer::Before;
+        let layer = Layer::Relative;
         let panel = Panel::new_builder(Widget::col(vec![
             map_gui::tools::app_header(ctx, app, "Low traffic neighborhoods"),
             Widget::row(vec![
@@ -169,6 +197,7 @@ impl ShowResults {
                     vec![
                         Choice::new("before", Layer::Before),
                         Choice::new("after", Layer::After),
+                        Choice::new("relative", Layer::Relative),
                     ],
                 ),
             ]),
@@ -193,8 +222,12 @@ impl SimpleState<App> for ShowResults {
         unreachable!()
     }
 
-    fn on_mouseover(&mut self, ctx: &mut EventCtx, app: &mut App) {
+    fn other_event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
         ctx.canvas_movement();
+        Transition::Keep
+    }
+
+    fn on_mouseover(&mut self, ctx: &mut EventCtx, app: &mut App) {
         self.tooltip = None;
         if let Some(r) = match app.mouseover_unzoomed_roads_and_intersections(ctx) {
             Some(ID::Road(r)) => Some(r),
@@ -209,6 +242,10 @@ impl SimpleState<App> for ShowResults {
                 Line(format!("After: {}", prettyprint_usize(after))),
             ]);
             cmp_count(&mut txt, before, after);
+            txt.add_line(Line(format!(
+                "After/before: {:.2}",
+                (after as f64) / (before as f64)
+            )));
             self.tooltip = Some(txt);
         }
     }
@@ -231,6 +268,9 @@ impl SimpleState<App> for ShowResults {
             }
             Layer::After => {
                 impact.after_draw_heatmap.draw(g);
+            }
+            Layer::Relative => {
+                impact.relative_draw_heatmap.draw(g);
             }
         }
         if let Some(ref txt) = self.tooltip {
