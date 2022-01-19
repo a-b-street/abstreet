@@ -16,7 +16,7 @@ use map_gui::load::FutureLoader;
 use map_gui::options::Options;
 use map_gui::tools::{PopupMsg, URLManager};
 use map_model::{Map, MapEdits};
-use sim::Sim;
+use sim::{Scenario, Sim};
 use widgetry::{EventCtx, Settings, State, Transition};
 
 use crate::app::{App, Flags, PerMap};
@@ -546,7 +546,7 @@ fn finish_app_setup(
                 app,
                 GameplayMode::PlayScenario(
                     app.primary.map.get_name().clone(),
-                    pregame::default_scenario_for_map(app.primary.map.get_name()),
+                    Scenario::default_scenario_for_map(app.primary.map.get_name()),
                     Vec::new(),
                 ),
             ),

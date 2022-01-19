@@ -18,6 +18,7 @@ mod connectivity;
 mod draw_cells;
 mod export;
 mod filters;
+mod impact;
 mod neighborhood;
 mod partition;
 mod pathfinding;
@@ -44,6 +45,8 @@ fn run(mut settings: Settings) {
         let session = Session {
             partitioning: Partitioning::empty(),
             modal_filters: ModalFilters::default(),
+
+            impact: None,
 
             highlight_boundary_roads: true,
             draw_neighborhood_style: browse::Style::SimpleColoring,
@@ -85,6 +88,8 @@ pub fn run_wasm(root_dom_id: String, assets_base_url: String, assets_are_gzipped
 pub struct Session {
     pub partitioning: Partitioning,
     pub modal_filters: ModalFilters,
+
+    pub impact: Option<impact::Results>,
 
     // Remember form settings in different tabs.
     // Browse neighborhoods:
