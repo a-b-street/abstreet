@@ -125,6 +125,10 @@ impl State<App> for BrowseNeighborhoods {
                 "Calculate" => {
                     return Transition::Push(super::impact::ShowResults::new_state(ctx, app));
                 }
+                "Force recalculation" => {
+                    app.session.impact = None;
+                    return Transition::Push(super::impact::ShowResults::new_state(ctx, app));
+                }
                 _ => unreachable!(),
             },
             Outcome::Changed(_) => {
@@ -270,9 +274,16 @@ fn impact_widget(ctx: &EventCtx, app: &App) -> Widget {
             Line(format!("We need to load a {} file", size)),
         ])
         .into_widget(ctx),
-        ctx.style()
-            .btn_solid_primary
-            .text("Calculate")
-            .build_def(ctx),
+        Widget::row(vec![
+            ctx.style()
+                .btn_solid_primary
+                .text("Calculate")
+                .build_def(ctx),
+            // TODO Bad UI! Detect edits and do this. I'm being lazy.
+            ctx.style()
+                .btn_solid_primary
+                .text("Force recalculation")
+                .build_def(ctx),
+        ]),
     ])
 }
