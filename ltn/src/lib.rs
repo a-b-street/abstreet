@@ -44,6 +44,13 @@ fn run(mut settings: Settings) {
         let session = Session {
             partitioning: Partitioning::empty(),
             modal_filters: ModalFilters::default(),
+
+            highlight_boundary_roads: true,
+            draw_neighborhood_style: browse::Style::SimpleColoring,
+            draw_cells_as_areas: true,
+            draw_borders_as_arrows: true,
+            heuristic: auto::Heuristic::OnlyOneBorder,
+            main_road_penalty: 1.0,
         };
         map_gui::SimpleApp::new(ctx, opts, session, |ctx, app| {
             vec![
@@ -76,4 +83,15 @@ pub fn run_wasm(root_dom_id: String, assets_base_url: String, assets_are_gzipped
 pub struct Session {
     pub partitioning: Partitioning,
     pub modal_filters: ModalFilters,
+
+    // Remember form settings in different tabs.
+    // Browse neighborhoods:
+    pub highlight_boundary_roads: bool,
+    pub draw_neighborhood_style: browse::Style,
+    // Connectivity:
+    pub draw_cells_as_areas: bool,
+    pub draw_borders_as_arrows: bool,
+    pub heuristic: auto::Heuristic,
+    // Pathfinding
+    pub main_road_penalty: f64,
 }

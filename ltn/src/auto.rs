@@ -8,7 +8,7 @@ use super::rat_runs::find_rat_runs;
 use super::Neighborhood;
 use crate::App;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Heuristic {
     /// Find the road with the most rat-runs that can be closed without creating a disconnected
     /// cell, and filter it.

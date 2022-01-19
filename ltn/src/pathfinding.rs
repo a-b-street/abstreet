@@ -49,7 +49,13 @@ impl RoutePlanner {
                 Line("Slow-down factor for main roads:")
                     .into_widget(ctx)
                     .centered_vert(),
-                Spinner::f64_widget(ctx, "main road penalty", (1.0, 10.0), 1.0, 0.5),
+                Spinner::f64_widget(
+                    ctx,
+                    "main road penalty",
+                    (1.0, 10.0),
+                    app.session.main_road_penalty,
+                    0.5,
+                ),
             ]),
             Text::from_multiline(vec![
                 Line("1 means free-flow traffic conditions").secondary(),
@@ -94,7 +100,7 @@ impl RoutePlanner {
         let (total_time_after, total_dist_after) = {
             let mut params = map.routing_params().clone();
             app.session.modal_filters.update_routing_params(&mut params);
-            params.main_road_penalty = self.panel.spinner::<RoundedF64>("main road penalty").0;
+            params.main_road_penalty = app.session.main_road_penalty;
             let cache_custom = true;
 
             let mut total_time = Duration::ZERO;
@@ -130,7 +136,7 @@ impl RoutePlanner {
             let mut total_time = Duration::ZERO;
             let mut total_dist = Distance::ZERO;
             let mut params = map.routing_params().clone();
-            params.main_road_penalty = self.panel.spinner::<RoundedF64>("main road penalty").0;
+            params.main_road_penalty = app.session.main_road_penalty;
             let cache_custom = true;
             for pair in self.waypoints.get_waypoints().windows(2) {
                 if let Some((path, pl)) =
@@ -220,6 +226,8 @@ impl State<App> for RoutePlanner {
 
         if let Outcome::Changed(ref x) = panel_outcome {
             if x == "main road penalty" {
+                app.session.main_road_penalty =
+                    self.panel.spinner::<RoundedF64>("main road penalty").0;
                 self.recalculate_paths(ctx, app);
             }
         }

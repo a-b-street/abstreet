@@ -39,14 +39,6 @@ impl Viewer {
             format!("{} cells are totally disconnected", disconnected_cells)
         };
 
-        // TODO panel.restore isn't preserving the dropdowns or checkboxes?!
-        let draw_cells = self.panel.maybe_is_checked("draw cells").unwrap_or(true);
-        let draw_borders = self.panel.maybe_is_checked("draw borders").unwrap_or(true);
-        let heuristic = self
-            .panel
-            .maybe_dropdown_value("heuristic")
-            .unwrap_or(Heuristic::OnlyOneBorder);
-
         self.panel = Tab::Connectivity
             .panel_builder(
                 ctx,
@@ -54,7 +46,14 @@ impl Viewer {
                 Widget::col(vec![
                     Widget::row(vec![
                         "Draw traffic cells as".text_widget(ctx).centered_vert(),
-                        Toggle::choice(ctx, "draw cells", "areas", "streets", Key::D, draw_cells),
+                        Toggle::choice(
+                            ctx,
+                            "draw cells",
+                            "areas",
+                            "streets",
+                            Key::D,
+                            app.session.draw_cells_as_areas,
+                        ),
                     ]),
                     Widget::row(vec![
                         "Draw entrances/exits as".text_widget(ctx).centered_vert(),
@@ -64,12 +63,17 @@ impl Viewer {
                             "arrows",
                             "outlines",
                             Key::E,
-                            draw_borders,
+                            app.session.draw_borders_as_arrows,
                         ),
                     ]),
                     warning.text_widget(ctx),
                     Widget::row(vec![
-                        Widget::dropdown(ctx, "heuristic", heuristic, Heuristic::choices()),
+                        Widget::dropdown(
+                            ctx,
+                            "heuristic",
+                            app.session.heuristic,
+                            Heuristic::choices(),
+                        ),
                         ctx.style()
                             .btn_outline
                             .text("Automatically stop rat-runs")
@@ -80,13 +84,7 @@ impl Viewer {
             )
             .build(ctx);
 
-        self.world = make_world(
-            ctx,
-            app,
-            &self.neighborhood,
-            self.panel.is_checked("draw cells"),
-            self.panel.is_checked("draw borders"),
-        );
+        self.world = make_world(ctx, app, &self.neighborhood);
     }
 }
 
@@ -96,8 +94,9 @@ impl State<App> for Viewer {
             Outcome::Clicked(x) => {
                 if x == "Automatically stop rat-runs" {
                     ctx.loading_screen("automatically filter a neighborhood", |ctx, timer| {
-                        let heuristic: Heuristic = self.panel.dropdown_value("heuristic");
-                        heuristic.apply(ctx, app, &self.neighborhood, timer);
+                        app.session
+                            .heuristic
+                            .apply(ctx, app, &self.neighborhood, timer);
                     });
                     self.neighborhood = Neighborhood::new(ctx, app, self.neighborhood.id);
                     self.update(ctx, app);
@@ -109,14 +108,12 @@ impl State<App> for Viewer {
                     .unwrap();
             }
             Outcome::Changed(x) => {
+                app.session.draw_cells_as_areas = self.panel.is_checked("draw cells");
+                app.session.draw_borders_as_arrows = self.panel.is_checked("draw borders");
+                app.session.heuristic = self.panel.dropdown_value("heuristic");
+
                 if x != "heuristic" {
-                    self.world = make_world(
-                        ctx,
-                        app,
-                        &self.neighborhood,
-                        self.panel.is_checked("draw cells"),
-                        self.panel.is_checked("draw borders"),
-                    );
+                    self.world = make_world(ctx, app, &self.neighborhood);
                 }
             }
             _ => {}
@@ -145,20 +142,14 @@ impl State<App> for Viewer {
     }
 }
 
-fn make_world(
-    ctx: &mut EventCtx,
-    app: &App,
-    neighborhood: &Neighborhood,
-    draw_cells_as_areas: bool,
-    draw_borders_as_arrows: bool,
-) -> World<FilterableObj> {
+fn make_world(ctx: &mut EventCtx, app: &App, neighborhood: &Neighborhood) -> World<FilterableObj> {
     let map = &app.map;
     let mut world = World::bounded(map.get_bounds());
 
     super::per_neighborhood::populate_world(ctx, app, neighborhood, &mut world, |id| id, 0);
 
     let render_cells = super::draw_cells::RenderCells::new(map, neighborhood);
-    if draw_cells_as_areas {
+    if app.session.draw_cells_as_areas {
         world.draw_master_batch(ctx, render_cells.draw_grid());
     } else {
         let mut draw = GeomBatch::new();
@@ -187,7 +178,7 @@ fn make_world(
     for (idx, cell) in neighborhood.cells.iter().enumerate() {
         let color = render_cells.colors[idx];
         for i in &cell.borders {
-            if draw_borders_as_arrows {
+            if app.session.draw_borders_as_arrows {
                 let angles: Vec<Angle> = cell
                     .roads
                     .keys()

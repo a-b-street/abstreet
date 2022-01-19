@@ -24,12 +24,11 @@ impl BrowseNeighborhoods {
     pub fn new_state(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
         URLManager::update_url_map_name(app);
 
-        let style = Style::SimpleColoring;
         let world = ctx.loading_screen("calculate neighborhoods", |ctx, timer| {
             if &app.session.partitioning.map != app.map.get_name() {
                 app.session.partitioning = Partitioning::seed_using_heuristics(app, timer);
             }
-            make_world(ctx, app, style, timer)
+            make_world(ctx, app, timer)
         });
         let draw_all_filters = app.session.modal_filters.draw(ctx, &app.map, None);
 
@@ -44,13 +43,18 @@ impl BrowseNeighborhoods {
                     .build_widget(ctx, "search")
                     .align_right(),
             ]),
-            Toggle::checkbox(ctx, "highlight boundary roads", Key::H, true),
+            Toggle::checkbox(
+                ctx,
+                "highlight boundary roads",
+                Key::H,
+                app.session.highlight_boundary_roads,
+            ),
             Widget::row(vec![
                 "Draw neighborhoods:".text_widget(ctx).centered_vert(),
                 Widget::dropdown(
                     ctx,
                     "style",
-                    style,
+                    app.session.draw_neighborhood_style,
                     vec![
                         Choice::new("simple", Style::SimpleColoring),
                         Choice::new("cells", Style::Cells),
@@ -117,9 +121,12 @@ impl State<App> for BrowseNeighborhoods {
                 _ => unreachable!(),
             },
             Outcome::Changed(_) => {
-                self.world = ctx.loading_screen("change style", |ctx, timer| {
-                    make_world(ctx, app, self.panel.dropdown_value("style"), timer)
-                });
+                app.session.highlight_boundary_roads =
+                    self.panel.is_checked("highlight boundary roads");
+                app.session.draw_neighborhood_style = self.panel.dropdown_value("style");
+
+                self.world =
+                    ctx.loading_screen("change style", |ctx, timer| make_world(ctx, app, timer));
             }
             _ => {}
         }
@@ -144,16 +151,11 @@ impl State<App> for BrowseNeighborhoods {
     }
 }
 
-fn make_world(
-    ctx: &mut EventCtx,
-    app: &App,
-    style: Style,
-    timer: &mut Timer,
-) -> World<NeighborhoodID> {
+fn make_world(ctx: &mut EventCtx, app: &App, timer: &mut Timer) -> World<NeighborhoodID> {
     let mut world = World::bounded(app.map.get_bounds());
     let map = &app.map;
     for (id, (block, color)) in &app.session.partitioning.neighborhoods {
-        match style {
+        match app.session.draw_neighborhood_style {
             Style::SimpleColoring => {
                 world
                     .add(*id)
@@ -240,7 +242,7 @@ fn draw_boundary_roads(ctx: &EventCtx, app: &App) -> ToggleZoomed {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-enum Style {
+pub enum Style {
     SimpleColoring,
     Cells,
     Quietness,
