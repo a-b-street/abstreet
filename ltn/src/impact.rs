@@ -21,13 +21,12 @@ pub struct Results {
     pub map: MapName,
     // This changes per map
     all_driving_trips: Vec<PathRequest>,
-
-    // The rest need updating when this changes
-    pub change_key: usize,
-
     before_world: World<Obj>,
     before_road_counts: Counter<RoadID>,
     before_intersection_counts: Counter<IntersectionID>,
+
+    // The rest need updating when this changes
+    pub change_key: usize,
     after_world: World<Obj>,
     after_road_counts: Counter<RoadID>,
     after_intersection_counts: Counter<IntersectionID>,
@@ -66,12 +65,11 @@ impl Results {
         let mut results = Results {
             map: app.map.get_name().clone(),
             all_driving_trips,
-
-            change_key: 0,
-
             before_world: World::unbounded(),
             before_road_counts: Counter::new(),
             before_intersection_counts: Counter::new(),
+
+            change_key: 0,
             after_world: World::unbounded(),
             after_road_counts: Counter::new(),
             after_intersection_counts: Counter::new(),
@@ -85,46 +83,48 @@ impl Results {
         self.change_key = app.session.modal_filters.change_key;
         let map = &app.map;
 
-        // Before the filters
-        self.before_road_counts = Counter::new();
-        self.before_intersection_counts = Counter::new();
-        for path in timer
-            .parallelize(
-                "calculate routes before filters",
-                self.all_driving_trips.clone(),
-                |req| map.pathfind_v2(req),
-            )
-            .into_iter()
-            .flatten()
-        {
-            for step in path.get_steps() {
-                // No Contraflow steps for driving paths
-                match step {
-                    PathStepV2::Along(dr) => {
-                        self.before_road_counts.inc(dr.road);
+        // Before the filters. These don't change with no filters, so only calculate once per map
+        if self.before_road_counts.is_empty() {
+            self.before_road_counts = Counter::new();
+            self.before_intersection_counts = Counter::new();
+            for path in timer
+                .parallelize(
+                    "calculate routes before filters",
+                    self.all_driving_trips.clone(),
+                    |req| map.pathfind_v2(req),
+                )
+                .into_iter()
+                .flatten()
+            {
+                for step in path.get_steps() {
+                    // No Contraflow steps for driving paths
+                    match step {
+                        PathStepV2::Along(dr) => {
+                            self.before_road_counts.inc(dr.road);
+                        }
+                        PathStepV2::Movement(m) => {
+                            self.before_intersection_counts.inc(m.parent);
+                        }
+                        _ => {}
                     }
-                    PathStepV2::Movement(m) => {
-                        self.before_intersection_counts.inc(m.parent);
-                    }
-                    _ => {}
                 }
             }
+            self.before_world = make_world(ctx, app);
+            ranked_roads(
+                ctx,
+                map,
+                &mut self.before_world,
+                &self.before_road_counts,
+                &app.cs.good_to_bad_red,
+            );
+            ranked_intersections(
+                ctx,
+                map,
+                &mut self.before_world,
+                &self.before_intersection_counts,
+                &app.cs.good_to_bad_red,
+            );
         }
-        self.before_world = make_world(ctx, app);
-        ranked_roads(
-            ctx,
-            map,
-            &mut self.before_world,
-            &self.before_road_counts,
-            &app.cs.good_to_bad_red,
-        );
-        ranked_intersections(
-            ctx,
-            map,
-            &mut self.before_world,
-            &self.before_intersection_counts,
-            &app.cs.good_to_bad_red,
-        );
 
         // After the filters
         self.after_road_counts = Counter::new();
