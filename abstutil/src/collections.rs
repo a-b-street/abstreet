@@ -167,6 +167,10 @@ impl<T: Ord + PartialEq + Clone> Counter<T> {
     pub fn consume(self) -> BTreeMap<T, usize> {
         self.map
     }
+
+    pub fn is_empty(&self) -> bool {
+        self.map.is_empty()
+    }
 }
 
 pub fn wraparound_get<T>(vec: &[T], idx: isize) -> &T {
