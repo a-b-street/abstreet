@@ -17,6 +17,8 @@ pub struct ModalFilters {
 
     /// Edit history is preserved recursively
     pub previous_version: Box<Option<ModalFilters>>,
+    /// This changes every time an edit occurs
+    pub change_key: usize,
 }
 
 /// A diagonal filter exists in an intersection. It's defined by two roads (the order is
@@ -41,6 +43,7 @@ impl ModalFilters {
     pub fn before_edit(&mut self) {
         let copy = self.clone();
         self.previous_version = Box::new(Some(copy));
+        self.change_key += 1;
     }
 
     /// If it's possible no edits were made, undo the previous call to `before_edit` and collapse
@@ -49,6 +52,7 @@ impl ModalFilters {
         if let Some(prev) = self.previous_version.take() {
             if self.roads == prev.roads && self.intersections == prev.intersections {
                 self.previous_version = prev.previous_version;
+                // Leave change_key alone for simplicity
             } else {
                 // There was a real difference, keep
                 self.previous_version = Box::new(Some(prev));

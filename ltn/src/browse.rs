@@ -122,11 +122,7 @@ impl State<App> for BrowseNeighborhoods {
                         }
                     });
                 }
-                "Calculate" => {
-                    return Transition::Push(super::impact::ShowResults::new_state(ctx, app));
-                }
-                "Force recalculation" => {
-                    app.session.impact = None;
+                "Calculate" | "Show impact" => {
                     return Transition::Push(super::impact::ShowResults::new_state(ctx, app));
                 }
                 _ => unreachable!(),
@@ -259,6 +255,33 @@ pub enum Style {
 
 fn impact_widget(ctx: &EventCtx, app: &App) -> Widget {
     let map_name = app.map.get_name();
+
+    if let Some(ref results) = app.session.impact {
+        if &results.map == map_name {
+            if results.change_key == app.session.modal_filters.change_key {
+                // Nothing to calculate!
+                return ctx
+                    .style()
+                    .btn_solid_primary
+                    .text("Show impact")
+                    .build_def(ctx);
+            }
+            // We'll need to do some pathfinding
+            return Widget::col(vec![
+                Text::from_multiline(vec![
+                    Line("Predicting impact of your proposal may take a moment."),
+                    Line("The application may freeze up during that time."),
+                ])
+                .into_widget(ctx),
+                ctx.style()
+                    .btn_solid_primary
+                    .text("Calculate")
+                    .build_def(ctx),
+            ]);
+        }
+    }
+
+    // Starting from scratch
     let scenario_name = Scenario::default_scenario_for_map(&map_name);
     if scenario_name == "home_to_work" {
         return "This city doesn't have travel demand model data available".text_widget(ctx);
@@ -274,16 +297,9 @@ fn impact_widget(ctx: &EventCtx, app: &App) -> Widget {
             Line(format!("We need to load a {} file", size)),
         ])
         .into_widget(ctx),
-        Widget::row(vec![
-            ctx.style()
-                .btn_solid_primary
-                .text("Calculate")
-                .build_def(ctx),
-            // TODO Bad UI! Detect edits and do this. I'm being lazy.
-            ctx.style()
-                .btn_solid_primary
-                .text("Force recalculation")
-                .build_def(ctx),
-        ]),
+        ctx.style()
+            .btn_solid_primary
+            .text("Calculate")
+            .build_def(ctx),
     ])
 }
