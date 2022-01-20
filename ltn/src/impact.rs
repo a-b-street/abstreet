@@ -4,13 +4,13 @@ use map_gui::load::FileLoader;
 use map_gui::tools::{cmp_count, ColorScale, DivergingScale};
 use map_model::{Map, PathRequest, PathStepV2, RoadID};
 use sim::{Scenario, TripEndpoint, TripMode};
-use widgetry::mapspace::{ObjectID, World};
+use widgetry::mapspace::{ObjectID, ToggleZoomed, World};
 use widgetry::{
     Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Line, Panel, SimpleState, State, Text,
     TextExt, VerticalAlignment, Widget,
 };
 
-use crate::{App, Transition};
+use crate::{App, NeighborhoodID, Transition};
 
 // TODO Configurable main road penalty, like in the pathfinding tool
 // TODO Don't allow crossing filters at all -- don't just disincentivize
@@ -32,6 +32,7 @@ pub struct Results {
 enum Obj {
     Road(RoadID),
     // TODO Intersection
+    Neighborhood(NeighborhoodID),
 }
 impl ObjectID for Obj {}
 
@@ -91,7 +92,7 @@ impl Results {
                 }
             }
         }
-        self.before_world = World::bounded(map.get_bounds());
+        self.before_world = make_world(ctx, app);
         ranked_roads(
             ctx,
             map,
@@ -121,7 +122,7 @@ impl Results {
                 }
             }
         }
-        self.after_world = World::bounded(map.get_bounds());
+        self.after_world = make_world(ctx, app);
         ranked_roads(
             ctx,
             map,
@@ -131,7 +132,7 @@ impl Results {
         );
 
         // Relative diff
-        self.relative_world = World::bounded(map.get_bounds());
+        self.relative_world = make_world(ctx, app);
         // TODO I really need help understanding how to do this. If the average isn't 1.0 (meaning
         // no change), then the colors are super wacky.
         let scale = DivergingScale::new(Color::hex("#5D9630"), Color::WHITE, Color::hex("#A32015"))
@@ -168,6 +169,19 @@ impl Results {
     }
 }
 
+// Just add the base layer of non-clickable neighborhoods
+fn make_world(ctx: &mut EventCtx, app: &App) -> World<Obj> {
+    let mut world = World::bounded(app.map.get_bounds());
+    for (id, (block, color)) in &app.session.partitioning.neighborhoods {
+        world
+            .add(Obj::Neighborhood(*id))
+            .hitbox(block.polygon.clone())
+            .draw_color(color.alpha(0.2))
+            .build(ctx);
+    }
+    world
+}
+
 // TODO Duplicates some logic from ColorNetwork
 fn ranked_roads(
     ctx: &mut EventCtx,
@@ -201,6 +215,7 @@ enum Layer {
 
 pub struct ShowResults {
     layer: Layer,
+    draw_all_filters: ToggleZoomed,
 }
 
 impl ShowResults {
@@ -251,7 +266,13 @@ impl ShowResults {
         ]))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
         .build(ctx);
-        <dyn SimpleState<_>>::new_state(panel, Box::new(ShowResults { layer }))
+        <dyn SimpleState<_>>::new_state(
+            panel,
+            Box::new(ShowResults {
+                layer,
+                draw_all_filters: app.session.modal_filters.draw(ctx, &app.map, None),
+            }),
+        )
     }
 
     // TODO Or do an EnumMap of Layer
@@ -300,5 +321,6 @@ impl SimpleState<App> for ShowResults {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.world(app).draw(g);
+        self.draw_all_filters.draw(g);
     }
 }
