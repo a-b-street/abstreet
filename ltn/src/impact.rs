@@ -2,7 +2,7 @@ use abstio::MapName;
 use abstutil::{prettyprint_usize, Counter, Timer};
 use map_gui::load::FileLoader;
 use map_gui::tools::{cmp_count, ColorScale, DivergingScale};
-use map_model::{Map, PathRequest, PathStepV2, RoadID};
+use map_model::{IntersectionID, Map, PathRequest, PathStepV2, RoadID};
 use sim::{Scenario, TripEndpoint, TripMode};
 use widgetry::mapspace::{ObjectID, ToggleZoomed, World};
 use widgetry::{
@@ -23,15 +23,17 @@ pub struct Results {
 
     before_world: World<Obj>,
     before_road_counts: Counter<RoadID>,
+    before_intersection_counts: Counter<IntersectionID>,
     after_world: World<Obj>,
     after_road_counts: Counter<RoadID>,
+    after_intersection_counts: Counter<IntersectionID>,
     relative_world: World<Obj>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 enum Obj {
     Road(RoadID),
-    // TODO Intersection
+    Intersection(IntersectionID),
     Neighborhood(NeighborhoodID),
 }
 impl ObjectID for Obj {}
@@ -63,8 +65,10 @@ impl Results {
 
             before_world: World::unbounded(),
             before_road_counts: Counter::new(),
+            before_intersection_counts: Counter::new(),
             after_world: World::unbounded(),
             after_road_counts: Counter::new(),
+            after_intersection_counts: Counter::new(),
             relative_world: World::unbounded(),
         };
         results.recalculate_impact(ctx, app, timer);
@@ -76,6 +80,7 @@ impl Results {
 
         // Before the filters
         self.before_road_counts = Counter::new();
+        self.before_intersection_counts = Counter::new();
         for path in timer
             .parallelize(
                 "calculate routes before filters",
@@ -87,8 +92,14 @@ impl Results {
         {
             for step in path.get_steps() {
                 // No Contraflow steps for driving paths
-                if let PathStepV2::Along(dr) = step {
-                    self.before_road_counts.inc(dr.road);
+                match step {
+                    PathStepV2::Along(dr) => {
+                        self.before_road_counts.inc(dr.road);
+                    }
+                    PathStepV2::Movement(m) => {
+                        self.before_intersection_counts.inc(m.parent);
+                    }
+                    _ => {}
                 }
             }
         }
@@ -100,9 +111,17 @@ impl Results {
             &self.before_road_counts,
             &app.cs.good_to_bad_red,
         );
+        ranked_intersections(
+            ctx,
+            map,
+            &mut self.before_world,
+            &self.before_intersection_counts,
+            &app.cs.good_to_bad_red,
+        );
 
         // After the filters
         self.after_road_counts = Counter::new();
+        self.after_intersection_counts = Counter::new();
         let mut params = map.routing_params().clone();
         app.session.modal_filters.update_routing_params(&mut params);
         let cache_custom = true;
@@ -117,8 +136,14 @@ impl Results {
         {
             for step in path.get_steps() {
                 // No Contraflow steps for driving paths
-                if let PathStepV2::Along(dr) = step {
-                    self.after_road_counts.inc(dr.road);
+                match step {
+                    PathStepV2::Along(dr) => {
+                        self.after_road_counts.inc(dr.road);
+                    }
+                    PathStepV2::Movement(m) => {
+                        self.after_intersection_counts.inc(m.parent);
+                    }
+                    _ => {}
                 }
             }
         }
@@ -128,6 +153,13 @@ impl Results {
             map,
             &mut self.after_world,
             &self.after_road_counts,
+            &app.cs.good_to_bad_red,
+        );
+        ranked_intersections(
+            ctx,
+            map,
+            &mut self.after_world,
+            &self.after_intersection_counts,
             &app.cs.good_to_bad_red,
         );
 
@@ -166,6 +198,29 @@ impl Results {
             max_ratio = max_ratio.max(ratio);
         }
         info!("The ratios were between {min_ratio:.2} and {max_ratio:.2}");
+
+        for (i, before, after) in self
+            .before_intersection_counts
+            .clone()
+            .compare(self.after_intersection_counts.clone())
+        {
+            let ratio = (after as f64) / (before as f64);
+            if let Some(color) = scale.eval(ratio) {
+                let mut txt = Text::from_multiline(vec![
+                    Line(format!("Before: {}", prettyprint_usize(before))),
+                    Line(format!("After: {}", prettyprint_usize(after))),
+                ]);
+                cmp_count(&mut txt, before, after);
+                txt.add_line(Line(format!("After/before: {:.2}", ratio)));
+                self.relative_world
+                    .add(Obj::Intersection(i))
+                    .hitbox(map.get_i(i).polygon.clone())
+                    .draw_color(color)
+                    .hover_alpha(0.9)
+                    .tooltip(txt)
+                    .build(ctx);
+            }
+        }
     }
 }
 
@@ -201,6 +256,29 @@ fn ranked_roads(
                 .draw_color(color)
                 .hover_alpha(0.9)
                 .tooltip(Text::from(Line(prettyprint_usize(counter.get(r)))))
+                .build(ctx);
+        }
+    }
+}
+
+fn ranked_intersections(
+    ctx: &mut EventCtx,
+    map: &Map,
+    world: &mut World<Obj>,
+    counter: &Counter<IntersectionID>,
+    scale: &ColorScale,
+) {
+    let intersections = counter.sorted_asc();
+    let len = intersections.len() as f64;
+    for (idx, list) in intersections.into_iter().enumerate() {
+        let color = scale.eval((idx as f64) / len);
+        for i in list {
+            world
+                .add(Obj::Intersection(i))
+                .hitbox(map.get_i(i).polygon.clone())
+                .draw_color(color)
+                .hover_alpha(0.9)
+                .tooltip(Text::from(Line(prettyprint_usize(counter.get(i)))))
                 .build(ctx);
         }
     }
