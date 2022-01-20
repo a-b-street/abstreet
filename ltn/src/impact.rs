@@ -10,7 +10,7 @@ use widgetry::{
     TextExt, VerticalAlignment, Widget,
 };
 
-use crate::{App, NeighborhoodID, Transition};
+use crate::{App, BrowseNeighborhoods, NeighborhoodID, Transition};
 
 // TODO Configurable main road penalty, like in the pathfinding tool
 // TODO Don't allow crossing filters at all -- don't just disincentivize
@@ -18,8 +18,12 @@ use crate::{App, NeighborhoodID, Transition};
 // ... can't we just produce data of a certain shape, and have a UI pretty tuned for that?
 
 pub struct Results {
-    map: MapName,
+    pub map: MapName,
+    // This changes per map
     all_driving_trips: Vec<PathRequest>,
+
+    // The rest need updating when this changes
+    pub change_key: usize,
 
     before_world: World<Obj>,
     before_road_counts: Counter<RoadID>,
@@ -63,6 +67,8 @@ impl Results {
             map: app.map.get_name().clone(),
             all_driving_trips,
 
+            change_key: 0,
+
             before_world: World::unbounded(),
             before_road_counts: Counter::new(),
             before_intersection_counts: Counter::new(),
@@ -76,6 +82,7 @@ impl Results {
     }
 
     fn recalculate_impact(&mut self, ctx: &mut EventCtx, app: &App, timer: &mut Timer) {
+        self.change_key = app.session.modal_filters.change_key;
         let map = &app.map;
 
         // Before the filters
@@ -297,9 +304,8 @@ pub struct ShowResults {
 }
 
 impl ShowResults {
-    pub fn new_state(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
         let map_name = app.map.get_name().clone();
-        // TODO Handle changes in the filters / partitioning too
         if app
             .session
             .impact
@@ -318,6 +324,15 @@ impl ShowResults {
                     Transition::Replace(ShowResults::new_state(ctx, app))
                 }),
             );
+        }
+
+        if app.session.impact.as_ref().unwrap().change_key != app.session.modal_filters.change_key {
+            ctx.loading_screen("recalculate impact", |ctx, timer| {
+                // Avoid a double borrow
+                let mut results = app.session.impact.take().unwrap();
+                results.recalculate_impact(ctx, app, timer);
+                app.session.impact = Some(results);
+            });
         }
 
         let layer = Layer::Relative;
@@ -374,9 +389,11 @@ impl ShowResults {
 }
 
 impl SimpleState<App> for ShowResults {
-    fn on_click(&mut self, _: &mut EventCtx, _: &mut App, x: &str, _: &Panel) -> Transition {
+    fn on_click(&mut self, ctx: &mut EventCtx, app: &mut App, x: &str, _: &Panel) -> Transition {
         if x == "close" {
-            return Transition::Pop;
+            // Don't just Pop; if we updated the results, the UI won't warn the user about a slow
+            // loading
+            return Transition::Replace(BrowseNeighborhoods::new_state(ctx, app));
         }
         unreachable!()
     }
