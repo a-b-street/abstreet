@@ -11,7 +11,7 @@ use widgetry::{
 };
 
 use super::{Neighborhood, NeighborhoodID, Partitioning};
-use crate::{App, Transition};
+use crate::{App, ModalFilters, Transition};
 
 pub struct BrowseNeighborhoods {
     panel: Panel,
@@ -28,6 +28,7 @@ impl BrowseNeighborhoods {
         let world = ctx.loading_screen("calculate neighborhoods", |ctx, timer| {
             if &app.session.partitioning.map != app.map.get_name() {
                 app.session.partitioning = Partitioning::seed_using_heuristics(app, timer);
+                app.session.modal_filters = ModalFilters::default();
             }
             make_world(ctx, app, timer)
         });

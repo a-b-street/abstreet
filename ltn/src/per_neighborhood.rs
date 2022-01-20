@@ -7,7 +7,7 @@ use widgetry::{
     VerticalAlignment, Widget, DEFAULT_CORNER_RADIUS,
 };
 
-use super::{BrowseNeighborhoods, DiagonalFilter, Neighborhood, NeighborhoodID, Partitioning};
+use super::{BrowseNeighborhoods, DiagonalFilter, Neighborhood, NeighborhoodID};
 use crate::{App, Transition};
 
 #[derive(PartialEq)]
@@ -85,10 +85,7 @@ impl Tab {
             "change map" => Transition::Push(CityPicker::new_state(
                 ctx,
                 app,
-                Box::new(|ctx, app| {
-                    app.session.partitioning = Partitioning::empty();
-                    Transition::Replace(BrowseNeighborhoods::new_state(ctx, app))
-                }),
+                Box::new(|ctx, app| Transition::Replace(BrowseNeighborhoods::new_state(ctx, app))),
             )),
             "Browse neighborhoods" => {
                 // Recalculate the state to redraw any changed filters
