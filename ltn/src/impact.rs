@@ -1,11 +1,10 @@
 use abstio::MapName;
 use abstutil::{prettyprint_usize, Counter, Timer};
 use map_gui::load::FileLoader;
-use map_gui::tools::{cmp_count, ColorNetwork, DivergingScale};
-use map_gui::ID;
-use map_model::{PathRequest, PathStepV2, RoadID};
+use map_gui::tools::{cmp_count, ColorScale, DivergingScale};
+use map_model::{Map, PathRequest, PathStepV2, RoadID};
 use sim::{Scenario, TripEndpoint, TripMode};
-use widgetry::mapspace::ToggleZoomed;
+use widgetry::mapspace::{ObjectID, World};
 use widgetry::{
     Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Line, Panel, SimpleState, State, Text,
     TextExt, VerticalAlignment, Widget,
@@ -13,7 +12,6 @@ use widgetry::{
 
 use crate::{App, Transition};
 
-// TODO Intersections
 // TODO Configurable main road penalty, like in the pathfinding tool
 // TODO Don't allow crossing filters at all -- don't just disincentivize
 // TODO Share structure or pieces with Ungap's predict mode
@@ -23,14 +21,19 @@ pub struct Results {
     map: MapName,
     all_driving_trips: Vec<PathRequest>,
 
-    // TODO Or a World with tooltips baked in... except there's less flexibility to toggle views
-    // dynamically
-    before_draw_heatmap: ToggleZoomed,
-    before_counts: Counter<RoadID>,
-    after_draw_heatmap: ToggleZoomed,
-    after_counts: Counter<RoadID>,
-    relative_draw_heatmap: ToggleZoomed,
+    before_world: World<Obj>,
+    before_road_counts: Counter<RoadID>,
+    after_world: World<Obj>,
+    after_road_counts: Counter<RoadID>,
+    relative_world: World<Obj>,
 }
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+enum Obj {
+    Road(RoadID),
+    // TODO Intersection
+}
+impl ObjectID for Obj {}
 
 impl Results {
     fn from_scenario(
@@ -57,22 +60,21 @@ impl Results {
             map: app.map.get_name().clone(),
             all_driving_trips,
 
-            before_draw_heatmap: ToggleZoomed::empty(ctx),
-            before_counts: Counter::new(),
-            after_draw_heatmap: ToggleZoomed::empty(ctx),
-            after_counts: Counter::new(),
-            relative_draw_heatmap: ToggleZoomed::empty(ctx),
+            before_world: World::unbounded(),
+            before_road_counts: Counter::new(),
+            after_world: World::unbounded(),
+            after_road_counts: Counter::new(),
+            relative_world: World::unbounded(),
         };
         results.recalculate_impact(ctx, app, timer);
         results
     }
 
     fn recalculate_impact(&mut self, ctx: &mut EventCtx, app: &App, timer: &mut Timer) {
-        self.before_counts = Counter::new();
-        self.after_counts = Counter::new();
         let map = &app.map;
 
         // Before the filters
+        self.before_road_counts = Counter::new();
         for path in timer
             .parallelize(
                 "calculate routes before filters",
@@ -85,15 +87,21 @@ impl Results {
             for step in path.get_steps() {
                 // No Contraflow steps for driving paths
                 if let PathStepV2::Along(dr) = step {
-                    self.before_counts.inc(dr.road);
+                    self.before_road_counts.inc(dr.road);
                 }
             }
         }
-        let mut colorer = ColorNetwork::no_fading(app);
-        colorer.ranked_roads(self.before_counts.clone(), &app.cs.good_to_bad_red);
-        self.before_draw_heatmap = colorer.build(ctx);
+        self.before_world = World::bounded(map.get_bounds());
+        ranked_roads(
+            ctx,
+            map,
+            &mut self.before_world,
+            &self.before_road_counts,
+            &app.cs.good_to_bad_red,
+        );
 
         // After the filters
+        self.after_road_counts = Counter::new();
         let mut params = map.routing_params().clone();
         app.session.modal_filters.update_routing_params(&mut params);
         let cache_custom = true;
@@ -109,16 +117,21 @@ impl Results {
             for step in path.get_steps() {
                 // No Contraflow steps for driving paths
                 if let PathStepV2::Along(dr) = step {
-                    self.after_counts.inc(dr.road);
+                    self.after_road_counts.inc(dr.road);
                 }
             }
         }
-        let mut colorer = ColorNetwork::no_fading(app);
-        colorer.ranked_roads(self.after_counts.clone(), &app.cs.good_to_bad_red);
-        self.after_draw_heatmap = colorer.build(ctx);
+        self.after_world = World::bounded(map.get_bounds());
+        ranked_roads(
+            ctx,
+            map,
+            &mut self.after_world,
+            &self.after_road_counts,
+            &app.cs.good_to_bad_red,
+        );
 
         // Relative diff
-        let mut colorer = ColorNetwork::no_fading(app);
+        self.relative_world = World::bounded(map.get_bounds());
         // TODO I really need help understanding how to do this. If the average isn't 1.0 (meaning
         // no change), then the colors are super wacky.
         let scale = DivergingScale::new(Color::hex("#5D9630"), Color::WHITE, Color::hex("#A32015"))
@@ -128,19 +141,54 @@ impl Results {
         let mut max_ratio: f64 = 0.0;
 
         for (r, before, after) in self
-            .before_counts
+            .before_road_counts
             .clone()
-            .compare(self.after_counts.clone())
+            .compare(self.after_road_counts.clone())
         {
             let ratio = (after as f64) / (before as f64);
-            if let Some(c) = scale.eval(ratio) {
-                colorer.add_r(r, c);
+            if let Some(color) = scale.eval(ratio) {
+                let mut txt = Text::from_multiline(vec![
+                    Line(format!("Before: {}", prettyprint_usize(before))),
+                    Line(format!("After: {}", prettyprint_usize(after))),
+                ]);
+                cmp_count(&mut txt, before, after);
+                txt.add_line(Line(format!("After/before: {:.2}", ratio)));
+                self.relative_world
+                    .add(Obj::Road(r))
+                    .hitbox(map.get_r(r).get_thick_polygon())
+                    .draw_color(color)
+                    .hover_alpha(0.9)
+                    .tooltip(txt)
+                    .build(ctx);
             }
             min_ratio = min_ratio.min(ratio);
             max_ratio = max_ratio.max(ratio);
         }
         info!("The ratios were between {min_ratio:.2} and {max_ratio:.2}");
-        self.relative_draw_heatmap = colorer.build(ctx);
+    }
+}
+
+// TODO Duplicates some logic from ColorNetwork
+fn ranked_roads(
+    ctx: &mut EventCtx,
+    map: &Map,
+    world: &mut World<Obj>,
+    counter: &Counter<RoadID>,
+    scale: &ColorScale,
+) {
+    let roads = counter.sorted_asc();
+    let len = roads.len() as f64;
+    for (idx, list) in roads.into_iter().enumerate() {
+        let color = scale.eval((idx as f64) / len);
+        for r in list {
+            world
+                .add(Obj::Road(r))
+                .hitbox(map.get_r(r).get_thick_polygon())
+                .draw_color(color)
+                .hover_alpha(0.9)
+                .tooltip(Text::from(Line(prettyprint_usize(counter.get(r)))))
+                .build(ctx);
+        }
     }
 }
 
@@ -153,7 +201,6 @@ enum Layer {
 
 pub struct ShowResults {
     layer: Layer,
-    tooltip: Option<Text>,
 }
 
 impl ShowResults {
@@ -204,13 +251,26 @@ impl ShowResults {
         ]))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
         .build(ctx);
-        <dyn SimpleState<_>>::new_state(
-            panel,
-            Box::new(ShowResults {
-                layer,
-                tooltip: None,
-            }),
-        )
+        <dyn SimpleState<_>>::new_state(panel, Box::new(ShowResults { layer }))
+    }
+
+    // TODO Or do an EnumMap of Layer
+    fn world<'a>(&self, app: &'a App) -> &'a World<Obj> {
+        let results = app.session.impact.as_ref().unwrap();
+        match self.layer {
+            Layer::Before => &results.before_world,
+            Layer::After => &results.after_world,
+            Layer::Relative => &results.relative_world,
+        }
+    }
+
+    fn world_mut<'a>(&self, app: &'a mut App) -> &'a mut World<Obj> {
+        let results = app.session.impact.as_mut().unwrap();
+        match self.layer {
+            Layer::Before => &mut results.before_world,
+            Layer::After => &mut results.after_world,
+            Layer::Relative => &mut results.relative_world,
+        }
     }
 }
 
@@ -222,32 +282,10 @@ impl SimpleState<App> for ShowResults {
         unreachable!()
     }
 
-    fn other_event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
-        ctx.canvas_movement();
+    fn other_event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        // Just trigger tooltips
+        let _ = self.world_mut(app).event(ctx);
         Transition::Keep
-    }
-
-    fn on_mouseover(&mut self, ctx: &mut EventCtx, app: &mut App) {
-        self.tooltip = None;
-        if let Some(r) = match app.mouseover_unzoomed_roads_and_intersections(ctx) {
-            Some(ID::Road(r)) => Some(r),
-            Some(ID::Lane(l)) => Some(l.road),
-            _ => None,
-        } {
-            let impact = app.session.impact.as_ref().unwrap();
-            let before = impact.before_counts.get(r);
-            let after = impact.after_counts.get(r);
-            let mut txt = Text::from_multiline(vec![
-                Line(format!("Before: {}", prettyprint_usize(before))),
-                Line(format!("After: {}", prettyprint_usize(after))),
-            ]);
-            cmp_count(&mut txt, before, after);
-            txt.add_line(Line(format!(
-                "After/before: {:.2}",
-                (after as f64) / (before as f64)
-            )));
-            self.tooltip = Some(txt);
-        }
     }
 
     fn panel_changed(
@@ -261,20 +299,6 @@ impl SimpleState<App> for ShowResults {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        let impact = app.session.impact.as_ref().unwrap();
-        match self.layer {
-            Layer::Before => {
-                impact.before_draw_heatmap.draw(g);
-            }
-            Layer::After => {
-                impact.after_draw_heatmap.draw(g);
-            }
-            Layer::Relative => {
-                impact.relative_draw_heatmap.draw(g);
-            }
-        }
-        if let Some(ref txt) = self.tooltip {
-            g.draw_mouse_tooltip(txt.clone());
-        }
+        self.world(app).draw(g);
     }
 }

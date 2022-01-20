@@ -13,7 +13,7 @@ use sim::{TripEndpoint, TripMode};
 use widgetry::mapspace::ToggleZoomed;
 use widgetry::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    RoundedF64, Spinner, State, Text, TextExt, TextSpan, VerticalAlignment, Widget,
+    RoundedF64, Spinner, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
