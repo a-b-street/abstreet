@@ -229,11 +229,15 @@ fn make_input_graph(
                 let indices = uber_turn_entrances.get(dr);
                 if indices.is_empty() {
                     for mvmnt in map.get_movements_for(dr, constraints) {
-                        input_graph.add_edge(
-                            from,
-                            nodes.get(Node::Road(mvmnt.to)),
-                            round(vehicle_cost(mvmnt.from, mvmnt, constraints, params, map)),
-                        );
+                        if let Some(cost) =
+                            vehicle_cost(mvmnt.from, mvmnt, constraints, params, map)
+                        {
+                            input_graph.add_edge(
+                                from,
+                                nodes.get(Node::Road(mvmnt.to)),
+                                round(cost),
+                            );
+                        }
                     }
                 } else {
                     for idx in indices {
@@ -241,7 +245,13 @@ fn make_input_graph(
 
                         let mut sum_cost = Duration::ZERO;
                         for mvmnt in &ut.path {
-                            sum_cost += vehicle_cost(mvmnt.from, *mvmnt, constraints, params, map)
+                            if let Some(cost) =
+                                vehicle_cost(mvmnt.from, *mvmnt, constraints, params, map)
+                            {
+                                sum_cost += cost;
+                            } else {
+                                error!("A vehicle isn't allowed to cross {:?}, but it's part of an uber-turn and happening anyway", mvmnt);
+                            }
                         }
                         input_graph.add_edge(
                             from,
@@ -265,16 +275,17 @@ fn make_input_graph(
     input_graph
 }
 
-/// This returns the pathfinding cost of crossing one road and turn. This is also expressed in
-/// units of time. It factors in the ideal time to cross the space, along with penalties for
-/// entering an access-restricted zone, taking an unprotected turn, and so on.
+/// This returns the pathfinding cost of crossing one road and turn, in units of time. It factors
+/// in the ideal time to cross the space and penalties for entering an access-restricted zone,
+/// taking an unprotected turn, or going up a steep hill for some vehicle types. If this returns
+/// `None`, then the movement isn't actually allowed.
 pub fn vehicle_cost(
     dr: DirectedRoadID,
     mvmnt: MovementID,
     constraints: PathConstraints,
     params: &RoutingParams,
     map: &Map,
-) -> Duration {
+) -> Option<Duration> {
     let road = map.get_r(dr.road);
     let movement = &map.get_i(mvmnt.parent).movements[&mvmnt];
     let max_speed = match constraints {
@@ -337,6 +348,14 @@ pub fn vehicle_cost(
         multiplier *= params.avoid_high_stress;
     }
 
+    if params.avoid_roads.contains(&dr.road)
+        || params
+            .avoid_movements_between
+            .contains(&(mvmnt.from.road, mvmnt.to.road))
+    {
+        return None;
+    }
+
     let mut extra = zone_cost(mvmnt, constraints, map);
     // Penalize unprotected turns at a stop sign from smaller to larger roads.
     if map.is_unprotected_turn(dr.road, mvmnt.to.road, movement.turn_type) {
@@ -349,16 +368,5 @@ pub fn vehicle_cost(
         multiplier *= params.main_road_penalty;
     }
 
-    if params.avoid_roads.contains(&dr.road) {
-        // Similar to the zone_cost trick, just add an outrageous penalty here
-        extra += Duration::hours(3);
-    }
-    if params
-        .avoid_movements_between
-        .contains(&(mvmnt.from.road, mvmnt.to.road))
-    {
-        extra += Duration::hours(3);
-    }
-
-    multiplier * base + extra
+    Some(multiplier * base + extra)
 }
