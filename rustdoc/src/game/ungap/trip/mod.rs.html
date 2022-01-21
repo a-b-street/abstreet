@@ -324,7 +324,16 @@
 <span id="323">323</span>
 <span id="324">324</span>
 <span id="325">325</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">InputWaypoints</span>, <span class="ident">WaypointID</span>};
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">InputWaypoints</span>, <span class="ident">TripManagement</span>, <span class="ident">TripManagementState</span>, <span class="ident">WaypointID</span>};
 <span class="kw">use</span> <span class="ident">map_model::RoutingParams</span>;
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ObjectID</span>, <span class="ident">World</span>, <span class="ident">WorldOutcome</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
@@ -335,7 +344,6 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ungap</span>::{<span class="ident">Layers</span>, <span class="ident">Tab</span>, <span class="ident">TakeLayers</span>};
 
-<span class="kw">mod</span> <span class="ident">files</span>;
 <span class="kw">mod</span> <span class="ident">results</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TripPlanner</span> {
@@ -344,7 +352,7 @@
     <span class="ident">input_panel</span>: <span class="ident">Panel</span>,
     <span class="ident">waypoints</span>: <span class="ident">InputWaypoints</span>,
     <span class="ident">main_route</span>: <span class="ident">RouteDetails</span>,
-    <span class="ident">files</span>: <span class="ident">files::TripManagement</span>,
+    <span class="ident">files</span>: <span class="ident">TripManagement</span><span class="op">&lt;</span><span class="ident">App</span>, <span class="ident">TripPlanner</span><span class="op">&gt;</span>,
     <span class="comment">// TODO We really only need to store preferences and stats, but...</span>
     <span class="ident">alt_routes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RouteDetails</span><span class="op">&gt;</span>,
     <span class="ident">world</span>: <span class="ident">World</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span>,
@@ -353,6 +361,22 @@
 <span class="kw">impl</span> <span class="ident">TakeLayers</span> <span class="kw">for</span> <span class="ident">TripPlanner</span> {
     <span class="kw">fn</span> <span class="ident">take_layers</span>(<span class="self">self</span>) -&gt; <span class="ident">Layers</span> {
         <span class="self">self</span>.<span class="ident">layers</span>
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">TripManagementState</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">TripPlanner</span> {
+    <span class="kw">fn</span> <span class="ident">mut_files</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">TripManagement</span><span class="op">&lt;</span><span class="ident">App</span>, <span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">files</span>
+    }
+
+    <span class="kw">fn</span> <span class="ident">app_session_current_trip_name</span>(<span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+        <span class="kw-2">&amp;mut</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">ungap_current_trip_name</span>
+    }
+
+    <span class="kw">fn</span> <span class="ident">sync_from_file_management</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) {
+        <span class="self">self</span>.<span class="ident">waypoints</span>
+            .<span class="ident">overwrite</span>(<span class="ident">app</span>, <span class="self">self</span>.<span class="ident">files</span>.<span class="ident">current</span>.<span class="ident">waypoints</span>.<span class="ident">clone</span>());
+        <span class="self">self</span>.<span class="ident">recalculate_routes</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
     }
 }
 
@@ -376,7 +400,7 @@
             <span class="ident">input_panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
             <span class="ident">waypoints</span>: <span class="ident">InputWaypoints::new</span>(<span class="ident">app</span>),
             <span class="ident">main_route</span>: <span class="ident">RouteDetails::main_route</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Vec::new</span>()).<span class="ident">details</span>,
-            <span class="ident">files</span>: <span class="ident">files::TripManagement::new</span>(<span class="ident">app</span>),
+            <span class="ident">files</span>: <span class="ident">TripManagement::new</span>(<span class="ident">app</span>),
             <span class="ident">alt_routes</span>: <span class="ident">Vec::new</span>(),
             <span class="ident">world</span>: <span class="ident">World::bounded</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>()),
         };
@@ -390,6 +414,10 @@
 
     <span class="comment">// Use the current session settings to determine &quot;main&quot; and alts</span>
     <span class="kw">fn</span> <span class="ident">recalculate_routes</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) {
+        <span class="self">self</span>.<span class="ident">files</span>.<span class="ident">autosave</span>(<span class="ident">app</span>);
+        <span class="comment">// This doesn&#39;t depend on the alt routes, so just do it here</span>
+        <span class="self">self</span>.<span class="ident">update_input_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">main_route</span>.<span class="ident">details_widget</span>);
+
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">world</span> <span class="op">=</span> <span class="ident">World::bounded</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>());
 
         <span class="kw">let</span> <span class="ident">main_route</span> <span class="op">=</span> <span class="ident">RouteDetails::main_route</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>());
@@ -400,10 +428,6 @@
             .<span class="ident">zorder</span>(<span class="number">1</span>)
             .<span class="ident">draw</span>(<span class="ident">main_route</span>.<span class="ident">draw</span>)
             .<span class="ident">build</span>(<span class="ident">ctx</span>);
-
-        <span class="self">self</span>.<span class="ident">files</span>.<span class="ident">autosave</span>(<span class="ident">app</span>);
-        <span class="comment">// This doesn&#39;t depend on the alt routes, so just do it here</span>
-        <span class="self">self</span>.<span class="ident">update_input_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">main_route</span>.<span class="ident">details_widget</span>);
 
         <span class="self">self</span>.<span class="ident">alt_routes</span>.<span class="ident">clear</span>();
         <span class="comment">// Just show one alternate trip by default, unless the user enables one checkbox but not</span>
@@ -488,12 +512,6 @@
         <span class="comment">// registers as clicking &quot;X&quot; on the waypoints! Maybe just replace() in that case?</span>
         <span class="ident">new_panel</span>.<span class="ident">restore_scroll</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">input_panel</span>);
         <span class="self">self</span>.<span class="ident">input_panel</span> <span class="op">=</span> <span class="ident">new_panel</span>;
-    }
-
-    <span class="kw">fn</span> <span class="ident">sync_from_file_management</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) {
-        <span class="self">self</span>.<span class="ident">waypoints</span>
-            .<span class="ident">overwrite</span>(<span class="ident">app</span>, <span class="self">self</span>.<span class="ident">files</span>.<span class="ident">current</span>.<span class="ident">waypoints</span>.<span class="ident">clone</span>());
-        <span class="self">self</span>.<span class="ident">recalculate_routes</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
     }
 }
 

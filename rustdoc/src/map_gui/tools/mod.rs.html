@@ -398,6 +398,8 @@
 <span id="397">397</span>
 <span id="398">398</span>
 <span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Assorted tools and UI states that&#39;re useful for applications built to display maps.</span>
 
 <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
@@ -416,6 +418,7 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::minimap</span>::{<span class="ident">Minimap</span>, <span class="ident">MinimapControls</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::navigate::Navigator</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::title_screen</span>::{<span class="ident">Executable</span>, <span class="ident">TitleScreen</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::trip_files</span>::{<span class="ident">TripManagement</span>, <span class="ident">TripManagementState</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::turn_explorer::TurnExplorer</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::ui</span>::{
     <span class="ident">cmp_dist</span>, <span class="ident">cmp_duration</span>, <span class="ident">percentage_bar</span>, <span class="ident">ChooseSomething</span>, <span class="ident">FilePicker</span>, <span class="ident">PopupMsg</span>, <span class="ident">PromptInput</span>,
@@ -442,6 +445,7 @@
 <span class="kw">mod</span> <span class="ident">minimap</span>;
 <span class="kw">mod</span> <span class="ident">navigate</span>;
 <span class="kw">mod</span> <span class="ident">title_screen</span>;
+<span class="kw">mod</span> <span class="ident">trip_files</span>;
 <span class="kw">mod</span> <span class="ident">turn_explorer</span>;
 <span class="kw">mod</span> <span class="ident">ui</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
