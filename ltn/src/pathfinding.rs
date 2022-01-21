@@ -126,8 +126,6 @@ impl RoutePlanner {
         let mut draw = ToggleZoomed::builder();
 
         // First the route respecting the filters
-        // TODO Like in rat_runs, we need to actually enforce this, not just penalize... though,
-        // should it matter except for when a cell is disconnected?
         let (total_time_after, total_dist_after) = {
             let mut params = map.routing_params().clone();
             app.session.modal_filters.update_routing_params(&mut params);
@@ -136,6 +134,7 @@ impl RoutePlanner {
 
             let mut total_time = Duration::ZERO;
             let mut total_dist = Distance::ZERO;
+            let color = Color::RED;
             for pair in self.waypoints.get_waypoints().windows(2) {
                 if let Some((path, pl)) =
                     TripEndpoint::path_req(pair[0], pair[1], TripMode::Drive, map)
@@ -143,17 +142,21 @@ impl RoutePlanner {
                         .and_then(|path| path.trace(map).map(|pl| (path, pl)))
                 {
                     let shape = pl.make_polygons(5.0 * NORMAL_LANE_THICKNESS);
-                    draw.unzoomed.push(Color::RED.alpha(0.8), shape.clone());
-                    draw.zoomed.push(Color::RED.alpha(0.5), shape);
+                    draw.unzoomed.push(color.alpha(0.8), shape.clone());
+                    draw.zoomed.push(color.alpha(0.5), shape);
 
-                    // Use estimate_duration and not the original cost from pathfinding, since that
-                    // includes huge penalties when the route is forced to cross a filter
+                    // We use PathV1 (lane-based) for tracing. It doesn't preserve the cost
+                    // calculated while pathfinding, so just estimate_duration.
+                    //
+                    // The original reason for using estimate_duration here was to exclude the large
+                    // penalty if the route crossed a filter. But now that's impossible at the
+                    // pathfinding layer.
                     total_time += path.estimate_duration(map, None);
                     total_dist += path.total_length();
                 }
             }
             if total_dist != Distance::ZERO {
-                results.add_line(Line("Route respecting the new modal filters").fg(Color::BLUE));
+                results.add_line(Line("Route respecting the new modal filters").fg(color));
                 results.add_line(Line(format!("Time: {}", total_time)));
                 results.add_line(Line(format!("Distance: {}", total_dist)));
             }
@@ -166,6 +169,7 @@ impl RoutePlanner {
             let mut draw_old_route = ToggleZoomed::builder();
             let mut total_time = Duration::ZERO;
             let mut total_dist = Distance::ZERO;
+            let color = Color::BLUE;
             let mut params = map.routing_params().clone();
             params.main_road_penalty = app.session.main_road_penalty;
             let cache_custom = true;
@@ -178,8 +182,8 @@ impl RoutePlanner {
                     let shape = pl.make_polygons(5.0 * NORMAL_LANE_THICKNESS);
                     draw_old_route
                         .unzoomed
-                        .push(Color::BLUE.alpha(0.8), shape.clone());
-                    draw_old_route.zoomed.push(Color::BLUE.alpha(0.5), shape);
+                        .push(color.alpha(0.8), shape.clone());
+                    draw_old_route.zoomed.push(color.alpha(0.5), shape);
 
                     total_time += path.estimate_duration(map, None);
                     total_dist += path.total_length();
@@ -197,7 +201,7 @@ impl RoutePlanner {
                     results.add_line(Line(format!("Distance: {}", total_dist)));
                 } else {
                     draw.append(draw_old_route);
-                    results.add_line(Line("Route before the new modal filters").fg(Color::RED));
+                    results.add_line(Line("Route before the new modal filters").fg(color));
                     cmp_duration(
                         &mut results,
                         app,

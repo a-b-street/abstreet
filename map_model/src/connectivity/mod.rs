@@ -131,11 +131,14 @@ pub fn all_vehicle_costs_from(
         cost_per_node.insert(current.node, current.cost);
 
         for mvmnt in map.get_movements_for(current.node, constraints) {
-            queue.push(Item {
-                cost: current.cost
-                    + vehicle_cost(mvmnt.from, mvmnt, constraints, map.routing_params(), map),
-                node: mvmnt.to,
-            });
+            if let Some(cost) =
+                vehicle_cost(mvmnt.from, mvmnt, constraints, map.routing_params(), map)
+            {
+                queue.push(Item {
+                    cost: current.cost + cost,
+                    node: mvmnt.to,
+                });
+            }
         }
     }
 

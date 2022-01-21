@@ -60,7 +60,7 @@ pub fn find_rat_runs(app: &App, neighborhood: &Neighborhood, timer: &mut Timer) 
     let mut params = map.routing_params().clone();
     modal_filters.update_routing_params(&mut params);
     let cache_custom = true;
-    let mut paths: Vec<Path> = timer
+    let paths: Vec<Path> = timer
         .parallelize(
             "calculate paths between entrances and exits",
             requests,
@@ -69,17 +69,6 @@ pub fn find_rat_runs(app: &App, neighborhood: &Neighborhood, timer: &mut Timer) 
         .into_iter()
         .flatten()
         .collect();
-
-    // update_routing_params heavily penalizes crossing modal filters, but it doesn't prevent it
-    // completely! So strip out paths that were forced to cross a filter.
-    paths.retain(|path| {
-        !path.get_steps().iter().any(|step| match step {
-            PathStep::Lane(l) => modal_filters.roads.contains_key(&l.road),
-            PathStep::Turn(t) => !modal_filters.allows_turn(*t),
-            // Car paths don't make contraflow movements
-            _ => unreachable!(),
-        })
-    });
 
     // TODO Rank the likeliness of each rat run by
     // 1) Calculating a path between similar start/endpoints -- travelling along the perimeter,
