@@ -414,10 +414,6 @@
 
     <span class="comment">// Use the current session settings to determine &quot;main&quot; and alts</span>
     <span class="kw">fn</span> <span class="ident">recalculate_routes</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) {
-        <span class="self">self</span>.<span class="ident">files</span>.<span class="ident">autosave</span>(<span class="ident">app</span>);
-        <span class="comment">// This doesn&#39;t depend on the alt routes, so just do it here</span>
-        <span class="self">self</span>.<span class="ident">update_input_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">main_route</span>.<span class="ident">details_widget</span>);
-
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">world</span> <span class="op">=</span> <span class="ident">World::bounded</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>());
 
         <span class="kw">let</span> <span class="ident">main_route</span> <span class="op">=</span> <span class="ident">RouteDetails::main_route</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>());
@@ -428,6 +424,10 @@
             .<span class="ident">zorder</span>(<span class="number">1</span>)
             .<span class="ident">draw</span>(<span class="ident">main_route</span>.<span class="ident">draw</span>)
             .<span class="ident">build</span>(<span class="ident">ctx</span>);
+
+        <span class="self">self</span>.<span class="ident">files</span>.<span class="ident">autosave</span>(<span class="ident">app</span>);
+        <span class="comment">// This doesn&#39;t depend on the alt routes, so just do it here</span>
+        <span class="self">self</span>.<span class="ident">update_input_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">main_route</span>.<span class="ident">details_widget</span>);
 
         <span class="self">self</span>.<span class="ident">alt_routes</span>.<span class="ident">clear</span>();
         <span class="comment">// Just show one alternate trip by default, unless the user enables one checkbox but not</span>
