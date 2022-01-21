@@ -79,10 +79,6 @@ impl TripPlanner {
 
     // Use the current session settings to determine "main" and alts
     fn recalculate_routes(&mut self, ctx: &mut EventCtx, app: &mut App) {
-        self.files.autosave(app);
-        // This doesn't depend on the alt routes, so just do it here
-        self.update_input_panel(ctx, app, main_route.details_widget);
-
         let mut world = World::bounded(app.primary.map.get_bounds());
 
         let main_route = RouteDetails::main_route(ctx, app, self.waypoints.get_waypoints());
@@ -93,6 +89,10 @@ impl TripPlanner {
             .zorder(1)
             .draw(main_route.draw)
             .build(ctx);
+
+        self.files.autosave(app);
+        // This doesn't depend on the alt routes, so just do it here
+        self.update_input_panel(ctx, app, main_route.details_widget);
 
         self.alt_routes.clear();
         // Just show one alternate trip by default, unless the user enables one checkbox but not
