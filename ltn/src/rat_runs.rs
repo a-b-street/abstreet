@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use abstutil::{Counter, Timer};
 use map_model::{
     DirectedRoadID, IntersectionID, LaneID, Map, Path, PathConstraints, PathRequest, PathStep,
-    Position, RoadID,
+    PathfinderCaching, Position, RoadID,
 };
 
 use super::{Cell, Neighborhood};
@@ -59,12 +59,11 @@ pub fn find_rat_runs(app: &App, neighborhood: &Neighborhood, timer: &mut Timer) 
 
     let mut params = map.routing_params().clone();
     modal_filters.update_routing_params(&mut params);
-    let cache_custom = true;
     let paths: Vec<Path> = timer
         .parallelize(
             "calculate paths between entrances and exits",
             requests,
-            |req| map.pathfind_with_params(req, &params, cache_custom),
+            |req| map.pathfind_with_params(req, &params, PathfinderCaching::CacheDijkstra),
         )
         .into_iter()
         .flatten()

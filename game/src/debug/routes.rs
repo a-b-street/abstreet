@@ -6,7 +6,7 @@ use map_gui::colors::ColorSchemeChoice;
 use map_gui::tools::{cmp_count, ColorNetwork};
 use map_gui::{AppLike, ID};
 use map_model::{
-    DirectedRoadID, Direction, PathRequest, RoadID, RoutingParams, Traversable,
+    DirectedRoadID, Direction, PathRequest, PathfinderCaching, RoadID, RoutingParams, Traversable,
     NORMAL_LANE_THICKNESS,
 };
 use sim::{TripEndpoint, TripMode};
@@ -59,7 +59,7 @@ impl RouteExplorer {
                 .and_then(|req| {
                     app.primary
                         .map
-                        .pathfind_with_params(req, &params, false)
+                        .pathfind_with_params(req, &params, PathfinderCaching::NoCache)
                         .ok()
                 })
                 .and_then(|path| path.trace(&app.primary.map))

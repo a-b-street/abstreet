@@ -33,6 +33,20 @@ pub struct Pathfinder {
     cached_alternatives: ThreadLocal<RefCell<VecMap<(PathConstraints, RoutingParams), Pathfinder>>>,
 }
 
+/// When pathfinding with different `RoutingParams` is done, a temporary pathfinder must be
+/// created. This specifies what type of pathfinder and whether to cache it.
+///
+/// `clear_custom_pathfinder_cache` can be used to later clean up any cached pathfinders.
+#[derive(Clone, Copy, PartialEq)]
+pub enum PathfinderCaching {
+    /// Create a fast-to-build but slow-to-use Dijkstra-based pathfinder and don't cache it
+    NoCache,
+    /// Create a fast-to-build but slow-to-use Dijkstra-based pathfinder and cache it
+    CacheDijkstra,
+    /// Create a slow-to-build but fast-to-use contraction hierarchy-based pathfinder and cache it
+    CacheCH,
+}
+
 // Implemented manually to deal with the ThreadLocal
 impl Clone for Pathfinder {
     fn clone(&self) -> Self {
@@ -159,7 +173,7 @@ impl Pathfinder {
 
     /// Finds a path from a start to an end for a certain type of agent.
     pub fn pathfind(&self, req: PathRequest, map: &Map) -> Option<PathV2> {
-        self.pathfind_with_params(req, map.routing_params(), false, map)
+        self.pathfind_with_params(req, map.routing_params(), PathfinderCaching::NoCache, map)
     }
 
     /// Finds a path from a start to an end for a certain type of agent. May use custom routing
@@ -169,7 +183,7 @@ impl Pathfinder {
         &self,
         req: PathRequest,
         params: &RoutingParams,
-        cache_custom: bool,
+        cache_custom: PathfinderCaching,
         map: &Map,
     ) -> Option<PathV2> {
         let constraints = req.constraints;
@@ -191,7 +205,7 @@ impl Pathfinder {
             .borrow()
             .get(&(constraints, params.clone()))
         {
-            return alt.pathfind_with_params(req, params, false, map);
+            return alt.pathfind_with_params(req, params, PathfinderCaching::NoCache, map);
         }
 
         // If somebody's repeatedly calling this without caching, log very obnoxiously.
@@ -199,12 +213,19 @@ impl Pathfinder {
         let tmp_pathfinder = Pathfinder::new_limited(
             map,
             params.clone(),
-            CreateEngine::Dijkstra,
+            match cache_custom {
+                PathfinderCaching::NoCache | PathfinderCaching::CacheDijkstra => {
+                    CreateEngine::Dijkstra
+                }
+                // TODO Can we pick the right seed?
+                PathfinderCaching::CacheCH => CreateEngine::CH,
+            },
             vec![constraints],
             &mut timer,
         );
-        let result = tmp_pathfinder.pathfind_with_params(req, params, false, map);
-        if cache_custom {
+        let result =
+            tmp_pathfinder.pathfind_with_params(req, params, PathfinderCaching::NoCache, map);
+        if cache_custom != PathfinderCaching::NoCache {
             self.cached_alternatives
                 .get_or(|| RefCell::new(VecMap::new()))
                 .borrow_mut()

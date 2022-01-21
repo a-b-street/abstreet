@@ -2,7 +2,7 @@ use geom::{Distance, Duration};
 use map_gui::tools::{
     cmp_dist, cmp_duration, InputWaypoints, TripManagement, TripManagementState, WaypointID,
 };
-use map_model::NORMAL_LANE_THICKNESS;
+use map_model::{PathfinderCaching, NORMAL_LANE_THICKNESS};
 use sim::{TripEndpoint, TripMode};
 use widgetry::mapspace::{ObjectID, ToggleZoomed, World};
 use widgetry::{
@@ -130,7 +130,6 @@ impl RoutePlanner {
             let mut params = map.routing_params().clone();
             app.session.modal_filters.update_routing_params(&mut params);
             params.main_road_penalty = app.session.main_road_penalty;
-            let cache_custom = true;
 
             let mut total_time = Duration::ZERO;
             let mut total_dist = Distance::ZERO;
@@ -138,7 +137,10 @@ impl RoutePlanner {
             for pair in self.waypoints.get_waypoints().windows(2) {
                 if let Some((path, pl)) =
                     TripEndpoint::path_req(pair[0], pair[1], TripMode::Drive, map)
-                        .and_then(|req| map.pathfind_with_params(req, &params, cache_custom).ok())
+                        .and_then(|req| {
+                            map.pathfind_with_params(req, &params, PathfinderCaching::CacheDijkstra)
+                                .ok()
+                        })
                         .and_then(|path| path.trace(map).map(|pl| (path, pl)))
                 {
                     let shape = pl.make_polygons(5.0 * NORMAL_LANE_THICKNESS);
@@ -172,11 +174,13 @@ impl RoutePlanner {
             let color = Color::BLUE;
             let mut params = map.routing_params().clone();
             params.main_road_penalty = app.session.main_road_penalty;
-            let cache_custom = true;
             for pair in self.waypoints.get_waypoints().windows(2) {
                 if let Some((path, pl)) =
                     TripEndpoint::path_req(pair[0], pair[1], TripMode::Drive, map)
-                        .and_then(|req| map.pathfind_with_params(req, &params, cache_custom).ok())
+                        .and_then(|req| {
+                            map.pathfind_with_params(req, &params, PathfinderCaching::CacheDijkstra)
+                                .ok()
+                        })
                         .and_then(|path| path.trace(map).map(|pl| (path, pl)))
                 {
                     let shape = pl.make_polygons(5.0 * NORMAL_LANE_THICKNESS);
