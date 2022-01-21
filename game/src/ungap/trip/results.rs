@@ -2,7 +2,7 @@ use std::cmp::Ordering;
 
 use geom::{Circle, Distance, Duration, FindClosest, PolyLine, Polygon};
 use map_gui::tools::{cmp_dist, cmp_duration, PopupMsg};
-use map_model::{Path, PathStep, NORMAL_LANE_THICKNESS};
+use map_model::{DrivingSide, Path, PathStep, NORMAL_LANE_THICKNESS};
 use sim::{TripEndpoint, TripMode};
 use widgetry::mapspace::{ToggleZoomed, ToggleZoomedBuilder};
 use widgetry::{
@@ -373,6 +373,12 @@ fn make_detail_widget(
         ((stats.dist_along_high_stress_roads / stats.total_distance) * 100.0).round()
     };
 
+    let unprotected_turn = if app.primary.map.get_config().driving_side == DrivingSide::Right {
+        "left"
+    } else {
+        "right"
+    };
+
     Widget::col(vec![
         Line("Route details").small_heading().into_widget(ctx),
         before_after_button(ctx, app),
@@ -417,10 +423,13 @@ fn make_detail_widget(
                 .build_widget(ctx, "traffic signals"),
         ]),
         Widget::row(vec![
-            Line("Unprotected left turns onto busy roads: ")
-                .secondary()
-                .into_widget(ctx)
-                .centered_vert(),
+            Line(format!(
+                "Unprotected {} turns onto busy roads: ",
+                unprotected_turn
+            ))
+            .secondary()
+            .into_widget(ctx)
+            .centered_vert(),
             ctx.style()
                 .btn_plain
                 .btn()
