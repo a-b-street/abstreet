@@ -113,7 +113,7 @@ impl Tab {
         })
     }
 
-    fn switch_to_state(self, ctx: &mut EventCtx, app: &App, id: NeighborhoodID) -> Transition {
+    fn switch_to_state(self, ctx: &mut EventCtx, app: &mut App, id: NeighborhoodID) -> Transition {
         Transition::Replace(match self {
             Tab::Connectivity => super::connectivity::Viewer::new_state(ctx, app, id),
             Tab::RatRuns => super::rat_run_viewer::BrowseRatRuns::new_state(ctx, app, id),

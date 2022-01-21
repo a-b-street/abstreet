@@ -1,25 +1,38 @@
 use std::collections::{BTreeMap, HashSet};
+use std::marker::PhantomData;
 
 use serde::{Deserialize, Serialize};
 
 use abstutil::Timer;
-use map_gui::tools::{grey_out_map, ChooseSomething};
 use sim::TripEndpoint;
 use widgetry::{
     Choice, Color, EventCtx, GfxCtx, Key, Line, Panel, SimpleState, State, Text, TextBox, TextExt,
-    Widget,
+    Transition, Widget,
 };
 
-use crate::app::{App, Transition};
-use crate::ungap::trip::TripPlanner;
+use crate::tools::{grey_out_map, ChooseSomething};
+use crate::AppLike;
 
 /// Save sequences of waypoints as named trips. Basic file management -- save, load, browse. This
 /// is useful to define "test cases," then edit the bike network and "run the tests" to compare
 /// results.
-pub struct TripManagement {
+pub struct TripManagement<A: AppLike + 'static, S: TripManagementState<A>> {
     pub current: NamedTrip,
     // We assume the file won't change out from beneath us
     all: SavedTrips,
+
+    app_type: PhantomData<A>,
+    state_type: PhantomData<S>,
+}
+
+pub trait TripManagementState<A: AppLike + 'static>: State<A> {
+    fn mut_files(&mut self) -> &mut TripManagement<A, Self>
+    where
+        Self: Sized;
+    fn app_session_current_trip_name(app: &mut A) -> &mut Option<String>
+    where
+        Self: Sized;
+    fn sync_from_file_management(&mut self, ctx: &mut EventCtx, app: &mut A);
 }
 
 #[derive(Clone, PartialEq, Serialize, Deserialize)]
@@ -34,9 +47,9 @@ struct SavedTrips {
 }
 
 impl SavedTrips {
-    fn load(app: &App) -> SavedTrips {
+    fn load(app: &dyn AppLike) -> SavedTrips {
         abstio::maybe_read_json::<SavedTrips>(
-            abstio::path_trips(app.primary.map.get_name()),
+            abstio::path_trips(app.map().get_name()),
             &mut Timer::throwaway(),
         )
         .unwrap_or_else(|_| SavedTrips {
@@ -44,8 +57,9 @@ impl SavedTrips {
         })
     }
 
-    fn save(&self, app: &App) {
-        abstio::write_json(abstio::path_trips(app.primary.map.get_name()), self);
+    // TODO This is now shared between Ungap the Map and the LTN tool. Is that weird?
+    fn save(&self, app: &dyn AppLike) {
+        abstio::write_json(abstio::path_trips(app.map().get_name()), self);
     }
 
     fn prev(&self, current: &str) -> Option<&NamedTrip> {
@@ -87,8 +101,8 @@ impl SavedTrips {
     }
 }
 
-impl TripManagement {
-    pub fn new(app: &App) -> TripManagement {
+impl<A: AppLike + 'static, S: TripManagementState<A>> TripManagement<A, S> {
+    pub fn new(app: &A) -> TripManagement<A, S> {
         let all = SavedTrips::load(app);
         let current = all
             .trips
@@ -99,7 +113,12 @@ impl TripManagement {
                 name: all.new_name(),
                 waypoints: Vec::new(),
             });
-        TripManagement { all, current }
+        TripManagement {
+            all,
+            current,
+            app_type: PhantomData,
+            state_type: PhantomData,
+        }
     }
 
     pub fn get_panel_widget(&self, ctx: &mut EventCtx) -> Widget {
@@ -143,7 +162,7 @@ impl TripManagement {
     }
 
     /// saves iff current trip is changed.
-    pub fn autosave(&mut self, app: &mut App) {
+    pub fn autosave(&mut self, app: &mut A) {
         match self.all.trips.get(&self.current.name) {
             None if self.current.waypoints.is_empty() => return,
             Some(existing) if existing == &self.current => return,
@@ -166,9 +185,9 @@ impl TripManagement {
     pub fn on_click(
         &mut self,
         ctx: &mut EventCtx,
-        app: &mut App,
+        app: &mut A,
         action: &str,
-    ) -> Option<Transition> {
+    ) -> Option<Transition<A>> {
         match action {
             "Delete" => {
                 if self.all.trips.remove(&self.current.name).is_some() {
@@ -192,7 +211,7 @@ impl TripManagement {
                     name: self.all.new_name(),
                     waypoints: Vec::new(),
                 };
-                app.session.ungap_current_trip_name = None;
+                *S::app_session_current_trip_name(app) = None;
                 Some(Transition::Keep)
             }
             "Load another trip" => Some(Transition::Push(ChooseSomething::new_state(
@@ -203,9 +222,10 @@ impl TripManagement {
                     Transition::Multi(vec![
                         Transition::Pop,
                         Transition::ModifyState(Box::new(move |state, ctx, app| {
-                            let state = state.downcast_mut::<TripPlanner>().unwrap();
-                            state.files.current = state.files.all.trips[&choice].clone();
-                            state.files.save_current_trip_to_session(app);
+                            let state = state.downcast_mut::<S>().unwrap();
+                            let files = state.mut_files();
+                            files.current = files.all.trips[&choice].clone();
+                            files.save_current_trip_to_session(app);
                             state.sync_from_file_management(ctx, app);
                         })),
                     ])
@@ -221,7 +241,7 @@ impl TripManagement {
                 self.save_current_trip_to_session(app);
                 Some(Transition::Keep)
             }
-            "rename trip" => Some(Transition::Push(RenameTrip::new_state(
+            "rename trip" => Some(Transition::Push(RenameTrip::<A, S>::new_state(
                 ctx,
                 &self.current,
                 &self.all,
@@ -230,20 +250,24 @@ impl TripManagement {
         }
     }
 
-    fn save_current_trip_to_session(&self, app: &mut App) {
-        if app.session.ungap_current_trip_name.as_ref() != Some(&self.current.name) {
-            app.session.ungap_current_trip_name = Some(self.current.name.clone());
+    fn save_current_trip_to_session(&self, app: &mut A) {
+        let name = S::app_session_current_trip_name(app);
+        if name.as_ref() != Some(&self.current.name) {
+            *name = Some(self.current.name.clone());
         }
     }
 }
 
-struct RenameTrip {
+struct RenameTrip<A: AppLike + 'static, S: TripManagementState<A>> {
     current_name: String,
     all_names: HashSet<String>,
+
+    app_type: PhantomData<A>,
+    state_type: PhantomData<dyn TripManagementState<S>>,
 }
 
-impl RenameTrip {
-    fn new_state(ctx: &mut EventCtx, current: &NamedTrip, all: &SavedTrips) -> Box<dyn State<App>> {
+impl<A: AppLike + 'static, S: TripManagementState<A>> RenameTrip<A, S> {
+    fn new_state(ctx: &mut EventCtx, current: &NamedTrip, all: &SavedTrips) -> Box<dyn State<A>> {
         let panel = Panel::new_builder(Widget::col(vec![
             Widget::row(vec![
                 Line("Name this trip").small_heading().into_widget(ctx),
@@ -261,18 +285,19 @@ impl RenameTrip {
                 .build_def(ctx),
         ]))
         .build(ctx);
-        <dyn SimpleState<_>>::new_state(
-            panel,
-            Box::new(RenameTrip {
-                current_name: current.name.clone(),
-                all_names: all.trips.keys().cloned().collect(),
-            }),
-        )
+        let state: RenameTrip<A, S> = RenameTrip {
+            current_name: current.name.clone(),
+            all_names: all.trips.keys().cloned().collect(),
+
+            app_type: PhantomData,
+            state_type: PhantomData,
+        };
+        <dyn SimpleState<_>>::new_state(panel, Box::new(state))
     }
 }
 
-impl SimpleState<App> for RenameTrip {
-    fn on_click(&mut self, _: &mut EventCtx, _: &mut App, x: &str, panel: &Panel) -> Transition {
+impl<A: AppLike + 'static, S: TripManagementState<A>> SimpleState<A> for RenameTrip<A, S> {
+    fn on_click(&mut self, _: &mut EventCtx, _: &mut A, x: &str, panel: &Panel) -> Transition<A> {
         match x {
             "close" => Transition::Pop,
             "Rename" => {
@@ -281,16 +306,13 @@ impl SimpleState<App> for RenameTrip {
                 Transition::Multi(vec![
                     Transition::Pop,
                     Transition::ModifyState(Box::new(move |state, ctx, app| {
-                        let state = state.downcast_mut::<TripPlanner>().unwrap();
-                        state.files.all.trips.remove(&old_name);
-                        state.files.current.name = new_name.clone();
-                        app.session.ungap_current_trip_name = Some(new_name.clone());
-                        state
-                            .files
-                            .all
-                            .trips
-                            .insert(new_name, state.files.current.clone());
-                        state.files.all.save(app);
+                        let state = state.downcast_mut::<S>().unwrap();
+                        let files = state.mut_files();
+                        files.all.trips.remove(&old_name);
+                        files.current.name = new_name.clone();
+                        *S::app_session_current_trip_name(app) = Some(new_name.clone());
+                        files.all.trips.insert(new_name, files.current.clone());
+                        files.all.save(app);
                         state.sync_from_file_management(ctx, app);
                     })),
                 ])
@@ -302,9 +324,9 @@ impl SimpleState<App> for RenameTrip {
     fn panel_changed(
         &mut self,
         ctx: &mut EventCtx,
-        _: &mut App,
+        _: &mut A,
         panel: &mut Panel,
-    ) -> Option<Transition> {
+    ) -> Option<Transition<A>> {
         let new_name = panel.text_box("name");
         let can_save = if new_name != self.current_name && self.all_names.contains(&new_name) {
             panel.replace(
@@ -332,7 +354,7 @@ impl SimpleState<App> for RenameTrip {
         None
     }
 
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
+    fn draw(&self, g: &mut GfxCtx, app: &A) {
         grey_out_map(g, app);
     }
 }

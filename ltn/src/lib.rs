@@ -51,6 +51,8 @@ fn run(mut settings: Settings) {
             draw_borders_as_arrows: true,
             heuristic: auto::Heuristic::OnlyOneBorder,
             main_road_penalty: 1.0,
+
+            current_trip_name: None,
         };
         map_gui::SimpleApp::new(ctx, opts, session, |ctx, app| {
             vec![
@@ -94,4 +96,6 @@ pub struct Session {
     pub heuristic: auto::Heuristic,
     // Pathfinding
     pub main_road_penalty: f64,
+
+    current_trip_name: Option<String>,
 }

@@ -16,6 +16,7 @@ pub use self::labels::DrawRoadLabels;
 pub use self::minimap::{Minimap, MinimapControls};
 pub use self::navigate::Navigator;
 pub use self::title_screen::{Executable, TitleScreen};
+pub use self::trip_files::{TripManagement, TripManagementState};
 pub use self::turn_explorer::TurnExplorer;
 pub use self::ui::{
     cmp_dist, cmp_duration, percentage_bar, ChooseSomething, FilePicker, PopupMsg, PromptInput,
@@ -42,6 +43,7 @@ mod labels;
 mod minimap;
 mod navigate;
 mod title_screen;
+mod trip_files;
 mod turn_explorer;
 mod ui;
 #[cfg(not(target_arch = "wasm32"))]

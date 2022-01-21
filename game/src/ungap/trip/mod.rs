@@ -1,4 +1,4 @@
-use map_gui::tools::{InputWaypoints, WaypointID};
+use map_gui::tools::{InputWaypoints, TripManagement, TripManagementState, WaypointID};
 use map_model::RoutingParams;
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::{
@@ -9,7 +9,6 @@ use self::results::RouteDetails;
 use crate::app::{App, Transition};
 use crate::ungap::{Layers, Tab, TakeLayers};
 
-mod files;
 mod results;
 
 pub struct TripPlanner {
@@ -18,7 +17,7 @@ pub struct TripPlanner {
     input_panel: Panel,
     waypoints: InputWaypoints,
     main_route: RouteDetails,
-    files: files::TripManagement,
+    files: TripManagement<App, TripPlanner>,
     // TODO We really only need to store preferences and stats, but...
     alt_routes: Vec<RouteDetails>,
     world: World<ID>,
@@ -27,6 +26,22 @@ pub struct TripPlanner {
 impl TakeLayers for TripPlanner {
     fn take_layers(self) -> Layers {
         self.layers
+    }
+}
+
+impl TripManagementState<App> for TripPlanner {
+    fn mut_files(&mut self) -> &mut TripManagement<App, Self> {
+        &mut self.files
+    }
+
+    fn app_session_current_trip_name(app: &mut App) -> &mut Option<String> {
+        &mut app.session.ungap_current_trip_name
+    }
+
+    fn sync_from_file_management(&mut self, ctx: &mut EventCtx, app: &mut App) {
+        self.waypoints
+            .overwrite(app, self.files.current.waypoints.clone());
+        self.recalculate_routes(ctx, app);
     }
 }
 
@@ -50,7 +65,7 @@ impl TripPlanner {
             input_panel: Panel::empty(ctx),
             waypoints: InputWaypoints::new(app),
             main_route: RouteDetails::main_route(ctx, app, Vec::new()).details,
-            files: files::TripManagement::new(app),
+            files: TripManagement::new(app),
             alt_routes: Vec::new(),
             world: World::bounded(app.primary.map.get_bounds()),
         };
@@ -64,6 +79,10 @@ impl TripPlanner {
 
     // Use the current session settings to determine "main" and alts
     fn recalculate_routes(&mut self, ctx: &mut EventCtx, app: &mut App) {
+        self.files.autosave(app);
+        // This doesn't depend on the alt routes, so just do it here
+        self.update_input_panel(ctx, app, main_route.details_widget);
+
         let mut world = World::bounded(app.primary.map.get_bounds());
 
         let main_route = RouteDetails::main_route(ctx, app, self.waypoints.get_waypoints());
@@ -74,10 +93,6 @@ impl TripPlanner {
             .zorder(1)
             .draw(main_route.draw)
             .build(ctx);
-
-        self.files.autosave(app);
-        // This doesn't depend on the alt routes, so just do it here
-        self.update_input_panel(ctx, app, main_route.details_widget);
 
         self.alt_routes.clear();
         // Just show one alternate trip by default, unless the user enables one checkbox but not
@@ -162,12 +177,6 @@ impl TripPlanner {
         // registers as clicking "X" on the waypoints! Maybe just replace() in that case?
         new_panel.restore_scroll(ctx, &self.input_panel);
         self.input_panel = new_panel;
-    }
-
-    fn sync_from_file_management(&mut self, ctx: &mut EventCtx, app: &mut App) {
-        self.waypoints
-            .overwrite(app, self.files.current.waypoints.clone());
-        self.recalculate_routes(ctx, app);
     }
 }
 

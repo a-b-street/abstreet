@@ -1,5 +1,7 @@
 use geom::{Distance, Duration};
-use map_gui::tools::{cmp_dist, cmp_duration, InputWaypoints, WaypointID};
+use map_gui::tools::{
+    cmp_dist, cmp_duration, InputWaypoints, TripManagement, TripManagementState, WaypointID,
+};
 use map_model::NORMAL_LANE_THICKNESS;
 use sim::{TripEndpoint, TripMode};
 use widgetry::mapspace::{ObjectID, ToggleZoomed, World};
@@ -14,10 +16,27 @@ use crate::{App, Transition};
 pub struct RoutePlanner {
     panel: Panel,
     waypoints: InputWaypoints,
+    files: TripManagement<App, RoutePlanner>,
     world: World<Obj>,
     draw_routes: ToggleZoomed,
 
     neighborhood: Neighborhood,
+}
+
+impl TripManagementState<App> for RoutePlanner {
+    fn mut_files(&mut self) -> &mut TripManagement<App, Self> {
+        &mut self.files
+    }
+
+    fn app_session_current_trip_name(app: &mut App) -> &mut Option<String> {
+        &mut app.session.current_trip_name
+    }
+
+    fn sync_from_file_management(&mut self, ctx: &mut EventCtx, app: &mut App) {
+        self.waypoints
+            .overwrite(app, self.files.current.waypoints.clone());
+        self.update_everything(ctx, app);
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
@@ -28,22 +47,34 @@ enum Obj {
 impl ObjectID for Obj {}
 
 impl RoutePlanner {
-    pub fn new_state(ctx: &mut EventCtx, app: &App, id: NeighborhoodID) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &mut App, id: NeighborhoodID) -> Box<dyn State<App>> {
         let neighborhood = Neighborhood::new(ctx, app, id);
 
         let mut rp = RoutePlanner {
             panel: Panel::empty(ctx),
             waypoints: InputWaypoints::new(app),
+            files: TripManagement::new(app),
             world: World::unbounded(),
             draw_routes: ToggleZoomed::empty(ctx),
             neighborhood,
         };
-        rp.update(ctx, app);
+
+        if let Some(current_name) = &app.session.current_trip_name {
+            rp.files.set_current(current_name);
+        }
+        rp.sync_from_file_management(ctx, app);
+
         Box::new(rp)
     }
 
-    fn update(&mut self, ctx: &mut EventCtx, app: &App) {
+    // Updates the panel and draw_routes
+    fn update_everything(&mut self, ctx: &mut EventCtx, app: &mut App) {
+        self.files.autosave(app);
+        let results_widget = self.recalculate_paths(ctx, app);
+
         let contents = Widget::col(vec![
+            self.files.get_panel_widget(ctx),
+            Widget::horiz_separator(ctx, 1.0),
             self.waypoints.get_panel_widget(ctx),
             Widget::row(vec![
                 Line("Slow-down factor for main roads:")
@@ -62,7 +93,7 @@ impl RoutePlanner {
                 Line("Increase to see how vehicles may try to detour in heavy traffic").secondary(),
             ])
             .into_widget(ctx),
-            Text::new().into_widget(ctx).named("results"),
+            results_widget,
         ]);
         let mut panel = Tab::Pathfinding
             .panel_builder(ctx, app, contents)
@@ -86,12 +117,10 @@ impl RoutePlanner {
         world.initialize_hover(ctx);
         world.rebuilt_during_drag(&self.world);
         self.world = world;
-
-        self.recalculate_paths(ctx, app);
     }
 
-    // Updates the panel and draw_routes
-    fn recalculate_paths(&mut self, ctx: &mut EventCtx, app: &App) {
+    // Returns a widget to display
+    fn recalculate_paths(&mut self, ctx: &mut EventCtx, app: &App) -> Widget {
         let map = &app.map;
         let mut results = Text::new();
         let mut draw = ToggleZoomed::builder();
@@ -190,8 +219,7 @@ impl RoutePlanner {
         }
 
         self.draw_routes = draw.build(ctx);
-        let label = results.into_widget(ctx);
-        self.panel.replace(ctx, "results", label);
+        results.into_widget(ctx)
     }
 }
 
@@ -206,7 +234,7 @@ impl State<App> for RoutePlanner {
         }) {
             if super::per_neighborhood::handle_world_outcome(ctx, app, outcome) {
                 self.neighborhood = Neighborhood::new(ctx, app, self.neighborhood.id);
-                self.update(ctx, app);
+                self.update_everything(ctx, app);
                 return Transition::Keep;
             }
             // Fall through. Clicking free space and other ID-less outcomes will match here, but we
@@ -222,13 +250,20 @@ impl State<App> for RoutePlanner {
             if let Some(t) = Tab::Pathfinding.handle_action(ctx, app, x, self.neighborhood.id) {
                 return t;
             }
+            if let Some(t) = self.files.on_click(ctx, app, x) {
+                // Bit hacky...
+                if matches!(t, Transition::Keep) {
+                    self.sync_from_file_management(ctx, app);
+                }
+                return t;
+            }
         }
 
         if let Outcome::Changed(ref x) = panel_outcome {
             if x == "main road penalty" {
                 app.session.main_road_penalty =
                     self.panel.spinner::<RoundedF64>("main road penalty").0;
-                self.recalculate_paths(ctx, app);
+                self.update_everything(ctx, app);
             }
         }
 
@@ -236,7 +271,10 @@ impl State<App> for RoutePlanner {
             .waypoints
             .event(app, panel_outcome, world_outcome_for_waypoints)
         {
-            self.update(ctx, app);
+            // Sync from waypoints to file management
+            // TODO Maaaybe this directly live in the InputWaypoints system?
+            self.files.current.waypoints = self.waypoints.get_waypoints();
+            self.update_everything(ctx, app);
         }
 
         Transition::Keep
