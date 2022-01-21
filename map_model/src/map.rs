@@ -16,8 +16,8 @@ use crate::{
     CompressedMovementID, ControlStopSign, ControlTrafficSignal, DirectedRoadID, Direction,
     Intersection, IntersectionID, Lane, LaneID, LaneType, Map, MapEdits, Movement, MovementID,
     OffstreetParking, ParkingLot, ParkingLotID, Path, PathConstraints, PathRequest, PathV2,
-    Pathfinder, Position, Road, RoadID, RoutingParams, TransitRoute, TransitRouteID, TransitStop,
-    TransitStopID, Turn, TurnID, TurnType, Zone,
+    Pathfinder, PathfinderCaching, Position, Road, RoadID, RoutingParams, TransitRoute,
+    TransitRouteID, TransitStop, TransitStopID, Turn, TurnID, TurnType, Zone,
 };
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -572,7 +572,7 @@ impl Map {
         &self,
         req: PathRequest,
         params: &RoutingParams,
-        cache_custom: bool,
+        cache_custom: PathfinderCaching,
     ) -> Result<Path> {
         self.pathfind_v2_with_params(req, params, cache_custom)?
             .into_v1(self)
@@ -587,7 +587,7 @@ impl Map {
         &self,
         req: PathRequest,
         params: &RoutingParams,
-        cache_custom: bool,
+        cache_custom: PathfinderCaching,
     ) -> Result<PathV2> {
         assert!(!self.pathfinder_dirty);
         self.pathfinder

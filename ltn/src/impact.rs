@@ -2,7 +2,7 @@ use abstio::MapName;
 use abstutil::{prettyprint_usize, Counter, Timer};
 use map_gui::load::FileLoader;
 use map_gui::tools::{cmp_count, ColorScale, DivergingScale};
-use map_model::{IntersectionID, Map, PathRequest, PathStepV2, RoadID};
+use map_model::{IntersectionID, Map, PathRequest, PathStepV2, PathfinderCaching, RoadID};
 use sim::{Scenario, TripEndpoint, TripMode};
 use widgetry::mapspace::{ObjectID, ToggleZoomed, World};
 use widgetry::{
@@ -131,12 +131,11 @@ impl Results {
         self.after_intersection_counts = Counter::new();
         let mut params = map.routing_params().clone();
         app.session.modal_filters.update_routing_params(&mut params);
-        let cache_custom = true;
         for path in timer
             .parallelize(
                 "calculate routes after filters",
                 self.all_driving_trips.clone(),
-                |req| map.pathfind_v2_with_params(req, &params, cache_custom),
+                |req| map.pathfind_v2_with_params(req, &params, PathfinderCaching::CacheDijkstra),
             )
             .into_iter()
             .flatten()

@@ -2,7 +2,7 @@ use std::cmp::Ordering;
 
 use geom::{Circle, Distance, Duration, FindClosest, PolyLine, Polygon};
 use map_gui::tools::{cmp_dist, cmp_duration, PopupMsg};
-use map_model::{DrivingSide, Path, PathStep, NORMAL_LANE_THICKNESS};
+use map_model::{DrivingSide, Path, PathStep, PathfinderCaching, NORMAL_LANE_THICKNESS};
 use sim::{TripEndpoint, TripMode};
 use widgetry::mapspace::{ToggleZoomed, ToggleZoomedBuilder};
 use widgetry::{
@@ -121,7 +121,10 @@ impl RouteDetails {
 
         for pair in waypoints.windows(2) {
             if let Some(path) = TripEndpoint::path_req(pair[0], pair[1], TripMode::Bike, map)
-                .and_then(|req| map.pathfind_with_params(req, &routing_params, true).ok())
+                .and_then(|req| {
+                    map.pathfind_with_params(req, &routing_params, PathfinderCaching::CacheDijkstra)
+                        .ok()
+                })
             {
                 total_distance += path.total_length();
                 total_time += path.estimate_duration(map, Some(map_model::MAX_BIKE_SPEED));
