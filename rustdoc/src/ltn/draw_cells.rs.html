@@ -284,6 +284,19 @@
 <span id="283">283</span>
 <span id="284">284</span>
 <span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">Polygon</span>};
@@ -321,6 +334,8 @@
     <span class="ident">colors</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Color</span><span class="op">&gt;</span>,
     <span class="doccomment">/// Bounds of the neighborhood boundary polygon</span>
     <span class="ident">bounds</span>: <span class="ident">Bounds</span>,
+
+    <span class="ident">boundary_polygon</span>: <span class="ident">Polygon</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">RenderCells</span> {
@@ -408,8 +423,9 @@
         <span class="comment">// the area. The grid covers the rectangular bounds of the polygon. Rather than make an</span>
         <span class="comment">// enum with 3 cases, just assign a new index to mean &quot;boundary.&quot;</span>
         <span class="kw">let</span> <span class="ident">boundary_marker</span> <span class="op">=</span> <span class="ident">neighborhood</span>.<span class="ident">cells</span>.<span class="ident">len</span>();
-        <span class="kw">for</span> (<span class="ident">pt</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">geom::PolyLine::unchecked_new</span>(<span class="ident">boundary_polygon</span>.<span class="ident">into_ring</span>().<span class="ident">into_points</span>())
-            .<span class="ident">step_along</span>(<span class="ident">Distance::meters</span>(<span class="ident">RESOLUTION_M</span> <span class="op">/</span> <span class="number">2.0</span>), <span class="ident">Distance::ZERO</span>)
+        <span class="kw">for</span> (<span class="ident">pt</span>, <span class="kw">_</span>) <span class="kw">in</span>
+            <span class="ident">geom::PolyLine::unchecked_new</span>(<span class="ident">boundary_polygon</span>.<span class="ident">clone</span>().<span class="ident">into_ring</span>().<span class="ident">into_points</span>())
+                .<span class="ident">step_along</span>(<span class="ident">Distance::meters</span>(<span class="ident">RESOLUTION_M</span> <span class="op">/</span> <span class="number">2.0</span>), <span class="ident">Distance::ZERO</span>)
         {
             <span class="comment">// TODO Refactor helpers to transform between map-space and the grid tiles. Possibly</span>
             <span class="comment">// Grid should know about this.</span>
@@ -436,6 +452,8 @@
             <span class="ident">grid</span>,
             <span class="ident">colors</span>: <span class="ident">cell_colors</span>,
             <span class="ident">bounds</span>,
+
+            <span class="ident">boundary_polygon</span>,
         }
     }
 
@@ -488,7 +506,15 @@
                     <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
                 }
             }
-            <span class="ident">result</span>.<span class="ident">polygons_per_cell</span>.<span class="ident">push</span>(<span class="ident">cell_polygons</span>);
+
+            <span class="comment">// Sometimes one cell &quot;leaks&quot; out of the neighborhood boundary. Not sure why. But we</span>
+            <span class="comment">// can just clip the result.</span>
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">clipped</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+            <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="ident">cell_polygons</span> {
+                <span class="ident">clipped</span>.<span class="ident">extend</span>(<span class="ident">p</span>.<span class="ident">intersection</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">boundary_polygon</span>));
+            }
+
+            <span class="ident">result</span>.<span class="ident">polygons_per_cell</span>.<span class="ident">push</span>(<span class="ident">clipped</span>);
             <span class="ident">result</span>.<span class="ident">colors</span>.<span class="ident">push</span>(<span class="ident">color</span>);
         }
 
