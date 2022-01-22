@@ -35,6 +35,8 @@ struct RenderCellsBuilder {
     colors: Vec<Color>,
     /// Bounds of the neighborhood boundary polygon
     bounds: Bounds,
+
+    boundary_polygon: Polygon,
 }
 
 impl RenderCells {
@@ -122,8 +124,9 @@ impl RenderCellsBuilder {
         // the area. The grid covers the rectangular bounds of the polygon. Rather than make an
         // enum with 3 cases, just assign a new index to mean "boundary."
         let boundary_marker = neighborhood.cells.len();
-        for (pt, _) in geom::PolyLine::unchecked_new(boundary_polygon.into_ring().into_points())
-            .step_along(Distance::meters(RESOLUTION_M / 2.0), Distance::ZERO)
+        for (pt, _) in
+            geom::PolyLine::unchecked_new(boundary_polygon.clone().into_ring().into_points())
+                .step_along(Distance::meters(RESOLUTION_M / 2.0), Distance::ZERO)
         {
             // TODO Refactor helpers to transform between map-space and the grid tiles. Possibly
             // Grid should know about this.
@@ -150,6 +153,8 @@ impl RenderCellsBuilder {
             grid,
             colors: cell_colors,
             bounds,
+
+            boundary_polygon,
         }
     }
 
@@ -202,7 +207,15 @@ impl RenderCellsBuilder {
                     _ => unreachable!(),
                 }
             }
-            result.polygons_per_cell.push(cell_polygons);
+
+            // Sometimes one cell "leaks" out of the neighborhood boundary. Not sure why. But we
+            // can just clip the result.
+            let mut clipped = Vec::new();
+            for p in cell_polygons {
+                clipped.extend(p.intersection(&self.boundary_polygon));
+            }
+
+            result.polygons_per_cell.push(clipped);
             result.colors.push(color);
         }
 
