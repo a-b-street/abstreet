@@ -6,8 +6,8 @@ use map_gui::tools::{CityPicker, DrawRoadLabels, Navigator, PopupMsg, URLManager
 use sim::Scenario;
 use widgetry::mapspace::{ToggleZoomed, World, WorldOutcome};
 use widgetry::{
-    Line, Text, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, State, TextExt,
-    Toggle, VerticalAlignment, Widget,
+    Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, Text,
+    TextExt, Toggle, VerticalAlignment, Widget,
 };
 
 use super::{Neighborhood, NeighborhoodID, Partitioning};
@@ -69,7 +69,7 @@ impl BrowseNeighborhoods {
                 .text("Export to GeoJSON")
                 .build_def(ctx),
             Widget::col(vec![
-                "Predict proposal impact".text_widget(ctx),
+                "Predict proposal impact (experimental)".text_widget(ctx),
                 impact_widget(ctx, app),
             ])
             .section(ctx),
