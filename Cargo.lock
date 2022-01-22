@@ -2119,6 +2119,7 @@ dependencies = [
  "abstio",
  "abstutil",
  "anyhow",
+ "contour",
  "fs-err",
  "geo",
  "geojson",

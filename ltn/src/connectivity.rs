@@ -150,7 +150,7 @@ fn make_world(ctx: &mut EventCtx, app: &App, neighborhood: &Neighborhood) -> Wor
 
     let render_cells = super::draw_cells::RenderCells::new(map, neighborhood);
     if app.session.draw_cells_as_areas {
-        world.draw_master_batch(ctx, render_cells.draw_grid());
+        world.draw_master_batch(ctx, render_cells.draw());
     } else {
         let mut draw = GeomBatch::new();
         for (idx, cell) in neighborhood.cells.iter().enumerate() {

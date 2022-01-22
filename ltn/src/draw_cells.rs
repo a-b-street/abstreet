@@ -1,7 +1,6 @@
 use std::collections::{HashSet, VecDeque};
 
-use abstutil::Timer;
-use geom::{Bounds, Distance, Polygon, Pt2D};
+use geom::{Bounds, Distance, Polygon};
 use map_gui::tools::Grid;
 use map_model::Map;
 use widgetry::{Color, GeomBatch};
@@ -24,21 +23,52 @@ const DISCONNECTED_COLOR: Color = Color::RED;
 const RESOLUTION_M: f64 = 10.0;
 
 pub struct RenderCells {
+    polygons_per_cell: Vec<Vec<Polygon>>,
+    /// Colors per cell, such that adjacent cells are colored differently
+    pub colors: Vec<Color>,
+}
+
+struct RenderCellsBuilder {
     /// The grid only covers the boundary polygon of the neighborhood. The values are cell indices,
     /// and `Some(num_cells)` marks the boundary of the neighborhood.
     grid: Grid<Option<usize>>,
-    /// Colors per cell, such that adjacent cells are colored differently
-    pub colors: Vec<Color>,
+    colors: Vec<Color>,
     /// Bounds of the neighborhood boundary polygon
     bounds: Bounds,
-    /// The number of cells, used as a sentinel value in the grid
-    boundary_marker: usize,
 }
 
-/// Partition a neighborhood's boundary polygon based on the cells. This discretizes
-/// space into a grid, so the results don't look perfect, but it's fast.
 impl RenderCells {
+    /// Partition a neighborhood's boundary polygon based on the cells. This discretizes space into
+    /// a grid, and then extracts a polygon from the raster. The results don't look perfect, but
+    /// it's fast.
     pub fn new(map: &Map, neighborhood: &Neighborhood) -> RenderCells {
+        RenderCellsBuilder::new(map, neighborhood).finalize()
+    }
+
+    // TODO It'd look nicer to render the cells "underneath" the roads and intersections, at the
+    // layer where areas are shown now
+    pub fn draw(&self) -> GeomBatch {
+        let mut batch = GeomBatch::new();
+        for (color, polygons) in self.colors.iter().zip(self.polygons_per_cell.iter()) {
+            for poly in polygons {
+                batch.push(color.alpha(0.5), poly.clone());
+            }
+        }
+        batch
+    }
+
+    /// Per cell, convert all polygons to a `geo::MultiPolygon`. Leave the coordinate system as map-space.
+    pub fn to_multipolygons(&self) -> Vec<geo::MultiPolygon<f64>> {
+        self.polygons_per_cell
+            .clone()
+            .into_iter()
+            .map(Polygon::union_all_into_multipolygon)
+            .collect()
+    }
+}
+
+impl RenderCellsBuilder {
+    fn new(map: &Map, neighborhood: &Neighborhood) -> RenderCellsBuilder {
         let boundary_polygon = neighborhood
             .orig_perimeter
             .clone()
@@ -116,71 +146,67 @@ impl RenderCells {
             }
         }
 
-        RenderCells {
+        RenderCellsBuilder {
             grid,
             colors: cell_colors,
             bounds,
-            boundary_marker,
         }
     }
 
-    /// Just draw rectangles based on the grid
-    pub fn draw_grid(&self) -> GeomBatch {
-        // TODO We should be able to generate actual polygons per cell using the contours crate
-        // TODO Also it'd look nicer to render this "underneath" the roads and intersections, at the
-        // layer where areas are shown now
-        let mut batch = GeomBatch::new();
-        for (idx, value) in self.grid.data.iter().enumerate() {
-            if let Some(cell_idx) = value {
-                if *cell_idx == self.boundary_marker {
-                    continue;
-                }
-                let (x, y) = self.grid.xy(idx);
-                let tile_center = Pt2D::new(
-                    self.bounds.min_x + RESOLUTION_M * (x as f64 + 0.5),
-                    self.bounds.min_y + RESOLUTION_M * (y as f64 + 0.5),
-                );
-                batch.push(
-                    self.colors[*cell_idx].alpha(0.5),
-                    Polygon::rectangle_centered(
-                        tile_center,
-                        Distance::meters(RESOLUTION_M),
-                        Distance::meters(RESOLUTION_M),
-                    ),
-                );
-            }
-        }
-        batch
-    }
+    fn finalize(self) -> RenderCells {
+        let mut result = RenderCells {
+            polygons_per_cell: Vec::new(),
+            colors: Vec::new(),
+        };
 
-    /// Per cell, glue together all of the rectangles into a single multipolygon
-    pub fn to_multipolygons(&self, timer: &mut Timer) -> Vec<geo::MultiPolygon<f64>> {
-        let mut polygons_per_cell: Vec<Vec<Polygon>> = std::iter::repeat_with(Vec::new)
-            .take(self.boundary_marker)
-            .collect();
-        for (idx, value) in self.grid.data.iter().enumerate() {
-            if let Some(cell_idx) = value {
-                if *cell_idx == self.boundary_marker {
-                    continue;
+        for (idx, color) in self.colors.into_iter().enumerate() {
+            // contour will find where the grid is >= a threshold value. The main grid has one
+            // number per cell, so we can't directly use it -- the area >= some cell index is
+            // meaningless. Per cell, make a new grid that just has that cell.
+            let grid: Grid<f64> = Grid {
+                width: self.grid.width,
+                height: self.grid.height,
+                data: self
+                    .grid
+                    .data
+                    .iter()
+                    .map(
+                        |maybe_cell| {
+                            if maybe_cell == &Some(idx) {
+                                1.0
+                            } else {
+                                0.0
+                            }
+                        },
+                    )
+                    .collect(),
+            };
+
+            let smooth = false;
+            let c = contour::ContourBuilder::new(grid.width as u32, grid.height as u32, smooth);
+            let thresholds = vec![1.0];
+
+            let mut cell_polygons = Vec::new();
+            for feature in c.contours(&grid.data, &thresholds).unwrap() {
+                match feature.geometry.unwrap().value {
+                    geojson::Value::MultiPolygon(polygons) => {
+                        for p in polygons {
+                            if let Ok(poly) = Polygon::from_geojson(&p) {
+                                cell_polygons.push(
+                                    poly.scale(RESOLUTION_M)
+                                        .translate(self.bounds.min_x, self.bounds.min_y),
+                                );
+                            }
+                        }
+                    }
+                    _ => unreachable!(),
                 }
-                let (x, y) = self.grid.xy(idx);
-                let tile_center = Pt2D::new(
-                    self.bounds.min_x + RESOLUTION_M * (x as f64 + 0.5),
-                    self.bounds.min_y + RESOLUTION_M * (y as f64 + 0.5),
-                );
-                polygons_per_cell[*cell_idx].push(Polygon::rectangle_centered(
-                    tile_center,
-                    Distance::meters(RESOLUTION_M),
-                    Distance::meters(RESOLUTION_M),
-                ));
             }
+            result.polygons_per_cell.push(cell_polygons);
+            result.colors.push(color);
         }
 
-        timer.parallelize(
-            "Unioning polygons for one cell",
-            polygons_per_cell,
-            Polygon::union_all_into_multipolygon,
-        )
+        result
     }
 }
 

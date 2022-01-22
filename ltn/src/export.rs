@@ -1,13 +1,12 @@
 use anyhow::Result;
 
-use abstutil::Timer;
 use geom::{PolyLine, Pt2D};
 use widgetry::EventCtx;
 
 use super::Neighborhood;
 use crate::App;
 
-pub fn write_geojson_file(ctx: &EventCtx, app: &App, timer: &mut Timer) -> Result<String> {
+pub fn write_geojson_file(ctx: &EventCtx, app: &App) -> Result<String> {
     if cfg!(target_arch = "wasm32") {
         bail!("Export only supported in the installed version");
     }
@@ -37,7 +36,7 @@ pub fn write_geojson_file(ctx: &EventCtx, app: &App, timer: &mut Timer) -> Resul
         // Cells per neighborhood
         let render_cells =
             super::draw_cells::RenderCells::new(map, &Neighborhood::new(ctx, app, *id));
-        for (idx, multipolygon) in render_cells.to_multipolygons(timer).into_iter().enumerate() {
+        for (idx, multipolygon) in render_cells.to_multipolygons().into_iter().enumerate() {
             let mut feature = Feature {
                 bbox: None,
                 geometry: Some(Geometry {

@@ -15,6 +15,7 @@ wasm = ["getrandom/js", "map_gui/wasm", "wasm-bindgen", "widgetry/wasm-backend"]
 abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
 anyhow = "1.0.38"
+contour = "0.4.0"
 fs-err = "2.6.0"
 geo = "0.18"
 geojson = { version = "0.22.0", features = ["geo-types"] }

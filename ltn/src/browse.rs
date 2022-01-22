@@ -5,8 +5,8 @@ use geom::Distance;
 use map_gui::tools::{CityPicker, DrawRoadLabels, Navigator, PopupMsg, URLManager};
 use widgetry::mapspace::{ToggleZoomed, World, WorldOutcome};
 use widgetry::{
-    Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, RewriteColor, State,
-    TextExt, Toggle, VerticalAlignment, Widget,
+    Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, State, TextExt,
+    Toggle, VerticalAlignment, Widget,
 };
 
 use super::{Neighborhood, NeighborhoodID, Partitioning};
@@ -104,9 +104,7 @@ impl State<App> for BrowseNeighborhoods {
                     return Transition::Push(Navigator::new_state(ctx, app));
                 }
                 "Export to GeoJSON" => {
-                    let result = ctx.loading_screen("export LTNs", |ctx, timer| {
-                        super::export::write_geojson_file(ctx, app, timer)
-                    });
+                    let result = super::export::write_geojson_file(ctx, app);
                     return Transition::Push(match result {
                         Ok(path) => PopupMsg::new_state(
                             ctx,
@@ -170,9 +168,7 @@ fn make_world(ctx: &mut EventCtx, app: &App, timer: &mut Timer) -> World<Neighbo
                 // tried greying out everything else, but then the view is too jumpy.
                 let neighborhood = Neighborhood::new(ctx, app, *id);
                 let render_cells = super::draw_cells::RenderCells::new(map, &neighborhood);
-                let hovered_batch = render_cells
-                    .draw_grid()
-                    .color(RewriteColor::ChangeAlpha(0.8));
+                let hovered_batch = render_cells.draw();
                 world
                     .add(*id)
                     .hitbox(block.polygon.clone())
