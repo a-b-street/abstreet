@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["write_geojson_file",""]]});
+initSidebarItems({"fn":[["geojson_string",""],["write_geojson_file","Returns the path where the file was written"]]});
