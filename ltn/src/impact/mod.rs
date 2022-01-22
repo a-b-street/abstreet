@@ -4,7 +4,9 @@ use abstio::MapName;
 use abstutil::{prettyprint_usize, Counter, Timer};
 use geom::{Distance, Histogram, Statistic};
 use map_gui::tools::{cmp_count, ColorScale, DivergingScale};
-use map_model::{IntersectionID, Map, PathRequest, PathStepV2, PathfinderCaching, RoadID};
+use map_model::{
+    IntersectionID, Map, PathRequest, PathStepV2, PathfinderCaching, RoadID, RoutingParams,
+};
 use sim::{Scenario, TripEndpoint, TripMode};
 use widgetry::mapspace::{ObjectID, World};
 use widgetry::{Color, EventCtx, Line, Text};
@@ -85,30 +87,16 @@ impl Results {
 
         // Before the filters. These don't change with no filters, so only calculate once per map
         if self.before_road_counts.is_empty() {
-            self.before_road_counts = Counter::new();
-            self.before_intersection_counts = Counter::new();
-            for path in timer
-                .parallelize(
-                    "calculate routes before filters",
-                    self.all_driving_trips.clone(),
-                    |req| map.pathfind_v2(req),
-                )
-                .into_iter()
-                .flatten()
-            {
-                for step in path.get_steps() {
-                    // No Contraflow steps for driving paths
-                    match step {
-                        PathStepV2::Along(dr) => {
-                            self.before_road_counts.inc(dr.road);
-                        }
-                        PathStepV2::Movement(m) => {
-                            self.before_intersection_counts.inc(m.parent);
-                        }
-                        _ => {}
-                    }
-                }
-            }
+            let (roads, intersections) = count_throughput(
+                &self.all_driving_trips,
+                map,
+                map.routing_params().clone(),
+                PathfinderCaching::NoCache,
+                timer,
+            );
+            self.before_road_counts = roads;
+            self.before_intersection_counts = intersections;
+
             self.before_world = make_world(ctx, app);
             ranked_roads(
                 ctx,
@@ -127,47 +115,37 @@ impl Results {
         }
 
         // After the filters
-        self.after_road_counts = Counter::new();
-        self.after_intersection_counts = Counter::new();
-        let mut params = map.routing_params().clone();
-        app.session.modal_filters.update_routing_params(&mut params);
-        for path in timer
-            .parallelize(
-                "calculate routes after filters",
-                self.all_driving_trips.clone(),
-                |req| map.pathfind_v2_with_params(req, &params, PathfinderCaching::CacheDijkstra),
-            )
-            .into_iter()
-            .flatten()
         {
-            for step in path.get_steps() {
-                // No Contraflow steps for driving paths
-                match step {
-                    PathStepV2::Along(dr) => {
-                        self.after_road_counts.inc(dr.road);
-                    }
-                    PathStepV2::Movement(m) => {
-                        self.after_intersection_counts.inc(m.parent);
-                    }
-                    _ => {}
-                }
-            }
+            let mut params = map.routing_params().clone();
+            app.session.modal_filters.update_routing_params(&mut params);
+            // Since we're making so many requests, it's worth it to rebuild a contraction
+            // hierarchy. And since we're single-threaded, no complications there.
+            let (roads, intersections) = count_throughput(
+                &self.all_driving_trips,
+                map,
+                params,
+                PathfinderCaching::CacheCH,
+                timer,
+            );
+            self.after_road_counts = roads;
+            self.after_intersection_counts = intersections;
+
+            self.after_world = make_world(ctx, app);
+            ranked_roads(
+                ctx,
+                map,
+                &mut self.after_world,
+                &self.after_road_counts,
+                &app.cs.good_to_bad_red,
+            );
+            ranked_intersections(
+                ctx,
+                map,
+                &mut self.after_world,
+                &self.after_intersection_counts,
+                &app.cs.good_to_bad_red,
+            );
         }
-        self.after_world = make_world(ctx, app);
-        ranked_roads(
-            ctx,
-            map,
-            &mut self.after_world,
-            &self.after_road_counts,
-            &app.cs.good_to_bad_red,
-        );
-        ranked_intersections(
-            ctx,
-            map,
-            &mut self.after_world,
-            &self.after_intersection_counts,
-            &app.cs.good_to_bad_red,
-        );
 
         self.recalculate_relative_diff(ctx, app);
     }
@@ -296,4 +274,43 @@ fn ranked_intersections(
                 .build(ctx);
         }
     }
+}
+
+fn count_throughput(
+    requests: &[PathRequest],
+    map: &Map,
+    params: RoutingParams,
+    cache_custom: PathfinderCaching,
+    timer: &mut Timer,
+) -> (Counter<RoadID>, Counter<IntersectionID>) {
+    let mut road_counts = Counter::new();
+    let mut intersection_counts = Counter::new();
+
+    // It's very memory intensive to calculate all of the paths in one chunk, then process them to
+    // get counts. Increment the counters as we go.
+    //
+    // TODO But that makes it hard to use timer.parallelize for this. We could make a thread-local
+    // Counter and aggregte them at the end, but the way timer.parallelize uses scoped_threadpool
+    // right now won't let that work. Stick to single-threaded for now.
+
+    timer.start_iter("calculate routes", requests.len());
+    for req in requests {
+        timer.next();
+        if let Ok(path) = map.pathfind_v2_with_params(req.clone(), &params, cache_custom) {
+            for step in path.get_steps() {
+                // No Contraflow steps for driving paths
+                match step {
+                    PathStepV2::Along(dr) => {
+                        road_counts.inc(dr.road);
+                    }
+                    PathStepV2::Movement(m) => {
+                        intersection_counts.inc(m.parent);
+                    }
+                    _ => {}
+                }
+            }
+        }
+    }
+
+    (road_counts, intersection_counts)
 }
