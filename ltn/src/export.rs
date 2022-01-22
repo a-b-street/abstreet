@@ -6,14 +6,48 @@ use widgetry::EventCtx;
 use super::Neighborhood;
 use crate::App;
 
+/// Returns the path where the file was written
 pub fn write_geojson_file(ctx: &EventCtx, app: &App) -> Result<String> {
-    if cfg!(target_arch = "wasm32") {
-        bail!("Export only supported in the installed version");
+    let contents = geojson_string(ctx, app)?;
+    let path = format!("ltn_{}.geojson", app.map.get_name().map);
+
+    // TODO Refactor into map_gui or abstio and handle errors better
+    #[cfg(target_arch = "wasm32")]
+    {
+        use wasm_bindgen::JsCast;
+
+        let data: String = js_sys::JsString::from("data:text/json;charset=utf-8,")
+            .concat(&js_sys::encode_uri_component(&contents))
+            .into();
+
+        let window = web_sys::window().unwrap();
+        let document = window.document().unwrap();
+        let node = document
+            .create_element("a")
+            .unwrap()
+            .dyn_into::<web_sys::HtmlElement>()
+            .unwrap();
+        node.set_attribute("href", &data).unwrap();
+        node.set_attribute("download", &path).unwrap();
+        document.body().unwrap().append_child(&node).unwrap();
+        node.click();
+        node.remove();
     }
 
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        use std::io::Write;
+
+        let mut file = fs_err::File::create(&path)?;
+        write!(file, "{}", contents)?;
+    }
+
+    Ok(path)
+}
+
+fn geojson_string(ctx: &EventCtx, app: &App) -> Result<String> {
     use geo::algorithm::map_coords::MapCoordsInplace;
     use geojson::{Feature, FeatureCollection, GeoJson, Geometry, Value};
-    use std::io::Write;
 
     let map = &app.map;
     let mut features = Vec::new();
@@ -115,10 +149,6 @@ pub fn write_geojson_file(ctx: &EventCtx, app: &App) -> Result<String> {
         foreign_members: None,
     });
 
-    // Don't use abstio::write_json; it writes to local storage in web, where we want to eventually
-    // make the browser download something
-    let path = format!("ltn_{}.geojson", map.get_name().map);
-    let mut file = fs_err::File::create(&path)?;
-    write!(file, "{}", serde_json::to_string_pretty(&gj)?)?;
-    Ok(path)
+    let x = serde_json::to_string_pretty(&gj)?;
+    Ok(x)
 }

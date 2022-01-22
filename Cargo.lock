@@ -2125,6 +2125,7 @@ dependencies = [
  "geojson",
  "geom",
  "getrandom",
+ "js-sys",
  "lazy_static",
  "log",
  "map_gui",
@@ -2133,6 +2134,7 @@ dependencies = [
  "serde_json",
  "sim",
  "wasm-bindgen",
+ "web-sys",
  "widgetry",
 ]
 

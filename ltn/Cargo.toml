@@ -9,7 +9,7 @@ crate-type = ["cdylib", "lib"]
 
 [features]
 default = ["map_gui/native", "widgetry/native-backend"]
-wasm = ["getrandom/js", "map_gui/wasm", "wasm-bindgen", "widgetry/wasm-backend"]
+wasm = ["getrandom/js", "js-sys", "map_gui/wasm", "wasm-bindgen", "web-sys", "widgetry/wasm-backend"]
 
 [dependencies]
 abstio = { path = "../abstio" }
@@ -21,6 +21,7 @@ geo = "0.18"
 geojson = { version = "0.22.0", features = ["geo-types"] }
 geom = { path = "../geom" }
 getrandom = { version = "0.2.3", optional = true }
+js-sys = { version = "0.3.47", optional = true }
 lazy_static = "1.4.0"
 log = "0.4"
 maplit = "1.0.2"
@@ -30,3 +31,8 @@ serde_json = "1.0.61"
 sim = { path = "../sim" }
 wasm-bindgen = { version = "0.2.70", optional = true }
 widgetry = { path = "../widgetry" }
+
+[dependencies.web-sys]
+version = "0.3.47"
+optional = true
+features = ["HtmlElement"]
