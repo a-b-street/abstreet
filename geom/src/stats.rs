@@ -2,7 +2,7 @@ use std::convert::TryFrom;
 
 use serde::{Deserialize, Serialize};
 
-use crate::Duration;
+use crate::{Distance, Duration};
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum Statistic {
@@ -56,6 +56,18 @@ impl HgramValue<Duration> for Duration {
     }
     fn from_u64(x: u64) -> Duration {
         Duration::from_u64(x)
+    }
+}
+
+impl HgramValue<Distance> for Distance {
+    fn hgram_zero() -> Distance {
+        Distance::ZERO
+    }
+    fn to_u64(self) -> u64 {
+        self.to_u64()
+    }
+    fn from_u64(x: u64) -> Distance {
+        Distance::from_u64(x)
     }
 }
 

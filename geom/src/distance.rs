@@ -2,7 +2,7 @@ use std::{cmp, f64, fmt, ops};
 
 use serde::{Deserialize, Serialize};
 
-use crate::{deserialize_f64, serialize_f64, trim_f64, Duration, Speed, UnitFmt};
+use crate::{deserialize_f64, serialize_f64, trim_f64, Duration, Speed, UnitFmt, EPSILON_DIST};
 
 /// A distance, in meters. Can be negative.
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd, Serialize, Deserialize)]
@@ -139,6 +139,14 @@ impl Distance {
         } else {
             self
         }
+    }
+
+    pub(crate) fn to_u64(self) -> u64 {
+        (self.0 / EPSILON_DIST.0) as u64
+    }
+
+    pub(crate) fn from_u64(x: u64) -> Distance {
+        (x as f64) * EPSILON_DIST
     }
 }
 

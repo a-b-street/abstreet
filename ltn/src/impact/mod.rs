@@ -2,6 +2,7 @@ mod ui;
 
 use abstio::MapName;
 use abstutil::{prettyprint_usize, Counter, Timer};
+use geom::{Distance, Histogram, Statistic};
 use map_gui::tools::{cmp_count, ColorScale, DivergingScale};
 use map_model::{IntersectionID, Map, PathRequest, PathStepV2, PathfinderCaching, RoadID};
 use sim::{Scenario, TripEndpoint, TripMode};
@@ -174,13 +175,34 @@ impl Results {
     fn recalculate_relative_diff(&mut self, ctx: &mut EventCtx, app: &App) {
         let map = &app.map;
         self.relative_world = make_world(ctx, app);
-        // TODO I really need help understanding how to do this. If the average isn't 1.0 (meaning
-        // no change), then the colors are super wacky.
+
+        // First just understand the counts...
+        let mut hgram_before = Histogram::new();
+        for (_, cnt) in self.before_road_counts.borrow() {
+            hgram_before.add(*cnt);
+        }
+        let mut hgram_after = Histogram::new();
+        for (_, cnt) in self.after_road_counts.borrow() {
+            hgram_after.add(*cnt);
+        }
+        info!("Road counts before: {}", hgram_before.describe());
+        info!("Road counts after: {}", hgram_after.describe());
+
+        // What's physical road width look like?
+        let mut hgram_width = Histogram::new();
+        for r in app.map.all_roads() {
+            hgram_width.add(r.get_width());
+        }
+        info!("Physical road widths: {}", hgram_width.describe());
+
+        // TODO This is still a bit arbitrary
         let scale = DivergingScale::new(Color::hex("#5D9630"), Color::WHITE, Color::hex("#A32015"))
             .range(0.0, 2.0);
 
-        let mut min_ratio: f64 = 100000.0;
-        let mut max_ratio: f64 = 0.0;
+        // Draw road width based on the count before
+        // TODO unwrap will crash on an empty demand model
+        let min_count = hgram_before.select(Statistic::Min).unwrap();
+        let max_count = hgram_before.select(Statistic::Max).unwrap();
 
         for (r, before, after) in self
             .before_road_counts
@@ -188,47 +210,30 @@ impl Results {
             .compare(self.after_road_counts.clone())
         {
             let ratio = (after as f64) / (before as f64);
-            if let Some(color) = scale.eval(ratio) {
-                let mut txt = Text::from_multiline(vec![
-                    Line(format!("Before: {}", prettyprint_usize(before))),
-                    Line(format!("After: {}", prettyprint_usize(after))),
-                ]);
-                cmp_count(&mut txt, before, after);
-                txt.add_line(Line(format!("After/before: {:.2}", ratio)));
-                self.relative_world
-                    .add(Obj::Road(r))
-                    .hitbox(map.get_r(r).get_thick_polygon())
-                    .draw_color(color)
-                    .hover_alpha(0.9)
-                    .tooltip(txt)
-                    .build(ctx);
-            }
-            min_ratio = min_ratio.min(ratio);
-            max_ratio = max_ratio.max(ratio);
-        }
-        info!("The ratios were between {min_ratio:.2} and {max_ratio:.2}");
+            let color = if let Some(c) = scale.eval(ratio) {
+                c
+            } else {
+                continue;
+            };
 
-        for (i, before, after) in self
-            .before_intersection_counts
-            .clone()
-            .compare(self.after_intersection_counts.clone())
-        {
-            let ratio = (after as f64) / (before as f64);
-            if let Some(color) = scale.eval(ratio) {
-                let mut txt = Text::from_multiline(vec![
-                    Line(format!("Before: {}", prettyprint_usize(before))),
-                    Line(format!("After: {}", prettyprint_usize(after))),
-                ]);
-                cmp_count(&mut txt, before, after);
-                txt.add_line(Line(format!("After/before: {:.2}", ratio)));
-                self.relative_world
-                    .add(Obj::Intersection(i))
-                    .hitbox(map.get_i(i).polygon.clone())
-                    .draw_color(color)
-                    .hover_alpha(0.9)
-                    .tooltip(txt)
-                    .build(ctx);
-            }
+            let mut txt = Text::from_multiline(vec![
+                Line(format!("Before: {}", prettyprint_usize(before))),
+                Line(format!("After: {}", prettyprint_usize(after))),
+            ]);
+            cmp_count(&mut txt, before, after);
+            txt.add_line(Line(format!("After/before: {:.2}", ratio)));
+
+            // TODO Refactor histogram helpers
+            let pct_count = (before - min_count) as f64 / (max_count - min_count) as f64;
+            // TODO Pretty arbitrary. Ideally we'd hide roads and intersections underneath...
+            let width = Distance::meters(2.0) + pct_count * Distance::meters(10.0);
+            self.relative_world
+                .add(Obj::Road(r))
+                .hitbox(map.get_r(r).center_pts.make_polygons(width))
+                .draw_color(color)
+                .hover_alpha(0.9)
+                .tooltip(txt)
+                .build(ctx);
         }
     }
 }
