@@ -286,6 +286,15 @@ fn count_throughput(
     let mut road_counts = Counter::new();
     let mut intersection_counts = Counter::new();
 
+    // Statistic::Min will be wrong later for roads that're 0. So explicitly start with 0 for every
+    // road/intersection.
+    for r in map.all_roads() {
+        road_counts.add(r.id, 0);
+    }
+    for i in map.all_intersections() {
+        intersection_counts.add(i.id, 0);
+    }
+
     // It's very memory intensive to calculate all of the paths in one chunk, then process them to
     // get counts. Increment the counters as we go.
     //
