@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["default_scenario_for_map",""],["enter_state",""]],"mod":[["proposals",""]],"struct":[["TitleScreen",""]]});
+initSidebarItems({"fn":[["enter_state",""]],"mod":[["proposals",""]],"struct":[["TitleScreen",""]]});

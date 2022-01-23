@@ -250,9 +250,6 @@
 <span id="249">249</span>
 <span id="250">250</span>
 <span id="251">251</span>
-<span id="252">252</span>
-<span id="253">253</span>
-<span id="254">254</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom::Distance</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools::CityPicker</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">PathConstraints</span>, <span class="ident">RoadID</span>};
@@ -262,7 +259,7 @@
     <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>, <span class="ident">DEFAULT_CORNER_RADIUS</span>,
 };
 
-<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">BrowseNeighborhoods</span>, <span class="ident">DiagonalFilter</span>, <span class="ident">Neighborhood</span>, <span class="ident">NeighborhoodID</span>, <span class="ident">Partitioning</span>};
+<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">BrowseNeighborhoods</span>, <span class="ident">DiagonalFilter</span>, <span class="ident">Neighborhood</span>, <span class="ident">NeighborhoodID</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>)]</span>
@@ -340,10 +337,7 @@
             <span class="string">&quot;change map&quot;</span> =&gt; <span class="ident">Transition::Push</span>(<span class="ident">CityPicker::new_state</span>(
                 <span class="ident">ctx</span>,
                 <span class="ident">app</span>,
-                <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span> <span class="op">=</span> <span class="ident">Partitioning::empty</span>();
-                    <span class="ident">Transition::Replace</span>(<span class="ident">BrowseNeighborhoods::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))
-                }),
+                <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> <span class="ident">Transition::Replace</span>(<span class="ident">BrowseNeighborhoods::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))),
             )),
             <span class="string">&quot;Browse neighborhoods&quot;</span> =&gt; {
                 <span class="comment">// Recalculate the state to redraw any changed filters</span>

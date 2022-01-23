@@ -594,7 +594,7 @@
 <span class="kw">use</span> <span class="ident">map_gui::options::Options</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">PopupMsg</span>, <span class="ident">URLManager</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Map</span>, <span class="ident">MapEdits</span>};
-<span class="kw">use</span> <span class="ident">sim::Sim</span>;
+<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">Scenario</span>, <span class="ident">Sim</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">EventCtx</span>, <span class="ident">Settings</span>, <span class="ident">State</span>, <span class="ident">Transition</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app</span>::{<span class="ident">App</span>, <span class="ident">Flags</span>, <span class="ident">PerMap</span>};
@@ -1124,7 +1124,7 @@
                 <span class="ident">app</span>,
                 <span class="ident">GameplayMode::PlayScenario</span>(
                     <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">clone</span>(),
-                    <span class="ident">pregame::default_scenario_for_map</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()),
+                    <span class="ident">Scenario::default_scenario_for_map</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()),
                     <span class="ident">Vec::new</span>(),
                 ),
             ),

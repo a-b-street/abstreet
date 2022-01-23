@@ -100,6 +100,11 @@
 <span id="99"> 99</span>
 <span id="100">100</span>
 <span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::type_complexity</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">widgetry::Settings</span>;
@@ -120,6 +125,7 @@
 <span class="kw">mod</span> <span class="ident">draw_cells</span>;
 <span class="kw">mod</span> <span class="ident">export</span>;
 <span class="kw">mod</span> <span class="ident">filters</span>;
+<span class="kw">mod</span> <span class="ident">impact</span>;
 <span class="kw">mod</span> <span class="ident">neighborhood</span>;
 <span class="kw">mod</span> <span class="ident">partition</span>;
 <span class="kw">mod</span> <span class="ident">pathfinding</span>;
@@ -146,6 +152,8 @@
         <span class="kw">let</span> <span class="ident">session</span> <span class="op">=</span> <span class="ident">Session</span> {
             <span class="ident">partitioning</span>: <span class="ident">Partitioning::empty</span>(),
             <span class="ident">modal_filters</span>: <span class="ident">ModalFilters::default</span>(),
+
+            <span class="ident">impact</span>: <span class="prelude-val">None</span>,
 
             <span class="ident">highlight_boundary_roads</span>: <span class="bool-val">true</span>,
             <span class="ident">draw_neighborhood_style</span>: <span class="ident">browse::Style::SimpleColoring</span>,
@@ -187,6 +195,8 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Session</span> {
     <span class="kw">pub</span> <span class="ident">partitioning</span>: <span class="ident">Partitioning</span>,
     <span class="kw">pub</span> <span class="ident">modal_filters</span>: <span class="ident">ModalFilters</span>,
+
+    <span class="kw">pub</span> <span class="ident">impact</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">impact::Results</span><span class="op">&gt;</span>,
 
     <span class="comment">// Remember form settings in different tabs.</span>
     <span class="comment">// Browse neighborhoods:</span>

@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Pathfinder",""]]});
+initSidebarItems({"enum":[["PathfinderCaching","When pathfinding with different `RoutingParams` is done, a temporary pathfinder must be created. This specifies what type of pathfinder and whether to cache it."]],"struct":[["Pathfinder",""]]});

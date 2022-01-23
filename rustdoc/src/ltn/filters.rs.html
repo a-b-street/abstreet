@@ -243,6 +243,10 @@
 <span id="242">242</span>
 <span id="243">243</span>
 <span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Line</span>};
@@ -262,6 +266,8 @@
 
     <span class="doccomment">/// Edit history is preserved recursively</span>
     <span class="kw">pub</span> <span class="ident">previous_version</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ModalFilters</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// This changes every time an edit occurs</span>
+    <span class="kw">pub</span> <span class="ident">change_key</span>: <span class="ident">usize</span>,
 }
 
 <span class="doccomment">/// A diagonal filter exists in an intersection. It&#39;s defined by two roads (the order is</span>
@@ -286,6 +292,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">before_edit</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
         <span class="kw">let</span> <span class="ident">copy</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">clone</span>();
         <span class="self">self</span>.<span class="ident">previous_version</span> <span class="op">=</span> <span class="ident">Box::new</span>(<span class="prelude-val">Some</span>(<span class="ident">copy</span>));
+        <span class="self">self</span>.<span class="ident">change_key</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
     }
 
     <span class="doccomment">/// If it&#39;s possible no edits were made, undo the previous call to `before_edit` and collapse</span>
@@ -294,6 +301,7 @@
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">prev</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">previous_version</span>.<span class="ident">take</span>() {
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">roads</span> <span class="op">==</span> <span class="ident">prev</span>.<span class="ident">roads</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">intersections</span> <span class="op">==</span> <span class="ident">prev</span>.<span class="ident">intersections</span> {
                 <span class="self">self</span>.<span class="ident">previous_version</span> <span class="op">=</span> <span class="ident">prev</span>.<span class="ident">previous_version</span>;
+                <span class="comment">// Leave change_key alone for simplicity</span>
             } <span class="kw">else</span> {
                 <span class="comment">// There was a real difference, keep</span>
                 <span class="self">self</span>.<span class="ident">previous_version</span> <span class="op">=</span> <span class="ident">Box::new</span>(<span class="prelude-val">Some</span>(<span class="ident">prev</span>));

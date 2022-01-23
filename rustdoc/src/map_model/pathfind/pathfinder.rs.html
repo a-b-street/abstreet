@@ -274,6 +274,27 @@
 <span id="273">273</span>
 <span id="274">274</span>
 <span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
@@ -307,6 +328,20 @@
     <span class="comment">// TODO VecMap is probably fast enough. RoutingParams is annoying to implement Hash.</span>
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>, <span class="ident">skip_deserializing</span>)]</span>
     <span class="ident">cached_alternatives</span>: <span class="ident">ThreadLocal</span><span class="op">&lt;</span><span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">VecMap</span><span class="op">&lt;</span>(<span class="ident">PathConstraints</span>, <span class="ident">RoutingParams</span>), <span class="ident">Pathfinder</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+}
+
+<span class="doccomment">/// When pathfinding with different `RoutingParams` is done, a temporary pathfinder must be</span>
+<span class="doccomment">/// created. This specifies what type of pathfinder and whether to cache it.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// `clear_custom_pathfinder_cache` can be used to later clean up any cached pathfinders.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">PathfinderCaching</span> {
+    <span class="doccomment">/// Create a fast-to-build but slow-to-use Dijkstra-based pathfinder and don&#39;t cache it</span>
+    <span class="ident">NoCache</span>,
+    <span class="doccomment">/// Create a fast-to-build but slow-to-use Dijkstra-based pathfinder and cache it</span>
+    <span class="ident">CacheDijkstra</span>,
+    <span class="doccomment">/// Create a slow-to-build but fast-to-use contraction hierarchy-based pathfinder and cache it</span>
+    <span class="ident">CacheCH</span>,
 }
 
 <span class="comment">// Implemented manually to deal with the ThreadLocal</span>
@@ -435,7 +470,7 @@
 
     <span class="doccomment">/// Finds a path from a start to an end for a certain type of agent.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pathfind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">PathRequest</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathV2</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">pathfind_with_params</span>(<span class="ident">req</span>, <span class="ident">map</span>.<span class="ident">routing_params</span>(), <span class="bool-val">false</span>, <span class="ident">map</span>)
+        <span class="self">self</span>.<span class="ident">pathfind_with_params</span>(<span class="ident">req</span>, <span class="ident">map</span>.<span class="ident">routing_params</span>(), <span class="ident">PathfinderCaching::NoCache</span>, <span class="ident">map</span>)
     }
 
     <span class="doccomment">/// Finds a path from a start to an end for a certain type of agent. May use custom routing</span>
@@ -445,7 +480,7 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">req</span>: <span class="ident">PathRequest</span>,
         <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">RoutingParams</span>,
-        <span class="ident">cache_custom</span>: <span class="ident">bool</span>,
+        <span class="ident">cache_custom</span>: <span class="ident">PathfinderCaching</span>,
         <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
     ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathV2</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">constraints</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">constraints</span>;
@@ -467,7 +502,7 @@
             .<span class="ident">borrow</span>()
             .<span class="ident">get</span>(<span class="kw-2">&amp;</span>(<span class="ident">constraints</span>, <span class="ident">params</span>.<span class="ident">clone</span>()))
         {
-            <span class="kw">return</span> <span class="ident">alt</span>.<span class="ident">pathfind_with_params</span>(<span class="ident">req</span>, <span class="ident">params</span>, <span class="bool-val">false</span>, <span class="ident">map</span>);
+            <span class="kw">return</span> <span class="ident">alt</span>.<span class="ident">pathfind_with_params</span>(<span class="ident">req</span>, <span class="ident">params</span>, <span class="ident">PathfinderCaching::NoCache</span>, <span class="ident">map</span>);
         }
 
         <span class="comment">// If somebody&#39;s repeatedly calling this without caching, log very obnoxiously.</span>
@@ -475,12 +510,19 @@
         <span class="kw">let</span> <span class="ident">tmp_pathfinder</span> <span class="op">=</span> <span class="ident">Pathfinder::new_limited</span>(
             <span class="ident">map</span>,
             <span class="ident">params</span>.<span class="ident">clone</span>(),
-            <span class="ident">CreateEngine::Dijkstra</span>,
+            <span class="kw">match</span> <span class="ident">cache_custom</span> {
+                <span class="ident">PathfinderCaching::NoCache</span> <span class="op">|</span> <span class="ident">PathfinderCaching::CacheDijkstra</span> =&gt; {
+                    <span class="ident">CreateEngine::Dijkstra</span>
+                }
+                <span class="comment">// TODO Can we pick the right seed?</span>
+                <span class="ident">PathfinderCaching::CacheCH</span> =&gt; <span class="ident">CreateEngine::CH</span>,
+            },
             <span class="macro">vec!</span>[<span class="ident">constraints</span>],
             <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>,
         );
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">tmp_pathfinder</span>.<span class="ident">pathfind_with_params</span>(<span class="ident">req</span>, <span class="ident">params</span>, <span class="bool-val">false</span>, <span class="ident">map</span>);
-        <span class="kw">if</span> <span class="ident">cache_custom</span> {
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span>
+            <span class="ident">tmp_pathfinder</span>.<span class="ident">pathfind_with_params</span>(<span class="ident">req</span>, <span class="ident">params</span>, <span class="ident">PathfinderCaching::NoCache</span>, <span class="ident">map</span>);
+        <span class="kw">if</span> <span class="ident">cache_custom</span> <span class="op">!</span><span class="op">=</span> <span class="ident">PathfinderCaching::NoCache</span> {
             <span class="self">self</span>.<span class="ident">cached_alternatives</span>
                 .<span class="ident">get_or</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">RefCell::new</span>(<span class="ident">VecMap::new</span>()))
                 .<span class="ident">borrow_mut</span>()

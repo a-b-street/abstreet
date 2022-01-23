@@ -187,11 +187,23 @@
 <span id="186">186</span>
 <span id="187">187</span>
 <span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::convert::TryFrom</span>;
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Duration</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>};
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Statistic</span> {
@@ -245,6 +257,18 @@
     }
     <span class="kw">fn</span> <span class="ident">from_u64</span>(<span class="ident">x</span>: <span class="ident">u64</span>) -&gt; <span class="ident">Duration</span> {
         <span class="ident">Duration::from_u64</span>(<span class="ident">x</span>)
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">HgramValue</span><span class="op">&lt;</span><span class="ident">Distance</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Distance</span> {
+    <span class="kw">fn</span> <span class="ident">hgram_zero</span>() -&gt; <span class="ident">Distance</span> {
+        <span class="ident">Distance::ZERO</span>
+    }
+    <span class="kw">fn</span> <span class="ident">to_u64</span>(<span class="self">self</span>) -&gt; <span class="ident">u64</span> {
+        <span class="self">self</span>.<span class="ident">to_u64</span>()
+    }
+    <span class="kw">fn</span> <span class="ident">from_u64</span>(<span class="ident">x</span>: <span class="ident">u64</span>) -&gt; <span class="ident">Distance</span> {
+        <span class="ident">Distance::from_u64</span>(<span class="ident">x</span>)
     }
 }
 

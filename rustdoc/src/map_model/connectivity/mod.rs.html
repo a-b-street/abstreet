@@ -170,6 +170,9 @@
 <span id="169">169</span>
 <span id="170">170</span>
 <span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
 </pre><pre class="rust"><code><span class="comment">// TODO Possibly these should be methods on Map.</span>
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
@@ -303,11 +306,14 @@
         <span class="ident">cost_per_node</span>.<span class="ident">insert</span>(<span class="ident">current</span>.<span class="ident">node</span>, <span class="ident">current</span>.<span class="ident">cost</span>);
 
         <span class="kw">for</span> <span class="ident">mvmnt</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">get_movements_for</span>(<span class="ident">current</span>.<span class="ident">node</span>, <span class="ident">constraints</span>) {
-            <span class="ident">queue</span>.<span class="ident">push</span>(<span class="ident">Item</span> {
-                <span class="ident">cost</span>: <span class="ident">current</span>.<span class="ident">cost</span>
-                    <span class="op">+</span> <span class="ident">vehicle_cost</span>(<span class="ident">mvmnt</span>.<span class="ident">from</span>, <span class="ident">mvmnt</span>, <span class="ident">constraints</span>, <span class="ident">map</span>.<span class="ident">routing_params</span>(), <span class="ident">map</span>),
-                <span class="ident">node</span>: <span class="ident">mvmnt</span>.<span class="ident">to</span>,
-            });
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">cost</span>) <span class="op">=</span>
+                <span class="ident">vehicle_cost</span>(<span class="ident">mvmnt</span>.<span class="ident">from</span>, <span class="ident">mvmnt</span>, <span class="ident">constraints</span>, <span class="ident">map</span>.<span class="ident">routing_params</span>(), <span class="ident">map</span>)
+            {
+                <span class="ident">queue</span>.<span class="ident">push</span>(<span class="ident">Item</span> {
+                    <span class="ident">cost</span>: <span class="ident">current</span>.<span class="ident">cost</span> <span class="op">+</span> <span class="ident">cost</span>,
+                    <span class="ident">node</span>: <span class="ident">mvmnt</span>.<span class="ident">to</span>,
+                });
+            }
         }
     }
 
