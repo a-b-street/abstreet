@@ -301,6 +301,8 @@ fn impact_widget(ctx: &EventCtx, app: &App) -> Widget {
         ctx.style()
             .btn_solid_primary
             .text("Calculate")
+            .disabled(true)
+            .disabled_tooltip(Text::from(Line("This prediction isn't working yet")))
             .build_def(ctx),
     ])
 }
