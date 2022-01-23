@@ -59,6 +59,9 @@ jobs:
       - name: Build parking_mapper
         working-directory: parking_mapper
         run: cargo build --release ${{ env.features }}
+      - name: Build ltn
+        working-directory: ltn
+        run: cargo build --release ${{ env.features }}
 
       - name: Build the CLI tool
         run: cargo build --release --bin cli

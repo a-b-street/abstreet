@@ -38,7 +38,7 @@ cp release/play_abstreet.$ext release/ungap_the_map.$ext release/INSTRUCTIONS.tx
 mkdir $output/game
 cp target/release/game${suffix} $output/game
 
-for name in cli fifteen_min osm_viewer parking_mapper santa; do
+for name in cli fifteen_min osm_viewer parking_mapper santa ltn; do
 	cp target/release/${name}${suffix} $output;
 done
 
