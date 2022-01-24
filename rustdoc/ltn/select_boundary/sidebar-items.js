@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["SELECTED",""]],"fn":[["calculate_frontier",""],["make_panel",""]],"struct":[["BlockID",""],["SelectBoundary",""]]});
+initSidebarItems({"constant":[["SELECTED",""]],"fn":[["make_panel",""]],"struct":[["SelectBoundary",""]]});

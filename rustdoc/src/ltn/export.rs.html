@@ -208,7 +208,7 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">features</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
     <span class="comment">// All neighborhood boundaries</span>
-    <span class="kw">for</span> (<span class="ident">id</span>, (<span class="ident">block</span>, <span class="ident">color</span>)) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">neighborhoods</span> {
+    <span class="kw">for</span> (<span class="ident">id</span>, (<span class="ident">block</span>, <span class="ident">color</span>)) <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">all_neighborhoods</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">feature</span> <span class="op">=</span> <span class="ident">Feature</span> {
             <span class="ident">bbox</span>: <span class="prelude-val">None</span>,
             <span class="ident">geometry</span>: <span class="prelude-val">Some</span>(<span class="ident">block</span>.<span class="ident">polygon</span>.<span class="ident">to_geojson</span>(<span class="prelude-val">None</span>)),
