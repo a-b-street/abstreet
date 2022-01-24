@@ -1,16 +1,17 @@
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeSet;
 
 use anyhow::Result;
 
 use geom::Distance;
-use map_model::{Block, Perimeter, RoadID, RoadSideID};
+use map_model::Block;
 use widgetry::mapspace::ToggleZoomed;
-use widgetry::mapspace::{ObjectID, World, WorldOutcome};
+use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::{
     Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, Text, TextExt,
     VerticalAlignment, Widget,
 };
 
+use crate::partition::BlockID;
 use crate::{App, NeighborhoodID, Partitioning, Transition};
 
 const SELECTED: Color = Color::CYAN;
@@ -18,66 +19,46 @@ const SELECTED: Color = Color::CYAN;
 pub struct SelectBoundary {
     panel: Panel,
     id: NeighborhoodID,
-    // These are always single, unmerged blocks. Thus, these blocks never change -- only their
-    // color and assignment to a neighborhood.
-    blocks: BTreeMap<BlockID, Block>,
     world: World<BlockID>,
+    // TODO Redundant
     selected: BTreeSet<BlockID>,
     draw_outline: ToggleZoomed,
-    block_to_neighborhood: BTreeMap<BlockID, NeighborhoodID>,
     frontier: BTreeSet<BlockID>,
 
     orig_partitioning: Partitioning,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-struct BlockID(usize);
-impl ObjectID for BlockID {}
-
 impl SelectBoundary {
     pub fn new_state(ctx: &mut EventCtx, app: &App, id: NeighborhoodID) -> Box<dyn State<App>> {
-        let initial_boundary = app.session.partitioning.neighborhoods[&id]
-            .0
-            .perimeter
-            .clone();
+        let initial_boundary = app.session.partitioning.neighborhood_block(id);
 
         let mut state = SelectBoundary {
             panel: make_panel(ctx, app),
             id,
-            blocks: BTreeMap::new(),
             world: World::bounded(app.map.get_bounds()),
             selected: BTreeSet::new(),
             draw_outline: ToggleZoomed::empty(ctx),
-            block_to_neighborhood: BTreeMap::new(),
             frontier: BTreeSet::new(),
 
             orig_partitioning: app.session.partitioning.clone(),
         };
 
-        for (idx, block) in app.session.partitioning.single_blocks.iter().enumerate() {
-            let id = BlockID(idx);
-            if let Some(neighborhood) = app.session.partitioning.neighborhood_containing(block) {
-                state.block_to_neighborhood.insert(id, neighborhood);
-            } else {
-                // TODO What happened?
-                error!(
-                    "Block doesn't belong to any neighborhood?! {:?}",
-                    block.perimeter
-                );
-            }
-            if initial_boundary.contains(&block.perimeter) {
+        for (id, block) in app.session.partitioning.all_single_blocks() {
+            if initial_boundary.perimeter.contains(&block.perimeter) {
                 state.selected.insert(id);
             }
-            state.blocks.insert(id, block.clone());
         }
-        state.frontier = calculate_frontier(&initial_boundary, &state.blocks);
+        state.frontier = app
+            .session
+            .partitioning
+            .calculate_frontier(&initial_boundary.perimeter);
 
         // Fill out the world initially
-        for id in state.blocks.keys().cloned().collect::<Vec<_>>() {
+        for id in app.session.partitioning.all_block_ids() {
             state.add_block(ctx, app, id);
         }
 
-        state.redraw_outline(ctx, app, initial_boundary);
+        state.redraw_outline(ctx, initial_boundary);
         state.world.initialize_hover(ctx);
         Box::new(state)
     }
@@ -85,20 +66,18 @@ impl SelectBoundary {
     fn add_block(&mut self, ctx: &mut EventCtx, app: &App, id: BlockID) {
         let color = if self.selected.contains(&id) {
             SELECTED
-        } else if let Some(neighborhood) = self.block_to_neighborhood.get(&id) {
+        } else {
+            let neighborhood = app.session.partitioning.block_to_neighborhood(id);
             // Use the original color. This assumes the partitioning has been updated, of
             // course
-            app.session.partitioning.neighborhoods[neighborhood].1
-        } else {
-            // TODO A broken case, block has no neighborhood
-            Color::RED
+            app.session.partitioning.neighborhood_color(neighborhood)
         };
 
         if self.frontier.contains(&id) {
             let mut obj = self
                 .world
                 .add(id)
-                .hitbox(self.blocks[&id].polygon.clone())
+                .hitbox(app.session.partitioning.get_block(id).polygon.clone())
                 .draw_color(color.alpha(0.5))
                 .hover_alpha(0.8)
                 .clickable();
@@ -117,24 +96,21 @@ impl SelectBoundary {
             // it
             self.world
                 .add(id)
-                .hitbox(self.blocks[&id].polygon.clone())
+                .hitbox(app.session.partitioning.get_block(id).polygon.clone())
                 .draw_color(color.alpha(0.3))
                 .build(ctx);
         }
     }
 
-    fn redraw_outline(&mut self, ctx: &mut EventCtx, app: &App, perimeter: Perimeter) {
+    fn redraw_outline(&mut self, ctx: &mut EventCtx, block: &Block) {
         // Draw the outline of the current blocks
         let mut batch = ToggleZoomed::builder();
-        if let Ok(block) = perimeter.to_block(&app.map) {
-            if let Ok(outline) = block.polygon.to_outline(Distance::meters(10.0)) {
-                batch.unzoomed.push(Color::RED, outline);
-            }
-            if let Ok(outline) = block.polygon.to_outline(Distance::meters(5.0)) {
-                batch.zoomed.push(Color::RED.alpha(0.5), outline);
-            }
+        if let Ok(outline) = block.polygon.to_outline(Distance::meters(10.0)) {
+            batch.unzoomed.push(Color::RED, outline);
         }
-        // TODO If this fails, maybe also revert
+        if let Ok(outline) = block.polygon.to_outline(Distance::meters(5.0)) {
+            batch.zoomed.push(Color::RED.alpha(0.5), outline);
+        }
         self.draw_outline = batch.build(ctx);
     }
 
@@ -147,11 +123,12 @@ impl SelectBoundary {
             }
             Ok(None) => {
                 let old_frontier = std::mem::take(&mut self.frontier);
-                let new_perimeter = app.session.partitioning.neighborhoods[&self.id]
-                    .0
-                    .perimeter
-                    .clone();
-                self.frontier = calculate_frontier(&new_perimeter, &self.blocks);
+                self.frontier = app.session.partitioning.calculate_frontier(
+                    &app.session
+                        .partitioning
+                        .neighborhood_block(self.id)
+                        .perimeter,
+                );
 
                 // Redraw all of the blocks that changed
                 let mut changed_blocks: Vec<BlockID> = old_frontier
@@ -165,7 +142,7 @@ impl SelectBoundary {
                     // The coloring of neighborhoods changed; this could possibly have impact far
                     // away. Just redraw all blocks.
                     changed_blocks.clear();
-                    changed_blocks.extend(self.blocks.keys().cloned());
+                    changed_blocks.extend(app.session.partitioning.all_block_ids());
                 }
 
                 for changed in changed_blocks {
@@ -173,8 +150,7 @@ impl SelectBoundary {
                     self.add_block(ctx, app, changed);
                 }
 
-                // TODO Pass in the Block
-                self.redraw_outline(ctx, app, new_perimeter);
+                self.redraw_outline(ctx, app.session.partitioning.neighborhood_block(self.id));
                 self.panel = make_panel(ctx, app);
             }
             Err(err) => {
@@ -191,170 +167,25 @@ impl SelectBoundary {
         Transition::Keep
     }
 
-    fn make_merged_block(&self, app: &App, input: Vec<BlockID>) -> Result<Block> {
-        let mut perimeters = Vec::new();
-        for id in input {
-            perimeters.push(self.blocks[&id].perimeter.clone());
-        }
-        let mut merged = Perimeter::merge_all(perimeters, false);
-        if merged.len() != 1 {
-            bail!(format!(
-                "Splitting this neighborhood into {} pieces is currently unsupported",
-                merged.len()
-            ));
-        }
-        merged.pop().unwrap().to_block(&app.map)
-    }
-
     // Ok(Some(x)) means the current neighborhood was destroyed, and the caller should switch to
     // focusing on a different neigbhorhood
     fn try_block_changed(&mut self, app: &mut App, id: BlockID) -> Result<Option<NeighborhoodID>> {
         if self.selected.contains(&id) {
-            self.add_block_to_current(app, id)
-        } else {
-            self.remove_block_from_current(app, id)
-        }
-    }
-
-    fn add_block_to_current(
-        &mut self,
-        app: &mut App,
-        id: BlockID,
-    ) -> Result<Option<NeighborhoodID>> {
-        let old_owner = app
-            .session
-            .partitioning
-            .neighborhood_containing(&self.blocks[&id])
-            .unwrap();
-        // Ignore the return value if the old neighborhood is deleted
-        self.transfer_block(app, id, old_owner, self.id)?;
-        Ok(None)
-    }
-
-    fn remove_block_from_current(
-        &mut self,
-        app: &mut App,
-        id: BlockID,
-    ) -> Result<Option<NeighborhoodID>> {
-        // Find all RoadSideIDs in the block matching the current neighborhood perimeter. Look for
-        // the first one that borders another neighborhood, and transfer the block there.
-        // TODO This can get unintuitive -- if we remove a block bordering two other
-        // neighborhoods, which one should we donate to?
-        let current_perim_set: BTreeSet<RoadSideID> = app.session.partitioning.neighborhoods
-            [&self.id]
-            .0
-            .perimeter
-            .roads
-            .iter()
-            .cloned()
-            .collect();
-        for road_side in &self.blocks[&id].perimeter.roads {
-            if !current_perim_set.contains(road_side) {
-                continue;
-            }
-            // Is there another neighborhood that has the other side of this road on its perimeter?
-            // TODO We could map road -> BlockID then use block_to_neighborhood
-            let other_side = road_side.other_side();
-            if let Some((new_owner, _)) = app
+            let old_owner = app
                 .session
                 .partitioning
-                .neighborhoods
-                .iter()
-                .find(|(_, (block, _))| block.perimeter.roads.contains(&other_side))
-            {
-                let new_owner = *new_owner;
-                return self.transfer_block(app, id, self.id, new_owner);
-            }
-        }
-
-        // We didn't find any match, so we're jettisoning a block near the edge of the map (or a
-        // buggy area missing blocks). Create a new neighborhood with just this block.
-        let new_owner = app
-            .session
-            .partitioning
-            .create_new_neighborhood(self.blocks[&id].clone());
-        let result = self.transfer_block(app, id, self.id, new_owner);
-        if result.is_err() {
-            // Revert the change above!
-            app.session.partitioning.remove_new_neighborhood(new_owner);
-        }
-        result
-    }
-
-    // This doesn't use self.selected; it's agnostic to what the current block is
-    // TODO Move it to Partitioning
-    fn transfer_block(
-        &mut self,
-        app: &mut App,
-        id: BlockID,
-        old_owner: NeighborhoodID,
-        new_owner: NeighborhoodID,
-    ) -> Result<Option<NeighborhoodID>> {
-        assert_ne!(old_owner, new_owner);
-
-        // Is the newly expanded neighborhood a valid perimeter?
-        let new_owner_blocks: Vec<BlockID> = self
-            .block_to_neighborhood
-            .iter()
-            .filter_map(|(block, neighborhood)| {
-                if *neighborhood == new_owner || *block == id {
-                    Some(*block)
-                } else {
-                    None
-                }
-            })
-            .collect();
-        let new_neighborhood_block = self.make_merged_block(app, new_owner_blocks)?;
-
-        // Is the old neighborhood, minus this block, still valid?
-        // TODO refactor Neighborhood to BlockIDs?
-        let old_owner_blocks: Vec<BlockID> = self
-            .block_to_neighborhood
-            .iter()
-            .filter_map(|(block, neighborhood)| {
-                if *neighborhood == old_owner && *block != id {
-                    Some(*block)
-                } else {
-                    None
-                }
-            })
-            .collect();
-        if old_owner_blocks.is_empty() {
-            // We're deleting the old neighborhood!
-            app.session
-                .partitioning
-                .neighborhoods
-                .get_mut(&new_owner)
-                .unwrap()
-                .0 = new_neighborhood_block;
-            app.session
-                .partitioning
-                .neighborhoods
-                .remove(&old_owner)
+                .neighborhood_containing(id)
                 .unwrap();
-            self.block_to_neighborhood.insert(id, new_owner);
-            // Tell the caller to recreate this SelectBoundary state, switching to the neighborhood
-            // we just donated to, since the old is now gone
-            return Ok(Some(new_owner));
+            // Ignore the return value if the old neighborhood is deleted
+            app.session
+                .partitioning
+                .transfer_block(&app.map, id, old_owner, self.id)?;
+            Ok(None)
+        } else {
+            app.session
+                .partitioning
+                .remove_block_from_neighborhood(&app.map, id, self.id)
         }
-
-        let old_neighborhood_block = self.make_merged_block(app, old_owner_blocks)?;
-        // Great! Do the transfer.
-        app.session
-            .partitioning
-            .neighborhoods
-            .get_mut(&old_owner)
-            .unwrap()
-            .0 = old_neighborhood_block;
-        app.session
-            .partitioning
-            .neighborhoods
-            .get_mut(&new_owner)
-            .unwrap()
-            .0 = new_neighborhood_block;
-
-        self.block_to_neighborhood.insert(id, new_owner);
-        Ok(None)
     }
 }
 
@@ -465,22 +296,4 @@ fn make_panel(ctx: &mut EventCtx, app: &App) -> Panel {
     ]))
     .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
     .build(ctx)
-}
-
-// Blocks on the "frontier" are adjacent to the perimeter, either just inside or outside.
-fn calculate_frontier(perim: &Perimeter, blocks: &BTreeMap<BlockID, Block>) -> BTreeSet<BlockID> {
-    let perim_roads: BTreeSet<RoadID> = perim.roads.iter().map(|id| id.road).collect();
-
-    let mut frontier = BTreeSet::new();
-    for (block_id, block) in blocks {
-        for road_side_id in &block.perimeter.roads {
-            // If the perimeter has this RoadSideID on the same side, we're just inside. If it has
-            // the other side, just on the outside. Either way, on the frontier.
-            if perim_roads.contains(&road_side_id.road) {
-                frontier.insert(*block_id);
-                break;
-            }
-        }
-    }
-    frontier
 }

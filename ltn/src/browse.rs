@@ -162,7 +162,7 @@ impl State<App> for BrowseNeighborhoods {
 fn make_world(ctx: &mut EventCtx, app: &App, timer: &mut Timer) -> World<NeighborhoodID> {
     let mut world = World::bounded(app.map.get_bounds());
     let map = &app.map;
-    for (id, (block, color)) in &app.session.partitioning.neighborhoods {
+    for (id, (block, color)) in app.session.partitioning.all_neighborhoods() {
         match app.session.draw_neighborhood_style {
             Style::SimpleColoring => {
                 world
@@ -215,7 +215,7 @@ fn draw_boundary_roads(ctx: &EventCtx, app: &App) -> ToggleZoomed {
     let mut seen_roads = HashSet::new();
     let mut seen_borders = HashSet::new();
     let mut batch = ToggleZoomed::builder();
-    for (block, _) in app.session.partitioning.neighborhoods.values() {
+    for (block, _) in app.session.partitioning.all_neighborhoods().values() {
         for id in &block.perimeter.roads {
             let r = id.road;
             if seen_roads.contains(&r) {

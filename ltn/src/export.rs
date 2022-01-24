@@ -53,7 +53,7 @@ fn geojson_string(ctx: &EventCtx, app: &App) -> Result<String> {
     let mut features = Vec::new();
 
     // All neighborhood boundaries
-    for (id, (block, color)) in &app.session.partitioning.neighborhoods {
+    for (id, (block, color)) in app.session.partitioning.all_neighborhoods() {
         let mut feature = Feature {
             bbox: None,
             geometry: Some(block.polygon.to_geojson(None)),

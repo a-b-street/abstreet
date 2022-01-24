@@ -57,8 +57,10 @@ pub struct DistanceInterval {
 impl Neighborhood {
     pub fn new(ctx: &EventCtx, app: &App, id: NeighborhoodID) -> Neighborhood {
         let map = &app.map;
-        let orig_perimeter = app.session.partitioning.neighborhoods[&id]
-            .0
+        let orig_perimeter = app
+            .session
+            .partitioning
+            .neighborhood_block(id)
             .perimeter
             .clone();
 

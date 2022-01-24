@@ -219,7 +219,7 @@ impl Results {
 // Just add the base layer of non-clickable neighborhoods
 fn make_world(ctx: &mut EventCtx, app: &App) -> World<Obj> {
     let mut world = World::bounded(app.map.get_bounds());
-    for (id, (block, color)) in &app.session.partitioning.neighborhoods {
+    for (id, (block, color)) in app.session.partitioning.all_neighborhoods() {
         world
             .add(Obj::Neighborhood(*id))
             .hitbox(block.polygon.clone())

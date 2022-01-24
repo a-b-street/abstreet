@@ -1,9 +1,11 @@
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
+
+use anyhow::Result;
 
 use abstio::MapName;
 use abstutil::Timer;
 use map_model::osm::RoadRank;
-use map_model::{Block, Perimeter};
+use map_model::{Block, Map, Perimeter, RoadID, RoadSideID};
 use widgetry::Color;
 
 use crate::App;
@@ -20,17 +22,26 @@ const COLORS: [Color; 6] = [
 /// An opaque ID, won't be contiguous as we adjust boundaries
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct NeighborhoodID(usize);
+
+/// Identifies a single / unmerged block, which never changes
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct BlockID(usize);
+
 // Some states want this
 impl widgetry::mapspace::ObjectID for NeighborhoodID {}
+impl widgetry::mapspace::ObjectID for BlockID {}
 
 #[derive(Clone)]
 pub struct Partitioning {
     pub map: MapName,
-    pub neighborhoods: BTreeMap<NeighborhoodID, (Block, Color)>,
+    neighborhoods: BTreeMap<NeighborhoodID, (Block, Color)>,
     // The single / unmerged blocks never change
-    pub single_blocks: Vec<Block>,
+    single_blocks: Vec<Block>,
 
-    id_counter: usize,
+    neighborhood_id_counter: usize,
+
+    // Invariant: This is a bijection, every block belongs to exactly one neighborhood
+    block_to_neighborhood: BTreeMap<BlockID, NeighborhoodID>,
 }
 
 impl Partitioning {
@@ -41,7 +52,9 @@ impl Partitioning {
             neighborhoods: BTreeMap::new(),
             single_blocks: Vec::new(),
 
-            id_counter: 0,
+            neighborhood_id_counter: 0,
+
+            block_to_neighborhood: BTreeMap::new(),
         }
     }
 
@@ -89,14 +102,29 @@ impl Partitioning {
         for block in blocks {
             neighborhoods.insert(NeighborhoodID(neighborhoods.len()), (block, Color::RED));
         }
-        let id_counter = neighborhoods.len();
+        let neighborhood_id_counter = neighborhoods.len();
         let mut p = Partitioning {
             map: map.get_name().clone(),
             neighborhoods,
             single_blocks,
 
-            id_counter,
+            neighborhood_id_counter,
+            block_to_neighborhood: BTreeMap::new(),
         };
+
+        // TODO We could probably build this up as we go
+        for id in p.all_block_ids() {
+            if let Some(neighborhood) = p.neighborhood_containing(id) {
+                p.block_to_neighborhood.insert(id, neighborhood);
+            } else {
+                // TODO What happened? This will break everything downstream.
+                error!(
+                    "Block doesn't belong to any neighborhood?! {:?}",
+                    p.get_block(id).perimeter
+                );
+            }
+        }
+
         p.recalculate_coloring();
         p
     }
@@ -118,8 +146,130 @@ impl Partitioning {
         orig_coloring != new_coloring
     }
 
-    pub fn neighborhood_containing(&self, find_block: &Block) -> Option<NeighborhoodID> {
+    // TODO Explain return value
+    pub fn transfer_block(
+        &mut self,
+        map: &Map,
+        id: BlockID,
+        old_owner: NeighborhoodID,
+        new_owner: NeighborhoodID,
+    ) -> Result<Option<NeighborhoodID>> {
+        assert_ne!(old_owner, new_owner);
+
+        // Is the newly expanded neighborhood a valid perimeter?
+        let new_owner_blocks: Vec<BlockID> = self
+            .block_to_neighborhood
+            .iter()
+            .filter_map(|(block, neighborhood)| {
+                if *neighborhood == new_owner || *block == id {
+                    Some(*block)
+                } else {
+                    None
+                }
+            })
+            .collect();
+        let new_neighborhood_block = self.make_merged_block(map, new_owner_blocks)?;
+
+        // Is the old neighborhood, minus this block, still valid?
+        // TODO refactor Neighborhood to BlockIDs?
+        let old_owner_blocks: Vec<BlockID> = self
+            .block_to_neighborhood
+            .iter()
+            .filter_map(|(block, neighborhood)| {
+                if *neighborhood == old_owner && *block != id {
+                    Some(*block)
+                } else {
+                    None
+                }
+            })
+            .collect();
+        if old_owner_blocks.is_empty() {
+            // We're deleting the old neighborhood!
+            self.neighborhoods.get_mut(&new_owner).unwrap().0 = new_neighborhood_block;
+            self.neighborhoods.remove(&old_owner).unwrap();
+            self.block_to_neighborhood.insert(id, new_owner);
+            // Tell the caller to recreate this SelectBoundary state, switching to the neighborhood
+            // we just donated to, since the old is now gone
+            return Ok(Some(new_owner));
+        }
+
+        let old_neighborhood_block = self.make_merged_block(map, old_owner_blocks)?;
+        // Great! Do the transfer.
+        self.neighborhoods.get_mut(&old_owner).unwrap().0 = old_neighborhood_block;
+        self.neighborhoods.get_mut(&new_owner).unwrap().0 = new_neighborhood_block;
+
+        self.block_to_neighborhood.insert(id, new_owner);
+        Ok(None)
+    }
+
+    /// Needs to find an existing neighborhood to take the block, or make a new one
+    pub fn remove_block_from_neighborhood(
+        &mut self,
+        map: &Map,
+        id: BlockID,
+        old_owner: NeighborhoodID,
+    ) -> Result<Option<NeighborhoodID>> {
+        // Find all RoadSideIDs in the block matching the current neighborhood perimeter. Look for
+        // the first one that borders another neighborhood, and transfer the block there.
+        // TODO This can get unintuitive -- if we remove a block bordering two other
+        // neighborhoods, which one should we donate to?
+        let current_perim_set: BTreeSet<RoadSideID> = self.neighborhoods[&old_owner]
+            .0
+            .perimeter
+            .roads
+            .iter()
+            .cloned()
+            .collect();
+        for road_side in &self.get_block(id).perimeter.roads {
+            if !current_perim_set.contains(road_side) {
+                continue;
+            }
+            // Is there another neighborhood that has the other side of this road on its perimeter?
+            // TODO We could map road -> BlockID then use block_to_neighborhood
+            let other_side = road_side.other_side();
+            if let Some((new_owner, _)) = self
+                .neighborhoods
+                .iter()
+                .find(|(_, (block, _))| block.perimeter.roads.contains(&other_side))
+            {
+                let new_owner = *new_owner;
+                return self.transfer_block(map, id, old_owner, new_owner);
+            }
+        }
+
+        // We didn't find any match, so we're jettisoning a block near the edge of the map (or a
+        // buggy area missing blocks). Create a new neighborhood with just this block.
+        let new_owner = NeighborhoodID(self.neighborhood_id_counter);
+        self.neighborhood_id_counter += 1;
+        // Temporary color
+        self.neighborhoods
+            .insert(new_owner, (self.get_block(id).clone(), Color::RED));
+        let result = self.transfer_block(map, id, old_owner, new_owner);
+        if result.is_err() {
+            // Revert the change above!
+            self.neighborhoods.remove(&new_owner).unwrap();
+        }
+        result
+    }
+}
+
+// Read-only
+impl Partitioning {
+    pub fn neighborhood_block(&self, id: NeighborhoodID) -> &Block {
+        &self.neighborhoods[&id].0
+    }
+
+    pub fn neighborhood_color(&self, id: NeighborhoodID) -> Color {
+        self.neighborhoods[&id].1
+    }
+
+    pub fn all_neighborhoods(&self) -> &BTreeMap<NeighborhoodID, (Block, Color)> {
+        &self.neighborhoods
+    }
+
+    pub fn neighborhood_containing(&self, find_block: BlockID) -> Option<NeighborhoodID> {
         // TODO We could probably build this mapping up when we do Perimeter::merge_all
+        let find_block = self.get_block(find_block);
         for (id, (block, _)) in &self.neighborhoods {
             if block.perimeter.contains(&find_block.perimeter) {
                 return Some(*id);
@@ -128,19 +278,57 @@ impl Partitioning {
         None
     }
 
-    /// Starts a new neighborhood containing a single block. This will temporarily leave the
-    /// Partitioning in an invalid state, with one block being part of two neighborhoods. The
-    /// caller must keep rearranging things.
-    pub fn create_new_neighborhood(&mut self, block: Block) -> NeighborhoodID {
-        let id = NeighborhoodID(self.id_counter);
-        self.id_counter += 1;
-        // Temporary color
-        self.neighborhoods.insert(id, (block, Color::RED));
-        id
+    pub fn all_single_blocks(&self) -> Vec<(BlockID, &Block)> {
+        self.single_blocks
+            .iter()
+            .enumerate()
+            .map(|(idx, block)| (BlockID(idx), block))
+            .collect()
     }
 
-    /// Undo the above. Lots of trust on the caller.
-    pub fn remove_new_neighborhood(&mut self, id: NeighborhoodID) {
-        self.neighborhoods.remove(&id).unwrap();
+    pub fn all_block_ids(&self) -> Vec<BlockID> {
+        (0..self.single_blocks.len()).map(BlockID).collect()
+    }
+
+    pub fn get_block(&self, id: BlockID) -> &Block {
+        &self.single_blocks[id.0]
+    }
+
+    // Will crash if the original matching failed
+    pub fn block_to_neighborhood(&self, id: BlockID) -> NeighborhoodID {
+        self.block_to_neighborhood[&id]
+    }
+
+    /// Blocks on the "frontier" are adjacent to the perimeter, either just inside or outside.
+    pub fn calculate_frontier(&self, perim: &Perimeter) -> BTreeSet<BlockID> {
+        let perim_roads: BTreeSet<RoadID> = perim.roads.iter().map(|id| id.road).collect();
+
+        let mut frontier = BTreeSet::new();
+        for (block_id, block) in self.all_single_blocks() {
+            for road_side_id in &block.perimeter.roads {
+                // If the perimeter has this RoadSideID on the same side, we're just inside. If it has
+                // the other side, just on the outside. Either way, on the frontier.
+                if perim_roads.contains(&road_side_id.road) {
+                    frontier.insert(block_id);
+                    break;
+                }
+            }
+        }
+        frontier
+    }
+
+    fn make_merged_block(&self, map: &Map, input: Vec<BlockID>) -> Result<Block> {
+        let mut perimeters = Vec::new();
+        for id in input {
+            perimeters.push(self.get_block(id).perimeter.clone());
+        }
+        let mut merged = Perimeter::merge_all(perimeters, false);
+        if merged.len() != 1 {
+            bail!(format!(
+                "Splitting this neighborhood into {} pieces is currently unsupported",
+                merged.len()
+            ));
+        }
+        merged.pop().unwrap().to_block(map)
     }
 }
