@@ -170,9 +170,10 @@ impl Partitioning {
             .collect();
         let mut new_neighborhood_blocks = self.make_merged_blocks(map, new_owner_blocks)?;
         if new_neighborhood_blocks.len() != 1 {
-            // This should be impossible
+            // This happens when a hole would be created by adding this block. There are probably
+            // some smaller blocks nearby to add first.
             bail!(
-                "Adding a block to a neighborhood somehow splits it into {} pieces",
+                "You must first add intermediate blocks to avoid splitting this neighborhood into {} pieces",
                 new_neighborhood_blocks.len()
             );
         }
