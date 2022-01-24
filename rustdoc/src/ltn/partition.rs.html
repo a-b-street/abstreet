@@ -359,6 +359,7 @@
 <span id="358">358</span>
 <span id="359">359</span>
 <span id="360">360</span>
+<span id="361">361</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
@@ -531,9 +532,10 @@
             .<span class="ident">collect</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_neighborhood_blocks</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_merged_blocks</span>(<span class="ident">map</span>, <span class="ident">new_owner_blocks</span>)<span class="question-mark">?</span>;
         <span class="kw">if</span> <span class="ident">new_neighborhood_blocks</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">1</span> {
-            <span class="comment">// This should be impossible</span>
+            <span class="comment">// This happens when a hole would be created by adding this block. There are probably</span>
+            <span class="comment">// some smaller blocks nearby to add first.</span>
             <span class="macro">bail!</span>(
-                <span class="string">&quot;Adding a block to a neighborhood somehow splits it into {} pieces&quot;</span>,
+                <span class="string">&quot;You must first add intermediate blocks to avoid splitting this neighborhood into {} pieces&quot;</span>,
                 <span class="ident">new_neighborhood_blocks</span>.<span class="ident">len</span>()
             );
         }
