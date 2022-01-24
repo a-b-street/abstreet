@@ -122,6 +122,24 @@
 <span id="121">121</span>
 <span id="122">122</span>
 <span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
 
 <span class="kw">use</span> <span class="ident">abstio::MapName</span>;
@@ -153,6 +171,8 @@
     <span class="kw">pub</span> <span class="ident">neighborhoods</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">NeighborhoodID</span>, (<span class="ident">Block</span>, <span class="ident">Color</span>)<span class="op">&gt;</span>,
     <span class="comment">// The single / unmerged blocks never change</span>
     <span class="kw">pub</span> <span class="ident">single_blocks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Block</span><span class="op">&gt;</span>,
+
+    <span class="ident">id_counter</span>: <span class="ident">usize</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Partitioning</span> {
@@ -162,6 +182,8 @@
             <span class="ident">map</span>: <span class="ident">MapName::new</span>(<span class="string">&quot;zz&quot;</span>, <span class="string">&quot;temp&quot;</span>, <span class="string">&quot;orary&quot;</span>),
             <span class="ident">neighborhoods</span>: <span class="ident">BTreeMap::new</span>(),
             <span class="ident">single_blocks</span>: <span class="ident">Vec::new</span>(),
+
+            <span class="ident">id_counter</span>: <span class="number">0</span>,
         }
     }
 
@@ -209,10 +231,13 @@
         <span class="kw">for</span> <span class="ident">block</span> <span class="kw">in</span> <span class="ident">blocks</span> {
             <span class="ident">neighborhoods</span>.<span class="ident">insert</span>(<span class="ident">NeighborhoodID</span>(<span class="ident">neighborhoods</span>.<span class="ident">len</span>()), (<span class="ident">block</span>, <span class="ident">Color::RED</span>));
         }
+        <span class="kw">let</span> <span class="ident">id_counter</span> <span class="op">=</span> <span class="ident">neighborhoods</span>.<span class="ident">len</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">Partitioning</span> {
             <span class="ident">map</span>: <span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">clone</span>(),
             <span class="ident">neighborhoods</span>,
             <span class="ident">single_blocks</span>,
+
+            <span class="ident">id_counter</span>,
         };
         <span class="ident">p</span>.<span class="ident">recalculate_coloring</span>();
         <span class="ident">p</span>
@@ -243,6 +268,17 @@
             }
         }
         <span class="prelude-val">None</span>
+    }
+
+    <span class="doccomment">/// Starts a new neighborhood containing a single block. This will temporarily leave the</span>
+    <span class="doccomment">/// Partitioning in an invalid state, with one block being part of two neighborhoods. The</span>
+    <span class="doccomment">/// caller must keep rearranging things.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">create_new_neighborhood</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">block</span>: <span class="ident">Block</span>) -&gt; <span class="ident">NeighborhoodID</span> {
+        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">NeighborhoodID</span>(<span class="self">self</span>.<span class="ident">id_counter</span>);
+        <span class="self">self</span>.<span class="ident">id_counter</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        <span class="comment">// Temporary color</span>
+        <span class="self">self</span>.<span class="ident">neighborhoods</span>.<span class="ident">insert</span>(<span class="ident">id</span>, (<span class="ident">block</span>, <span class="ident">Color::RED</span>));
+        <span class="ident">id</span>
     }
 }
 </code></pre></div>
