@@ -333,6 +333,7 @@
 <span id="332">332</span>
 <span id="333">333</span>
 <span id="334">334</span>
+<span id="335">335</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
@@ -602,7 +603,8 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">neighborhoods</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">neighborhood_containing</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">find_block</span>: <span class="ident">BlockID</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NeighborhoodID</span><span class="op">&gt;</span> {
+    <span class="comment">// Just used for initial creation</span>
+    <span class="kw">fn</span> <span class="ident">neighborhood_containing</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">find_block</span>: <span class="ident">BlockID</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NeighborhoodID</span><span class="op">&gt;</span> {
         <span class="comment">// TODO We could probably build this mapping up when we do Perimeter::merge_all</span>
         <span class="kw">let</span> <span class="ident">find_block</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_block</span>(<span class="ident">find_block</span>);
         <span class="kw">for</span> (<span class="ident">id</span>, (<span class="ident">block</span>, <span class="kw">_</span>)) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">neighborhoods</span> {
