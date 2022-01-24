@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["SELECTED",""]],"fn":[["make_panel",""]],"struct":[["SelectBoundary",""]]});
+initSidebarItems({"fn":[["make_panel",""]],"struct":[["SelectBoundary",""]]});
