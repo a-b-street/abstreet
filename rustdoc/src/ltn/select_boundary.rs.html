@@ -485,76 +485,6 @@
 <span id="484">484</span>
 <span id="485">485</span>
 <span id="486">486</span>
-<span id="487">487</span>
-<span id="488">488</span>
-<span id="489">489</span>
-<span id="490">490</span>
-<span id="491">491</span>
-<span id="492">492</span>
-<span id="493">493</span>
-<span id="494">494</span>
-<span id="495">495</span>
-<span id="496">496</span>
-<span id="497">497</span>
-<span id="498">498</span>
-<span id="499">499</span>
-<span id="500">500</span>
-<span id="501">501</span>
-<span id="502">502</span>
-<span id="503">503</span>
-<span id="504">504</span>
-<span id="505">505</span>
-<span id="506">506</span>
-<span id="507">507</span>
-<span id="508">508</span>
-<span id="509">509</span>
-<span id="510">510</span>
-<span id="511">511</span>
-<span id="512">512</span>
-<span id="513">513</span>
-<span id="514">514</span>
-<span id="515">515</span>
-<span id="516">516</span>
-<span id="517">517</span>
-<span id="518">518</span>
-<span id="519">519</span>
-<span id="520">520</span>
-<span id="521">521</span>
-<span id="522">522</span>
-<span id="523">523</span>
-<span id="524">524</span>
-<span id="525">525</span>
-<span id="526">526</span>
-<span id="527">527</span>
-<span id="528">528</span>
-<span id="529">529</span>
-<span id="530">530</span>
-<span id="531">531</span>
-<span id="532">532</span>
-<span id="533">533</span>
-<span id="534">534</span>
-<span id="535">535</span>
-<span id="536">536</span>
-<span id="537">537</span>
-<span id="538">538</span>
-<span id="539">539</span>
-<span id="540">540</span>
-<span id="541">541</span>
-<span id="542">542</span>
-<span id="543">543</span>
-<span id="544">544</span>
-<span id="545">545</span>
-<span id="546">546</span>
-<span id="547">547</span>
-<span id="548">548</span>
-<span id="549">549</span>
-<span id="550">550</span>
-<span id="551">551</span>
-<span id="552">552</span>
-<span id="553">553</span>
-<span id="554">554</span>
-<span id="555">555</span>
-<span id="556">556</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
@@ -783,55 +713,8 @@
             .<span class="ident">partitioning</span>
             .<span class="ident">neighborhood_containing</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">blocks</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>])
             .<span class="ident">unwrap</span>();
-        <span class="macro">assert_ne!</span>(<span class="ident">old_owner</span>, <span class="self">self</span>.<span class="ident">id</span>);
-
-        <span class="comment">// Is the newly expanded neighborhood a valid perimeter?</span>
-        <span class="kw">let</span> <span class="ident">current_neighborhood_block</span> <span class="op">=</span>
-            <span class="self">self</span>.<span class="ident">make_merged_block</span>(<span class="ident">app</span>, <span class="self">self</span>.<span class="ident">selected</span>.<span class="ident">iter</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>())<span class="question-mark">?</span>;
-
-        <span class="comment">// Is the old owner neighborhood, minus this block, still valid?</span>
-        <span class="kw">let</span> <span class="ident">old_blocks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BlockID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">block_to_neighborhood</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">filter_map</span>(<span class="op">|</span>(<span class="ident">block</span>, <span class="ident">neighborhood</span>)<span class="op">|</span> {
-                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">block</span> <span class="op">!</span><span class="op">=</span> <span class="ident">id</span> <span class="op">&amp;&amp;</span> <span class="kw-2">*</span><span class="ident">neighborhood</span> <span class="op">==</span> <span class="ident">old_owner</span> {
-                    <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">block</span>)
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">None</span>
-                }
-            })
-            .<span class="ident">collect</span>();
-        <span class="kw">if</span> <span class="ident">old_blocks</span>.<span class="ident">is_empty</span>() {
-            <span class="comment">// The old neighborhood is destroyed!</span>
-            <span class="ident">app</span>.<span class="ident">session</span>
-                .<span class="ident">partitioning</span>
-                .<span class="ident">neighborhoods</span>
-                .<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">id</span>)
-                .<span class="ident">unwrap</span>()
-                .<span class="number">0</span> <span class="op">=</span> <span class="ident">current_neighborhood_block</span>;
-            <span class="ident">app</span>.<span class="ident">session</span>
-                .<span class="ident">partitioning</span>
-                .<span class="ident">neighborhoods</span>
-                .<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">old_owner</span>)
-                .<span class="ident">unwrap</span>();
-        } <span class="kw">else</span> {
-            <span class="kw">let</span> <span class="ident">old_neighborhood_block</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_merged_block</span>(<span class="ident">app</span>, <span class="ident">old_blocks</span>)<span class="question-mark">?</span>;
-            <span class="comment">// Great! Do the transfer.</span>
-            <span class="ident">app</span>.<span class="ident">session</span>
-                .<span class="ident">partitioning</span>
-                .<span class="ident">neighborhoods</span>
-                .<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">id</span>)
-                .<span class="ident">unwrap</span>()
-                .<span class="number">0</span> <span class="op">=</span> <span class="ident">current_neighborhood_block</span>;
-            <span class="ident">app</span>.<span class="ident">session</span>
-                .<span class="ident">partitioning</span>
-                .<span class="ident">neighborhoods</span>
-                .<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">old_owner</span>)
-                .<span class="ident">unwrap</span>()
-                .<span class="number">0</span> <span class="op">=</span> <span class="ident">old_neighborhood_block</span>;
-        }
-
-        <span class="self">self</span>.<span class="ident">block_to_neighborhood</span>.<span class="ident">insert</span>(<span class="ident">id</span>, <span class="self">self</span>.<span class="ident">id</span>);
+        <span class="comment">// Ignore the return value if the old neighborhood is deleted</span>
+        <span class="self">self</span>.<span class="ident">transfer_block</span>(<span class="ident">app</span>, <span class="ident">id</span>, <span class="ident">old_owner</span>, <span class="self">self</span>.<span class="ident">id</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
     }
 
@@ -867,66 +750,7 @@
                 .<span class="ident">find</span>(<span class="op">|</span>(<span class="kw">_</span>, (<span class="ident">block</span>, <span class="kw">_</span>))<span class="op">|</span> <span class="ident">block</span>.<span class="ident">perimeter</span>.<span class="ident">roads</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">other_side</span>))
             {
                 <span class="kw">let</span> <span class="ident">new_owner</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">new_owner</span>;
-                <span class="comment">// Great, donor found!</span>
-                <span class="macro">assert_ne!</span>(<span class="ident">new_owner</span>, <span class="self">self</span>.<span class="ident">id</span>);
-                <span class="comment">// TODO Refactor... fn transfer_block(&amp;mut self, app: &amp;mut App, id: BlockID, old_owner: NeighborhoodID, new_owner: NeighborhoodID) -&gt; Result&lt;()&gt;</span>
-
-                <span class="comment">// Is the newly expanded neighborhood a valid perimeter?</span>
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_owner_blocks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BlockID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>
-                    .<span class="ident">block_to_neighborhood</span>
-                    .<span class="ident">iter</span>()
-                    .<span class="ident">filter_map</span>(<span class="op">|</span>(<span class="ident">block</span>, <span class="ident">neighborhood</span>)<span class="op">|</span> {
-                        <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">neighborhood</span> <span class="op">==</span> <span class="ident">new_owner</span> {
-                            <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">block</span>)
-                        } <span class="kw">else</span> {
-                            <span class="prelude-val">None</span>
-                        }
-                    })
-                    .<span class="ident">collect</span>();
-                <span class="ident">new_owner_blocks</span>.<span class="ident">push</span>(<span class="ident">id</span>);
-                <span class="kw">let</span> <span class="ident">new_neighborhood_block</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_merged_block</span>(<span class="ident">app</span>, <span class="ident">new_owner_blocks</span>)<span class="question-mark">?</span>;
-
-                <span class="comment">// Is the current neighborhood, minus this block, still valid?</span>
-                <span class="kw">let</span> <span class="ident">old_owner_blocks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BlockID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>
-                    .<span class="ident">selected</span>
-                    .<span class="ident">iter</span>()
-                    .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">x</span> <span class="op">!</span><span class="op">=</span> <span class="ident">id</span> { <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">x</span>) } <span class="kw">else</span> { <span class="prelude-val">None</span> })
-                    .<span class="ident">collect</span>();
-                <span class="kw">if</span> <span class="ident">old_owner_blocks</span>.<span class="ident">is_empty</span>() {
-                    <span class="comment">// We&#39;re deleting the current neighborhood!</span>
-                    <span class="ident">app</span>.<span class="ident">session</span>
-                        .<span class="ident">partitioning</span>
-                        .<span class="ident">neighborhoods</span>
-                        .<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">new_owner</span>)
-                        .<span class="ident">unwrap</span>()
-                        .<span class="number">0</span> <span class="op">=</span> <span class="ident">new_neighborhood_block</span>;
-                    <span class="ident">app</span>.<span class="ident">session</span>
-                        .<span class="ident">partitioning</span>
-                        .<span class="ident">neighborhoods</span>
-                        .<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">id</span>)
-                        .<span class="ident">unwrap</span>();
-                    <span class="comment">// Tell the caller to recreate this SelectBoundary state, switching to the</span>
-                    <span class="comment">// neighborhood we just donated to, since this one is now gone</span>
-                    <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">new_owner</span>));
-                }
-
-                <span class="kw">let</span> <span class="ident">old_neighborhood_block</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_merged_block</span>(<span class="ident">app</span>, <span class="ident">old_owner_blocks</span>)<span class="question-mark">?</span>;
-                <span class="comment">// Great! Do the transfer.</span>
-                <span class="ident">app</span>.<span class="ident">session</span>
-                    .<span class="ident">partitioning</span>
-                    .<span class="ident">neighborhoods</span>
-                    .<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">id</span>)
-                    .<span class="ident">unwrap</span>()
-                    .<span class="number">0</span> <span class="op">=</span> <span class="ident">old_neighborhood_block</span>;
-                <span class="ident">app</span>.<span class="ident">session</span>
-                    .<span class="ident">partitioning</span>
-                    .<span class="ident">neighborhoods</span>
-                    .<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">new_owner</span>)
-                    .<span class="ident">unwrap</span>()
-                    .<span class="number">0</span> <span class="op">=</span> <span class="ident">new_neighborhood_block</span>;
-
-                <span class="self">self</span>.<span class="ident">block_to_neighborhood</span>.<span class="ident">insert</span>(<span class="ident">id</span>, <span class="ident">new_owner</span>);
-                <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
+                <span class="kw">return</span> <span class="self">self</span>.<span class="ident">transfer_block</span>(<span class="ident">app</span>, <span class="ident">id</span>, <span class="self">self</span>.<span class="ident">id</span>, <span class="ident">new_owner</span>);
             }
         }
 
@@ -936,52 +760,88 @@
             .<span class="ident">session</span>
             .<span class="ident">partitioning</span>
             .<span class="ident">create_new_neighborhood</span>(<span class="self">self</span>.<span class="ident">blocks</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>].<span class="ident">clone</span>());
-        <span class="comment">// TODO Duplicate code below</span>
-        {
-            <span class="kw">let</span> <span class="ident">new_neighborhood_block</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">blocks</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>].<span class="ident">clone</span>();
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">transfer_block</span>(<span class="ident">app</span>, <span class="ident">id</span>, <span class="self">self</span>.<span class="ident">id</span>, <span class="ident">new_owner</span>);
+        <span class="kw">if</span> <span class="ident">result</span>.<span class="ident">is_err</span>() {
+            <span class="comment">// Revert the change above!</span>
+            <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">remove_new_neighborhood</span>(<span class="ident">new_owner</span>);
+        }
+        <span class="ident">result</span>
+    }
 
-            <span class="comment">// Is the current neighborhood, minus this block, still valid?</span>
-            <span class="kw">let</span> <span class="ident">old_owner_blocks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BlockID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>
-                .<span class="ident">selected</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">x</span> <span class="op">!</span><span class="op">=</span> <span class="ident">id</span> { <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">x</span>) } <span class="kw">else</span> { <span class="prelude-val">None</span> })
-                .<span class="ident">collect</span>();
-            <span class="kw">if</span> <span class="ident">old_owner_blocks</span>.<span class="ident">is_empty</span>() {
-                <span class="comment">// We&#39;re deleting the current neighborhood!</span>
-                <span class="ident">app</span>.<span class="ident">session</span>
-                    .<span class="ident">partitioning</span>
-                    .<span class="ident">neighborhoods</span>
-                    .<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">new_owner</span>)
-                    .<span class="ident">unwrap</span>()
-                    .<span class="number">0</span> <span class="op">=</span> <span class="ident">new_neighborhood_block</span>;
-                <span class="ident">app</span>.<span class="ident">session</span>
-                    .<span class="ident">partitioning</span>
-                    .<span class="ident">neighborhoods</span>
-                    .<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">id</span>)
-                    .<span class="ident">unwrap</span>();
-                <span class="comment">// Tell the caller to recreate this SelectBoundary state, switching to the</span>
-                <span class="comment">// neighborhood we just donated to, since this one is now gone</span>
-                <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">new_owner</span>));
-            }
+    <span class="comment">// This doesn&#39;t use self.selected; it&#39;s agnostic to what the current block is</span>
+    <span class="comment">// TODO Move it to Partitioning</span>
+    <span class="kw">fn</span> <span class="ident">transfer_block</span>(
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
+        <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
+        <span class="ident">id</span>: <span class="ident">BlockID</span>,
+        <span class="ident">old_owner</span>: <span class="ident">NeighborhoodID</span>,
+        <span class="ident">new_owner</span>: <span class="ident">NeighborhoodID</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NeighborhoodID</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="macro">assert_ne!</span>(<span class="ident">old_owner</span>, <span class="ident">new_owner</span>);
 
-            <span class="kw">let</span> <span class="ident">old_neighborhood_block</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_merged_block</span>(<span class="ident">app</span>, <span class="ident">old_owner_blocks</span>)<span class="question-mark">?</span>;
-            <span class="comment">// Great! Do the transfer.</span>
-            <span class="ident">app</span>.<span class="ident">session</span>
-                .<span class="ident">partitioning</span>
-                .<span class="ident">neighborhoods</span>
-                .<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">id</span>)
-                .<span class="ident">unwrap</span>()
-                .<span class="number">0</span> <span class="op">=</span> <span class="ident">old_neighborhood_block</span>;
+        <span class="comment">// Is the newly expanded neighborhood a valid perimeter?</span>
+        <span class="kw">let</span> <span class="ident">new_owner_blocks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BlockID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">block_to_neighborhood</span>
+            .<span class="ident">iter</span>()
+            .<span class="ident">filter_map</span>(<span class="op">|</span>(<span class="ident">block</span>, <span class="ident">neighborhood</span>)<span class="op">|</span> {
+                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">neighborhood</span> <span class="op">==</span> <span class="ident">new_owner</span> <span class="op">|</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">block</span> <span class="op">==</span> <span class="ident">id</span> {
+                    <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">block</span>)
+                } <span class="kw">else</span> {
+                    <span class="prelude-val">None</span>
+                }
+            })
+            .<span class="ident">collect</span>();
+        <span class="kw">let</span> <span class="ident">new_neighborhood_block</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_merged_block</span>(<span class="ident">app</span>, <span class="ident">new_owner_blocks</span>)<span class="question-mark">?</span>;
+
+        <span class="comment">// Is the old neighborhood, minus this block, still valid?</span>
+        <span class="comment">// TODO refactor Neighborhood to BlockIDs?</span>
+        <span class="kw">let</span> <span class="ident">old_owner_blocks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BlockID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">block_to_neighborhood</span>
+            .<span class="ident">iter</span>()
+            .<span class="ident">filter_map</span>(<span class="op">|</span>(<span class="ident">block</span>, <span class="ident">neighborhood</span>)<span class="op">|</span> {
+                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">neighborhood</span> <span class="op">==</span> <span class="ident">old_owner</span> <span class="op">&amp;&amp;</span> <span class="kw-2">*</span><span class="ident">block</span> <span class="op">!</span><span class="op">=</span> <span class="ident">id</span> {
+                    <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">block</span>)
+                } <span class="kw">else</span> {
+                    <span class="prelude-val">None</span>
+                }
+            })
+            .<span class="ident">collect</span>();
+        <span class="kw">if</span> <span class="ident">old_owner_blocks</span>.<span class="ident">is_empty</span>() {
+            <span class="comment">// We&#39;re deleting the old neighborhood!</span>
             <span class="ident">app</span>.<span class="ident">session</span>
                 .<span class="ident">partitioning</span>
                 .<span class="ident">neighborhoods</span>
                 .<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">new_owner</span>)
                 .<span class="ident">unwrap</span>()
                 .<span class="number">0</span> <span class="op">=</span> <span class="ident">new_neighborhood_block</span>;
-
+            <span class="ident">app</span>.<span class="ident">session</span>
+                .<span class="ident">partitioning</span>
+                .<span class="ident">neighborhoods</span>
+                .<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">old_owner</span>)
+                .<span class="ident">unwrap</span>();
             <span class="self">self</span>.<span class="ident">block_to_neighborhood</span>.<span class="ident">insert</span>(<span class="ident">id</span>, <span class="ident">new_owner</span>);
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
+            <span class="comment">// Tell the caller to recreate this SelectBoundary state, switching to the neighborhood</span>
+            <span class="comment">// we just donated to, since the old is now gone</span>
+            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">new_owner</span>));
         }
+
+        <span class="kw">let</span> <span class="ident">old_neighborhood_block</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_merged_block</span>(<span class="ident">app</span>, <span class="ident">old_owner_blocks</span>)<span class="question-mark">?</span>;
+        <span class="comment">// Great! Do the transfer.</span>
+        <span class="ident">app</span>.<span class="ident">session</span>
+            .<span class="ident">partitioning</span>
+            .<span class="ident">neighborhoods</span>
+            .<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">old_owner</span>)
+            .<span class="ident">unwrap</span>()
+            .<span class="number">0</span> <span class="op">=</span> <span class="ident">old_neighborhood_block</span>;
+        <span class="ident">app</span>.<span class="ident">session</span>
+            .<span class="ident">partitioning</span>
+            .<span class="ident">neighborhoods</span>
+            .<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">new_owner</span>)
+            .<span class="ident">unwrap</span>()
+            .<span class="number">0</span> <span class="op">=</span> <span class="ident">new_neighborhood_block</span>;
+
+        <span class="self">self</span>.<span class="ident">block_to_neighborhood</span>.<span class="ident">insert</span>(<span class="ident">id</span>, <span class="ident">new_owner</span>);
+        <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
     }
 }
 
