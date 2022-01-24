@@ -1423,27 +1423,27 @@
         }
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dist_left</span> <span class="op">=</span> <span class="ident">dist_along</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">length_remeasured</span> <span class="op">=</span> <span class="ident">Distance::ZERO</span>;
         <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">l</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">lines</span>().<span class="ident">enumerate</span>() {
             <span class="kw">let</span> <span class="ident">length</span> <span class="op">=</span> <span class="ident">l</span>.<span class="ident">length</span>();
-            <span class="ident">length_remeasured</span> <span class="op">+</span><span class="op">=</span> <span class="ident">length</span>;
             <span class="kw">let</span> <span class="ident">epsilon</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">idx</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">2</span> {
                 <span class="ident">EPSILON_DIST</span>
             } <span class="kw">else</span> {
                 <span class="ident">Distance::ZERO</span>
             };
             <span class="kw">if</span> <span class="ident">dist_left</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">length</span> <span class="op">+</span> <span class="ident">epsilon</span> {
-                <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">l</span>.<span class="ident">must_dist_along</span>(<span class="ident">dist_left</span>), <span class="ident">l</span>.<span class="ident">angle</span>()));
+                <span class="comment">// Floating point errors means sometimes we ask for something slightly longer than</span>
+                <span class="comment">// the line</span>
+                <span class="kw">let</span> <span class="ident">dist</span> <span class="op">=</span> <span class="ident">l</span>.<span class="ident">dist_along</span>(<span class="ident">dist_left</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">l</span>.<span class="ident">pt2</span>());
+                <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">dist</span>, <span class="ident">l</span>.<span class="ident">angle</span>()));
             }
             <span class="ident">dist_left</span> <span class="op">-</span><span class="op">=</span> <span class="ident">length</span>;
         }
         <span class="comment">// Leaving this panic, because I haven&#39;t seen this in ages, and something is seriously</span>
         <span class="comment">// wrong if we get here</span>
         <span class="macro">panic!</span>(
-            <span class="string">&quot;PolyLine dist_along of {} broke on length {} (recalculated length {}): {}&quot;</span>,
+            <span class="string">&quot;PolyLine dist_along of {} broke on length {}: {}&quot;</span>,
             <span class="ident">dist_along</span>,
             <span class="self">self</span>.<span class="ident">length</span>(),
-            <span class="ident">length_remeasured</span>,
             <span class="self">self</span>
         );
     }
