@@ -14,8 +14,6 @@ use widgetry::{
 use crate::partition::BlockID;
 use crate::{App, NeighborhoodID, Partitioning, Transition};
 
-const SELECTED: Color = Color::CYAN;
-
 pub struct SelectBoundary {
     panel: Panel,
     id: NeighborhoodID,
@@ -64,14 +62,8 @@ impl SelectBoundary {
     }
 
     fn add_block(&mut self, ctx: &mut EventCtx, app: &App, id: BlockID) {
-        let color = if self.selected.contains(&id) {
-            SELECTED
-        } else {
-            let neighborhood = app.session.partitioning.block_to_neighborhood(id);
-            // Use the original color. This assumes the partitioning has been updated, of
-            // course
-            app.session.partitioning.neighborhood_color(neighborhood)
-        };
+        let neighborhood = app.session.partitioning.block_to_neighborhood(id);
+        let color = app.session.partitioning.neighborhood_color(neighborhood);
 
         if self.frontier.contains(&id) {
             let mut obj = self
@@ -94,10 +86,11 @@ impl SelectBoundary {
         } else {
             // If we can't immediately add/remove the block, fade it out and don't allow clicking
             // it
+            let alpha = if self.id == neighborhood { 0.5 } else { 0.1 };
             self.world
                 .add(id)
                 .hitbox(app.session.partitioning.get_block(id).polygon.clone())
-                .draw_color(color.alpha(0.3))
+                .draw_color(color.alpha(alpha))
                 .build(ctx);
         }
     }
