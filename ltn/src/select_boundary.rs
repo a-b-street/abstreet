@@ -210,163 +210,172 @@ impl SelectBoundary {
     // focusing on a different neigbhorhood
     fn try_block_changed(&mut self, app: &mut App, id: BlockID) -> Result<Option<NeighborhoodID>> {
         if self.selected.contains(&id) {
-            // We're taking a block from another neighborhood
-            let old_owner = app
+            self.add_block_to_current(app, id)
+        } else {
+            self.remove_block_from_current(app, id)
+        }
+    }
+
+    fn add_block_to_current(
+        &mut self,
+        app: &mut App,
+        id: BlockID,
+    ) -> Result<Option<NeighborhoodID>> {
+        let old_owner = app
+            .session
+            .partitioning
+            .neighborhood_containing(&self.blocks[&id])
+            .unwrap();
+        assert_ne!(old_owner, self.id);
+
+        // Is the newly expanded neighborhood a valid perimeter?
+        let current_neighborhood_block =
+            self.make_merged_block(app, self.selected.iter().cloned().collect())?;
+
+        // Is the old owner neighborhood, minus this block, still valid?
+        let old_blocks: Vec<BlockID> = self
+            .block_to_neighborhood
+            .iter()
+            .filter_map(|(block, neighborhood)| {
+                if *block != id && *neighborhood == old_owner {
+                    Some(*block)
+                } else {
+                    None
+                }
+            })
+            .collect();
+        if old_blocks.is_empty() {
+            // The old neighborhood is destroyed!
+            app.session
+                .partitioning
+                .neighborhoods
+                .get_mut(&self.id)
+                .unwrap()
+                .0 = current_neighborhood_block;
+            app.session
+                .partitioning
+                .neighborhoods
+                .remove(&old_owner)
+                .unwrap();
+        } else {
+            let old_neighborhood_block = self.make_merged_block(app, old_blocks)?;
+            // Great! Do the transfer.
+            app.session
+                .partitioning
+                .neighborhoods
+                .get_mut(&self.id)
+                .unwrap()
+                .0 = current_neighborhood_block;
+            app.session
+                .partitioning
+                .neighborhoods
+                .get_mut(&old_owner)
+                .unwrap()
+                .0 = old_neighborhood_block;
+        }
+
+        self.block_to_neighborhood.insert(id, self.id);
+        Ok(None)
+    }
+
+    fn remove_block_from_current(
+        &mut self,
+        app: &mut App,
+        id: BlockID,
+    ) -> Result<Option<NeighborhoodID>> {
+        // Find all RoadSideIDs in the block matching the current neighborhood perimeter. Look for
+        // the first one that borders another neighborhood, and transfer the block there.
+        // TODO This can get unintuitive -- if we remove a block bordering two other
+        // neighborhoods, which one should we donate to?
+        let current_perim_set: BTreeSet<RoadSideID> = app.session.partitioning.neighborhoods
+            [&self.id]
+            .0
+            .perimeter
+            .roads
+            .iter()
+            .cloned()
+            .collect();
+        for road_side in &self.blocks[&id].perimeter.roads {
+            if !current_perim_set.contains(road_side) {
+                continue;
+            }
+            // Is there another neighborhood that has the other side of this road on its perimeter?
+            // TODO We could map road -> BlockID then use block_to_neighborhood
+            let other_side = road_side.other_side();
+            if let Some((new_owner, _)) = app
                 .session
                 .partitioning
-                .neighborhood_containing(&self.blocks[&id])
-                .unwrap();
-            assert_ne!(old_owner, self.id);
-
-            // Is the newly expanded neighborhood a valid perimeter?
-            let current_neighborhood_block =
-                self.make_merged_block(app, self.selected.iter().cloned().collect())?;
-
-            // Is the old owner neighborhood, minus this block, still valid?
-            let old_blocks: Vec<BlockID> = self
-                .block_to_neighborhood
+                .neighborhoods
                 .iter()
-                .filter_map(|(block, neighborhood)| {
-                    if *block != id && *neighborhood == old_owner {
-                        Some(*block)
-                    } else {
-                        None
-                    }
-                })
-                .collect();
-            if old_blocks.is_empty() {
-                app.session
-                    .partitioning
-                    .neighborhoods
-                    .get_mut(&self.id)
-                    .unwrap()
-                    .0 = current_neighborhood_block;
-                // The old neighborhood is destroyed!
-                app.session
-                    .partitioning
-                    .neighborhoods
-                    .remove(&old_owner)
-                    .unwrap();
-            } else {
-                let old_neighborhood_block = self.make_merged_block(app, old_blocks)?;
-                // Great! Do the transfer.
-                app.session
-                    .partitioning
-                    .neighborhoods
-                    .get_mut(&self.id)
-                    .unwrap()
-                    .0 = current_neighborhood_block;
-                app.session
-                    .partitioning
-                    .neighborhoods
-                    .get_mut(&old_owner)
-                    .unwrap()
-                    .0 = old_neighborhood_block;
-            }
-
-            self.block_to_neighborhood.insert(id, self.id);
-            Ok(None)
-        } else {
-            // We're getting rid of a block. Who are we giving it to?
-
-            // Find _any_ RoadSideID in the block matching the current neighborhood perimeter
-            // TODO This can get unintuitive -- if we remove a block bordering two other
-            // neighborhoods, which one should we donate to?
-            let current_perim_set: BTreeSet<RoadSideID> = app.session.partitioning.neighborhoods
-                [&self.id]
-                .0
-                .perimeter
-                .roads
-                .iter()
-                .cloned()
-                .collect();
-            if let Some(road_side) = self.blocks[&id]
-                .perimeter
-                .roads
-                .iter()
-                .find(|x| current_perim_set.contains(x))
+                .find(|(_, (block, _))| block.perimeter.roads.contains(&other_side))
             {
-                // Is there another neighborhood that has the other side of this road on its
-                // perimeter?
-                // TODO We could map road -> BlockID then use block_to_neighborhood
-                let other_side = road_side.other_side();
-                if let Some((new_owner, _)) = app
-                    .session
-                    .partitioning
-                    .neighborhoods
+                let new_owner = *new_owner;
+                // Great, donor found!
+                assert_ne!(new_owner, self.id);
+                // TODO Refactor... fn transfer_block(&mut self, app: &mut App, id: BlockID, old_owner: NeighborhoodID, new_owner: NeighborhoodID) -> Result<()>
+
+                // Is the newly expanded neighborhood a valid perimeter?
+                let mut new_owner_blocks: Vec<BlockID> = self
+                    .block_to_neighborhood
                     .iter()
-                    .find(|(_, (block, _))| block.perimeter.roads.contains(&other_side))
-                {
-                    let new_owner = *new_owner;
-                    // Great, donor found!
-                    assert_ne!(new_owner, self.id);
-                    // TODO Refactor... fn transfer_block(&mut self, app: &mut App, id: BlockID, old_owner: NeighborhoodID, new_owner: NeighborhoodID) -> Result<()>
+                    .filter_map(|(block, neighborhood)| {
+                        if *neighborhood == new_owner {
+                            Some(*block)
+                        } else {
+                            None
+                        }
+                    })
+                    .collect();
+                new_owner_blocks.push(id);
+                let new_neighborhood_block = self.make_merged_block(app, new_owner_blocks)?;
 
-                    // Is the newly expanded neighborhood a valid perimeter?
-                    let mut new_owner_blocks: Vec<BlockID> = self
-                        .block_to_neighborhood
-                        .iter()
-                        .filter_map(|(block, neighborhood)| {
-                            if *neighborhood == new_owner {
-                                Some(*block)
-                            } else {
-                                None
-                            }
-                        })
-                        .collect();
-                    new_owner_blocks.push(id);
-                    let new_neighborhood_block = self.make_merged_block(app, new_owner_blocks)?;
-
-                    // Is the current neighborhood, minus this block, still valid?
-                    let old_owner_blocks: Vec<BlockID> = self
-                        .selected
-                        .iter()
-                        .filter_map(|x| if *x != id { Some(*x) } else { None })
-                        .collect();
-                    if old_owner_blocks.is_empty() {
-                        // We're deleting the current neighborhood!
-                        app.session
-                            .partitioning
-                            .neighborhoods
-                            .get_mut(&new_owner)
-                            .unwrap()
-                            .0 = new_neighborhood_block;
-                        app.session
-                            .partitioning
-                            .neighborhoods
-                            .remove(&self.id)
-                            .unwrap();
-                        // Tell the caller to recreate this SelectBoundary state, switching to the
-                        // neighborhood we just donated to, since this one is now gone
-                        return Ok(Some(new_owner));
-                    }
-
-                    let old_neighborhood_block = self.make_merged_block(app, old_owner_blocks)?;
-                    // Great! Do the transfer.
-                    app.session
-                        .partitioning
-                        .neighborhoods
-                        .get_mut(&self.id)
-                        .unwrap()
-                        .0 = old_neighborhood_block;
+                // Is the current neighborhood, minus this block, still valid?
+                let old_owner_blocks: Vec<BlockID> = self
+                    .selected
+                    .iter()
+                    .filter_map(|x| if *x != id { Some(*x) } else { None })
+                    .collect();
+                if old_owner_blocks.is_empty() {
+                    // We're deleting the current neighborhood!
                     app.session
                         .partitioning
                         .neighborhoods
                         .get_mut(&new_owner)
                         .unwrap()
                         .0 = new_neighborhood_block;
-
-                    self.block_to_neighborhood.insert(id, new_owner);
-                    Ok(None)
-                } else {
-                    // We're jettisoning a block near the edge of the map (or a buggy area missing
-                    // blocks). Create a new neighborhood with just this block.
-                    bail!("TODO: Make a new neighborhood");
+                    app.session
+                        .partitioning
+                        .neighborhoods
+                        .remove(&self.id)
+                        .unwrap();
+                    // Tell the caller to recreate this SelectBoundary state, switching to the
+                    // neighborhood we just donated to, since this one is now gone
+                    return Ok(Some(new_owner));
                 }
-            } else {
-                bail!("This should be impossible -- a block isn't in the frontier?");
+
+                let old_neighborhood_block = self.make_merged_block(app, old_owner_blocks)?;
+                // Great! Do the transfer.
+                app.session
+                    .partitioning
+                    .neighborhoods
+                    .get_mut(&self.id)
+                    .unwrap()
+                    .0 = old_neighborhood_block;
+                app.session
+                    .partitioning
+                    .neighborhoods
+                    .get_mut(&new_owner)
+                    .unwrap()
+                    .0 = new_neighborhood_block;
+
+                self.block_to_neighborhood.insert(id, new_owner);
+                return Ok(None);
             }
         }
+
+        // We didn't find any match, so we're jettisoning a block near the edge of the map (or a
+        // buggy area missing blocks). Create a new neighborhood with just this block.
+        bail!("TODO: Make a new neighborhood");
     }
 }
 
