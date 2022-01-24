@@ -267,7 +267,8 @@ impl Partitioning {
         &self.neighborhoods
     }
 
-    pub fn neighborhood_containing(&self, find_block: BlockID) -> Option<NeighborhoodID> {
+    // Just used for initial creation
+    fn neighborhood_containing(&self, find_block: BlockID) -> Option<NeighborhoodID> {
         // TODO We could probably build this mapping up when we do Perimeter::merge_all
         let find_block = self.get_block(find_block);
         for (id, (block, _)) in &self.neighborhoods {

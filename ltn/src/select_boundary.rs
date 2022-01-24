@@ -18,8 +18,6 @@ pub struct SelectBoundary {
     panel: Panel,
     id: NeighborhoodID,
     world: World<BlockID>,
-    // TODO Redundant
-    selected: BTreeSet<BlockID>,
     draw_outline: ToggleZoomed,
     frontier: BTreeSet<BlockID>,
 
@@ -28,24 +26,17 @@ pub struct SelectBoundary {
 
 impl SelectBoundary {
     pub fn new_state(ctx: &mut EventCtx, app: &App, id: NeighborhoodID) -> Box<dyn State<App>> {
-        let initial_boundary = app.session.partitioning.neighborhood_block(id);
-
         let mut state = SelectBoundary {
             panel: make_panel(ctx, app),
             id,
             world: World::bounded(app.map.get_bounds()),
-            selected: BTreeSet::new(),
             draw_outline: ToggleZoomed::empty(ctx),
             frontier: BTreeSet::new(),
 
             orig_partitioning: app.session.partitioning.clone(),
         };
 
-        for (id, block) in app.session.partitioning.all_single_blocks() {
-            if initial_boundary.perimeter.contains(&block.perimeter) {
-                state.selected.insert(id);
-            }
-        }
+        let initial_boundary = app.session.partitioning.neighborhood_block(id);
         state.frontier = app
             .session
             .partitioning
@@ -66,6 +57,7 @@ impl SelectBoundary {
         let color = app.session.partitioning.neighborhood_color(neighborhood);
 
         if self.frontier.contains(&id) {
+            let have_block = self.currently_have_block(app, id);
             let mut obj = self
                 .world
                 .add(id)
@@ -73,7 +65,7 @@ impl SelectBoundary {
                 .draw_color(color.alpha(0.5))
                 .hover_alpha(0.8)
                 .clickable();
-            if self.selected.contains(&id) {
+            if have_block {
                 obj = obj
                     .hotkey(Key::Space, "remove")
                     .hotkey(Key::LeftShift, "remove")
@@ -107,9 +99,10 @@ impl SelectBoundary {
         self.draw_outline = batch.build(ctx);
     }
 
-    // This block was in the previous frontier; its inclusion in self.selected has changed.
-    fn block_changed(&mut self, ctx: &mut EventCtx, app: &mut App, id: BlockID) -> Transition {
-        match self.try_block_changed(app, id) {
+    // If the block is part of the current neighborhood, remove it. Otherwise add it. It's assumed
+    // this block is in the previous frontier
+    fn toggle_block(&mut self, ctx: &mut EventCtx, app: &mut App, id: BlockID) -> Transition {
+        match self.try_toggle_block(app, id) {
             Ok(Some(new_neighborhood)) => {
                 app.session.partitioning.recalculate_coloring();
                 return Transition::Replace(SelectBoundary::new_state(ctx, app, new_neighborhood));
@@ -147,11 +140,6 @@ impl SelectBoundary {
                 self.panel = make_panel(ctx, app);
             }
             Err(err) => {
-                if self.selected.contains(&id) {
-                    self.selected.remove(&id);
-                } else {
-                    self.selected.insert(id);
-                }
                 let label = err.to_string().text_widget(ctx);
                 self.panel.replace(ctx, "warning", label);
             }
@@ -162,23 +150,23 @@ impl SelectBoundary {
 
     // Ok(Some(x)) means the current neighborhood was destroyed, and the caller should switch to
     // focusing on a different neigbhorhood
-    fn try_block_changed(&mut self, app: &mut App, id: BlockID) -> Result<Option<NeighborhoodID>> {
-        if self.selected.contains(&id) {
-            let old_owner = app
-                .session
+    fn try_toggle_block(&mut self, app: &mut App, id: BlockID) -> Result<Option<NeighborhoodID>> {
+        if self.currently_have_block(app, id) {
+            app.session
                 .partitioning
-                .neighborhood_containing(id)
-                .unwrap();
+                .remove_block_from_neighborhood(&app.map, id, self.id)
+        } else {
+            let old_owner = app.session.partitioning.block_to_neighborhood(id);
             // Ignore the return value if the old neighborhood is deleted
             app.session
                 .partitioning
                 .transfer_block(&app.map, id, old_owner, self.id)?;
             Ok(None)
-        } else {
-            app.session
-                .partitioning
-                .remove_block_from_neighborhood(&app.map, id, self.id)
         }
+    }
+
+    fn currently_have_block(&self, app: &App, id: BlockID) -> bool {
+        app.session.partitioning.block_to_neighborhood(id) == self.id
     }
 }
 
@@ -205,21 +193,8 @@ impl State<App> for SelectBoundary {
         }
 
         match self.world.event(ctx) {
-            WorldOutcome::Keypress("add", id) => {
-                self.selected.insert(id);
-                return self.block_changed(ctx, app, id);
-            }
-            WorldOutcome::Keypress("remove", id) => {
-                self.selected.remove(&id);
-                return self.block_changed(ctx, app, id);
-            }
-            WorldOutcome::ClickedObject(id) => {
-                if self.selected.contains(&id) {
-                    self.selected.remove(&id);
-                } else {
-                    self.selected.insert(id);
-                }
-                return self.block_changed(ctx, app, id);
+            WorldOutcome::Keypress("add" | "remove", id) | WorldOutcome::ClickedObject(id) => {
+                return self.toggle_block(ctx, app, id);
             }
             _ => {}
         }
@@ -227,14 +202,12 @@ impl State<App> for SelectBoundary {
         if ctx.redo_mouseover() {
             if let Some(id) = self.world.get_hovering() {
                 if ctx.is_key_down(Key::LeftControl) {
-                    if !self.selected.contains(&id) {
-                        self.selected.insert(id);
-                        return self.block_changed(ctx, app, id);
+                    if !self.currently_have_block(app, id) {
+                        return self.toggle_block(ctx, app, id);
                     }
                 } else if ctx.is_key_down(Key::LeftShift) {
-                    if self.selected.contains(&id) {
-                        self.selected.remove(&id);
-                        return self.block_changed(ctx, app, id);
+                    if self.currently_have_block(app, id) {
+                        return self.toggle_block(ctx, app, id);
                     }
                 }
             }
