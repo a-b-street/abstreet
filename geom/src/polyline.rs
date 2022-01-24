@@ -362,27 +362,27 @@ impl PolyLine {
         }
 
         let mut dist_left = dist_along;
-        let mut length_remeasured = Distance::ZERO;
         for (idx, l) in self.lines().enumerate() {
             let length = l.length();
-            length_remeasured += length;
             let epsilon = if idx == self.pts.len() - 2 {
                 EPSILON_DIST
             } else {
                 Distance::ZERO
             };
             if dist_left <= length + epsilon {
-                return Ok((l.must_dist_along(dist_left), l.angle()));
+                // Floating point errors means sometimes we ask for something slightly longer than
+                // the line
+                let dist = l.dist_along(dist_left).unwrap_or_else(|_| l.pt2());
+                return Ok((dist, l.angle()));
             }
             dist_left -= length;
         }
         // Leaving this panic, because I haven't seen this in ages, and something is seriously
         // wrong if we get here
         panic!(
-            "PolyLine dist_along of {} broke on length {} (recalculated length {}): {}",
+            "PolyLine dist_along of {} broke on length {}: {}",
             dist_along,
             self.length(),
-            length_remeasured,
             self
         );
     }
