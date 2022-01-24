@@ -375,7 +375,56 @@ impl SelectBoundary {
 
         // We didn't find any match, so we're jettisoning a block near the edge of the map (or a
         // buggy area missing blocks). Create a new neighborhood with just this block.
-        bail!("TODO: Make a new neighborhood");
+        let new_owner = app
+            .session
+            .partitioning
+            .create_new_neighborhood(self.blocks[&id].clone());
+        // TODO Duplicate code below
+        {
+            let new_neighborhood_block = self.blocks[&id].clone();
+
+            // Is the current neighborhood, minus this block, still valid?
+            let old_owner_blocks: Vec<BlockID> = self
+                .selected
+                .iter()
+                .filter_map(|x| if *x != id { Some(*x) } else { None })
+                .collect();
+            if old_owner_blocks.is_empty() {
+                // We're deleting the current neighborhood!
+                app.session
+                    .partitioning
+                    .neighborhoods
+                    .get_mut(&new_owner)
+                    .unwrap()
+                    .0 = new_neighborhood_block;
+                app.session
+                    .partitioning
+                    .neighborhoods
+                    .remove(&self.id)
+                    .unwrap();
+                // Tell the caller to recreate this SelectBoundary state, switching to the
+                // neighborhood we just donated to, since this one is now gone
+                return Ok(Some(new_owner));
+            }
+
+            let old_neighborhood_block = self.make_merged_block(app, old_owner_blocks)?;
+            // Great! Do the transfer.
+            app.session
+                .partitioning
+                .neighborhoods
+                .get_mut(&self.id)
+                .unwrap()
+                .0 = old_neighborhood_block;
+            app.session
+                .partitioning
+                .neighborhoods
+                .get_mut(&new_owner)
+                .unwrap()
+                .0 = new_neighborhood_block;
+
+            self.block_to_neighborhood.insert(id, new_owner);
+            return Ok(None);
+        }
     }
 }
 

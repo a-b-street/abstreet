@@ -29,6 +29,8 @@ pub struct Partitioning {
     pub neighborhoods: BTreeMap<NeighborhoodID, (Block, Color)>,
     // The single / unmerged blocks never change
     pub single_blocks: Vec<Block>,
+
+    id_counter: usize,
 }
 
 impl Partitioning {
@@ -38,6 +40,8 @@ impl Partitioning {
             map: MapName::new("zz", "temp", "orary"),
             neighborhoods: BTreeMap::new(),
             single_blocks: Vec::new(),
+
+            id_counter: 0,
         }
     }
 
@@ -85,10 +89,13 @@ impl Partitioning {
         for block in blocks {
             neighborhoods.insert(NeighborhoodID(neighborhoods.len()), (block, Color::RED));
         }
+        let id_counter = neighborhoods.len();
         let mut p = Partitioning {
             map: map.get_name().clone(),
             neighborhoods,
             single_blocks,
+
+            id_counter,
         };
         p.recalculate_coloring();
         p
@@ -119,5 +126,16 @@ impl Partitioning {
             }
         }
         None
+    }
+
+    /// Starts a new neighborhood containing a single block. This will temporarily leave the
+    /// Partitioning in an invalid state, with one block being part of two neighborhoods. The
+    /// caller must keep rearranging things.
+    pub fn create_new_neighborhood(&mut self, block: Block) -> NeighborhoodID {
+        let id = NeighborhoodID(self.id_counter);
+        self.id_counter += 1;
+        // Temporary color
+        self.neighborhoods.insert(id, (block, Color::RED));
+        id
     }
 }
