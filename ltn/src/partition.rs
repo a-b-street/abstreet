@@ -138,4 +138,9 @@ impl Partitioning {
         self.neighborhoods.insert(id, (block, Color::RED));
         id
     }
+
+    /// Undo the above. Lots of trust on the caller.
+    pub fn remove_new_neighborhood(&mut self, id: NeighborhoodID) {
+        self.neighborhoods.remove(&id).unwrap();
+    }
 }
