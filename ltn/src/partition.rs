@@ -168,7 +168,15 @@ impl Partitioning {
                 }
             })
             .collect();
-        let new_neighborhood_block = self.make_merged_block(map, new_owner_blocks)?;
+        let mut new_neighborhood_blocks = self.make_merged_blocks(map, new_owner_blocks)?;
+        if new_neighborhood_blocks.len() != 1 {
+            // This should be impossible
+            bail!(
+                "Adding a block to a neighborhood somehow splits it into {} pieces",
+                new_neighborhood_blocks.len()
+            );
+        }
+        let new_neighborhood_block = new_neighborhood_blocks.pop().unwrap();
 
         // Is the old neighborhood, minus this block, still valid?
         // TODO refactor Neighborhood to BlockIDs?
@@ -193,11 +201,29 @@ impl Partitioning {
             return Ok(Some(new_owner));
         }
 
-        let old_neighborhood_block = self.make_merged_block(map, old_owner_blocks)?;
-        // Great! Do the transfer.
-        self.neighborhoods.get_mut(&old_owner).unwrap().0 = old_neighborhood_block;
-        self.neighborhoods.get_mut(&new_owner).unwrap().0 = new_neighborhood_block;
+        let mut old_neighborhood_blocks = self.make_merged_blocks(map, old_owner_blocks.clone())?;
+        // We might be splitting the old neighborhood into multiple pieces! Pick the largest piece
+        // as the old_owner (so the UI for trimming a neighborhood is less jarring), and create new
+        // neighborhoods for the others.
+        old_neighborhood_blocks.sort_by_key(|block| block.perimeter.interior.len());
+        self.neighborhoods.get_mut(&old_owner).unwrap().0 = old_neighborhood_blocks.pop().unwrap();
+        let new_splits = !old_neighborhood_blocks.is_empty();
+        for split_piece in old_neighborhood_blocks {
+            let new_neighborhood = NeighborhoodID(self.neighborhood_id_counter);
+            self.neighborhood_id_counter += 1;
+            // Temporary color
+            self.neighborhoods
+                .insert(new_neighborhood, (split_piece, Color::RED));
+        }
+        if new_splits {
+            // We need to update the owner of all single blocks in these new pieces
+            for id in old_owner_blocks {
+                self.block_to_neighborhood
+                    .insert(id, self.neighborhood_containing(id).unwrap());
+            }
+        }
 
+        self.neighborhoods.get_mut(&new_owner).unwrap().0 = new_neighborhood_block;
         self.block_to_neighborhood.insert(id, new_owner);
         Ok(None)
     }
@@ -318,18 +344,17 @@ impl Partitioning {
         frontier
     }
 
-    fn make_merged_block(&self, map: &Map, input: Vec<BlockID>) -> Result<Block> {
+    // Possibly returns multiple merged blocks. The input is never "lost" -- if any perimeter fails
+    // to become a block, fail the whole operation.
+    fn make_merged_blocks(&self, map: &Map, input: Vec<BlockID>) -> Result<Vec<Block>> {
         let mut perimeters = Vec::new();
         for id in input {
             perimeters.push(self.get_block(id).perimeter.clone());
         }
-        let mut merged = Perimeter::merge_all(perimeters, false);
-        if merged.len() != 1 {
-            bail!(format!(
-                "Splitting this neighborhood into {} pieces is currently unsupported",
-                merged.len()
-            ));
+        let mut blocks = Vec::new();
+        for perim in Perimeter::merge_all(perimeters, false) {
+            blocks.push(perim.to_block(map)?);
         }
-        merged.pop().unwrap().to_block(map)
+        Ok(blocks)
     }
 }
