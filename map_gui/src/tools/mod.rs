@@ -186,6 +186,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("london", "southbank") => "Southbank",
             ("london", "southwark") => "Southwark",
             ("long_marston", "center") => "Long Marston (Stratford)",
+            ("manchester", "levenshulme") => "Levenshulme (Manchester)",
             ("marsh_barton", "center") => "Marsh Barton",
             ("micklefield", "center") => "Micklefield",
             ("newborough_road", "center") => "Newborough Road",
