@@ -680,6 +680,7 @@
 <span id="679">679</span>
 <span id="680">680</span>
 <span id="681">681</span>
+<span id="682">682</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
@@ -1125,12 +1126,13 @@
         <span class="self">self</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="ident">osm::HIGHWAY</span>, <span class="string">&quot;service&quot;</span>)
     }
 
+    <span class="comment">// TODO Shared walking/biking roads get classified as a cycleway for now</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_cycleway</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bike</span> <span class="op">=</span> <span class="bool-val">false</span>;
         <span class="kw">for</span> <span class="ident">lane</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">lanes</span> {
             <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">lane_type</span> <span class="op">==</span> <span class="ident">LaneType::Biking</span> {
                 <span class="ident">bike</span> <span class="op">=</span> <span class="bool-val">true</span>;
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">lane_type</span> <span class="op">!</span><span class="op">=</span> <span class="ident">LaneType::Shoulder</span> {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">lane</span>.<span class="ident">is_walkable</span>() {
                 <span class="kw">return</span> <span class="bool-val">false</span>;
             }
         }
