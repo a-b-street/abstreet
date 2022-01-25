@@ -118,6 +118,19 @@ impl Blockfinder {
         let mut blocks = Vec::new();
         for perimeter in perimeters {
             timer.next();
+
+            // TODO Match the LTN partitioning and strip out blocks that break after collapsing
+            // deadends. See https://github.com/a-b-street/abstreet/issues/841.
+            let mut copy = perimeter.clone();
+            copy.collapse_deadends();
+            if let Err(err) = copy.to_block(&app.primary.map) {
+                error!(
+                    "A perimeter won't blockify after collapsing deadends: {}",
+                    err
+                );
+                continue;
+            }
+
             match perimeter.to_block(&app.primary.map) {
                 Ok(block) => {
                     blocks.push(block);
@@ -153,7 +166,7 @@ impl State<App> for Blockfinder {
                         // ID...
                         self.world.delete(id);
                     }
-                    let results = Perimeter::merge_all(perimeters, true);
+                    let results = Perimeter::merge_all(&app.primary.map, perimeters, true);
                     let debug = results.len() > 1;
                     for perimeter in results {
                         let id = self.new_id();
@@ -207,7 +220,11 @@ impl State<App> for Blockfinder {
                         for perimeters in partitions {
                             // If we got more than one result back, merging partially failed. Oh
                             // well?
-                            merged.extend(Perimeter::merge_all(perimeters, false));
+                            merged.extend(Perimeter::merge_all(
+                                &app.primary.map,
+                                perimeters,
+                                false,
+                            ));
                         }
                         self.add_blocks_with_coloring(ctx, app, merged, &mut Timer::throwaway());
                     } else {

@@ -63,7 +63,11 @@ impl Partitioning {
         timer.start("find single blocks");
         let mut single_blocks = Vec::new();
         let mut single_block_perims = Vec::new();
-        for perim in Perimeter::find_all_single_blocks(map) {
+        for mut perim in Perimeter::find_all_single_blocks(map) {
+            // TODO Some perimeters don't blockify after collapsing dead-ends. So do this upfront,
+            // and separately work on any blocks that don't show up.
+            // https://github.com/a-b-street/abstreet/issues/841
+            perim.collapse_deadends();
             if let Ok(block) = perim.to_block(map) {
                 single_block_perims.push(block.perimeter.clone());
                 single_blocks.push(block);
@@ -80,7 +84,7 @@ impl Partitioning {
         let mut merged = Vec::new();
         for perimeters in partitions {
             // If we got more than one result back, merging partially failed. Oh well?
-            merged.extend(Perimeter::merge_all(perimeters, false));
+            merged.extend(Perimeter::merge_all(map, perimeters, false));
         }
         timer.stop("partition");
 
@@ -117,8 +121,8 @@ impl Partitioning {
             if let Some(neighborhood) = p.neighborhood_containing(id) {
                 p.block_to_neighborhood.insert(id, neighborhood);
             } else {
-                // TODO What happened? This will break everything downstream.
-                error!(
+                // TODO This will break everything downstream, so bail out immediately
+                panic!(
                     "Block doesn't belong to any neighborhood?! {:?}",
                     p.get_block(id).perimeter
                 );
@@ -322,7 +326,6 @@ impl Partitioning {
         &self.single_blocks[id.0]
     }
 
-    // Will crash if the original matching failed
     pub fn block_to_neighborhood(&self, id: BlockID) -> NeighborhoodID {
         self.block_to_neighborhood[&id]
     }
@@ -353,7 +356,7 @@ impl Partitioning {
             perimeters.push(self.get_block(id).perimeter.clone());
         }
         let mut blocks = Vec::new();
-        for perim in Perimeter::merge_all(perimeters, false) {
+        for perim in Perimeter::merge_all(map, perimeters, false) {
             blocks.push(perim.to_block(map)?);
         }
         Ok(blocks)

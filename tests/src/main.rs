@@ -261,7 +261,12 @@ fn test_blockfinding() -> Result<()> {
         let map = map_model::Map::load_synchronously(name.path(), &mut timer);
         let mut single_blocks = Perimeter::find_all_single_blocks(&map);
         let num_singles_originally = single_blocks.len();
-        single_blocks.retain(|x| x.clone().to_block(&map).is_ok());
+        // Collapse dead-ends first, so results match the LTN tool and blockfinder
+        single_blocks.retain(|x| {
+            let mut copy = x.clone();
+            copy.collapse_deadends();
+            copy.to_block(&map).is_ok()
+        });
         let num_singles_blockified = single_blocks.len();
 
         let partitions = Perimeter::partition_by_predicate(single_blocks, |r| {
@@ -270,7 +275,7 @@ fn test_blockfinding() -> Result<()> {
         let mut num_partial_merges = 0;
         let mut merged = Vec::new();
         for perimeters in partitions {
-            let newly_merged = Perimeter::merge_all(perimeters, false);
+            let newly_merged = Perimeter::merge_all(&map, perimeters, false);
             if newly_merged.len() > 1 {
                 num_partial_merges += 1;
             }

@@ -127,8 +127,14 @@ impl Perimeter {
     ///
     /// Note this may modify both perimeters and still return `false`. The modification is just to
     /// rotate the order of the road loop; this doesn't logically change the perimeter.
+    ///
+    /// TODO Due to https://github.com/a-b-street/abstreet/issues/841, it seems like rotation
+    /// sometimes breaks `to_block`, so for now, always revert to the original upon failure.
     // TODO Would it be cleaner to return a Result here and always restore the invariant?
-    fn try_to_merge(&mut self, other: &mut Perimeter, debug_failures: bool) -> bool {
+    fn try_to_merge(&mut self, map: &Map, other: &mut Perimeter, debug_failures: bool) -> bool {
+        let orig_self = self.clone();
+        let orig_other = other.clone();
+
         self.undo_invariant();
         other.undo_invariant();
 
@@ -137,11 +143,11 @@ impl Perimeter {
         let roads2: HashSet<RoadID> = other.roads.iter().map(|id| id.road).collect();
         let common: HashSet<RoadID> = roads1.intersection(&roads2).cloned().collect();
         if common.is_empty() {
-            self.restore_invariant();
-            other.restore_invariant();
             if debug_failures {
                 warn!("No common roads");
             }
+            *self = orig_self;
+            *other = orig_other;
             return false;
         }
 
@@ -197,8 +203,8 @@ impl Perimeter {
             }
         }
         if !ok {
-            self.restore_invariant();
-            other.restore_invariant();
+            *self = orig_self;
+            *other = orig_other;
             return false;
         }
 
@@ -220,13 +226,21 @@ impl Perimeter {
         // Make sure we didn't wind up with any internal dead-ends
         self.collapse_deadends();
 
+        // TODO This is an expensive sanity check needed for
+        // https://github.com/a-b-street/abstreet/issues/841
+        if self.clone().to_block(map).is_err() {
+            *self = orig_self;
+            *other = orig_other;
+            return false;
+        }
+
         true
     }
 
     /// Try to merge all given perimeters. If successful, only one perimeter will be returned.
     /// Perimeters are never "destroyed" -- if not merged, they'll appear in the results. If
     /// `stepwise_debug` is true, returns after performing just one merge.
-    pub fn merge_all(mut input: Vec<Perimeter>, stepwise_debug: bool) -> Vec<Perimeter> {
+    pub fn merge_all(map: &Map, mut input: Vec<Perimeter>, stepwise_debug: bool) -> Vec<Perimeter> {
         // Internal dead-ends break merging, so first collapse of those. Do this before even
         // looking for neighbors, since find_common_roads doesn't understand dead-ends.
         for p in &mut input {
@@ -244,7 +258,7 @@ impl Perimeter {
                 }
 
                 for other in &mut results {
-                    if other.try_to_merge(&mut perimeter, stepwise_debug) {
+                    if other.try_to_merge(map, &mut perimeter, stepwise_debug) {
                         // To debug, return after any single change
                         debug = stepwise_debug;
                         continue 'INPUT;
