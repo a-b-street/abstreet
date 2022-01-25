@@ -443,12 +443,13 @@ impl Road {
         self.osm_tags.is(osm::HIGHWAY, "service")
     }
 
+    // TODO Shared walking/biking roads get classified as a cycleway for now
     pub fn is_cycleway(&self) -> bool {
         let mut bike = false;
         for lane in &self.lanes {
             if lane.lane_type == LaneType::Biking {
                 bike = true;
-            } else if lane.lane_type != LaneType::Shoulder {
+            } else if !lane.is_walkable() {
                 return false;
             }
         }
