@@ -290,6 +290,11 @@
 <span id="289">289</span>
 <span id="290">290</span>
 <span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Integration tests</span>
 
 <span class="kw">use</span> <span class="ident">std::io::Write</span>;
@@ -553,7 +558,12 @@
         <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">map_model::Map::load_synchronously</span>(<span class="ident">name</span>.<span class="ident">path</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">single_blocks</span> <span class="op">=</span> <span class="ident">Perimeter::find_all_single_blocks</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>);
         <span class="kw">let</span> <span class="ident">num_singles_originally</span> <span class="op">=</span> <span class="ident">single_blocks</span>.<span class="ident">len</span>();
-        <span class="ident">single_blocks</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">clone</span>().<span class="ident">to_block</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>).<span class="ident">is_ok</span>());
+        <span class="comment">// Collapse dead-ends first, so results match the LTN tool and blockfinder</span>
+        <span class="ident">single_blocks</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">copy</span> <span class="op">=</span> <span class="ident">x</span>.<span class="ident">clone</span>();
+            <span class="ident">copy</span>.<span class="ident">collapse_deadends</span>();
+            <span class="ident">copy</span>.<span class="ident">to_block</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>).<span class="ident">is_ok</span>()
+        });
         <span class="kw">let</span> <span class="ident">num_singles_blockified</span> <span class="op">=</span> <span class="ident">single_blocks</span>.<span class="ident">len</span>();
 
         <span class="kw">let</span> <span class="ident">partitions</span> <span class="op">=</span> <span class="ident">Perimeter::partition_by_predicate</span>(<span class="ident">single_blocks</span>, <span class="op">|</span><span class="ident">r</span><span class="op">|</span> {
@@ -562,7 +572,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">num_partial_merges</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">merged</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">for</span> <span class="ident">perimeters</span> <span class="kw">in</span> <span class="ident">partitions</span> {
-            <span class="kw">let</span> <span class="ident">newly_merged</span> <span class="op">=</span> <span class="ident">Perimeter::merge_all</span>(<span class="ident">perimeters</span>, <span class="bool-val">false</span>);
+            <span class="kw">let</span> <span class="ident">newly_merged</span> <span class="op">=</span> <span class="ident">Perimeter::merge_all</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">perimeters</span>, <span class="bool-val">false</span>);
             <span class="kw">if</span> <span class="ident">newly_merged</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">1</span> {
                 <span class="ident">num_partial_merges</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
             }

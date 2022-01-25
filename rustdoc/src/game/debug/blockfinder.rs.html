@@ -423,6 +423,23 @@
 <span id="422">422</span>
 <span id="423">423</span>
 <span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
@@ -543,6 +560,19 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">blocks</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">for</span> <span class="ident">perimeter</span> <span class="kw">in</span> <span class="ident">perimeters</span> {
             <span class="ident">timer</span>.<span class="ident">next</span>();
+
+            <span class="comment">// TODO Match the LTN partitioning and strip out blocks that break after collapsing</span>
+            <span class="comment">// deadends. See https://github.com/a-b-street/abstreet/issues/841.</span>
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">copy</span> <span class="op">=</span> <span class="ident">perimeter</span>.<span class="ident">clone</span>();
+            <span class="ident">copy</span>.<span class="ident">collapse_deadends</span>();
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">copy</span>.<span class="ident">to_block</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>) {
+                <span class="macro">error!</span>(
+                    <span class="string">&quot;A perimeter won&#39;t blockify after collapsing deadends: {}&quot;</span>,
+                    <span class="ident">err</span>
+                );
+                <span class="kw">continue</span>;
+            }
+
             <span class="kw">match</span> <span class="ident">perimeter</span>.<span class="ident">to_block</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>) {
                 <span class="prelude-val">Ok</span>(<span class="ident">block</span>) =&gt; {
                     <span class="ident">blocks</span>.<span class="ident">push</span>(<span class="ident">block</span>);
@@ -578,7 +608,7 @@
                         <span class="comment">// ID...</span>
                         <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">delete</span>(<span class="ident">id</span>);
                     }
-                    <span class="kw">let</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">Perimeter::merge_all</span>(<span class="ident">perimeters</span>, <span class="bool-val">true</span>);
+                    <span class="kw">let</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">Perimeter::merge_all</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>, <span class="ident">perimeters</span>, <span class="bool-val">true</span>);
                     <span class="kw">let</span> <span class="ident">debug</span> <span class="op">=</span> <span class="ident">results</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">1</span>;
                     <span class="kw">for</span> <span class="ident">perimeter</span> <span class="kw">in</span> <span class="ident">results</span> {
                         <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">new_id</span>();
@@ -632,7 +662,11 @@
                         <span class="kw">for</span> <span class="ident">perimeters</span> <span class="kw">in</span> <span class="ident">partitions</span> {
                             <span class="comment">// If we got more than one result back, merging partially failed. Oh</span>
                             <span class="comment">// well?</span>
-                            <span class="ident">merged</span>.<span class="ident">extend</span>(<span class="ident">Perimeter::merge_all</span>(<span class="ident">perimeters</span>, <span class="bool-val">false</span>));
+                            <span class="ident">merged</span>.<span class="ident">extend</span>(<span class="ident">Perimeter::merge_all</span>(
+                                <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>,
+                                <span class="ident">perimeters</span>,
+                                <span class="bool-val">false</span>,
+                            ));
                         }
                         <span class="self">self</span>.<span class="ident">add_blocks_with_coloring</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">merged</span>, <span class="kw-2">&amp;mut</span> <span class="ident">Timer::throwaway</span>());
                     } <span class="kw">else</span> {
