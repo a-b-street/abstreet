@@ -255,6 +255,19 @@ impl State<App> for Blockfinder {
             _ => {}
         }
 
+        if ctx.redo_mouseover() {
+            if ctx.is_key_down(Key::LeftControl) {
+                if let Some(id) = self.world.get_hovering() {
+                    if !self.to_merge.contains(&id) {
+                        self.to_merge.insert(id);
+                        let block = self.blocks.remove(&id).unwrap();
+                        self.world.delete_before_replacement(id);
+                        self.add_block(ctx, app, id, TO_MERGE, block);
+                    }
+                }
+            }
+        }
+
         Transition::Keep
     }
 
@@ -299,6 +312,7 @@ impl OneBlock {
                 Line("Blockfinder").small_heading().into_widget(ctx),
                 ctx.style().btn_close_widget(ctx),
             ]),
+            "You can also hold LCtrl to quickly highlight".text_widget(ctx),
             ctx.style()
                 .btn_outline
                 .text("Show perimeter in order")
@@ -384,11 +398,12 @@ fn make_panel(ctx: &mut EventCtx) -> Panel {
         ctx.style()
             .btn_outline
             .text("Collapse dead-ends")
-            .hotkey(Key::C)
+            .hotkey(Key::D)
             .build_def(ctx),
         ctx.style()
             .btn_outline
             .text("Classify neighborhoods (but don't merge)")
+            .hotkey(Key::C)
             .build_def(ctx),
         ctx.style()
             .btn_outline
