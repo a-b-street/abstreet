@@ -281,7 +281,11 @@ impl State<App> for Blockfinder {
             for group in &self.partitions {
                 if group.contains(&id) {
                     for block in group {
-                        batch.push(Color::RED.alpha(0.5), self.blocks[block].polygon.clone());
+                        // Some of the block IDs will vanish if we start merging pieces based on
+                        // the partitioning
+                        if let Some(block) = self.blocks.get(block) {
+                            batch.push(Color::RED.alpha(0.5), block.polygon.clone());
+                        }
                     }
                     break;
                 }
