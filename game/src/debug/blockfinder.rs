@@ -30,6 +30,10 @@ pub struct Blockfinder {
     blocks: BTreeMap<Obj, Block>,
     world: World<Obj>,
     to_merge: BTreeSet<Obj>,
+
+    // Since we can't easily color adjacent groups of blocks differently when we classify but don't
+    // merge, just remember the groups here
+    partitions: Vec<Vec<Obj>>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -44,6 +48,8 @@ impl Blockfinder {
             blocks: BTreeMap::new(),
             world: World::bounded(app.primary.map.get_bounds()),
             to_merge: BTreeSet::new(),
+
+            partitions: Vec::new(),
         };
 
         ctx.loading_screen("calculate all blocks", |ctx, timer| {
@@ -177,7 +183,7 @@ impl State<App> for Blockfinder {
                         self.add_block(ctx, app, id, MODIFIED, block);
                     }
                 }
-                "Classify neighborhoods" | "Auto-merge all neighborhoods" => {
+                "Classify neighborhoods (but don't merge)" | "Auto-merge all neighborhoods" => {
                     let perimeters: Vec<Perimeter> = std::mem::take(&mut self.blocks)
                         .into_iter()
                         .map(|(_, b)| b.perimeter)
@@ -193,6 +199,7 @@ impl State<App> for Blockfinder {
                     self.id_counter = 0;
                     self.world = World::bounded(app.primary.map.get_bounds());
                     self.to_merge.clear();
+                    self.partitions = Vec::new();
 
                     if x == "Auto-merge all neighborhoods" {
                         // Actually merge the partitions
@@ -204,15 +211,20 @@ impl State<App> for Blockfinder {
                         }
                         self.add_blocks_with_coloring(ctx, app, merged, &mut Timer::throwaway());
                     } else {
-                        // Until we can actually do the merge, just color the partition to show results
+                        // Until we can actually do the merge, just color the partition to show
+                        // results. The coloring is half-useless; adjacent partitions might be the
+                        // same.
                         for (color_idx, perimeters) in partitions.into_iter().enumerate() {
                             let color = COLORS[color_idx % COLORS.len()];
+                            let mut group = Vec::new();
                             for perimeter in perimeters {
                                 if let Ok(block) = perimeter.to_block(map) {
                                     let id = self.new_id();
                                     self.add_block(ctx, app, id, color, block);
+                                    group.push(id);
                                 }
                             }
+                            self.partitions.push(group);
                         }
                     }
                 }
@@ -249,6 +261,20 @@ impl State<App> for Blockfinder {
     fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.world.draw(g);
         self.panel.draw(g);
+
+        // If we've partitioned by neighborhood but not merged, show the grouping when hovering
+        if let Some(id) = self.world.get_hovering() {
+            let mut batch = GeomBatch::new();
+            for group in &self.partitions {
+                if group.contains(&id) {
+                    for block in group {
+                        batch.push(Color::RED.alpha(0.5), self.blocks[block].polygon.clone());
+                    }
+                    break;
+                }
+            }
+            batch.draw(g);
+        }
     }
 }
 
@@ -362,7 +388,7 @@ fn make_panel(ctx: &mut EventCtx) -> Panel {
             .build_def(ctx),
         ctx.style()
             .btn_outline
-            .text("Classify neighborhoods")
+            .text("Classify neighborhoods (but don't merge)")
             .build_def(ctx),
         ctx.style()
             .btn_outline
