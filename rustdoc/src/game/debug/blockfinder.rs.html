@@ -378,6 +378,32 @@
 <span id="377">377</span>
 <span id="378">378</span>
 <span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
@@ -410,6 +436,10 @@
     <span class="ident">blocks</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">Obj</span>, <span class="ident">Block</span><span class="op">&gt;</span>,
     <span class="ident">world</span>: <span class="ident">World</span><span class="op">&lt;</span><span class="ident">Obj</span><span class="op">&gt;</span>,
     <span class="ident">to_merge</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">Obj</span><span class="op">&gt;</span>,
+
+    <span class="comment">// Since we can&#39;t easily color adjacent groups of blocks differently when we classify but don&#39;t</span>
+    <span class="comment">// merge, just remember the groups here</span>
+    <span class="ident">partitions</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Obj</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Hash</span>)]</span>
@@ -424,6 +454,8 @@
             <span class="ident">blocks</span>: <span class="ident">BTreeMap::new</span>(),
             <span class="ident">world</span>: <span class="ident">World::bounded</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>()),
             <span class="ident">to_merge</span>: <span class="ident">BTreeSet::new</span>(),
+
+            <span class="ident">partitions</span>: <span class="ident">Vec::new</span>(),
         };
 
         <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;calculate all blocks&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
@@ -557,7 +589,7 @@
                         <span class="self">self</span>.<span class="ident">add_block</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>, <span class="ident">MODIFIED</span>, <span class="ident">block</span>);
                     }
                 }
-                <span class="string">&quot;Classify neighborhoods&quot;</span> <span class="op">|</span> <span class="string">&quot;Auto-merge all neighborhoods&quot;</span> =&gt; {
+                <span class="string">&quot;Classify neighborhoods (but don&#39;t merge)&quot;</span> <span class="op">|</span> <span class="string">&quot;Auto-merge all neighborhoods&quot;</span> =&gt; {
                     <span class="kw">let</span> <span class="ident">perimeters</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Perimeter</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">std::mem::take</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">blocks</span>)
                         .<span class="ident">into_iter</span>()
                         .<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">b</span>)<span class="op">|</span> <span class="ident">b</span>.<span class="ident">perimeter</span>)
@@ -573,6 +605,7 @@
                     <span class="self">self</span>.<span class="ident">id_counter</span> <span class="op">=</span> <span class="number">0</span>;
                     <span class="self">self</span>.<span class="ident">world</span> <span class="op">=</span> <span class="ident">World::bounded</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>());
                     <span class="self">self</span>.<span class="ident">to_merge</span>.<span class="ident">clear</span>();
+                    <span class="self">self</span>.<span class="ident">partitions</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
                     <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;Auto-merge all neighborhoods&quot;</span> {
                         <span class="comment">// Actually merge the partitions</span>
@@ -584,15 +617,20 @@
                         }
                         <span class="self">self</span>.<span class="ident">add_blocks_with_coloring</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">merged</span>, <span class="kw-2">&amp;mut</span> <span class="ident">Timer::throwaway</span>());
                     } <span class="kw">else</span> {
-                        <span class="comment">// Until we can actually do the merge, just color the partition to show results</span>
+                        <span class="comment">// Until we can actually do the merge, just color the partition to show</span>
+                        <span class="comment">// results. The coloring is half-useless; adjacent partitions might be the</span>
+                        <span class="comment">// same.</span>
                         <span class="kw">for</span> (<span class="ident">color_idx</span>, <span class="ident">perimeters</span>) <span class="kw">in</span> <span class="ident">partitions</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
                             <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident">COLORS</span>[<span class="ident">color_idx</span> <span class="op">%</span> <span class="ident">COLORS</span>.<span class="ident">len</span>()];
+                            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">group</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
                             <span class="kw">for</span> <span class="ident">perimeter</span> <span class="kw">in</span> <span class="ident">perimeters</span> {
                                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">block</span>) <span class="op">=</span> <span class="ident">perimeter</span>.<span class="ident">to_block</span>(<span class="ident">map</span>) {
                                     <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">new_id</span>();
                                     <span class="self">self</span>.<span class="ident">add_block</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>, <span class="ident">color</span>, <span class="ident">block</span>);
+                                    <span class="ident">group</span>.<span class="ident">push</span>(<span class="ident">id</span>);
                                 }
                             }
+                            <span class="self">self</span>.<span class="ident">partitions</span>.<span class="ident">push</span>(<span class="ident">group</span>);
                         }
                     }
                 }
@@ -629,6 +667,20 @@
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
         <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+
+        <span class="comment">// If we&#39;ve partitioned by neighborhood but not merged, show the grouping when hovering</span>
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">get_hovering</span>() {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
+            <span class="kw">for</span> <span class="ident">group</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">partitions</span> {
+                <span class="kw">if</span> <span class="ident">group</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>) {
+                    <span class="kw">for</span> <span class="ident">block</span> <span class="kw">in</span> <span class="ident">group</span> {
+                        <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::RED</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="self">self</span>.<span class="ident">blocks</span>[<span class="ident">block</span>].<span class="ident">polygon</span>.<span class="ident">clone</span>());
+                    }
+                    <span class="kw">break</span>;
+                }
+            }
+            <span class="ident">batch</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+        }
     }
 }
 
@@ -742,7 +794,7 @@
             .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         <span class="ident">ctx</span>.<span class="ident">style</span>()
             .<span class="ident">btn_outline</span>
-            .<span class="ident">text</span>(<span class="string">&quot;Classify neighborhoods&quot;</span>)
+            .<span class="ident">text</span>(<span class="string">&quot;Classify neighborhoods (but don&#39;t merge)&quot;</span>)
             .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         <span class="ident">ctx</span>.<span class="ident">style</span>()
             .<span class="ident">btn_outline</span>
