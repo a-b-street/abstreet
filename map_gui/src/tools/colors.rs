@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use abstutil::Counter;
 use geom::{Circle, Distance, Line, Polygon, Pt2D};
 use map_model::{BuildingID, IntersectionID, LaneID, Map, ParkingLotID, RoadID, TransitStopID};
-use widgetry::mapspace::ToggleZoomed;
+use widgetry::mapspace::{ToggleZoomed, ToggleZoomedBuilder};
 use widgetry::{Color, EventCtx, Fill, GeomBatch, Line, LinearGradient, Text, Widget};
 
 use crate::AppLike;
@@ -258,62 +258,72 @@ impl DivergingScale {
 // TODO Bad name
 pub struct ColorNetwork<'a> {
     map: &'a Map,
-    pub unzoomed: GeomBatch,
-    pub zoomed: GeomBatch,
+    pub draw: ToggleZoomedBuilder,
 }
 
 impl<'a> ColorNetwork<'a> {
     pub fn new(app: &'a dyn AppLike) -> ColorNetwork {
-        let mut unzoomed = GeomBatch::new();
-        unzoomed.push(
+        let mut draw = ToggleZoomed::builder();
+        draw.unzoomed.push(
             app.cs().fade_map_dark,
             app.map().get_boundary_polygon().clone(),
         );
         ColorNetwork {
             map: app.map(),
-            unzoomed,
-            zoomed: GeomBatch::new(),
+            draw,
         }
     }
 
     pub fn no_fading(app: &'a dyn AppLike) -> ColorNetwork {
         ColorNetwork {
             map: app.map(),
-            unzoomed: GeomBatch::new(),
-            zoomed: GeomBatch::new(),
+            draw: ToggleZoomed::builder(),
         }
     }
 
     pub fn add_l(&mut self, l: LaneID, color: Color) {
-        self.unzoomed
+        self.draw
+            .unzoomed
             .push(color, self.map.get_parent(l).get_thick_polygon());
         let lane = self.map.get_l(l);
-        self.zoomed.push(color.alpha(0.4), lane.get_thick_polygon());
+        self.draw
+            .zoomed
+            .push(color.alpha(0.4), lane.get_thick_polygon());
     }
 
     pub fn add_r(&mut self, r: RoadID, color: Color) {
-        self.unzoomed
+        self.draw
+            .unzoomed
             .push(color, self.map.get_r(r).get_thick_polygon());
-        self.zoomed
+        self.draw
+            .zoomed
             .push(color.alpha(0.4), self.map.get_r(r).get_thick_polygon());
     }
 
     pub fn add_i(&mut self, i: IntersectionID, color: Color) {
-        self.unzoomed.push(color, self.map.get_i(i).polygon.clone());
-        self.zoomed
+        self.draw
+            .unzoomed
+            .push(color, self.map.get_i(i).polygon.clone());
+        self.draw
+            .zoomed
             .push(color.alpha(0.4), self.map.get_i(i).polygon.clone());
     }
 
     pub fn add_b(&mut self, b: BuildingID, color: Color) {
-        self.unzoomed.push(color, self.map.get_b(b).polygon.clone());
-        self.zoomed
+        self.draw
+            .unzoomed
+            .push(color, self.map.get_b(b).polygon.clone());
+        self.draw
+            .zoomed
             .push(color.alpha(0.4), self.map.get_b(b).polygon.clone());
     }
 
     pub fn add_pl(&mut self, pl: ParkingLotID, color: Color) {
-        self.unzoomed
+        self.draw
+            .unzoomed
             .push(color, self.map.get_pl(pl).polygon.clone());
-        self.zoomed
+        self.draw
+            .zoomed
             .push(color.alpha(0.4), self.map.get_pl(pl).polygon.clone());
     }
 
@@ -355,7 +365,7 @@ impl<'a> ColorNetwork<'a> {
     }
 
     pub fn build(self, ctx: &mut EventCtx) -> ToggleZoomed {
-        ToggleZoomed::new(ctx, self.unzoomed, self.zoomed)
+        self.draw.build(ctx)
     }
 }
 

@@ -253,7 +253,7 @@ impl Occupancy {
             .to_polygon();
             for a in app.primary.sim.get_unzoomed_agents(&app.primary.map) {
                 if a.parking {
-                    colorer.unzoomed.push(
+                    colorer.draw.unzoomed.push(
                         app.cs.parking_trip.alpha(0.8),
                         car_circle.translate(a.pos.x(), a.pos.y()),
                     );

@@ -103,8 +103,7 @@ impl Results {
                 self.before_intersection_counts.clone(),
                 &app.cs.good_to_bad_red,
             );
-            self.before_world
-                .draw_master_batch_built(colorer.build(ctx));
+            self.before_world.draw_master_batch(ctx, colorer.draw);
         }
 
         // After the filters
@@ -130,7 +129,7 @@ impl Results {
                 self.after_intersection_counts.clone(),
                 &app.cs.good_to_bad_red,
             );
-            self.after_world.draw_master_batch_built(colorer.build(ctx));
+            self.after_world.draw_master_batch(ctx, colorer.draw);
         }
 
         self.recalculate_relative_diff(ctx, app);

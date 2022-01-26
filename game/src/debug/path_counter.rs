@@ -49,9 +49,11 @@ impl PathCounter {
         let mut colorer = ColorNetwork::new(app);
         // Highlight the intersection
         colorer
+            .draw
             .unzoomed
             .push(Color::CYAN, map.get_i(i).polygon.clone());
         colorer
+            .draw
             .zoomed
             .push(Color::CYAN.alpha(0.5), map.get_i(i).polygon.clone());
 

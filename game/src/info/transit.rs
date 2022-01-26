@@ -328,8 +328,8 @@ fn route_body(ctx: &mut EventCtx, app: &App, details: &mut Details, id: TransitR
                 }
             }
         }
-        details.draw_extra.unzoomed.append(colorer.unzoomed);
-        details.draw_extra.zoomed.append(colorer.zoomed);
+        details.draw_extra.unzoomed.append(colorer.draw.unzoomed);
+        details.draw_extra.zoomed.append(colorer.draw.zoomed);
 
         for pt in bus_locations {
             details.draw_extra.unzoomed.push(
