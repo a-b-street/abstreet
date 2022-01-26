@@ -205,6 +205,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("water_lane", "center") => "Water Lane",
             ("wichelstowe", "center") => "Wichelstowe",
             ("wixams", "center") => "Wixams",
+            ("wokingham", "center") => "Wokingham",
             ("wynyard", "center") => "Wynyard",
             _ => &name.map,
         },

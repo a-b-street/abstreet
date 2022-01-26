@@ -1475,6 +1475,21 @@
       "uncompressed_size_bytes": 6585260,
       "compressed_size_bytes": 1484007
     },
+    "data/input/gb/wokingham/osm/berkshire-latest.osm.pbf": {
+      "checksum": "462908ae3f75e5fe89af8a655b84d141",
+      "uncompressed_size_bytes": 15933198,
+      "compressed_size_bytes": 15917087
+    },
+    "data/input/gb/wokingham/osm/center.osm": {
+      "checksum": "f159f69558e23ca32c67d0b9bb140bf1",
+      "uncompressed_size_bytes": 18608385,
+      "compressed_size_bytes": 1783244
+    },
+    "data/input/gb/wokingham/raw_maps/center.bin": {
+      "checksum": "3122527a3566b70cd25bbd924d1609ed",
+      "uncompressed_size_bytes": 5801838,
+      "compressed_size_bytes": 974968
+    },
     "data/input/gb/wynyard/osm/center.osm": {
       "checksum": "f11cf28f3a98e53949b52e8ebcb15a24",
       "uncompressed_size_bytes": 29434137,
@@ -4139,6 +4154,16 @@
       "checksum": "ebef5f915c4895471131d768e9936905",
       "uncompressed_size_bytes": 2574174,
       "compressed_size_bytes": 689452
+    },
+    "data/system/gb/wokingham/maps/center.bin": {
+      "checksum": "47892b588dce31d4e33d6332e69b8bd7",
+      "uncompressed_size_bytes": 16345914,
+      "compressed_size_bytes": 5956875
+    },
+    "data/system/gb/wokingham/scenarios/center/background.bin": {
+      "checksum": "804a36ad89e45bd323d2f28073145efc",
+      "uncompressed_size_bytes": 721118,
+      "compressed_size_bytes": 176895
     },
     "data/system/gb/wynyard/maps/center.bin": {
       "checksum": "2904d7d3d4da031ab4beba7ad71a46fc",
