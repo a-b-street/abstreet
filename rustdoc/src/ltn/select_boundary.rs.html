@@ -264,6 +264,17 @@
 <span id="263">263</span>
 <span id="264">264</span>
 <span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
@@ -288,6 +299,10 @@
     <span class="ident">frontier</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">BlockID</span><span class="op">&gt;</span>,
 
     <span class="ident">orig_partitioning</span>: <span class="ident">Partitioning</span>,
+
+    <span class="comment">// As an optimization, don&#39;t repeatedly attempt to make an edit that&#39;ll fail. The bool is</span>
+    <span class="comment">// whether the block is already included or not</span>
+    <span class="ident">last_failed_change</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">BlockID</span>, <span class="ident">bool</span>)<span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">SelectBoundary</span> {
@@ -300,6 +315,7 @@
             <span class="ident">frontier</span>: <span class="ident">BTreeSet::new</span>(),
 
             <span class="ident">orig_partitioning</span>: <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">clone</span>(),
+            <span class="ident">last_failed_change</span>: <span class="prelude-val">None</span>,
         };
 
         <span class="kw">let</span> <span class="ident">initial_boundary</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">neighborhood_block</span>(<span class="ident">id</span>);
@@ -368,6 +384,11 @@
     <span class="comment">// If the block is part of the current neighborhood, remove it. Otherwise add it. It&#39;s assumed</span>
     <span class="comment">// this block is in the previous frontier</span>
     <span class="kw">fn</span> <span class="ident">toggle_block</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">BlockID</span>) -&gt; <span class="ident">Transition</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">last_failed_change</span> <span class="op">==</span> <span class="prelude-val">Some</span>((<span class="ident">id</span>, <span class="self">self</span>.<span class="ident">currently_have_block</span>(<span class="ident">app</span>, <span class="ident">id</span>))) {
+            <span class="kw">return</span> <span class="ident">Transition::Keep</span>;
+        }
+        <span class="self">self</span>.<span class="ident">last_failed_change</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">try_toggle_block</span>(<span class="ident">app</span>, <span class="ident">id</span>) {
             <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">new_neighborhood</span>)) =&gt; {
                 <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">recalculate_coloring</span>();
@@ -406,6 +427,7 @@
                 <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
             }
             <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
+                <span class="self">self</span>.<span class="ident">last_failed_change</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">id</span>, <span class="self">self</span>.<span class="ident">currently_have_block</span>(<span class="ident">app</span>, <span class="ident">id</span>)));
                 <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="ident">err</span>.<span class="ident">to_string</span>().<span class="ident">text_widget</span>(<span class="ident">ctx</span>);
                 <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;warning&quot;</span>, <span class="ident">label</span>);
             }
