@@ -679,13 +679,16 @@
 <span id="678">678</span>
 <span id="679">679</span>
 <span id="680">680</span>
+<span id="681">681</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">maplit::btreeset</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil::prettyprint_usize</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">grey_out_map</span>, <span class="ident">ChooseSomething</span>, <span class="ident">CityPicker</span>, <span class="ident">PopupMsg</span>, <span class="ident">URLManager</span>};
+<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{
+    <span class="ident">checkbox_per_mode</span>, <span class="ident">grey_out_map</span>, <span class="ident">ChooseSomething</span>, <span class="ident">CityPicker</span>, <span class="ident">PopupMsg</span>, <span class="ident">URLManager</span>,
+};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">ScenarioModifier</span>, <span class="ident">SlidingWindow</span>, <span class="ident">TripMode</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">lctrl</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">LinePlot</span>, <span class="ident">Outcome</span>,
@@ -694,7 +697,6 @@
 };
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::common::checkbox_per_mode</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::edit::EditMode</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sandbox::gameplay::freeform::ChangeScenario</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sandbox::gameplay</span>::{<span class="ident">GameplayMode</span>, <span class="ident">GameplayState</span>};

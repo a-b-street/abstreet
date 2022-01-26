@@ -210,7 +210,7 @@
 <span class="kw">use</span> <span class="ident">enumset::EnumSet</span>;
 <span class="kw">use</span> <span class="ident">maplit::btreeset</span>;
 
-<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">intersections_from_roads</span>, <span class="ident">ColorDiscrete</span>};
+<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">checkbox_per_mode</span>, <span class="ident">intersections_from_roads</span>, <span class="ident">ColorDiscrete</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">AccessRestrictions</span>, <span class="ident">CommonEndpoint</span>, <span class="ident">PathConstraints</span>, <span class="ident">RoadID</span>};
 <span class="kw">use</span> <span class="ident">sim::TripMode</span>;
 <span class="kw">use</span> <span class="ident">widgetry::mapspace::ToggleZoomed</span>;
@@ -220,8 +220,8 @@
 };
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::common::CommonState</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::common::RoadSelector</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::common</span>::{<span class="ident">checkbox_per_mode</span>, <span class="ident">CommonState</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::edit::apply_map_edits</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ZoneEditor</span> {

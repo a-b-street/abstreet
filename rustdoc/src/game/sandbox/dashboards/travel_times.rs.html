@@ -663,7 +663,6 @@
 <span id="662">662</span>
 <span id="663">663</span>
 <span id="664">664</span>
-<span id="665">665</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std::io::Write</span>;
 
@@ -672,7 +671,7 @@
 
 <span class="kw">use</span> <span class="ident">abstutil::prettyprint_usize</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
-<span class="kw">use</span> <span class="ident">map_gui::tools::PopupMsg</span>;
+<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">color_for_mode</span>, <span class="ident">PopupMsg</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">TripID</span>, <span class="ident">TripMode</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">CompareTimes</span>, <span class="ident">DrawWithTooltips</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>,
@@ -681,7 +680,6 @@
 
 <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::trip_problems</span>::{<span class="ident">problem_matrix</span>, <span class="ident">ProblemType</span>, <span class="ident">TripProblemFilter</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::common::color_for_mode</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sandbox::dashboards::generic_trip_table::open_trip_transition</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sandbox::dashboards::DashTab</span>;
 

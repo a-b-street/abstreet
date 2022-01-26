@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Obj",""]],"fn":[["count_throughput",""],["make_world",""]],"mod":[["ui",""]],"struct":[["Results",""]]});
+initSidebarItems({"enum":[["Obj",""]],"fn":[["count_throughput",""],["end_of_day",""],["make_world",""]],"mod":[["ui",""]],"struct":[["Filters",""],["Results",""]]});
