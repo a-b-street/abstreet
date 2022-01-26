@@ -208,6 +208,13 @@
 <span id="207">207</span>
 <span id="208">208</span>
 <span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::io::Write</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
@@ -295,6 +302,7 @@
                         ),
                     ]),
                     <span class="ident">Toggle::switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;Filter crosswalks&quot;</span>, <span class="prelude-val">None</span>, <span class="bool-val">false</span>),
+                    <span class="ident">Toggle::switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;Generate travel demand model (UK only)&quot;</span>, <span class="prelude-val">None</span>, <span class="bool-val">false</span>),
                 ])
                 .<span class="ident">section</span>(<span class="ident">ctx</span>),
             ])
@@ -338,6 +346,12 @@
                     }
                     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;Filter crosswalks&quot;</span>) {
                         <span class="ident">args</span>.<span class="ident">push</span>(<span class="string">&quot;--filter-crosswalks&quot;</span>.<span class="ident">to_string</span>());
+                    }
+                    <span class="kw">if</span> <span class="self">self</span>
+                        .<span class="ident">panel</span>
+                        .<span class="ident">is_checked</span>(<span class="string">&quot;Generate travel demand model (UK only)&quot;</span>)
+                    {
+                        <span class="ident">args</span>.<span class="ident">push</span>(<span class="string">&quot;--create-uk-travel-demand-model&quot;</span>.<span class="ident">to_string</span>());
                     }
                     <span class="kw">match</span> <span class="ident">grab_geojson_from_clipboard</span>() {
                         <span class="prelude-val">Ok</span>(()) =&gt; <span class="ident">Transition::Push</span>(<span class="ident"><span class="kw">crate</span>::tools::RunCommand::new_state</span>(

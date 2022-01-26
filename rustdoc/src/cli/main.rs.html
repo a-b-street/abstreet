@@ -342,6 +342,27 @@
 <span id="341">341</span>
 <span id="342">342</span>
 <span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
 </pre><pre class="rust"><code><span class="doccomment">//! A collection of tools, mostly related to importing maps and scenarios. These are bundled as a</span>
 <span class="doccomment">//! single executable to reduce the cost of static linking in the release&#39;s file size.</span>
 
@@ -506,6 +527,10 @@
         <span class="doccomment">/// Downgrade crosswalks not matching a `highway=crossing` OSM node into unmarked crossings.</span>
         <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
         <span class="ident">filter_crosswalks</span>: <span class="ident">bool</span>,
+        <span class="doccomment">/// Generate a simple travel demand model based on 2011 UK commuting data. This will only</span>
+        <span class="doccomment">/// work if the boundary is in the UK.</span>
+        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
+        <span class="ident">create_uk_travel_demand_model</span>: <span class="ident">bool</span>,
     },
     <span class="doccomment">/// Imports a one-shot A/B Street map from an .osm file in a single command.</span>
     <span class="ident">OneshotImport</span> {
@@ -521,6 +546,10 @@
         <span class="doccomment">/// Downgrade crosswalks not matching a `highway=crossing` OSM node into unmarked crossings.</span>
         <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
         <span class="ident">filter_crosswalks</span>: <span class="ident">bool</span>,
+        <span class="doccomment">/// Generate a simple travel demand model based on 2011 UK commuting data. This will only</span>
+        <span class="doccomment">/// work if the boundary is in the UK.</span>
+        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
+        <span class="ident">create_uk_travel_demand_model</span>: <span class="ident">bool</span>,
         <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">flatten</span>)]</span>
         <span class="ident">opts</span>: <span class="ident">map_model::RawToMapOptions</span>,
     },
@@ -607,6 +636,7 @@
             <span class="ident">drive_on_left</span>,
             <span class="ident">use_geofabrik</span>,
             <span class="ident">filter_crosswalks</span>,
+            <span class="ident">create_uk_travel_demand_model</span>,
         } =&gt; {
             <span class="ident">one_step_import::run</span>(
                 <span class="ident">geojson_path</span>,
@@ -614,6 +644,7 @@
                 <span class="ident">drive_on_left</span>,
                 <span class="ident">use_geofabrik</span>,
                 <span class="ident">filter_crosswalks</span>,
+                <span class="ident">create_uk_travel_demand_model</span>,
             )
             .<span class="kw">await</span><span class="question-mark">?</span>
         }
@@ -622,8 +653,19 @@
             <span class="ident">clip_path</span>,
             <span class="ident">drive_on_left</span>,
             <span class="ident">filter_crosswalks</span>,
+            <span class="ident">create_uk_travel_demand_model</span>,
             <span class="ident">opts</span>,
-        } =&gt; <span class="ident">importer::oneshot</span>(<span class="ident">osm_input</span>, <span class="ident">clip_path</span>, <span class="ident">drive_on_left</span>, <span class="ident">filter_crosswalks</span>, <span class="ident">opts</span>),
+        } =&gt; {
+            <span class="ident">importer::oneshot</span>(
+                <span class="ident">osm_input</span>,
+                <span class="ident">clip_path</span>,
+                <span class="ident">drive_on_left</span>,
+                <span class="ident">filter_crosswalks</span>,
+                <span class="ident">create_uk_travel_demand_model</span>,
+                <span class="ident">opts</span>,
+            )
+            .<span class="kw">await</span>
+        }
         <span class="ident">Command::RegenerateEverything</span> {
             <span class="ident">shard_num</span>,
             <span class="ident">num_shards</span>,
