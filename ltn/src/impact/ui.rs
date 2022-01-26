@@ -1,9 +1,10 @@
+use abstutil::prettyprint_usize;
 use map_gui::load::FileLoader;
 use sim::Scenario;
 use widgetry::mapspace::{ToggleZoomed, World};
 use widgetry::{
-    Choice, EventCtx, GfxCtx, HorizontalAlignment, Panel, SimpleState, State, TextExt,
-    VerticalAlignment, Widget,
+    Choice, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Panel, SimpleState,
+    State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use super::{Obj, Results};
@@ -14,6 +15,7 @@ use crate::{App, BrowseNeighborhoods, Transition};
 
 pub struct ShowResults {
     layer: Layer,
+    draw_all_neighborhoods: Drawable,
     draw_all_filters: ToggleZoomed,
 }
 
@@ -80,11 +82,18 @@ impl ShowResults {
         ]))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
         .build(ctx);
+
+        let mut batch = GeomBatch::new();
+        for (_, (block, color)) in app.session.partitioning.all_neighborhoods() {
+            batch.push(color.alpha(0.2), block.polygon.clone());
+        }
+        let draw_all_neighborhoods = batch.upload(ctx);
         <dyn SimpleState<_>>::new_state(
             panel,
             Box::new(ShowResults {
                 layer,
                 draw_all_filters: app.session.modal_filters.draw(ctx, &app.map, None),
+                draw_all_neighborhoods,
             }),
         )
     }
@@ -120,7 +129,7 @@ impl SimpleState<App> for ShowResults {
     }
 
     fn other_event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        // Just trigger tooltips
+        // Just trigger hovering
         let _ = self.world_mut(app).event(ctx);
         Transition::Keep
     }
@@ -137,6 +146,31 @@ impl SimpleState<App> for ShowResults {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.world(app).draw(g);
+        g.redraw(&self.draw_all_neighborhoods);
         self.draw_all_filters.draw(g);
+
+        // TODO Manually generate tooltips last-minute. It'd be quite worth making the World be
+        // able to handle this.
+        let results = app.session.impact.as_ref().unwrap();
+        if let Some(id) = self.world(app).get_hovering() {
+            let count = match id {
+                Obj::Road(r) => match self.layer {
+                    Layer::Before => results.before_road_counts.get(r),
+                    Layer::After => results.after_road_counts.get(r),
+                    Layer::Relative => {
+                        g.draw_mouse_tooltip(results.relative_road_tooltip(r));
+                        return;
+                    }
+                },
+                Obj::Intersection(i) => match self.layer {
+                    Layer::Before => results.before_intersection_counts.get(i),
+                    Layer::After => results.after_intersection_counts.get(i),
+                    Layer::Relative => {
+                        return;
+                    }
+                },
+            };
+            g.draw_mouse_tooltip(Text::from(Line(prettyprint_usize(count))));
+        }
     }
 }

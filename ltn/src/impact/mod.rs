@@ -3,16 +3,16 @@ mod ui;
 use abstio::MapName;
 use abstutil::{prettyprint_usize, Counter, Timer};
 use geom::{Distance, Histogram, Statistic};
-use map_gui::tools::{cmp_count, ColorScale, DivergingScale};
+use map_gui::tools::{cmp_count, ColorNetwork, DivergingScale};
 use map_model::{
     IntersectionID, Map, PathRequest, PathStepV2, PathfinderCaching, RoadID, RoutingParams,
 };
 use sim::{Scenario, TripEndpoint, TripMode};
 use widgetry::mapspace::{ObjectID, World};
-use widgetry::{Color, EventCtx, Line, Text};
+use widgetry::{Color, EventCtx, GeomBatch, Line, Text};
 
 pub use self::ui::ShowResults;
-use crate::{App, NeighborhoodID};
+use crate::App;
 
 // TODO Configurable main road penalty, like in the pathfinding tool
 // TODO Don't allow crossing filters at all -- don't just disincentivize
@@ -24,14 +24,14 @@ pub struct Results {
     // This changes per map
     all_driving_trips: Vec<PathRequest>,
     before_world: World<Obj>,
-    before_road_counts: Counter<RoadID>,
-    before_intersection_counts: Counter<IntersectionID>,
+    pub before_road_counts: Counter<RoadID>,
+    pub before_intersection_counts: Counter<IntersectionID>,
 
     // The rest need updating when this changes
     pub change_key: usize,
     after_world: World<Obj>,
-    after_road_counts: Counter<RoadID>,
-    after_intersection_counts: Counter<IntersectionID>,
+    pub after_road_counts: Counter<RoadID>,
+    pub after_intersection_counts: Counter<IntersectionID>,
     relative_world: World<Obj>,
 }
 
@@ -39,7 +39,6 @@ pub struct Results {
 enum Obj {
     Road(RoadID),
     Intersection(IntersectionID),
-    Neighborhood(NeighborhoodID),
 }
 impl ObjectID for Obj {}
 
@@ -98,20 +97,14 @@ impl Results {
             self.before_intersection_counts = intersections;
 
             self.before_world = make_world(ctx, app);
-            ranked_roads(
-                ctx,
-                map,
-                &mut self.before_world,
-                &self.before_road_counts,
+            let mut colorer = ColorNetwork::no_fading(app);
+            colorer.ranked_roads(self.before_road_counts.clone(), &app.cs.good_to_bad_red);
+            colorer.ranked_intersections(
+                self.before_intersection_counts.clone(),
                 &app.cs.good_to_bad_red,
             );
-            ranked_intersections(
-                ctx,
-                map,
-                &mut self.before_world,
-                &self.before_intersection_counts,
-                &app.cs.good_to_bad_red,
-            );
+            self.before_world
+                .draw_master_batch_built(colorer.build(ctx));
         }
 
         // After the filters
@@ -131,20 +124,13 @@ impl Results {
             self.after_intersection_counts = intersections;
 
             self.after_world = make_world(ctx, app);
-            ranked_roads(
-                ctx,
-                map,
-                &mut self.after_world,
-                &self.after_road_counts,
+            let mut colorer = ColorNetwork::no_fading(app);
+            colorer.ranked_roads(self.after_road_counts.clone(), &app.cs.good_to_bad_red);
+            colorer.ranked_intersections(
+                self.after_intersection_counts.clone(),
                 &app.cs.good_to_bad_red,
             );
-            ranked_intersections(
-                ctx,
-                map,
-                &mut self.after_world,
-                &self.after_intersection_counts,
-                &app.cs.good_to_bad_red,
-            );
+            self.after_world.draw_master_batch_built(colorer.build(ctx));
         }
 
         self.recalculate_relative_diff(ctx, app);
@@ -152,7 +138,6 @@ impl Results {
 
     fn recalculate_relative_diff(&mut self, ctx: &mut EventCtx, app: &App) {
         let map = &app.map;
-        self.relative_world = make_world(ctx, app);
 
         // First just understand the counts...
         let mut hgram_before = Histogram::new();
@@ -182,6 +167,7 @@ impl Results {
         let min_count = hgram_before.select(Statistic::Min).unwrap();
         let max_count = hgram_before.select(Statistic::Max).unwrap();
 
+        let mut draw_roads = GeomBatch::new();
         for (r, before, after) in self
             .before_road_counts
             .clone()
@@ -194,85 +180,29 @@ impl Results {
                 continue;
             };
 
-            let mut txt = Text::from_multiline(vec![
-                Line(format!("Before: {}", prettyprint_usize(before))),
-                Line(format!("After: {}", prettyprint_usize(after))),
-            ]);
-            cmp_count(&mut txt, before, after);
-            txt.add_line(Line(format!("After/before: {:.2}", ratio)));
-
             // TODO Refactor histogram helpers
             let pct_count = (before - min_count) as f64 / (max_count - min_count) as f64;
             // TODO Pretty arbitrary. Ideally we'd hide roads and intersections underneath...
             let width = Distance::meters(2.0) + pct_count * Distance::meters(10.0);
-            self.relative_world
-                .add(Obj::Road(r))
-                .hitbox(map.get_r(r).center_pts.make_polygons(width))
-                .draw_color(color)
-                .hover_alpha(0.9)
-                .tooltip(txt)
-                .build(ctx);
-        }
-    }
-}
 
-// Just add the base layer of non-clickable neighborhoods
-fn make_world(ctx: &mut EventCtx, app: &App) -> World<Obj> {
-    let mut world = World::bounded(app.map.get_bounds());
-    for (id, (block, color)) in app.session.partitioning.all_neighborhoods() {
-        world
-            .add(Obj::Neighborhood(*id))
-            .hitbox(block.polygon.clone())
-            .draw_color(color.alpha(0.2))
-            .build(ctx);
-    }
-    world
-}
-
-// TODO Duplicates some logic from ColorNetwork
-fn ranked_roads(
-    ctx: &mut EventCtx,
-    map: &Map,
-    world: &mut World<Obj>,
-    counter: &Counter<RoadID>,
-    scale: &ColorScale,
-) {
-    let roads = counter.sorted_asc();
-    let len = roads.len() as f64;
-    for (idx, list) in roads.into_iter().enumerate() {
-        let color = scale.eval((idx as f64) / len);
-        for r in list {
-            world
-                .add(Obj::Road(r))
-                .hitbox(map.get_r(r).get_thick_polygon())
-                .draw_color(color)
-                .hover_alpha(0.9)
-                .tooltip(Text::from(Line(prettyprint_usize(counter.get(r)))))
-                .build(ctx);
+            draw_roads.push(color, map.get_r(r).center_pts.make_polygons(width));
         }
+        self.relative_world = make_world(ctx, app);
+        self.relative_world.draw_master_batch(ctx, draw_roads);
     }
-}
 
-fn ranked_intersections(
-    ctx: &mut EventCtx,
-    map: &Map,
-    world: &mut World<Obj>,
-    counter: &Counter<IntersectionID>,
-    scale: &ColorScale,
-) {
-    let intersections = counter.sorted_asc();
-    let len = intersections.len() as f64;
-    for (idx, list) in intersections.into_iter().enumerate() {
-        let color = scale.eval((idx as f64) / len);
-        for i in list {
-            world
-                .add(Obj::Intersection(i))
-                .hitbox(map.get_i(i).polygon.clone())
-                .draw_color(color)
-                .hover_alpha(0.9)
-                .tooltip(Text::from(Line(prettyprint_usize(counter.get(i)))))
-                .build(ctx);
-        }
+    pub fn relative_road_tooltip(&self, r: RoadID) -> Text {
+        let before = self.before_road_counts.get(r);
+        let after = self.after_road_counts.get(r);
+        let ratio = (after as f64) / (before as f64);
+
+        let mut txt = Text::from_multiline(vec![
+            Line(format!("Before: {}", prettyprint_usize(before))),
+            Line(format!("After: {}", prettyprint_usize(after))),
+        ]);
+        cmp_count(&mut txt, before, after);
+        txt.add_line(Line(format!("After/before: {:.2}", ratio)));
+        txt
     }
 }
 
@@ -322,4 +252,31 @@ fn count_throughput(
     }
 
     (road_counts, intersection_counts)
+}
+
+// Creates a world that just has placeholders for hovering on roads and intersections. The caller
+// manually handles drawing and tooltips.
+//
+// TODO This is necessary to avoid running out of video memory. World should be able to lazily
+// create tooltips and more easily merge drawn objects together in a master batch.
+// https://github.com/a-b-street/abstreet/issues/763
+fn make_world(ctx: &mut EventCtx, app: &App) -> World<Obj> {
+    let mut world = World::bounded(app.map.get_bounds());
+    for r in app.map.all_roads() {
+        world
+            .add(Obj::Road(r.id))
+            .hitbox(r.get_thick_polygon())
+            .drawn_in_master_batch()
+            .invisibly_hoverable()
+            .build(ctx);
+    }
+    for i in app.map.all_intersections() {
+        world
+            .add(Obj::Intersection(i.id))
+            .hitbox(i.polygon.clone())
+            .drawn_in_master_batch()
+            .invisibly_hoverable()
+            .build(ctx);
+    }
+    world
 }
