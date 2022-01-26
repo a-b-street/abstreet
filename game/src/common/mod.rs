@@ -2,10 +2,10 @@ use std::collections::BTreeSet;
 
 use geom::{Duration, Polygon, Time};
 use map_gui::ID;
-use sim::{AgentType, TripMode, TripPhaseType};
+use sim::{AgentType, TripPhaseType};
 use widgetry::{
     lctrl, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel, ScreenDims,
-    ScreenPt, ScreenRectangle, Text, TextSpan, Toggle, VerticalAlignment, Widget,
+    ScreenPt, ScreenRectangle, Text, TextSpan, VerticalAlignment, Widget,
 };
 
 pub use self::route_sketcher::RouteSketcher;
@@ -366,15 +366,6 @@ pub fn cmp_duration_shorter(app: &App, after: Duration, before: Duration) -> Vec
     }
 }
 
-pub fn color_for_mode(app: &App, m: TripMode) -> Color {
-    match m {
-        TripMode::Walk => app.cs.unzoomed_pedestrian,
-        TripMode::Bike => app.cs.unzoomed_bike,
-        TripMode::Transit => app.cs.unzoomed_bus,
-        TripMode::Drive => app.cs.unzoomed_car,
-    }
-}
-
 pub fn color_for_agent_type(app: &App, a: AgentType) -> Color {
     match a {
         AgentType::Pedestrian => app.cs.unzoomed_pedestrian,
@@ -396,26 +387,6 @@ pub fn color_for_trip_phase(app: &App, tpt: TripPhaseType) -> Color {
         TripPhaseType::Cancelled | TripPhaseType::Finished => unreachable!(),
         TripPhaseType::DelayedStart => Color::YELLOW,
     }
-}
-
-pub fn checkbox_per_mode(
-    ctx: &mut EventCtx,
-    app: &App,
-    current_state: &BTreeSet<TripMode>,
-) -> Widget {
-    let mut filters = Vec::new();
-    for m in TripMode::all() {
-        filters.push(
-            Toggle::colored_checkbox(
-                ctx,
-                m.ongoing_verb(),
-                color_for_mode(app, m),
-                current_state.contains(&m),
-            )
-            .margin_right(24),
-        );
-    }
-    Widget::custom_row(filters)
 }
 
 /// If you want a simulation to start after midnight, pass the result of this to

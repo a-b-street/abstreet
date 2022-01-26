@@ -1,11 +1,14 @@
 mod ui;
 
+use std::collections::BTreeSet;
+
 use abstio::MapName;
 use abstutil::{prettyprint_usize, Counter, Timer};
-use geom::{Distance, Histogram, Statistic};
+use geom::{Distance, Duration, Histogram, Statistic, Time};
 use map_gui::tools::{cmp_count, ColorNetwork, DivergingScale};
 use map_model::{
-    IntersectionID, Map, PathRequest, PathStepV2, PathfinderCaching, RoadID, RoutingParams,
+    IntersectionID, Map, PathConstraints, PathRequest, PathStepV2, PathfinderCaching, RoadID,
+    RoutingParams,
 };
 use sim::{Scenario, TripEndpoint, TripMode};
 use widgetry::mapspace::{ObjectID, World};
@@ -19,20 +22,36 @@ use crate::App;
 // TODO Share structure or pieces with Ungap's predict mode
 // ... can't we just produce data of a certain shape, and have a UI pretty tuned for that?
 
+// This gets incrementally recalculated when stuff changes.
+//
+// - all_trips and everything else depends just on the map (we only have one scenario per map now)
+// - filtered_trips and below depend on filters
+// - after_world and relative_world depend on change_key (for when the map is edited)
 pub struct Results {
     pub map: MapName,
-    // This changes per map
-    all_driving_trips: Vec<PathRequest>,
+    pub filters: Filters,
+    all_trips: Vec<PathRequest>,
+
+    // A subset of all_trips
+    filtered_trips: Vec<PathRequest>,
     before_world: World<Obj>,
     pub before_road_counts: Counter<RoadID>,
     pub before_intersection_counts: Counter<IntersectionID>,
 
-    // The rest need updating when this changes
     pub change_key: usize,
     after_world: World<Obj>,
     pub after_road_counts: Counter<RoadID>,
     pub after_intersection_counts: Counter<IntersectionID>,
     relative_world: World<Obj>,
+}
+
+#[derive(PartialEq)]
+pub struct Filters {
+    pub modes: BTreeSet<TripMode>,
+    // TODO Has no effect yet. Do we need to store the TripEndpoints / can we detect from the
+    // PathRequest reasonably?
+    pub include_borders: bool,
+    pub departure_time: (Time, Time),
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -50,22 +69,24 @@ impl Results {
         timer: &mut Timer,
     ) -> Results {
         let map = &app.map;
-        let all_driving_trips = timer
-            .parallelize(
-                "analyze trips",
-                scenario
-                    .all_trips()
-                    .filter(|trip| trip.mode == TripMode::Drive)
-                    .collect(),
-                |trip| TripEndpoint::path_req(trip.origin, trip.destination, TripMode::Drive, map),
-            )
+        let all_trips = timer
+            .parallelize("analyze trips", scenario.all_trips().collect(), |trip| {
+                TripEndpoint::path_req(trip.origin, trip.destination, trip.mode, map)
+            })
             .into_iter()
             .flatten()
             .collect();
 
         let mut results = Results {
             map: app.map.get_name().clone(),
-            all_driving_trips,
+            filters: Filters {
+                modes: vec![TripMode::Drive].into_iter().collect(),
+                include_borders: true,
+                departure_time: (Time::START_OF_DAY, end_of_day()),
+            },
+            all_trips,
+
+            filtered_trips: Vec::new(),
             before_world: World::unbounded(),
             before_road_counts: Counter::new(),
             before_intersection_counts: Counter::new(),
@@ -76,35 +97,49 @@ impl Results {
             after_intersection_counts: Counter::new(),
             relative_world: World::unbounded(),
         };
+        results.recalculate_filters(ctx, app, timer);
         results.recalculate_impact(ctx, app, timer);
         results
+    }
+
+    fn recalculate_filters(&mut self, ctx: &mut EventCtx, app: &App, timer: &mut Timer) {
+        let map = &app.map;
+        let constraints: BTreeSet<PathConstraints> = self
+            .filters
+            .modes
+            .iter()
+            .map(|m| m.to_constraints())
+            .collect();
+        self.filtered_trips = self
+            .all_trips
+            .iter()
+            .filter(|req| constraints.contains(&req.constraints))
+            .cloned()
+            .collect();
+
+        let (roads, intersections) = count_throughput(
+            &self.filtered_trips,
+            map,
+            map.routing_params().clone(),
+            PathfinderCaching::NoCache,
+            timer,
+        );
+        self.before_road_counts = roads;
+        self.before_intersection_counts = intersections;
+
+        self.before_world = make_world(ctx, app);
+        let mut colorer = ColorNetwork::no_fading(app);
+        colorer.ranked_roads(self.before_road_counts.clone(), &app.cs.good_to_bad_red);
+        colorer.ranked_intersections(
+            self.before_intersection_counts.clone(),
+            &app.cs.good_to_bad_red,
+        );
+        self.before_world.draw_master_batch(ctx, colorer.draw);
     }
 
     fn recalculate_impact(&mut self, ctx: &mut EventCtx, app: &App, timer: &mut Timer) {
         self.change_key = app.session.modal_filters.change_key;
         let map = &app.map;
-
-        // Before the filters. These don't change with no filters, so only calculate once per map
-        if self.before_road_counts.is_empty() {
-            let (roads, intersections) = count_throughput(
-                &self.all_driving_trips,
-                map,
-                map.routing_params().clone(),
-                PathfinderCaching::NoCache,
-                timer,
-            );
-            self.before_road_counts = roads;
-            self.before_intersection_counts = intersections;
-
-            self.before_world = make_world(ctx, app);
-            let mut colorer = ColorNetwork::no_fading(app);
-            colorer.ranked_roads(self.before_road_counts.clone(), &app.cs.good_to_bad_red);
-            colorer.ranked_intersections(
-                self.before_intersection_counts.clone(),
-                &app.cs.good_to_bad_red,
-            );
-            self.before_world.draw_master_batch(ctx, colorer.draw);
-        }
 
         // After the filters
         {
@@ -113,7 +148,7 @@ impl Results {
             // Since we're making so many requests, it's worth it to rebuild a contraction
             // hierarchy. And since we're single-threaded, no complications there.
             let (roads, intersections) = count_throughput(
-                &self.all_driving_trips,
+                &self.filtered_trips,
                 map,
                 params,
                 PathfinderCaching::CacheCH,
@@ -236,15 +271,13 @@ fn count_throughput(
         timer.next();
         if let Ok(path) = map.pathfind_v2_with_params(req.clone(), &params, cache_custom) {
             for step in path.get_steps() {
-                // No Contraflow steps for driving paths
                 match step {
-                    PathStepV2::Along(dr) => {
+                    PathStepV2::Along(dr) | PathStepV2::Contraflow(dr) => {
                         road_counts.inc(dr.road);
                     }
-                    PathStepV2::Movement(m) => {
+                    PathStepV2::Movement(m) | PathStepV2::ContraflowMovement(m) => {
                         intersection_counts.inc(m.parent);
                     }
-                    _ => {}
                 }
             }
         }
@@ -278,4 +311,9 @@ fn make_world(ctx: &mut EventCtx, app: &App) -> World<Obj> {
             .build(ctx);
     }
     world
+}
+
+// TODO Fixed, and sadly not const
+fn end_of_day() -> Time {
+    Time::START_OF_DAY + Duration::hours(24)
 }

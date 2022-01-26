@@ -1,14 +1,16 @@
 //! Generic UI tools. Some of this should perhaps be lifted to widgetry.
 
 use std::cmp::Ordering;
+use std::collections::BTreeSet;
 
 use anyhow::Result;
 
 use abstutil::prettyprint_usize;
 use geom::{Distance, Duration, Polygon};
+use sim::TripMode;
 use widgetry::{
     hotkeys, Choice, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Menu, Outcome,
-    Panel, State, Text, TextBox, Transition, Widget,
+    Panel, State, Text, TextBox, Toggle, Transition, Widget,
 };
 
 use crate::load::FutureLoader;
@@ -337,4 +339,33 @@ pub fn cmp_count(txt: &mut Text, before: usize, after: usize) {
             ]);
         }
     }
+}
+
+pub fn color_for_mode(app: &dyn AppLike, m: TripMode) -> Color {
+    match m {
+        TripMode::Walk => app.cs().unzoomed_pedestrian,
+        TripMode::Bike => app.cs().unzoomed_bike,
+        TripMode::Transit => app.cs().unzoomed_bus,
+        TripMode::Drive => app.cs().unzoomed_car,
+    }
+}
+
+pub fn checkbox_per_mode(
+    ctx: &mut EventCtx,
+    app: &dyn AppLike,
+    current_state: &BTreeSet<TripMode>,
+) -> Widget {
+    let mut filters = Vec::new();
+    for m in TripMode::all() {
+        filters.push(
+            Toggle::colored_checkbox(
+                ctx,
+                m.ongoing_verb(),
+                color_for_mode(app, m),
+                current_state.contains(&m),
+            )
+            .margin_right(24),
+        );
+    }
+    Widget::custom_row(filters)
 }

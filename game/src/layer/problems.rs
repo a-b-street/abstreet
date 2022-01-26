@@ -2,7 +2,7 @@ use std::collections::BTreeSet;
 
 use abstutil::prettyprint_usize;
 use geom::{Circle, Distance, Pt2D, Time};
-use map_gui::tools::{make_heatmap, HeatmapOptions};
+use map_gui::tools::{checkbox_per_mode, make_heatmap, HeatmapOptions};
 use sim::{Problem, TripInfo, TripMode};
 use widgetry::mapspace::ToggleZoomed;
 use widgetry::{
@@ -10,7 +10,6 @@ use widgetry::{
 };
 
 use crate::app::App;
-use crate::common::checkbox_per_mode;
 use crate::layer::{header, Layer, LayerOutcome, PANEL_PLACEMENT};
 
 pub struct ProblemMap {

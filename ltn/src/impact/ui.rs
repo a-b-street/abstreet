@@ -1,13 +1,16 @@
+use std::collections::BTreeSet;
+
 use abstutil::prettyprint_usize;
 use map_gui::load::FileLoader;
-use sim::Scenario;
+use map_gui::tools::checkbox_per_mode;
+use sim::{Scenario, TripMode};
 use widgetry::mapspace::{ToggleZoomed, World};
 use widgetry::{
     Choice, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Panel, SimpleState,
-    State, Text, TextExt, VerticalAlignment, Widget,
+    Slider, State, Text, TextExt, Toggle, VerticalAlignment, Widget,
 };
 
-use super::{Obj, Results};
+use super::{end_of_day, Filters, Obj, Results};
 use crate::{App, BrowseNeighborhoods, Transition};
 
 // TODO Share structure or pieces with Ungap's predict mode
@@ -58,16 +61,26 @@ impl ShowResults {
             });
         }
 
-        let layer = Layer::Relative;
+        // Start with the relative layer if anything has changed
+        let layer = {
+            let results = app.session.impact.as_ref().unwrap();
+            if results.before_road_counts == results.after_road_counts {
+                Layer::Before
+            } else {
+                Layer::Relative
+            }
+        };
         let panel = Panel::new_builder(Widget::col(vec![
             map_gui::tools::app_header(ctx, app, "Low traffic neighborhoods"),
             Widget::row(vec![
                 "Impact prediction".text_widget(ctx),
                 ctx.style().btn_close_widget(ctx),
             ]),
-            "This shows how many driving trips cross each road".text_widget(ctx),
+            Text::from(Line("This tool starts with a travel demand model, calculates the route every trip takes before and after changes, and displays volumes along roads and intersections")).wrap_to_pct(ctx, 20).into_widget(ctx),
+            // TODO Dropdown for the scenario, and explain its source/limitations
+            app.session.impact.as_ref().unwrap().filters.to_panel(ctx, app),
             Widget::row(vec![
-                "Show what?".text_widget(ctx).centered_vert(),
+                "Show counts:".text_widget(ctx).centered_vert().margin_right(20),
                 Widget::dropdown(
                     ctx,
                     "layer",
@@ -134,13 +147,33 @@ impl SimpleState<App> for ShowResults {
         Transition::Keep
     }
 
+    // TODO The sliders should only trigger updates when the user lets go; way too slow otherwise
     fn panel_changed(
         &mut self,
-        _: &mut EventCtx,
-        _: &mut App,
+        ctx: &mut EventCtx,
+        app: &mut App,
         panel: &mut Panel,
     ) -> Option<Transition> {
-        self.layer = panel.dropdown_value("layer");
+        let layer = panel.dropdown_value("layer");
+        if layer != self.layer {
+            self.layer = layer;
+            return None;
+        }
+
+        let filters = Filters::from_panel(panel);
+        if filters == app.session.impact.as_ref().unwrap().filters {
+            return None;
+        }
+
+        // Avoid a double borrow
+        let mut results = app.session.impact.take().unwrap();
+        results.filters = Filters::from_panel(panel);
+        ctx.loading_screen("update filters", |ctx, timer| {
+            results.recalculate_filters(ctx, app, timer);
+            results.recalculate_impact(ctx, app, timer);
+        });
+        app.session.impact = Some(results);
+
         None
     }
 
@@ -172,5 +205,52 @@ impl SimpleState<App> for ShowResults {
             };
             g.draw_mouse_tooltip(Text::from(Line(prettyprint_usize(count))));
         }
+    }
+}
+
+impl Filters {
+    fn from_panel(panel: &Panel) -> Filters {
+        let (p1, p2) = (
+            panel.slider("depart from").get_percent(),
+            panel.slider("depart until").get_percent(),
+        );
+        let departure_time = (end_of_day().percent_of(p1), end_of_day().percent_of(p2));
+        let modes = TripMode::all()
+            .into_iter()
+            .filter(|m| panel.is_checked(m.ongoing_verb()))
+            .collect::<BTreeSet<_>>();
+        Filters {
+            modes,
+            include_borders: panel.is_checked("include borders"),
+            departure_time,
+        }
+    }
+
+    fn to_panel(&self, ctx: &mut EventCtx, app: &App) -> Widget {
+        Widget::col(vec![
+            "Filter trips".text_widget(ctx),
+            Toggle::switch(ctx, "include borders", None, self.include_borders),
+            Widget::row(vec![
+                "Departing from:".text_widget(ctx).margin_right(20),
+                Slider::area(
+                    ctx,
+                    0.15 * ctx.canvas.window_width,
+                    self.departure_time.0.to_percent(end_of_day()),
+                    "depart from",
+                ),
+            ]),
+            Widget::row(vec![
+                "Departing until:".text_widget(ctx).margin_right(20),
+                Slider::area(
+                    ctx,
+                    0.15 * ctx.canvas.window_width,
+                    self.departure_time.1.to_percent(end_of_day()),
+                    "depart until",
+                ),
+            ]),
+            checkbox_per_mode(ctx, app, &self.modes),
+            // TODO Filter by trip purpose
+        ])
+        .section(ctx)
     }
 }

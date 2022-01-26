@@ -4,7 +4,9 @@ use maplit::btreeset;
 
 use abstutil::prettyprint_usize;
 use geom::{Duration, Time};
-use map_gui::tools::{grey_out_map, ChooseSomething, CityPicker, PopupMsg, URLManager};
+use map_gui::tools::{
+    checkbox_per_mode, grey_out_map, ChooseSomething, CityPicker, PopupMsg, URLManager,
+};
 use sim::{ScenarioModifier, SlidingWindow, TripMode};
 use widgetry::{
     lctrl, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, LinePlot, Outcome,
@@ -13,7 +15,6 @@ use widgetry::{
 };
 
 use crate::app::{App, Transition};
-use crate::common::checkbox_per_mode;
 use crate::edit::EditMode;
 use crate::sandbox::gameplay::freeform::ChangeScenario;
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};

@@ -6,7 +6,7 @@ use fs_err::File;
 
 use abstutil::prettyprint_usize;
 use geom::{Distance, Duration, Polygon, Pt2D};
-use map_gui::tools::PopupMsg;
+use map_gui::tools::{color_for_mode, PopupMsg};
 use sim::{TripID, TripMode};
 use widgetry::{
     Choice, Color, CompareTimes, DrawWithTooltips, EventCtx, GeomBatch, GfxCtx, Line, Outcome,
@@ -15,7 +15,6 @@ use widgetry::{
 
 use super::trip_problems::{problem_matrix, ProblemType, TripProblemFilter};
 use crate::app::{App, Transition};
-use crate::common::color_for_mode;
 use crate::sandbox::dashboards::generic_trip_table::open_trip_transition;
 use crate::sandbox::dashboards::DashTab;
 

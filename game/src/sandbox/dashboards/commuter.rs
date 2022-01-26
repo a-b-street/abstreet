@@ -4,7 +4,7 @@ use maplit::hashset;
 
 use abstutil::{prettyprint_usize, Counter, MultiMap, Timer};
 use geom::{Distance, PolyLine, Polygon, Time};
-use map_gui::tools::ColorLegend;
+use map_gui::tools::{checkbox_per_mode, ColorLegend};
 use map_model::{osm, BuildingID, BuildingType, IntersectionID, LaneID, Map, RoadID, TurnType};
 use sim::{TripEndpoint, TripInfo, TripMode};
 use widgetry::{
@@ -13,7 +13,7 @@ use widgetry::{
 };
 
 use crate::app::{App, Transition};
-use crate::common::{checkbox_per_mode, CommonState};
+use crate::common::CommonState;
 use crate::sandbox::dashboards::DashTab;
 
 pub struct CommuterPatterns {

@@ -83,7 +83,8 @@ where
     }
 }
 
-#[derive(Clone)]
+// Be careful with PartialEq -- some entries may have an explicit 0, others not
+#[derive(Clone, PartialEq)]
 pub struct Counter<T: Ord + PartialEq + Clone> {
     map: BTreeMap<T, usize>,
     sum: usize,
