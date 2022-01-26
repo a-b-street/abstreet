@@ -11,6 +11,7 @@ pub async fn run(
     drive_on_left: bool,
     use_geofabrik: bool,
     filter_crosswalks: bool,
+    create_uk_travel_demand_model: bool,
 ) -> Result<()> {
     if name.contains(' ') || name.is_empty() {
         panic!(
@@ -83,8 +84,10 @@ pub async fn run(
         Some("boundary0.poly".to_string()),
         !drive_on_left,
         filter_crosswalks,
+        create_uk_travel_demand_model,
         map_model::RawToMapOptions::default(),
-    );
+    )
+    .await;
 
     // Clean up temporary files. If we broke before this, deliberately leave them around for
     // debugging.

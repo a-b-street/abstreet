@@ -89,11 +89,12 @@ pub fn regenerate_all_maps() {
 }
 
 /// Transforms a .osm file to a map in one step.
-pub fn oneshot(
+pub async fn oneshot(
     osm_path: String,
     clip: Option<String>,
     drive_on_right: bool,
     filter_crosswalks: bool,
+    create_uk_travel_demand_model: bool,
     opts: RawToMapOptions,
 ) {
     let mut timer = abstutil::Timer::new("oneshot");
@@ -133,6 +134,15 @@ pub fn oneshot(
     timer.start("save map");
     map.save();
     timer.stop("save map");
+
+    if create_uk_travel_demand_model {
+        timer.start("generating UK travel demand model");
+        uk::generate_scenario(&map, &load_configuration(), &mut timer)
+            .await
+            .unwrap();
+        timer.stop("generating UK travel demand model");
+    }
+
     println!("{} has been created", map.get_name().path());
 }
 

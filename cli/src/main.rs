@@ -162,6 +162,10 @@ enum Command {
         /// Downgrade crosswalks not matching a `highway=crossing` OSM node into unmarked crossings.
         #[structopt(long)]
         filter_crosswalks: bool,
+        /// Generate a simple travel demand model based on 2011 UK commuting data. This will only
+        /// work if the boundary is in the UK.
+        #[structopt(long)]
+        create_uk_travel_demand_model: bool,
     },
     /// Imports a one-shot A/B Street map from an .osm file in a single command.
     OneshotImport {
@@ -177,6 +181,10 @@ enum Command {
         /// Downgrade crosswalks not matching a `highway=crossing` OSM node into unmarked crossings.
         #[structopt(long)]
         filter_crosswalks: bool,
+        /// Generate a simple travel demand model based on 2011 UK commuting data. This will only
+        /// work if the boundary is in the UK.
+        #[structopt(long)]
+        create_uk_travel_demand_model: bool,
         #[structopt(flatten)]
         opts: map_model::RawToMapOptions,
     },
@@ -263,6 +271,7 @@ async fn main() -> Result<()> {
             drive_on_left,
             use_geofabrik,
             filter_crosswalks,
+            create_uk_travel_demand_model,
         } => {
             one_step_import::run(
                 geojson_path,
@@ -270,6 +279,7 @@ async fn main() -> Result<()> {
                 drive_on_left,
                 use_geofabrik,
                 filter_crosswalks,
+                create_uk_travel_demand_model,
             )
             .await?
         }
@@ -278,8 +288,19 @@ async fn main() -> Result<()> {
             clip_path,
             drive_on_left,
             filter_crosswalks,
+            create_uk_travel_demand_model,
             opts,
-        } => importer::oneshot(osm_input, clip_path, drive_on_left, filter_crosswalks, opts),
+        } => {
+            importer::oneshot(
+                osm_input,
+                clip_path,
+                drive_on_left,
+                filter_crosswalks,
+                create_uk_travel_demand_model,
+                opts,
+            )
+            .await
+        }
         Command::RegenerateEverything {
             shard_num,
             num_shards,

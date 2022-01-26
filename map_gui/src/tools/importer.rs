@@ -85,6 +85,7 @@ impl<A: AppLike + 'static> ImportCity<A> {
                         ),
                     ]),
                     Toggle::switch(ctx, "Filter crosswalks", None, false),
+                    Toggle::switch(ctx, "Generate travel demand model (UK only)", None, false),
                 ])
                 .section(ctx),
             ])
@@ -128,6 +129,12 @@ impl<A: AppLike + 'static> State<A> for ImportCity<A> {
                     }
                     if self.panel.is_checked("Filter crosswalks") {
                         args.push("--filter-crosswalks".to_string());
+                    }
+                    if self
+                        .panel
+                        .is_checked("Generate travel demand model (UK only)")
+                    {
+                        args.push("--create-uk-travel-demand-model".to_string());
                     }
                     match grab_geojson_from_clipboard() {
                         Ok(()) => Transition::Push(crate::tools::RunCommand::new_state(
