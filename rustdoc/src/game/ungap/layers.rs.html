@@ -628,8 +628,8 @@
                         <span class="comment">// The Colorer fades the map as the very first thing in the batch, but we</span>
                         <span class="comment">// don&#39;t want to do that twice.</span>
                         <span class="comment">// TODO Can&#39;t use no_fading without complicating make_colorer...</span>
-                        <span class="ident">colorer</span>.<span class="ident">unzoomed</span>.<span class="ident">shift</span>();
-                        <span class="self">self</span>.<span class="ident">steep_streets</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">colorer</span>.<span class="ident">unzoomed</span>.<span class="ident">upload</span>(<span class="ident">ctx</span>));
+                        <span class="ident">colorer</span>.<span class="ident">draw</span>.<span class="ident">unzoomed</span>.<span class="ident">shift</span>();
+                        <span class="self">self</span>.<span class="ident">steep_streets</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">colorer</span>.<span class="ident">draw</span>.<span class="ident">unzoomed</span>.<span class="ident">upload</span>(<span class="ident">ctx</span>));
                     } <span class="kw">else</span> {
                         <span class="self">self</span>.<span class="ident">steep_streets</span> <span class="op">=</span> <span class="prelude-val">None</span>;
                     }

@@ -413,7 +413,6 @@
 <span id="412">412</span>
 <span id="413">413</span>
 <span id="414">414</span>
-<span id="415">415</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Counter</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_gui::tools::ColorNetwork</span>;
@@ -744,8 +743,7 @@
                 }
             }
         }
-        <span class="ident">details</span>.<span class="ident">draw_extra</span>.<span class="ident">unzoomed</span>.<span class="ident">append</span>(<span class="ident">colorer</span>.<span class="ident">draw</span>.<span class="ident">unzoomed</span>);
-        <span class="ident">details</span>.<span class="ident">draw_extra</span>.<span class="ident">zoomed</span>.<span class="ident">append</span>(<span class="ident">colorer</span>.<span class="ident">draw</span>.<span class="ident">zoomed</span>);
+        <span class="ident">details</span>.<span class="ident">draw_extra</span>.<span class="ident">append</span>(<span class="ident">colorer</span>.<span class="ident">draw</span>);
 
         <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">bus_locations</span> {
             <span class="ident">details</span>.<span class="ident">draw_extra</span>.<span class="ident">unzoomed</span>.<span class="ident">push</span>(
