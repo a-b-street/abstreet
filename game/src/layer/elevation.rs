@@ -117,7 +117,7 @@ impl SteepStreets {
                 );
             }
         }
-        colorer.unzoomed.append(arrows);
+        colorer.draw.unzoomed.append(arrows);
 
         (colorer, steepest, uphill_legend)
     }

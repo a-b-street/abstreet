@@ -11,8 +11,7 @@ use crate::AppLike;
 pub struct ColorDiscrete<'a> {
     map: &'a Map,
     // pub so callers can add stuff in before building
-    pub unzoomed: GeomBatch,
-    pub zoomed: GeomBatch,
+    pub draw: ToggleZoomedBuilder,
     // Store both, so we can build the legend in the original order later
     pub categories: Vec<(String, Color)>,
     colors: HashMap<String, Color>,
@@ -23,8 +22,8 @@ impl<'a> ColorDiscrete<'a> {
         app: &'a dyn AppLike,
         categories: Vec<(I, Color)>,
     ) -> ColorDiscrete<'a> {
-        let mut unzoomed = GeomBatch::new();
-        unzoomed.push(
+        let mut draw = ToggleZoomed::builder();
+        draw.unzoomed.push(
             app.cs().fade_map_dark,
             app.map().get_boundary_polygon().clone(),
         );
@@ -32,8 +31,7 @@ impl<'a> ColorDiscrete<'a> {
             categories.into_iter().map(|(k, v)| (k.into(), v)).collect();
         ColorDiscrete {
             map: app.map(),
-            unzoomed,
-            zoomed: GeomBatch::new(),
+            draw,
             colors: categories.iter().cloned().collect(),
             categories,
         }
@@ -44,48 +42,60 @@ impl<'a> ColorDiscrete<'a> {
         categories: Vec<(I, Color)>,
     ) -> ColorDiscrete<'a> {
         let mut c = ColorDiscrete::new(app, categories);
-        c.unzoomed = GeomBatch::new();
+        c.draw.unzoomed = GeomBatch::new();
         c
     }
 
     pub fn add_l<I: AsRef<str>>(&mut self, l: LaneID, category: I) {
         let color = self.colors[category.as_ref()];
-        self.unzoomed
+        self.draw
+            .unzoomed
             .push(color, self.map.get_parent(l).get_thick_polygon());
         let lane = self.map.get_l(l);
-        self.zoomed.push(color.alpha(0.4), lane.get_thick_polygon());
+        self.draw
+            .zoomed
+            .push(color.alpha(0.4), lane.get_thick_polygon());
     }
 
     pub fn add_r<I: AsRef<str>>(&mut self, r: RoadID, category: I) {
         let color = self.colors[category.as_ref()];
-        self.unzoomed
+        self.draw
+            .unzoomed
             .push(color, self.map.get_r(r).get_thick_polygon());
-        self.zoomed
+        self.draw
+            .zoomed
             .push(color.alpha(0.4), self.map.get_r(r).get_thick_polygon());
     }
 
     pub fn add_i<I: AsRef<str>>(&mut self, i: IntersectionID, category: I) {
         let color = self.colors[category.as_ref()];
-        self.unzoomed.push(color, self.map.get_i(i).polygon.clone());
-        self.zoomed
+        self.draw
+            .unzoomed
+            .push(color, self.map.get_i(i).polygon.clone());
+        self.draw
+            .zoomed
             .push(color.alpha(0.4), self.map.get_i(i).polygon.clone());
     }
 
     pub fn add_b<I: AsRef<str>>(&mut self, b: BuildingID, category: I) {
         let color = self.colors[category.as_ref()];
-        self.unzoomed.push(color, self.map.get_b(b).polygon.clone());
-        self.zoomed
+        self.draw
+            .unzoomed
+            .push(color, self.map.get_b(b).polygon.clone());
+        self.draw
+            .zoomed
             .push(color.alpha(0.4), self.map.get_b(b).polygon.clone());
     }
 
     pub fn add_ts<I: AsRef<str>>(&mut self, ts: TransitStopID, category: I) {
         let color = self.colors[category.as_ref()];
         let pt = self.map.get_ts(ts).sidewalk_pos.pt(self.map);
-        self.zoomed.push(
+        self.draw.zoomed.push(
             color.alpha(0.4),
             Circle::new(pt, Distance::meters(5.0)).to_polygon(),
         );
-        self.unzoomed
+        self.draw
+            .unzoomed
             .push(color, Circle::new(pt, Distance::meters(15.0)).to_polygon());
     }
 
@@ -95,10 +105,7 @@ impl<'a> ColorDiscrete<'a> {
             .into_iter()
             .map(|(name, color)| ColorLegend::row(ctx, color, name))
             .collect();
-        (
-            ToggleZoomed::new(ctx, self.unzoomed, self.zoomed),
-            Widget::col(legend),
-        )
+        (self.draw.build(ctx), Widget::col(legend))
     }
 }
 
