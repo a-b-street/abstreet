@@ -22,6 +22,10 @@ pub struct SelectBoundary {
     frontier: BTreeSet<BlockID>,
 
     orig_partitioning: Partitioning,
+
+    // As an optimization, don't repeatedly attempt to make an edit that'll fail. The bool is
+    // whether the block is already included or not
+    last_failed_change: Option<(BlockID, bool)>,
 }
 
 impl SelectBoundary {
@@ -34,6 +38,7 @@ impl SelectBoundary {
             frontier: BTreeSet::new(),
 
             orig_partitioning: app.session.partitioning.clone(),
+            last_failed_change: None,
         };
 
         let initial_boundary = app.session.partitioning.neighborhood_block(id);
@@ -102,6 +107,11 @@ impl SelectBoundary {
     // If the block is part of the current neighborhood, remove it. Otherwise add it. It's assumed
     // this block is in the previous frontier
     fn toggle_block(&mut self, ctx: &mut EventCtx, app: &mut App, id: BlockID) -> Transition {
+        if self.last_failed_change == Some((id, self.currently_have_block(app, id))) {
+            return Transition::Keep;
+        }
+        self.last_failed_change = None;
+
         match self.try_toggle_block(app, id) {
             Ok(Some(new_neighborhood)) => {
                 app.session.partitioning.recalculate_coloring();
@@ -140,6 +150,7 @@ impl SelectBoundary {
                 self.panel = make_panel(ctx, app);
             }
             Err(err) => {
+                self.last_failed_change = Some((id, self.currently_have_block(app, id)));
                 let label = err.to_string().text_widget(ctx);
                 self.panel.replace(ctx, "warning", label);
             }
