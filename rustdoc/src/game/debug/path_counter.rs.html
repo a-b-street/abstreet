@@ -124,6 +124,8 @@
 <span id="123">123</span>
 <span id="124">124</span>
 <span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">abstutil::Counter</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">ColorLegend</span>, <span class="ident">ColorNetwork</span>};
 <span class="kw">use</span> <span class="ident">map_gui::ID</span>;
@@ -175,9 +177,11 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">colorer</span> <span class="op">=</span> <span class="ident">ColorNetwork::new</span>(<span class="ident">app</span>);
         <span class="comment">// Highlight the intersection</span>
         <span class="ident">colorer</span>
+            .<span class="ident">draw</span>
             .<span class="ident">unzoomed</span>
             .<span class="ident">push</span>(<span class="ident">Color::CYAN</span>, <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>());
         <span class="ident">colorer</span>
+            .<span class="ident">draw</span>
             .<span class="ident">zoomed</span>
             .<span class="ident">push</span>(<span class="ident">Color::CYAN</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>());
 
