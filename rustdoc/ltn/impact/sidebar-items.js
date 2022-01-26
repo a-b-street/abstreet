@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Obj",""]],"fn":[["count_throughput",""],["make_world",""],["ranked_intersections",""],["ranked_roads",""]],"mod":[["ui",""]],"struct":[["Results",""]]});
+initSidebarItems({"enum":[["Obj",""]],"fn":[["count_throughput",""],["make_world",""]],"mod":[["ui",""]],"struct":[["Results",""]]});
