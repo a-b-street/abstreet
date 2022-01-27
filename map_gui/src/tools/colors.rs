@@ -99,7 +99,7 @@ impl<'a> ColorDiscrete<'a> {
             .push(color, Circle::new(pt, Distance::meters(15.0)).to_polygon());
     }
 
-    pub fn build(self, ctx: &mut EventCtx) -> (ToggleZoomed, Widget) {
+    pub fn build(self, ctx: &EventCtx) -> (ToggleZoomed, Widget) {
         let legend = self
             .categories
             .into_iter()
@@ -112,7 +112,7 @@ impl<'a> ColorDiscrete<'a> {
 pub struct ColorLegend {}
 
 impl ColorLegend {
-    pub fn row(ctx: &mut EventCtx, color: Color, label: impl AsRef<str>) -> Widget {
+    pub fn row(ctx: &EventCtx, color: Color, label: impl AsRef<str>) -> Widget {
         let radius = 15.0;
         Widget::row(vec![
             GeomBatch::from(vec![(
@@ -371,7 +371,7 @@ impl<'a> ColorNetwork<'a> {
         }
     }
 
-    pub fn build(self, ctx: &mut EventCtx) -> ToggleZoomed {
+    pub fn build(self, ctx: &EventCtx) -> ToggleZoomed {
         self.draw.build(ctx)
     }
 }

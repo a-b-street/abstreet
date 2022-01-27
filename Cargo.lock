@@ -2131,6 +2131,7 @@ dependencies = [
  "map_gui",
  "map_model",
  "maplit",
+ "serde",
  "serde_json",
  "sim",
  "wasm-bindgen",

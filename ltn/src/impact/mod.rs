@@ -1,3 +1,4 @@
+mod compare;
 mod ui;
 
 use std::collections::BTreeSet;
