@@ -2,7 +2,8 @@ use abstutil::Timer;
 use map_gui::tools::compare_counts::{CompareCounts, Counts, Layer};
 use map_gui::tools::PopupMsg;
 use widgetry::{
-    EventCtx, GfxCtx, HorizontalAlignment, Panel, SimpleState, State, VerticalAlignment, Widget,
+    EventCtx, GfxCtx, HorizontalAlignment, Line, Panel, SimpleState, State, VerticalAlignment,
+    Widget,
 };
 
 use crate::app::{App, Transition};
@@ -36,7 +37,9 @@ impl GenericCompareCounts {
         compare.autoselect_layer();
 
         let panel = Panel::new_builder(Widget::col(vec![
-            map_gui::tools::app_header(ctx, app, "Traffic count comparator"),
+            Line("Traffic count comparator")
+                .small_heading()
+                .into_widget(ctx),
             compare.get_panel_widget(ctx).named("compare counts"),
         ]))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
@@ -50,13 +53,13 @@ impl SimpleState<App> for GenericCompareCounts {
     fn on_click(
         &mut self,
         ctx: &mut EventCtx,
-        _: &mut App,
+        app: &mut App,
         x: &str,
         panel: &mut Panel,
     ) -> Transition {
         let widget = self
             .compare
-            .on_click(ctx, x)
+            .on_click(ctx, app, x)
             .expect("button click didn't belong to CompareCounts");
         panel.replace(ctx, "compare counts", widget);
         Transition::Keep

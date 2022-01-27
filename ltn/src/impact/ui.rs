@@ -108,12 +108,13 @@ impl SimpleState<App> for ShowResults {
                 ))
             }
             x => {
-                let widget = app
-                    .session
-                    .impact
+                // Avoid a double borrow
+                let mut impact = std::mem::replace(&mut app.session.impact, Impact::empty(ctx));
+                let widget = impact
                     .compare_counts
-                    .on_click(ctx, x)
+                    .on_click(ctx, app, x)
                     .expect("button click didn't belong to CompareCounts");
+                app.session.impact = impact;
                 panel.replace(ctx, "compare counts", widget);
                 Transition::Keep
             }

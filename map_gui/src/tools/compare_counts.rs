@@ -248,13 +248,15 @@ impl CompareCounts {
     }
 
     /// If a button owned by this was clicked, returns the new widget to replace
-    pub fn on_click(&mut self, ctx: &EventCtx, x: &str) -> Option<Widget> {
+    pub fn on_click(&mut self, ctx: &EventCtx, app: &dyn AppLike, x: &str) -> Option<Widget> {
         self.layer = match x {
             "A counts" => Layer::A,
             "B counts" => Layer::B,
             "Compare" => Layer::Compare,
             "Swap A<->B" => {
-                // TODO Do stuff
+                std::mem::swap(&mut self.counts_a, &mut self.counts_b);
+                self.relative_heatmap =
+                    calculate_relative_heatmap(ctx, app, &self.counts_a, &self.counts_b);
                 self.layer
             }
             _ => {
