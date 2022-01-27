@@ -26,7 +26,7 @@ use structopt::StructOpt;
 
 use abstio::MapName;
 use abstutil::{serialize_btreemap, Timer};
-use geom::{Distance, Duration, LonLat, Time};
+use geom::{Distance, Duration, FindClosest, LonLat, Time};
 use map_model::{
     CompressedMovementID, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, Map,
     MovementID, PermanentMapEdits, RoadID, TurnID,
@@ -387,6 +387,18 @@ fn handle_command(
             Ok(abstutil::to_json(&export_geometry(map, i)))
         }
         "/map/get-all-geometry" => Ok(abstutil::to_json(&export_all_geometry(map))),
+        "/map/get-nearest-road" => {
+            let pt = LonLat::new(get("lon")?.parse::<f64>()?, get("lat")?.parse::<f64>()?);
+            let mut closest = FindClosest::new(map.get_bounds());
+            for r in map.all_roads() {
+                closest.add(r.id, r.center_pts.points());
+            }
+            let threshold = Distance::meters(get("threshold_meters")?.parse::<f64>()?);
+            match closest.closest_pt(pt.to_pt(map.get_gps_bounds()), threshold) {
+                Some((r, _)) => Ok(r.0.to_string()),
+                None => bail!("No road within {} of {}", threshold, pt),
+            }
+        }
         _ => Err(anyhow!("Unknown command")),
     }
 }
