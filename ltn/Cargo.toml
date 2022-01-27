@@ -27,6 +27,7 @@ log = "0.4"
 maplit = "1.0.2"
 map_gui = { path = "../map_gui" }
 map_model = { path = "../map_model" }
+serde = "1.0.123"
 serde_json = "1.0.61"
 sim = { path = "../sim" }
 wasm-bindgen = { version = "0.2.70", optional = true }
