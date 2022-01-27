@@ -12,11 +12,6 @@ use widgetry::{
 use crate::tools::{cmp_count, ColorNetwork, DivergingScale};
 use crate::AppLike;
 
-// TODO Document all of this!
-// 4) See if we can dedupe requests in the impact prediction -- using this tool to validate
-// 5) Download the sensor data and get it in this format (and maybe filter simulated data to only
-//    match roads we have)
-
 #[derive(Serialize, Deserialize)]
 pub struct Counts {
     pub map: MapName,

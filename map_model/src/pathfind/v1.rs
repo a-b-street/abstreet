@@ -1,9 +1,10 @@
-use std::collections::VecDeque;
+use std::collections::{BTreeMap, VecDeque};
 use std::fmt;
 
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
+use abstutil::prettyprint_usize;
 use geom::{Distance, Duration, PolyLine, Speed, EPSILON_DIST};
 
 use crate::{
@@ -678,6 +679,36 @@ impl PathRequest {
             constraints,
             alt_start: None,
         })
+    }
+
+    /// Group similar requests together, returning the number of matches. This can be used to
+    /// calculate less paths and multiply whatever's being measured by the count.
+    ///
+    /// Note this throws away detail. It only groups by the mode and from/to parent. Exact position
+    /// and alternate starting points are lost.
+    pub fn deduplicate(map: &Map, requests: Vec<PathRequest>) -> Vec<(PathRequest, usize)> {
+        let count_before = requests.len();
+        let mut common: BTreeMap<
+            (PathConstraints, DirectedRoadID, DirectedRoadID),
+            (PathRequest, usize),
+        > = BTreeMap::new();
+        for req in requests {
+            let key = (
+                req.constraints,
+                map.get_l(req.start.lane()).get_directed_parent(),
+                map.get_l(req.end.lane()).get_directed_parent(),
+            );
+            let pair = common.entry(key).or_insert_with(|| (req, 0));
+            pair.1 += 1;
+        }
+        if false {
+            info!(
+                "{} requests deduplicated down to {}",
+                prettyprint_usize(count_before),
+                prettyprint_usize(common.len())
+            );
+        }
+        common.into_values().collect()
     }
 }
 

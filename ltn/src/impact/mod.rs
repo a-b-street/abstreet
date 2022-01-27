@@ -27,7 +27,8 @@ pub struct Impact {
     pub filters: Filters,
 
     all_trips: Vec<PathRequest>,
-    filtered_trips: Vec<PathRequest>,
+    // A subset of all_trips, and the number of times somebody takes the same trip
+    filtered_trips: Vec<(PathRequest, usize)>,
 
     pub compare_counts: CompareCounts,
     pub change_key: usize,
@@ -91,12 +92,14 @@ impl Impact {
             .iter()
             .map(|m| m.to_constraints())
             .collect();
-        self.filtered_trips = self
-            .all_trips
-            .iter()
-            .filter(|req| constraints.contains(&req.constraints))
-            .cloned()
-            .collect();
+        self.filtered_trips = PathRequest::deduplicate(
+            map,
+            self.all_trips
+                .iter()
+                .filter(|req| constraints.contains(&req.constraints))
+                .cloned()
+                .collect(),
+        );
 
         let counts_a = count_throughput(
             map,
@@ -154,7 +157,7 @@ impl Impact {
 fn count_throughput(
     map: &Map,
     description: String,
-    requests: &[PathRequest],
+    requests: &[(PathRequest, usize)],
     params: RoutingParams,
     cache_custom: PathfinderCaching,
     timer: &mut Timer,
@@ -179,16 +182,17 @@ fn count_throughput(
     // right now won't let that work. Stick to single-threaded for now.
 
     timer.start_iter("calculate routes", requests.len());
-    for req in requests {
+    for (req, count) in requests {
         timer.next();
         if let Ok(path) = map.pathfind_v2_with_params(req.clone(), &params, cache_custom) {
+            let count = *count;
             for step in path.get_steps() {
                 match step {
                     PathStepV2::Along(dr) | PathStepV2::Contraflow(dr) => {
-                        road_counts.inc(dr.road);
+                        road_counts.add(dr.road, count);
                     }
                     PathStepV2::Movement(m) | PathStepV2::ContraflowMovement(m) => {
-                        intersection_counts.inc(m.parent);
+                        intersection_counts.add(m.parent, count);
                     }
                 }
             }
