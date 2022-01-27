@@ -1,32 +1,23 @@
 use std::collections::BTreeSet;
 
-use abstutil::prettyprint_usize;
 use map_gui::load::FileLoader;
 use map_gui::tools::checkbox_per_mode;
 use sim::{Scenario, TripMode};
-use widgetry::mapspace::{ToggleZoomed, World};
+use widgetry::mapspace::ToggleZoomed;
 use widgetry::{
-    Choice, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Panel, SimpleState,
-    Slider, State, Text, TextExt, Toggle, VerticalAlignment, Widget,
+    Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Panel, SimpleState, Slider,
+    State, Text, TextExt, Toggle, VerticalAlignment, Widget,
 };
 
-use super::{end_of_day, Filters, Impact, Obj};
+use super::{end_of_day, Filters, Impact};
 use crate::{App, BrowseNeighborhoods, Transition};
 
 // TODO Share structure or pieces with Ungap's predict mode
 // ... can't we just produce data of a certain shape, and have a UI pretty tuned for that?
 
 pub struct ShowResults {
-    layer: Layer,
     draw_all_neighborhoods: Drawable,
     draw_all_filters: ToggleZoomed,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-enum Layer {
-    Before,
-    After,
-    Relative,
 }
 
 impl ShowResults {
@@ -49,20 +40,12 @@ impl ShowResults {
         if app.session.impact.change_key != app.session.modal_filters.change_key {
             ctx.loading_screen("recalculate impact", |ctx, timer| {
                 // Avoid a double borrow
-                let mut impact = std::mem::take(&mut app.session.impact);
-                impact.recalculate_impact(ctx, app, timer);
+                let mut impact = std::mem::replace(&mut app.session.impact, Impact::empty(ctx));
+                impact.map_edits_changed(ctx, app, timer);
                 app.session.impact = impact;
             });
         }
 
-        // Start with the relative layer if anything has changed
-        let layer = {
-            if app.session.impact.before_road_counts == app.session.impact.after_road_counts {
-                Layer::Before
-            } else {
-                Layer::Relative
-            }
-        };
         let panel = Panel::new_builder(Widget::col(vec![
             map_gui::tools::app_header(ctx, app, "Low traffic neighborhoods"),
             Widget::row(vec![
@@ -72,19 +55,7 @@ impl ShowResults {
             Text::from(Line("This tool starts with a travel demand model, calculates the route every trip takes before and after changes, and displays volumes along roads and intersections")).wrap_to_pct(ctx, 20).into_widget(ctx),
             // TODO Dropdown for the scenario, and explain its source/limitations
             app.session.impact.filters.to_panel(ctx, app),
-            Widget::row(vec![
-                "Show counts:".text_widget(ctx).centered_vert().margin_right(20),
-                Widget::dropdown(
-                    ctx,
-                    "layer",
-                    layer,
-                    vec![
-                        Choice::new("before", Layer::Before),
-                        Choice::new("after", Layer::After),
-                        Choice::new("relative", Layer::Relative),
-                    ],
-                ),
-            ]),
+            app.session.impact.compare_counts.get_panel_widget(ctx),
         ]))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
         .build(ctx);
@@ -97,30 +68,10 @@ impl ShowResults {
         <dyn SimpleState<_>>::new_state(
             panel,
             Box::new(ShowResults {
-                layer,
                 draw_all_filters: app.session.modal_filters.draw(ctx, &app.map, None),
                 draw_all_neighborhoods,
             }),
         )
-    }
-
-    // TODO Or do an EnumMap of Layer
-    fn world<'a>(&self, app: &'a App) -> &'a World<Obj> {
-        let impact = &app.session.impact;
-        match self.layer {
-            Layer::Before => &impact.before_world,
-            Layer::After => &impact.after_world,
-            Layer::Relative => &impact.relative_world,
-        }
-    }
-
-    fn world_mut<'a>(&self, app: &'a mut App) -> &'a mut World<Obj> {
-        let impact = &mut app.session.impact;
-        match self.layer {
-            Layer::Before => &mut impact.before_world,
-            Layer::After => &mut impact.after_world,
-            Layer::Relative => &mut impact.relative_world,
-        }
     }
 }
 
@@ -135,8 +86,7 @@ impl SimpleState<App> for ShowResults {
     }
 
     fn other_event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        // Just trigger hovering
-        let _ = self.world_mut(app).event(ctx);
+        app.session.impact.compare_counts.other_event(ctx);
         Transition::Keep
     }
 
@@ -147,9 +97,7 @@ impl SimpleState<App> for ShowResults {
         app: &mut App,
         panel: &mut Panel,
     ) -> Option<Transition> {
-        let layer = panel.dropdown_value("layer");
-        if layer != self.layer {
-            self.layer = layer;
+        if app.session.impact.compare_counts.panel_changed(panel) {
             return None;
         }
 
@@ -159,11 +107,10 @@ impl SimpleState<App> for ShowResults {
         }
 
         // Avoid a double borrow
-        let mut impact = std::mem::take(&mut app.session.impact);
+        let mut impact = std::mem::replace(&mut app.session.impact, Impact::empty(ctx));
         impact.filters = Filters::from_panel(panel);
         ctx.loading_screen("update filters", |ctx, timer| {
-            impact.recalculate_filters(ctx, app, timer);
-            impact.recalculate_impact(ctx, app, timer);
+            impact.trips_changed(ctx, app, timer);
         });
         app.session.impact = impact;
 
@@ -171,33 +118,9 @@ impl SimpleState<App> for ShowResults {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.world(app).draw(g);
         g.redraw(&self.draw_all_neighborhoods);
+        app.session.impact.compare_counts.draw(g);
         self.draw_all_filters.draw(g);
-
-        // TODO Manually generate tooltips last-minute. It'd be quite worth making the World be
-        // able to handle this.
-        let impact = &app.session.impact;
-        if let Some(id) = self.world(app).get_hovering() {
-            let count = match id {
-                Obj::Road(r) => match self.layer {
-                    Layer::Before => impact.before_road_counts.get(r),
-                    Layer::After => impact.after_road_counts.get(r),
-                    Layer::Relative => {
-                        g.draw_mouse_tooltip(impact.relative_road_tooltip(r));
-                        return;
-                    }
-                },
-                Obj::Intersection(i) => match self.layer {
-                    Layer::Before => impact.before_intersection_counts.get(i),
-                    Layer::After => impact.after_intersection_counts.get(i),
-                    Layer::Relative => {
-                        return;
-                    }
-                },
-            };
-            g.draw_mouse_tooltip(Text::from(Line(prettyprint_usize(count))));
-        }
     }
 }
 
