@@ -36,6 +36,7 @@ mod city_picker;
 mod colors;
 #[cfg(not(target_arch = "wasm32"))]
 mod command;
+pub mod compare_counts;
 mod heatmap;
 mod icons;
 #[cfg(not(target_arch = "wasm32"))]

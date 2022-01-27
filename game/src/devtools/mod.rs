@@ -11,6 +11,7 @@ use widgetry::{Choice, EventCtx, Key, Line, Panel, SimpleState, State, Widget};
 use crate::app::{App, Transition};
 
 mod collisions;
+pub mod compare_counts;
 mod destinations;
 pub mod kml;
 mod polygon;

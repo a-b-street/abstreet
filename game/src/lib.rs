@@ -114,6 +114,9 @@ struct Args {
     /// Start by showing an ActDev scenario. Either "base" or "go_active".
     #[structopt(long)]
     actdev_scenario: Option<String>,
+    /// Start in a tool for comparing traffic counts
+    #[structopt(long)]
+    compare_counts: Option<Vec<String>>,
 }
 
 struct Setup {
@@ -139,6 +142,7 @@ enum Mode {
     Ungap,
     Devtools,
     LoadKML(String),
+    CompareCounts(String, String),
     Gameplay(GameplayMode),
 }
 
@@ -182,6 +186,11 @@ fn run(mut settings: Settings) {
             Mode::Devtools
         } else if let Some(kml) = args.load_kml {
             Mode::LoadKML(kml)
+        } else if let Some(mut paths) = args.compare_counts {
+            if paths.len() != 2 {
+                panic!("--compare-counts takes exactly two paths");
+            }
+            Mode::CompareCounts(paths.remove(0), paths.remove(0))
         } else {
             Mode::SomethingElse
         },
@@ -557,6 +566,11 @@ fn finish_app_setup(
             }
             Mode::Devtools => devtools::DevToolsMode::new_state(ctx, app),
             Mode::LoadKML(path) => crate::devtools::kml::ViewKML::new_state(ctx, app, Some(path)),
+            Mode::CompareCounts(path1, path2) => {
+                crate::devtools::compare_counts::GenericCompareCounts::new_state(
+                    ctx, app, path1, path2,
+                )
+            }
         }
     };
     vec![TitleScreen::new_state(ctx, app), state]
