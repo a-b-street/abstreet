@@ -202,6 +202,7 @@
 <span id="201">201</span>
 <span id="202">202</span>
 <span id="203">203</span>
+<span id="204">204</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
 <span class="kw">use</span> <span class="ident">map_gui::load::FileLoader</span>;
@@ -312,12 +313,13 @@
                 ))
             }
             <span class="ident">x</span> =&gt; {
-                <span class="kw">let</span> <span class="ident">widget</span> <span class="op">=</span> <span class="ident">app</span>
-                    .<span class="ident">session</span>
-                    .<span class="ident">impact</span>
+                <span class="comment">// Avoid a double borrow</span>
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">impact</span> <span class="op">=</span> <span class="ident">std::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">impact</span>, <span class="ident">Impact::empty</span>(<span class="ident">ctx</span>));
+                <span class="kw">let</span> <span class="ident">widget</span> <span class="op">=</span> <span class="ident">impact</span>
                     .<span class="ident">compare_counts</span>
-                    .<span class="ident">on_click</span>(<span class="ident">ctx</span>, <span class="ident">x</span>)
+                    .<span class="ident">on_click</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">x</span>)
                     .<span class="ident">expect</span>(<span class="string">&quot;button click didn&#39;t belong to CompareCounts&quot;</span>);
+                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">impact</span> <span class="op">=</span> <span class="ident">impact</span>;
                 <span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;compare counts&quot;</span>, <span class="ident">widget</span>);
                 <span class="ident">Transition::Keep</span>
             }
