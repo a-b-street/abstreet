@@ -257,45 +257,44 @@ pub enum Style {
 fn impact_widget(ctx: &EventCtx, app: &App) -> Widget {
     let map_name = app.map.get_name();
 
-    if let Some(ref results) = app.session.impact {
-        if &results.map == map_name {
-            if results.change_key == app.session.modal_filters.change_key {
-                // Nothing to calculate!
-                return ctx
-                    .style()
-                    .btn_solid_primary
-                    .text("Show impact")
-                    .build_def(ctx);
-            }
-            // We'll need to do some pathfinding
-            return Widget::col(vec![
-                Text::from_multiline(vec![
-                    Line("Predicting impact of your proposal may take a moment."),
-                    Line("The application may freeze up during that time."),
-                ])
-                .into_widget(ctx),
-                ctx.style()
-                    .btn_solid_primary
-                    .text("Calculate")
-                    .build_def(ctx),
-            ]);
+    if &app.session.impact.map != map_name {
+        // Starting from scratch
+        let scenario_name = Scenario::default_scenario_for_map(map_name);
+        if scenario_name == "home_to_work" {
+            return "This city doesn't have travel demand model data available".text_widget(ctx);
         }
+        let size = abstio::Manifest::load()
+            .get_entry(&abstio::path_scenario(map_name, &scenario_name))
+            .map(|entry| abstutil::prettyprint_bytes(entry.compressed_size_bytes))
+            .unwrap_or_else(|| "???".to_string());
+        return Widget::col(vec![
+            Text::from_multiline(vec![
+                Line("Predicting impact of your proposal may take a moment."),
+                Line("The application may freeze up during that time."),
+                Line(format!("We need to load a {} file", size)),
+            ])
+            .into_widget(ctx),
+            ctx.style()
+                .btn_solid_primary
+                .text("Calculate")
+                .build_def(ctx),
+        ]);
     }
 
-    // Starting from scratch
-    let scenario_name = Scenario::default_scenario_for_map(&map_name);
-    if scenario_name == "home_to_work" {
-        return "This city doesn't have travel demand model data available".text_widget(ctx);
+    if app.session.impact.change_key == app.session.modal_filters.change_key {
+        // Nothing to calculate!
+        return ctx
+            .style()
+            .btn_solid_primary
+            .text("Show impact")
+            .build_def(ctx);
     }
-    let size = abstio::Manifest::load()
-        .get_entry(&abstio::path_scenario(&map_name, &scenario_name))
-        .map(|entry| abstutil::prettyprint_bytes(entry.compressed_size_bytes))
-        .unwrap_or_else(|| "???".to_string());
+
+    // We'll need to do some pathfinding
     Widget::col(vec![
         Text::from_multiline(vec![
             Line("Predicting impact of your proposal may take a moment."),
             Line("The application may freeze up during that time."),
-            Line(format!("We need to load a {} file", size)),
         ])
         .into_widget(ctx),
         ctx.style()

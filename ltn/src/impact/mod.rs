@@ -27,7 +27,7 @@ use crate::App;
 // - all_trips and everything else depends just on the map (we only have one scenario per map now)
 // - filtered_trips and below depend on filters
 // - after_world and relative_world depend on change_key (for when the map is edited)
-pub struct Results {
+pub struct Impact {
     pub map: MapName,
     pub filters: Filters,
     all_trips: Vec<PathRequest>,
@@ -61,30 +61,16 @@ enum Obj {
 }
 impl ObjectID for Obj {}
 
-impl Results {
-    fn from_scenario(
-        ctx: &mut EventCtx,
-        app: &App,
-        scenario: Scenario,
-        timer: &mut Timer,
-    ) -> Results {
-        let map = &app.map;
-        let all_trips = timer
-            .parallelize("analyze trips", scenario.all_trips().collect(), |trip| {
-                TripEndpoint::path_req(trip.origin, trip.destination, trip.mode, map)
-            })
-            .into_iter()
-            .flatten()
-            .collect();
-
-        let mut results = Results {
-            map: app.map.get_name().clone(),
+impl Default for Impact {
+    fn default() -> Self {
+        Impact {
+            map: MapName::new("zz", "place", "holder"),
             filters: Filters {
                 modes: vec![TripMode::Drive].into_iter().collect(),
                 include_borders: true,
                 departure_time: (Time::START_OF_DAY, end_of_day()),
             },
-            all_trips,
+            all_trips: Vec::new(),
 
             filtered_trips: Vec::new(),
             before_world: World::unbounded(),
@@ -96,10 +82,31 @@ impl Results {
             after_road_counts: Counter::new(),
             after_intersection_counts: Counter::new(),
             relative_world: World::unbounded(),
-        };
-        results.recalculate_filters(ctx, app, timer);
-        results.recalculate_impact(ctx, app, timer);
-        results
+        }
+    }
+}
+
+impl Impact {
+    fn from_scenario(
+        ctx: &mut EventCtx,
+        app: &App,
+        scenario: Scenario,
+        timer: &mut Timer,
+    ) -> Impact {
+        let mut impact = Impact::default();
+        let map = &app.map;
+
+        impact.map = app.map.get_name().clone();
+        impact.all_trips = timer
+            .parallelize("analyze trips", scenario.all_trips().collect(), |trip| {
+                TripEndpoint::path_req(trip.origin, trip.destination, trip.mode, map)
+            })
+            .into_iter()
+            .flatten()
+            .collect();
+        impact.recalculate_filters(ctx, app, timer);
+        impact.recalculate_impact(ctx, app, timer);
+        impact
     }
 
     fn recalculate_filters(&mut self, ctx: &mut EventCtx, app: &App, timer: &mut Timer) {
@@ -237,6 +244,10 @@ impl Results {
         cmp_count(&mut txt, before, after);
         txt.add_line(Line(format!("After/before: {:.2}", ratio)));
         txt
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.all_trips.is_empty()
     }
 }
 

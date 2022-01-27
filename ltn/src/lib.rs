@@ -46,7 +46,7 @@ fn run(mut settings: Settings) {
             partitioning: Partitioning::empty(),
             modal_filters: ModalFilters::default(),
 
-            impact: None,
+            impact: impact::Impact::default(),
 
             highlight_boundary_roads: true,
             draw_neighborhood_style: browse::Style::SimpleColoring,
@@ -89,7 +89,7 @@ pub struct Session {
     pub partitioning: Partitioning,
     pub modal_filters: ModalFilters,
 
-    pub impact: Option<impact::Results>,
+    pub impact: impact::Impact,
 
     // Remember form settings in different tabs.
     // Browse neighborhoods:

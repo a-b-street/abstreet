@@ -10,7 +10,7 @@ use widgetry::{
     Slider, State, Text, TextExt, Toggle, VerticalAlignment, Widget,
 };
 
-use super::{end_of_day, Filters, Obj, Results};
+use super::{end_of_day, Filters, Impact, Obj};
 use crate::{App, BrowseNeighborhoods, Transition};
 
 // TODO Share structure or pieces with Ungap's predict mode
@@ -32,13 +32,7 @@ enum Layer {
 impl ShowResults {
     pub fn new_state(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
         let map_name = app.map.get_name().clone();
-        if app
-            .session
-            .impact
-            .as_ref()
-            .map(|i| i.map != map_name)
-            .unwrap_or(true)
-        {
+        if app.session.impact.map != map_name {
             let scenario_name = Scenario::default_scenario_for_map(&map_name);
             return FileLoader::<App, Scenario>::new_state(
                 ctx,
@@ -46,25 +40,24 @@ impl ShowResults {
                 Box::new(move |ctx, app, timer, maybe_scenario| {
                     // TODO Handle corrupt files
                     let scenario = maybe_scenario.unwrap();
-                    app.session.impact = Some(Results::from_scenario(ctx, app, scenario, timer));
+                    app.session.impact = Impact::from_scenario(ctx, app, scenario, timer);
                     Transition::Replace(ShowResults::new_state(ctx, app))
                 }),
             );
         }
 
-        if app.session.impact.as_ref().unwrap().change_key != app.session.modal_filters.change_key {
+        if app.session.impact.change_key != app.session.modal_filters.change_key {
             ctx.loading_screen("recalculate impact", |ctx, timer| {
                 // Avoid a double borrow
-                let mut results = app.session.impact.take().unwrap();
-                results.recalculate_impact(ctx, app, timer);
-                app.session.impact = Some(results);
+                let mut impact = std::mem::take(&mut app.session.impact);
+                impact.recalculate_impact(ctx, app, timer);
+                app.session.impact = impact;
             });
         }
 
         // Start with the relative layer if anything has changed
         let layer = {
-            let results = app.session.impact.as_ref().unwrap();
-            if results.before_road_counts == results.after_road_counts {
+            if app.session.impact.before_road_counts == app.session.impact.after_road_counts {
                 Layer::Before
             } else {
                 Layer::Relative
@@ -78,7 +71,7 @@ impl ShowResults {
             ]),
             Text::from(Line("This tool starts with a travel demand model, calculates the route every trip takes before and after changes, and displays volumes along roads and intersections")).wrap_to_pct(ctx, 20).into_widget(ctx),
             // TODO Dropdown for the scenario, and explain its source/limitations
-            app.session.impact.as_ref().unwrap().filters.to_panel(ctx, app),
+            app.session.impact.filters.to_panel(ctx, app),
             Widget::row(vec![
                 "Show counts:".text_widget(ctx).centered_vert().margin_right(20),
                 Widget::dropdown(
@@ -113,20 +106,20 @@ impl ShowResults {
 
     // TODO Or do an EnumMap of Layer
     fn world<'a>(&self, app: &'a App) -> &'a World<Obj> {
-        let results = app.session.impact.as_ref().unwrap();
+        let impact = &app.session.impact;
         match self.layer {
-            Layer::Before => &results.before_world,
-            Layer::After => &results.after_world,
-            Layer::Relative => &results.relative_world,
+            Layer::Before => &impact.before_world,
+            Layer::After => &impact.after_world,
+            Layer::Relative => &impact.relative_world,
         }
     }
 
     fn world_mut<'a>(&self, app: &'a mut App) -> &'a mut World<Obj> {
-        let results = app.session.impact.as_mut().unwrap();
+        let impact = &mut app.session.impact;
         match self.layer {
-            Layer::Before => &mut results.before_world,
-            Layer::After => &mut results.after_world,
-            Layer::Relative => &mut results.relative_world,
+            Layer::Before => &mut impact.before_world,
+            Layer::After => &mut impact.after_world,
+            Layer::Relative => &mut impact.relative_world,
         }
     }
 }
@@ -161,18 +154,18 @@ impl SimpleState<App> for ShowResults {
         }
 
         let filters = Filters::from_panel(panel);
-        if filters == app.session.impact.as_ref().unwrap().filters {
+        if filters == app.session.impact.filters {
             return None;
         }
 
         // Avoid a double borrow
-        let mut results = app.session.impact.take().unwrap();
-        results.filters = Filters::from_panel(panel);
+        let mut impact = std::mem::take(&mut app.session.impact);
+        impact.filters = Filters::from_panel(panel);
         ctx.loading_screen("update filters", |ctx, timer| {
-            results.recalculate_filters(ctx, app, timer);
-            results.recalculate_impact(ctx, app, timer);
+            impact.recalculate_filters(ctx, app, timer);
+            impact.recalculate_impact(ctx, app, timer);
         });
-        app.session.impact = Some(results);
+        app.session.impact = impact;
 
         None
     }
@@ -184,20 +177,20 @@ impl SimpleState<App> for ShowResults {
 
         // TODO Manually generate tooltips last-minute. It'd be quite worth making the World be
         // able to handle this.
-        let results = app.session.impact.as_ref().unwrap();
+        let impact = &app.session.impact;
         if let Some(id) = self.world(app).get_hovering() {
             let count = match id {
                 Obj::Road(r) => match self.layer {
-                    Layer::Before => results.before_road_counts.get(r),
-                    Layer::After => results.after_road_counts.get(r),
+                    Layer::Before => impact.before_road_counts.get(r),
+                    Layer::After => impact.after_road_counts.get(r),
                     Layer::Relative => {
-                        g.draw_mouse_tooltip(results.relative_road_tooltip(r));
+                        g.draw_mouse_tooltip(impact.relative_road_tooltip(r));
                         return;
                     }
                 },
                 Obj::Intersection(i) => match self.layer {
-                    Layer::Before => results.before_intersection_counts.get(i),
-                    Layer::After => results.after_intersection_counts.get(i),
+                    Layer::Before => impact.before_intersection_counts.get(i),
+                    Layer::After => impact.after_intersection_counts.get(i),
                     Layer::Relative => {
                         return;
                     }
