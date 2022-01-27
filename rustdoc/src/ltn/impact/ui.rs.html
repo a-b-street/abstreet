@@ -191,6 +191,17 @@
 <span id="190">190</span>
 <span id="191">191</span>
 <span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
 <span class="kw">use</span> <span class="ident">map_gui::load::FileLoader</span>;
@@ -248,7 +259,7 @@
             <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="string">&quot;This tool starts with a travel demand model, calculates the route every trip takes before and after changes, and displays volumes along roads and intersections&quot;</span>)).<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">20</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="comment">// TODO Dropdown for the scenario, and explain its source/limitations</span>
             <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">impact</span>.<span class="ident">filters</span>.<span class="ident">to_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-            <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">impact</span>.<span class="ident">compare_counts</span>.<span class="ident">get_panel_widget</span>(<span class="ident">ctx</span>),
+            <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">impact</span>.<span class="ident">compare_counts</span>.<span class="ident">get_panel_widget</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;compare counts&quot;</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_plain</span>.<span class="ident">text</span>(<span class="string">&quot;Save before/after counts to files&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         ]))
         .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Left</span>, <span class="ident">VerticalAlignment::Top</span>)
@@ -270,7 +281,13 @@
 }
 
 <span class="kw">impl</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ShowResults</span> {
-    <span class="kw">fn</span> <span class="ident">on_click</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>, <span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) -&gt; <span class="ident">Transition</span> {
+    <span class="kw">fn</span> <span class="ident">on_click</span>(
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
+        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
+        <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
+        <span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
+        <span class="ident">panel</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Panel</span>,
+    ) -&gt; <span class="ident">Transition</span> {
         <span class="kw">match</span> <span class="ident">x</span> {
             <span class="string">&quot;close&quot;</span> =&gt; {
                 <span class="comment">// Don&#39;t just Pop; if we updated the results, the UI won&#39;t warn the user about a slow</span>
@@ -294,7 +311,16 @@
                     <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">&quot;Saved {} and {}&quot;</span>, <span class="ident">path1</span>, <span class="ident">path2</span>)],
                 ))
             }
-            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+            <span class="ident">x</span> =&gt; {
+                <span class="kw">let</span> <span class="ident">widget</span> <span class="op">=</span> <span class="ident">app</span>
+                    .<span class="ident">session</span>
+                    .<span class="ident">impact</span>
+                    .<span class="ident">compare_counts</span>
+                    .<span class="ident">on_click</span>(<span class="ident">ctx</span>, <span class="ident">x</span>)
+                    .<span class="ident">expect</span>(<span class="string">&quot;button click didn&#39;t belong to CompareCounts&quot;</span>);
+                <span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;compare counts&quot;</span>, <span class="ident">widget</span>);
+                <span class="ident">Transition::Keep</span>
+            }
         }
     }
 
@@ -310,10 +336,6 @@
         <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
         <span class="ident">panel</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Panel</span>,
     ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">impact</span>.<span class="ident">compare_counts</span>.<span class="ident">panel_changed</span>(<span class="ident">panel</span>) {
-            <span class="kw">return</span> <span class="prelude-val">None</span>;
-        }
-
         <span class="kw">let</span> <span class="ident">filters</span> <span class="op">=</span> <span class="ident">Filters::from_panel</span>(<span class="ident">panel</span>);
         <span class="kw">if</span> <span class="ident">filters</span> <span class="op">==</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">impact</span>.<span class="ident">filters</span> {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
@@ -338,7 +360,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Filters</span> {
-    <span class="kw">fn</span> <span class="ident">from_panel</span>(<span class="ident">panel</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) -&gt; <span class="ident">Filters</span> {
+    <span class="kw">fn</span> <span class="ident">from_panel</span>(<span class="ident">panel</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Panel</span>) -&gt; <span class="ident">Filters</span> {
         <span class="kw">let</span> (<span class="ident">p1</span>, <span class="ident">p2</span>) <span class="op">=</span> (
             <span class="ident">panel</span>.<span class="ident">slider</span>(<span class="string">&quot;depart from&quot;</span>).<span class="ident">get_percent</span>(),
             <span class="ident">panel</span>.<span class="ident">slider</span>(<span class="string">&quot;depart until&quot;</span>).<span class="ident">get_percent</span>(),

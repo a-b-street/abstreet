@@ -425,6 +425,12 @@
 <span id="424">424</span>
 <span id="425">425</span>
 <span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
 </pre><pre class="rust"><code><span class="kw">mod</span> <span class="ident">area_spawner</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
 <span class="kw">mod</span> <span class="ident">importers</span>;
@@ -709,7 +715,13 @@
 }
 
 <span class="kw">impl</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ChangeScenario</span> {
-    <span class="kw">fn</span> <span class="ident">on_click</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>, <span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) -&gt; <span class="ident">Transition</span> {
+    <span class="kw">fn</span> <span class="ident">on_click</span>(
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
+        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
+        <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
+        <span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
+        <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Panel</span>,
+    ) -&gt; <span class="ident">Transition</span> {
         <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;close&quot;</span> {
             <span class="ident">Transition::Pop</span>
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;Learn how to import your own data.&quot;</span> {

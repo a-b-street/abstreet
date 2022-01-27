@@ -325,6 +325,20 @@
 <span id="324">324</span>
 <span id="325">325</span>
 <span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="ident">abstio::MapName</span>;
@@ -332,9 +346,7 @@
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Histogram</span>, <span class="ident">Statistic</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">RoadID</span>};
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ObjectID</span>, <span class="ident">ToggleZoomed</span>, <span class="ident">ToggleZoomedBuilder</span>, <span class="ident">World</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>,
-};
+<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::tools</span>::{<span class="ident">cmp_count</span>, <span class="ident">ColorNetwork</span>, <span class="ident">DivergingScale</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::AppLike</span>;
@@ -482,23 +494,32 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_panel_widget</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="string">&quot;Show counts:&quot;</span>
-                .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
-                .<span class="ident">centered_vert</span>()
-                .<span class="ident">margin_right</span>(<span class="number">20</span>),
-            <span class="ident">Widget::dropdown</span>(
-                <span class="ident">ctx</span>,
-                <span class="string">&quot;layer&quot;</span>,
-                <span class="self">self</span>.<span class="ident">layer</span>,
-                <span class="comment">// TODO A dropdown is actually annoying, the hotkeys don&#39;t work without a click</span>
-                <span class="macro">vec!</span>[
-                    <span class="ident">Choice::new</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">counts_a</span>.<span class="ident">description</span>, <span class="ident">Layer::A</span>).<span class="ident">key</span>(<span class="ident">Key::Num1</span>),
-                    <span class="ident">Choice::new</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">counts_b</span>.<span class="ident">description</span>, <span class="ident">Layer::B</span>).<span class="ident">key</span>(<span class="ident">Key::Num2</span>),
-                    <span class="ident">Choice::new</span>(<span class="string">&quot;compare&quot;</span>, <span class="ident">Layer::Compare</span>).<span class="ident">key</span>(<span class="ident">Key::Num3</span>),
-                ],
-            ),
+        <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+            <span class="string">&quot;Show which traffic counts?&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
+            <span class="comment">// TODO Maybe tab style</span>
+            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
+                    .<span class="ident">btn_solid_primary</span>
+                    .<span class="ident">text</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">counts_a</span>.<span class="ident">description</span>)
+                    .<span class="ident">disabled</span>(<span class="self">self</span>.<span class="ident">layer</span> <span class="op">==</span> <span class="ident">Layer::A</span>)
+                    .<span class="ident">hotkey</span>(<span class="ident">Key::Num1</span>)
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;A counts&quot;</span>),
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
+                    .<span class="ident">btn_solid_primary</span>
+                    .<span class="ident">text</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">counts_b</span>.<span class="ident">description</span>)
+                    .<span class="ident">disabled</span>(<span class="self">self</span>.<span class="ident">layer</span> <span class="op">==</span> <span class="ident">Layer::B</span>)
+                    .<span class="ident">hotkey</span>(<span class="ident">Key::Num2</span>)
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;B counts&quot;</span>),
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
+                    .<span class="ident">btn_solid_primary</span>
+                    .<span class="ident">text</span>(<span class="string">&quot;Compare&quot;</span>)
+                    .<span class="ident">disabled</span>(<span class="self">self</span>.<span class="ident">layer</span> <span class="op">==</span> <span class="ident">Layer::Compare</span>)
+                    .<span class="ident">hotkey</span>(<span class="ident">Key::Num3</span>)
+                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+            ]),
+            <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;Swap A&lt;-&gt;B&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         ])
+        .<span class="ident">section</span>(<span class="ident">ctx</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>) {
@@ -567,14 +588,21 @@
         <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">event</span>(<span class="ident">ctx</span>);
     }
 
-    <span class="doccomment">/// True if the change was for controls owned by CompareCounts</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">panel_changed</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">panel</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">let</span> <span class="ident">layer</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;layer&quot;</span>);
-        <span class="kw">if</span> <span class="ident">layer</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">layer</span> {
-            <span class="self">self</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="ident">layer</span>;
-            <span class="kw">return</span> <span class="bool-val">true</span>;
-        }
-        <span class="bool-val">false</span>
+    <span class="doccomment">/// If a button owned by this was clicked, returns the new widget to replace</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">on_click</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">x</span> {
+            <span class="string">&quot;A counts&quot;</span> =&gt; <span class="ident">Layer::A</span>,
+            <span class="string">&quot;B counts&quot;</span> =&gt; <span class="ident">Layer::B</span>,
+            <span class="string">&quot;Compare&quot;</span> =&gt; <span class="ident">Layer::Compare</span>,
+            <span class="string">&quot;Swap A&lt;-&gt;B&quot;</span> =&gt; {
+                <span class="comment">// TODO Do stuff</span>
+                <span class="self">self</span>.<span class="ident">layer</span>
+            }
+            <span class="kw">_</span> =&gt; {
+                <span class="kw">return</span> <span class="prelude-val">None</span>;
+            }
+        };
+        <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">get_panel_widget</span>(<span class="ident">ctx</span>))
     }
 }
 

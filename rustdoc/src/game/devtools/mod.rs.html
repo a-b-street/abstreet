@@ -177,6 +177,12 @@
 <span id="176">176</span>
 <span id="177">177</span>
 <span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
 </pre><pre class="rust"><code><span class="doccomment">//! This directory contains extra/experimental tools not directly related to A/B Street the game.</span>
 <span class="doccomment">//! Eventually some might be split into separate crates.</span>
 
@@ -276,7 +282,13 @@
 }
 
 <span class="kw">impl</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DevToolsMode</span> {
-    <span class="kw">fn</span> <span class="ident">on_click</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>, <span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) -&gt; <span class="ident">Transition</span> {
+    <span class="kw">fn</span> <span class="ident">on_click</span>(
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
+        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
+        <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
+        <span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
+        <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Panel</span>,
+    ) -&gt; <span class="ident">Transition</span> {
         <span class="kw">match</span> <span class="ident">x</span> {
             <span class="string">&quot;close&quot;</span> =&gt; <span class="ident">Transition::Pop</span>,
             <span class="string">&quot;edit a polygon&quot;</span> =&gt; {
