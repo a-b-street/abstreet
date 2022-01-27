@@ -623,7 +623,13 @@ impl DepartureSummary {
 }
 
 impl SimpleState<App> for DepartureSummary {
-    fn on_click(&mut self, ctx: &mut EventCtx, app: &mut App, x: &str, _: &Panel) -> Transition {
+    fn on_click(
+        &mut self,
+        ctx: &mut EventCtx,
+        app: &mut App,
+        x: &str,
+        _: &mut Panel,
+    ) -> Transition {
         match x {
             "close" => Transition::Pop,
             "Commuter patterns" => Transition::Replace(

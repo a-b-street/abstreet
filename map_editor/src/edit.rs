@@ -143,7 +143,7 @@ impl SimpleState<App> for EditRoad {
         ctx: &mut EventCtx,
         app: &mut App,
         x: &str,
-        panel: &Panel,
+        panel: &mut Panel,
     ) -> Transition<App> {
         match x {
             "close" => Transition::Pop,

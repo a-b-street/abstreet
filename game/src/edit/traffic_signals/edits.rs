@@ -104,7 +104,13 @@ impl ChangeDuration {
 }
 
 impl SimpleState<App> for ChangeDuration {
-    fn on_click(&mut self, _: &mut EventCtx, _: &mut App, x: &str, panel: &Panel) -> Transition {
+    fn on_click(
+        &mut self,
+        _: &mut EventCtx,
+        _: &mut App,
+        x: &str,
+        panel: &mut Panel,
+    ) -> Transition {
         match x {
             "close" => Transition::Pop,
             "Apply" => {

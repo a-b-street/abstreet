@@ -5,9 +5,7 @@ use abstutil::{prettyprint_usize, Counter};
 use geom::{Distance, Histogram, Statistic};
 use map_model::{IntersectionID, RoadID};
 use widgetry::mapspace::{ObjectID, ToggleZoomed, ToggleZoomedBuilder, World};
-use widgetry::{
-    Choice, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Panel, Text, TextExt, Widget,
-};
+use widgetry::{Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Text, TextExt, Widget};
 
 use crate::tools::{cmp_count, ColorNetwork, DivergingScale};
 use crate::AppLike;
@@ -155,23 +153,32 @@ impl CompareCounts {
     }
 
     pub fn get_panel_widget(&self, ctx: &EventCtx) -> Widget {
-        Widget::row(vec![
-            "Show counts:"
-                .text_widget(ctx)
-                .centered_vert()
-                .margin_right(20),
-            Widget::dropdown(
-                ctx,
-                "layer",
-                self.layer,
-                // TODO A dropdown is actually annoying, the hotkeys don't work without a click
-                vec![
-                    Choice::new(&self.counts_a.description, Layer::A).key(Key::Num1),
-                    Choice::new(&self.counts_b.description, Layer::B).key(Key::Num2),
-                    Choice::new("compare", Layer::Compare).key(Key::Num3),
-                ],
-            ),
+        Widget::col(vec![
+            "Show which traffic counts?".text_widget(ctx),
+            // TODO Maybe tab style
+            Widget::row(vec![
+                ctx.style()
+                    .btn_solid_primary
+                    .text(&self.counts_a.description)
+                    .disabled(self.layer == Layer::A)
+                    .hotkey(Key::Num1)
+                    .build_widget(ctx, "A counts"),
+                ctx.style()
+                    .btn_solid_primary
+                    .text(&self.counts_b.description)
+                    .disabled(self.layer == Layer::B)
+                    .hotkey(Key::Num2)
+                    .build_widget(ctx, "B counts"),
+                ctx.style()
+                    .btn_solid_primary
+                    .text("Compare")
+                    .disabled(self.layer == Layer::Compare)
+                    .hotkey(Key::Num3)
+                    .build_def(ctx),
+            ]),
+            ctx.style().btn_outline.text("Swap A<->B").build_def(ctx),
         ])
+        .section(ctx)
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
@@ -240,14 +247,21 @@ impl CompareCounts {
         let _ = self.world.event(ctx);
     }
 
-    /// True if the change was for controls owned by CompareCounts
-    pub fn panel_changed(&mut self, panel: &Panel) -> bool {
-        let layer = panel.dropdown_value("layer");
-        if layer != self.layer {
-            self.layer = layer;
-            return true;
-        }
-        false
+    /// If a button owned by this was clicked, returns the new widget to replace
+    pub fn on_click(&mut self, ctx: &EventCtx, x: &str) -> Option<Widget> {
+        self.layer = match x {
+            "A counts" => Layer::A,
+            "B counts" => Layer::B,
+            "Compare" => Layer::Compare,
+            "Swap A<->B" => {
+                // TODO Do stuff
+                self.layer
+            }
+            _ => {
+                return None;
+            }
+        };
+        Some(self.get_panel_widget(ctx))
     }
 }
 

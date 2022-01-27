@@ -133,7 +133,13 @@ impl Results {
 }
 
 impl SimpleState<App> for Results {
-    fn on_click(&mut self, _: &mut EventCtx, _: &mut App, x: &str, _: &Panel) -> Transition<App> {
+    fn on_click(
+        &mut self,
+        _: &mut EventCtx,
+        _: &mut App,
+        x: &str,
+        _: &mut Panel,
+    ) -> Transition<App> {
         match x {
             "close" => Transition::Pop,
             _ => unreachable!(),

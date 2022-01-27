@@ -69,7 +69,13 @@ impl TitleScreen {
 }
 
 impl SimpleState<App> for TitleScreen {
-    fn on_click(&mut self, ctx: &mut EventCtx, app: &mut App, x: &str, _: &Panel) -> Transition {
+    fn on_click(
+        &mut self,
+        ctx: &mut EventCtx,
+        app: &mut App,
+        x: &str,
+        _: &mut Panel,
+    ) -> Transition {
         match x {
             "Home" => Transition::Pop,
             "Credits" => Transition::Push(Credits::new_state(ctx)),
@@ -199,7 +205,7 @@ fn link(ctx: &mut EventCtx, label: &str, url: &str) -> Widget {
 }
 
 impl SimpleState<App> for Credits {
-    fn on_click(&mut self, _: &mut EventCtx, _: &mut App, x: &str, _: &Panel) -> Transition {
+    fn on_click(&mut self, _: &mut EventCtx, _: &mut App, x: &str, _: &mut Panel) -> Transition {
         match x {
             "close" | "Back" => Transition::Pop,
             x => {

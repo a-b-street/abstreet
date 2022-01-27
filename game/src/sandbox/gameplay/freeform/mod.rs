@@ -282,7 +282,13 @@ impl ChangeScenario {
 }
 
 impl SimpleState<App> for ChangeScenario {
-    fn on_click(&mut self, ctx: &mut EventCtx, app: &mut App, x: &str, _: &Panel) -> Transition {
+    fn on_click(
+        &mut self,
+        ctx: &mut EventCtx,
+        app: &mut App,
+        x: &str,
+        _: &mut Panel,
+    ) -> Transition {
         if x == "close" {
             Transition::Pop
         } else if x == "Learn how to import your own data." {

@@ -64,7 +64,7 @@ impl ShowAbsolute {
 }
 
 impl SimpleState<App> for ShowAbsolute {
-    fn on_click(&mut self, _: &mut EventCtx, _: &mut App, x: &str, _: &Panel) -> Transition {
+    fn on_click(&mut self, _: &mut EventCtx, _: &mut App, x: &str, _: &mut Panel) -> Transition {
         match x {
             "close" => {
                 // TODO Bit confusing UX, because all the offset changes won't show up in the
@@ -154,7 +154,13 @@ impl ShowRelative {
 }
 
 impl SimpleState<App> for ShowRelative {
-    fn on_click(&mut self, ctx: &mut EventCtx, app: &mut App, x: &str, _: &Panel) -> Transition {
+    fn on_click(
+        &mut self,
+        ctx: &mut EventCtx,
+        app: &mut App,
+        x: &str,
+        _: &mut Panel,
+    ) -> Transition {
         match x {
             "close" => Transition::Replace(ShowAbsolute::new_state(ctx, app, self.members.clone())),
             _ => unreachable!(),
@@ -285,7 +291,7 @@ impl SimpleState<App> for TuneRelative {
         ctx: &mut EventCtx,
         app: &mut App,
         x: &str,
-        panel: &Panel,
+        panel: &mut Panel,
     ) -> Transition {
         match x {
             "close" => Transition::Pop,

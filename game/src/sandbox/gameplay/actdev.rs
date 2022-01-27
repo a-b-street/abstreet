@@ -266,7 +266,7 @@ impl GameplayState for Actdev {
 struct About;
 
 impl SimpleState<App> for About {
-    fn on_click(&mut self, _: &mut EventCtx, _: &mut App, x: &str, _: &Panel) -> Transition {
+    fn on_click(&mut self, _: &mut EventCtx, _: &mut App, x: &str, _: &mut Panel) -> Transition {
         if x == "close" {
             return Transition::Pop;
         } else if x == "abstreet.org" {

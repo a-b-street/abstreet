@@ -224,7 +224,7 @@ pub trait SimpleState<A> {
         ctx: &mut EventCtx,
         app: &mut A,
         action: &str,
-        panel: &Panel,
+        panel: &mut Panel,
     ) -> Transition<A>;
     /// Called when something on the panel has been clicked.
     fn on_click_custom(
@@ -232,7 +232,7 @@ pub trait SimpleState<A> {
         _ctx: &mut EventCtx,
         _app: &mut A,
         _action: Box<dyn CloneableAny>,
-        _panel: &Panel,
+        _panel: &mut Panel,
     ) -> Transition<A> {
         Transition::Keep
     }
@@ -276,8 +276,10 @@ impl<A: 'static> State<A> for SimpleStateWrapper<A> {
             self.inner.on_mouseover(ctx, app);
         }
         match self.panel.event(ctx) {
-            Outcome::Clicked(action) => self.inner.on_click(ctx, app, &action, &self.panel),
-            Outcome::ClickCustom(data) => self.inner.on_click_custom(ctx, app, data, &self.panel),
+            Outcome::Clicked(action) => self.inner.on_click(ctx, app, &action, &mut self.panel),
+            Outcome::ClickCustom(data) => {
+                self.inner.on_click_custom(ctx, app, data, &mut self.panel)
+            }
             Outcome::Changed(_) => self
                 .inner
                 .panel_changed(ctx, app, &mut self.panel)

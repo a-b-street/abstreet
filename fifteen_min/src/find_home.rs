@@ -55,7 +55,7 @@ impl SimpleState<App> for FindHome {
         ctx: &mut EventCtx,
         app: &mut App,
         x: &str,
-        panel: &Panel,
+        panel: &mut Panel,
     ) -> Transition<App> {
         match x {
             "close" => Transition::Pop,
@@ -173,7 +173,13 @@ impl Results {
 }
 
 impl SimpleState<App> for Results {
-    fn on_click(&mut self, _: &mut EventCtx, _: &mut App, x: &str, _: &Panel) -> Transition<App> {
+    fn on_click(
+        &mut self,
+        _: &mut EventCtx,
+        _: &mut App,
+        x: &str,
+        _: &mut Panel,
+    ) -> Transition<App> {
         match x {
             "Back" => Transition::Pop,
             _ => unreachable!(),

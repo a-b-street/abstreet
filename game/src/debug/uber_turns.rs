@@ -51,7 +51,13 @@ impl UberTurnPicker {
 }
 
 impl SimpleState<App> for UberTurnPicker {
-    fn on_click(&mut self, ctx: &mut EventCtx, app: &mut App, x: &str, _: &Panel) -> Transition {
+    fn on_click(
+        &mut self,
+        ctx: &mut EventCtx,
+        app: &mut App,
+        x: &str,
+        _: &mut Panel,
+    ) -> Transition {
         match x {
             "close" => Transition::Pop,
             "View uber-turns" => {
@@ -193,7 +199,13 @@ impl UberTurnViewer {
 }
 
 impl SimpleState<App> for UberTurnViewer {
-    fn on_click(&mut self, ctx: &mut EventCtx, app: &mut App, x: &str, _: &Panel) -> Transition {
+    fn on_click(
+        &mut self,
+        ctx: &mut EventCtx,
+        app: &mut App,
+        x: &str,
+        _: &mut Panel,
+    ) -> Transition {
         match x {
             "close" => Transition::Pop,
             "previous uber-turn" => Transition::Replace(UberTurnViewer::new_state(

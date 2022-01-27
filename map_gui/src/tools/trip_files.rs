@@ -297,7 +297,13 @@ impl<A: AppLike + 'static, S: TripManagementState<A>> RenameTrip<A, S> {
 }
 
 impl<A: AppLike + 'static, S: TripManagementState<A>> SimpleState<A> for RenameTrip<A, S> {
-    fn on_click(&mut self, _: &mut EventCtx, _: &mut A, x: &str, panel: &Panel) -> Transition<A> {
+    fn on_click(
+        &mut self,
+        _: &mut EventCtx,
+        _: &mut A,
+        x: &str,
+        panel: &mut Panel,
+    ) -> Transition<A> {
         match x {
             "close" => Transition::Pop,
             "Rename" => {

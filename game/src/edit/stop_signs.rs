@@ -90,7 +90,13 @@ impl StopSignEditor {
 }
 
 impl SimpleState<App> for StopSignEditor {
-    fn on_click(&mut self, ctx: &mut EventCtx, app: &mut App, x: &str, _: &Panel) -> Transition {
+    fn on_click(
+        &mut self,
+        ctx: &mut EventCtx,
+        app: &mut App,
+        x: &str,
+        _: &mut Panel,
+    ) -> Transition {
         match x {
             "Finish" => Transition::Pop,
             "reset to default" => {

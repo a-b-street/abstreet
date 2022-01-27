@@ -55,7 +55,7 @@ impl ShowResults {
             Text::from(Line("This tool starts with a travel demand model, calculates the route every trip takes before and after changes, and displays volumes along roads and intersections")).wrap_to_pct(ctx, 20).into_widget(ctx),
             // TODO Dropdown for the scenario, and explain its source/limitations
             app.session.impact.filters.to_panel(ctx, app),
-            app.session.impact.compare_counts.get_panel_widget(ctx),
+            app.session.impact.compare_counts.get_panel_widget(ctx).named("compare counts"),
             ctx.style().btn_plain.text("Save before/after counts to files").build_def(ctx),
         ]))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
@@ -77,7 +77,13 @@ impl ShowResults {
 }
 
 impl SimpleState<App> for ShowResults {
-    fn on_click(&mut self, ctx: &mut EventCtx, app: &mut App, x: &str, _: &Panel) -> Transition {
+    fn on_click(
+        &mut self,
+        ctx: &mut EventCtx,
+        app: &mut App,
+        x: &str,
+        panel: &mut Panel,
+    ) -> Transition {
         match x {
             "close" => {
                 // Don't just Pop; if we updated the results, the UI won't warn the user about a slow
@@ -101,7 +107,16 @@ impl SimpleState<App> for ShowResults {
                     vec![format!("Saved {} and {}", path1, path2)],
                 ))
             }
-            _ => unreachable!(),
+            x => {
+                let widget = app
+                    .session
+                    .impact
+                    .compare_counts
+                    .on_click(ctx, x)
+                    .expect("button click didn't belong to CompareCounts");
+                panel.replace(ctx, "compare counts", widget);
+                Transition::Keep
+            }
         }
     }
 
@@ -117,10 +132,6 @@ impl SimpleState<App> for ShowResults {
         app: &mut App,
         panel: &mut Panel,
     ) -> Option<Transition> {
-        if app.session.impact.compare_counts.panel_changed(panel) {
-            return None;
-        }
-
         let filters = Filters::from_panel(panel);
         if filters == app.session.impact.filters {
             return None;
@@ -145,7 +156,7 @@ impl SimpleState<App> for ShowResults {
 }
 
 impl Filters {
-    fn from_panel(panel: &Panel) -> Filters {
+    fn from_panel(panel: &mut Panel) -> Filters {
         let (p1, p2) = (
             panel.slider("depart from").get_percent(),
             panel.slider("depart until").get_percent(),

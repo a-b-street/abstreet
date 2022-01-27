@@ -90,7 +90,13 @@ impl ShareProposal {
 }
 
 impl SimpleState<App> for ShareProposal {
-    fn on_click(&mut self, ctx: &mut EventCtx, app: &mut App, x: &str, _: &Panel) -> Transition {
+    fn on_click(
+        &mut self,
+        ctx: &mut EventCtx,
+        app: &mut App,
+        x: &str,
+        _: &mut Panel,
+    ) -> Transition {
         match x {
             "close" | "Cancel" | "Back" => Transition::Pop,
             "Upload" => {

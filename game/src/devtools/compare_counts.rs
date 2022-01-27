@@ -37,7 +37,7 @@ impl GenericCompareCounts {
 
         let panel = Panel::new_builder(Widget::col(vec![
             map_gui::tools::app_header(ctx, app, "Traffic count comparator"),
-            compare.get_panel_widget(ctx),
+            compare.get_panel_widget(ctx).named("compare counts"),
         ]))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
         .build(ctx);
@@ -47,23 +47,24 @@ impl GenericCompareCounts {
 }
 
 impl SimpleState<App> for GenericCompareCounts {
-    fn on_click(&mut self, _: &mut EventCtx, _: &mut App, _: &str, _: &Panel) -> Transition {
-        unreachable!()
+    fn on_click(
+        &mut self,
+        ctx: &mut EventCtx,
+        _: &mut App,
+        x: &str,
+        panel: &mut Panel,
+    ) -> Transition {
+        let widget = self
+            .compare
+            .on_click(ctx, x)
+            .expect("button click didn't belong to CompareCounts");
+        panel.replace(ctx, "compare counts", widget);
+        Transition::Keep
     }
 
     fn other_event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
         self.compare.other_event(ctx);
         Transition::Keep
-    }
-
-    fn panel_changed(
-        &mut self,
-        _: &mut EventCtx,
-        _: &mut App,
-        panel: &mut Panel,
-    ) -> Option<Transition> {
-        assert!(self.compare.panel_changed(panel));
-        None
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &App) {

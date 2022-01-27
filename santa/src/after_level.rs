@@ -124,7 +124,13 @@ impl Strategize {
 }
 
 impl SimpleState<App> for Strategize {
-    fn on_click(&mut self, ctx: &mut EventCtx, app: &mut App, x: &str, _: &Panel) -> Transition {
+    fn on_click(
+        &mut self,
+        ctx: &mut EventCtx,
+        app: &mut App,
+        x: &str,
+        _: &mut Panel,
+    ) -> Transition {
         match x {
             "Back to title screen" => {
                 let mut transitions = vec![
@@ -210,7 +216,7 @@ impl Results {
 }
 
 impl SimpleState<App> for Results {
-    fn on_click(&mut self, _: &mut EventCtx, _: &mut App, x: &str, _: &Panel) -> Transition {
+    fn on_click(&mut self, _: &mut EventCtx, _: &mut App, x: &str, _: &mut Panel) -> Transition {
         match x {
             "OK" => Transition::Pop,
             _ => unreachable!(),

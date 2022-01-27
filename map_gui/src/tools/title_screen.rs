@@ -269,7 +269,13 @@ impl Executable {
 }
 
 impl<A: AppLike + 'static> SimpleState<A> for TitleScreen<A> {
-    fn on_click(&mut self, ctx: &mut EventCtx, app: &mut A, x: &str, _: &Panel) -> Transition<A> {
+    fn on_click(
+        &mut self,
+        ctx: &mut EventCtx,
+        app: &mut A,
+        x: &str,
+        _: &mut Panel,
+    ) -> Transition<A> {
         match x {
             "Traffic simulation tutorial" => {
                 self.run(ctx, app, Executable::ABStreet, vec!["--tutorial-intro"])
