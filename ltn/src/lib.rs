@@ -46,7 +46,7 @@ fn run(mut settings: Settings) {
             partitioning: Partitioning::empty(),
             modal_filters: ModalFilters::default(),
 
-            impact: impact::Impact::default(),
+            impact: impact::Impact::empty(ctx),
 
             highlight_boundary_roads: true,
             draw_neighborhood_style: browse::Style::SimpleColoring,

@@ -13,8 +13,6 @@ use widgetry::{Choice, Color, EventCtx, GeomBatch, GfxCtx, Line, Panel, Text, Te
 use super::App;
 
 // TODO
-// 1) Just make this as something that can be embedded in a UI
-// 2) Refactor the impact prediction to use this
 // 3) Make a new UI with a file picker and CLI shortcuts
 // 4) See if we can dedupe requests in the impact prediction -- using this tool to validate
 // 5) Download the sensor data and get it in this format (and maybe filter simulated data to only
@@ -32,7 +30,7 @@ pub struct Counts {
 }
 
 pub struct CompareCounts {
-    layer: Layer,
+    pub layer: Layer,
     counts_a: CountsUI,
     counts_b: CountsUI,
     world: World<Obj>,
@@ -47,7 +45,7 @@ enum Obj {
 impl ObjectID for Obj {}
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-enum Layer {
+pub enum Layer {
     A,
     B,
     Compare,
@@ -82,29 +80,27 @@ impl CountsUI {
         }
     }
 
-    fn tooltip(&self, id: Obj) -> Text {
-        Text::from(Line(prettyprint_usize(match id {
-            Obj::Road(r) => self.per_road.get(r),
-            Obj::Intersection(i) => self.per_intersection.get(i),
-        })))
+    fn empty(ctx: &EventCtx) -> Self {
+        Self {
+            description: String::new(),
+            heatmap: ToggleZoomed::empty(ctx),
+            per_road: Counter::new(),
+            per_intersection: Counter::new(),
+        }
     }
 }
 
 impl CompareCounts {
-    pub fn new(ctx: &mut EventCtx, app: &App, counts_a: Counts, counts_b: Counts) -> CompareCounts {
+    pub fn new(
+        ctx: &mut EventCtx,
+        app: &App,
+        counts_a: Counts,
+        counts_b: Counts,
+        layer: Layer,
+    ) -> CompareCounts {
         let counts_a = CountsUI::new(ctx, app, counts_a);
         let counts_b = CountsUI::new(ctx, app, counts_b);
 
-        // Start with the relative layer if anything has changed
-        let layer = {
-            if counts_a.per_road == counts_b.per_road
-                && counts_a.per_intersection == counts_b.per_intersection
-            {
-                Layer::A
-            } else {
-                Layer::Compare
-            }
-        };
         let relative_heatmap = calculate_relative_heatmap(ctx, app, &counts_a, &counts_b);
 
         CompareCounts {
@@ -113,6 +109,36 @@ impl CompareCounts {
             counts_b,
             world: make_world(ctx, app),
             relative_heatmap,
+        }
+    }
+
+    /// Start with the relative layer if anything has changed
+    pub fn autoselect_layer(&mut self) {
+        self.layer = if self.counts_a.per_road == self.counts_b.per_road
+            && self.counts_a.per_intersection == self.counts_b.per_intersection
+        {
+            Layer::A
+        } else {
+            Layer::Compare
+        };
+    }
+
+    pub fn recalculate_b(&mut self, ctx: &EventCtx, app: &App, counts_b: Counts) {
+        self.counts_b = CountsUI::new(ctx, app, counts_b);
+        self.relative_heatmap =
+            calculate_relative_heatmap(ctx, app, &self.counts_a, &self.counts_b);
+        if self.layer == Layer::A {
+            self.autoselect_layer();
+        }
+    }
+
+    pub fn empty(ctx: &EventCtx) -> CompareCounts {
+        CompareCounts {
+            layer: Layer::A,
+            counts_a: CountsUI::empty(ctx),
+            counts_b: CountsUI::empty(ctx),
+            world: World::unbounded(),
+            relative_heatmap: ToggleZoomed::empty(ctx),
         }
     }
 
@@ -135,7 +161,7 @@ impl CompareCounts {
         ])
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, app: &App) {
+    pub fn draw(&self, g: &mut GfxCtx) {
         match self.layer {
             Layer::A => {
                 self.counts_a.heatmap.draw(g);
