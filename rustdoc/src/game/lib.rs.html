@@ -576,6 +576,20 @@
 <span id="575">575</span>
 <span id="576">576</span>
 <span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
 </pre><pre class="rust"><code><span class="comment">// Disable some noisy lints</span>
 <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::too_many_arguments</span>, <span class="ident">clippy::type_complexity</span>)]</span>
 
@@ -692,6 +706,9 @@
     <span class="doccomment">/// Start by showing an ActDev scenario. Either &quot;base&quot; or &quot;go_active&quot;.</span>
     <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
     <span class="ident">actdev_scenario</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Start in a tool for comparing traffic counts</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
+    <span class="ident">compare_counts</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">struct</span> <span class="ident">Setup</span> {
@@ -717,6 +734,7 @@
     <span class="ident">Ungap</span>,
     <span class="ident">Devtools</span>,
     <span class="ident">LoadKML</span>(<span class="ident">String</span>),
+    <span class="ident">CompareCounts</span>(<span class="ident">String</span>, <span class="ident">String</span>),
     <span class="ident">Gameplay</span>(<span class="ident">GameplayMode</span>),
 }
 
@@ -760,6 +778,11 @@
             <span class="ident">Mode::Devtools</span>
         } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">kml</span>) <span class="op">=</span> <span class="ident">args</span>.<span class="ident">load_kml</span> {
             <span class="ident">Mode::LoadKML</span>(<span class="ident">kml</span>)
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">paths</span>) <span class="op">=</span> <span class="ident">args</span>.<span class="ident">compare_counts</span> {
+            <span class="kw">if</span> <span class="ident">paths</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">2</span> {
+                <span class="macro">panic!</span>(<span class="string">&quot;--compare-counts takes exactly two paths&quot;</span>);
+            }
+            <span class="ident">Mode::CompareCounts</span>(<span class="ident">paths</span>.<span class="ident">remove</span>(<span class="number">0</span>), <span class="ident">paths</span>.<span class="ident">remove</span>(<span class="number">0</span>))
         } <span class="kw">else</span> {
             <span class="ident">Mode::SomethingElse</span>
         },
@@ -1135,6 +1158,11 @@
             }
             <span class="ident">Mode::Devtools</span> =&gt; <span class="ident">devtools::DevToolsMode::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
             <span class="ident">Mode::LoadKML</span>(<span class="ident">path</span>) =&gt; <span class="ident"><span class="kw">crate</span>::devtools::kml::ViewKML::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">Some</span>(<span class="ident">path</span>)),
+            <span class="ident">Mode::CompareCounts</span>(<span class="ident">path1</span>, <span class="ident">path2</span>) =&gt; {
+                <span class="ident"><span class="kw">crate</span>::devtools::compare_counts::GenericCompareCounts::new_state</span>(
+                    <span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">path1</span>, <span class="ident">path2</span>,
+                )
+            }
         }
     };
     <span class="macro">vec!</span>[<span class="ident">TitleScreen::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>), <span class="ident">state</span>]

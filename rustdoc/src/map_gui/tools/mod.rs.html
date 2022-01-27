@@ -403,6 +403,7 @@
 <span id="402">402</span>
 <span id="403">403</span>
 <span id="404">404</span>
+<span id="405">405</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Assorted tools and UI states that&#39;re useful for applications built to display maps.</span>
 
 <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
@@ -441,6 +442,7 @@
 <span class="kw">mod</span> <span class="ident">colors</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
 <span class="kw">mod</span> <span class="ident">command</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">compare_counts</span>;
 <span class="kw">mod</span> <span class="ident">heatmap</span>;
 <span class="kw">mod</span> <span class="ident">icons</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>

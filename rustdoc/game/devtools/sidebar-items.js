@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["collisions",""],["destinations",""],["kml",""],["polygon",""],["scenario",""],["story",""]],"struct":[["DevToolsMode",""]]});
+initSidebarItems({"mod":[["collisions",""],["compare_counts",""],["destinations",""],["kml",""],["polygon",""],["scenario",""],["story",""]],"struct":[["DevToolsMode",""]]});

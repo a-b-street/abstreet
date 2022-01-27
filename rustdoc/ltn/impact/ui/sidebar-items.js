@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Layer",""]],"struct":[["ShowResults",""]]});
+initSidebarItems({"struct":[["ShowResults",""]]});
