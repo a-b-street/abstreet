@@ -1,4 +1,3 @@
-mod compare;
 mod ui;
 
 use std::collections::BTreeSet;
@@ -6,16 +5,15 @@ use std::collections::BTreeSet;
 use abstio::MapName;
 use abstutil::{Counter, Timer};
 use geom::{Duration, Time};
+use map_gui::tools::compare_counts::{CompareCounts, Counts};
 use map_model::{Map, PathConstraints, PathRequest, PathStepV2, PathfinderCaching, RoutingParams};
 use sim::{Scenario, TripEndpoint, TripMode};
 use widgetry::EventCtx;
 
-use self::compare::{CompareCounts, Counts};
 pub use self::ui::ShowResults;
 use crate::App;
 
 // TODO Configurable main road penalty, like in the pathfinding tool
-// TODO Don't allow crossing filters at all -- don't just disincentivize
 // TODO Share structure or pieces with Ungap's predict mode
 // ... can't we just produce data of a certain shape, and have a UI pretty tuned for that?
 

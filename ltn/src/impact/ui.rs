@@ -1,7 +1,7 @@
 use std::collections::BTreeSet;
 
 use map_gui::load::FileLoader;
-use map_gui::tools::checkbox_per_mode;
+use map_gui::tools::{checkbox_per_mode, PopupMsg};
 use sim::{Scenario, TripMode};
 use widgetry::mapspace::ToggleZoomed;
 use widgetry::{
@@ -56,6 +56,7 @@ impl ShowResults {
             // TODO Dropdown for the scenario, and explain its source/limitations
             app.session.impact.filters.to_panel(ctx, app),
             app.session.impact.compare_counts.get_panel_widget(ctx),
+            ctx.style().btn_plain.text("Save before/after counts to files").build_def(ctx),
         ]))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
         .build(ctx);
@@ -77,12 +78,31 @@ impl ShowResults {
 
 impl SimpleState<App> for ShowResults {
     fn on_click(&mut self, ctx: &mut EventCtx, app: &mut App, x: &str, _: &Panel) -> Transition {
-        if x == "close" {
-            // Don't just Pop; if we updated the results, the UI won't warn the user about a slow
-            // loading
-            return Transition::Replace(BrowseNeighborhoods::new_state(ctx, app));
+        match x {
+            "close" => {
+                // Don't just Pop; if we updated the results, the UI won't warn the user about a slow
+                // loading
+                Transition::Replace(BrowseNeighborhoods::new_state(ctx, app))
+            }
+            "Save before/after counts to files" => {
+                let path1 = "counts_a.json";
+                let path2 = "counts_b.json";
+                abstio::write_json(
+                    path1.to_string(),
+                    &app.session.impact.compare_counts.counts_a.to_counts(),
+                );
+                abstio::write_json(
+                    path2.to_string(),
+                    &app.session.impact.compare_counts.counts_b.to_counts(),
+                );
+                Transition::Push(PopupMsg::new_state(
+                    ctx,
+                    "Saved",
+                    vec![format!("Saved {} and {}", path1, path2)],
+                ))
+            }
+            _ => unreachable!(),
         }
-        unreachable!()
     }
 
     fn other_event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {

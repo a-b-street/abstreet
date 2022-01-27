@@ -1,19 +1,18 @@
-// TODO Some of this may warrant a standalone tool, or being in game/devtools
-
 use serde::{Deserialize, Serialize};
 
 use abstio::MapName;
 use abstutil::{prettyprint_usize, Counter};
 use geom::{Distance, Histogram, Statistic};
-use map_gui::tools::{cmp_count, ColorNetwork, DivergingScale};
 use map_model::{IntersectionID, RoadID};
 use widgetry::mapspace::{ObjectID, ToggleZoomed, ToggleZoomedBuilder, World};
-use widgetry::{Choice, Color, EventCtx, GeomBatch, GfxCtx, Line, Panel, Text, TextExt, Widget};
+use widgetry::{
+    Choice, Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Panel, Text, TextExt, Widget,
+};
 
-use super::App;
+use crate::tools::{cmp_count, ColorNetwork, DivergingScale};
+use crate::AppLike;
 
-// TODO
-// 3) Make a new UI with a file picker and CLI shortcuts
+// TODO Document all of this!
 // 4) See if we can dedupe requests in the impact prediction -- using this tool to validate
 // 5) Download the sensor data and get it in this format (and maybe filter simulated data to only
 //    match roads we have)
@@ -31,8 +30,8 @@ pub struct Counts {
 
 pub struct CompareCounts {
     pub layer: Layer,
-    counts_a: CountsUI,
-    counts_b: CountsUI,
+    pub counts_a: CountsUI,
+    pub counts_b: CountsUI,
     world: World<Obj>,
     relative_heatmap: ToggleZoomed,
 }
@@ -51,7 +50,9 @@ pub enum Layer {
     Compare,
 }
 
-struct CountsUI {
+pub struct CountsUI {
+    // TODO Just embed Counts directly, and make that serialize a Counter?
+    map: MapName,
     description: String,
     heatmap: ToggleZoomed,
     per_road: Counter<RoadID>,
@@ -59,7 +60,7 @@ struct CountsUI {
 }
 
 impl CountsUI {
-    fn new(ctx: &EventCtx, app: &App, counts: Counts) -> CountsUI {
+    fn new(ctx: &EventCtx, app: &dyn AppLike, counts: Counts) -> CountsUI {
         let mut per_road = Counter::new();
         for (r, count) in counts.per_road {
             per_road.add(r, count);
@@ -70,9 +71,10 @@ impl CountsUI {
         }
 
         let mut colorer = ColorNetwork::no_fading(app);
-        colorer.ranked_roads(per_road.clone(), &app.cs.good_to_bad_red);
-        colorer.ranked_intersections(per_intersection.clone(), &app.cs.good_to_bad_red);
+        colorer.ranked_roads(per_road.clone(), &app.cs().good_to_bad_red);
+        colorer.ranked_intersections(per_intersection.clone(), &app.cs().good_to_bad_red);
         CountsUI {
+            map: counts.map,
             description: counts.description,
             heatmap: colorer.build(ctx),
             per_road,
@@ -82,10 +84,25 @@ impl CountsUI {
 
     fn empty(ctx: &EventCtx) -> Self {
         Self {
+            map: MapName::new("zz", "place", "holder"),
             description: String::new(),
             heatmap: ToggleZoomed::empty(ctx),
             per_road: Counter::new(),
             per_intersection: Counter::new(),
+        }
+    }
+
+    pub fn to_counts(&self) -> Counts {
+        Counts {
+            map: self.map.clone(),
+            description: self.description.clone(),
+            per_road: self.per_road.clone().consume().into_iter().collect(),
+            per_intersection: self
+                .per_intersection
+                .clone()
+                .consume()
+                .into_iter()
+                .collect(),
         }
     }
 }
@@ -93,7 +110,7 @@ impl CountsUI {
 impl CompareCounts {
     pub fn new(
         ctx: &mut EventCtx,
-        app: &App,
+        app: &dyn AppLike,
         counts_a: Counts,
         counts_b: Counts,
         layer: Layer,
@@ -123,7 +140,7 @@ impl CompareCounts {
         };
     }
 
-    pub fn recalculate_b(&mut self, ctx: &EventCtx, app: &App, counts_b: Counts) {
+    pub fn recalculate_b(&mut self, ctx: &EventCtx, app: &dyn AppLike, counts_b: Counts) {
         self.counts_b = CountsUI::new(ctx, app, counts_b);
         self.relative_heatmap =
             calculate_relative_heatmap(ctx, app, &self.counts_a, &self.counts_b);
@@ -152,10 +169,11 @@ impl CompareCounts {
                 ctx,
                 "layer",
                 self.layer,
+                // TODO A dropdown is actually annoying, the hotkeys don't work without a click
                 vec![
-                    Choice::new(&self.counts_a.description, Layer::A),
-                    Choice::new(&self.counts_b.description, Layer::B),
-                    Choice::new("compare", Layer::Compare),
+                    Choice::new(&self.counts_a.description, Layer::A).key(Key::Num1),
+                    Choice::new(&self.counts_b.description, Layer::B).key(Key::Num2),
+                    Choice::new("compare", Layer::Compare).key(Key::Num3),
                 ],
             ),
         ])
@@ -198,16 +216,27 @@ impl CompareCounts {
     }
 
     fn relative_road_tooltip(&self, r: RoadID) -> Text {
-        let before = self.counts_a.per_road.get(r);
-        let after = self.counts_b.per_road.get(r);
-        let ratio = (after as f64) / (before as f64);
+        let a = self.counts_a.per_road.get(r);
+        let b = self.counts_b.per_road.get(r);
+        let ratio = (b as f64) / (a as f64);
 
         let mut txt = Text::from_multiline(vec![
-            Line(format!("Before: {}", prettyprint_usize(before))),
-            Line(format!("After: {}", prettyprint_usize(after))),
+            Line(format!(
+                "{}: {}",
+                self.counts_a.description,
+                prettyprint_usize(a)
+            )),
+            Line(format!(
+                "{}: {}",
+                self.counts_b.description,
+                prettyprint_usize(b)
+            )),
         ]);
-        cmp_count(&mut txt, before, after);
-        txt.add_line(Line(format!("After/before: {:.2}", ratio)));
+        cmp_count(&mut txt, a, b);
+        txt.add_line(Line(format!(
+            "{}/{}: {:.2}",
+            self.counts_b.description, self.counts_a.description, ratio
+        )));
         txt
     }
 
@@ -229,7 +258,7 @@ impl CompareCounts {
 
 fn calculate_relative_heatmap(
     ctx: &EventCtx,
-    app: &App,
+    app: &dyn AppLike,
     counts_a: &CountsUI,
     counts_b: &CountsUI,
 ) -> ToggleZoomed {
@@ -247,7 +276,7 @@ fn calculate_relative_heatmap(
 
     // What's physical road width look like?
     let mut hgram_width = Histogram::new();
-    for r in app.map.all_roads() {
+    for r in app.map().all_roads() {
         hgram_width.add(r.get_width());
     }
     info!("Physical road widths: {}", hgram_width.describe());
@@ -275,14 +304,14 @@ fn calculate_relative_heatmap(
         // TODO Pretty arbitrary. Ideally we'd hide roads and intersections underneath...
         let width = Distance::meters(2.0) + pct_count * Distance::meters(10.0);
 
-        draw_roads.push(color, app.map.get_r(r).center_pts.make_polygons(width));
+        draw_roads.push(color, app.map().get_r(r).center_pts.make_polygons(width));
     }
     ToggleZoomedBuilder::from(draw_roads).build(ctx)
 }
 
-fn make_world(ctx: &mut EventCtx, app: &App) -> World<Obj> {
-    let mut world = World::bounded(app.map.get_bounds());
-    for r in app.map.all_roads() {
+fn make_world(ctx: &mut EventCtx, app: &dyn AppLike) -> World<Obj> {
+    let mut world = World::bounded(app.map().get_bounds());
+    for r in app.map().all_roads() {
         world
             .add(Obj::Road(r.id))
             .hitbox(r.get_thick_polygon())
@@ -290,7 +319,7 @@ fn make_world(ctx: &mut EventCtx, app: &App) -> World<Obj> {
             .invisibly_hoverable()
             .build(ctx);
     }
-    for i in app.map.all_intersections() {
+    for i in app.map().all_intersections() {
         world
             .add(Obj::Intersection(i.id))
             .hitbox(i.polygon.clone())
