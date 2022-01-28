@@ -114,7 +114,7 @@ impl SimFlags {
                 opts.run_name = scenario.scenario_name.clone();
             }
             let mut sim = Sim::new(&map, opts);
-            scenario.instantiate(&mut sim, &map, &mut rng, timer);
+            sim.instantiate(&scenario, &map, &mut rng, timer);
 
             (map, sim, rng)
         } else if self.load.contains("/raw_maps/") || self.load.contains("/maps/") {

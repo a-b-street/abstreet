@@ -28,6 +28,7 @@ use crate::{
 };
 
 mod queries;
+mod scenario;
 
 // TODO Do something else.
 const BLIND_RETRY_TO_SPAWN: Duration = Duration::const_seconds(5.0);
