@@ -22,6 +22,7 @@ rand_distr = "0.4.0"
 rand_xorshift = "0.3.0"
 serde = "1.0.123"
 structopt = "0.3.23"
+synthpop = { path = "../synthpop" }
 
 [[bin]]
 name = "run_scenario"

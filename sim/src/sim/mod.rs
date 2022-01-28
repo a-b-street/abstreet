@@ -16,14 +16,15 @@ use map_model::{
     BuildingID, IntersectionID, LaneID, Map, ParkingLotID, Path, PathConstraints, PathRequest,
     Position, TransitRoute, Traversable,
 };
+use synthpop::OrigPersonID;
 
 pub use self::queries::{AgentProperties, DelayCause};
 use crate::{
     AgentID, AlertLocation, Analytics, CarID, Command, CreateCar, DrivingSimState, Event,
-    IntersectionSimState, OrigPersonID, PandemicModel, ParkedCar, ParkingSim, ParkingSimState,
-    ParkingSpot, Person, PersonID, Router, Scheduler, SidewalkPOI, SidewalkSpot, StartTripArgs,
-    TrafficRecorder, TransitSimState, TripID, TripInfo, TripManager, TripPhaseType, Vehicle,
-    VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH, LIGHT_RAIL_LENGTH, MIN_CAR_LENGTH,
+    IntersectionSimState, PandemicModel, ParkedCar, ParkingSim, ParkingSimState, ParkingSpot,
+    Person, PersonID, Router, Scheduler, SidewalkPOI, SidewalkSpot, StartTripArgs, TrafficRecorder,
+    TransitSimState, TripID, TripInfo, TripManager, TripPhaseType, Vehicle, VehicleSpec,
+    VehicleType, WalkingSimState, BUS_LENGTH, LIGHT_RAIL_LENGTH, MIN_CAR_LENGTH,
 };
 
 mod queries;

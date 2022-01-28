@@ -10,12 +10,13 @@ use map_model::{
     BuildingID, IntersectionID, Lane, LaneID, Map, Path, Position, TransitRouteID, TransitStopID,
     Traversable, TurnID,
 };
+use synthpop::OrigPersonID;
 
 use crate::analytics::SlidingWindow;
 use crate::{
     AgentID, AgentType, Analytics, CarID, CommutersVehiclesCounts, DrawCarInput, DrawPedCrowdInput,
-    DrawPedestrianInput, OrigPersonID, PandemicModel, ParkedCar, ParkingSim, PedestrianID, Person,
-    PersonID, PersonState, Scenario, Sim, TripEndpoint, TripID, TripInfo, TripMode, TripResult,
+    DrawPedestrianInput, PandemicModel, ParkedCar, ParkingSim, PedestrianID, Person, PersonID,
+    PersonState, Scenario, Sim, TripEndpoint, TripID, TripInfo, TripMode, TripResult,
     UnzoomedAgent, VehicleType,
 };
 
