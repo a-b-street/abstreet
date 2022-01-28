@@ -11,7 +11,7 @@ use geom::{Distance, Duration};
 use map_gui::tools::{grey_out_map, open_browser, CityPicker, PopupMsg, PromptInput, URLManager};
 use map_gui::ID;
 use map_model::{IntersectionID, Position};
-use sim::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
+use sim::{rand_dist, IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
 use widgetry::{
     lctrl, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, SimpleState, State,
     Text, VerticalAlignment, Widget,
@@ -373,7 +373,7 @@ pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
                         TripPurpose::Shopping,
                         TripEndpoint::SuddenlyAppear(Position::new(
                             lane.id,
-                            Scenario::rand_dist(&mut rng, Distance::ZERO, lane.length()),
+                            rand_dist(&mut rng, Distance::ZERO, lane.length()),
                         )),
                         TripEndpoint::Bldg(map.all_buildings().choose(&mut rng).unwrap().id),
                         mode,
@@ -389,7 +389,7 @@ pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
                         TripPurpose::Shopping,
                         TripEndpoint::SuddenlyAppear(Position::new(
                             lane.id,
-                            Scenario::rand_dist(&mut rng, 0.1 * lane.length(), 0.9 * lane.length()),
+                            rand_dist(&mut rng, 0.1 * lane.length(), 0.9 * lane.length()),
                         )),
                         TripEndpoint::Bldg(map.all_buildings().choose(&mut rng).unwrap().id),
                         TripMode::Walk,
@@ -400,8 +400,8 @@ pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
     }
 
     let retry_if_no_room = false;
-    scenario.instantiate_without_retries(
-        &mut app.primary.sim,
+    app.primary.sim.instantiate_without_retries(
+        &scenario,
         map,
         &mut rng,
         retry_if_no_room,

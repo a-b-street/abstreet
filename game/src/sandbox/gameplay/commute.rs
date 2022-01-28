@@ -1,7 +1,8 @@
 use std::collections::BTreeMap;
 
 use geom::{Duration, Time};
-use sim::{OrigPersonID, PersonID, TripID};
+use sim::{PersonID, TripID};
+use synthpop::OrigPersonID;
 use widgetry::{
     Color, EventCtx, GfxCtx, HorizontalAlignment, Image, Line, Outcome, Panel, State, Text,
     TextExt, VerticalAlignment, Widget,

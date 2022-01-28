@@ -5,7 +5,9 @@ use geom::{LonLat, PolyLine};
 use map_model::{
     osm, BuildingID, IntersectionID, Map, Path, PathConstraints, PathRequest, PathStep,
 };
-use sim::{IndividTrip, MapBorders, OrigPersonID, PersonSpec, Scenario, TripEndpoint, TripMode};
+use synthpop::{
+    IndividTrip, MapBorders, OrigPersonID, PersonSpec, Scenario, TripEndpoint, TripMode,
+};
 
 use crate::soundcast::popdat::{Endpoint, OrigTrip, PopDat};
 

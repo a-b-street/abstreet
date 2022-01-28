@@ -1,6 +1,6 @@
 use abstutil::prettyprint_usize;
 use map_gui::tools::ColorDiscrete;
-use sim::Scenario;
+use sim::{count_parked_cars_per_bldg, Scenario};
 use widgetry::mapspace::ToggleZoomed;
 use widgetry::{
     Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, Text,
@@ -28,7 +28,7 @@ impl ScenarioManager {
             ],
         );
         let mut total_cars_needed = 0;
-        for (b, count) in scenario.count_parked_cars_per_bldg().consume() {
+        for (b, count) in count_parked_cars_per_bldg(&scenario).consume() {
             total_cars_needed += count;
             let color = if count == 0 {
                 continue;

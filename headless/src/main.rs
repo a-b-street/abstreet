@@ -193,7 +193,7 @@ fn handle_command(
             let mut scenario = Scenario::empty(map, "one-shot");
             scenario.people = ExternalPerson::import(map, vec![input], false)?;
             let mut rng = XorShiftRng::seed_from_u64(load.rng_seed);
-            scenario.instantiate(sim, map, &mut rng, &mut Timer::throwaway());
+            sim.instantiate(&scenario, map, &mut rng, &mut Timer::throwaway());
             Ok(format!(
                 "{} created",
                 sim.get_all_people().last().unwrap().id
@@ -516,7 +516,7 @@ impl LoadSim {
 
         let mut rng = XorShiftRng::seed_from_u64(self.rng_seed);
         let mut sim = Sim::new(&map, self.opts.clone());
-        scenario.instantiate(&mut sim, &map, &mut rng, timer);
+        sim.instantiate(&scenario, &map, &mut rng, timer);
 
         (map, sim)
     }

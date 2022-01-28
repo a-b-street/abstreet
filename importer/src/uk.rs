@@ -12,7 +12,7 @@ use geom::{GPSBounds, Polygon};
 use map_model::raw::RawMap;
 use map_model::Map;
 use popdat::od::DesireLine;
-use sim::{Scenario, TripEndpoint, TripMode};
+use synthpop::{Scenario, TripEndpoint, TripMode};
 
 use crate::configuration::ImporterConfiguration;
 use crate::utils::download;

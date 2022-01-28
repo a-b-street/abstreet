@@ -19,6 +19,8 @@ use map_model::{
 use synthpop::OrigPersonID;
 
 pub use self::queries::{AgentProperties, DelayCause};
+// TODO Super weird for both of these to wind up here
+pub use self::scenario::{count_parked_cars_per_bldg, rand_dist};
 use crate::{
     AgentID, AlertLocation, Analytics, CarID, Command, CreateCar, DrivingSimState, Event,
     IntersectionSimState, PandemicModel, ParkedCar, ParkingSim, ParkingSimState, ParkingSpot,

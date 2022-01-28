@@ -7,7 +7,8 @@ use abstutil::Timer;
 use geom::{Polygon, Ring};
 use kml::ExtraShapes;
 use map_model::{BuildingID, BuildingType, Map};
-use sim::Scenario;
+use sim::count_parked_cars_per_bldg;
+use synthpop::Scenario;
 
 use crate::configuration::ImporterConfiguration;
 use crate::utils::{download, download_kml};
@@ -128,7 +129,7 @@ pub async fn ensure_popdat_exists(
 }
 
 pub fn adjust_private_parking(map: &mut Map, scenario: &Scenario) {
-    for (b, count) in scenario.count_parked_cars_per_bldg().consume() {
+    for (b, count) in count_parked_cars_per_bldg(scenario).consume() {
         map.hack_override_offstreet_spots_individ(b, count);
     }
     map.save();
