@@ -1,3 +1,10 @@
+//! This crate describes a synthetic population that exist in a map. Currently each person's travel
+//! behavior is modelled, but in the future, demographic and health attributes may be added.
+//! There's a variety of ways to create these populations, scattered in other crates.
+//!
+//! Note that "scenario" is the term currently used to describe the population. This will be
+//! renamed "soon."
+
 #[macro_use]
 extern crate anyhow;
 #[macro_use]
@@ -18,6 +25,10 @@ mod external;
 mod modifier;
 mod scenario;
 
+/// How does a trip primarily happen?
+///
+/// Note most trips are "multi-modal" -- somebody has to walk a bit before and after parking their
+/// car.
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone, Copy, PartialOrd, Ord)]
 pub enum TripMode {
     Walk,
@@ -85,6 +96,9 @@ impl TripMode {
     }
 }
 
+/// This is an ID used by Seattle soundcast. Originally it was preserved for debugging, but that
+/// hasn't happened in a long time. Also the format is tied to Soundcast. Consider deleting /
+/// changing.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct OrigPersonID(
     #[serde(
