@@ -6,24 +6,17 @@ extern crate log;
 use serde::{Deserialize, Serialize};
 
 use abstutil::{deserialize_usize, serialize_usize};
-use map_model::{BuildingID, IntersectionID, PathConstraints, Position};
+use map_model::PathConstraints;
 
+pub use self::endpoint::TripEndpoint;
 pub use self::external::{ExternalPerson, ExternalTrip, ExternalTripEndpoint, MapBorders};
 pub use self::modifier::ScenarioModifier;
 pub use self::scenario::{IndividTrip, PersonSpec, Scenario, TripPurpose};
 
+mod endpoint;
 mod external;
 mod modifier;
 mod scenario;
-
-/// Specifies where a trip begins or ends.
-#[derive(Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Debug, Clone, Copy)]
-pub enum TripEndpoint {
-    Bldg(BuildingID),
-    Border(IntersectionID),
-    /// Used for interactive spawning, tests, etc. For now, only valid as a trip's start.
-    SuddenlyAppear(Position),
-}
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone, Copy, PartialOrd, Ord)]
 pub enum TripMode {

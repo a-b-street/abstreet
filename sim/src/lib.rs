@@ -462,45 +462,15 @@ impl SidewalkSpot {
 
     // Recall sidewalks are bidirectional.
     pub fn start_at_border(i: IntersectionID, map: &Map) -> Option<SidewalkSpot> {
-        let lanes = map
-            .get_i(i)
-            .get_outgoing_lanes(map, PathConstraints::Pedestrian);
-        if !lanes.is_empty() {
-            return Some(SidewalkSpot {
-                sidewalk_pos: Position::start(lanes[0]),
-                connection: SidewalkPOI::Border(i),
-            });
-        }
-
-        map.get_i(i)
-            .get_incoming_lanes(map, PathConstraints::Pedestrian)
-            .get(0)
-            .map(|l| SidewalkSpot {
-                sidewalk_pos: Position::end(*l, map),
-                connection: SidewalkPOI::Border(i),
-            })
+        Some(SidewalkSpot {
+            sidewalk_pos: TripEndpoint::start_walking_at_border(i, map)?,
+            connection: SidewalkPOI::Border(i),
+        })
     }
 
     pub fn end_at_border(i: IntersectionID, map: &Map) -> Option<SidewalkSpot> {
-        if let Some(l) = map
-            .get_i(i)
-            .get_incoming_lanes(map, PathConstraints::Pedestrian)
-            .get(0)
-        {
-            return Some(SidewalkSpot {
-                sidewalk_pos: Position::end(*l, map),
-                connection: SidewalkPOI::Border(i),
-            });
-        }
-
-        let lanes = map
-            .get_i(i)
-            .get_outgoing_lanes(map, PathConstraints::Pedestrian);
-        if lanes.is_empty() {
-            return None;
-        }
         Some(SidewalkSpot {
-            sidewalk_pos: Position::start(lanes[0]),
+            sidewalk_pos: TripEndpoint::end_walking_at_border(i, map)?,
             connection: SidewalkPOI::Border(i),
         })
     }
