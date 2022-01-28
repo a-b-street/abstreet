@@ -8,14 +8,14 @@ use map_model::{
     BuildingID, IntersectionID, Map, PathConstraints, PathRequest, Position, TransitRouteID,
     TransitStopID,
 };
+use synthpop::{OrigPersonID, TripMode};
 
 use crate::sim::Ctx;
 use crate::{
     AgentID, AgentType, AlertLocation, CarID, Command, CreateCar, CreatePedestrian, DrivingGoal,
-    Event, IndividTrip, OrigPersonID, ParkedCar, ParkingSim, ParkingSpot, PedestrianID, PersonID,
-    PersonSpec, Scenario, SidewalkPOI, SidewalkSpot, StartTripArgs, TransitSimState, TripEndpoint,
-    TripID, TripPhaseType, TripPurpose, TripSpec, Vehicle, VehicleSpec, VehicleType,
-    WalkingSimState,
+    Event, IndividTrip, ParkedCar, ParkingSim, ParkingSpot, PedestrianID, PersonID, PersonSpec,
+    Scenario, SidewalkPOI, SidewalkSpot, StartTripArgs, TransitSimState, TripEndpoint, TripID,
+    TripPhaseType, TripPurpose, TripSpec, Vehicle, VehicleSpec, VehicleType, WalkingSimState,
 };
 
 /// Manages people, each of which executes some trips through the day. Each trip is further broken

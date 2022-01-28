@@ -6,14 +6,11 @@ use rand_xorshift::XorShiftRng;
 
 pub use self::generator::{BorderSpawnOverTime, ScenarioGenerator, SpawnOverTime};
 pub use self::load::SimFlags;
-pub use self::spawner::TripEndpoint;
 pub(crate) use self::spawner::{StartTripArgs, TripSpec};
 
 mod activity_model;
-mod external;
 mod generator;
 mod load;
-mod modifier;
 mod scenario;
 mod spawner;
 

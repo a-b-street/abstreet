@@ -1,7 +1,21 @@
+use std::collections::{BTreeMap, HashSet, VecDeque};
+
+use anyhow::Result;
 use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
 
+use abstutil::{prettyprint_usize, Counter, Timer};
+use geom::{Distance, Pt2D, Speed};
+use map_model::{
+    BuildingID, Map, OffstreetParking, PathConstraints, PathRequest, Position, RoadID,
+};
+use synthpop::{Scenario, TripEndpoint, TripMode};
+
 use crate::make::fork_rng;
+use crate::{
+    DrivingGoal, ParkingSpot, SidewalkSpot, Sim, StartTripArgs, TripInfo, Vehicle, VehicleSpec,
+    VehicleType, BIKE_LENGTH, MAX_CAR_LENGTH, MIN_CAR_LENGTH,
+};
 
 impl Scenario {
     pub fn instantiate(&self, sim: &mut Sim, map: &Map, rng: &mut XorShiftRng, timer: &mut Timer) {

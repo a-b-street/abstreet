@@ -3570,6 +3570,7 @@ dependencies = [
  "rand_xorshift",
  "serde",
  "structopt",
+ "synthpop",
 ]
 
 [[package]]

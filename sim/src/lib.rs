@@ -36,11 +36,8 @@ pub use crate::render::{
 pub use self::analytics::{Analytics, Problem, SlidingWindow, TripPhase};
 pub(crate) use self::events::Event;
 pub use self::events::{AlertLocation, TripPhaseType};
-pub use self::make::{
-    fork_rng, BorderSpawnOverTime, ExternalPerson, ExternalTrip, ExternalTripEndpoint, IndividTrip,
-    MapBorders, PersonSpec, Scenario, ScenarioGenerator, ScenarioModifier, SimFlags, SpawnOverTime,
-    TripEndpoint, TripPurpose,
-};
+pub use self::make::{fork_rng, BorderSpawnOverTime, ScenarioGenerator, SimFlags, SpawnOverTime};
+// TODO Remove the re-export
 pub(crate) use self::make::{StartTripArgs, TripSpec};
 pub(crate) use self::mechanics::{
     DrivingSimState, IntersectionSimState, ParkingSim, ParkingSimState, WalkingSimState,
@@ -51,9 +48,12 @@ pub(crate) use self::router::{ActionAtEnd, Router};
 pub(crate) use self::scheduler::{Command, Scheduler};
 pub use self::sim::{AgentProperties, AlertHandler, DelayCause, Sim, SimCallback, SimOptions};
 pub(crate) use self::transit::TransitSimState;
-pub use self::trips::TripMode;
 pub use self::trips::{CommutersVehiclesCounts, Person, PersonState, TripInfo, TripResult};
 pub(crate) use self::trips::{TripLeg, TripManager};
+pub use synthpop::{
+    ExternalPerson, ExternalTrip, ExternalTripEndpoint, IndividTrip, MapBorders, PersonSpec,
+    Scenario, ScenarioModifier, TripEndpoint, TripMode, TripPurpose,
+};
 
 mod analytics;
 mod events;

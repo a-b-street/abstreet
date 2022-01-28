@@ -4,11 +4,8 @@
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
-use geom::Pt2D;
-use map_model::{
-    BuildingID, IntersectionID, Map, PathConstraints, PathRequest, Position, TransitRouteID,
-    TransitStopID,
-};
+use map_model::{BuildingID, Map, PathConstraints, Position, TransitRouteID, TransitStopID};
+use synthpop::TripEndpoint;
 
 use crate::{CarID, DrivingGoal, SidewalkSpot, TripLeg, TripMode, VehicleType, SPAWN_DIST};
 
