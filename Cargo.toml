@@ -22,6 +22,7 @@ members = [
   "popdat",
   "santa",
   "sim",
+  "synthpop",
   "tests",
   "traffic_seitan",
   "traffic_signal_data",

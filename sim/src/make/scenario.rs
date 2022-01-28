@@ -1,114 +1,7 @@
-use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
-use std::fmt;
-
-use anyhow::Result;
-use rand::seq::SliceRandom;
 use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
-use serde::{Deserialize, Serialize};
-
-use abstio::{CityName, MapName};
-use abstutil::{prettyprint_usize, Counter, Timer};
-use geom::{Distance, Speed, Time};
-use map_model::{BuildingID, Map, OffstreetParking, RoadID};
 
 use crate::make::fork_rng;
-use crate::{
-    OrigPersonID, ParkingSpot, Sim, StartTripArgs, TripEndpoint, TripInfo, TripMode, Vehicle,
-    VehicleSpec, VehicleType, BIKE_LENGTH, MAX_CAR_LENGTH, MIN_CAR_LENGTH,
-};
-
-/// A Scenario describes all the input to a simulation. Usually a scenario covers one day.
-#[derive(Clone, Serialize, Deserialize, Debug)]
-pub struct Scenario {
-    pub scenario_name: String,
-    pub map_name: MapName,
-
-    pub people: Vec<PersonSpec>,
-    /// None means seed all buses. Otherwise the route name must be present here.
-    pub only_seed_buses: Option<BTreeSet<String>>,
-}
-
-#[derive(Clone, Serialize, Deserialize, Debug)]
-pub struct PersonSpec {
-    /// Just used for debugging
-    pub orig_id: Option<OrigPersonID>,
-    /// There must be continuity between trips: each trip starts at the destination of the previous
-    /// trip. In the case of borders, the outbound and inbound border may be different. This means
-    /// that there was some sort of "remote" trip happening outside the map that we don't simulate.
-    pub trips: Vec<IndividTrip>,
-}
-
-#[derive(Clone, Serialize, Deserialize, Debug)]
-pub struct IndividTrip {
-    pub depart: Time,
-    pub origin: TripEndpoint,
-    pub destination: TripEndpoint,
-    pub mode: TripMode,
-    pub purpose: TripPurpose,
-    pub cancelled: bool,
-    /// Did a ScenarioModifier affect this?
-    pub modified: bool,
-}
-
-impl IndividTrip {
-    pub fn new(
-        depart: Time,
-        purpose: TripPurpose,
-        origin: TripEndpoint,
-        destination: TripEndpoint,
-        mode: TripMode,
-    ) -> IndividTrip {
-        IndividTrip {
-            depart,
-            origin,
-            destination,
-            mode,
-            purpose,
-            cancelled: false,
-            modified: false,
-        }
-    }
-}
-
-/// Lifted from Seattle's Soundcast model, but seems general enough to use anyhere.
-#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
-pub enum TripPurpose {
-    Home,
-    Work,
-    School,
-    Escort,
-    PersonalBusiness,
-    Shopping,
-    Meal,
-    Social,
-    Recreation,
-    Medical,
-    ParkAndRideTransfer,
-}
-
-impl fmt::Display for TripPurpose {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "{}",
-            match self {
-                TripPurpose::Home => "home",
-                TripPurpose::Work => "work",
-                TripPurpose::School => "school",
-                // Is this like a parent escorting a child to school?
-                TripPurpose::Escort => "escort",
-                TripPurpose::PersonalBusiness => "personal business",
-                TripPurpose::Shopping => "shopping",
-                TripPurpose::Meal => "eating",
-                TripPurpose::Social => "social",
-                TripPurpose::Recreation => "recreation",
-                TripPurpose::Medical => "medical",
-                TripPurpose::ParkAndRideTransfer => "park-and-ride transfer",
-            }
-        )
-    }
-}
 
 impl Scenario {
     pub fn instantiate(&self, sim: &mut Sim, map: &Map, rng: &mut XorShiftRng, timer: &mut Timer) {
@@ -191,20 +84,89 @@ impl Scenario {
         timer.stop(format!("Instantiating {}", self.scenario_name));
     }
 
-    pub fn save(&self) {
-        abstio::write_binary(
-            abstio::path_scenario(&self.map_name, &self.scenario_name),
-            self,
-        );
-    }
+    fn get_vehicles(
+        &self,
+        rng: &mut XorShiftRng,
+    ) -> (
+        Vec<VehicleSpec>,
+        Vec<(usize, BuildingID)>,
+        Vec<Option<usize>>,
+    ) {
+        let mut vehicle_specs = Vec::new();
+        let mut cars_initially_parked_at = Vec::new();
+        let mut vehicle_foreach_trip = Vec::new();
 
-    pub fn empty(map: &Map, name: &str) -> Scenario {
-        Scenario {
-            scenario_name: name.to_string(),
-            map_name: map.get_name().clone(),
-            people: Vec::new(),
-            only_seed_buses: Some(BTreeSet::new()),
+        let mut bike_idx = None;
+        // For each indexed car, is it parked somewhere, or off-map?
+        let mut car_locations: Vec<(usize, Option<BuildingID>)> = Vec::new();
+
+        // TODO If the trip is cancelled, this should be affected...
+        for trip in &self.trips {
+            let use_for_trip = match trip.mode {
+                TripMode::Walk | TripMode::Transit => None,
+                TripMode::Bike => {
+                    if bike_idx.is_none() {
+                        bike_idx = Some(vehicle_specs.len());
+                        vehicle_specs.push(Scenario::rand_bike(rng));
+                    }
+                    bike_idx
+                }
+                TripMode::Drive => {
+                    let need_parked_at = match trip.origin {
+                        TripEndpoint::Bldg(b) => Some(b),
+                        _ => None,
+                    };
+
+                    // Any available cars in the right spot?
+                    let idx = if let Some(idx) = car_locations
+                        .iter()
+                        .find(|(_, parked_at)| *parked_at == need_parked_at)
+                        .map(|(idx, _)| *idx)
+                    {
+                        idx
+                    } else {
+                        // Need a new car, starting in the right spot
+                        let idx = vehicle_specs.len();
+                        vehicle_specs.push(Scenario::rand_car(rng));
+                        if let Some(b) = need_parked_at {
+                            cars_initially_parked_at.push((idx, b));
+                        }
+                        idx
+                    };
+
+                    // Where does this car wind up?
+                    car_locations.retain(|(i, _)| idx != *i);
+                    match trip.destination {
+                        TripEndpoint::Bldg(b) => {
+                            car_locations.push((idx, Some(b)));
+                        }
+                        TripEndpoint::Border(_) | TripEndpoint::SuddenlyAppear(_) => {
+                            car_locations.push((idx, None));
+                        }
+                    }
+
+                    Some(idx)
+                }
+            };
+            vehicle_foreach_trip.push(use_for_trip);
         }
+
+        // For debugging
+        if false {
+            let mut n = vehicle_specs.len();
+            if bike_idx.is_some() {
+                n -= 1;
+            }
+            if n > 1 {
+                println!("Someone needs {} cars", n);
+            }
+        }
+
+        (
+            vehicle_specs,
+            cars_initially_parked_at,
+            vehicle_foreach_trip,
+        )
     }
 
     fn rand_car(rng: &mut XorShiftRng) -> VehicleSpec {
@@ -260,44 +222,6 @@ impl Scenario {
             }
         }
         per_bldg
-    }
-
-    pub fn remove_weird_schedules(mut self) -> Scenario {
-        let orig = self.people.len();
-        self.people.retain(|person| match person.check_schedule() {
-            Ok(()) => true,
-            Err(err) => {
-                println!("{}", err);
-                false
-            }
-        });
-        warn!(
-            "{} of {} people have nonsense schedules",
-            prettyprint_usize(orig - self.people.len()),
-            prettyprint_usize(orig)
-        );
-        self
-    }
-
-    pub fn all_trips(&self) -> impl Iterator<Item = &IndividTrip> {
-        self.people.iter().flat_map(|p| p.trips.iter())
-    }
-
-    pub fn default_scenario_for_map(name: &MapName) -> String {
-        if name.city == CityName::seattle()
-            && abstio::file_exists(abstio::path_scenario(name, "weekday"))
-        {
-            return "weekday".to_string();
-        }
-        if name.city.country == "gb" {
-            for x in ["background", "base_with_bg"] {
-                if abstio::file_exists(abstio::path_scenario(name, x)) {
-                    return x.to_string();
-                }
-            }
-        }
-        // Dynamically generated -- arguably this is an absence of a default scenario
-        "home_to_work".to_string()
     }
 }
 
@@ -422,134 +346,110 @@ fn find_spot_near_building(
     }
 }
 
-impl PersonSpec {
-    /// Verify that a person's trips make sense
-    fn check_schedule(&self) -> Result<()> {
-        if self.trips.is_empty() {
-            bail!("Person ({:?}) has no trips at all", self.orig_id);
-        }
-
-        for pair in self.trips.windows(2) {
-            if pair[0].depart >= pair[1].depart {
-                bail!(
-                    "Person ({:?}) starts two trips in the wrong order: {} then {}",
-                    self.orig_id,
-                    pair[0].depart,
-                    pair[1].depart
-                );
-            }
-
-            if pair[0].destination != pair[1].origin {
-                // Exiting one border and re-entering another is fine
-                if matches!(pair[0].destination, TripEndpoint::Border(_))
-                    && matches!(pair[1].origin, TripEndpoint::Border(_))
-                {
-                    continue;
+impl TripEndpoint {
+    /// Figure out a single PathRequest that goes between two TripEndpoints. Assume a single mode
+    /// the entire time -- no walking to a car before driving, for instance. The result probably
+    /// won't be exactly what would happen on a real trip between the endpoints because of this
+    /// assumption.
+    pub fn path_req(
+        from: TripEndpoint,
+        to: TripEndpoint,
+        mode: TripMode,
+        map: &Map,
+    ) -> Option<PathRequest> {
+        let start = from.pos(mode, true, map)?;
+        let end = to.pos(mode, false, map)?;
+        Some(match mode {
+            TripMode::Walk | TripMode::Transit => PathRequest::walking(start, end),
+            TripMode::Bike => PathRequest::vehicle(start, end, PathConstraints::Bike),
+            // Only cars leaving from a building might turn out from the driveway in a special way
+            TripMode::Drive => {
+                if matches!(from, TripEndpoint::Bldg(_)) {
+                    PathRequest::leave_from_driveway(start, end, PathConstraints::Car, map)
+                } else {
+                    PathRequest::vehicle(start, end, PathConstraints::Car)
                 }
-                bail!(
-                    "Person ({:?}) warps from {:?} to {:?} during adjacent trips",
-                    self.orig_id,
-                    pair[0].destination,
-                    pair[1].origin
-                );
             }
-        }
-
-        for trip in &self.trips {
-            if trip.origin == trip.destination {
-                bail!(
-                    "Person ({:?}) has a trip from/to the same place: {:?}",
-                    self.orig_id,
-                    trip.origin
-                );
-            }
-        }
-
-        Ok(())
+        })
     }
 
-    fn get_vehicles(
-        &self,
-        rng: &mut XorShiftRng,
-    ) -> (
-        Vec<VehicleSpec>,
-        Vec<(usize, BuildingID)>,
-        Vec<Option<usize>>,
-    ) {
-        let mut vehicle_specs = Vec::new();
-        let mut cars_initially_parked_at = Vec::new();
-        let mut vehicle_foreach_trip = Vec::new();
+    fn start_sidewalk_spot(&self, map: &Map) -> Result<SidewalkSpot> {
+        match self {
+            TripEndpoint::Bldg(b) => Ok(SidewalkSpot::building(*b, map)),
+            TripEndpoint::Border(i) => SidewalkSpot::start_at_border(*i, map)
+                .ok_or_else(|| anyhow!("can't start walking from {}", i)),
+            TripEndpoint::SuddenlyAppear(pos) => Ok(SidewalkSpot::suddenly_appear(*pos, map)),
+        }
+    }
 
-        let mut bike_idx = None;
-        // For each indexed car, is it parked somewhere, or off-map?
-        let mut car_locations: Vec<(usize, Option<BuildingID>)> = Vec::new();
+    fn end_sidewalk_spot(&self, map: &Map) -> Result<SidewalkSpot> {
+        match self {
+            TripEndpoint::Bldg(b) => Ok(SidewalkSpot::building(*b, map)),
+            TripEndpoint::Border(i) => SidewalkSpot::end_at_border(*i, map)
+                .ok_or_else(|| anyhow!("can't end walking at {}", i)),
+            TripEndpoint::SuddenlyAppear(_) => unreachable!(),
+        }
+    }
 
-        // TODO If the trip is cancelled, this should be affected...
-        for trip in &self.trips {
-            let use_for_trip = match trip.mode {
-                TripMode::Walk | TripMode::Transit => None,
-                TripMode::Bike => {
-                    if bike_idx.is_none() {
-                        bike_idx = Some(vehicle_specs.len());
-                        vehicle_specs.push(Scenario::rand_bike(rng));
-                    }
-                    bike_idx
-                }
-                TripMode::Drive => {
-                    let need_parked_at = match trip.origin {
-                        TripEndpoint::Bldg(b) => Some(b),
-                        _ => None,
-                    };
-
-                    // Any available cars in the right spot?
-                    let idx = if let Some(idx) = car_locations
-                        .iter()
-                        .find(|(_, parked_at)| *parked_at == need_parked_at)
-                        .map(|(idx, _)| *idx)
-                    {
-                        idx
+    fn driving_goal(&self, constraints: PathConstraints, map: &Map) -> Result<DrivingGoal> {
+        match self {
+            TripEndpoint::Bldg(b) => Ok(DrivingGoal::ParkNear(*b)),
+            TripEndpoint::Border(i) => map
+                .get_i(*i)
+                .some_incoming_road(map)
+                .and_then(|dr| {
+                    let lanes = dr.lanes(constraints, map);
+                    if lanes.is_empty() {
+                        None
                     } else {
-                        // Need a new car, starting in the right spot
-                        let idx = vehicle_specs.len();
-                        vehicle_specs.push(Scenario::rand_car(rng));
-                        if let Some(b) = need_parked_at {
-                            cars_initially_parked_at.push((idx, b));
-                        }
-                        idx
-                    };
+                        // TODO ideally could use any
+                        Some(DrivingGoal::Border(dr.dst_i(map), lanes[0]))
+                    }
+                })
+                .ok_or_else(|| anyhow!("can't end at {} for {:?}", i, constraints)),
+            TripEndpoint::SuddenlyAppear(_) => unreachable!(),
+        }
+    }
 
-                    // Where does this car wind up?
-                    car_locations.retain(|(i, _)| idx != *i);
-                    match trip.destination {
-                        TripEndpoint::Bldg(b) => {
-                            car_locations.push((idx, Some(b)));
+    fn pos(self, mode: TripMode, from: bool, map: &Map) -> Option<Position> {
+        match mode {
+            TripMode::Walk | TripMode::Transit => (if from {
+                self.start_sidewalk_spot(map)
+            } else {
+                self.end_sidewalk_spot(map)
+            })
+            .ok()
+            .map(|spot| spot.sidewalk_pos),
+            TripMode::Drive | TripMode::Bike => {
+                if from {
+                    match self {
+                        // Fall through and use DrivingGoal also to start.
+                        TripEndpoint::Bldg(_) => {}
+                        TripEndpoint::Border(i) => {
+                            return map.get_i(i).some_outgoing_road(map).and_then(|dr| {
+                                dr.lanes(mode.to_constraints(), map)
+                                    .get(0)
+                                    .map(|l| Position::start(*l))
+                            });
                         }
-                        TripEndpoint::Border(_) | TripEndpoint::SuddenlyAppear(_) => {
-                            car_locations.push((idx, None));
+                        TripEndpoint::SuddenlyAppear(pos) => {
+                            return Some(pos);
                         }
                     }
-
-                    Some(idx)
                 }
-            };
-            vehicle_foreach_trip.push(use_for_trip);
-        }
-
-        // For debugging
-        if false {
-            let mut n = vehicle_specs.len();
-            if bike_idx.is_some() {
-                n -= 1;
-            }
-            if n > 1 {
-                println!("Someone needs {} cars", n);
+                self.driving_goal(mode.to_constraints(), map)
+                    .ok()
+                    .and_then(|goal| goal.goal_pos(mode.to_constraints(), map))
             }
         }
+    }
 
-        (
-            vehicle_specs,
-            cars_initially_parked_at,
-            vehicle_foreach_trip,
-        )
+    /// Returns a point representing where this endpoint is.
+    pub fn pt(&self, map: &Map) -> Pt2D {
+        match self {
+            TripEndpoint::Bldg(b) => map.get_b(*b).polygon.center(),
+            TripEndpoint::Border(i) => map.get_i(*i).polygon.center(),
+            TripEndpoint::SuddenlyAppear(pos) => pos.pt(map),
+        }
     }
 }
