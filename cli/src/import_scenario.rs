@@ -2,7 +2,7 @@ use serde::Deserialize;
 
 use abstutil::{prettyprint_usize, Timer};
 use map_model::Map;
-use sim::{ExternalPerson, Scenario};
+use synthpop::{ExternalPerson, Scenario};
 
 pub fn run(input: String, map: String, skip_problems: bool) {
     let mut timer = Timer::new("import traffic demand data");

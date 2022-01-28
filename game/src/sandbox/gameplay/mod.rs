@@ -8,8 +8,8 @@ use abstio::MapName;
 use abstutil::Timer;
 use geom::Duration;
 use map_model::{EditCmd, EditIntersection, MapEdits};
-use sim::{ScenarioGenerator, ScenarioModifier};
-use synthpop::{OrigPersonID, Scenario};
+use sim::ScenarioGenerator;
+use synthpop::{OrigPersonID, Scenario, ScenarioModifier};
 use widgetry::{
     lctrl, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, State, TextExt, Widget,
 };

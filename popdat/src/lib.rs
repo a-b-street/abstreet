@@ -27,7 +27,7 @@ use rand_xorshift::XorShiftRng;
 use abstutil::Timer;
 use geom::{Distance, Time};
 use map_model::{BuildingID, Map};
-use sim::Scenario;
+use synthpop::Scenario;
 
 pub use self::distribute_people::distribute_population_to_homes;
 

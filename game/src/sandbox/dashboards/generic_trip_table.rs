@@ -1,5 +1,6 @@
 use geom::{Distance, Pt2D};
-use sim::{TripEndpoint, TripID};
+use sim::TripID;
+use synthpop::TripEndpoint;
 use widgetry::{Drawable, GeomBatch, GfxCtx, Panel, ScreenPt};
 
 use crate::app::{App, Transition};

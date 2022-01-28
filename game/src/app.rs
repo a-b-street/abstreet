@@ -16,7 +16,8 @@ use map_gui::tools::CameraState;
 use map_gui::ID;
 use map_model::AreaType;
 use map_model::{BufferType, IntersectionID, LaneType, Map, Traversable};
-use sim::{AgentID, Analytics, Scenario, Sim, SimCallback, SimFlags, VehicleType};
+use sim::{AgentID, Analytics, Sim, SimCallback, SimFlags, VehicleType};
+use synthpop::Scenario;
 use widgetry::mapspace::ToggleZoomed;
 use widgetry::{Cached, Canvas, EventCtx, GfxCtx, Prerender, SharedAppState, State};
 

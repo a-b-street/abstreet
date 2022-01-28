@@ -7,7 +7,8 @@ use fs_err::File;
 use abstutil::prettyprint_usize;
 use geom::{Distance, Duration, Polygon, Pt2D};
 use map_gui::tools::{color_for_mode, PopupMsg};
-use sim::{TripID, TripMode};
+use sim::TripID;
+use synthpop::TripMode;
 use widgetry::{
     Choice, Color, CompareTimes, DrawWithTooltips, EventCtx, GeomBatch, GfxCtx, Line, Outcome,
     Panel, State, Text, TextExt, Toggle, Widget,

@@ -3,7 +3,8 @@ use std::collections::{BTreeSet, HashMap};
 use abstutil::prettyprint_usize;
 use geom::{Duration, Polygon, Time};
 use map_gui::tools::{checkbox_per_mode, color_for_mode};
-use sim::{TripEndpoint, TripID, TripMode};
+use sim::TripID;
+use synthpop::{TripEndpoint, TripMode};
 use widgetry::table::{Col, Filter, Table};
 use widgetry::{
     Color, EventCtx, Filler, GeomBatch, GfxCtx, Line, Outcome, Panel, Stash, State, TabController,

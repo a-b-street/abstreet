@@ -321,7 +321,7 @@ fn dump_json(path: String) {
         return;
     }
     if let Ok(scenario) =
-        abstio::maybe_read_binary::<sim::Scenario>(path.clone(), &mut Timer::throwaway())
+        abstio::maybe_read_binary::<synthpop::Scenario>(path.clone(), &mut Timer::throwaway())
     {
         println!("{}", abstutil::to_json(&scenario));
         return;

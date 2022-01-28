@@ -2,7 +2,7 @@ use std::collections::BTreeSet;
 
 use map_gui::load::FileLoader;
 use map_gui::tools::{checkbox_per_mode, PopupMsg};
-use sim::{Scenario, TripMode};
+use synthpop::{Scenario, TripMode};
 use widgetry::mapspace::ToggleZoomed;
 use widgetry::{
     Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Panel, SimpleState, Slider,

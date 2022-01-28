@@ -13,7 +13,8 @@ use map_model::{
     osm, ControlTrafficSignal, IntersectionID, PathConstraints, Perimeter, Position, RoadID,
     NORMAL_LANE_THICKNESS,
 };
-use sim::{Sim, TripEndpoint};
+use sim::Sim;
+use synthpop::TripEndpoint;
 use widgetry::{
     lctrl, Cached, Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, Panel, State, Text, Toggle, UpdateType,

@@ -5,8 +5,9 @@ use map_model::{
     BuildingID, IntersectionID, LaneID, Map, Path, PathRequest, TransitRouteID, TransitStopID,
     Traversable, TurnID,
 };
+use synthpop::TripMode;
 
-use crate::{AgentID, CarID, ParkingSpot, PedestrianID, PersonID, Problem, TripID, TripMode};
+use crate::{AgentID, CarID, ParkingSpot, PedestrianID, PersonID, Problem, TripID};
 
 /// As a simulation runs, different systems emit Events. This cleanly separates the internal
 /// mechanics of the simulation from consumers that just want to know what's happening.

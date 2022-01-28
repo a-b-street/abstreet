@@ -4,7 +4,7 @@ use std::marker::PhantomData;
 use serde::{Deserialize, Serialize};
 
 use abstutil::Timer;
-use sim::TripEndpoint;
+use synthpop::TripEndpoint;
 use widgetry::{
     Choice, Color, EventCtx, GfxCtx, Key, Line, Panel, SimpleState, State, Text, TextBox, TextExt,
     Transition, Widget,

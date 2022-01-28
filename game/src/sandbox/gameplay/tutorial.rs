@@ -8,10 +8,8 @@ use map_gui::tools::{Minimap, PopupMsg};
 use map_gui::ID;
 use map_model::raw::OriginalRoad;
 use map_model::{osm, BuildingID, Map, Position};
-use sim::{
-    AgentID, BorderSpawnOverTime, CarID, IndividTrip, PersonSpec, Scenario, ScenarioGenerator,
-    SpawnOverTime, TripEndpoint, TripMode, TripPurpose, VehicleType,
-};
+use sim::{AgentID, BorderSpawnOverTime, CarID, ScenarioGenerator, SpawnOverTime, VehicleType};
+use synthpop::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
 use widgetry::{
     hotkeys, lctrl, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Image, Key, Line,
     Outcome, Panel, ScreenPt, State, Text, TextExt, VerticalAlignment, Widget,

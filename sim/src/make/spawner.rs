@@ -5,9 +5,9 @@ use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
 use map_model::{BuildingID, Map, PathConstraints, Position, TransitRouteID, TransitStopID};
-use synthpop::TripEndpoint;
+use synthpop::{TripEndpoint, TripMode};
 
-use crate::{CarID, DrivingGoal, SidewalkSpot, TripLeg, TripMode, VehicleType, SPAWN_DIST};
+use crate::{CarID, DrivingGoal, SidewalkSpot, TripLeg, VehicleType, SPAWN_DIST};
 
 /// We need to remember a few things from scenario instantiation that're used for starting the
 /// trip.

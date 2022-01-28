@@ -3,7 +3,7 @@ use std::cmp::Ordering;
 use geom::{Circle, Distance, Duration, FindClosest, PolyLine, Polygon};
 use map_gui::tools::{cmp_dist, cmp_duration, PopupMsg};
 use map_model::{DrivingSide, Path, PathStep, PathfinderCaching, NORMAL_LANE_THICKNESS};
-use sim::{TripEndpoint, TripMode};
+use synthpop::{TripEndpoint, TripMode};
 use widgetry::mapspace::{ToggleZoomed, ToggleZoomedBuilder};
 use widgetry::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, LinePlot, Outcome, Panel, PlotOptions,

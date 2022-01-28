@@ -32,9 +32,9 @@ use map_model::{
     MovementID, PermanentMapEdits, RoadID, TurnID,
 };
 use sim::{
-    AgentID, AgentType, DelayCause, ExternalPerson, PersonID, Scenario, ScenarioModifier, Sim,
-    SimFlags, SimOptions, TripID, TripMode, VehicleType,
+    AgentID, AgentType, DelayCause, PersonID, Sim, SimFlags, SimOptions, TripID, VehicleType,
 };
+use synthpop::{ExternalPerson, Scenario, ScenarioModifier, TripMode};
 
 lazy_static::lazy_static! {
     static ref MAP: RwLock<Map> = RwLock::new(Map::blank());

@@ -5,7 +5,8 @@ use anyhow::Result;
 use fs_err::File;
 
 use map_gui::tools::PopupMsg;
-use sim::{TripID, TripMode};
+use sim::TripID;
+use synthpop::TripMode;
 use widgetry::{EventCtx, GfxCtx, Image, Line, Outcome, Panel, State, TextExt, Toggle, Widget};
 
 use super::trip_problems::{problem_matrix, ProblemType, TripProblemFilter};

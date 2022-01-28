@@ -3,7 +3,8 @@ use std::collections::BTreeSet;
 use abstutil::prettyprint_usize;
 use geom::{Circle, Distance, Pt2D, Time};
 use map_gui::tools::{checkbox_per_mode, make_heatmap, HeatmapOptions};
-use sim::{Problem, TripInfo, TripMode};
+use sim::{Problem, TripInfo};
+use synthpop::TripMode;
 use widgetry::mapspace::ToggleZoomed;
 use widgetry::{
     Color, EventCtx, GfxCtx, Line, Outcome, Panel, Slider, Text, TextExt, Toggle, Widget,

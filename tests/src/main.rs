@@ -10,7 +10,7 @@ use abstio::{CityName, MapName};
 use abstutil::Timer;
 use geom::{Distance, Duration, Time};
 use map_model::{IntersectionID, Map, Perimeter};
-use sim::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
+use synthpop::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
 
 fn main() -> Result<()> {
     abstutil::logger::setup();

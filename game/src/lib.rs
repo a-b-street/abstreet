@@ -16,7 +16,8 @@ use map_gui::load::FutureLoader;
 use map_gui::options::Options;
 use map_gui::tools::{PopupMsg, URLManager};
 use map_model::{Map, MapEdits};
-use sim::{Scenario, Sim};
+use sim::Sim;
+use synthpop::Scenario;
 use widgetry::{EventCtx, Settings, State, Transition};
 
 use crate::app::{App, Flags, PerMap};

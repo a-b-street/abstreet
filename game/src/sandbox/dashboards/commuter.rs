@@ -6,7 +6,8 @@ use abstutil::{prettyprint_usize, Counter, MultiMap, Timer};
 use geom::{Distance, PolyLine, Polygon, Time};
 use map_gui::tools::{checkbox_per_mode, ColorLegend};
 use map_model::{osm, BuildingID, BuildingType, IntersectionID, LaneID, Map, RoadID, TurnType};
-use sim::{TripEndpoint, TripInfo, TripMode};
+use sim::TripInfo;
+use synthpop::{TripEndpoint, TripMode};
 use widgetry::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
     RewriteColor, Slider, State, Text, TextExt, Toggle, VerticalAlignment, Widget,

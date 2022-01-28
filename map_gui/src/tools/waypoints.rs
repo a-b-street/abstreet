@@ -1,5 +1,5 @@
 use geom::{Circle, Distance, FindClosest, Pt2D};
-use sim::TripEndpoint;
+use synthpop::TripEndpoint;
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::{
     Color, ControlState, CornerRounding, DragDrop, EventCtx, GeomBatch, Image, Key, Line, Outcome,

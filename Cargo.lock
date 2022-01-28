@@ -445,6 +445,7 @@ dependencies = [
  "serde",
  "sim",
  "structopt",
+ "synthpop",
  "tokio",
 ]
 
@@ -1677,6 +1678,7 @@ dependencies = [
  "serde_json",
  "sim",
  "structopt",
+ "synthpop",
  "tokio",
  "url",
 ]
@@ -2135,7 +2137,7 @@ dependencies = [
  "maplit",
  "serde",
  "serde_json",
- "sim",
+ "synthpop",
  "wasm-bindgen",
  "web-sys",
  "widgetry",
@@ -2266,6 +2268,7 @@ dependencies = [
  "sim",
  "structopt",
  "subprocess",
+ "synthpop",
  "tokio",
  "wasm-bindgen",
  "wasm-bindgen-futures",
@@ -3002,6 +3005,7 @@ dependencies = [
  "rand_xorshift",
  "serde_json",
  "sim",
+ "synthpop",
 ]
 
 [[package]]
@@ -3858,6 +3862,7 @@ dependencies = [
  "map_model",
  "rand",
  "sim",
+ "synthpop",
 ]
 
 [[package]]

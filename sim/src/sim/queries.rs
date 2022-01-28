@@ -10,14 +10,13 @@ use map_model::{
     BuildingID, IntersectionID, Lane, LaneID, Map, Path, Position, TransitRouteID, TransitStopID,
     Traversable, TurnID,
 };
-use synthpop::OrigPersonID;
+use synthpop::{OrigPersonID, Scenario, TripMode};
 
 use crate::analytics::SlidingWindow;
 use crate::{
     AgentID, AgentType, Analytics, CarID, CommutersVehiclesCounts, DrawCarInput, DrawPedCrowdInput,
     DrawPedestrianInput, PandemicModel, ParkedCar, ParkingSim, PedestrianID, Person, PersonID,
-    PersonState, Scenario, Sim, TripEndpoint, TripID, TripInfo, TripMode, TripResult,
-    UnzoomedAgent, VehicleType,
+    PersonState, Sim, TripEndpoint, TripID, TripInfo, TripResult, UnzoomedAgent, VehicleType,
 };
 
 // TODO Many of these just delegate to an inner piece. This is unorganized and hard to maintain.

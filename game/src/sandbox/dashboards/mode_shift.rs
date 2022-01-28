@@ -4,7 +4,8 @@ use abstutil::Counter;
 use geom::{Distance, Duration};
 use map_gui::tools::ColorNetwork;
 use map_model::PathStepV2;
-use sim::{TripEndpoint, TripID, TripMode};
+use sim::TripID;
+use synthpop::{TripEndpoint, TripMode};
 use widgetry::table::{Col, Filter, Table};
 use widgetry::{
     Drawable, EventCtx, Filler, GeomBatch, GfxCtx, Line, Outcome, Panel, Spinner, State, Text,
