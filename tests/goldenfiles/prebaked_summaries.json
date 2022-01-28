@@ -4,48 +4,48 @@
     "scenario": "weekday",
     "finished_trips": 76640,
     "cancelled_trips": 0,
-    "total_trip_duration_seconds": 48024585.70720022
+    "total_trip_duration_seconds": 47737106.95530067
   },
   {
     "map": "montlake (in seattle (us))",
     "scenario": "weekday",
-    "finished_trips": 36691,
-    "cancelled_trips": 105,
-    "total_trip_duration_seconds": 20310765.155799977
+    "finished_trips": 36712,
+    "cancelled_trips": 84,
+    "total_trip_duration_seconds": 20395747.699100226
   },
   {
     "map": "center (in poundbury (gb))",
     "scenario": "base",
     "finished_trips": 8544,
     "cancelled_trips": 4,
-    "total_trip_duration_seconds": 7875686.524899973
+    "total_trip_duration_seconds": 7780561.138399997
   },
   {
     "map": "center (in poundbury (gb))",
     "scenario": "go_active",
-    "finished_trips": 8550,
-    "cancelled_trips": 8,
-    "total_trip_duration_seconds": 9621742.610499995
+    "finished_trips": 8551,
+    "cancelled_trips": 7,
+    "total_trip_duration_seconds": 9518172.528999992
   },
   {
     "map": "center (in poundbury (gb))",
     "scenario": "base_with_bg",
     "finished_trips": 23734,
     "cancelled_trips": 260,
-    "total_trip_duration_seconds": 22688766.85819996
+    "total_trip_duration_seconds": 22696565.403099943
   },
   {
     "map": "center (in poundbury (gb))",
     "scenario": "go_active_with_bg",
-    "finished_trips": 23740,
-    "cancelled_trips": 264,
-    "total_trip_duration_seconds": 24443832.929799832
+    "finished_trips": 23741,
+    "cancelled_trips": 263,
+    "total_trip_duration_seconds": 24462554.289699882
   },
   {
     "map": "parliament (in tehran (ir))",
     "scenario": "random people going to and from work",
-    "finished_trips": 29049,
-    "cancelled_trips": 16755,
-    "total_trip_duration_seconds": 41895811.17699998
+    "finished_trips": 29350,
+    "cancelled_trips": 16734,
+    "total_trip_duration_seconds": 42567421.81329996
   }
 ]
