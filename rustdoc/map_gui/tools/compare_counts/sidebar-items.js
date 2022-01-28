@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Layer",""],["Obj",""]],"fn":[["calculate_relative_heatmap",""],["make_world",""]],"struct":[["CompareCounts",""],["Counts",""],["CountsUI",""]]});
+initSidebarItems({"enum":[["Layer",""],["Obj",""]],"fn":[["calculate_heatmap",""],["calculate_relative_heatmap",""],["make_world",""]],"struct":[["CompareCounts",""],["Counts",""]]});

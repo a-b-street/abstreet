@@ -210,8 +210,6 @@
 <span id="209">209</span>
 <span id="210">210</span>
 <span id="211">211</span>
-<span id="212">212</span>
-<span id="213">213</span>
 </pre><pre class="rust"><code><span class="kw">mod</span> <span class="ident">ui</span>;
 
 <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
@@ -376,16 +374,20 @@
     <span class="ident">cache_custom</span>: <span class="ident">PathfinderCaching</span>,
     <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>,
 ) -&gt; <span class="ident">Counts</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">road_counts</span> <span class="op">=</span> <span class="ident">Counter::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">intersection_counts</span> <span class="op">=</span> <span class="ident">Counter::new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">counts</span> <span class="op">=</span> <span class="ident">Counts</span> {
+        <span class="ident">map</span>: <span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">clone</span>(),
+        <span class="ident">description</span>,
+        <span class="ident">per_road</span>: <span class="ident">Counter::new</span>(),
+        <span class="ident">per_intersection</span>: <span class="ident">Counter::new</span>(),
+    };
 
     <span class="comment">// Statistic::Min will be wrong later for roads that&#39;re 0. So explicitly start with 0 for every</span>
     <span class="comment">// road/intersection.</span>
     <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
-        <span class="ident">road_counts</span>.<span class="ident">add</span>(<span class="ident">r</span>.<span class="ident">id</span>, <span class="number">0</span>);
+        <span class="ident">counts</span>.<span class="ident">per_road</span>.<span class="ident">add</span>(<span class="ident">r</span>.<span class="ident">id</span>, <span class="number">0</span>);
     }
     <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_intersections</span>() {
-        <span class="ident">intersection_counts</span>.<span class="ident">add</span>(<span class="ident">i</span>.<span class="ident">id</span>, <span class="number">0</span>);
+        <span class="ident">counts</span>.<span class="ident">per_intersection</span>.<span class="ident">add</span>(<span class="ident">i</span>.<span class="ident">id</span>, <span class="number">0</span>);
     }
 
     <span class="comment">// It&#39;s very memory intensive to calculate all of the paths in one chunk, then process them to</span>
@@ -403,22 +405,16 @@
             <span class="kw">for</span> <span class="ident">step</span> <span class="kw">in</span> <span class="ident">path</span>.<span class="ident">get_steps</span>() {
                 <span class="kw">match</span> <span class="ident">step</span> {
                     <span class="ident">PathStepV2::Along</span>(<span class="ident">dr</span>) <span class="op">|</span> <span class="ident">PathStepV2::Contraflow</span>(<span class="ident">dr</span>) =&gt; {
-                        <span class="ident">road_counts</span>.<span class="ident">add</span>(<span class="ident">dr</span>.<span class="ident">road</span>, <span class="ident">count</span>);
+                        <span class="ident">counts</span>.<span class="ident">per_road</span>.<span class="ident">add</span>(<span class="ident">dr</span>.<span class="ident">road</span>, <span class="ident">count</span>);
                     }
                     <span class="ident">PathStepV2::Movement</span>(<span class="ident">m</span>) <span class="op">|</span> <span class="ident">PathStepV2::ContraflowMovement</span>(<span class="ident">m</span>) =&gt; {
-                        <span class="ident">intersection_counts</span>.<span class="ident">add</span>(<span class="ident">m</span>.<span class="ident">parent</span>, <span class="ident">count</span>);
+                        <span class="ident">counts</span>.<span class="ident">per_intersection</span>.<span class="ident">add</span>(<span class="ident">m</span>.<span class="ident">parent</span>, <span class="ident">count</span>);
                     }
                 }
             }
         }
     }
-
-    <span class="ident">Counts</span> {
-        <span class="ident">map</span>: <span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">clone</span>(),
-        <span class="ident">description</span>,
-        <span class="ident">per_road</span>: <span class="ident">road_counts</span>.<span class="ident">consume</span>().<span class="ident">into_iter</span>().<span class="ident">collect</span>(),
-        <span class="ident">per_intersection</span>: <span class="ident">intersection_counts</span>.<span class="ident">consume</span>().<span class="ident">into_iter</span>().<span class="ident">collect</span>(),
-    }
+    <span class="ident">counts</span>
 }
 
 <span class="comment">// TODO Fixed, and sadly not const</span>

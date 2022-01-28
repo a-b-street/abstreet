@@ -396,6 +396,8 @@
 <span id="395">395</span>
 <span id="396">396</span>
 <span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cmp::Ord</span>;
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 <span class="kw">use</span> <span class="ident">std::marker::PhantomData</span>;
@@ -481,8 +483,9 @@
     }
 }
 
+<span class="doccomment">/// A counter per key</span>
 <span class="comment">// Be careful with PartialEq -- some entries may have an explicit 0, others not</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Clone</span><span class="op">&gt;</span> {
     <span class="ident">map</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">usize</span><span class="op">&gt;</span>,
     <span class="ident">sum</span>: <span class="ident">usize</span>,
@@ -512,6 +515,7 @@
         <span class="self">self</span>.<span class="ident">add</span>(<span class="ident">val</span>, <span class="number">1</span>)
     }
 
+    <span class="doccomment">/// If the key is missing, returns 0</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">val</span>: <span class="ident">T</span>) -&gt; <span class="ident">usize</span> {
         <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">val</span>).<span class="ident">cloned</span>().<span class="ident">unwrap_or</span>(<span class="number">0</span>)
     }
