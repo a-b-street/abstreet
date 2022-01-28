@@ -550,8 +550,8 @@ impl State<App> for SandboxLoader {
                             }
                         }
 
-                        scenario.instantiate(
-                            &mut app.primary.sim,
+                        app.primary.sim.instantiate(
+                            &scenario,
                             &app.primary.map,
                             &mut app.primary.current_flags.sim_flags.make_rng(),
                             timer,

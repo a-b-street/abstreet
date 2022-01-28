@@ -112,8 +112,8 @@ impl State<App> for AgentSpawner {
                         });
                     }
                     let mut rng = app.primary.current_flags.sim_flags.make_rng();
-                    scenario.instantiate(
-                        &mut app.primary.sim,
+                    app.primary.sim.instantiate(
+                        &scenario,
                         map,
                         &mut rng,
                         &mut Timer::new("spawn trip"),

@@ -1280,6 +1280,7 @@ dependencies = [
  "sim",
  "structopt",
  "svg_face",
+ "synthpop",
  "wasm-bindgen",
  "widgetry",
 ]
@@ -1862,6 +1863,7 @@ dependencies = [
  "serde_json",
  "sim",
  "structopt",
+ "synthpop",
 ]
 
 [[package]]

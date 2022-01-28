@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 
 use geom::{Duration, Percent};
-use sim::OrigPersonID;
+use synthpop::OrigPersonID;
 use widgetry::{EventCtx, Key, Line, Panel, SimpleState, State, Text, TextExt, Widget};
 
 use crate::app::App;

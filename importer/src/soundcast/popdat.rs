@@ -7,7 +7,7 @@ use abstutil::{prettyprint_usize, Counter, Timer};
 use geom::{Distance, Duration, LonLat, Time};
 use kml::{ExtraShape, ExtraShapes};
 use map_model::{osm, Map};
-use sim::{OrigPersonID, TripMode, TripPurpose};
+use synthpop::{OrigPersonID, TripMode, TripPurpose};
 
 #[derive(Serialize, Deserialize)]
 pub struct PopDat {
