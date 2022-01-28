@@ -14,7 +14,7 @@ use rand_xorshift::XorShiftRng;
 use abstutil::Timer;
 use geom::{Duration, Polygon, Time};
 use map_model::{BuildingID, BuildingType, Map};
-use sim::{IndividTrip, MapBorders, PersonSpec, TripEndpoint, TripMode, TripPurpose};
+use synthpop::{IndividTrip, MapBorders, PersonSpec, TripEndpoint, TripMode, TripPurpose};
 
 /// This describes some number of commuters living in some named zone, working in another (or the
 /// same zone), and commuting using some mode.

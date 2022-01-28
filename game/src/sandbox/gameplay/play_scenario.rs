@@ -7,7 +7,8 @@ use geom::{Duration, Time};
 use map_gui::tools::{
     checkbox_per_mode, grey_out_map, ChooseSomething, CityPicker, PopupMsg, URLManager,
 };
-use sim::{ScenarioModifier, SlidingWindow, TripMode};
+use sim::SlidingWindow;
+use synthpop::{ScenarioModifier, TripMode};
 use widgetry::{
     lctrl, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, LinePlot, Outcome,
     Panel, PlotOptions, Series, SimpleState, Slider, Spinner, State, Text, TextExt,

@@ -6,7 +6,7 @@ use rand_xorshift::XorShiftRng;
 
 use abstutil::Timer;
 use map_model::{BuildingID, IntersectionID, Map, PathConstraints, PathRequest};
-use sim::{IndividTrip, PersonSpec, TripEndpoint, TripMode, TripPurpose};
+use synthpop::{IndividTrip, PersonSpec, TripEndpoint, TripMode, TripPurpose};
 
 use crate::{Activity, CensusPerson, Config};
 

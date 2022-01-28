@@ -4,7 +4,7 @@ use abstutil::{prettyprint_usize, Counter, Timer};
 use geom::{ArrowCap, Distance, Duration, Time};
 use map_gui::render::DrawOptions;
 use map_model::{IntersectionID, MovementID, PathStep, TurnType};
-use sim::TripEndpoint;
+use synthpop::TripEndpoint;
 use widgetry::mapspace::{DummyID, World};
 use widgetry::{
     Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,

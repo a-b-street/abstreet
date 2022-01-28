@@ -9,7 +9,7 @@ use map_model::{
     DirectedRoadID, Direction, PathRequest, PathfinderCaching, RoadID, RoutingParams, Traversable,
     NORMAL_LANE_THICKNESS,
 };
-use sim::{TripEndpoint, TripMode};
+use synthpop::{TripEndpoint, TripMode};
 use widgetry::mapspace::ToggleZoomed;
 use widgetry::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,

@@ -5,8 +5,9 @@ use structopt::StructOpt;
 
 use abstio::MapName;
 use map_model::{Map, MapEdits};
+use synthpop::{Scenario, ScenarioModifier};
 
-use crate::{Scenario, ScenarioModifier, Sim, SimOptions};
+use crate::{Sim, SimOptions};
 
 /// SimFlags specifies a simulation to setup. After parsing from structopt, you must call
 /// `initialize`.

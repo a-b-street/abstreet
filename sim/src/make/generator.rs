@@ -11,8 +11,7 @@ use serde::{Deserialize, Serialize};
 use abstutil::Timer;
 use geom::{Duration, Time};
 use map_model::{IntersectionID, Map};
-
-use crate::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
+use synthpop::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
 
 // TODO This can be simplified dramatically.
 

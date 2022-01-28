@@ -1,6 +1,7 @@
 use abstutil::prettyprint_usize;
 use map_gui::tools::ColorDiscrete;
-use sim::{count_parked_cars_per_bldg, Scenario};
+use sim::count_parked_cars_per_bldg;
+use synthpop::Scenario;
 use widgetry::mapspace::ToggleZoomed;
 use widgetry::{
     Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, Text,

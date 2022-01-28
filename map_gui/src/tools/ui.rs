@@ -7,7 +7,7 @@ use anyhow::Result;
 
 use abstutil::prettyprint_usize;
 use geom::{Distance, Duration, Polygon};
-use sim::TripMode;
+use synthpop::TripMode;
 use widgetry::{
     hotkeys, Choice, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Menu, Outcome,
     Panel, State, Text, TextBox, Toggle, Transition, Widget,

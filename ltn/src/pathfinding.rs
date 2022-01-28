@@ -3,7 +3,7 @@ use map_gui::tools::{
     cmp_dist, cmp_duration, InputWaypoints, TripManagement, TripManagementState, WaypointID,
 };
 use map_model::{PathfinderCaching, NORMAL_LANE_THICKNESS};
-use sim::{TripEndpoint, TripMode};
+use synthpop::{TripEndpoint, TripMode};
 use widgetry::mapspace::{ObjectID, ToggleZoomed, World};
 use widgetry::{
     Color, EventCtx, GfxCtx, Line, Outcome, Panel, RoundedF64, Spinner, State, Text, Widget,

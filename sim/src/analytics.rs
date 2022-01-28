@@ -11,10 +11,9 @@ use map_model::{
     CompressedMovementID, IntersectionID, LaneID, Map, MovementID, ParkingLotID, Path, PathRequest,
     RoadID, TransitRouteID, TransitStopID, Traversable, TurnID,
 };
+use synthpop::TripMode;
 
-use crate::{
-    AgentID, AgentType, AlertLocation, CarID, Event, ParkingSpot, TripID, TripMode, TripPhaseType,
-};
+use crate::{AgentID, AgentType, AlertLocation, CarID, Event, ParkingSpot, TripID, TripPhaseType};
 
 /// As a simulation runs, different pieces emit Events. The Analytics object listens to these,
 /// organizing and storing some information from them. The UI queries Analytics to draw time-series

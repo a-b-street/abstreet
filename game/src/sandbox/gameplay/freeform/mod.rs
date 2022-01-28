@@ -11,7 +11,8 @@ use geom::{Distance, Duration};
 use map_gui::tools::{grey_out_map, open_browser, CityPicker, PopupMsg, PromptInput, URLManager};
 use map_gui::ID;
 use map_model::{IntersectionID, Position};
-use sim::{rand_dist, IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
+use sim::rand_dist;
+use synthpop::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
 use widgetry::{
     lctrl, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, SimpleState, State,
     Text, VerticalAlignment, Widget,

@@ -4,7 +4,9 @@ use serde::Deserialize;
 use abstutil::{prettyprint_usize, Timer};
 use geom::{Duration, LonLat, Time};
 use map_model::Map;
-use sim::{ExternalPerson, ExternalTrip, ExternalTripEndpoint, Scenario, TripMode, TripPurpose};
+use synthpop::{
+    ExternalPerson, ExternalTrip, ExternalTripEndpoint, Scenario, TripMode, TripPurpose,
+};
 
 pub fn run(csv_path: String, map: String) -> Result<()> {
     let mut timer = Timer::new("import grid2demand");

@@ -4,7 +4,8 @@ use abstio::MapName;
 use abstutil::{prettyprint_usize, Timer};
 use geom::{Duration, Time};
 use map_model::Map;
-use sim::{AlertHandler, Scenario, ScenarioGenerator, Sim, SimFlags, SimOptions};
+use sim::{AlertHandler, ScenarioGenerator, Sim, SimFlags, SimOptions};
+use synthpop::Scenario;
 
 use crate::sandbox::TutorialState;
 

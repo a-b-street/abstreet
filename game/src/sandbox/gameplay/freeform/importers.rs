@@ -6,7 +6,7 @@ use serde::Deserialize;
 use abstutil::Timer;
 use map_gui::tools::{find_exe, FilePicker, PopupMsg, RunCommand};
 use map_model::Map;
-use sim::{ExternalPerson, Scenario};
+use synthpop::{ExternalPerson, Scenario};
 use widgetry::EventCtx;
 
 use crate::app::Transition;

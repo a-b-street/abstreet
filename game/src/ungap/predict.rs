@@ -7,7 +7,7 @@ use map_gui::load::FileLoader;
 use map_gui::tools::{open_browser, percentage_bar, ColorNetwork};
 use map_gui::ID;
 use map_model::{PathRequest, PathStepV2, RoadID};
-use sim::{Scenario, TripEndpoint, TripMode};
+use synthpop::{Scenario, TripEndpoint, TripMode};
 use widgetry::mapspace::ToggleZoomed;
 use widgetry::{EventCtx, GfxCtx, Line, Outcome, Panel, Spinner, State, Text, TextExt, Widget};
 

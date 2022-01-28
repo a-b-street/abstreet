@@ -7,9 +7,10 @@ use rand_xorshift::XorShiftRng;
 use geom::{Angle, Duration, Time};
 use map_model::Map;
 use sim::{
-    AgentID, CarID, ParkingSpot, PedestrianID, Person, PersonID, PersonState, TripEndpoint, TripID,
-    TripMode, TripResult, VehicleType,
+    AgentID, CarID, ParkingSpot, PedestrianID, Person, PersonID, PersonState, TripID, TripResult,
+    VehicleType,
 };
+use synthpop::{TripEndpoint, TripMode};
 use widgetry::{
     include_labeled_bytes, Color, ControlState, CornerRounding, EdgeInsets, EventCtx, GeomBatch,
     Image, Key, Line, RewriteColor, Text, TextExt, TextSpan, Widget,

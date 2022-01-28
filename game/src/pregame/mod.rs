@@ -1,4 +1,4 @@
-use sim::Scenario;
+use synthpop::Scenario;
 use widgetry::{EventCtx, State};
 
 use crate::app::App;

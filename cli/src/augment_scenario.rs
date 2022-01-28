@@ -5,7 +5,7 @@ use rand_xorshift::XorShiftRng;
 use abstutil::{prettyprint_usize, Timer};
 use geom::{Distance, Duration, FindClosest};
 use map_model::{AmenityType, BuildingID, Map};
-use sim::{IndividTrip, Scenario, TripEndpoint, TripMode, TripPurpose};
+use synthpop::{IndividTrip, Scenario, TripEndpoint, TripMode, TripPurpose};
 
 pub fn run(
     input_scenario: String,

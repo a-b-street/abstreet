@@ -2,11 +2,9 @@ use std::collections::BTreeSet;
 
 use geom::Time;
 use map_model::{IntersectionID, Map, PathStep, Position, Traversable};
+use synthpop::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
 
-use crate::{
-    AgentID, DrivingSimState, Event, IndividTrip, PersonSpec, Scenario, TripEndpoint, TripID,
-    TripMode, TripPurpose, VehicleType,
-};
+use crate::{AgentID, DrivingSimState, Event, TripID, VehicleType};
 
 /// Records trips beginning and ending at a specified set of intersections. This can be used to
 /// capture and reproduce behavior in a gridlock-prone chunk of the map, without simulating

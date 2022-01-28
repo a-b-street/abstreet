@@ -1,5 +1,6 @@
 use geom::Duration;
-use sim::{TripEndpoint, TripID, TripPhaseType};
+use sim::{TripID, TripPhaseType};
+use synthpop::TripEndpoint;
 use widgetry::table::{Col, Filter, Table};
 use widgetry::{
     EventCtx, Filler, GeomBatch, GfxCtx, Line, Outcome, Panel, State, Text, Toggle, Widget,

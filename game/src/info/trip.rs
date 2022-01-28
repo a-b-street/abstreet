@@ -5,10 +5,8 @@ use maplit::btreemap;
 use geom::{Distance, Duration, Percent, Polygon, Pt2D, UnitFmt};
 use map_gui::ID;
 use map_model::{Map, Path, PathStep, Traversable};
-use sim::{
-    AgentID, Analytics, PersonID, Problem, TripEndpoint, TripID, TripInfo, TripMode, TripPhase,
-    TripPhaseType,
-};
+use sim::{AgentID, Analytics, PersonID, Problem, TripID, TripInfo, TripPhase, TripPhaseType};
+use synthpop::{TripEndpoint, TripMode};
 use widgetry::{
     Color, ControlState, DrawWithTooltips, EventCtx, GeomBatch, Line, LinePlot, PlotOptions,
     RewriteColor, Series, Text, TextExt, Widget,

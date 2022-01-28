@@ -14,3 +14,4 @@ geom = { path = "../geom" }
 map_model = { path = "../map_model" }
 rand = "0.8.3"
 sim = { path = "../sim" }
+synthpop = { path = "../synthpop" }

@@ -7,7 +7,7 @@ use abstutil::{Counter, Timer};
 use geom::{Duration, Time};
 use map_gui::tools::compare_counts::{CompareCounts, Counts};
 use map_model::{Map, PathConstraints, PathRequest, PathStepV2, PathfinderCaching, RoutingParams};
-use sim::{Scenario, TripEndpoint, TripMode};
+use synthpop::{Scenario, TripEndpoint, TripMode};
 use widgetry::EventCtx;
 
 pub use self::ui::ShowResults;

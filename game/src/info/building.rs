@@ -3,7 +3,8 @@ use std::collections::BTreeMap;
 use geom::{Angle, Circle, Distance, Speed, Time};
 use map_gui::render::DrawPedestrian;
 use map_model::{BuildingID, LaneID, OffstreetParking, Traversable, SIDEWALK_THICKNESS};
-use sim::{DrawPedestrianInput, PedestrianID, PersonID, TripMode, TripResult, VehicleType};
+use sim::{DrawPedestrianInput, PedestrianID, PersonID, TripResult, VehicleType};
+use synthpop::TripMode;
 use widgetry::{Color, EventCtx, Line, Text, TextExt, Widget};
 
 use crate::app::App;

@@ -4,7 +4,8 @@ use std::fmt::Display;
 use abstutil::{abbreviated_format, prettyprint_usize, CloneableAny};
 use geom::{Angle, Distance, Duration, Line, Polygon, Pt2D, Time};
 use map_gui::tools::ColorScale;
-use sim::{Problem, TripID, TripMode};
+use sim::{Problem, TripID};
+use synthpop::TripMode;
 use widgetry::{
     ClickOutcome, Color, DrawWithTooltips, GeomBatch, GeomBatchStack, StackAlignment, Text, Widget,
 };
