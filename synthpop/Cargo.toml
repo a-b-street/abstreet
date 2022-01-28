@@ -1,0 +1,13 @@
+[package]
+name = "synthpop"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+abstio = { path = "../abstio" }
+abstutil = { path = "../abstutil" }
+anyhow = "1.0.38"
+geom = { path = "../geom" }
+log = "0.4.14"
+map_model = { path = "../map_model" }
+serde = "1.0.123"

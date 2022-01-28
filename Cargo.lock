@@ -3780,6 +3780,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "synthpop"
+version = "0.1.0"
+dependencies = [
+ "abstio",
+ "abstutil",
+ "anyhow",
+ "geom",
+ "log",
+ "map_model",
+ "serde",
+]
+
+[[package]]
 name = "system-deps"
 version = "1.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
