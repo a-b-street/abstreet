@@ -161,7 +161,7 @@ impl Scenario {
 
 impl PersonSpec {
     /// Verify that a person's trips make sense
-    fn check_schedule(&self) -> Result<()> {
+    pub fn check_schedule(&self) -> Result<()> {
         if self.trips.is_empty() {
             bail!("Person ({:?}) has no trips at all", self.orig_id);
         }

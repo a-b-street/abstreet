@@ -11,7 +11,6 @@ pub(crate) use self::spawner::{StartTripArgs, TripSpec};
 mod activity_model;
 mod generator;
 mod load;
-mod scenario;
 mod spawner;
 
 /// Need to explain this trick -- basically keeps consistency between two different simulations when
