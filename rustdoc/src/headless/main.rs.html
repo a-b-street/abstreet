@@ -609,6 +609,12 @@
 <span id="608">608</span>
 <span id="609">609</span>
 <span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
 </pre><pre class="rust"><code><span class="doccomment">//! This runs a simulation without any graphics and serves a very basic API to control things. See</span>
 <span class="doccomment">//! https://a-b-street.github.io/docs/tech/dev/api.html for documentation. To run this:</span>
 <span class="doccomment">//!</span>
@@ -771,6 +777,12 @@
             <span class="kw-2">*</span><span class="ident">sim</span> <span class="op">=</span> <span class="ident">new_sim</span>;
 
             <span class="prelude-val">Ok</span>(<span class="string">&quot;flags changed and sim reloaded&quot;</span>.<span class="ident">to_string</span>())
+        }
+        <span class="string">&quot;/sim/load-blank&quot;</span> =&gt; {
+            <span class="kw-2">*</span><span class="ident">map</span> <span class="op">=</span>
+                <span class="ident">Map::load_synchronously</span>(<span class="ident">get</span>(<span class="string">&quot;map&quot;</span>)<span class="question-mark">?</span>.<span class="ident">to_string</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">Timer::new</span>(<span class="string">&quot;load new map&quot;</span>));
+            <span class="kw-2">*</span><span class="ident">sim</span> <span class="op">=</span> <span class="ident">Sim::new</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">SimOptions::default</span>());
+            <span class="prelude-val">Ok</span>(<span class="string">&quot;map changed, blank simulation&quot;</span>.<span class="ident">to_string</span>())
         }
         <span class="string">&quot;/sim/get-time&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">sim</span>.<span class="ident">time</span>().<span class="ident">to_string</span>()),
         <span class="string">&quot;/sim/goto-time&quot;</span> =&gt; {
