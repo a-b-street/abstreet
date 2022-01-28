@@ -161,6 +161,12 @@ fn handle_command(
 
             Ok("flags changed and sim reloaded".to_string())
         }
+        "/sim/load-blank" => {
+            *map =
+                Map::load_synchronously(get("map")?.to_string(), &mut Timer::new("load new map"));
+            *sim = Sim::new(&map, SimOptions::default());
+            Ok("map changed, blank simulation".to_string())
+        }
         "/sim/get-time" => Ok(sim.time().to_string()),
         "/sim/goto-time" => {
             let t = Time::parse(get("t")?)?;
