@@ -95,11 +95,11 @@ impl SimpleState<App> for ShowResults {
                 let path2 = "counts_b.json";
                 abstio::write_json(
                     path1.to_string(),
-                    &app.session.impact.compare_counts.counts_a.to_counts(),
+                    &app.session.impact.compare_counts.counts_a,
                 );
                 abstio::write_json(
                     path2.to_string(),
-                    &app.session.impact.compare_counts.counts_b.to_counts(),
+                    &app.session.impact.compare_counts.counts_b,
                 );
                 Transition::Push(PopupMsg::new_state(
                     ctx,

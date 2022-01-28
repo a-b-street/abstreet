@@ -10,22 +10,35 @@ use widgetry::{Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Text, TextExt, Wid
 use crate::tools::{cmp_count, ColorNetwork, DivergingScale};
 use crate::AppLike;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Counts {
     pub map: MapName,
     // TODO For now, squeeze everything into this -- mode, weekday/weekend, time of day, data
     // source, etc
     pub description: String,
     // TODO Maybe per direction, movement
-    pub per_road: Vec<(RoadID, usize)>,
-    pub per_intersection: Vec<(IntersectionID, usize)>,
+    pub per_road: Counter<RoadID>,
+    pub per_intersection: Counter<IntersectionID>,
+}
+
+impl Default for Counts {
+    fn default() -> Self {
+        Self {
+            map: MapName::new("zz", "place", "holder"),
+            description: String::new(),
+            per_road: Counter::new(),
+            per_intersection: Counter::new(),
+        }
+    }
 }
 
 pub struct CompareCounts {
     pub layer: Layer,
-    pub counts_a: CountsUI,
-    pub counts_b: CountsUI,
     world: World<Obj>,
+    pub counts_a: Counts,
+    heatmap_a: ToggleZoomed,
+    pub counts_b: Counts,
+    heatmap_b: ToggleZoomed,
     relative_heatmap: ToggleZoomed,
 }
 
@@ -43,63 +56,6 @@ pub enum Layer {
     Compare,
 }
 
-pub struct CountsUI {
-    // TODO Just embed Counts directly, and make that serialize a Counter?
-    map: MapName,
-    description: String,
-    heatmap: ToggleZoomed,
-    per_road: Counter<RoadID>,
-    per_intersection: Counter<IntersectionID>,
-}
-
-impl CountsUI {
-    fn new(ctx: &EventCtx, app: &dyn AppLike, counts: Counts) -> CountsUI {
-        let mut per_road = Counter::new();
-        for (r, count) in counts.per_road {
-            per_road.add(r, count);
-        }
-        let mut per_intersection = Counter::new();
-        for (i, count) in counts.per_intersection {
-            per_intersection.add(i, count);
-        }
-
-        let mut colorer = ColorNetwork::no_fading(app);
-        colorer.ranked_roads(per_road.clone(), &app.cs().good_to_bad_red);
-        colorer.ranked_intersections(per_intersection.clone(), &app.cs().good_to_bad_red);
-        CountsUI {
-            map: counts.map,
-            description: counts.description,
-            heatmap: colorer.build(ctx),
-            per_road,
-            per_intersection,
-        }
-    }
-
-    fn empty(ctx: &EventCtx) -> Self {
-        Self {
-            map: MapName::new("zz", "place", "holder"),
-            description: String::new(),
-            heatmap: ToggleZoomed::empty(ctx),
-            per_road: Counter::new(),
-            per_intersection: Counter::new(),
-        }
-    }
-
-    pub fn to_counts(&self) -> Counts {
-        Counts {
-            map: self.map.clone(),
-            description: self.description.clone(),
-            per_road: self.per_road.clone().consume().into_iter().collect(),
-            per_intersection: self
-                .per_intersection
-                .clone()
-                .consume()
-                .into_iter()
-                .collect(),
-        }
-    }
-}
-
 impl CompareCounts {
     pub fn new(
         ctx: &mut EventCtx,
@@ -108,16 +64,17 @@ impl CompareCounts {
         counts_b: Counts,
         layer: Layer,
     ) -> CompareCounts {
-        let counts_a = CountsUI::new(ctx, app, counts_a);
-        let counts_b = CountsUI::new(ctx, app, counts_b);
-
+        let heatmap_a = calculate_heatmap(ctx, app, counts_a.clone());
+        let heatmap_b = calculate_heatmap(ctx, app, counts_b.clone());
         let relative_heatmap = calculate_relative_heatmap(ctx, app, &counts_a, &counts_b);
 
         CompareCounts {
             layer,
-            counts_a,
-            counts_b,
             world: make_world(ctx, app),
+            counts_a,
+            heatmap_a,
+            counts_b,
+            heatmap_b,
             relative_heatmap,
         }
     }
@@ -134,7 +91,8 @@ impl CompareCounts {
     }
 
     pub fn recalculate_b(&mut self, ctx: &EventCtx, app: &dyn AppLike, counts_b: Counts) {
-        self.counts_b = CountsUI::new(ctx, app, counts_b);
+        self.counts_b = counts_b;
+        self.heatmap_b = calculate_heatmap(ctx, app, self.counts_b.clone());
         self.relative_heatmap =
             calculate_relative_heatmap(ctx, app, &self.counts_a, &self.counts_b);
         if self.layer == Layer::A {
@@ -145,9 +103,11 @@ impl CompareCounts {
     pub fn empty(ctx: &EventCtx) -> CompareCounts {
         CompareCounts {
             layer: Layer::A,
-            counts_a: CountsUI::empty(ctx),
-            counts_b: CountsUI::empty(ctx),
             world: World::unbounded(),
+            counts_a: Counts::default(),
+            heatmap_a: ToggleZoomed::empty(ctx),
+            counts_b: Counts::default(),
+            heatmap_b: ToggleZoomed::empty(ctx),
             relative_heatmap: ToggleZoomed::empty(ctx),
         }
     }
@@ -184,10 +144,10 @@ impl CompareCounts {
     pub fn draw(&self, g: &mut GfxCtx) {
         match self.layer {
             Layer::A => {
-                self.counts_a.heatmap.draw(g);
+                self.heatmap_a.draw(g);
             }
             Layer::B => {
-                self.counts_b.heatmap.draw(g);
+                self.heatmap_b.draw(g);
             }
             Layer::Compare => {
                 self.relative_heatmap.draw(g);
@@ -267,11 +227,19 @@ impl CompareCounts {
     }
 }
 
+fn calculate_heatmap(ctx: &EventCtx, app: &dyn AppLike, counts: Counts) -> ToggleZoomed {
+    let mut colorer = ColorNetwork::no_fading(app);
+    // TODO The scale will be different for roads and intersections
+    colorer.ranked_roads(counts.per_road, &app.cs().good_to_bad_red);
+    colorer.ranked_intersections(counts.per_intersection, &app.cs().good_to_bad_red);
+    colorer.build(ctx)
+}
+
 fn calculate_relative_heatmap(
     ctx: &EventCtx,
     app: &dyn AppLike,
-    counts_a: &CountsUI,
-    counts_b: &CountsUI,
+    counts_a: &Counts,
+    counts_b: &Counts,
 ) -> ToggleZoomed {
     // First just understand the counts...
     let mut hgram_before = Histogram::new();

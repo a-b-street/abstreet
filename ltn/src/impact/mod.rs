@@ -162,16 +162,20 @@ fn count_throughput(
     cache_custom: PathfinderCaching,
     timer: &mut Timer,
 ) -> Counts {
-    let mut road_counts = Counter::new();
-    let mut intersection_counts = Counter::new();
+    let mut counts = Counts {
+        map: map.get_name().clone(),
+        description,
+        per_road: Counter::new(),
+        per_intersection: Counter::new(),
+    };
 
     // Statistic::Min will be wrong later for roads that're 0. So explicitly start with 0 for every
     // road/intersection.
     for r in map.all_roads() {
-        road_counts.add(r.id, 0);
+        counts.per_road.add(r.id, 0);
     }
     for i in map.all_intersections() {
-        intersection_counts.add(i.id, 0);
+        counts.per_intersection.add(i.id, 0);
     }
 
     // It's very memory intensive to calculate all of the paths in one chunk, then process them to
@@ -189,22 +193,16 @@ fn count_throughput(
             for step in path.get_steps() {
                 match step {
                     PathStepV2::Along(dr) | PathStepV2::Contraflow(dr) => {
-                        road_counts.add(dr.road, count);
+                        counts.per_road.add(dr.road, count);
                     }
                     PathStepV2::Movement(m) | PathStepV2::ContraflowMovement(m) => {
-                        intersection_counts.add(m.parent, count);
+                        counts.per_intersection.add(m.parent, count);
                     }
                 }
             }
         }
     }
-
-    Counts {
-        map: map.get_name().clone(),
-        description,
-        per_road: road_counts.consume().into_iter().collect(),
-        per_intersection: intersection_counts.consume().into_iter().collect(),
-    }
+    counts
 }
 
 // TODO Fixed, and sadly not const
