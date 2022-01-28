@@ -319,12 +319,14 @@
 <span id="318">318</span>
 <span id="319">319</span>
 <span id="320">320</span>
+<span id="321">321</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Speed</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_gui::render::DrawPedestrian</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BuildingID</span>, <span class="ident">LaneID</span>, <span class="ident">OffstreetParking</span>, <span class="ident">Traversable</span>, <span class="ident">SIDEWALK_THICKNESS</span>};
-<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">DrawPedestrianInput</span>, <span class="ident">PedestrianID</span>, <span class="ident">PersonID</span>, <span class="ident">TripMode</span>, <span class="ident">TripResult</span>, <span class="ident">VehicleType</span>};
+<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">DrawPedestrianInput</span>, <span class="ident">PedestrianID</span>, <span class="ident">PersonID</span>, <span class="ident">TripResult</span>, <span class="ident">VehicleType</span>};
+<span class="kw">use</span> <span class="ident">synthpop::TripMode</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">Line</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app::App</span>;

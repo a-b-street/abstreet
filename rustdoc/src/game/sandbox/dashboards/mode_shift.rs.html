@@ -328,13 +328,15 @@
 <span id="327">327</span>
 <span id="328">328</span>
 <span id="329">329</span>
+<span id="330">330</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil::Counter</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>};
 <span class="kw">use</span> <span class="ident">map_gui::tools::ColorNetwork</span>;
 <span class="kw">use</span> <span class="ident">map_model::PathStepV2</span>;
-<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">TripEndpoint</span>, <span class="ident">TripID</span>, <span class="ident">TripMode</span>};
+<span class="kw">use</span> <span class="ident">sim::TripID</span>;
+<span class="kw">use</span> <span class="ident">synthpop</span>::{<span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>};
 <span class="kw">use</span> <span class="ident">widgetry::table</span>::{<span class="ident">Col</span>, <span class="ident">Filter</span>, <span class="ident">Table</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">Filler</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Spinner</span>, <span class="ident">State</span>, <span class="ident">Text</span>,

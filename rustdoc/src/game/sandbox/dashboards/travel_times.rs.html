@@ -663,6 +663,7 @@
 <span id="662">662</span>
 <span id="663">663</span>
 <span id="664">664</span>
+<span id="665">665</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std::io::Write</span>;
 
@@ -672,7 +673,8 @@
 <span class="kw">use</span> <span class="ident">abstutil::prettyprint_usize</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">color_for_mode</span>, <span class="ident">PopupMsg</span>};
-<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">TripID</span>, <span class="ident">TripMode</span>};
+<span class="kw">use</span> <span class="ident">sim::TripID</span>;
+<span class="kw">use</span> <span class="ident">synthpop::TripMode</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">CompareTimes</span>, <span class="ident">DrawWithTooltips</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>,
     <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">Widget</span>,

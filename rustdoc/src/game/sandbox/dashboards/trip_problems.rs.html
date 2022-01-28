@@ -517,13 +517,15 @@
 <span id="516">516</span>
 <span id="517">517</span>
 <span id="518">518</span>
+<span id="519">519</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cmp::Ordering</span>;
 <span class="kw">use</span> <span class="ident">std::fmt::Display</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">abbreviated_format</span>, <span class="ident">prettyprint_usize</span>, <span class="ident">CloneableAny</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Line</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_gui::tools::ColorScale</span>;
-<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">Problem</span>, <span class="ident">TripID</span>, <span class="ident">TripMode</span>};
+<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">Problem</span>, <span class="ident">TripID</span>};
+<span class="kw">use</span> <span class="ident">synthpop::TripMode</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">ClickOutcome</span>, <span class="ident">Color</span>, <span class="ident">DrawWithTooltips</span>, <span class="ident">GeomBatch</span>, <span class="ident">GeomBatchStack</span>, <span class="ident">StackAlignment</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>,
 };

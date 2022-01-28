@@ -901,6 +901,7 @@
 <span id="900">900</span>
 <span id="901">901</span>
 <span id="902">902</span>
+<span id="903">903</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 <span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
 
@@ -919,7 +920,8 @@
 <span class="kw">use</span> <span class="ident">map_gui::ID</span>;
 <span class="kw">use</span> <span class="ident">map_model::AreaType</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BufferType</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">Traversable</span>};
-<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">AgentID</span>, <span class="ident">Analytics</span>, <span class="ident">Scenario</span>, <span class="ident">Sim</span>, <span class="ident">SimCallback</span>, <span class="ident">SimFlags</span>, <span class="ident">VehicleType</span>};
+<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">AgentID</span>, <span class="ident">Analytics</span>, <span class="ident">Sim</span>, <span class="ident">SimCallback</span>, <span class="ident">SimFlags</span>, <span class="ident">VehicleType</span>};
+<span class="kw">use</span> <span class="ident">synthpop::Scenario</span>;
 <span class="kw">use</span> <span class="ident">widgetry::mapspace::ToggleZoomed</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Cached</span>, <span class="ident">Canvas</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Prerender</span>, <span class="ident">SharedAppState</span>, <span class="ident">State</span>};
 

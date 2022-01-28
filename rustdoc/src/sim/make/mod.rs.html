@@ -19,33 +19,19 @@
 <span id="18">18</span>
 <span id="19">19</span>
 <span id="20">20</span>
-<span id="21">21</span>
-<span id="22">22</span>
-<span id="23">23</span>
-<span id="24">24</span>
-<span id="25">25</span>
-<span id="26">26</span>
-<span id="27">27</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Everything needed to setup a simulation.</span>
 <span class="doccomment">//! &lt;https://a-b-street.github.io/docs/tech/trafficsim/travel_demand.html&gt; for context.</span>
 
 <span class="kw">use</span> <span class="ident">rand</span>::{<span class="ident">RngCore</span>, <span class="ident">SeedableRng</span>};
 <span class="kw">use</span> <span class="ident">rand_xorshift::XorShiftRng</span>;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::external</span>::{<span class="ident">ExternalPerson</span>, <span class="ident">ExternalTrip</span>, <span class="ident">ExternalTripEndpoint</span>, <span class="ident">MapBorders</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::generator</span>::{<span class="ident">BorderSpawnOverTime</span>, <span class="ident">ScenarioGenerator</span>, <span class="ident">SpawnOverTime</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::load::SimFlags</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::modifier::ScenarioModifier</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::scenario</span>::{<span class="ident">IndividTrip</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">TripPurpose</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::spawner::TripEndpoint</span>;
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident"><span class="self">self</span>::spawner</span>::{<span class="ident">StartTripArgs</span>, <span class="ident">TripSpec</span>};
 
 <span class="kw">mod</span> <span class="ident">activity_model</span>;
-<span class="kw">mod</span> <span class="ident">external</span>;
 <span class="kw">mod</span> <span class="ident">generator</span>;
 <span class="kw">mod</span> <span class="ident">load</span>;
-<span class="kw">mod</span> <span class="ident">modifier</span>;
-<span class="kw">mod</span> <span class="ident">scenario</span>;
 <span class="kw">mod</span> <span class="ident">spawner</span>;
 
 <span class="doccomment">/// Need to explain this trick -- basically keeps consistency between two different simulations when</span>

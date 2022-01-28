@@ -103,6 +103,7 @@
 <span id="102">102</span>
 <span id="103">103</span>
 <span id="104">104</span>
+<span id="105">105</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="ident">geom::Duration</span>;
@@ -110,8 +111,9 @@
     <span class="ident">BuildingID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">Path</span>, <span class="ident">PathRequest</span>, <span class="ident">TransitRouteID</span>, <span class="ident">TransitStopID</span>,
     <span class="ident">Traversable</span>, <span class="ident">TurnID</span>,
 };
+<span class="kw">use</span> <span class="ident">synthpop::TripMode</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AgentID</span>, <span class="ident">CarID</span>, <span class="ident">ParkingSpot</span>, <span class="ident">PedestrianID</span>, <span class="ident">PersonID</span>, <span class="ident">Problem</span>, <span class="ident">TripID</span>, <span class="ident">TripMode</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AgentID</span>, <span class="ident">CarID</span>, <span class="ident">ParkingSpot</span>, <span class="ident">PedestrianID</span>, <span class="ident">PersonID</span>, <span class="ident">Problem</span>, <span class="ident">TripID</span>};
 
 <span class="doccomment">/// As a simulation runs, different systems emit Events. This cleanly separates the internal</span>
 <span class="doccomment">/// mechanics of the simulation from consumers that just want to know what&#39;s happening.</span>

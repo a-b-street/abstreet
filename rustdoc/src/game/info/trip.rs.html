@@ -959,8 +959,6 @@
 <span id="958">958</span>
 <span id="959">959</span>
 <span id="960">960</span>
-<span id="961">961</span>
-<span id="962">962</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
 
 <span class="kw">use</span> <span class="ident">maplit::btreemap</span>;
@@ -968,10 +966,8 @@
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Percent</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">UnitFmt</span>};
 <span class="kw">use</span> <span class="ident">map_gui::ID</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Map</span>, <span class="ident">Path</span>, <span class="ident">PathStep</span>, <span class="ident">Traversable</span>};
-<span class="kw">use</span> <span class="ident">sim</span>::{
-    <span class="ident">AgentID</span>, <span class="ident">Analytics</span>, <span class="ident">PersonID</span>, <span class="ident">Problem</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripID</span>, <span class="ident">TripInfo</span>, <span class="ident">TripMode</span>, <span class="ident">TripPhase</span>,
-    <span class="ident">TripPhaseType</span>,
-};
+<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">AgentID</span>, <span class="ident">Analytics</span>, <span class="ident">PersonID</span>, <span class="ident">Problem</span>, <span class="ident">TripID</span>, <span class="ident">TripInfo</span>, <span class="ident">TripPhase</span>, <span class="ident">TripPhaseType</span>};
+<span class="kw">use</span> <span class="ident">synthpop</span>::{<span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">DrawWithTooltips</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">Line</span>, <span class="ident">LinePlot</span>, <span class="ident">PlotOptions</span>,
     <span class="ident">RewriteColor</span>, <span class="ident">Series</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>,

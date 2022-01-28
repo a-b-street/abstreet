@@ -649,9 +649,9 @@
     <span class="ident">MovementID</span>, <span class="ident">PermanentMapEdits</span>, <span class="ident">RoadID</span>, <span class="ident">TurnID</span>,
 };
 <span class="kw">use</span> <span class="ident">sim</span>::{
-    <span class="ident">AgentID</span>, <span class="ident">AgentType</span>, <span class="ident">DelayCause</span>, <span class="ident">ExternalPerson</span>, <span class="ident">PersonID</span>, <span class="ident">Scenario</span>, <span class="ident">ScenarioModifier</span>, <span class="ident">Sim</span>,
-    <span class="ident">SimFlags</span>, <span class="ident">SimOptions</span>, <span class="ident">TripID</span>, <span class="ident">TripMode</span>, <span class="ident">VehicleType</span>,
+    <span class="ident">AgentID</span>, <span class="ident">AgentType</span>, <span class="ident">DelayCause</span>, <span class="ident">PersonID</span>, <span class="ident">Sim</span>, <span class="ident">SimFlags</span>, <span class="ident">SimOptions</span>, <span class="ident">TripID</span>, <span class="ident">VehicleType</span>,
 };
+<span class="kw">use</span> <span class="ident">synthpop</span>::{<span class="ident">ExternalPerson</span>, <span class="ident">Scenario</span>, <span class="ident">ScenarioModifier</span>, <span class="ident">TripMode</span>};
 
 <span class="macro">lazy_static::lazy_static!</span> {
     <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">MAP</span>: <span class="ident">RwLock</span><span class="op">&lt;</span><span class="ident">Map</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">RwLock::new</span>(<span class="ident">Map::blank</span>());
@@ -810,7 +810,7 @@
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="ident">Scenario::empty</span>(<span class="ident">map</span>, <span class="string">&quot;one-shot&quot;</span>);
             <span class="ident">scenario</span>.<span class="ident">people</span> <span class="op">=</span> <span class="ident">ExternalPerson::import</span>(<span class="ident">map</span>, <span class="macro">vec!</span>[<span class="ident">input</span>], <span class="bool-val">false</span>)<span class="question-mark">?</span>;
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">XorShiftRng::seed_from_u64</span>(<span class="ident">load</span>.<span class="ident">rng_seed</span>);
-            <span class="ident">scenario</span>.<span class="ident">instantiate</span>(<span class="ident">sim</span>, <span class="ident">map</span>, <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>, <span class="kw-2">&amp;mut</span> <span class="ident">Timer::throwaway</span>());
+            <span class="ident">sim</span>.<span class="ident">instantiate</span>(<span class="kw-2">&amp;</span><span class="ident">scenario</span>, <span class="ident">map</span>, <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>, <span class="kw-2">&amp;mut</span> <span class="ident">Timer::throwaway</span>());
             <span class="prelude-val">Ok</span>(<span class="macro">format!</span>(
                 <span class="string">&quot;{} created&quot;</span>,
                 <span class="ident">sim</span>.<span class="ident">get_all_people</span>().<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="ident">id</span>
@@ -1133,7 +1133,7 @@
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">XorShiftRng::seed_from_u64</span>(<span class="self">self</span>.<span class="ident">rng_seed</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sim</span> <span class="op">=</span> <span class="ident">Sim::new</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="self">self</span>.<span class="ident">opts</span>.<span class="ident">clone</span>());
-        <span class="ident">scenario</span>.<span class="ident">instantiate</span>(<span class="kw-2">&amp;mut</span> <span class="ident">sim</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>, <span class="ident">timer</span>);
+        <span class="ident">sim</span>.<span class="ident">instantiate</span>(<span class="kw-2">&amp;</span><span class="ident">scenario</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>, <span class="ident">timer</span>);
 
         (<span class="ident">map</span>, <span class="ident">sim</span>)
     }

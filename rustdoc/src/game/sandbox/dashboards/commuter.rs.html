@@ -721,6 +721,7 @@
 <span id="720">720</span>
 <span id="721">721</span>
 <span id="722">722</span>
+<span id="723">723</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
 <span class="kw">use</span> <span class="ident">maplit::hashset</span>;
@@ -729,7 +730,8 @@
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">checkbox_per_mode</span>, <span class="ident">ColorLegend</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">osm</span>, <span class="ident">BuildingID</span>, <span class="ident">BuildingType</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">RoadID</span>, <span class="ident">TurnType</span>};
-<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">TripEndpoint</span>, <span class="ident">TripInfo</span>, <span class="ident">TripMode</span>};
+<span class="kw">use</span> <span class="ident">sim::TripInfo</span>;
+<span class="kw">use</span> <span class="ident">synthpop</span>::{<span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
     <span class="ident">RewriteColor</span>, <span class="ident">Slider</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,

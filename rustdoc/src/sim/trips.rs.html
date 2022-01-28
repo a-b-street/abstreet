@@ -1429,71 +1429,6 @@
 <span id="1428">1428</span>
 <span id="1429">1429</span>
 <span id="1430">1430</span>
-<span id="1431">1431</span>
-<span id="1432">1432</span>
-<span id="1433">1433</span>
-<span id="1434">1434</span>
-<span id="1435">1435</span>
-<span id="1436">1436</span>
-<span id="1437">1437</span>
-<span id="1438">1438</span>
-<span id="1439">1439</span>
-<span id="1440">1440</span>
-<span id="1441">1441</span>
-<span id="1442">1442</span>
-<span id="1443">1443</span>
-<span id="1444">1444</span>
-<span id="1445">1445</span>
-<span id="1446">1446</span>
-<span id="1447">1447</span>
-<span id="1448">1448</span>
-<span id="1449">1449</span>
-<span id="1450">1450</span>
-<span id="1451">1451</span>
-<span id="1452">1452</span>
-<span id="1453">1453</span>
-<span id="1454">1454</span>
-<span id="1455">1455</span>
-<span id="1456">1456</span>
-<span id="1457">1457</span>
-<span id="1458">1458</span>
-<span id="1459">1459</span>
-<span id="1460">1460</span>
-<span id="1461">1461</span>
-<span id="1462">1462</span>
-<span id="1463">1463</span>
-<span id="1464">1464</span>
-<span id="1465">1465</span>
-<span id="1466">1466</span>
-<span id="1467">1467</span>
-<span id="1468">1468</span>
-<span id="1469">1469</span>
-<span id="1470">1470</span>
-<span id="1471">1471</span>
-<span id="1472">1472</span>
-<span id="1473">1473</span>
-<span id="1474">1474</span>
-<span id="1475">1475</span>
-<span id="1476">1476</span>
-<span id="1477">1477</span>
-<span id="1478">1478</span>
-<span id="1479">1479</span>
-<span id="1480">1480</span>
-<span id="1481">1481</span>
-<span id="1482">1482</span>
-<span id="1483">1483</span>
-<span id="1484">1484</span>
-<span id="1485">1485</span>
-<span id="1486">1486</span>
-<span id="1487">1487</span>
-<span id="1488">1488</span>
-<span id="1489">1489</span>
-<span id="1490">1490</span>
-<span id="1491">1491</span>
-<span id="1492">1492</span>
-<span id="1493">1493</span>
-<span id="1494">1494</span>
-<span id="1495">1495</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">VecDeque</span>};
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
@@ -1504,14 +1439,16 @@
     <span class="ident">BuildingID</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">Position</span>, <span class="ident">TransitRouteID</span>,
     <span class="ident">TransitStopID</span>,
 };
+<span class="kw">use</span> <span class="ident">synthpop</span>::{
+    <span class="ident">IndividTrip</span>, <span class="ident">OrigPersonID</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>, <span class="ident">TripPurpose</span>,
+};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sim::Ctx</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">AgentID</span>, <span class="ident">AgentType</span>, <span class="ident">AlertLocation</span>, <span class="ident">CarID</span>, <span class="ident">Command</span>, <span class="ident">CreateCar</span>, <span class="ident">CreatePedestrian</span>, <span class="ident">DrivingGoal</span>,
-    <span class="ident">Event</span>, <span class="ident">IndividTrip</span>, <span class="ident">OrigPersonID</span>, <span class="ident">ParkedCar</span>, <span class="ident">ParkingSim</span>, <span class="ident">ParkingSpot</span>, <span class="ident">PedestrianID</span>, <span class="ident">PersonID</span>,
-    <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">SidewalkPOI</span>, <span class="ident">SidewalkSpot</span>, <span class="ident">StartTripArgs</span>, <span class="ident">TransitSimState</span>, <span class="ident">TripEndpoint</span>,
-    <span class="ident">TripID</span>, <span class="ident">TripPhaseType</span>, <span class="ident">TripPurpose</span>, <span class="ident">TripSpec</span>, <span class="ident">Vehicle</span>, <span class="ident">VehicleSpec</span>, <span class="ident">VehicleType</span>,
-    <span class="ident">WalkingSimState</span>,
+    <span class="ident">Event</span>, <span class="ident">ParkedCar</span>, <span class="ident">ParkingSim</span>, <span class="ident">ParkingSpot</span>, <span class="ident">PedestrianID</span>, <span class="ident">PersonID</span>, <span class="ident">SidewalkPOI</span>, <span class="ident">SidewalkSpot</span>,
+    <span class="ident">StartTripArgs</span>, <span class="ident">TransitSimState</span>, <span class="ident">TripID</span>, <span class="ident">TripPhaseType</span>, <span class="ident">TripSpec</span>, <span class="ident">Vehicle</span>, <span class="ident">VehicleSpec</span>,
+    <span class="ident">VehicleType</span>, <span class="ident">WalkingSimState</span>,
 };
 
 <span class="doccomment">/// Manages people, each of which executes some trips through the day. Each trip is further broken</span>
@@ -2846,73 +2783,6 @@
     <span class="ident">Drive</span>(<span class="ident">CarID</span>, <span class="ident">DrivingGoal</span>),
     <span class="doccomment">/// Maybe get off at a stop, maybe ride off-map</span>
     <span class="ident">RideBus</span>(<span class="ident">TransitRouteID</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TransitStopID</span><span class="op">&gt;</span>),
-}
-
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">TripMode</span> {
-    <span class="ident">Walk</span>,
-    <span class="ident">Bike</span>,
-    <span class="ident">Transit</span>,
-    <span class="ident">Drive</span>,
-}
-
-<span class="kw">impl</span> <span class="ident">TripMode</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all</span>() -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripMode</span><span class="op">&gt;</span> {
-        <span class="macro">vec!</span>[
-            <span class="ident">TripMode::Walk</span>,
-            <span class="ident">TripMode::Bike</span>,
-            <span class="ident">TripMode::Transit</span>,
-            <span class="ident">TripMode::Drive</span>,
-        ]
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">verb</span>(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">TripMode::Walk</span> =&gt; <span class="string">&quot;walk&quot;</span>,
-            <span class="ident">TripMode::Bike</span> =&gt; <span class="string">&quot;bike&quot;</span>,
-            <span class="ident">TripMode::Transit</span> =&gt; <span class="string">&quot;use transit&quot;</span>,
-            <span class="ident">TripMode::Drive</span> =&gt; <span class="string">&quot;drive&quot;</span>,
-        }
-    }
-
-    <span class="comment">// If I used &quot;present participle&quot; in a method name, I&#39;d never live it down.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ongoing_verb</span>(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">TripMode::Walk</span> =&gt; <span class="string">&quot;walking&quot;</span>,
-            <span class="ident">TripMode::Bike</span> =&gt; <span class="string">&quot;biking&quot;</span>,
-            <span class="ident">TripMode::Transit</span> =&gt; <span class="string">&quot;using transit&quot;</span>,
-            <span class="ident">TripMode::Drive</span> =&gt; <span class="string">&quot;driving&quot;</span>,
-        }
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">noun</span>(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">TripMode::Walk</span> =&gt; <span class="string">&quot;Pedestrian&quot;</span>,
-            <span class="ident">TripMode::Bike</span> =&gt; <span class="string">&quot;Bike&quot;</span>,
-            <span class="ident">TripMode::Transit</span> =&gt; <span class="string">&quot;Bus&quot;</span>,
-            <span class="ident">TripMode::Drive</span> =&gt; <span class="string">&quot;Car&quot;</span>,
-        }
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_constraints</span>(<span class="self">self</span>) -&gt; <span class="ident">PathConstraints</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">TripMode::Walk</span> =&gt; <span class="ident">PathConstraints::Pedestrian</span>,
-            <span class="ident">TripMode::Bike</span> =&gt; <span class="ident">PathConstraints::Bike</span>,
-            <span class="comment">// TODO WRONG</span>
-            <span class="ident">TripMode::Transit</span> =&gt; <span class="ident">PathConstraints::Bus</span>,
-            <span class="ident">TripMode::Drive</span> =&gt; <span class="ident">PathConstraints::Car</span>,
-        }
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_constraints</span>(<span class="ident">c</span>: <span class="ident">PathConstraints</span>) -&gt; <span class="ident">TripMode</span> {
-        <span class="kw">match</span> <span class="ident">c</span> {
-            <span class="ident">PathConstraints::Pedestrian</span> =&gt; <span class="ident">TripMode::Walk</span>,
-            <span class="ident">PathConstraints::Bike</span> =&gt; <span class="ident">TripMode::Bike</span>,
-            <span class="comment">// TODO The bijection breaks down... transit rider vs train vs bus...</span>
-            <span class="ident">PathConstraints::Bus</span> <span class="op">|</span> <span class="ident">PathConstraints::Train</span> =&gt; <span class="ident">TripMode::Transit</span>,
-            <span class="ident">PathConstraints::Car</span> =&gt; <span class="ident">TripMode::Drive</span>,
-        }
-    }
 }
 
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">TripResult</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {

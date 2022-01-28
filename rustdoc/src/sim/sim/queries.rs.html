@@ -552,13 +552,13 @@
     <span class="ident">BuildingID</span>, <span class="ident">IntersectionID</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">Path</span>, <span class="ident">Position</span>, <span class="ident">TransitRouteID</span>, <span class="ident">TransitStopID</span>,
     <span class="ident">Traversable</span>, <span class="ident">TurnID</span>,
 };
+<span class="kw">use</span> <span class="ident">synthpop</span>::{<span class="ident">OrigPersonID</span>, <span class="ident">Scenario</span>, <span class="ident">TripMode</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::analytics::SlidingWindow</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">AgentID</span>, <span class="ident">AgentType</span>, <span class="ident">Analytics</span>, <span class="ident">CarID</span>, <span class="ident">CommutersVehiclesCounts</span>, <span class="ident">DrawCarInput</span>, <span class="ident">DrawPedCrowdInput</span>,
-    <span class="ident">DrawPedestrianInput</span>, <span class="ident">OrigPersonID</span>, <span class="ident">PandemicModel</span>, <span class="ident">ParkedCar</span>, <span class="ident">ParkingSim</span>, <span class="ident">PedestrianID</span>, <span class="ident">Person</span>,
-    <span class="ident">PersonID</span>, <span class="ident">PersonState</span>, <span class="ident">Scenario</span>, <span class="ident">Sim</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripID</span>, <span class="ident">TripInfo</span>, <span class="ident">TripMode</span>, <span class="ident">TripResult</span>,
-    <span class="ident">UnzoomedAgent</span>, <span class="ident">VehicleType</span>,
+    <span class="ident">DrawPedestrianInput</span>, <span class="ident">PandemicModel</span>, <span class="ident">ParkedCar</span>, <span class="ident">ParkingSim</span>, <span class="ident">PedestrianID</span>, <span class="ident">Person</span>, <span class="ident">PersonID</span>,
+    <span class="ident">PersonState</span>, <span class="ident">Sim</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripID</span>, <span class="ident">TripInfo</span>, <span class="ident">TripResult</span>, <span class="ident">UnzoomedAgent</span>, <span class="ident">VehicleType</span>,
 };
 
 <span class="comment">// TODO Many of these just delegate to an inner piece. This is unorganized and hard to maintain.</span>

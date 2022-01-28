@@ -686,6 +686,7 @@
 <span id="685">685</span>
 <span id="686">686</span>
 <span id="687">687</span>
+<span id="688">688</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">maplit::btreeset</span>;
@@ -695,7 +696,8 @@
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{
     <span class="ident">checkbox_per_mode</span>, <span class="ident">grey_out_map</span>, <span class="ident">ChooseSomething</span>, <span class="ident">CityPicker</span>, <span class="ident">PopupMsg</span>, <span class="ident">URLManager</span>,
 };
-<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">ScenarioModifier</span>, <span class="ident">SlidingWindow</span>, <span class="ident">TripMode</span>};
+<span class="kw">use</span> <span class="ident">sim::SlidingWindow</span>;
+<span class="kw">use</span> <span class="ident">synthpop</span>::{<span class="ident">ScenarioModifier</span>, <span class="ident">TripMode</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">lctrl</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">LinePlot</span>, <span class="ident">Outcome</span>,
     <span class="ident">Panel</span>, <span class="ident">PlotOptions</span>, <span class="ident">Series</span>, <span class="ident">SimpleState</span>, <span class="ident">Slider</span>, <span class="ident">Spinner</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>,

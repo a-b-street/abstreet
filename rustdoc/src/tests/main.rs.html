@@ -307,7 +307,7 @@
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">Perimeter</span>};
-<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">IndividTrip</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>, <span class="ident">TripPurpose</span>};
+<span class="kw">use</span> <span class="ident">synthpop</span>::{<span class="ident">IndividTrip</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>, <span class="ident">TripPurpose</span>};
 
 <span class="kw">fn</span> <span class="ident">main</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="ident">abstutil::logger::setup</span>();
@@ -401,7 +401,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sim</span> <span class="op">=</span> <span class="ident">sim::Sim::new</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">opts</span>);
         <span class="comment">// Bit of an abuse of this, but just need to fix the rng seed.</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">sim::SimFlags::for_test</span>(<span class="string">&quot;smoke_test&quot;</span>).<span class="ident">make_rng</span>();
-        <span class="ident">scenario</span>.<span class="ident">instantiate</span>(<span class="kw-2">&amp;mut</span> <span class="ident">sim</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>, <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>);
+        <span class="ident">sim</span>.<span class="ident">instantiate</span>(<span class="kw-2">&amp;</span><span class="ident">scenario</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>, <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>);
         <span class="ident">sim</span>.<span class="ident">timed_step</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">Duration::hours</span>(<span class="number">1</span>), <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>, <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>);
 
         <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::collapsible_if</span>)]</span>
@@ -519,7 +519,7 @@
     <span class="ident">opts</span>.<span class="ident">alerts</span> <span class="op">=</span> <span class="ident">sim::AlertHandler::Silence</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sim</span> <span class="op">=</span> <span class="ident">sim::Sim::new</span>(<span class="ident">map</span>, <span class="ident">opts</span>);
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">sim::SimFlags::for_test</span>(<span class="string">&quot;test_lane_changing&quot;</span>).<span class="ident">make_rng</span>();
-    <span class="ident">scenario</span>.<span class="ident">instantiate</span>(<span class="kw-2">&amp;mut</span> <span class="ident">sim</span>, <span class="ident">map</span>, <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>, <span class="kw-2">&amp;mut</span> <span class="ident">Timer::throwaway</span>());
+    <span class="ident">sim</span>.<span class="ident">instantiate</span>(<span class="kw-2">&amp;</span><span class="ident">scenario</span>, <span class="ident">map</span>, <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>, <span class="kw-2">&amp;mut</span> <span class="ident">Timer::throwaway</span>());
     <span class="kw">while</span> <span class="op">!</span><span class="ident">sim</span>.<span class="ident">is_done</span>() {
         <span class="ident">sim</span>.<span class="ident">tiny_step</span>(<span class="ident">map</span>, <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>);
     }
