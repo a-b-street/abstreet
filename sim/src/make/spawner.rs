@@ -225,7 +225,7 @@ impl TripSpec {
                 };
                 let goal = driving_goal(to, constraints, map)?;
                 match from {
-                    TripEndpoint::Bldg(start_bldg) => {
+                    TripEndpoint::Building(start_bldg) => {
                         if mode == TripMode::Drive {
                             TripSpec::UsingParkedCar {
                                 start_bldg,
@@ -294,7 +294,7 @@ impl TripSpec {
 
 fn start_sidewalk_spot(endpt: TripEndpoint, map: &Map) -> Result<SidewalkSpot> {
     match endpt {
-        TripEndpoint::Bldg(b) => Ok(SidewalkSpot::building(b, map)),
+        TripEndpoint::Building(b) => Ok(SidewalkSpot::building(b, map)),
         TripEndpoint::Border(i) => SidewalkSpot::start_at_border(i, map)
             .ok_or_else(|| anyhow!("can't start walking from {}", i)),
         TripEndpoint::SuddenlyAppear(pos) => Ok(SidewalkSpot::suddenly_appear(pos, map)),
@@ -303,7 +303,7 @@ fn start_sidewalk_spot(endpt: TripEndpoint, map: &Map) -> Result<SidewalkSpot> {
 
 fn end_sidewalk_spot(endpt: TripEndpoint, map: &Map) -> Result<SidewalkSpot> {
     match endpt {
-        TripEndpoint::Bldg(b) => Ok(SidewalkSpot::building(b, map)),
+        TripEndpoint::Building(b) => Ok(SidewalkSpot::building(b, map)),
         TripEndpoint::Border(i) => {
             SidewalkSpot::end_at_border(i, map).ok_or_else(|| anyhow!("can't end walking at {}", i))
         }
@@ -317,7 +317,7 @@ fn driving_goal(
     map: &Map,
 ) -> Result<DrivingGoal> {
     match endpt {
-        TripEndpoint::Bldg(b) => Ok(DrivingGoal::ParkNear(b)),
+        TripEndpoint::Building(b) => Ok(DrivingGoal::ParkNear(b)),
         // TODO Duplicates some logic from TripEndpoint::pos
         TripEndpoint::Border(i) => map
             .get_i(i)

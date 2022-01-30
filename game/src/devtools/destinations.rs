@@ -21,7 +21,7 @@ impl PopularDestinations {
         let mut per_bldg = Counter::new();
         for p in &scenario.people {
             for trip in &p.trips {
-                if let TripEndpoint::Bldg(b) = trip.destination {
+                if let TripEndpoint::Building(b) = trip.destination {
                     per_bldg.inc(b);
                 }
             }

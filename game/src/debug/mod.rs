@@ -844,7 +844,7 @@ impl ContextualActions for Actions {
                 ))
             }
             (ID::Building(b), "route from here") => Transition::Push(
-                routes::RouteExplorer::new_state(ctx, app, TripEndpoint::Bldg(b)),
+                routes::RouteExplorer::new_state(ctx, app, TripEndpoint::Building(b)),
             ),
             _ => unreachable!(),
         }

@@ -126,7 +126,7 @@ impl ScenarioGenerator {
                 );
                 let home = if is_local_resident {
                     if let Some(residence) = residents.pop() {
-                        TripEndpoint::Bldg(residence)
+                        TripEndpoint::Building(residence)
                     } else {
                         *commuter_borders.choose(rng)?
                     }
@@ -136,7 +136,7 @@ impl ScenarioGenerator {
 
                 let work = if is_local_worker {
                     if let Some(workplace) = workers.pop() {
-                        TripEndpoint::Bldg(workplace)
+                        TripEndpoint::Building(workplace)
                     } else {
                         *commuter_borders.choose(rng)?
                     }
@@ -145,13 +145,13 @@ impl ScenarioGenerator {
                 };
 
                 match (&home, &work) {
-                    (TripEndpoint::Bldg(_), TripEndpoint::Bldg(_)) => {
+                    (TripEndpoint::Building(_), TripEndpoint::Building(_)) => {
                         num_trips_local += 1;
                     }
-                    (TripEndpoint::Bldg(_), TripEndpoint::Border(_)) => {
+                    (TripEndpoint::Building(_), TripEndpoint::Border(_)) => {
                         num_trips_commuting_out += 1;
                     }
-                    (TripEndpoint::Border(_), TripEndpoint::Bldg(_)) => {
+                    (TripEndpoint::Border(_), TripEndpoint::Building(_)) => {
                         num_trips_commuting_in += 1;
                     }
                     (TripEndpoint::Border(_), TripEndpoint::Border(_)) => {
@@ -214,7 +214,7 @@ fn create_prole(
 
     let mode = match (&home, &work) {
         // commuting entirely within map
-        (TripEndpoint::Bldg(home_bldg), TripEndpoint::Bldg(work_bldg)) => {
+        (TripEndpoint::Building(home_bldg), TripEndpoint::Building(work_bldg)) => {
             // Decide mode based on walking distance. If the buildings aren't connected,
             // probably a bug in importing; just skip this person.
             let dist = if let Some(path) = PathRequest::between_buildings(

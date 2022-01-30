@@ -43,7 +43,7 @@ impl ExternalPerson {
     ) -> Result<Vec<PersonSpec>> {
         let mut closest: FindClosest<TripEndpoint> = FindClosest::new(map.get_bounds());
         for b in map.all_buildings() {
-            closest.add(TripEndpoint::Bldg(b.id), b.polygon.points());
+            closest.add(TripEndpoint::Building(b.id), b.polygon.points());
         }
         let borders = MapBorders::new(map);
 

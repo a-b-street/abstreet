@@ -99,7 +99,7 @@ pub async fn generate_scenario(
             // data imported using importer/actdev_scenarios.sh already covers them.
             let before = scenario.people.len();
             scenario.people.retain(|p| match p.trips[0].origin {
-                TripEndpoint::Bldg(b) => !study_area.contains_pt(map.get_b(b).polygon.center()),
+                TripEndpoint::Building(b) => !study_area.contains_pt(map.get_b(b).polygon.center()),
                 _ => true,
             });
             info!(

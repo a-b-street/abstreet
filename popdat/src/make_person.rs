@@ -186,7 +186,7 @@ impl PersonFactory {
             trips: Vec::new(),
         };
 
-        let mut current_location = TripEndpoint::Bldg(person.home);
+        let mut current_location = TripEndpoint::Building(person.home);
         for (departure_time, activity) in schedule.activities {
             // TODO This field isn't that important; later we could map Activity to a TripPurpose
             // better.
@@ -195,7 +195,7 @@ impl PersonFactory {
             let goto = if let Some(destination) =
                 self.find_building_for_activity(activity, current_location, map, rng)
             {
-                TripEndpoint::Bldg(destination)
+                TripEndpoint::Building(destination)
             } else if let Some(i) = commuter_borders.choose(rng) {
                 // No buildings satisfy the activity. Just go somewhere off-map.
                 TripEndpoint::Border(*i)
@@ -228,7 +228,7 @@ fn pick_mode(
     config: &Config,
 ) -> TripMode {
     let (b1, b2) = match (from, to) {
-        (TripEndpoint::Bldg(b1), TripEndpoint::Bldg(b2)) => (b1, b2),
+        (TripEndpoint::Building(b1), TripEndpoint::Building(b2)) => (b1, b2),
         // TODO Always drive when going on or off-map?
         _ => {
             return TripMode::Drive;

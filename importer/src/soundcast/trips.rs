@@ -41,11 +41,11 @@ fn endpoints(
     let from_bldg = from
         .osm_building
         .and_then(|id| osm_id_to_bldg.get(&id))
-        .map(|b| TripEndpoint::Bldg(*b));
+        .map(|b| TripEndpoint::Building(*b));
     let to_bldg = to
         .osm_building
         .and_then(|id| osm_id_to_bldg.get(&id))
-        .map(|b| TripEndpoint::Bldg(*b));
+        .map(|b| TripEndpoint::Building(*b));
 
     if only_passthrough_trips {
         if from_bldg.is_some() || to_bldg.is_some() {

@@ -111,7 +111,7 @@ impl TripManager {
         let person = &mut self.people[trip.person.0];
         if person.trips.is_empty() {
             person.state = match trip.info.start {
-                TripEndpoint::Bldg(b) => {
+                TripEndpoint::Building(b) => {
                     self.events
                         .push(Event::PersonEntersBuilding(trip.person, b));
                     PersonState::Inside(b)
@@ -994,7 +994,7 @@ impl TripManager {
         }
         // Warp to the destination
         self.people[person.0].state = match trip.info.end {
-            TripEndpoint::Bldg(b) => {
+            TripEndpoint::Building(b) => {
                 self.events.push(Event::PersonEntersBuilding(person, b));
                 PersonState::Inside(b)
             }
@@ -1015,7 +1015,7 @@ impl TripManager {
                     ctx.parking.remove_parked_car(parked_car);
                 }
 
-                if let TripEndpoint::Bldg(b) = trip.info.end {
+                if let TripEndpoint::Building(b) = trip.info.end {
                     let driving_lane = ctx.map.find_driving_lane_near_building(b);
                     if let Some(spot) = ctx
                         .parking

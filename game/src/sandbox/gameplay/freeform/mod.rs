@@ -376,7 +376,7 @@ pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
                             lane.id,
                             rand_dist(&mut rng, Distance::ZERO, lane.length()),
                         )),
-                        TripEndpoint::Bldg(map.all_buildings().choose(&mut rng).unwrap().id),
+                        TripEndpoint::Building(map.all_buildings().choose(&mut rng).unwrap().id),
                         mode,
                     )],
                 });
@@ -392,7 +392,7 @@ pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
                             lane.id,
                             rand_dist(&mut rng, 0.1 * lane.length(), 0.9 * lane.length()),
                         )),
-                        TripEndpoint::Bldg(map.all_buildings().choose(&mut rng).unwrap().id),
+                        TripEndpoint::Building(map.all_buildings().choose(&mut rng).unwrap().id),
                         TripMode::Walk,
                     )],
                 });

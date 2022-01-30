@@ -35,7 +35,7 @@ impl InputWaypoints {
             }
         }
         for b in map.all_buildings() {
-            snap_to_endpts.add(TripEndpoint::Bldg(b.id), b.polygon.points());
+            snap_to_endpts.add(TripEndpoint::Building(b.id), b.polygon.points());
         }
 
         InputWaypoints {
@@ -242,7 +242,7 @@ impl Waypoint {
     fn new(app: &dyn AppLike, at: TripEndpoint) -> Waypoint {
         let map = app.map();
         let (center, label) = match at {
-            TripEndpoint::Bldg(b) => {
+            TripEndpoint::Building(b) => {
                 let b = map.get_b(b);
                 (b.polygon.center(), b.address.clone())
             }

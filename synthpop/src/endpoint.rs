@@ -7,7 +7,7 @@ use crate::TripMode;
 /// Specifies where a trip begins or ends.
 #[derive(Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Debug, Clone, Copy)]
 pub enum TripEndpoint {
-    Bldg(BuildingID),
+    Building(BuildingID),
     Border(IntersectionID),
     /// Used for interactive spawning, tests, etc. For now, only valid as a trip's start.
     SuddenlyAppear(Position),
@@ -17,7 +17,7 @@ impl TripEndpoint {
     /// Returns a point representing where this endpoint is.
     pub fn pt(self, map: &Map) -> Pt2D {
         match self {
-            TripEndpoint::Bldg(b) => map.get_b(b).polygon.center(),
+            TripEndpoint::Building(b) => map.get_b(b).polygon.center(),
             TripEndpoint::Border(i) => map.get_i(i).polygon.center(),
             TripEndpoint::SuddenlyAppear(pos) => pos.pt(map),
         }
@@ -40,7 +40,7 @@ impl TripEndpoint {
             TripMode::Bike => PathRequest::vehicle(start, end, PathConstraints::Bike),
             // Only cars leaving from a building might turn out from the driveway in a special way
             TripMode::Drive => {
-                if matches!(from, TripEndpoint::Bldg(_)) {
+                if matches!(from, TripEndpoint::Building(_)) {
                     PathRequest::leave_from_driveway(start, end, PathConstraints::Car, map)
                 } else {
                     PathRequest::vehicle(start, end, PathConstraints::Car)
@@ -57,7 +57,7 @@ impl TripEndpoint {
                 if from {
                     match self {
                         // Fall through
-                        TripEndpoint::Bldg(_) => {}
+                        TripEndpoint::Building(_) => {}
                         TripEndpoint::Border(i) => {
                             return map.get_i(i).some_outgoing_road(map).and_then(|dr| {
                                 dr.lanes(constraints, map)
@@ -72,7 +72,7 @@ impl TripEndpoint {
                 }
 
                 match self {
-                    TripEndpoint::Bldg(b) => match constraints {
+                    TripEndpoint::Building(b) => match constraints {
                         PathConstraints::Car => {
                             let driving_lane = map.find_driving_lane_near_building(b);
                             let sidewalk_pos = map.get_b(b).sidewalk_pos;
@@ -108,7 +108,7 @@ impl TripEndpoint {
 
     fn sidewalk_pos(self, map: &Map, from: bool) -> Option<Position> {
         match self {
-            TripEndpoint::Bldg(b) => Some(map.get_b(b).sidewalk_pos),
+            TripEndpoint::Building(b) => Some(map.get_b(b).sidewalk_pos),
             TripEndpoint::Border(i) => {
                 if from {
                     TripEndpoint::start_walking_at_border(i, map)

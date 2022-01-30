@@ -408,7 +408,7 @@ fn schedule_body(ctx: &mut EventCtx, app: &App, id: PersonID) -> Widget {
     for t in &person.trips {
         let trip = app.primary.sim.trip_info(*t);
         let at = match trip.start {
-            TripEndpoint::Bldg(b) => {
+            TripEndpoint::Building(b) => {
                 let b = app.primary.map.get_b(b);
                 if b.amenities.is_empty() {
                     b.address.clone()
@@ -433,7 +433,7 @@ fn schedule_body(ctx: &mut EventCtx, app: &App, id: PersonID) -> Widget {
     // Where do they spend the night?
     let last_trip = app.primary.sim.trip_info(*person.trips.last().unwrap());
     let at = match last_trip.end {
-        TripEndpoint::Bldg(b) => {
+        TripEndpoint::Building(b) => {
             let b = app.primary.map.get_b(b);
             if b.amenities.is_empty() {
                 b.address.clone()

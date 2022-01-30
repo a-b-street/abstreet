@@ -132,7 +132,7 @@ fn get_vehicles(
             }
             TripMode::Drive => {
                 let need_parked_at = match trip.origin {
-                    TripEndpoint::Bldg(b) => Some(b),
+                    TripEndpoint::Building(b) => Some(b),
                     _ => None,
                 };
 
@@ -156,7 +156,7 @@ fn get_vehicles(
                 // Where does this car wind up?
                 car_locations.retain(|(i, _)| idx != *i);
                 match trip.destination {
-                    TripEndpoint::Bldg(b) => {
+                    TripEndpoint::Building(b) => {
                         car_locations.push((idx, Some(b)));
                     }
                     TripEndpoint::Border(_) | TripEndpoint::SuddenlyAppear(_) => {

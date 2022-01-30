@@ -933,7 +933,7 @@ fn make_elevation(
 // (ID, center, name)
 fn endpoint(endpt: &TripEndpoint, app: &App) -> (ID, Pt2D, String) {
     match endpt {
-        TripEndpoint::Bldg(b) => {
+        TripEndpoint::Building(b) => {
             let bldg = app.primary.map.get_b(*b);
             (ID::Building(*b), bldg.label_center, bldg.address.clone())
         }

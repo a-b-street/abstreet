@@ -130,8 +130,8 @@ fn produce_raw_data(ctx: &mut EventCtx, app: &App) -> Vec<Entry> {
                 .into_iter()
                 .filter_map(|(id, info)| {
                     if info.mode == TripMode::Drive
-                        && matches!(info.start, TripEndpoint::Bldg(_))
-                        && matches!(info.end, TripEndpoint::Bldg(_))
+                        && matches!(info.start, TripEndpoint::Building(_))
+                        && matches!(info.end, TripEndpoint::Building(_))
                     {
                         Some((id, info))
                     } else {

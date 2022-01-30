@@ -217,7 +217,7 @@ impl Zone {
     ) -> Option<(TripEndpoint, TripEndpoint)> {
         if rng.gen_bool(self.pct_overlap) && !self.homes.is_empty() {
             let b = self.homes.choose_weighted(rng, |(_, n)| *n).unwrap().0;
-            return Some((TripEndpoint::Bldg(b), TripEndpoint::Bldg(b)));
+            return Some((TripEndpoint::Building(b), TripEndpoint::Building(b)));
         }
         self.pick_borders(mode, map, rng)
     }
@@ -232,7 +232,7 @@ impl Zone {
     ) -> Option<(TripEndpoint, TripEndpoint)> {
         if rng.gen_bool(self.pct_overlap) && !self.workplaces.is_empty() {
             let b = self.workplaces.choose_weighted(rng, |(_, n)| *n).unwrap().0;
-            return Some((TripEndpoint::Bldg(b), TripEndpoint::Bldg(b)));
+            return Some((TripEndpoint::Building(b), TripEndpoint::Building(b)));
         }
         self.pick_borders(mode, map, rng)
     }

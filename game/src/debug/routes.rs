@@ -130,7 +130,7 @@ impl State<App> for RouteExplorer {
         }
         if let Some(hovering) = match app.primary.current_selection {
             Some(ID::Intersection(i)) => Some(TripEndpoint::Border(i)),
-            Some(ID::Building(b)) => Some(TripEndpoint::Bldg(b)),
+            Some(ID::Building(b)) => Some(TripEndpoint::Building(b)),
             None => None,
             _ => unreachable!(),
         } {
@@ -169,7 +169,7 @@ impl State<App> for RouteExplorer {
             Color::BLUE.alpha(0.8),
             match self.start {
                 TripEndpoint::Border(i) => app.primary.map.get_i(i).polygon.clone(),
-                TripEndpoint::Bldg(b) => app.primary.map.get_b(b).polygon.clone(),
+                TripEndpoint::Building(b) => app.primary.map.get_b(b).polygon.clone(),
                 TripEndpoint::SuddenlyAppear(_) => unreachable!(),
             },
         );
@@ -178,7 +178,7 @@ impl State<App> for RouteExplorer {
                 Color::GREEN.alpha(0.8),
                 match endpt {
                     TripEndpoint::Border(i) => app.primary.map.get_i(*i).polygon.clone(),
-                    TripEndpoint::Bldg(b) => app.primary.map.get_b(*b).polygon.clone(),
+                    TripEndpoint::Building(b) => app.primary.map.get_b(*b).polygon.clone(),
                     TripEndpoint::SuddenlyAppear(_) => unreachable!(),
                 },
             );

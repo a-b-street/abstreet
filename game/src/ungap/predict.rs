@@ -358,8 +358,8 @@ impl ModeShiftData {
                     .all_trips()
                     .filter(|trip| {
                         trip.mode == TripMode::Drive
-                            && matches!(trip.origin, TripEndpoint::Bldg(_))
-                            && matches!(trip.destination, TripEndpoint::Bldg(_))
+                            && matches!(trip.origin, TripEndpoint::Building(_))
+                            && matches!(trip.destination, TripEndpoint::Building(_))
                     })
                     .collect(),
                 |trip| {

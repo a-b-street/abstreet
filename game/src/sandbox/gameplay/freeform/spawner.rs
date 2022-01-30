@@ -74,7 +74,7 @@ impl AgentSpawner {
             .build(ctx),
         };
         if let Some(b) = start {
-            let endpt = TripEndpoint::Bldg(b);
+            let endpt = TripEndpoint::Building(b);
             let pt = endpt.pt(&app.primary.map);
             spawner.start = Some((endpt, pt));
             spawner.panel.replace(
@@ -220,7 +220,7 @@ impl State<App> for AgentSpawner {
         }
         if let Some(hovering) = match app.primary.current_selection {
             Some(ID::Intersection(i)) => Some(TripEndpoint::Border(i)),
-            Some(ID::Building(b)) => Some(TripEndpoint::Bldg(b)),
+            Some(ID::Building(b)) => Some(TripEndpoint::Building(b)),
             None => None,
             _ => unreachable!(),
         } {

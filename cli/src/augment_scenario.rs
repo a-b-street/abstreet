@@ -80,7 +80,7 @@ fn add_lunch_trips(scenario: &mut Scenario, map: &Map, rng: &mut XorShiftRng, ti
         }
 
         let work = match person.trips[num_trips - 2].destination {
-            TripEndpoint::Bldg(b) => b,
+            TripEndpoint::Building(b) => b,
             _ => continue,
         };
         let has_bike = person.trips[num_trips - 2].mode == TripMode::Bike;
@@ -99,15 +99,15 @@ fn add_lunch_trips(scenario: &mut Scenario, map: &Map, rng: &mut XorShiftRng, ti
         person.trips.push(IndividTrip::new(
             depart,
             TripPurpose::Meal,
-            TripEndpoint::Bldg(work),
-            TripEndpoint::Bldg(restaurant),
+            TripEndpoint::Building(work),
+            TripEndpoint::Building(restaurant),
             mode,
         ));
         person.trips.push(IndividTrip::new(
             depart + Duration::minutes(30),
             TripPurpose::Work,
-            TripEndpoint::Bldg(restaurant),
-            TripEndpoint::Bldg(work),
+            TripEndpoint::Building(restaurant),
+            TripEndpoint::Building(work),
             mode,
         ));
         person.trips.push(return_home);
