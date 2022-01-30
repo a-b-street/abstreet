@@ -846,8 +846,8 @@
                     .<span class="ident">all_trips</span>()
                     .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">trip</span><span class="op">|</span> {
                         <span class="ident">trip</span>.<span class="ident">mode</span> <span class="op">==</span> <span class="ident">TripMode::Drive</span>
-                            <span class="op">&amp;&amp;</span> <span class="macro">matches!</span>(<span class="ident">trip</span>.<span class="ident">origin</span>, <span class="ident">TripEndpoint::Bldg</span>(<span class="kw">_</span>))
-                            <span class="op">&amp;&amp;</span> <span class="macro">matches!</span>(<span class="ident">trip</span>.<span class="ident">destination</span>, <span class="ident">TripEndpoint::Bldg</span>(<span class="kw">_</span>))
+                            <span class="op">&amp;&amp;</span> <span class="macro">matches!</span>(<span class="ident">trip</span>.<span class="ident">origin</span>, <span class="ident">TripEndpoint::Building</span>(<span class="kw">_</span>))
+                            <span class="op">&amp;&amp;</span> <span class="macro">matches!</span>(<span class="ident">trip</span>.<span class="ident">destination</span>, <span class="ident">TripEndpoint::Building</span>(<span class="kw">_</span>))
                     })
                     .<span class="ident">collect</span>(),
                 <span class="op">|</span><span class="ident">trip</span><span class="op">|</span> {

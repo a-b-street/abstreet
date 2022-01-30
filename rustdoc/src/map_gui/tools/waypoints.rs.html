@@ -300,7 +300,7 @@
             }
         }
         <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_buildings</span>() {
-            <span class="ident">snap_to_endpts</span>.<span class="ident">add</span>(<span class="ident">TripEndpoint::Bldg</span>(<span class="ident">b</span>.<span class="ident">id</span>), <span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">points</span>());
+            <span class="ident">snap_to_endpts</span>.<span class="ident">add</span>(<span class="ident">TripEndpoint::Building</span>(<span class="ident">b</span>.<span class="ident">id</span>), <span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">points</span>());
         }
 
         <span class="ident">InputWaypoints</span> {
@@ -507,7 +507,7 @@
     <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>, <span class="ident">at</span>: <span class="ident">TripEndpoint</span>) -&gt; <span class="ident">Waypoint</span> {
         <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>();
         <span class="kw">let</span> (<span class="ident">center</span>, <span class="ident">label</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">at</span> {
-            <span class="ident">TripEndpoint::Bldg</span>(<span class="ident">b</span>) =&gt; {
+            <span class="ident">TripEndpoint::Building</span>(<span class="ident">b</span>) =&gt; {
                 <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>);
                 (<span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">center</span>(), <span class="ident">b</span>.<span class="ident">address</span>.<span class="ident">clone</span>())
             }

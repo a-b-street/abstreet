@@ -807,12 +807,12 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">trips_to_block</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripInfo</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">trips_from_block</span>.<span class="ident">clone</span>();
         <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">trip</span>) <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">all_trip_info</span>() {
             <span class="kw">let</span> <span class="ident">block1</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">trip</span>.<span class="ident">start</span> {
-                <span class="ident">TripEndpoint::Bldg</span>(<span class="ident">b</span>) =&gt; <span class="ident">bldg_to_block</span>[<span class="kw-2">&amp;</span><span class="ident">b</span>],
+                <span class="ident">TripEndpoint::Building</span>(<span class="ident">b</span>) =&gt; <span class="ident">bldg_to_block</span>[<span class="kw-2">&amp;</span><span class="ident">b</span>],
                 <span class="ident">TripEndpoint::Border</span>(<span class="ident">i</span>) =&gt; <span class="ident">border_to_block</span>[<span class="kw-2">&amp;</span><span class="ident">i</span>],
                 <span class="ident">TripEndpoint::SuddenlyAppear</span>(<span class="kw">_</span>) =&gt; <span class="kw">continue</span>,
             };
             <span class="kw">let</span> <span class="ident">block2</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">trip</span>.<span class="ident">end</span> {
-                <span class="ident">TripEndpoint::Bldg</span>(<span class="ident">b</span>) =&gt; <span class="ident">bldg_to_block</span>[<span class="kw-2">&amp;</span><span class="ident">b</span>],
+                <span class="ident">TripEndpoint::Building</span>(<span class="ident">b</span>) =&gt; <span class="ident">bldg_to_block</span>[<span class="kw-2">&amp;</span><span class="ident">b</span>],
                 <span class="ident">TripEndpoint::Border</span>(<span class="ident">i</span>) =&gt; <span class="ident">border_to_block</span>[<span class="kw-2">&amp;</span><span class="ident">i</span>],
                 <span class="ident">TripEndpoint::SuddenlyAppear</span>(<span class="kw">_</span>) =&gt; <span class="kw">continue</span>,
             };
@@ -871,7 +871,7 @@
             }
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">filter</span>.<span class="ident">from_block</span> {
                 <span class="kw">match</span> <span class="ident">trip</span>.<span class="ident">end</span> {
-                    <span class="ident">TripEndpoint::Bldg</span>(<span class="ident">b</span>) =&gt; {
+                    <span class="ident">TripEndpoint::Building</span>(<span class="ident">b</span>) =&gt; {
                         <span class="ident">count</span>.<span class="ident">inc</span>(<span class="self">self</span>.<span class="ident">bldg_to_block</span>[<span class="kw-2">&amp;</span><span class="ident">b</span>]);
                     }
                     <span class="ident">TripEndpoint::Border</span>(<span class="ident">i</span>) =&gt; {
@@ -883,7 +883,7 @@
                 }
             } <span class="kw">else</span> {
                 <span class="kw">match</span> <span class="ident">trip</span>.<span class="ident">start</span> {
-                    <span class="ident">TripEndpoint::Bldg</span>(<span class="ident">b</span>) =&gt; {
+                    <span class="ident">TripEndpoint::Building</span>(<span class="ident">b</span>) =&gt; {
                         <span class="ident">count</span>.<span class="ident">inc</span>(<span class="self">self</span>.<span class="ident">bldg_to_block</span>[<span class="kw-2">&amp;</span><span class="ident">b</span>]);
                     }
                     <span class="ident">TripEndpoint::Border</span>(<span class="ident">i</span>) =&gt; {

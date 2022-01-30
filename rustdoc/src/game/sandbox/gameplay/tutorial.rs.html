@@ -2105,7 +2105,7 @@
         <span class="ident">start_time</span>: <span class="ident">Time::START_OF_DAY</span>,
         <span class="ident">stop_time</span>: <span class="ident">Time::START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration::seconds</span>(<span class="number">10.0</span>),
         <span class="ident">start_from_border</span>: <span class="ident">map</span>.<span class="ident">find_i_by_osm_id</span>(<span class="ident">osm::NodeID</span>(<span class="number">3005680098</span>)).<span class="ident">unwrap</span>(),
-        <span class="ident">goal</span>: <span class="prelude-val">Some</span>(<span class="ident">TripEndpoint::Bldg</span>(
+        <span class="ident">goal</span>: <span class="prelude-val">Some</span>(<span class="ident">TripEndpoint::Building</span>(
             <span class="ident">map</span>.<span class="ident">find_b_by_osm_id</span>(<span class="ident">bldg</span>(<span class="number">217699501</span>)).<span class="ident">unwrap</span>(),
         )),
     });
@@ -2505,7 +2505,7 @@
                                 <span class="ident">start_lane</span>,
                                 <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">start_lane</span>).<span class="ident">length</span>() <span class="op">*</span> <span class="number">0.8</span>,
                             )),
-                            <span class="ident">TripEndpoint::Bldg</span>(<span class="ident">goal_bldg</span>),
+                            <span class="ident">TripEndpoint::Building</span>(<span class="ident">goal_bldg</span>),
                             <span class="ident">TripMode::Drive</span>,
                         )],
                     });
@@ -2520,7 +2520,7 @@
                                     <span class="ident">lane_near_bldg</span>,
                                     <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">lane_near_bldg</span>).<span class="ident">length</span>() <span class="op">/</span> <span class="number">2.0</span>,
                                 )),
-                                <span class="ident">TripEndpoint::Bldg</span>(<span class="ident">goal_bldg</span>),
+                                <span class="ident">TripEndpoint::Building</span>(<span class="ident">goal_bldg</span>),
                                 <span class="ident">TripMode::Drive</span>,
                             )],
                         });

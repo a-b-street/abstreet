@@ -810,7 +810,7 @@
                             <span class="ident">lane</span>.<span class="ident">id</span>,
                             <span class="ident">rand_dist</span>(<span class="kw-2">&amp;mut</span> <span class="ident">rng</span>, <span class="ident">Distance::ZERO</span>, <span class="ident">lane</span>.<span class="ident">length</span>()),
                         )),
-                        <span class="ident">TripEndpoint::Bldg</span>(<span class="ident">map</span>.<span class="ident">all_buildings</span>().<span class="ident">choose</span>(<span class="kw-2">&amp;mut</span> <span class="ident">rng</span>).<span class="ident">unwrap</span>().<span class="ident">id</span>),
+                        <span class="ident">TripEndpoint::Building</span>(<span class="ident">map</span>.<span class="ident">all_buildings</span>().<span class="ident">choose</span>(<span class="kw-2">&amp;mut</span> <span class="ident">rng</span>).<span class="ident">unwrap</span>().<span class="ident">id</span>),
                         <span class="ident">mode</span>,
                     )],
                 });
@@ -826,7 +826,7 @@
                             <span class="ident">lane</span>.<span class="ident">id</span>,
                             <span class="ident">rand_dist</span>(<span class="kw-2">&amp;mut</span> <span class="ident">rng</span>, <span class="number">0.1</span> <span class="op">*</span> <span class="ident">lane</span>.<span class="ident">length</span>(), <span class="number">0.9</span> <span class="op">*</span> <span class="ident">lane</span>.<span class="ident">length</span>()),
                         )),
-                        <span class="ident">TripEndpoint::Bldg</span>(<span class="ident">map</span>.<span class="ident">all_buildings</span>().<span class="ident">choose</span>(<span class="kw-2">&amp;mut</span> <span class="ident">rng</span>).<span class="ident">unwrap</span>().<span class="ident">id</span>),
+                        <span class="ident">TripEndpoint::Building</span>(<span class="ident">map</span>.<span class="ident">all_buildings</span>().<span class="ident">choose</span>(<span class="kw-2">&amp;mut</span> <span class="ident">rng</span>).<span class="ident">unwrap</span>().<span class="ident">id</span>),
                         <span class="ident">TripMode::Walk</span>,
                     )],
                 });
