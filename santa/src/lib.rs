@@ -30,6 +30,8 @@ pub fn main() {
 fn run(mut settings: Settings) {
     let mut opts = map_gui::options::Options::load_or_default();
     opts.color_scheme = map_gui::colors::ColorSchemeChoice::NightMode;
+    // Note we don't take any CLI arguments at all. Always start on the first level's map
+
     settings = settings
         .read_svg(Box::new(abstio::slurp_bytes))
         .canvas_settings(opts.canvas_settings.clone());
@@ -37,23 +39,31 @@ fn run(mut settings: Settings) {
         let session = session::Session::load();
         session.save();
 
-        map_gui::SimpleApp::new(ctx, opts, session, |ctx, app| {
-            if app.opts.dev {
-                app.session.unlock_all();
-            }
-            app.session.music = music::Music::start(ctx, app.session.play_music, "jingle_bells");
-            app.session.music.specify_volume(music::OUT_OF_GAME);
+        map_gui::SimpleApp::new(
+            ctx,
+            opts,
+            abstio::MapName::seattle("qa"),
+            None,
+            session,
+            |ctx, app| {
+                if app.opts.dev {
+                    app.session.unlock_all();
+                }
+                app.session.music =
+                    music::Music::start(ctx, app.session.play_music, "jingle_bells");
+                app.session.music.specify_volume(music::OUT_OF_GAME);
 
-            vec![
-                map_gui::tools::TitleScreen::new_state(
-                    ctx,
-                    app,
-                    map_gui::tools::Executable::Santa,
-                    Box::new(|ctx, app, _| title::TitleScreen::new_state(ctx, app)),
-                ),
-                title::TitleScreen::new_state(ctx, app),
-            ]
-        })
+                vec![
+                    map_gui::tools::TitleScreen::new_state(
+                        ctx,
+                        app,
+                        map_gui::tools::Executable::Santa,
+                        Box::new(|ctx, app, _| title::TitleScreen::new_state(ctx, app)),
+                    ),
+                    title::TitleScreen::new_state(ctx, app),
+                ]
+            },
+        )
     });
 }
 

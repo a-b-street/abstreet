@@ -32,6 +32,7 @@ serde_json = "1.0.61"
 synthpop = { path = "../synthpop" }
 wasm-bindgen = { version = "0.2.70", optional = true }
 widgetry = { path = "../widgetry" }
+structopt = "0.3.23"
 
 [dependencies.web-sys]
 version = "0.3.47"

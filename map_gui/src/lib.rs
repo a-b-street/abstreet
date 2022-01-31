@@ -17,7 +17,7 @@ use map_model::{
 use sim::{AgentID, CarID, PedestrianID, Sim};
 use widgetry::{EventCtx, GfxCtx, State};
 
-pub use self::simple_app::SimpleApp;
+pub use self::simple_app::{SimpleApp, SimpleAppArgs};
 use crate::render::DrawOptions;
 use colors::{ColorScheme, ColorSchemeChoice};
 use options::Options;
