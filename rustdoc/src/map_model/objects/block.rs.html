@@ -537,6 +537,46 @@
 <span id="536">536</span>
 <span id="537">537</span>
 <span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
@@ -574,10 +614,16 @@
 <span class="kw">impl</span> <span class="ident">Perimeter</span> {
     <span class="doccomment">/// Starting at any lane, snap to the nearest side of that road, then begin tracing a single</span>
     <span class="doccomment">/// block, with no interior roads. This will fail if a map boundary is reached. The results are</span>
-    <span class="doccomment">/// unusual when crossing the entrance to a tunnel or bridge.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">single_block</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">start</span>: <span class="ident">LaneID</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Perimeter</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// unusual when crossing the entrance to a tunnel or bridge, and so `skip` is used to avoid</span>
+    <span class="doccomment">/// tracing there.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">single_block</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">start</span>: <span class="ident">LaneID</span>, <span class="ident">skip</span>: <span class="kw-2">&amp;</span><span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Perimeter</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">let</span> <span class="ident">start_road_side</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">start</span>).<span class="ident">get_nearest_side_of_road</span>(<span class="ident">map</span>);
+
+        <span class="kw">if</span> <span class="ident">skip</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">start_road_side</span>.<span class="ident">road</span>) {
+            <span class="macro">bail!</span>(<span class="string">&quot;Started on a road we shouldn&#39;t trace&quot;</span>);
+        }
+
         <span class="comment">// We need to track which side of the road we&#39;re at, but also which direction we&#39;re facing</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current_road_side</span> <span class="op">=</span> <span class="ident">start_road_side</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current_intersection</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">start</span>).<span class="ident">dst_i</span>;
@@ -586,7 +632,8 @@
             <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_border</span>() {
                 <span class="macro">bail!</span>(<span class="string">&quot;hit the map boundary&quot;</span>);
             }
-            <span class="kw">let</span> <span class="ident">sorted_roads</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">get_road_sides_sorted_by_incoming_angle</span>(<span class="ident">map</span>);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sorted_roads</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">get_road_sides_sorted_by_incoming_angle</span>(<span class="ident">map</span>);
+            <span class="ident">sorted_roads</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="op">!</span><span class="ident">skip</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>.<span class="ident">road</span>));
             <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">sorted_roads</span>
                 .<span class="ident">iter</span>()
                 .<span class="ident">position</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">x</span> <span class="op">==</span> <span class="ident">current_road_side</span>)
@@ -624,6 +671,8 @@
     <span class="doccomment">/// This calculates all single block perimeters for the entire map. The resulting list does not</span>
     <span class="doccomment">/// cover roads near the map boundary.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find_all_single_blocks</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Perimeter</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">skip</span> <span class="op">=</span> <span class="ident">Perimeter::find_roads_to_skip_tracing</span>(<span class="ident">map</span>);
+
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seen</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">perimeters</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">for</span> <span class="ident">lane</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_lanes</span>() {
@@ -631,7 +680,7 @@
             <span class="kw">if</span> <span class="ident">seen</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">side</span>) {
                 <span class="kw">continue</span>;
             }
-            <span class="kw">match</span> <span class="ident">Perimeter::single_block</span>(<span class="ident">map</span>, <span class="ident">lane</span>.<span class="ident">id</span>) {
+            <span class="kw">match</span> <span class="ident">Perimeter::single_block</span>(<span class="ident">map</span>, <span class="ident">lane</span>.<span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">skip</span>) {
                 <span class="prelude-val">Ok</span>(<span class="ident">perimeter</span>) =&gt; {
                     <span class="ident">seen</span>.<span class="ident">extend</span>(<span class="ident">perimeter</span>.<span class="ident">roads</span>.<span class="ident">clone</span>());
                     <span class="ident">perimeters</span>.<span class="ident">push</span>(<span class="ident">perimeter</span>);
@@ -648,6 +697,21 @@
             }
         }
         <span class="ident">perimeters</span>
+    }
+
+    <span class="doccomment">/// Trying to form blocks near railways or cycleways that involve bridges/tunnels often causes</span>
+    <span class="doccomment">/// overlapping geometry or blocks that&#39;re way too large. These are extremely imperfect</span>
+    <span class="doccomment">/// heuristics to avoid the worst problems.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find_roads_to_skip_tracing</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">skip</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
+        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
+            <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">is_light_rail</span>() {
+                <span class="ident">skip</span>.<span class="ident">insert</span>(<span class="ident">r</span>.<span class="ident">id</span>);
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">is_cycleway</span>() <span class="op">&amp;&amp;</span> <span class="ident">r</span>.<span class="ident">zorder</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
+                <span class="ident">skip</span>.<span class="ident">insert</span>(<span class="ident">r</span>.<span class="ident">id</span>);
+            }
+        }
+        <span class="ident">skip</span>
     }
 
     <span class="doccomment">/// A perimeter has the first and last road matching up, but that&#39;s confusing to</span>
@@ -757,6 +821,16 @@
         <span class="comment">// This order assumes everything is clockwise to start with.</span>
         <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">other</span>.<span class="ident">roads</span>);
 
+        <span class="comment">// TODO This case was introduced with find_roads_to_skip_tracing. Not sure why.</span>
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">is_empty</span>() {
+            <span class="kw">if</span> <span class="ident">debug_failures</span> {
+                <span class="macro">warn!</span>(<span class="string">&quot;Two perimeters had every road in common: {:?}&quot;</span>, <span class="ident">common</span>);
+            }
+            <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">orig_self</span>;
+            <span class="kw-2">*</span><span class="ident">other</span> <span class="op">=</span> <span class="ident">orig_other</span>;
+            <span class="kw">return</span> <span class="bool-val">false</span>;
+        }
+
         <span class="self">self</span>.<span class="ident">interior</span>.<span class="ident">extend</span>(<span class="ident">common</span>);
         <span class="self">self</span>.<span class="ident">interior</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">other</span>.<span class="ident">interior</span>);
 
@@ -821,6 +895,7 @@
     <span class="doccomment">/// If the perimeter follows any dead-end roads, &quot;collapse&quot; them and instead make the perimeter</span>
     <span class="doccomment">/// contain the dead-end.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">collapse_deadends</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
+        <span class="kw">let</span> <span class="ident">orig</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">clone</span>();
         <span class="self">self</span>.<span class="ident">undo_invariant</span>();
 
         <span class="comment">// TODO Workaround https://github.com/a-b-street/abstreet/issues/834. If this is a loop</span>
@@ -847,6 +922,11 @@
         }
 
         <span class="self">self</span>.<span class="ident">roads</span> <span class="op">=</span> <span class="ident">roads</span>;
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">is_empty</span>() {
+            <span class="comment">// TODO This case was introduced with find_roads_to_skip_tracing. Not sure why.</span>
+            <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">orig</span>;
+            <span class="kw">return</span>;
+        }
         <span class="self">self</span>.<span class="ident">restore_invariant</span>();
     }
 
