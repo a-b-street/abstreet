@@ -1,16 +1,18 @@
 data/system/us/seattle/maps/montlake.bin
-    157 single blocks (0 failures to blockify), 1 partial merges, 0 failures to blockify partitions
+    158 single blocks (0 failures to blockify), 1 partial merges, 0 failures to blockify partitions
 data/system/us/seattle/maps/downtown.bin
-    1443 single blocks (0 failures to blockify), 13 partial merges, 0 failures to blockify partitions
+    1433 single blocks (0 failures to blockify), 12 partial merges, 0 failures to blockify partitions
 data/system/us/seattle/maps/lakeslice.bin
-    1033 single blocks (1 failures to blockify), 4 partial merges, 0 failures to blockify partitions
+    1035 single blocks (1 failures to blockify), 4 partial merges, 0 failures to blockify partitions
 data/system/us/phoenix/maps/tempe.bin
-    406 single blocks (3 failures to blockify), 4 partial merges, 0 failures to blockify partitions
-data/system/gb/leeds/maps/north.bin
-    2582 single blocks (4 failures to blockify), 20 partial merges, 0 failures to blockify partitions
+    382 single blocks (1 failures to blockify), 1 partial merges, 0 failures to blockify partitions
 data/system/gb/bristol/maps/east.bin
-    1061 single blocks (4 failures to blockify), 6 partial merges, 0 failures to blockify partitions
+    1031 single blocks (4 failures to blockify), 7 partial merges, 0 failures to blockify partitions
+data/system/gb/leeds/maps/north.bin
+    2548 single blocks (4 failures to blockify), 21 partial merges, 0 failures to blockify partitions
 data/system/gb/london/maps/camden.bin
-    3519 single blocks (4 failures to blockify), 34 partial merges, 0 failures to blockify partitions
+    3445 single blocks (3 failures to blockify), 37 partial merges, 0 failures to blockify partitions
 data/system/gb/london/maps/southwark.bin
-    3477 single blocks (5 failures to blockify), 46 partial merges, 0 failures to blockify partitions
+    3286 single blocks (5 failures to blockify), 42 partial merges, 0 failures to blockify partitions
+data/system/gb/manchester/maps/levenshulme.bin
+    1337 single blocks (1 failures to blockify), 2 partial merges, 0 failures to blockify partitions
