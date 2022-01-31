@@ -1,5 +1,7 @@
 #![allow(clippy::type_complexity)]
 
+use structopt::StructOpt;
+
 use widgetry::Settings;
 
 pub use browse::BrowseNeighborhoods;
@@ -38,6 +40,9 @@ pub fn main() {
 fn run(mut settings: Settings) {
     let mut opts = map_gui::options::Options::load_or_default();
     opts.color_scheme = map_gui::colors::ColorSchemeChoice::DayMode;
+    let args = map_gui::SimpleAppArgs::from_iter(abstutil::cli_args());
+    args.override_options(&mut opts);
+
     settings = settings
         .read_svg(Box::new(abstio::slurp_bytes))
         .canvas_settings(opts.canvas_settings.clone());
@@ -57,7 +62,7 @@ fn run(mut settings: Settings) {
 
             current_trip_name: None,
         };
-        map_gui::SimpleApp::new(ctx, opts, session, |ctx, app| {
+        map_gui::SimpleApp::new(ctx, opts, args.map_name(), args.cam, session, |ctx, app| {
             vec![
                 map_gui::tools::TitleScreen::new_state(
                     ctx,

@@ -1,5 +1,7 @@
 mod viewer;
 
+use structopt::StructOpt;
+
 use widgetry::Settings;
 
 pub fn main() {
@@ -8,13 +10,16 @@ pub fn main() {
 }
 
 pub fn run(mut settings: Settings) {
-    let mut options = map_gui::options::Options::load_or_default();
-    options.show_building_driveways = false;
+    let mut opts = map_gui::options::Options::load_or_default();
+    opts.show_building_driveways = false;
+    let args = map_gui::SimpleAppArgs::from_iter(abstutil::cli_args());
+    args.override_options(&mut opts);
+
     settings = settings
         .read_svg(Box::new(abstio::slurp_bytes))
-        .canvas_settings(options.canvas_settings.clone());
+        .canvas_settings(opts.canvas_settings.clone());
     widgetry::run(settings, |ctx| {
-        map_gui::SimpleApp::new(ctx, options, (), |ctx, app| {
+        map_gui::SimpleApp::new(ctx, opts, args.map_name(), args.cam, (), |ctx, app| {
             vec![
                 map_gui::tools::TitleScreen::new_state(
                     ctx,

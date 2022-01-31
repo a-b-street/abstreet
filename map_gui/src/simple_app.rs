@@ -28,55 +28,47 @@ pub struct SimpleApp<T> {
     pub time: Time,
 }
 
-// Don't give a name and description. If an app cares enough to override, they can't use SimpleApp
-// (or refactor to plumb through options themselves)
+// A SimpleApp can directly use this (`let args = SimpleAppArgs::from_iter(abstutil::cli_args())`)
+// or embed in their own struct and define other flags.
 #[derive(StructOpt)]
-struct Args {
+pub struct SimpleAppArgs {
     /// Path to a map to initially load. If not provided, load the last map used or a fixed
     /// default.
     #[structopt()]
-    map_path: Option<String>,
+    pub map_path: Option<String>,
     /// Initially position the camera here. The format is an OSM-style `zoom/lat/lon` string
     /// (https://wiki.openstreetmap.org/wiki/Browsing#Other_URL_tricks).
     #[structopt(long)]
-    cam: Option<String>,
+    pub cam: Option<String>,
     /// Dev mode exposes experimental tools useful for debugging, but that'd likely confuse most
     /// players.
     #[structopt(long)]
-    dev: bool,
+    pub dev: bool,
     /// The color scheme for map elements, agents, and the UI.
     #[structopt(long, parse(try_from_str = ColorSchemeChoice::parse))]
-    color_scheme: Option<ColorSchemeChoice>,
+    pub color_scheme: Option<ColorSchemeChoice>,
     /// When making a screen recording, enable this option to hide some UI elements
     #[structopt(long)]
-    minimal_controls: bool,
+    pub minimal_controls: bool,
 }
 
-impl<T: 'static> SimpleApp<T> {
-    pub fn new<
-        F: 'static + Fn(&mut EventCtx, &mut SimpleApp<T>) -> Vec<Box<dyn State<SimpleApp<T>>>>,
-    >(
-        ctx: &mut EventCtx,
-        mut opts: Options,
-        session: T,
-        init_states: F,
-    ) -> (SimpleApp<T>, Vec<Box<dyn State<SimpleApp<T>>>>) {
-        abstutil::logger::setup();
-        let args = Args::from_iter(abstutil::cli_args());
-        // Options are passed in by each app, usually seeded with defaults or from a config file.
-        // For the few options that we allow to be specified by command-line, overwrite the values.
-        opts.dev = args.dev;
-        opts.minimal_controls = args.minimal_controls;
-        if let Some(cs) = args.color_scheme {
+impl SimpleAppArgs {
+    /// Options are passed in by each app, usually seeded with defaults or from a config file.  For
+    /// the few options that we allow to be specified by command-line, overwrite the values.
+    pub fn override_options(&self, opts: &mut Options) {
+        opts.dev = self.dev;
+        opts.minimal_controls = self.minimal_controls;
+        if let Some(cs) = self.color_scheme {
             opts.color_scheme = cs;
             opts.toggle_day_night_colors = false;
         }
+    }
 
-        ctx.canvas.settings = opts.canvas_settings.clone();
-        let map_name = args
-            .map_path
+    pub fn map_name(&self) -> MapName {
+        self.map_path
+            .as_ref()
             .map(|path| {
-                MapName::from_path(&path).unwrap_or_else(|| panic!("bad map path: {}", path))
+                MapName::from_path(path).unwrap_or_else(|| panic!("bad map path: {}", path))
             })
             .or_else(|| {
                 abstio::maybe_read_json::<crate::tools::DefaultMap>(
@@ -86,7 +78,23 @@ impl<T: 'static> SimpleApp<T> {
                 .ok()
                 .map(|x| x.last_map)
             })
-            .unwrap_or_else(|| MapName::seattle("montlake"));
+            .unwrap_or_else(|| MapName::seattle("montlake"))
+    }
+}
+
+impl<T: 'static> SimpleApp<T> {
+    pub fn new<
+        F: 'static + Fn(&mut EventCtx, &mut SimpleApp<T>) -> Vec<Box<dyn State<SimpleApp<T>>>>,
+    >(
+        ctx: &mut EventCtx,
+        opts: Options,
+        map_name: MapName,
+        cam: Option<String>,
+        session: T,
+        init_states: F,
+    ) -> (SimpleApp<T>, Vec<Box<dyn State<SimpleApp<T>>>>) {
+        abstutil::logger::setup();
+        ctx.canvas.settings = opts.canvas_settings.clone();
 
         let cs = ColorScheme::new(ctx, opts.color_scheme);
         // Start with a blank map
@@ -107,7 +115,7 @@ impl<T: 'static> SimpleApp<T> {
             &app,
             map_name,
             Box::new(move |ctx, app| {
-                URLManager::change_camera(ctx, args.cam.as_ref(), app.map().get_gps_bounds());
+                URLManager::change_camera(ctx, cam.as_ref(), app.map().get_gps_bounds());
                 Transition::Clear(init_states(ctx, app))
             }),
         )];

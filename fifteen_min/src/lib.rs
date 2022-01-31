@@ -1,5 +1,7 @@
 #![allow(clippy::type_complexity)]
 
+use structopt::StructOpt;
+
 use widgetry::Settings;
 
 #[macro_use]
@@ -18,12 +20,15 @@ pub fn main() {
 }
 
 fn run(mut settings: Settings) {
-    let options = map_gui::options::Options::load_or_default();
+    let mut options = map_gui::options::Options::load_or_default();
+    let args = map_gui::SimpleAppArgs::from_iter(abstutil::cli_args());
+    args.override_options(&mut options);
+
     settings = settings
         .read_svg(Box::new(abstio::slurp_bytes))
         .canvas_settings(options.canvas_settings.clone());
     widgetry::run(settings, |ctx| {
-        map_gui::SimpleApp::new(ctx, options, (), |ctx, app| {
+        map_gui::SimpleApp::new(ctx, options, args.map_name(), args.cam, (), |ctx, app| {
             vec![
                 map_gui::tools::TitleScreen::new_state(
                     ctx,
