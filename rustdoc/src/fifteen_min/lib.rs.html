@@ -51,7 +51,14 @@
 <span id="50">50</span>
 <span id="51">51</span>
 <span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::type_complexity</span>)]</span>
+
+<span class="kw">use</span> <span class="ident">structopt::StructOpt</span>;
 
 <span class="kw">use</span> <span class="ident">widgetry::Settings</span>;
 
@@ -71,12 +78,15 @@
 }
 
 <span class="kw">fn</span> <span class="ident">run</span>(<span class="kw-2">mut</span> <span class="ident">settings</span>: <span class="ident">Settings</span>) {
-    <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">map_gui::options::Options::load_or_default</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">map_gui::options::Options::load_or_default</span>();
+    <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">map_gui::SimpleAppArgs::from_iter</span>(<span class="ident">abstutil::cli_args</span>());
+    <span class="ident">args</span>.<span class="ident">override_options</span>(<span class="kw-2">&amp;mut</span> <span class="ident">options</span>);
+
     <span class="ident">settings</span> <span class="op">=</span> <span class="ident">settings</span>
         .<span class="ident">read_svg</span>(<span class="ident">Box::new</span>(<span class="ident">abstio::slurp_bytes</span>))
         .<span class="ident">canvas_settings</span>(<span class="ident">options</span>.<span class="ident">canvas_settings</span>.<span class="ident">clone</span>());
     <span class="ident">widgetry::run</span>(<span class="ident">settings</span>, <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> {
-        <span class="ident">map_gui::SimpleApp::new</span>(<span class="ident">ctx</span>, <span class="ident">options</span>, (), <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+        <span class="ident">map_gui::SimpleApp::new</span>(<span class="ident">ctx</span>, <span class="ident">options</span>, <span class="ident">args</span>.<span class="ident">map_name</span>(), <span class="ident">args</span>.<span class="ident">cam</span>, (), <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
             <span class="macro">vec!</span>[
                 <span class="ident">map_gui::tools::TitleScreen::new_state</span>(
                     <span class="ident">ctx</span>,

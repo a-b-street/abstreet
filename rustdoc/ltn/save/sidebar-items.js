@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Proposal","Captures all of the edits somebody makes to a map in the LTN tool. Note this separate from `map_model::MapEdits`."]]});

@@ -536,10 +536,12 @@
 <span id="535">535</span>
 <span id="536">536</span>
 <span id="537">537</span>
+<span id="538">538</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
+<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="ident">abstutil::wraparound_get</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
@@ -551,7 +553,7 @@
 <span class="doccomment">/// single &quot;city block&quot;, with no interior roads. It may also cover a &quot;neighborhood&quot;, where the</span>
 <span class="doccomment">/// perimeter contains some &quot;major&quot; and the interior consists only of &quot;minor&quot; roads.</span>
 <span class="comment">// TODO Maybe &quot;block&quot; is a misleading term. &quot;Contiguous road trace area&quot;?</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Block</span> {
     <span class="kw">pub</span> <span class="ident">perimeter</span>: <span class="ident">Perimeter</span>,
     <span class="doccomment">/// The polygon covers the interior of the block.</span>
@@ -562,7 +564,7 @@
 <span class="doccomment">/// along this sequence should geometrically yield a simple polygon.</span>
 <span class="comment">// TODO Handle the map boundary. Sometimes this perimeter should be broken up by border</span>
 <span class="comment">// intersections or possibly by water/park areas.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Perimeter</span> {
     <span class="kw">pub</span> <span class="ident">roads</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RoadSideID</span><span class="op">&gt;</span>,
     <span class="doccomment">/// These roads exist entirely within the perimeter</span>

@@ -24,19 +24,29 @@
 <span id="23">23</span>
 <span id="24">24</span>
 <span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
 </pre><pre class="rust"><code><span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
+
+<span class="kw">use</span> <span class="ident">structopt::StructOpt</span>;
 
 <span class="kw">mod</span> <span class="ident">mapper</span>;
 
 <span class="kw">fn</span> <span class="ident">main</span>() {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">map_gui::options::Options::load_or_default</span>();
     <span class="ident">options</span>.<span class="ident">canvas_settings</span>.<span class="ident">min_zoom_for_detail</span> <span class="op">=</span> <span class="number">2.0</span>;
+    <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">map_gui::SimpleAppArgs::from_iter</span>(<span class="ident">abstutil::cli_args</span>());
+    <span class="ident">args</span>.<span class="ident">override_options</span>(<span class="kw-2">&amp;mut</span> <span class="ident">options</span>);
+
     <span class="kw">let</span> <span class="ident">settings</span> <span class="op">=</span> <span class="ident">widgetry::Settings::new</span>(<span class="string">&quot;OSM parking mapper&quot;</span>)
         .<span class="ident">read_svg</span>(<span class="ident">Box::new</span>(<span class="ident">abstio::slurp_bytes</span>))
         .<span class="ident">canvas_settings</span>(<span class="ident">options</span>.<span class="ident">canvas_settings</span>.<span class="ident">clone</span>());
     <span class="ident">widgetry::run</span>(<span class="ident">settings</span>, <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> {
-        <span class="ident">map_gui::SimpleApp::new</span>(<span class="ident">ctx</span>, <span class="ident">options</span>, (), <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+        <span class="ident">map_gui::SimpleApp::new</span>(<span class="ident">ctx</span>, <span class="ident">options</span>, <span class="ident">args</span>.<span class="ident">map_name</span>(), <span class="ident">args</span>.<span class="ident">cam</span>, (), <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
             <span class="macro">vec!</span>[
                 <span class="ident">map_gui::tools::TitleScreen::new_state</span>(
                     <span class="ident">ctx</span>,

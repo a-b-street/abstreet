@@ -247,7 +247,13 @@
 <span id="246">246</span>
 <span id="247">247</span>
 <span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
+
+<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Line</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">RoadID</span>, <span class="ident">RoutingParams</span>, <span class="ident">TurnID</span>};
@@ -258,15 +264,17 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::App</span>;
 
 <span class="doccomment">/// Stored in App session state. Before making any changes, call `before_edit`.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Default</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Default</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ModalFilters</span> {
     <span class="doccomment">/// For filters placed along a road, where is the filter located?</span>
     <span class="kw">pub</span> <span class="ident">roads</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">RoadID</span>, <span class="ident">Distance</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">intersections</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">IntersectionID</span>, <span class="ident">DiagonalFilter</span><span class="op">&gt;</span>,
 
     <span class="doccomment">/// Edit history is preserved recursively</span>
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>, <span class="ident">skip_deserializing</span>)]</span>
     <span class="kw">pub</span> <span class="ident">previous_version</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ModalFilters</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="doccomment">/// This changes every time an edit occurs</span>
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>, <span class="ident">skip_deserializing</span>)]</span>
     <span class="kw">pub</span> <span class="ident">change_key</span>: <span class="ident">usize</span>,
 }
 
@@ -277,7 +285,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// TODO Be careful with PartialEq! At a 4-way intersection, the same filter can be expressed as a</span>
 <span class="doccomment">/// different pair of two roads. And the (r1, r2) ordering is also arbitrary.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DiagonalFilter</span> {
     <span class="ident">r1</span>: <span class="ident">RoadID</span>,
     <span class="ident">r2</span>: <span class="ident">RoadID</span>,

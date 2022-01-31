@@ -304,6 +304,25 @@
 <span id="303">303</span>
 <span id="304">304</span>
 <span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
@@ -370,10 +389,18 @@
                     ],
                 ),
             ]),
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline</span>
-                .<span class="ident">text</span>(<span class="string">&quot;Export to GeoJSON&quot;</span>)
-                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+            <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+                <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+                    <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;New&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                    <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;Load proposal&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                    <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;Save proposal&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                ]),
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
+                    .<span class="ident">btn_outline</span>
+                    .<span class="ident">text</span>(<span class="string">&quot;Export to GeoJSON&quot;</span>)
+                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+            ])
+            .<span class="ident">section</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
                 <span class="string">&quot;Predict proposal impact (experimental)&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">impact_widget</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
@@ -415,6 +442,17 @@
                 }
                 <span class="string">&quot;search&quot;</span> =&gt; {
                     <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">Navigator::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+                }
+                <span class="string">&quot;New&quot;</span> =&gt; {
+                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span> <span class="op">=</span> <span class="ident">Partitioning::empty</span>();
+                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span> <span class="op">=</span> <span class="ident">ModalFilters::default</span>();
+                    <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">BrowseNeighborhoods::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+                }
+                <span class="string">&quot;Load proposal&quot;</span> =&gt; {
+                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident"><span class="kw">crate</span>::save::Proposal::load_picker_ui</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+                }
+                <span class="string">&quot;Save proposal&quot;</span> =&gt; {
+                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident"><span class="kw">crate</span>::save::Proposal::save_ui</span>(<span class="ident">ctx</span>));
                 }
                 <span class="string">&quot;Export to GeoJSON&quot;</span> =&gt; {
                     <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident"><span class="kw">super</span>::export::write_geojson_file</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);

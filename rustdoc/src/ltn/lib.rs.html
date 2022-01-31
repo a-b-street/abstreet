@@ -105,7 +105,41 @@
 <span id="104">104</span>
 <span id="105">105</span>
 <span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::type_complexity</span>)]</span>
+
+<span class="kw">use</span> <span class="ident">structopt::StructOpt</span>;
 
 <span class="kw">use</span> <span class="ident">widgetry::Settings</span>;
 
@@ -132,6 +166,7 @@
 <span class="kw">mod</span> <span class="ident">per_neighborhood</span>;
 <span class="kw">mod</span> <span class="ident">rat_run_viewer</span>;
 <span class="kw">mod</span> <span class="ident">rat_runs</span>;
+<span class="kw">mod</span> <span class="ident">save</span>;
 <span class="kw">mod</span> <span class="ident">select_boundary</span>;
 
 <span class="kw">type</span> <span class="ident">App</span> <span class="op">=</span> <span class="ident">map_gui::SimpleApp</span><span class="op">&lt;</span><span class="ident">Session</span><span class="op">&gt;</span>;
@@ -142,13 +177,25 @@
     <span class="ident">run</span>(<span class="ident">settings</span>);
 }
 
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">StructOpt</span>)]</span>
+<span class="kw">struct</span> <span class="ident">Args</span> {
+    <span class="doccomment">/// Load a previously saved proposal with this name. Note this takes a name, not a full path.</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
+    <span class="ident">proposal</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">flatten</span>)]</span>
+    <span class="ident">app_args</span>: <span class="ident">map_gui::SimpleAppArgs</span>,
+}
+
 <span class="kw">fn</span> <span class="ident">run</span>(<span class="kw-2">mut</span> <span class="ident">settings</span>: <span class="ident">Settings</span>) {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">map_gui::options::Options::load_or_default</span>();
     <span class="ident">opts</span>.<span class="ident">color_scheme</span> <span class="op">=</span> <span class="ident">map_gui::colors::ColorSchemeChoice::DayMode</span>;
+    <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">Args::from_iter</span>(<span class="ident">abstutil::cli_args</span>());
+    <span class="ident">args</span>.<span class="ident">app_args</span>.<span class="ident">override_options</span>(<span class="kw-2">&amp;mut</span> <span class="ident">opts</span>);
+
     <span class="ident">settings</span> <span class="op">=</span> <span class="ident">settings</span>
         .<span class="ident">read_svg</span>(<span class="ident">Box::new</span>(<span class="ident">abstio::slurp_bytes</span>))
         .<span class="ident">canvas_settings</span>(<span class="ident">opts</span>.<span class="ident">canvas_settings</span>.<span class="ident">clone</span>());
-    <span class="ident">widgetry::run</span>(<span class="ident">settings</span>, <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> {
+    <span class="ident">widgetry::run</span>(<span class="ident">settings</span>, <span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> {
         <span class="kw">let</span> <span class="ident">session</span> <span class="op">=</span> <span class="ident">Session</span> {
             <span class="ident">partitioning</span>: <span class="ident">Partitioning::empty</span>(),
             <span class="ident">modal_filters</span>: <span class="ident">ModalFilters::default</span>(),
@@ -164,17 +211,34 @@
 
             <span class="ident">current_trip_name</span>: <span class="prelude-val">None</span>,
         };
-        <span class="ident">map_gui::SimpleApp::new</span>(<span class="ident">ctx</span>, <span class="ident">opts</span>, <span class="ident">session</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-            <span class="macro">vec!</span>[
-                <span class="ident">map_gui::tools::TitleScreen::new_state</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="ident">app</span>,
-                    <span class="ident">map_gui::tools::Executable::LTN</span>,
-                    <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw">_</span><span class="op">|</span> <span class="ident">BrowseNeighborhoods::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
-                ),
-                <span class="ident">BrowseNeighborhoods::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-            ]
-        })
+        <span class="ident">map_gui::SimpleApp::new</span>(
+            <span class="ident">ctx</span>,
+            <span class="ident">opts</span>,
+            <span class="ident">args</span>.<span class="ident">app_args</span>.<span class="ident">map_name</span>(),
+            <span class="ident">args</span>.<span class="ident">app_args</span>.<span class="ident">cam</span>,
+            <span class="ident">session</span>,
+            <span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+                <span class="comment">// Restore the partitioning from a file before calling BrowseNeighborhoods</span>
+                <span class="kw">let</span> <span class="ident">popup_state</span> <span class="op">=</span> <span class="ident">args</span>
+                    .<span class="ident">proposal</span>
+                    .<span class="ident">as_ref</span>()
+                    .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">name</span><span class="op">|</span> <span class="ident"><span class="kw">crate</span>::save::Proposal::load</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">name</span>));
+
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">states</span> <span class="op">=</span> <span class="macro">vec!</span>[
+                    <span class="ident">map_gui::tools::TitleScreen::new_state</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="ident">app</span>,
+                        <span class="ident">map_gui::tools::Executable::LTN</span>,
+                        <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw">_</span><span class="op">|</span> <span class="ident">BrowseNeighborhoods::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
+                    ),
+                    <span class="ident">BrowseNeighborhoods::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+                ];
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">state</span>) <span class="op">=</span> <span class="ident">popup_state</span> {
+                    <span class="ident">states</span>.<span class="ident">push</span>(<span class="ident">state</span>);
+                }
+                <span class="ident">states</span>
+            },
+        )
     });
 }
 

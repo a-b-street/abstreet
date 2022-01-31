@@ -71,6 +71,16 @@
 <span id="70">70</span>
 <span id="71">71</span>
 <span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
 </pre><pre class="rust"><code><span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">anyhow</span>;
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
@@ -103,6 +113,8 @@
 <span class="kw">fn</span> <span class="ident">run</span>(<span class="kw-2">mut</span> <span class="ident">settings</span>: <span class="ident">Settings</span>) {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">map_gui::options::Options::load_or_default</span>();
     <span class="ident">opts</span>.<span class="ident">color_scheme</span> <span class="op">=</span> <span class="ident">map_gui::colors::ColorSchemeChoice::NightMode</span>;
+    <span class="comment">// Note we don&#39;t take any CLI arguments at all. Always start on the first level&#39;s map</span>
+
     <span class="ident">settings</span> <span class="op">=</span> <span class="ident">settings</span>
         .<span class="ident">read_svg</span>(<span class="ident">Box::new</span>(<span class="ident">abstio::slurp_bytes</span>))
         .<span class="ident">canvas_settings</span>(<span class="ident">opts</span>.<span class="ident">canvas_settings</span>.<span class="ident">clone</span>());
@@ -110,23 +122,31 @@
         <span class="kw">let</span> <span class="ident">session</span> <span class="op">=</span> <span class="ident">session::Session::load</span>();
         <span class="ident">session</span>.<span class="ident">save</span>();
 
-        <span class="ident">map_gui::SimpleApp::new</span>(<span class="ident">ctx</span>, <span class="ident">opts</span>, <span class="ident">session</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-            <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
-                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">unlock_all</span>();
-            }
-            <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">music</span> <span class="op">=</span> <span class="ident">music::Music::start</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">play_music</span>, <span class="string">&quot;jingle_bells&quot;</span>);
-            <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">music</span>.<span class="ident">specify_volume</span>(<span class="ident">music::OUT_OF_GAME</span>);
+        <span class="ident">map_gui::SimpleApp::new</span>(
+            <span class="ident">ctx</span>,
+            <span class="ident">opts</span>,
+            <span class="ident">abstio::MapName::seattle</span>(<span class="string">&quot;qa&quot;</span>),
+            <span class="prelude-val">None</span>,
+            <span class="ident">session</span>,
+            <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+                <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
+                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">unlock_all</span>();
+                }
+                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">music</span> <span class="op">=</span>
+                    <span class="ident">music::Music::start</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">play_music</span>, <span class="string">&quot;jingle_bells&quot;</span>);
+                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">music</span>.<span class="ident">specify_volume</span>(<span class="ident">music::OUT_OF_GAME</span>);
 
-            <span class="macro">vec!</span>[
-                <span class="ident">map_gui::tools::TitleScreen::new_state</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="ident">app</span>,
-                    <span class="ident">map_gui::tools::Executable::Santa</span>,
-                    <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw">_</span><span class="op">|</span> <span class="ident">title::TitleScreen::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
-                ),
-                <span class="ident">title::TitleScreen::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-            ]
-        })
+                <span class="macro">vec!</span>[
+                    <span class="ident">map_gui::tools::TitleScreen::new_state</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="ident">app</span>,
+                        <span class="ident">map_gui::tools::Executable::Santa</span>,
+                        <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw">_</span><span class="op">|</span> <span class="ident">title::TitleScreen::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
+                    ),
+                    <span class="ident">title::TitleScreen::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+                ]
+            },
+        )
     });
 }
 
