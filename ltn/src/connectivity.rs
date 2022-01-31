@@ -1,6 +1,8 @@
 use geom::{Angle, ArrowCap, Distance, PolyLine};
 use widgetry::mapspace::World;
-use widgetry::{EventCtx, GeomBatch, GfxCtx, Key, Outcome, Panel, State, TextExt, Toggle, Widget};
+use widgetry::{
+    DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Outcome, Panel, State, TextExt, Toggle, Widget,
+};
 
 use super::auto::Heuristic;
 use super::per_neighborhood::{FilterableObj, Tab};
@@ -128,10 +130,15 @@ impl State<App> for Viewer {
         Transition::Keep
     }
 
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::Custom
+    }
+
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.panel.draw(g);
+        crate::draw_with_layering(g, app, |g| self.world.draw(g));
         g.redraw(&self.neighborhood.fade_irrelevant);
-        self.world.draw(g);
+
+        self.panel.draw(g);
         self.neighborhood.draw_filters.draw(g);
         // TODO Since we cover such a small area, treating multiple segments of one road as the
         // same might be nice. And we should seed the quadtree with the locations of filters and
