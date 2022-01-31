@@ -3,6 +3,7 @@ use std::collections::HashSet;
 use abstutil::Timer;
 use geom::Distance;
 use map_gui::tools::{CityPicker, DrawRoadLabels, Navigator, PopupMsg, URLManager};
+use map_model::{RoadSideID, SideOfRoad};
 use synthpop::Scenario;
 use widgetry::mapspace::{ToggleZoomed, World, WorldOutcome};
 use widgetry::{
@@ -190,14 +191,21 @@ impl State<App> for BrowseNeighborhoods {
 fn draw_dark_buildings(ctx: &EventCtx, app: &App) -> Drawable {
     let mut road_to_color = std::collections::HashMap::new();
     for (_, (block, color)) in app.session.partitioning.all_neighborhoods() {
+        let color = color.shade(0.5);
         for r in &block.perimeter.interior {
-            road_to_color.insert(*r, color.shade(0.5));
+            road_to_color.insert(RoadSideID { road: *r, side: SideOfRoad::Left }, color);
+            road_to_color.insert(RoadSideID { road: *r, side: SideOfRoad::Right }, color);
+        }
+        for id in &block.perimeter.roads {
+            road_to_color.insert(*id, color);
         }
     }
 
     let mut bldgs = GeomBatch::new();
     for b in app.map.all_buildings() {
-        if let Some(color) = road_to_color.get(&b.sidewalk().road) {
+        let lane = app.map.get_l(b.sidewalk());
+        let id = lane.get_nearest_side_of_road(&app.map);
+        if let Some(color) = road_to_color.get(&id) {
             bldgs.push(*color, b.polygon.clone());
         }
     }
