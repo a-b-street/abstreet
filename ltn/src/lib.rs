@@ -80,20 +80,10 @@ fn run(mut settings: Settings) {
             session,
             move |ctx, app| {
                 // Restore the partitioning from a file before calling BrowseNeighborhoods
-                let popup_state = if let Some(name) = &args.proposal {
-                    ctx.loading_screen("load existing proposal", |ctx, mut timer| {
-                        match crate::save::Proposal::load(app, name, &mut timer) {
-                            Ok(()) => None,
-                            Err(err) => Some(map_gui::tools::PopupMsg::new_state(
-                                ctx,
-                                "Error",
-                                vec![format!("Couldn't load proposal {}", name), err.to_string()],
-                            )),
-                        }
-                    })
-                } else {
-                    None
-                };
+                let popup_state = args
+                    .proposal
+                    .as_ref()
+                    .and_then(|name| crate::save::Proposal::load(ctx, app, name));
 
                 let mut states = vec![
                     map_gui::tools::TitleScreen::new_state(
