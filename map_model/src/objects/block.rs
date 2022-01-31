@@ -35,10 +35,16 @@ pub struct Perimeter {
 impl Perimeter {
     /// Starting at any lane, snap to the nearest side of that road, then begin tracing a single
     /// block, with no interior roads. This will fail if a map boundary is reached. The results are
-    /// unusual when crossing the entrance to a tunnel or bridge.
-    pub fn single_block(map: &Map, start: LaneID) -> Result<Perimeter> {
+    /// unusual when crossing the entrance to a tunnel or bridge, and so `skip` is used to avoid
+    /// tracing there.
+    pub fn single_block(map: &Map, start: LaneID, skip: &HashSet<RoadID>) -> Result<Perimeter> {
         let mut roads = Vec::new();
         let start_road_side = map.get_l(start).get_nearest_side_of_road(map);
+
+        if skip.contains(&start_road_side.road) {
+            bail!("Started on a road we shouldn't trace");
+        }
+
         // We need to track which side of the road we're at, but also which direction we're facing
         let mut current_road_side = start_road_side;
         let mut current_intersection = map.get_l(start).dst_i;
@@ -47,7 +53,8 @@ impl Perimeter {
             if i.is_border() {
                 bail!("hit the map boundary");
             }
-            let sorted_roads = i.get_road_sides_sorted_by_incoming_angle(map);
+            let mut sorted_roads = i.get_road_sides_sorted_by_incoming_angle(map);
+            sorted_roads.retain(|id| !skip.contains(&id.road));
             let idx = sorted_roads
                 .iter()
                 .position(|x| *x == current_road_side)
@@ -85,6 +92,8 @@ impl Perimeter {
     /// This calculates all single block perimeters for the entire map. The resulting list does not
     /// cover roads near the map boundary.
     pub fn find_all_single_blocks(map: &Map) -> Vec<Perimeter> {
+        let skip = Perimeter::find_roads_to_skip_tracing(map);
+
         let mut seen = HashSet::new();
         let mut perimeters = Vec::new();
         for lane in map.all_lanes() {
@@ -92,7 +101,7 @@ impl Perimeter {
             if seen.contains(&side) {
                 continue;
             }
-            match Perimeter::single_block(map, lane.id) {
+            match Perimeter::single_block(map, lane.id, &skip) {
                 Ok(perimeter) => {
                     seen.extend(perimeter.roads.clone());
                     perimeters.push(perimeter);
@@ -109,6 +118,21 @@ impl Perimeter {
             }
         }
         perimeters
+    }
+
+    /// Trying to form blocks near railways or cycleways that involve bridges/tunnels often causes
+    /// overlapping geometry or blocks that're way too large. These are extremely imperfect
+    /// heuristics to avoid the worst problems.
+    pub fn find_roads_to_skip_tracing(map: &Map) -> HashSet<RoadID> {
+        let mut skip = HashSet::new();
+        for r in map.all_roads() {
+            if r.is_light_rail() {
+                skip.insert(r.id);
+            } else if r.is_cycleway() && r.zorder != 0 {
+                skip.insert(r.id);
+            }
+        }
+        skip
     }
 
     /// A perimeter has the first and last road matching up, but that's confusing to
@@ -218,6 +242,16 @@ impl Perimeter {
         // This order assumes everything is clockwise to start with.
         self.roads.append(&mut other.roads);
 
+        // TODO This case was introduced with find_roads_to_skip_tracing. Not sure why.
+        if self.roads.is_empty() {
+            if debug_failures {
+                warn!("Two perimeters had every road in common: {:?}", common);
+            }
+            *self = orig_self;
+            *other = orig_other;
+            return false;
+        }
+
         self.interior.extend(common);
         self.interior.append(&mut other.interior);
 
@@ -282,6 +316,7 @@ impl Perimeter {
     /// If the perimeter follows any dead-end roads, "collapse" them and instead make the perimeter
     /// contain the dead-end.
     pub fn collapse_deadends(&mut self) {
+        let orig = self.clone();
         self.undo_invariant();
 
         // TODO Workaround https://github.com/a-b-street/abstreet/issues/834. If this is a loop
@@ -308,6 +343,11 @@ impl Perimeter {
         }
 
         self.roads = roads;
+        if self.roads.is_empty() {
+            // TODO This case was introduced with find_roads_to_skip_tracing. Not sure why.
+            *self = orig;
+            return;
+        }
         self.restore_invariant();
     }
 

@@ -788,9 +788,14 @@ impl ContextualActions for Actions {
             }
             (ID::Lane(l), "trace this block") => {
                 app.primary.current_selection = None;
+                let map = &app.primary.map;
                 return Transition::Push(
-                    match Perimeter::single_block(&app.primary.map, l)
-                        .and_then(|perim| perim.to_block(&app.primary.map))
+                    match Perimeter::single_block(
+                        map,
+                        l,
+                        &Perimeter::find_roads_to_skip_tracing(map),
+                    )
+                    .and_then(|perim| perim.to_block(map))
                     {
                         Ok(block) => blockfinder::OneBlock::new_state(ctx, app, block),
                         Err(err) => {
