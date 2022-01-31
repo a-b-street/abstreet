@@ -394,6 +394,12 @@ pub fn path_ltn_proposals(name: &MapName, proposal_name: &str) -> String {
         name.city.country, name.city.city, name.map, proposal_name
     ))
 }
+pub fn path_all_ltn_proposals(name: &MapName) -> String {
+    path(format!(
+        "player/ltn_proposals/{}/{}/{}",
+        name.city.country, name.city.city, name.map
+    ))
+}
 
 pub fn path_save(name: &MapName, edits_name: &str, run_name: &str, time: String) -> String {
     path(format!(
