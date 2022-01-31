@@ -64,10 +64,14 @@ impl BrowseNeighborhoods {
                     ],
                 ),
             ]),
-            ctx.style()
-                .btn_outline
-                .text("Export to GeoJSON")
-                .build_def(ctx),
+            Widget::row(vec![
+                ctx.style().btn_outline.text("Save proposal").build_def(ctx),
+                ctx.style()
+                    .btn_outline
+                    .text("Export to GeoJSON")
+                    .build_def(ctx),
+            ])
+            .section(ctx),
             Widget::col(vec![
                 "Predict proposal impact (experimental)".text_widget(ctx),
                 impact_widget(ctx, app),
@@ -109,6 +113,9 @@ impl State<App> for BrowseNeighborhoods {
                 }
                 "search" => {
                     return Transition::Push(Navigator::new_state(ctx, app));
+                }
+                "Save proposal" => {
+                    crate::save::Proposal::save(app, "proposal1".to_string());
                 }
                 "Export to GeoJSON" => {
                     let result = super::export::write_geojson_file(ctx, app);

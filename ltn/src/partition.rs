@@ -1,6 +1,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use anyhow::Result;
+use serde::{Deserialize, Serialize};
 
 use abstio::MapName;
 use abstutil::Timer;
@@ -20,18 +21,18 @@ const COLORS: [Color; 6] = [
 ];
 
 /// An opaque ID, won't be contiguous as we adjust boundaries
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct NeighborhoodID(usize);
 
 /// Identifies a single / unmerged block, which never changes
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct BlockID(usize);
 
 // Some states want this
 impl widgetry::mapspace::ObjectID for NeighborhoodID {}
 impl widgetry::mapspace::ObjectID for BlockID {}
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Partitioning {
     pub map: MapName,
     neighborhoods: BTreeMap<NeighborhoodID, (Block, Color)>,

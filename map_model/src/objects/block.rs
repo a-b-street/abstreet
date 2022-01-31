@@ -2,6 +2,7 @@ use std::collections::{BTreeSet, HashMap, HashSet};
 use std::fmt;
 
 use anyhow::Result;
+use serde::{Deserialize, Serialize};
 
 use abstutil::wraparound_get;
 use geom::{Polygon, Pt2D, Ring};
@@ -13,7 +14,7 @@ use crate::{CommonEndpoint, Direction, LaneID, Map, RoadID, RoadSideID, SideOfRo
 /// single "city block", with no interior roads. It may also cover a "neighborhood", where the
 /// perimeter contains some "major" and the interior consists only of "minor" roads.
 // TODO Maybe "block" is a misleading term. "Contiguous road trace area"?
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Block {
     pub perimeter: Perimeter,
     /// The polygon covers the interior of the block.
@@ -24,7 +25,7 @@ pub struct Block {
 /// along this sequence should geometrically yield a simple polygon.
 // TODO Handle the map boundary. Sometimes this perimeter should be broken up by border
 // intersections or possibly by water/park areas.
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Perimeter {
     pub roads: Vec<RoadSideID>,
     /// These roads exist entirely within the perimeter

@@ -27,6 +27,7 @@ mod pathfinding;
 mod per_neighborhood;
 mod rat_run_viewer;
 mod rat_runs;
+mod save;
 mod select_boundary;
 
 type App = map_gui::SimpleApp<Session>;
@@ -37,16 +38,25 @@ pub fn main() {
     run(settings);
 }
 
+#[derive(StructOpt)]
+struct Args {
+    /// Load a previously saved proposal with this name. Note this takes a name, not a full path.
+    #[structopt(long)]
+    proposal: Option<String>,
+    #[structopt(flatten)]
+    app_args: map_gui::SimpleAppArgs,
+}
+
 fn run(mut settings: Settings) {
     let mut opts = map_gui::options::Options::load_or_default();
     opts.color_scheme = map_gui::colors::ColorSchemeChoice::DayMode;
-    let args = map_gui::SimpleAppArgs::from_iter(abstutil::cli_args());
-    args.override_options(&mut opts);
+    let args = Args::from_iter(abstutil::cli_args());
+    args.app_args.override_options(&mut opts);
 
     settings = settings
         .read_svg(Box::new(abstio::slurp_bytes))
         .canvas_settings(opts.canvas_settings.clone());
-    widgetry::run(settings, |ctx| {
+    widgetry::run(settings, move |ctx| {
         let session = Session {
             partitioning: Partitioning::empty(),
             modal_filters: ModalFilters::default(),
@@ -62,17 +72,44 @@ fn run(mut settings: Settings) {
 
             current_trip_name: None,
         };
-        map_gui::SimpleApp::new(ctx, opts, args.map_name(), args.cam, session, |ctx, app| {
-            vec![
-                map_gui::tools::TitleScreen::new_state(
-                    ctx,
-                    app,
-                    map_gui::tools::Executable::LTN,
-                    Box::new(|ctx, app, _| BrowseNeighborhoods::new_state(ctx, app)),
-                ),
-                BrowseNeighborhoods::new_state(ctx, app),
-            ]
-        })
+        map_gui::SimpleApp::new(
+            ctx,
+            opts,
+            args.app_args.map_name(),
+            args.app_args.cam,
+            session,
+            move |ctx, app| {
+                // Restore the partitioning from a file before calling BrowseNeighborhoods
+                let popup_state = if let Some(name) = &args.proposal {
+                    ctx.loading_screen("load existing proposal", |ctx, mut timer| {
+                        match crate::save::Proposal::load(app, name, &mut timer) {
+                            Ok(()) => None,
+                            Err(err) => Some(map_gui::tools::PopupMsg::new_state(
+                                ctx,
+                                "Error",
+                                vec![format!("Couldn't load proposal {}", name), err.to_string()],
+                            )),
+                        }
+                    })
+                } else {
+                    None
+                };
+
+                let mut states = vec![
+                    map_gui::tools::TitleScreen::new_state(
+                        ctx,
+                        app,
+                        map_gui::tools::Executable::LTN,
+                        Box::new(|ctx, app, _| BrowseNeighborhoods::new_state(ctx, app)),
+                    ),
+                    BrowseNeighborhoods::new_state(ctx, app),
+                ];
+                if let Some(state) = popup_state {
+                    states.push(state);
+                }
+                states
+            },
+        )
     });
 }
 

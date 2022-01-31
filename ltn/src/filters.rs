@@ -1,5 +1,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 
+use serde::{Deserialize, Serialize};
+
 use geom::{Circle, Distance, Line};
 use map_model::{IntersectionID, Map, RoadID, RoutingParams, TurnID};
 use widgetry::mapspace::ToggleZoomed;
@@ -9,15 +11,17 @@ use super::Neighborhood;
 use crate::App;
 
 /// Stored in App session state. Before making any changes, call `before_edit`.
-#[derive(Clone, Default)]
+#[derive(Clone, Default, Serialize, Deserialize)]
 pub struct ModalFilters {
     /// For filters placed along a road, where is the filter located?
     pub roads: BTreeMap<RoadID, Distance>,
     pub intersections: BTreeMap<IntersectionID, DiagonalFilter>,
 
     /// Edit history is preserved recursively
+    #[serde(skip_serializing, skip_deserializing)]
     pub previous_version: Box<Option<ModalFilters>>,
     /// This changes every time an edit occurs
+    #[serde(skip_serializing, skip_deserializing)]
     pub change_key: usize,
 }
 
@@ -28,7 +32,7 @@ pub struct ModalFilters {
 ///
 /// TODO Be careful with PartialEq! At a 4-way intersection, the same filter can be expressed as a
 /// different pair of two roads. And the (r1, r2) ordering is also arbitrary.
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Serialize, Deserialize)]
 pub struct DiagonalFilter {
     r1: RoadID,
     r2: RoadID,
