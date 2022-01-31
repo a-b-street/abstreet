@@ -388,6 +388,13 @@ pub fn path_all_edits(name: &MapName) -> String {
     ))
 }
 
+pub fn path_ltn_proposals(name: &MapName, proposal_name: &str) -> String {
+    path(format!(
+        "player/ltn_proposals/{}/{}/{}/{}.bin",
+        name.city.country, name.city.city, name.map, proposal_name
+    ))
+}
+
 pub fn path_save(name: &MapName, edits_name: &str, run_name: &str, time: String) -> String {
     path(format!(
         "player/saves/{}/{}/{}/{}_{}/{}.bin",
