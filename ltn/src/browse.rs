@@ -191,7 +191,7 @@ fn draw_dark_buildings(ctx: &EventCtx, app: &App) -> Drawable {
     let mut road_to_color = std::collections::HashMap::new();
     for (_, (block, color)) in app.session.partitioning.all_neighborhoods() {
         for r in &block.perimeter.interior {
-            road_to_color.insert(*r, *color);
+            road_to_color.insert(*r, color.shade(0.5));
         }
     }
 
