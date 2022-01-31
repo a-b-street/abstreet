@@ -33,8 +33,8 @@ impl DrawBuilding {
         match &opts.camera_angle {
             CameraAngle::TopDown => {
                 bldg_batch.push(bldg_color, bldg.polygon.clone());
-                if let Ok(p) = bldg.polygon.to_outline(Distance::meters(0.1)) {
-                    outlines_batch.push(cs.building_outline, p);
+                if let Ok(p) = bldg.polygon.to_outline(Distance::meters(1.2)) {
+                    outlines_batch.push(Color::BLACK, p);
                 }
 
                 let parking_icon = match bldg.parking {

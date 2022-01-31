@@ -221,7 +221,7 @@ fn make_world(ctx: &mut EventCtx, app: &App, timer: &mut Timer) -> World<Neighbo
                 world
                     .add(*id)
                     .hitbox(block.polygon.clone())
-                    .draw_color(color.alpha(0.5))
+                    .draw_color(color.alpha(0.3))
                     .hover_outline(Color::BLACK, Distance::meters(5.0))
                     .clickable()
                     .build(ctx);
