@@ -212,7 +212,7 @@ impl ColorScheme {
             private_road: hex("#F0B0C0"),
             unzoomed_highway: hex("#E892A2"),
             unzoomed_arterial: hex("#FFC73E"),
-            unzoomed_residential: Color::WHITE,
+            unzoomed_residential: Color::BLACK,
             unzoomed_trail: hex("#0F7D4B"),
 
             // Intersections
