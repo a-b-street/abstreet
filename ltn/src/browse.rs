@@ -6,8 +6,8 @@ use map_gui::tools::{CityPicker, DrawRoadLabels, Navigator, PopupMsg, URLManager
 use synthpop::Scenario;
 use widgetry::mapspace::{ToggleZoomed, World, WorldOutcome};
 use widgetry::{
-    Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, Text,
-    TextExt, Toggle, VerticalAlignment, Widget,
+    Choice, Color, DrawBaselayer, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
+    State, Text, TextExt, Toggle, VerticalAlignment, Widget,
 };
 
 use super::{Neighborhood, NeighborhoodID, Partitioning};
@@ -165,9 +165,14 @@ impl State<App> for BrowseNeighborhoods {
         Transition::Keep
     }
 
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::Custom
+    }
+
     fn draw(&self, g: &mut GfxCtx, app: &App) {
+        crate::draw_with_layering(g, app, |g| self.world.draw(g));
+
         self.panel.draw(g);
-        self.world.draw(g);
         self.draw_all_filters.draw(g);
         if self.panel.is_checked("highlight boundary roads") {
             self.draw_boundary_roads.draw(g);
@@ -187,7 +192,7 @@ fn make_world(ctx: &mut EventCtx, app: &App, timer: &mut Timer) -> World<Neighbo
                 world
                     .add(*id)
                     .hitbox(block.polygon.clone())
-                    .draw_color(color.alpha(0.5))
+                    .draw_color(color.alpha(0.3))
                     .hover_outline(Color::BLACK, Distance::meters(5.0))
                     .clickable()
                     .build(ctx);
