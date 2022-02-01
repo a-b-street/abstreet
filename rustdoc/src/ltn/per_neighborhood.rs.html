@@ -262,8 +262,18 @@
 <span id="261">261</span>
 <span id="262">262</span>
 <span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom::Distance</span>;
-<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">CityPicker</span>, <span class="ident">Navigator</span>};
+<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">open_browser</span>, <span class="ident">CityPicker</span>, <span class="ident">Navigator</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">PathConstraints</span>, <span class="ident">RoadID</span>};
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ObjectID</span>, <span class="ident">World</span>, <span class="ident">WorldOutcome</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
@@ -448,6 +458,7 @@
             .<span class="ident">zorder</span>(<span class="ident">zorder</span>)
             .<span class="ident">drawn_in_master_batch</span>()
             .<span class="ident">hover_outline</span>(<span class="ident">Color::BLACK</span>, <span class="ident">Distance::meters</span>(<span class="number">5.0</span>))
+            .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::D</span>), <span class="string">&quot;debug&quot;</span>)
             .<span class="ident">clickable</span>()
             .<span class="ident">build</span>(<span class="ident">ctx</span>);
     }
@@ -460,6 +471,7 @@
             .<span class="ident">drawn_in_master_batch</span>()
             .<span class="ident">hover_outline</span>(<span class="ident">Color::BLACK</span>, <span class="ident">Distance::meters</span>(<span class="number">5.0</span>))
             .<span class="ident">clickable</span>()
+            .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::D</span>), <span class="string">&quot;debug&quot;</span>)
             .<span class="ident">build</span>(<span class="ident">ctx</span>);
     }
 }
@@ -521,6 +533,14 @@
                     .<span class="ident">insert</span>(<span class="ident">i</span>, <span class="ident">all</span>.<span class="ident">remove</span>(<span class="number">0</span>));
             }
             <span class="bool-val">true</span>
+        }
+        <span class="ident">WorldOutcome::Keypress</span>(<span class="string">&quot;debug&quot;</span>, <span class="ident">FilterableObj::InteriorIntersection</span>(<span class="ident">i</span>)) =&gt; {
+            <span class="ident">open_browser</span>(<span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">orig_id</span>.<span class="ident">to_string</span>());
+            <span class="bool-val">false</span>
+        }
+        <span class="ident">WorldOutcome::Keypress</span>(<span class="string">&quot;debug&quot;</span>, <span class="ident">FilterableObj::InteriorRoad</span>(<span class="ident">r</span>)) =&gt; {
+            <span class="ident">open_browser</span>(<span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">orig_id</span>.<span class="ident">osm_way_id</span>.<span class="ident">to_string</span>());
+            <span class="bool-val">false</span>
         }
         <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
     }
