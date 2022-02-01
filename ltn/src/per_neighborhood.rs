@@ -1,5 +1,5 @@
 use geom::Distance;
-use map_gui::tools::{CityPicker, Navigator};
+use map_gui::tools::{open_browser, CityPicker, Navigator};
 use map_model::{IntersectionID, PathConstraints, RoadID};
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::{
@@ -184,6 +184,7 @@ pub fn populate_world<T: ObjectID, F: Fn(FilterableObj) -> T>(
             .zorder(zorder)
             .drawn_in_master_batch()
             .hover_outline(Color::BLACK, Distance::meters(5.0))
+            .hotkey(lctrl(Key::D), "debug")
             .clickable()
             .build(ctx);
     }
@@ -196,6 +197,7 @@ pub fn populate_world<T: ObjectID, F: Fn(FilterableObj) -> T>(
             .drawn_in_master_batch()
             .hover_outline(Color::BLACK, Distance::meters(5.0))
             .clickable()
+            .hotkey(lctrl(Key::D), "debug")
             .build(ctx);
     }
 }
@@ -257,6 +259,14 @@ pub fn handle_world_outcome(
                     .insert(i, all.remove(0));
             }
             true
+        }
+        WorldOutcome::Keypress("debug", FilterableObj::InteriorIntersection(i)) => {
+            open_browser(app.map.get_i(i).orig_id.to_string());
+            false
+        }
+        WorldOutcome::Keypress("debug", FilterableObj::InteriorRoad(r)) => {
+            open_browser(app.map.get_r(r).orig_id.osm_way_id.to_string());
+            false
         }
         _ => false,
     }
