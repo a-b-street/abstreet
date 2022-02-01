@@ -1,6 +1,9 @@
 use geom::{Angle, ArrowCap, Distance, PolyLine};
 use widgetry::mapspace::World;
-use widgetry::{EventCtx, GeomBatch, GfxCtx, Key, Outcome, Panel, State, TextExt, Toggle, Widget};
+use widgetry::{
+    DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Outcome, Panel, State, TextExt,
+    Toggle, Widget,
+};
 
 use super::auto::Heuristic;
 use super::per_neighborhood::{FilterableObj, Tab};
@@ -11,6 +14,7 @@ pub struct Viewer {
     panel: Panel,
     neighborhood: Neighborhood,
     world: World<FilterableObj>,
+    draw_top_layer: Drawable,
 }
 
 impl Viewer {
@@ -21,6 +25,7 @@ impl Viewer {
             panel: Panel::empty(ctx),
             neighborhood,
             world: World::unbounded(),
+            draw_top_layer: Drawable::empty(ctx),
         };
         viewer.update(ctx, app);
         Box::new(viewer)
@@ -84,7 +89,9 @@ impl Viewer {
             )
             .build(ctx);
 
-        self.world = make_world(ctx, app, &self.neighborhood);
+        let (world, draw_top_layer) = make_world(ctx, app, &self.neighborhood);
+        self.world = world;
+        self.draw_top_layer = draw_top_layer;
     }
 }
 
@@ -113,7 +120,9 @@ impl State<App> for Viewer {
                 app.session.heuristic = self.panel.dropdown_value("heuristic");
 
                 if x != "heuristic" {
-                    self.world = make_world(ctx, app, &self.neighborhood);
+                    let (world, draw_top_layer) = make_world(ctx, app, &self.neighborhood);
+                    self.world = world;
+                    self.draw_top_layer = draw_top_layer;
                 }
             }
             _ => {}
@@ -128,10 +137,17 @@ impl State<App> for Viewer {
         Transition::Keep
     }
 
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::Custom
+    }
+
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.panel.draw(g);
+        crate::draw_with_layering(g, app, |g| self.world.draw(g));
+        g.redraw(&self.draw_top_layer);
+        // TODO This covers up the arrows
         g.redraw(&self.neighborhood.fade_irrelevant);
-        self.world.draw(g);
+
+        self.panel.draw(g);
         self.neighborhood.draw_filters.draw(g);
         // TODO Since we cover such a small area, treating multiple segments of one road as the
         // same might be nice. And we should seed the quadtree with the locations of filters and
@@ -142,22 +158,29 @@ impl State<App> for Viewer {
     }
 }
 
-fn make_world(ctx: &mut EventCtx, app: &App, neighborhood: &Neighborhood) -> World<FilterableObj> {
+fn make_world(
+    ctx: &mut EventCtx,
+    app: &App,
+    neighborhood: &Neighborhood,
+) -> (World<FilterableObj>, Drawable) {
     let map = &app.map;
     let mut world = World::bounded(map.get_bounds());
 
     super::per_neighborhood::populate_world(ctx, app, neighborhood, &mut world, |id| id, 0);
 
+    // The world is drawn in between areas and roads, but some things need to be drawn on top of
+    // roads
+    let mut draw_top_layer = GeomBatch::new();
+
     let render_cells = super::draw_cells::RenderCells::new(map, neighborhood);
     if app.session.draw_cells_as_areas {
         world.draw_master_batch(ctx, render_cells.draw());
     } else {
-        let mut draw = GeomBatch::new();
         for (idx, cell) in neighborhood.cells.iter().enumerate() {
             let color = render_cells.colors[idx].alpha(0.9);
             for (r, interval) in &cell.roads {
                 let road = map.get_r(*r);
-                draw.push(
+                draw_top_layer.push(
                     color,
                     road.center_pts
                         .exact_slice(interval.start, interval.end)
@@ -167,14 +190,12 @@ fn make_world(ctx: &mut EventCtx, app: &App, neighborhood: &Neighborhood) -> Wor
             for i in
                 map_gui::tools::intersections_from_roads(&cell.roads.keys().cloned().collect(), map)
             {
-                draw.push(color, map.get_i(i).polygon.clone());
+                draw_top_layer.push(color, map.get_i(i).polygon.clone());
             }
         }
-        world.draw_master_batch(ctx, draw);
     }
 
     // Draw the borders of each cell
-    let mut draw = GeomBatch::new();
     for (idx, cell) in neighborhood.cells.iter().enumerate() {
         let color = render_cells.colors[idx];
         for i in &cell.borders {
@@ -207,7 +228,7 @@ fn make_world(ctx: &mut EventCtx, app: &App, neighborhood: &Neighborhood) -> Wor
 
                 // TODO Consider showing borders with one-way roads. For now, always point the
                 // arrow into the neighborhood
-                draw.push(
+                draw_top_layer.push(
                     color.alpha(0.8),
                     PolyLine::must_new(vec![
                         center.project_away(Distance::meters(30.0), angle.opposite()),
@@ -216,13 +237,12 @@ fn make_world(ctx: &mut EventCtx, app: &App, neighborhood: &Neighborhood) -> Wor
                     .make_arrow(Distance::meters(6.0), ArrowCap::Triangle),
                 );
             } else if let Ok(p) = map.get_i(*i).polygon.to_outline(Distance::meters(2.0)) {
-                draw.push(color, p);
+                draw_top_layer.push(color, p);
             }
         }
     }
-    world.draw_master_batch(ctx, draw);
 
     world.initialize_hover(ctx);
 
-    world
+    (world, ctx.upload(draw_top_layer))
 }

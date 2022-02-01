@@ -2,7 +2,7 @@
 
 use structopt::StructOpt;
 
-use widgetry::Settings;
+use widgetry::{GfxCtx, Settings};
 
 pub use browse::BrowseNeighborhoods;
 pub use filters::{DiagonalFilter, ModalFilters};
@@ -135,4 +135,37 @@ pub struct Session {
     pub main_road_penalty: f64,
 
     current_trip_name: Option<String>,
+}
+
+/// Do the equivalent of `SimpleApp::draw_unzoomed` or `draw_zoomed`, but after the water/park
+/// areas layer, draw something custom.
+fn draw_with_layering<F: Fn(&mut GfxCtx)>(g: &mut GfxCtx, app: &App, custom: F) {
+    g.clear(app.cs.void_background);
+    g.redraw(&app.draw_map.boundary_polygon);
+    g.redraw(&app.draw_map.draw_all_areas);
+    custom(g);
+
+    if g.canvas.is_unzoomed() {
+        g.redraw(&app.draw_map.draw_all_unzoomed_parking_lots);
+        g.redraw(&app.draw_map.draw_all_unzoomed_roads_and_intersections);
+        g.redraw(&app.draw_map.draw_all_buildings);
+        g.redraw(&app.draw_map.draw_all_building_outlines);
+    } else {
+        let options = map_gui::render::DrawOptions::new();
+        let objects = app
+            .draw_map
+            .get_renderables_back_to_front(g.get_screen_bounds(), &app.map);
+
+        let mut drawn_all_buildings = false;
+
+        for obj in objects {
+            obj.draw(g, app, &options);
+
+            if matches!(obj.get_id(), map_gui::ID::Building(_)) && !drawn_all_buildings {
+                g.redraw(&app.draw_map.draw_all_buildings);
+                g.redraw(&app.draw_map.draw_all_building_outlines);
+                drawn_all_buildings = true;
+            }
+        }
+    }
 }
