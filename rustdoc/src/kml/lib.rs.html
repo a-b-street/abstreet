@@ -194,6 +194,27 @@
 <span id="193">193</span>
 <span id="194">194</span>
 <span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
 </pre><pre class="rust"><code><span class="comment">// TODO Time to rename this crate</span>
 
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
@@ -207,7 +228,7 @@
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">GPSBounds</span>, <span class="ident">LonLat</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">GPSBounds</span>, <span class="ident">LonLat</span>, <span class="ident">Polygon</span>};
 
 <span class="doccomment">/// Some dataset imported from KML, CSV, or something else. If the dataset is large, converting to</span>
 <span class="doccomment">/// this format and serializing is faster than parsing the original again.</span>
@@ -386,6 +407,27 @@
             }
         }
         <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="macro">format!</span>(<span class="string">&quot;read {}&quot;</span>, <span class="ident">path</span>));
+        <span class="prelude-val">Ok</span>(<span class="ident">ExtraShapes</span> { <span class="ident">shapes</span> })
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">ExtraShapes</span> {
+    <span class="doccomment">/// Parses a .geojson file and returns ExtraShapes</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_geojson_no_clipping</span>(
+        <span class="ident">path</span>: <span class="ident">String</span>,
+        <span class="ident">gps_bounds</span>: <span class="kw-2">&amp;</span><span class="ident">GPSBounds</span>,
+        <span class="ident">require_in_bounds</span>: <span class="ident">bool</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ExtraShapes</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">shapes</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">for</span> (<span class="ident">polygon</span>, <span class="ident">tags</span>) <span class="kw">in</span>
+            <span class="ident">Polygon::from_geojson_bytes</span>(<span class="kw-2">&amp;</span><span class="ident">abstio::slurp_file</span>(<span class="ident">path</span>)<span class="question-mark">?</span>, <span class="ident">gps_bounds</span>, <span class="ident">require_in_bounds</span>)<span class="question-mark">?</span>
+        {
+            <span class="ident">shapes</span>.<span class="ident">push</span>(<span class="ident">ExtraShape</span> {
+                <span class="comment">// Awkward, but we have to convert back</span>
+                <span class="ident">points</span>: <span class="ident">gps_bounds</span>.<span class="ident">convert_back</span>(<span class="ident">polygon</span>.<span class="ident">points</span>()),
+                <span class="ident">attributes</span>: <span class="ident">tags</span>.<span class="ident">into_inner</span>(),
+            });
+        }
         <span class="prelude-val">Ok</span>(<span class="ident">ExtraShapes</span> { <span class="ident">shapes</span> })
     }
 }
