@@ -242,6 +242,7 @@ fn calculate_relative_heatmap(
     counts_b: &Counts,
 ) -> ToggleZoomed {
     // First just understand the counts...
+    // TODO This doesn't have explicit 0's
     let mut hgram_before = Histogram::new();
     for (_, cnt) in counts_a.per_road.borrow() {
         hgram_before.add(*cnt);
@@ -279,7 +280,11 @@ fn calculate_relative_heatmap(
         };
 
         // TODO Refactor histogram helpers
-        let pct_count = (before - min_count) as f64 / (max_count - min_count) as f64;
+        let pct_count = if before == 0 {
+            0.0
+        } else {
+            (before - min_count) as f64 / (max_count - min_count) as f64
+        };
         // TODO Pretty arbitrary. Ideally we'd hide roads and intersections underneath...
         let width = Distance::meters(2.0) + pct_count * Distance::meters(10.0);
 
