@@ -230,10 +230,14 @@ fn load_objects(
             shapes
         } else if path.ends_with(".csv") {
             let shapes = ExtraShapes::load_csv(path.clone(), bounds, timer).unwrap();
-            // Assuming this is some huge file, conveniently convert the extract to .bin.
-            // The new file will show up as untracked in git, so it'll be obvious this
-            // happened.
             abstio::write_binary(path.replace(".csv", ".bin"), &shapes);
+            shapes
+        } else if path.ends_with(".geojson") {
+            let require_in_bounds = false;
+            let shapes =
+                ExtraShapes::load_geojson_no_clipping(path.clone(), bounds, require_in_bounds)
+                    .unwrap();
+            abstio::write_binary(path.replace(".geojson", ".bin"), &shapes);
             shapes
         } else if path.ends_with(".bin") {
             abstio::read_binary::<ExtraShapes>(path.to_string(), timer)
@@ -309,6 +313,7 @@ fn make_object(
     let polygon = if pts.len() == 1 {
         Circle::new(pts[0], RADIUS).to_polygon()
     } else if let Ok(ring) = Ring::new(pts.clone()) {
+        // TODO Ideally we could choose this in the UI
         if attribs.get("spatial_type") == Some(&"Polygon".to_string()) {
             color = cs.rotating_color_plot(obj_idx).alpha(0.8);
             ring.into_polygon()
