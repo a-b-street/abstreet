@@ -1,5 +1,5 @@
 use geom::Distance;
-use map_gui::tools::CityPicker;
+use map_gui::tools::{CityPicker, Navigator};
 use map_model::{IntersectionID, PathConstraints, RoadID};
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::{
@@ -104,6 +104,9 @@ impl Tab {
                 // dropdowns)
                 self.switch_to_state(ctx, app, id)
             }
+            "search" => {
+                return Some(Transition::Push(Navigator::new_state(ctx, app)));
+            }
             _ => {
                 return None;
             }
@@ -142,6 +145,15 @@ impl Tab {
                     .build_def(ctx),
             );
         }
+        // Not exactly sure where to put this
+        row.push(
+            ctx.style()
+                .btn_plain
+                .icon("system/assets/tools/search.svg")
+                .hotkey(Key::K)
+                .build_widget(ctx, "search")
+                .align_right(),
+        );
         Widget::row(row)
     }
 }
