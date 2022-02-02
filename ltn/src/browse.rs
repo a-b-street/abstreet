@@ -10,6 +10,7 @@ use widgetry::{
     State, Text, TextExt, Toggle, VerticalAlignment, Widget,
 };
 
+use super::auto::Heuristic;
 use super::{Neighborhood, NeighborhoodID, Partitioning};
 use crate::{App, ModalFilters, Toggle3Zoomed, Transition};
 
@@ -92,6 +93,20 @@ impl BrowseNeighborhoods {
                 impact_widget(ctx, app),
             ])
             .section(ctx),
+            // TODO Consider putting some of the edit controls here, like undo?
+            Widget::col(vec![Widget::row(vec![
+                Widget::dropdown(
+                    ctx,
+                    "heuristic",
+                    app.session.heuristic,
+                    Heuristic::choices(),
+                ),
+                ctx.style()
+                    .btn_outline
+                    .text("Automatically stop rat-runs")
+                    .build_def(ctx),
+            ])])
+            .section(ctx),
         ]))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
         .build(ctx);
@@ -156,6 +171,22 @@ impl State<App> for BrowseNeighborhoods {
                 }
                 "Calculate" | "Show impact" => {
                     return Transition::Push(super::impact::ShowResults::new_state(ctx, app));
+                }
+                "Automatically stop rat-runs" => {
+                    ctx.loading_screen("automatically filter all neighborhoods", |ctx, timer| {
+                        for id in app
+                            .session
+                            .partitioning
+                            .all_neighborhoods()
+                            .keys()
+                            .cloned()
+                            .collect::<Vec<_>>()
+                        {
+                            let neighborhood = Neighborhood::new(ctx, app, id);
+                            app.session.heuristic.apply(ctx, app, &neighborhood, timer);
+                        }
+                    });
+                    return Transition::Replace(BrowseNeighborhoods::new_state(ctx, app));
                 }
                 _ => unreachable!(),
             },
