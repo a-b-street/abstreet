@@ -177,7 +177,7 @@
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">GfxCtx</span>, <span class="ident">Settings</span>};
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">browse::BrowseNeighborhoods</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">filters</span>::{<span class="ident">DiagonalFilter</span>, <span class="ident">ModalFilters</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">filters</span>::{<span class="ident">DiagonalFilter</span>, <span class="ident">ModalFilters</span>, <span class="ident">Toggle3Zoomed</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">neighborhood</span>::{<span class="ident">Cell</span>, <span class="ident">DistanceInterval</span>, <span class="ident">Neighborhood</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">partition</span>::{<span class="ident">NeighborhoodID</span>, <span class="ident">Partitioning</span>};
 
@@ -235,7 +235,7 @@
 
             <span class="ident">impact</span>: <span class="ident">impact::Impact::empty</span>(<span class="ident">ctx</span>),
 
-            <span class="ident">highlight_boundary_roads</span>: <span class="bool-val">true</span>,
+            <span class="ident">highlight_boundary_roads</span>: <span class="bool-val">false</span>,
             <span class="ident">draw_neighborhood_style</span>: <span class="ident">browse::Style::SimpleColoring</span>,
             <span class="ident">draw_cells_as_areas</span>: <span class="bool-val">true</span>,
             <span class="ident">draw_borders_as_arrows</span>: <span class="bool-val">true</span>,

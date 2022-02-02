@@ -317,7 +317,6 @@
 <span id="316">316</span>
 <span id="317">317</span>
 <span id="318">318</span>
-<span id="319">319</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">maplit::btreeset</span>;
@@ -325,10 +324,9 @@
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>};
 <span class="kw">use</span> <span class="ident">map_gui::tools::DrawRoadLabels</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">Perimeter</span>, <span class="ident">RoadID</span>};
-<span class="kw">use</span> <span class="ident">widgetry::mapspace::ToggleZoomed</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">App</span>, <span class="ident">ModalFilters</span>, <span class="ident">NeighborhoodID</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">App</span>, <span class="ident">ModalFilters</span>, <span class="ident">NeighborhoodID</span>, <span class="ident">Toggle3Zoomed</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Neighborhood</span> {
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">NeighborhoodID</span>,
@@ -344,7 +342,7 @@
     <span class="kw">pub</span> <span class="ident">cells</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Cell</span><span class="op">&gt;</span>,
 
     <span class="kw">pub</span> <span class="ident">fade_irrelevant</span>: <span class="ident">Drawable</span>,
-    <span class="kw">pub</span> <span class="ident">draw_filters</span>: <span class="ident">ToggleZoomed</span>,
+    <span class="kw">pub</span> <span class="ident">draw_filters</span>: <span class="ident">Toggle3Zoomed</span>,
     <span class="kw">pub</span> <span class="ident">labels</span>: <span class="ident">DrawRoadLabels</span>,
 }
 
@@ -394,7 +392,7 @@
             <span class="ident">cells</span>: <span class="ident">Vec::new</span>(),
 
             <span class="ident">fade_irrelevant</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
-            <span class="ident">draw_filters</span>: <span class="ident">ToggleZoomed::empty</span>(<span class="ident">ctx</span>),
+            <span class="ident">draw_filters</span>: <span class="ident">Toggle3Zoomed::empty</span>(<span class="ident">ctx</span>),
             <span class="comment">// Temporary value</span>
             <span class="ident">labels</span>: <span class="ident">DrawRoadLabels::only_major_roads</span>(),
         };

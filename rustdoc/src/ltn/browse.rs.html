@@ -341,13 +341,13 @@
 };
 
 <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">Neighborhood</span>, <span class="ident">NeighborhoodID</span>, <span class="ident">Partitioning</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">App</span>, <span class="ident">ModalFilters</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">App</span>, <span class="ident">ModalFilters</span>, <span class="ident">Toggle3Zoomed</span>, <span class="ident">Transition</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BrowseNeighborhoods</span> {
     <span class="ident">panel</span>: <span class="ident">Panel</span>,
     <span class="ident">world</span>: <span class="ident">World</span><span class="op">&lt;</span><span class="ident">NeighborhoodID</span><span class="op">&gt;</span>,
     <span class="ident">labels</span>: <span class="ident">DrawRoadLabels</span>,
-    <span class="ident">draw_all_filters</span>: <span class="ident">ToggleZoomed</span>,
+    <span class="ident">draw_all_filters</span>: <span class="ident">Toggle3Zoomed</span>,
     <span class="ident">draw_boundary_roads</span>: <span class="ident">ToggleZoomed</span>,
 }
 
@@ -503,10 +503,10 @@
         <span class="ident"><span class="kw">crate</span>::draw_with_layering</span>(<span class="ident">g</span>, <span class="ident">app</span>, <span class="op">|</span><span class="ident">g</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">draw</span>(<span class="ident">g</span>));
 
         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="self">self</span>.<span class="ident">draw_all_filters</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;highlight boundary roads&quot;</span>) {
             <span class="self">self</span>.<span class="ident">draw_boundary_roads</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         }
+        <span class="self">self</span>.<span class="ident">draw_all_filters</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="kw">if</span> <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">is_unzoomed</span>() {
             <span class="self">self</span>.<span class="ident">labels</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
         }
@@ -579,7 +579,7 @@
             <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>);
             <span class="ident">batch</span>
                 .<span class="ident">unzoomed</span>
-                .<span class="ident">push</span>(<span class="ident">Color::RED</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>), <span class="ident">road</span>.<span class="ident">get_thick_polygon</span>());
+                .<span class="ident">push</span>(<span class="ident">Color::RED</span>.<span class="ident">alpha</span>(<span class="number">0.6</span>), <span class="ident">road</span>.<span class="ident">get_thick_polygon</span>());
             <span class="ident">batch</span>
                 .<span class="ident">zoomed</span>
                 .<span class="ident">push</span>(<span class="ident">Color::RED</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="ident">road</span>.<span class="ident">get_thick_polygon</span>());
@@ -591,7 +591,7 @@
                 <span class="ident">seen_borders</span>.<span class="ident">insert</span>(<span class="ident">i</span>);
                 <span class="ident">batch</span>
                     .<span class="ident">unzoomed</span>
-                    .<span class="ident">push</span>(<span class="ident">Color::RED</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>), <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>());
+                    .<span class="ident">push</span>(<span class="ident">Color::RED</span>.<span class="ident">alpha</span>(<span class="number">0.6</span>), <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>());
                 <span class="ident">batch</span>
                     .<span class="ident">zoomed</span>
                     .<span class="ident">push</span>(<span class="ident">Color::RED</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>());
