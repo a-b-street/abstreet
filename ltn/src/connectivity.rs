@@ -199,30 +199,31 @@ fn make_world(
     for (idx, cell) in neighborhood.cells.iter().enumerate() {
         let color = render_cells.colors[idx];
         for i in &cell.borders {
+            let angles: Vec<Angle> = cell
+                .roads
+                .keys()
+                .filter_map(|r| {
+                    let road = map.get_r(*r);
+                    // Design choice: when we have a filter right at the entrance of a
+                    // neighborhood, it creates its own little cell allowing access to just the
+                    // very beginning of the road. Let's not draw anything for that.
+                    if app.session.modal_filters.roads.contains_key(r) {
+                        None
+                    } else if road.src_i == *i {
+                        Some(road.center_pts.first_line().angle())
+                    } else if road.dst_i == *i {
+                        Some(road.center_pts.last_line().angle().opposite())
+                    } else {
+                        None
+                    }
+                })
+                .collect();
+            // Tiny cell with a filter right at the border
+            if angles.is_empty() {
+                continue;
+            }
+
             if app.session.draw_borders_as_arrows {
-                let angles: Vec<Angle> = cell
-                    .roads
-                    .keys()
-                    .filter_map(|r| {
-                        let road = map.get_r(*r);
-                        // Design choice: when we have a filter right at the entrance of a
-                        // neighborhood, it creates its own little cell allowing access to just the
-                        // very beginning of the road. Let's not draw arrows for that.
-                        if app.session.modal_filters.roads.contains_key(r) {
-                            None
-                        } else if road.src_i == *i {
-                            Some(road.center_pts.first_line().angle())
-                        } else if road.dst_i == *i {
-                            Some(road.center_pts.last_line().angle().opposite())
-                        } else {
-                            None
-                        }
-                    })
-                    .collect();
-                // Tiny cell with a filter right at the border
-                if angles.is_empty() {
-                    continue;
-                }
                 let center = map.get_i(*i).polygon.center();
                 let angle = Angle::average(angles);
 
