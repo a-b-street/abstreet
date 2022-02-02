@@ -212,6 +212,37 @@
 <span id="211">211</span>
 <span id="212">212</span>
 <span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
@@ -226,7 +257,7 @@
 <span class="kw">use</span> <span class="ident">map_model::raw::RawMap</span>;
 <span class="kw">use</span> <span class="ident">map_model::Map</span>;
 <span class="kw">use</span> <span class="ident">popdat::od::DesireLine</span>;
-<span class="kw">use</span> <span class="ident">synthpop</span>::{<span class="ident">Scenario</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>};
+<span class="kw">use</span> <span class="ident">synthpop</span>::{<span class="ident">Scenario</span>, <span class="ident">TrafficCounts</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::configuration::ImporterConfiguration</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::utils::download</span>;
@@ -300,6 +331,10 @@
     <span class="comment">// Some zones have very few buildings, and people wind up with a home and workplace that&#39;re the</span>
     <span class="comment">// same!</span>
     <span class="ident">scenario</span> <span class="op">=</span> <span class="ident">scenario</span>.<span class="ident">remove_weird_schedules</span>();
+    <span class="comment">// TODO For temporary development of the UK OD pipeline...</span>
+    <span class="kw">if</span> <span class="bool-val">true</span> {
+        <span class="ident">check_sensor_data</span>(<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">scenario</span>, <span class="string">&quot;/home/dabreegster/sensors.json&quot;</span>, <span class="ident">timer</span>);
+    }
     <span class="macro">info!</span>(
         <span class="string">&quot;Generated background traffic scenario with {} people&quot;</span>,
         <span class="ident">prettyprint_usize</span>(<span class="ident">scenario</span>.<span class="ident">people</span>.<span class="ident">len</span>())
@@ -424,6 +459,33 @@
         <span class="macro">bail!</span>(<span class="string">&quot;study area geojson has {} polygons&quot;</span>, <span class="ident">list</span>.<span class="ident">len</span>());
     }
     <span class="prelude-val">Ok</span>(<span class="ident">list</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>().<span class="number">0</span>)
+}
+
+<span class="kw">fn</span> <span class="ident">check_sensor_data</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">scenario</span>: <span class="kw-2">&amp;</span><span class="ident">Scenario</span>, <span class="ident">sensor_path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) {
+    <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">PathRequest</span>, <span class="ident">PathfinderCaching</span>};
+
+    <span class="kw">let</span> <span class="ident">requests</span> <span class="op">=</span> <span class="ident">scenario</span>
+        .<span class="ident">all_trips</span>()
+        .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">trip</span><span class="op">|</span> {
+            <span class="kw">if</span> <span class="ident">trip</span>.<span class="ident">mode</span> <span class="op">==</span> <span class="ident">TripMode::Drive</span> {
+                <span class="ident">TripEndpoint::path_req</span>(<span class="ident">trip</span>.<span class="ident">origin</span>, <span class="ident">trip</span>.<span class="ident">destination</span>, <span class="ident">trip</span>.<span class="ident">mode</span>, <span class="ident">map</span>)
+            } <span class="kw">else</span> {
+                <span class="prelude-val">None</span>
+            }
+        })
+        .<span class="ident">collect</span>();
+    <span class="kw">let</span> <span class="ident">deduped</span> <span class="op">=</span> <span class="ident">PathRequest::deduplicate</span>(<span class="ident">map</span>, <span class="ident">requests</span>);
+    <span class="kw">let</span> <span class="ident">model</span> <span class="op">=</span> <span class="ident">TrafficCounts::from_path_requests</span>(
+        <span class="ident">map</span>,
+        <span class="string">&quot;the generated scenario&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="kw-2">&amp;</span><span class="ident">deduped</span>,
+        <span class="ident">map</span>.<span class="ident">routing_params</span>().<span class="ident">clone</span>(),
+        <span class="ident">PathfinderCaching::NoCache</span>,
+        <span class="ident">timer</span>,
+    );
+
+    <span class="kw">let</span> <span class="ident">sensors</span> <span class="op">=</span> <span class="ident">abstio::maybe_read_json</span>::<span class="op">&lt;</span><span class="ident">TrafficCounts</span><span class="op">&gt;</span>(<span class="ident">sensor_path</span>.<span class="ident">to_string</span>(), <span class="ident">timer</span>).<span class="ident">unwrap</span>();
+    <span class="ident">sensors</span>.<span class="ident">quickly_compare</span>(<span class="kw-2">&amp;</span><span class="ident">model</span>);
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="importer" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
