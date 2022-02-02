@@ -4,8 +4,8 @@ use serde::{Deserialize, Serialize};
 
 use geom::{Circle, Distance, Line};
 use map_model::{IntersectionID, Map, RoadID, RoutingParams, TurnID};
-use widgetry::mapspace::ToggleZoomed;
-use widgetry::{Color, EventCtx, GeomBatch};
+use widgetry::mapspace::{DrawUnzoomedShapes, ToggleZoomed};
+use widgetry::{Color, EventCtx, GeomBatch, GfxCtx};
 
 use super::Neighborhood;
 use crate::App;
@@ -88,8 +88,10 @@ impl ModalFilters {
         ctx: &EventCtx,
         map: &Map,
         only_neighborhood: Option<&Neighborhood>,
-    ) -> ToggleZoomed {
+    ) -> Toggle3Zoomed {
         let mut batch = ToggleZoomed::builder();
+        let mut low_zoom = DrawUnzoomedShapes::builder();
+
         for (r, dist) in &self.roads {
             if only_neighborhood
                 .map(|n| !n.orig_perimeter.interior.contains(r))
@@ -101,6 +103,11 @@ impl ModalFilters {
             let road = map.get_r(*r);
             if let Ok((pt, angle)) = road.center_pts.dist_along(*dist) {
                 let road_width = road.get_width();
+
+                // TODO DrawUnzoomedShapes can do lines, but they don't stretch as the radius does,
+                // so it looks weird
+                low_zoom.add_circle(pt, Distance::meters(8.0), Color::RED);
+                low_zoom.add_circle(pt, Distance::meters(6.0), Color::WHITE);
 
                 batch
                     .unzoomed
@@ -134,6 +141,13 @@ impl ModalFilters {
             }
 
             let line = filter.geometry(map);
+
+            // It's really hard to see a tiny squished line thickened, so use the same circle
+            // symbology at really low zooms
+            let pt = line.middle().unwrap();
+            low_zoom.add_circle(pt, Distance::meters(8.0), Color::RED);
+            low_zoom.add_circle(pt, Distance::meters(6.0), Color::WHITE);
+
             batch
                 .unzoomed
                 .push(Color::RED, line.make_polygons(Distance::meters(3.0)));
@@ -144,7 +158,7 @@ impl ModalFilters {
                 line.percent_slice(0.3, 0.7).unwrap_or(line),
             );
         }
-        batch.build(ctx)
+        Toggle3Zoomed::new(batch.build(ctx), low_zoom.build())
     }
 }
 
@@ -249,4 +263,28 @@ fn draw_zoomed_planters(ctx: &EventCtx, batch: &mut GeomBatch, line: Line) {
             .centered_on(line.must_dist_along(0.85 * line.length()))
             .rotate(line.angle()),
     );
+}
+
+/// Depending on the canvas zoom level, draws one of 3 things.
+pub struct Toggle3Zoomed {
+    draw: ToggleZoomed,
+    unzoomed: DrawUnzoomedShapes,
+}
+
+impl Toggle3Zoomed {
+    fn new(draw: ToggleZoomed, unzoomed: DrawUnzoomedShapes) -> Self {
+        Self { draw, unzoomed }
+    }
+
+    pub fn empty(ctx: &EventCtx) -> Self {
+        Self::new(ToggleZoomed::empty(ctx), DrawUnzoomedShapes::empty())
+    }
+
+    pub fn draw(&self, g: &mut GfxCtx) {
+        if g.canvas.cam_zoom < 1.0 {
+            self.unzoomed.draw(g);
+        } else {
+            self.draw.draw(g);
+        }
+    }
 }

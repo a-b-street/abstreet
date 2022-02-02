@@ -3,21 +3,20 @@ use std::collections::BTreeSet;
 use map_gui::load::FileLoader;
 use map_gui::tools::{checkbox_per_mode, PopupMsg};
 use synthpop::{Scenario, TripMode};
-use widgetry::mapspace::ToggleZoomed;
 use widgetry::{
     Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Panel, SimpleState, Slider,
     State, Text, TextExt, Toggle, VerticalAlignment, Widget,
 };
 
 use super::{end_of_day, Filters, Impact};
-use crate::{App, BrowseNeighborhoods, Transition};
+use crate::{App, BrowseNeighborhoods, Toggle3Zoomed, Transition};
 
 // TODO Share structure or pieces with Ungap's predict mode
 // ... can't we just produce data of a certain shape, and have a UI pretty tuned for that?
 
 pub struct ShowResults {
     draw_all_neighborhoods: Drawable,
-    draw_all_filters: ToggleZoomed,
+    draw_all_filters: Toggle3Zoomed,
 }
 
 impl ShowResults {

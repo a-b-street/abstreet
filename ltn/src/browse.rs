@@ -11,13 +11,13 @@ use widgetry::{
 };
 
 use super::{Neighborhood, NeighborhoodID, Partitioning};
-use crate::{App, ModalFilters, Transition};
+use crate::{App, ModalFilters, Toggle3Zoomed, Transition};
 
 pub struct BrowseNeighborhoods {
     panel: Panel,
     world: World<NeighborhoodID>,
     labels: DrawRoadLabels,
-    draw_all_filters: ToggleZoomed,
+    draw_all_filters: Toggle3Zoomed,
     draw_boundary_roads: ToggleZoomed,
 }
 
@@ -173,10 +173,10 @@ impl State<App> for BrowseNeighborhoods {
         crate::draw_with_layering(g, app, |g| self.world.draw(g));
 
         self.panel.draw(g);
-        self.draw_all_filters.draw(g);
         if self.panel.is_checked("highlight boundary roads") {
             self.draw_boundary_roads.draw(g);
         }
+        self.draw_all_filters.draw(g);
         if g.canvas.is_unzoomed() {
             self.labels.draw(g, app);
         }
@@ -249,7 +249,7 @@ fn draw_boundary_roads(ctx: &EventCtx, app: &App) -> ToggleZoomed {
             let road = app.map.get_r(r);
             batch
                 .unzoomed
-                .push(Color::RED.alpha(0.8), road.get_thick_polygon());
+                .push(Color::RED.alpha(0.6), road.get_thick_polygon());
             batch
                 .zoomed
                 .push(Color::RED.alpha(0.5), road.get_thick_polygon());
@@ -261,7 +261,7 @@ fn draw_boundary_roads(ctx: &EventCtx, app: &App) -> ToggleZoomed {
                 seen_borders.insert(i);
                 batch
                     .unzoomed
-                    .push(Color::RED.alpha(0.8), app.map.get_i(i).polygon.clone());
+                    .push(Color::RED.alpha(0.6), app.map.get_i(i).polygon.clone());
                 batch
                     .zoomed
                     .push(Color::RED.alpha(0.5), app.map.get_i(i).polygon.clone());

@@ -5,7 +5,7 @@ use structopt::StructOpt;
 use widgetry::{GfxCtx, Settings};
 
 pub use browse::BrowseNeighborhoods;
-pub use filters::{DiagonalFilter, ModalFilters};
+pub use filters::{DiagonalFilter, ModalFilters, Toggle3Zoomed};
 pub use neighborhood::{Cell, DistanceInterval, Neighborhood};
 pub use partition::{NeighborhoodID, Partitioning};
 
@@ -63,7 +63,7 @@ fn run(mut settings: Settings) {
 
             impact: impact::Impact::empty(ctx),
 
-            highlight_boundary_roads: true,
+            highlight_boundary_roads: false,
             draw_neighborhood_style: browse::Style::SimpleColoring,
             draw_cells_as_areas: true,
             draw_borders_as_arrows: true,

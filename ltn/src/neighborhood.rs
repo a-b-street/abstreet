@@ -5,10 +5,9 @@ use maplit::btreeset;
 use geom::{Distance, Polygon};
 use map_gui::tools::DrawRoadLabels;
 use map_model::{IntersectionID, Map, PathConstraints, Perimeter, RoadID};
-use widgetry::mapspace::ToggleZoomed;
 use widgetry::{Drawable, EventCtx, GeomBatch};
 
-use crate::{App, ModalFilters, NeighborhoodID};
+use crate::{App, ModalFilters, NeighborhoodID, Toggle3Zoomed};
 
 pub struct Neighborhood {
     pub id: NeighborhoodID,
@@ -24,7 +23,7 @@ pub struct Neighborhood {
     pub cells: Vec<Cell>,
 
     pub fade_irrelevant: Drawable,
-    pub draw_filters: ToggleZoomed,
+    pub draw_filters: Toggle3Zoomed,
     pub labels: DrawRoadLabels,
 }
 
@@ -74,7 +73,7 @@ impl Neighborhood {
             cells: Vec::new(),
 
             fade_irrelevant: Drawable::empty(ctx),
-            draw_filters: ToggleZoomed::empty(ctx),
+            draw_filters: Toggle3Zoomed::empty(ctx),
             // Temporary value
             labels: DrawRoadLabels::only_major_roads(),
         };
