@@ -75,9 +75,11 @@
 <span id="74">74</span>
 <span id="75">75</span>
 <span id="76">76</span>
+<span id="77">77</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
-<span class="kw">use</span> <span class="ident">map_gui::tools::compare_counts</span>::{<span class="ident">CompareCounts</span>, <span class="ident">Counts</span>, <span class="ident">Layer</span>};
+<span class="kw">use</span> <span class="ident">map_gui::tools::compare_counts</span>::{<span class="ident">CompareCounts</span>, <span class="ident">Layer</span>};
 <span class="kw">use</span> <span class="ident">map_gui::tools::PopupMsg</span>;
+<span class="kw">use</span> <span class="ident">synthpop::TrafficCounts</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">SimpleState</span>, <span class="ident">State</span>, <span class="ident">VerticalAlignment</span>,
     <span class="ident">Widget</span>,
@@ -98,13 +100,13 @@
     ) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer::throwaway</span>();
         <span class="comment">// TODO File loaders</span>
-        <span class="kw">let</span> <span class="ident">counts_a</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">abstio::maybe_read_json</span>::<span class="op">&lt;</span><span class="ident">Counts</span><span class="op">&gt;</span>(<span class="ident">path1</span>, <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>) {
+        <span class="kw">let</span> <span class="ident">counts_a</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">abstio::maybe_read_json</span>::<span class="op">&lt;</span><span class="ident">TrafficCounts</span><span class="op">&gt;</span>(<span class="ident">path1</span>, <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>) {
             <span class="prelude-val">Ok</span>(<span class="ident">c</span>) =&gt; <span class="ident">c</span>,
             <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
                 <span class="kw">return</span> <span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;Error&quot;</span>, <span class="macro">vec!</span>[<span class="ident">err</span>.<span class="ident">to_string</span>()]);
             }
         };
-        <span class="kw">let</span> <span class="ident">counts_b</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">abstio::maybe_read_json</span>::<span class="op">&lt;</span><span class="ident">Counts</span><span class="op">&gt;</span>(<span class="ident">path2</span>, <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>) {
+        <span class="kw">let</span> <span class="ident">counts_b</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">abstio::maybe_read_json</span>::<span class="op">&lt;</span><span class="ident">TrafficCounts</span><span class="op">&gt;</span>(<span class="ident">path2</span>, <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>) {
             <span class="prelude-val">Ok</span>(<span class="ident">c</span>) =&gt; <span class="ident">c</span>,
             <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
                 <span class="kw">return</span> <span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;Error&quot;</span>, <span class="macro">vec!</span>[<span class="ident">err</span>.<span class="ident">to_string</span>()]);

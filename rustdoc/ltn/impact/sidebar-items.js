@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["count_throughput",""],["end_of_day",""]],"mod":[["ui",""]],"struct":[["Filters",""],["Impact",""]]});
+initSidebarItems({"fn":[["end_of_day",""]],"mod":[["ui",""]],"struct":[["Filters",""],["Impact",""]]});

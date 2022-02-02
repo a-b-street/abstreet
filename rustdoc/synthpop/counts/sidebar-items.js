@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["TrafficCounts","This represents the number of vehicles (or trips, or something else) crossing roads and intersections over some span of time. The data could represent real observations or something from a simulation."]]});
