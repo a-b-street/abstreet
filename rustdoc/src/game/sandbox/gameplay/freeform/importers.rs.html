@@ -219,7 +219,7 @@
     <span class="ident">s</span>.<span class="ident">only_seed_buses</span> <span class="op">=</span> <span class="prelude-val">None</span>;
     <span class="ident">s</span>.<span class="ident">people</span> <span class="op">=</span> <span class="ident">ExternalPerson::import</span>(<span class="ident">map</span>, <span class="ident">input</span>.<span class="ident">people</span>, <span class="ident">skip_problems</span>)<span class="question-mark">?</span>;
     <span class="comment">// Always clean up people with no-op trips (going between the same buildings)</span>
-    <span class="ident">s</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">remove_weird_schedules</span>();
+    <span class="ident">s</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">remove_weird_schedules</span>(<span class="bool-val">true</span>);
     <span class="ident">s</span>.<span class="ident">save</span>();
     <span class="prelude-val">Ok</span>(<span class="ident">s</span>.<span class="ident">scenario_name</span>)
 }
