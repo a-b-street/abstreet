@@ -398,6 +398,11 @@
 <span id="397">397</span>
 <span id="398">398</span>
 <span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cmp::Ord</span>;
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 <span class="kw">use</span> <span class="ident">std::marker::PhantomData</span>;
@@ -573,6 +578,11 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">is_empty</span>()
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extend</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) {
+        <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">extend</span>(<span class="ident">other</span>.<span class="ident">map</span>);
+        <span class="self">self</span>.<span class="ident">sum</span> <span class="op">+</span><span class="op">=</span> <span class="ident">other</span>.<span class="ident">sum</span>;
     }
 }
 
