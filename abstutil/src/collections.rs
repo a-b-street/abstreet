@@ -174,6 +174,11 @@ impl<T: Ord + PartialEq + Clone> Counter<T> {
     pub fn is_empty(&self) -> bool {
         self.map.is_empty()
     }
+
+    pub fn extend(&mut self, other: Counter<T>) {
+        self.map.extend(other.map);
+        self.sum += other.sum;
+    }
 }
 
 pub fn wraparound_get<T>(vec: &[T], idx: isize) -> &T {

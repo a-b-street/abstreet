@@ -1,8 +1,8 @@
 use std::collections::HashSet;
 
-use abstutil::Timer;
+use abstutil::{Counter, Timer};
 use geom::Distance;
-use map_gui::tools::{CityPicker, DrawRoadLabels, Navigator, PopupMsg, URLManager};
+use map_gui::tools::{CityPicker, ColorNetwork, DrawRoadLabels, Navigator, PopupMsg, URLManager};
 use synthpop::Scenario;
 use widgetry::mapspace::{ToggleZoomed, World, WorldOutcome};
 use widgetry::{
@@ -16,6 +16,7 @@ use crate::{App, ModalFilters, Toggle3Zoomed, Transition};
 pub struct BrowseNeighborhoods {
     panel: Panel,
     world: World<NeighborhoodID>,
+    draw_over_roads: ToggleZoomed,
     labels: DrawRoadLabels,
     draw_all_filters: Toggle3Zoomed,
     draw_boundary_roads: ToggleZoomed,
@@ -25,19 +26,25 @@ impl BrowseNeighborhoods {
     pub fn new_state(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
         URLManager::update_url_map_name(app);
 
-        let world = ctx.loading_screen("calculate neighborhoods", |ctx, timer| {
-            if &app.session.partitioning.map != app.map.get_name() {
-                app.session.partitioning = Partitioning::seed_using_heuristics(app, timer);
-                app.session.modal_filters = ModalFilters::default();
-            }
-            make_world(ctx, app, timer)
-        });
+        let (world, draw_over_roads) =
+            ctx.loading_screen("calculate neighborhoods", |ctx, timer| {
+                if &app.session.partitioning.map != app.map.get_name() {
+                    app.session.partitioning = Partitioning::seed_using_heuristics(app, timer);
+                    app.session.modal_filters = ModalFilters::default();
+                }
+                (
+                    make_world(ctx, app, timer),
+                    draw_over_roads(ctx, app, timer),
+                )
+            });
         let draw_all_filters = app.session.modal_filters.draw(ctx, &app.map, None);
 
         let panel = Panel::new_builder(Widget::col(vec![
             map_gui::tools::app_header(ctx, app, "Low traffic neighborhoods"),
             Widget::row(vec![
-                "Click a neighborhood".text_widget(ctx).centered_vert(),
+                "Click a neighborhood to edit filters"
+                    .text_widget(ctx)
+                    .centered_vert(),
                 ctx.style()
                     .btn_plain
                     .icon("system/assets/tools/search.svg")
@@ -45,25 +52,29 @@ impl BrowseNeighborhoods {
                     .build_widget(ctx, "search")
                     .align_right(),
             ]),
-            Toggle::checkbox(
-                ctx,
-                "highlight boundary roads",
-                Key::H,
-                app.session.highlight_boundary_roads,
-            ),
-            Widget::row(vec![
-                "Draw neighborhoods:".text_widget(ctx).centered_vert(),
-                Widget::dropdown(
+            Widget::col(vec![
+                Toggle::checkbox(
                     ctx,
-                    "style",
-                    app.session.draw_neighborhood_style,
-                    vec![
-                        Choice::new("simple", Style::SimpleColoring),
-                        Choice::new("cells", Style::Cells),
-                        Choice::new("quietness", Style::Quietness),
-                    ],
+                    "highlight boundary roads",
+                    Key::H,
+                    app.session.highlight_boundary_roads,
                 ),
-            ]),
+                Widget::row(vec![
+                    "Draw neighborhoods:".text_widget(ctx).centered_vert(),
+                    Widget::dropdown(
+                        ctx,
+                        "style",
+                        app.session.draw_neighborhood_style,
+                        vec![
+                            Choice::new("simple", Style::SimpleColoring),
+                            Choice::new("cells", Style::Cells),
+                            Choice::new("quietness", Style::Quietness),
+                            Choice::new("all rat-runs", Style::RatRuns),
+                        ],
+                    ),
+                ]),
+            ])
+            .section(ctx),
             Widget::col(vec![
                 Widget::row(vec![
                     ctx.style().btn_outline.text("New").build_def(ctx),
@@ -87,6 +98,7 @@ impl BrowseNeighborhoods {
         Box::new(BrowseNeighborhoods {
             panel,
             world,
+            draw_over_roads,
             labels: DrawRoadLabels::only_major_roads(),
             draw_all_filters,
             draw_boundary_roads: draw_boundary_roads(ctx, app),
@@ -152,8 +164,10 @@ impl State<App> for BrowseNeighborhoods {
                     self.panel.is_checked("highlight boundary roads");
                 app.session.draw_neighborhood_style = self.panel.dropdown_value("style");
 
-                self.world =
-                    ctx.loading_screen("change style", |ctx, timer| make_world(ctx, app, timer));
+                ctx.loading_screen("change style", |ctx, timer| {
+                    self.world = make_world(ctx, app, timer);
+                    self.draw_over_roads = draw_over_roads(ctx, app, timer);
+                });
             }
             _ => {}
         }
@@ -171,6 +185,7 @@ impl State<App> for BrowseNeighborhoods {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         crate::draw_with_layering(g, app, |g| self.world.draw(g));
+        self.draw_over_roads.draw(g);
 
         self.panel.draw(g);
         if self.panel.is_checked("highlight boundary roads") {
@@ -230,9 +245,43 @@ fn make_world(ctx: &mut EventCtx, app: &App, timer: &mut Timer) -> World<Neighbo
                     .clickable()
                     .build(ctx);
             }
+            Style::RatRuns => {
+                world
+                    .add(*id)
+                    .hitbox(block.polygon.clone())
+                    // Slight lie, because draw_over_roads has to be drawn after the World
+                    .drawn_in_master_batch()
+                    .hover_outline(Color::BLACK, Distance::meters(5.0))
+                    .clickable()
+                    .build(ctx);
+            }
         }
     }
     world
+}
+
+fn draw_over_roads(ctx: &mut EventCtx, app: &App, timer: &mut Timer) -> ToggleZoomed {
+    if app.session.draw_neighborhood_style != Style::RatRuns {
+        return ToggleZoomed::empty(ctx);
+    }
+
+    let mut count_per_road = Counter::new();
+    let mut count_per_intersection = Counter::new();
+
+    for id in app.session.partitioning.all_neighborhoods().keys() {
+        let neighborhood = Neighborhood::new(ctx, app, *id);
+        let rat_runs = super::rat_runs::find_rat_runs(app, &neighborhood, timer);
+        count_per_road.extend(rat_runs.count_per_road);
+        count_per_intersection.extend(rat_runs.count_per_intersection);
+    }
+
+    // TODO It's a bit weird to draw one heatmap covering streets in every neighborhood. The
+    // rat-runs are calculated per neighborhood, but now we're showing them all together, as if
+    // it's the impact prediction mode using a demand model.
+    let mut colorer = ColorNetwork::no_fading(app);
+    colorer.ranked_roads(count_per_road, &app.cs.good_to_bad_red);
+    colorer.ranked_intersections(count_per_intersection, &app.cs.good_to_bad_red);
+    colorer.build(ctx)
 }
 
 fn draw_boundary_roads(ctx: &EventCtx, app: &App) -> ToggleZoomed {
@@ -276,6 +325,7 @@ pub enum Style {
     SimpleColoring,
     Cells,
     Quietness,
+    RatRuns,
 }
 
 fn impact_widget(ctx: &EventCtx, app: &App) -> Widget {
