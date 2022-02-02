@@ -247,6 +247,7 @@
 <span id="246">246</span>
 <span id="247">247</span>
 <span id="248">248</span>
+<span id="249">249</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>};
 <span class="kw">use</span> <span class="ident">widgetry::mapspace::World</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
@@ -448,30 +449,31 @@
     <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">cell</span>) <span class="kw">in</span> <span class="ident">neighborhood</span>.<span class="ident">cells</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
         <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident">render_cells</span>.<span class="ident">colors</span>[<span class="ident">idx</span>];
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">cell</span>.<span class="ident">borders</span> {
+            <span class="kw">let</span> <span class="ident">angles</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Angle</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">cell</span>
+                .<span class="ident">roads</span>
+                .<span class="ident">keys</span>()
+                .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> {
+                    <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
+                    <span class="comment">// Design choice: when we have a filter right at the entrance of a</span>
+                    <span class="comment">// neighborhood, it creates its own little cell allowing access to just the</span>
+                    <span class="comment">// very beginning of the road. Let&#39;s not draw anything for that.</span>
+                    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">roads</span>.<span class="ident">contains_key</span>(<span class="ident">r</span>) {
+                        <span class="prelude-val">None</span>
+                    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">src_i</span> <span class="op">==</span> <span class="kw-2">*</span><span class="ident">i</span> {
+                        <span class="prelude-val">Some</span>(<span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">first_line</span>().<span class="ident">angle</span>())
+                    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">dst_i</span> <span class="op">==</span> <span class="kw-2">*</span><span class="ident">i</span> {
+                        <span class="prelude-val">Some</span>(<span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">last_line</span>().<span class="ident">angle</span>().<span class="ident">opposite</span>())
+                    } <span class="kw">else</span> {
+                        <span class="prelude-val">None</span>
+                    }
+                })
+                .<span class="ident">collect</span>();
+            <span class="comment">// Tiny cell with a filter right at the border</span>
+            <span class="kw">if</span> <span class="ident">angles</span>.<span class="ident">is_empty</span>() {
+                <span class="kw">continue</span>;
+            }
+
             <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_borders_as_arrows</span> {
-                <span class="kw">let</span> <span class="ident">angles</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Angle</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">cell</span>
-                    .<span class="ident">roads</span>
-                    .<span class="ident">keys</span>()
-                    .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> {
-                        <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
-                        <span class="comment">// Design choice: when we have a filter right at the entrance of a</span>
-                        <span class="comment">// neighborhood, it creates its own little cell allowing access to just the</span>
-                        <span class="comment">// very beginning of the road. Let&#39;s not draw arrows for that.</span>
-                        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">roads</span>.<span class="ident">contains_key</span>(<span class="ident">r</span>) {
-                            <span class="prelude-val">None</span>
-                        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">src_i</span> <span class="op">==</span> <span class="kw-2">*</span><span class="ident">i</span> {
-                            <span class="prelude-val">Some</span>(<span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">first_line</span>().<span class="ident">angle</span>())
-                        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">dst_i</span> <span class="op">==</span> <span class="kw-2">*</span><span class="ident">i</span> {
-                            <span class="prelude-val">Some</span>(<span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">last_line</span>().<span class="ident">angle</span>().<span class="ident">opposite</span>())
-                        } <span class="kw">else</span> {
-                            <span class="prelude-val">None</span>
-                        }
-                    })
-                    .<span class="ident">collect</span>();
-                <span class="comment">// Tiny cell with a filter right at the border</span>
-                <span class="kw">if</span> <span class="ident">angles</span>.<span class="ident">is_empty</span>() {
-                    <span class="kw">continue</span>;
-                }
                 <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">center</span>();
                 <span class="kw">let</span> <span class="ident">angle</span> <span class="op">=</span> <span class="ident">Angle::average</span>(<span class="ident">angles</span>);
 
