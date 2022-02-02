@@ -85,7 +85,7 @@ pub async fn generate_scenario(
     );
     // Some zones have very few buildings, and people wind up with a home and workplace that're the
     // same!
-    scenario = scenario.remove_weird_schedules();
+    scenario = scenario.remove_weird_schedules(false);
     // TODO For temporary development of the UK OD pipeline...
     if true {
         check_sensor_data(map, &scenario, "/home/dabreegster/sensors.json", timer);

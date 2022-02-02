@@ -120,12 +120,14 @@ impl Scenario {
         }
     }
 
-    pub fn remove_weird_schedules(mut self) -> Scenario {
+    pub fn remove_weird_schedules(mut self, verbose: bool) -> Scenario {
         let orig = self.people.len();
         self.people.retain(|person| match person.check_schedule() {
             Ok(()) => true,
             Err(err) => {
-                println!("{}", err);
+                if verbose {
+                    warn!("{}", err);
+                }
                 false
             }
         });

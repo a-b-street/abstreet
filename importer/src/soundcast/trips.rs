@@ -299,5 +299,5 @@ pub fn make_scenario(
         people,
         only_seed_buses: None,
     }
-    .remove_weird_schedules()
+    .remove_weird_schedules(true)
 }

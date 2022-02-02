@@ -126,7 +126,7 @@ pub fn generate_scenario(
     timer.stop("building people");
 
     timer.start("removing weird schedules");
-    scenario = scenario.remove_weird_schedules();
+    scenario = scenario.remove_weird_schedules(true);
     timer.stop("removing weird schedules");
 
     scenario
