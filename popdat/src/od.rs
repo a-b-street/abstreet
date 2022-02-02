@@ -1,9 +1,6 @@
-//! This is an alternative pipeline for generating a Scenario, starting from origin-destination
-//! data (also called desire lines), which gives a count of commuters between two zones, breaking
-//! down by mode.
-//!
-//! Maybe someday, we'll merge the two approaches, and make the first generate DesireLines as an
-//! intermediate step.
+//! This is a standalone pipeline for generating a Scenario, starting from origin-destination data
+//! (also called desire lines), which gives a count of commuters between two zones, breaking down
+//! by mode.
 
 use std::collections::HashMap;
 
@@ -11,8 +8,8 @@ use rand::seq::SliceRandom;
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
 
-use abstutil::Timer;
-use geom::{Duration, Polygon, Time};
+use abstutil::{prettyprint_usize, Timer};
+use geom::{Duration, Percent, PolyLine, Polygon, Pt2D, Time};
 use map_model::{BuildingID, BuildingType, Map};
 use synthpop::{IndividTrip, MapBorders, PersonSpec, TripEndpoint, TripMode, TripPurpose};
 
@@ -33,6 +30,7 @@ pub struct Options {
     pub departure_time: NormalDistribution,
     /// How long should somebody work before returning home?
     pub work_duration: NormalDistribution,
+    pub include_zones: IncludeZonePolicy,
 }
 
 impl Options {
@@ -43,8 +41,21 @@ impl Options {
                 Duration::minutes(30),
             ),
             work_duration: NormalDistribution::new(Duration::hours(9), Duration::hours(1)),
+            include_zones: IncludeZonePolicy::AllowRemote,
         }
     }
+}
+
+/// Only desire lines starting and ending in zones matching this policy will be used.
+#[derive(PartialEq)]
+pub enum IncludeZonePolicy {
+    /// Keep zones that at least partially overlap the map's boundary. Note this doesn't mean no
+    /// off-map trips will occur -- if a zone only partly overlaps the map, then some trips will
+    /// snap to a border.
+    MustOverlap,
+    /// Keep all zones. When looking at desire lines between two remote zones, filter by those
+    /// whose straight-line segment between zone centroids intersects the map boundary
+    AllowRemote,
 }
 
 /// Generates a scenario from aggregated origin/destination data (DesireLines). The input describes
@@ -57,9 +68,6 @@ impl Options {
 /// resulting in trips that begin and/or end off-map. The amount of the zone that overlaps with the
 /// map boundary determines this. If the zone and map boundary overlap 50% by area, then half of
 /// the people to/from this zone will pick buildings, and half will pick borders.
-///
-/// Currently, zones with no overlap with the map at all are totally filtered out. We could adjust
-/// this in the future to create more highway through-traffic.
 pub fn disaggregate(
     map: &Map,
     zones: HashMap<String, Polygon>,
@@ -70,19 +78,41 @@ pub fn disaggregate(
 ) -> Vec<PersonSpec> {
     // First decide which zones are relevant for our map. Match homes, shops, and border
     // intersections to each zone.
-    timer.start("match zones");
-    let zones = create_zones(map, zones);
-    timer.stop("match zones");
+    let zones = create_zones(map, zones, opts.include_zones, timer);
 
     let mut people = Vec::new();
-    timer.start("create people");
+    let mut on_map_only = 0;
+    let mut lives_on_map = 0;
+    let mut works_on_map = 0;
+    let mut pass_through = 0;
+
+    timer.start_iter("create people per desire line", desire_lines.len());
     for desire in desire_lines {
+        timer.next();
         // Skip if we filtered out either zone.
         if !zones.contains_key(&desire.home_zone) || !zones.contains_key(&desire.work_zone) {
             continue;
         }
+
         let home_zone = &zones[&desire.home_zone];
         let work_zone = &zones[&desire.work_zone];
+
+        // If both are remote, make sure the desire line intersects the map
+        if home_zone.is_remote() && work_zone.is_remote() {
+            if desire.home_zone == desire.work_zone {
+                continue;
+            }
+
+            if !map
+                .get_boundary_polygon()
+                .intersects_polyline(&PolyLine::must_new(vec![
+                    home_zone.center,
+                    work_zone.center,
+                ]))
+            {
+                continue;
+            }
+        }
 
         for _ in 0..desire.number_commuters {
             // Pick a specific home and workplace. It might be off-map, depending on how much the
@@ -91,6 +121,28 @@ pub fn disaggregate(
                 home_zone.pick_home(desire.mode, map, rng),
                 work_zone.pick_workplace(desire.mode, map, rng),
             ) {
+                // TODO Soundcast had a bug with the off-map exit/entrance being different
+                // sometimes; revisit that subtlety.
+                if leave_home == goto_work {
+                    continue;
+                }
+
+                match (goto_home, goto_work) {
+                    (TripEndpoint::Building(_), TripEndpoint::Building(_)) => {
+                        on_map_only += 1;
+                    }
+                    (TripEndpoint::Building(_), TripEndpoint::Border(_)) => {
+                        lives_on_map += 1;
+                    }
+                    (TripEndpoint::Border(_), TripEndpoint::Building(_)) => {
+                        works_on_map += 1;
+                    }
+                    (TripEndpoint::Border(_), TripEndpoint::Border(_)) => {
+                        pass_through += 1;
+                    }
+                    _ => unreachable!(),
+                }
+
                 // Create their schedule
                 let goto_work_time = Time::START_OF_DAY + opts.departure_time.sample(rng);
                 let return_home_time = goto_work_time + opts.work_duration.sample(rng);
@@ -116,12 +168,27 @@ pub fn disaggregate(
             }
         }
     }
-    timer.stop("create people");
+    let total = on_map_only + lives_on_map + works_on_map + pass_through;
+    for (x, label) in [
+        (on_map_only, "live and work on-map"),
+        (lives_on_map, "live on-map, work remote"),
+        (works_on_map, "live remote, work on-map"),
+        (pass_through, "just pass through"),
+    ] {
+        info!(
+            "{} people ({}%) {}",
+            prettyprint_usize(x),
+            Percent::of(x, total),
+            label
+        );
+    }
+
     people
 }
 
 struct Zone {
     polygon: Polygon,
+    center: Pt2D,
     pct_overlap: f64,
     // For each building, have a value describing how many people live or work there. The exact
     // value doesn't matter; it's just a relative weighting. This way, we can use a weighted sample
@@ -131,39 +198,101 @@ struct Zone {
     borders: MapBorders,
 }
 
-fn create_zones(map: &Map, input: HashMap<String, Polygon>) -> HashMap<String, Zone> {
-    let all_borders = MapBorders::new(map);
-    let mut zones = HashMap::new();
-    for (name, polygon) in input {
-        let mut overlapping_area = 0.0;
-        for p in polygon.intersection(map.get_boundary_polygon()) {
-            overlapping_area += p.area();
-        }
-        // Sometimes this is slightly over 100%, because funky things happen with the polygon
-        // intersection.
-        let pct_overlap = (overlapping_area / polygon.area()).min(1.0);
+impl Zone {
+    fn is_remote(&self) -> bool {
+        self.pct_overlap == 0.0
+    }
+}
 
-        // If the zone doesn't intersect our map at all, totally skip it.
-        if pct_overlap == 0.0 {
-            continue;
-        }
-        zones.insert(
-            name,
-            Zone {
-                polygon,
-                pct_overlap,
-                homes: Vec::new(),
-                workplaces: Vec::new(),
-                borders: all_borders.clone(),
+fn create_zones(
+    map: &Map,
+    input: HashMap<String, Polygon>,
+    include_zones: IncludeZonePolicy,
+    timer: &mut Timer,
+) -> HashMap<String, Zone> {
+    let all_borders = MapBorders::new(map);
+
+    let mut normal_zones = HashMap::new();
+    let mut remote_zones = HashMap::new();
+    for (name, zone) in timer
+        .parallelize(
+            "create zones",
+            input.into_iter().collect(),
+            |(name, polygon)| {
+                let mut overlapping_area = 0.0;
+                for p in polygon.intersection(map.get_boundary_polygon()) {
+                    overlapping_area += p.area();
+                }
+                // Sometimes this is slightly over 100%, because funky things happen with the polygon
+                // intersection.
+                let pct_overlap = (overlapping_area / polygon.area()).min(1.0);
+                let is_remote = pct_overlap == 0.0;
+
+                if is_remote && include_zones == IncludeZonePolicy::MustOverlap {
+                    None
+                } else {
+                    // Multiple zones might all use the same border.
+                    let center = polygon.center();
+                    let mut borders = all_borders.clone();
+                    for list in vec![
+                        &mut borders.incoming_walking,
+                        &mut borders.incoming_driving,
+                        &mut borders.incoming_biking,
+                        &mut borders.outgoing_walking,
+                        &mut borders.outgoing_driving,
+                        &mut borders.outgoing_biking,
+                    ] {
+                        if is_remote {
+                            // For remote zones... keep the one closest border per category?
+                            // TODO See what Soundcast does
+                            list.sort_by_key(|(i, _)| {
+                                map.get_i(*i).polygon.center().fast_dist(center)
+                            });
+                            list.truncate(1);
+                        } else {
+                            // If the zone partly overlaps, only keep borders physically in the zone polygon
+                            list.retain(|(i, _)| {
+                                polygon.contains_pt(map.get_i(*i).polygon.center())
+                            });
+                        }
+                    }
+                    Some((
+                        name,
+                        Zone {
+                            polygon,
+                            center,
+                            pct_overlap,
+                            homes: Vec::new(),
+                            workplaces: Vec::new(),
+                            borders,
+                        },
+                    ))
+                }
             },
-        );
+        )
+        .into_iter()
+        .flatten()
+    {
+        if zone.is_remote() {
+            remote_zones.insert(name, zone);
+        } else {
+            normal_zones.insert(name, zone);
+        }
     }
 
-    // Match all buildings to a zone.
+    info!(
+        "{} zones partly in the map boundary, {} remote zones",
+        prettyprint_usize(normal_zones.len()),
+        prettyprint_usize(remote_zones.len())
+    );
+
+    // Match all buildings to a normal zone.
+    timer.start_iter("assign buildings to zones", map.all_buildings().len());
     for b in map.all_buildings() {
+        timer.next();
         let center = b.polygon.center();
         // We're assuming zones don't overlap each other, so just look for the first match.
-        if let Some((_, zone)) = zones
+        if let Some((_, zone)) = normal_zones
             .iter_mut()
             .find(|(_, z)| z.polygon.contains_pt(center))
         {
@@ -188,22 +317,8 @@ fn create_zones(map: &Map, input: HashMap<String, Polygon>) -> HashMap<String, Z
         }
     }
 
-    // Match border intersections to a zone.
-    for zone in zones.values_mut() {
-        let polygon = zone.polygon.clone();
-        for list in vec![
-            &mut zone.borders.incoming_walking,
-            &mut zone.borders.incoming_driving,
-            &mut zone.borders.incoming_biking,
-            &mut zone.borders.outgoing_walking,
-            &mut zone.borders.outgoing_driving,
-            &mut zone.borders.outgoing_biking,
-        ] {
-            list.retain(|(i, _)| polygon.contains_pt(map.get_i(*i).polygon.center()));
-        }
-    }
-
-    zones
+    normal_zones.extend(remote_zones);
+    normal_zones
 }
 
 impl Zone {

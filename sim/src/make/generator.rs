@@ -88,7 +88,7 @@ impl ScenarioGenerator {
         }
 
         timer.stop(format!("Generating scenario {}", self.scenario_name));
-        scenario.remove_weird_schedules()
+        scenario.remove_weird_schedules(true)
     }
 
     pub fn small_run(map: &Map) -> ScenarioGenerator {

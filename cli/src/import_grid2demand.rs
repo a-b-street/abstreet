@@ -22,7 +22,7 @@ pub fn run(csv_path: String, map: String) -> Result<()> {
     let skip_problems = true;
     s.people = ExternalPerson::import(&map, people, skip_problems)?;
     // Always clean up people with no-op trips (going between the same buildings)
-    s = s.remove_weird_schedules();
+    s = s.remove_weird_schedules(true);
     println!(
         "Imported {}/{} people",
         prettyprint_usize(s.people.len()),

@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use abstio::MapName;
-use abstutil::{Counter, Timer};
+use abstutil::{prettyprint_usize, Counter, Timer};
 use map_model::{
     IntersectionID, Map, PathRequest, PathStepV2, PathfinderCaching, RoadID, RoutingParams,
 };
@@ -95,15 +95,27 @@ impl TrafficCounts {
         let mut sum = 0.0;
         let mut n = 0;
         for (r, cnt1) in self.per_road.borrow() {
+            let cnt1 = *cnt1;
             let cnt2 = other.per_road.get(*r);
-            println!("{}: {} vs {}", r, cnt1, cnt2);
-            sum += (*cnt1 as f64 - cnt2 as f64).powi(2);
+            println!(
+                "{}: {} vs {}",
+                r,
+                prettyprint_usize(cnt1),
+                prettyprint_usize(cnt2)
+            );
+            sum += (cnt1 as f64 - cnt2 as f64).powi(2);
             n += 1;
         }
         for (i, cnt1) in self.per_intersection.borrow() {
+            let cnt1 = *cnt1;
             let cnt2 = other.per_intersection.get(*i);
-            println!("{}: {} vs {}", i, cnt1, cnt2);
-            sum += (*cnt1 as f64 - cnt2 as f64).powi(2);
+            println!(
+                "{}: {} vs {}",
+                i,
+                prettyprint_usize(cnt1),
+                prettyprint_usize(cnt2)
+            );
+            sum += (cnt1 as f64 - cnt2 as f64).powi(2);
             n += 1;
         }
         println!("RMSE = {:.2}", (sum / n as f64).sqrt());

@@ -103,7 +103,7 @@ fn import_json_scenario(map: &Map, input: String, timer: &mut Timer) -> Result<S
     s.only_seed_buses = None;
     s.people = ExternalPerson::import(map, input.people, skip_problems)?;
     // Always clean up people with no-op trips (going between the same buildings)
-    s = s.remove_weird_schedules();
+    s = s.remove_weird_schedules(true);
     s.save();
     Ok(s.scenario_name)
 }
