@@ -1,43 +1,19 @@
-use serde::{Deserialize, Serialize};
-
-use abstio::MapName;
-use abstutil::{prettyprint_usize, Counter};
+use abstutil::prettyprint_usize;
 use geom::{Distance, Histogram, Statistic};
 use map_model::{IntersectionID, RoadID};
+use synthpop::TrafficCounts;
 use widgetry::mapspace::{ObjectID, ToggleZoomed, ToggleZoomedBuilder, World};
 use widgetry::{Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Text, TextExt, Widget};
 
 use crate::tools::{cmp_count, ColorNetwork, DivergingScale};
 use crate::AppLike;
 
-#[derive(Clone, Serialize, Deserialize)]
-pub struct Counts {
-    pub map: MapName,
-    // TODO For now, squeeze everything into this -- mode, weekday/weekend, time of day, data
-    // source, etc
-    pub description: String,
-    // TODO Maybe per direction, movement
-    pub per_road: Counter<RoadID>,
-    pub per_intersection: Counter<IntersectionID>,
-}
-
-impl Default for Counts {
-    fn default() -> Self {
-        Self {
-            map: MapName::new("zz", "place", "holder"),
-            description: String::new(),
-            per_road: Counter::new(),
-            per_intersection: Counter::new(),
-        }
-    }
-}
-
 pub struct CompareCounts {
     pub layer: Layer,
     world: World<Obj>,
-    pub counts_a: Counts,
+    pub counts_a: TrafficCounts,
     heatmap_a: ToggleZoomed,
-    pub counts_b: Counts,
+    pub counts_b: TrafficCounts,
     heatmap_b: ToggleZoomed,
     relative_heatmap: ToggleZoomed,
 }
@@ -60,8 +36,8 @@ impl CompareCounts {
     pub fn new(
         ctx: &mut EventCtx,
         app: &dyn AppLike,
-        counts_a: Counts,
-        counts_b: Counts,
+        counts_a: TrafficCounts,
+        counts_b: TrafficCounts,
         layer: Layer,
     ) -> CompareCounts {
         let heatmap_a = calculate_heatmap(ctx, app, counts_a.clone());
@@ -90,7 +66,7 @@ impl CompareCounts {
         };
     }
 
-    pub fn recalculate_b(&mut self, ctx: &EventCtx, app: &dyn AppLike, counts_b: Counts) {
+    pub fn recalculate_b(&mut self, ctx: &EventCtx, app: &dyn AppLike, counts_b: TrafficCounts) {
         self.counts_b = counts_b;
         self.heatmap_b = calculate_heatmap(ctx, app, self.counts_b.clone());
         self.relative_heatmap =
@@ -104,9 +80,9 @@ impl CompareCounts {
         CompareCounts {
             layer: Layer::A,
             world: World::unbounded(),
-            counts_a: Counts::default(),
+            counts_a: TrafficCounts::default(),
             heatmap_a: ToggleZoomed::empty(ctx),
-            counts_b: Counts::default(),
+            counts_b: TrafficCounts::default(),
             heatmap_b: ToggleZoomed::empty(ctx),
             relative_heatmap: ToggleZoomed::empty(ctx),
         }
@@ -227,7 +203,7 @@ impl CompareCounts {
     }
 }
 
-fn calculate_heatmap(ctx: &EventCtx, app: &dyn AppLike, counts: Counts) -> ToggleZoomed {
+fn calculate_heatmap(ctx: &EventCtx, app: &dyn AppLike, counts: TrafficCounts) -> ToggleZoomed {
     let mut colorer = ColorNetwork::no_fading(app);
     // TODO The scale will be different for roads and intersections
     colorer.ranked_roads(counts.per_road, &app.cs().good_to_bad_red);
@@ -238,8 +214,8 @@ fn calculate_heatmap(ctx: &EventCtx, app: &dyn AppLike, counts: Counts) -> Toggl
 fn calculate_relative_heatmap(
     ctx: &EventCtx,
     app: &dyn AppLike,
-    counts_a: &Counts,
-    counts_b: &Counts,
+    counts_a: &TrafficCounts,
+    counts_b: &TrafficCounts,
 ) -> ToggleZoomed {
     // First just understand the counts...
     // TODO This doesn't have explicit 0's

@@ -1,6 +1,7 @@
 use abstutil::Timer;
-use map_gui::tools::compare_counts::{CompareCounts, Counts, Layer};
+use map_gui::tools::compare_counts::{CompareCounts, Layer};
 use map_gui::tools::PopupMsg;
+use synthpop::TrafficCounts;
 use widgetry::{
     EventCtx, GfxCtx, HorizontalAlignment, Line, Panel, SimpleState, State, VerticalAlignment,
     Widget,
@@ -21,13 +22,13 @@ impl GenericCompareCounts {
     ) -> Box<dyn State<App>> {
         let mut timer = Timer::throwaway();
         // TODO File loaders
-        let counts_a = match abstio::maybe_read_json::<Counts>(path1, &mut timer) {
+        let counts_a = match abstio::maybe_read_json::<TrafficCounts>(path1, &mut timer) {
             Ok(c) => c,
             Err(err) => {
                 return PopupMsg::new_state(ctx, "Error", vec![err.to_string()]);
             }
         };
-        let counts_b = match abstio::maybe_read_json::<Counts>(path2, &mut timer) {
+        let counts_b = match abstio::maybe_read_json::<TrafficCounts>(path2, &mut timer) {
             Ok(c) => c,
             Err(err) => {
                 return PopupMsg::new_state(ctx, "Error", vec![err.to_string()]);

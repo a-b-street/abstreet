@@ -15,11 +15,13 @@ use serde::{Deserialize, Serialize};
 use abstutil::{deserialize_usize, serialize_usize};
 use map_model::PathConstraints;
 
+pub use self::counts::TrafficCounts;
 pub use self::endpoint::TripEndpoint;
 pub use self::external::{ExternalPerson, ExternalTrip, ExternalTripEndpoint, MapBorders};
 pub use self::modifier::ScenarioModifier;
 pub use self::scenario::{IndividTrip, PersonSpec, Scenario, TripPurpose};
 
+mod counts;
 mod endpoint;
 mod external;
 mod modifier;

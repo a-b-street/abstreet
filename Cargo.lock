@@ -2993,6 +2993,7 @@ dependencies = [
 name = "popdat"
 version = "0.1.0"
 dependencies = [
+ "abstio",
  "abstutil",
  "anyhow",
  "flatgeobuf",
@@ -3007,6 +3008,7 @@ dependencies = [
  "rand",
  "rand_distr",
  "rand_xorshift",
+ "serde",
  "serde_json",
  "sim",
  "synthpop",
