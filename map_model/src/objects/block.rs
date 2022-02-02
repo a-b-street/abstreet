@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use abstutil::wraparound_get;
 use geom::{Polygon, Pt2D, Ring};
 
-use crate::{CommonEndpoint, Direction, LaneID, Map, RoadID, RoadSideID, SideOfRoad};
+use crate::{CommonEndpoint, Direction, Map, RoadID, RoadSideID, SideOfRoad};
 
 // See https://github.com/a-b-street/abstreet/issues/841. Slow but correct when enabled.
 const LOSSLESS_BLOCKFINDING: bool = true;
@@ -36,21 +36,25 @@ pub struct Perimeter {
 }
 
 impl Perimeter {
+    /// TODO update. CW or not?
     /// Starting at any lane, snap to the nearest side of that road, then begin tracing a single
     /// block, with no interior roads. This will fail if a map boundary is reached. The results are
     /// unusual when crossing the entrance to a tunnel or bridge, and so `skip` is used to avoid
     /// tracing there.
-    pub fn single_block(map: &Map, start: LaneID, skip: &HashSet<RoadID>) -> Result<Perimeter> {
-        let mut roads = Vec::new();
-        let start_road_side = map.get_l(start).get_nearest_side_of_road(map);
-
+    pub fn single_block(
+        map: &Map,
+        start_road_side: RoadSideID,
+        skip: &HashSet<RoadID>,
+    ) -> Result<Perimeter> {
         if skip.contains(&start_road_side.road) {
             bail!("Started on a road we shouldn't trace");
         }
 
+        let mut roads = Vec::new();
         // We need to track which side of the road we're at, but also which direction we're facing
         let mut current_road_side = start_road_side;
-        let mut current_intersection = map.get_l(start).dst_i;
+        // Picking the dst_i is an arbitrary choice.
+        let mut current_intersection = map.get_r(start_road_side.road).dst_i;
         loop {
             let i = map.get_i(current_intersection);
             if i.is_border() {
@@ -99,24 +103,29 @@ impl Perimeter {
 
         let mut seen = HashSet::new();
         let mut perimeters = Vec::new();
-        for lane in map.all_lanes() {
-            let side = lane.get_nearest_side_of_road(map);
-            if seen.contains(&side) {
-                continue;
-            }
-            match Perimeter::single_block(map, lane.id, &skip) {
-                Ok(perimeter) => {
-                    seen.extend(perimeter.roads.clone());
-                    perimeters.push(perimeter);
+        for road in map.all_roads() {
+            for side_of_road in [SideOfRoad::Left, SideOfRoad::Right] {
+                let side = RoadSideID {
+                    road: road.id,
+                    side: side_of_road,
+                };
+                if seen.contains(&side) {
+                    continue;
                 }
-                Err(err) => {
-                    // The logs are quite spammy and not helpful yet, since they're all expected
-                    // cases near the map boundary
-                    if false {
-                        warn!("Failed from {}: {}", lane.id, err);
+                match Perimeter::single_block(map, side, &skip) {
+                    Ok(perimeter) => {
+                        seen.extend(perimeter.roads.clone());
+                        perimeters.push(perimeter);
                     }
-                    // Don't try again
-                    seen.insert(side);
+                    Err(err) => {
+                        // The logs are quite spammy and not helpful yet, since they're all expected
+                        // cases near the map boundary
+                        if false {
+                            warn!("Failed from {:?}: {}", side, err);
+                        }
+                        // Don't try again
+                        seen.insert(side);
+                    }
                 }
             }
         }
@@ -201,6 +210,14 @@ impl Perimeter {
             println!("\nCommon: {:?}\n{:?}\n{:?}", common, self, other);
         }
 
+        if self.reverse_to_fix_winding_order(map, other) {
+            // Revert, reverse one, and try again. This should never recurse.
+            self.restore_invariant();
+            other.restore_invariant();
+            self.roads.reverse();
+            return self.try_to_merge(map, other, debug_failures);
+        }
+
         // Check if all of the common roads are at the end of each perimeter,
         // so we can "blindly" do this snipping. If this isn't true, then the overlapping portions
         // are split by non-overlapping roads. This happens when merging the two blocks would
@@ -273,6 +290,47 @@ impl Perimeter {
         }
 
         true
+    }
+
+    /// Should we reverse one perimeter to match the winding order?
+    ///
+    /// This is only meant to be called in the middle of try_to_merge. It assumes both perimeters
+    /// have already been rotated so the common roads are at the end. The invariant of first=last
+    /// is not true.
+    fn reverse_to_fix_winding_order(&self, map: &Map, other: &Perimeter) -> bool {
+        // Using geometry to determine winding order is brittle. Look for any common road, and see
+        // where it points.
+        let common_example = self.roads.last().unwrap().road;
+        let last_common_for_self = match map
+            .get_r(common_example)
+            .common_endpoint(map.get_r(wraparound_get(&self.roads, self.roads.len() as isize).road))
+        {
+            CommonEndpoint::One(i) => i,
+            CommonEndpoint::Both => {
+                // If the common road is a loop on the intersection, then this perimeter must be of
+                // length 2 (or 3 with the invariant), and reversing it is meaningless.
+                return false;
+            }
+            CommonEndpoint::None => unreachable!(),
+        };
+
+        // Find the same road in the other perimeter
+        let other_idx = other
+            .roads
+            .iter()
+            .position(|x| x.road == common_example)
+            .unwrap() as isize;
+        let last_common_for_other = match map
+            .get_r(common_example)
+            .common_endpoint(map.get_r(wraparound_get(&other.roads, other_idx + 1).road))
+        {
+            CommonEndpoint::One(i) => i,
+            CommonEndpoint::Both => {
+                return false;
+            }
+            CommonEndpoint::None => unreachable!(),
+        };
+        last_common_for_self == last_common_for_other
     }
 
     /// Try to merge all given perimeters. If successful, only one perimeter will be returned.

@@ -792,7 +792,7 @@ impl ContextualActions for Actions {
                 return Transition::Push(
                     match Perimeter::single_block(
                         map,
-                        l,
+                        map.get_l(l).get_nearest_side_of_road(map),
                         &Perimeter::find_roads_to_skip_tracing(map),
                     )
                     .and_then(|perim| perim.to_block(map))
