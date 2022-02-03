@@ -642,7 +642,7 @@
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">borders</span> <span class="op">=</span> <span class="ident">all_borders</span>.<span class="ident">clone</span>();
                     <span class="comment">// TODO For remote zones, we should at least prune for borders on the correct</span>
                     <span class="comment">// &quot;side&quot; of the map. Or we can let fast_dist later take care of it.</span>
-                    <span class="kw">if</span> <span class="ident">is_remote</span> {
+                    <span class="kw">if</span> <span class="op">!</span><span class="ident">is_remote</span> {
                         <span class="kw">for</span> <span class="ident">list</span> <span class="kw">in</span> <span class="macro">vec!</span>[
                             <span class="kw-2">&amp;mut</span> <span class="ident">borders</span>.<span class="ident">incoming_walking</span>,
                             <span class="kw-2">&amp;mut</span> <span class="ident">borders</span>.<span class="ident">incoming_driving</span>,
