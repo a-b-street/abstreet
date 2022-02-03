@@ -24,7 +24,7 @@ wget https://raw.githubusercontent.com/cyipt/actdev/main/data-small/$SITE/site.g
 ./import.sh --raw --map --city=gb/$CITY
 
 # Procedurally generate houses, if needed
-if cargo run --release --bin cli -- generate-houses --map=data/system/gb/$CITY/maps/center.bin --num_required=1000 --rng_seed=42 --out=data/input/gb/$CITY/procgen_houses.json; then
+if cargo run --release --bin cli -- generate-houses --map=data/system/gb/$CITY/maps/center.bin --num-required=1000 --rng-seed=42 --output=data/input/gb/$CITY/procgen_houses.json; then
 	# Import again, now that the new JSON file exists
 	./import.sh --raw --map --city=gb/$CITY
 else

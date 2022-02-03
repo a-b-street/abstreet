@@ -1135,10 +1135,15 @@
       "uncompressed_size_bytes": 21959806,
       "compressed_size_bytes": 2126077
     },
+    "data/input/gb/manchester/procgen_houses.json": {
+      "checksum": "28aa323e22430c95635a8ef3ea5827ea",
+      "uncompressed_size_bytes": 7570422,
+      "compressed_size_bytes": 860151
+    },
     "data/input/gb/manchester/raw_maps/levenshulme.bin": {
-      "checksum": "ec77d6377359c2a38b999d1d65d04882",
-      "uncompressed_size_bytes": 6729236,
-      "compressed_size_bytes": 1227840
+      "checksum": "536fa74c789ca5c47f1c16561f4a3aeb",
+      "uncompressed_size_bytes": 7956822,
+      "compressed_size_bytes": 1634784
     },
     "data/input/gb/marsh_barton/osm/center.osm": {
       "checksum": "c2b66a38416bf42f789887a5d540ece6",
@@ -3706,14 +3711,14 @@
       "compressed_size_bytes": 207213
     },
     "data/system/gb/manchester/maps/levenshulme.bin": {
-      "checksum": "45b408ec3872f2b635be228cd5113936",
-      "uncompressed_size_bytes": 24818109,
-      "compressed_size_bytes": 9232882
+      "checksum": "a375b7218a85628951f77b0940f4184d",
+      "uncompressed_size_bytes": 27274356,
+      "compressed_size_bytes": 10064555
     },
     "data/system/gb/manchester/scenarios/levenshulme/background.bin": {
-      "checksum": "eebc4e0f654f638151ce859ea24f0c9f",
-      "uncompressed_size_bytes": 1376624,
-      "compressed_size_bytes": 351643
+      "checksum": "1f5fe2b9bedf707e2f6cd58ffc98f55b",
+      "uncompressed_size_bytes": 11496578,
+      "compressed_size_bytes": 3029849
     },
     "data/system/gb/marsh_barton/maps/center.bin": {
       "checksum": "3f688984b9528a0261d8b8e7bee62996",
