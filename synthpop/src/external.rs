@@ -5,9 +5,9 @@ use anyhow::Result;
 use serde::Deserialize;
 
 use geom::{Distance, FindClosest, LonLat, Time};
-use map_model::{IntersectionID, Map, PathConstraints};
+use map_model::Map;
 
-use crate::{IndividTrip, PersonSpec, TripEndpoint, TripMode, TripPurpose};
+use crate::{IndividTrip, MapBorders, PersonSpec, TripEndpoint, TripMode, TripPurpose};
 
 #[derive(Deserialize)]
 pub struct ExternalPerson {
@@ -62,9 +62,9 @@ impl ExternalPerson {
                     Ok(TripEndpoint::Border(
                         candidates
                             .iter()
-                            .min_by_key(|(_, border)| border.fast_dist(gps))
+                            .min_by_key(|border| border.gps_pos.fast_dist(gps))
                             .ok_or_else(|| anyhow!("No border for {}", mode.ongoing_verb()))?
-                            .0,
+                            .i,
                     ))
                 }
             }
@@ -108,88 +108,5 @@ impl ExternalPerson {
             results.push(spec);
         }
         Ok(results)
-    }
-}
-
-/// Lists all border intersections of the map, broken down by mode and whether they support
-/// incoming or outgoing traffic.
-#[derive(Clone)]
-pub struct MapBorders {
-    pub incoming_walking: Vec<(IntersectionID, LonLat)>,
-    pub incoming_driving: Vec<(IntersectionID, LonLat)>,
-    pub incoming_biking: Vec<(IntersectionID, LonLat)>,
-    pub outgoing_walking: Vec<(IntersectionID, LonLat)>,
-    pub outgoing_driving: Vec<(IntersectionID, LonLat)>,
-    pub outgoing_biking: Vec<(IntersectionID, LonLat)>,
-}
-
-impl MapBorders {
-    pub fn new(map: &Map) -> MapBorders {
-        let bounds = map.get_gps_bounds();
-        let incoming_walking: Vec<(IntersectionID, LonLat)> = map
-            .all_incoming_borders()
-            .into_iter()
-            .filter(|i| {
-                !i.get_outgoing_lanes(map, PathConstraints::Pedestrian)
-                    .is_empty()
-            })
-            .map(|i| (i.id, i.polygon.center().to_gps(bounds)))
-            .collect();
-        let incoming_driving: Vec<(IntersectionID, LonLat)> = map
-            .all_incoming_borders()
-            .into_iter()
-            .filter(|i| !i.get_outgoing_lanes(map, PathConstraints::Car).is_empty())
-            .map(|i| (i.id, i.polygon.center().to_gps(bounds)))
-            .collect();
-        let incoming_biking: Vec<(IntersectionID, LonLat)> = map
-            .all_incoming_borders()
-            .into_iter()
-            .filter(|i| !i.get_outgoing_lanes(map, PathConstraints::Bike).is_empty())
-            .map(|i| (i.id, i.polygon.center().to_gps(bounds)))
-            .collect();
-        let outgoing_walking: Vec<(IntersectionID, LonLat)> = map
-            .all_outgoing_borders()
-            .into_iter()
-            .filter(|i| {
-                !i.get_incoming_lanes(map, PathConstraints::Pedestrian)
-                    .is_empty()
-            })
-            .map(|i| (i.id, i.polygon.center().to_gps(bounds)))
-            .collect();
-        let outgoing_driving: Vec<(IntersectionID, LonLat)> = map
-            .all_outgoing_borders()
-            .into_iter()
-            .filter(|i| !i.get_incoming_lanes(map, PathConstraints::Car).is_empty())
-            .map(|i| (i.id, i.polygon.center().to_gps(bounds)))
-            .collect();
-        let outgoing_biking: Vec<(IntersectionID, LonLat)> = map
-            .all_outgoing_borders()
-            .into_iter()
-            .filter(|i| !i.get_incoming_lanes(map, PathConstraints::Bike).is_empty())
-            .map(|i| (i.id, i.polygon.center().to_gps(bounds)))
-            .collect();
-        MapBorders {
-            incoming_walking,
-            incoming_driving,
-            incoming_biking,
-            outgoing_walking,
-            outgoing_driving,
-            outgoing_biking,
-        }
-    }
-
-    /// Returns the (incoming, outgoing) borders for the specififed mode.
-    pub fn for_mode(
-        &self,
-        mode: TripMode,
-    ) -> (
-        &Vec<(IntersectionID, LonLat)>,
-        &Vec<(IntersectionID, LonLat)>,
-    ) {
-        match mode {
-            TripMode::Walk | TripMode::Transit => (&self.incoming_walking, &self.outgoing_walking),
-            TripMode::Drive => (&self.incoming_driving, &self.outgoing_driving),
-            TripMode::Bike => (&self.incoming_biking, &self.outgoing_biking),
-        }
     }
 }

@@ -121,9 +121,8 @@ pub fn disaggregate(
                 home_zone.pick_home(desire.mode, map, rng),
                 work_zone.pick_workplace(desire.mode, map, rng),
             ) {
-                // TODO Soundcast had a bug with the off-map exit/entrance being different
-                // sometimes; revisit that subtlety.
-                if leave_home == goto_work {
+                // remove_weird_schedules would clean this up later, but simpler to skip upfront
+                if leave_home == goto_work || leave_work == goto_home {
                     continue;
                 }
 
@@ -176,7 +175,7 @@ pub fn disaggregate(
         (pass_through, "just pass through"),
     ] {
         info!(
-            "{} people ({}%) {}",
+            "{} people ({}) {}",
             prettyprint_usize(x),
             Percent::of(x, total),
             label
@@ -234,26 +233,22 @@ fn create_zones(
                     // Multiple zones might all use the same border.
                     let center = polygon.center();
                     let mut borders = all_borders.clone();
-                    for list in vec![
-                        &mut borders.incoming_walking,
-                        &mut borders.incoming_driving,
-                        &mut borders.incoming_biking,
-                        &mut borders.outgoing_walking,
-                        &mut borders.outgoing_driving,
-                        &mut borders.outgoing_biking,
-                    ] {
-                        if is_remote {
-                            // For remote zones... keep the one closest border per category?
-                            // TODO See what Soundcast does
-                            list.sort_by_key(|(i, _)| {
-                                map.get_i(*i).polygon.center().fast_dist(center)
-                            });
-                            list.truncate(1);
-                        } else {
-                            // If the zone partly overlaps, only keep borders physically in the zone polygon
-                            list.retain(|(i, _)| {
-                                polygon.contains_pt(map.get_i(*i).polygon.center())
-                            });
+                    // TODO For remote zones, we should at least prune for borders on the correct
+                    // "side" of the map. Or we can let fast_dist later take care of it.
+                    if is_remote {
+                        for list in vec![
+                            &mut borders.incoming_walking,
+                            &mut borders.incoming_driving,
+                            &mut borders.incoming_biking,
+                            &mut borders.outgoing_walking,
+                            &mut borders.outgoing_driving,
+                            &mut borders.outgoing_biking,
+                        ] {
+                            // If the zone partly overlaps, only keep borders physically in the
+                            // zone polygon
+                            // TODO If the intersection geometry happens to leak out of the map
+                            // boundary a bit, this could be wrong!
+                            list.retain(|border| polygon.contains_pt(border.pos));
                         }
                     }
                     Some((
@@ -359,9 +354,16 @@ impl Zone {
         rng: &mut XorShiftRng,
     ) -> Option<(TripEndpoint, TripEndpoint)> {
         let (incoming, outgoing) = self.borders.for_mode(mode);
-        let leave_i = incoming.choose(rng)?.0;
+
+        let leave_i = incoming
+            .choose_weighted(rng, |border| {
+                (border.weight as f64) * self.center.fast_dist(border.pos).into_inner()
+            })
+            .ok()?
+            .i;
+
         // If we can use the same border on the way back, prefer that.
-        if outgoing.iter().any(|(i, _)| *i == leave_i) {
+        if outgoing.iter().any(|border| border.i == leave_i) {
             return Some((TripEndpoint::Border(leave_i), TripEndpoint::Border(leave_i)));
         }
         // Otherwise, we might have to use a separate border to re-enter. Prefer the one closest to
@@ -369,8 +371,8 @@ impl Zone {
         let leave_pt = map.get_i(leave_i).polygon.center();
         let goto_i = outgoing
             .iter()
-            .min_by_key(|(i, _)| map.get_i(*i).polygon.center().dist_to(leave_pt))?
-            .0;
+            .min_by_key(|border| map.get_i(border.i).polygon.center().dist_to(leave_pt))?
+            .i;
         Some((TripEndpoint::Border(leave_i), TripEndpoint::Border(goto_i)))
     }
 }

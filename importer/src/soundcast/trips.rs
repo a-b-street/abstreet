@@ -1,12 +1,10 @@
 use std::collections::HashMap;
 
 use abstutil::{prettyprint_usize, MultiMap, Timer};
-use geom::{LonLat, PolyLine};
-use map_model::{
-    osm, BuildingID, IntersectionID, Map, Path, PathConstraints, PathRequest, PathStep,
-};
+use geom::PolyLine;
+use map_model::{osm, BuildingID, Map, Path, PathConstraints, PathRequest, PathStep};
 use synthpop::{
-    IndividTrip, MapBorders, OrigPersonID, PersonSpec, Scenario, TripEndpoint, TripMode,
+    IndividTrip, MapBorder, MapBorders, OrigPersonID, PersonSpec, Scenario, TripEndpoint, TripMode,
 };
 
 use crate::soundcast::popdat::{Endpoint, OrigTrip, PopDat};
@@ -30,10 +28,7 @@ fn endpoints(
     to: &Endpoint,
     map: &Map,
     osm_id_to_bldg: &HashMap<osm::OsmID, BuildingID>,
-    (in_borders, out_borders): (
-        &Vec<(IntersectionID, LonLat)>,
-        &Vec<(IntersectionID, LonLat)>,
-    ),
+    (in_borders, out_borders): (&Vec<MapBorder>, &Vec<MapBorder>),
     constraints: PathConstraints,
     maybe_huge_map: Option<&(&Map, HashMap<osm::OsmID, BuildingID>)>,
     only_passthrough_trips: bool,
@@ -93,8 +88,8 @@ fn endpoints(
             // Fallback to finding the nearest border with straight-line distance
             in_borders
                 .iter()
-                .min_by_key(|(_, pt)| pt.fast_dist(from.pos))
-                .map(|(id, _)| TripEndpoint::Border(*id))
+                .min_by_key(|border| border.gps_pos.fast_dist(from.pos))
+                .map(|border| TripEndpoint::Border(border.i))
         })?;
     let to_endpt = to_bldg
         .or_else(|| snapper.snap_border(out_borders, false, map, maybe_huge_map))
@@ -102,8 +97,8 @@ fn endpoints(
             // Fallback to finding the nearest border with straight-line distance
             out_borders
                 .iter()
-                .min_by_key(|(_, pt)| pt.fast_dist(to.pos))
-                .map(|(id, _)| TripEndpoint::Border(*id))
+                .min_by_key(|border| border.gps_pos.fast_dist(from.pos))
+                .map(|border| TripEndpoint::Border(border.i))
         })?;
 
     if from_endpt == to_endpt {
@@ -141,7 +136,7 @@ impl BorderSnapper {
 
     fn snap_border(
         &self,
-        usable_borders: &[(IntersectionID, LonLat)],
+        usable_borders: &[MapBorder],
         incoming: bool,
         map: &Map,
         maybe_huge_map: Option<&(&Map, HashMap<osm::OsmID, BuildingID>)>,
@@ -150,8 +145,8 @@ impl BorderSnapper {
         // Do any of the usable borders match the path?
         // TODO Calculate this once
         let mut node_id_to_border = HashMap::new();
-        for (i, _) in usable_borders {
-            node_id_to_border.insert(map.get_i(*i).orig_id, *i);
+        for border in usable_borders {
+            node_id_to_border.insert(map.get_i(border.i).orig_id, border.i);
         }
         let mut iter1;
         let mut iter2;
