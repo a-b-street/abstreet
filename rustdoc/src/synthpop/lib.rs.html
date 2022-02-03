@@ -115,6 +115,8 @@
 <span id="114">114</span>
 <span id="115">115</span>
 <span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
 </pre><pre class="rust"><code><span class="doccomment">//! This crate describes a synthetic population that exist in a map. Currently each person&#39;s travel</span>
 <span class="doccomment">//! behavior is modelled, but in the future, demographic and health attributes may be added.</span>
 <span class="doccomment">//! There&#39;s a variety of ways to create these populations, scattered in other crates.</span>
@@ -132,12 +134,14 @@
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_usize</span>, <span class="ident">serialize_usize</span>};
 <span class="kw">use</span> <span class="ident">map_model::PathConstraints</span>;
 
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::borders</span>::{<span class="ident">MapBorder</span>, <span class="ident">MapBorders</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::counts::TrafficCounts</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::endpoint::TripEndpoint</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::external</span>::{<span class="ident">ExternalPerson</span>, <span class="ident">ExternalTrip</span>, <span class="ident">ExternalTripEndpoint</span>, <span class="ident">MapBorders</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::external</span>::{<span class="ident">ExternalPerson</span>, <span class="ident">ExternalTrip</span>, <span class="ident">ExternalTripEndpoint</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::modifier::ScenarioModifier</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::scenario</span>::{<span class="ident">IndividTrip</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">TripPurpose</span>};
 
+<span class="kw">mod</span> <span class="ident">borders</span>;
 <span class="kw">mod</span> <span class="ident">counts</span>;
 <span class="kw">mod</span> <span class="ident">endpoint</span>;
 <span class="kw">mod</span> <span class="ident">external</span>;

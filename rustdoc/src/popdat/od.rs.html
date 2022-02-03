@@ -403,6 +403,8 @@
 <span id="402">402</span>
 <span id="403">403</span>
 <span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
 </pre><pre class="rust"><code><span class="doccomment">//! This is a standalone pipeline for generating a Scenario, starting from origin-destination data</span>
 <span class="doccomment">//! (also called desire lines), which gives a count of commuters between two zones, breaking down</span>
 <span class="doccomment">//! by mode.</span>
@@ -526,9 +528,8 @@
                 <span class="ident">home_zone</span>.<span class="ident">pick_home</span>(<span class="ident">desire</span>.<span class="ident">mode</span>, <span class="ident">map</span>, <span class="ident">rng</span>),
                 <span class="ident">work_zone</span>.<span class="ident">pick_workplace</span>(<span class="ident">desire</span>.<span class="ident">mode</span>, <span class="ident">map</span>, <span class="ident">rng</span>),
             ) {
-                <span class="comment">// TODO Soundcast had a bug with the off-map exit/entrance being different</span>
-                <span class="comment">// sometimes; revisit that subtlety.</span>
-                <span class="kw">if</span> <span class="ident">leave_home</span> <span class="op">==</span> <span class="ident">goto_work</span> {
+                <span class="comment">// remove_weird_schedules would clean this up later, but simpler to skip upfront</span>
+                <span class="kw">if</span> <span class="ident">leave_home</span> <span class="op">==</span> <span class="ident">goto_work</span> <span class="op">|</span><span class="op">|</span> <span class="ident">leave_work</span> <span class="op">==</span> <span class="ident">goto_home</span> {
                     <span class="kw">continue</span>;
                 }
 
@@ -581,7 +582,7 @@
         (<span class="ident">pass_through</span>, <span class="string">&quot;just pass through&quot;</span>),
     ] {
         <span class="macro">info!</span>(
-            <span class="string">&quot;{} people ({}%) {}&quot;</span>,
+            <span class="string">&quot;{} people ({}) {}&quot;</span>,
             <span class="ident">prettyprint_usize</span>(<span class="ident">x</span>),
             <span class="ident">Percent::of</span>(<span class="ident">x</span>, <span class="ident">total</span>),
             <span class="ident">label</span>
@@ -639,26 +640,22 @@
                     <span class="comment">// Multiple zones might all use the same border.</span>
                     <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">polygon</span>.<span class="ident">center</span>();
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">borders</span> <span class="op">=</span> <span class="ident">all_borders</span>.<span class="ident">clone</span>();
-                    <span class="kw">for</span> <span class="ident">list</span> <span class="kw">in</span> <span class="macro">vec!</span>[
-                        <span class="kw-2">&amp;mut</span> <span class="ident">borders</span>.<span class="ident">incoming_walking</span>,
-                        <span class="kw-2">&amp;mut</span> <span class="ident">borders</span>.<span class="ident">incoming_driving</span>,
-                        <span class="kw-2">&amp;mut</span> <span class="ident">borders</span>.<span class="ident">incoming_biking</span>,
-                        <span class="kw-2">&amp;mut</span> <span class="ident">borders</span>.<span class="ident">outgoing_walking</span>,
-                        <span class="kw-2">&amp;mut</span> <span class="ident">borders</span>.<span class="ident">outgoing_driving</span>,
-                        <span class="kw-2">&amp;mut</span> <span class="ident">borders</span>.<span class="ident">outgoing_biking</span>,
-                    ] {
-                        <span class="kw">if</span> <span class="ident">is_remote</span> {
-                            <span class="comment">// For remote zones... keep the one closest border per category?</span>
-                            <span class="comment">// TODO See what Soundcast does</span>
-                            <span class="ident">list</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="kw">_</span>)<span class="op">|</span> {
-                                <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">center</span>().<span class="ident">fast_dist</span>(<span class="ident">center</span>)
-                            });
-                            <span class="ident">list</span>.<span class="ident">truncate</span>(<span class="number">1</span>);
-                        } <span class="kw">else</span> {
-                            <span class="comment">// If the zone partly overlaps, only keep borders physically in the zone polygon</span>
-                            <span class="ident">list</span>.<span class="ident">retain</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="kw">_</span>)<span class="op">|</span> {
-                                <span class="ident">polygon</span>.<span class="ident">contains_pt</span>(<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">center</span>())
-                            });
+                    <span class="comment">// TODO For remote zones, we should at least prune for borders on the correct</span>
+                    <span class="comment">// &quot;side&quot; of the map. Or we can let fast_dist later take care of it.</span>
+                    <span class="kw">if</span> <span class="ident">is_remote</span> {
+                        <span class="kw">for</span> <span class="ident">list</span> <span class="kw">in</span> <span class="macro">vec!</span>[
+                            <span class="kw-2">&amp;mut</span> <span class="ident">borders</span>.<span class="ident">incoming_walking</span>,
+                            <span class="kw-2">&amp;mut</span> <span class="ident">borders</span>.<span class="ident">incoming_driving</span>,
+                            <span class="kw-2">&amp;mut</span> <span class="ident">borders</span>.<span class="ident">incoming_biking</span>,
+                            <span class="kw-2">&amp;mut</span> <span class="ident">borders</span>.<span class="ident">outgoing_walking</span>,
+                            <span class="kw-2">&amp;mut</span> <span class="ident">borders</span>.<span class="ident">outgoing_driving</span>,
+                            <span class="kw-2">&amp;mut</span> <span class="ident">borders</span>.<span class="ident">outgoing_biking</span>,
+                        ] {
+                            <span class="comment">// If the zone partly overlaps, only keep borders physically in the</span>
+                            <span class="comment">// zone polygon</span>
+                            <span class="comment">// TODO If the intersection geometry happens to leak out of the map</span>
+                            <span class="comment">// boundary a bit, this could be wrong!</span>
+                            <span class="ident">list</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">border</span><span class="op">|</span> <span class="ident">polygon</span>.<span class="ident">contains_pt</span>(<span class="ident">border</span>.<span class="ident">pos</span>));
                         }
                     }
                     <span class="prelude-val">Some</span>((
@@ -764,9 +761,16 @@
         <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">XorShiftRng</span>,
     ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">TripEndpoint</span>, <span class="ident">TripEndpoint</span>)<span class="op">&gt;</span> {
         <span class="kw">let</span> (<span class="ident">incoming</span>, <span class="ident">outgoing</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">borders</span>.<span class="ident">for_mode</span>(<span class="ident">mode</span>);
-        <span class="kw">let</span> <span class="ident">leave_i</span> <span class="op">=</span> <span class="ident">incoming</span>.<span class="ident">choose</span>(<span class="ident">rng</span>)<span class="question-mark">?</span>.<span class="number">0</span>;
+
+        <span class="kw">let</span> <span class="ident">leave_i</span> <span class="op">=</span> <span class="ident">incoming</span>
+            .<span class="ident">choose_weighted</span>(<span class="ident">rng</span>, <span class="op">|</span><span class="ident">border</span><span class="op">|</span> {
+                (<span class="ident">border</span>.<span class="ident">weight</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="self">self</span>.<span class="ident">center</span>.<span class="ident">fast_dist</span>(<span class="ident">border</span>.<span class="ident">pos</span>).<span class="ident">into_inner</span>()
+            })
+            .<span class="ident">ok</span>()<span class="question-mark">?</span>
+            .<span class="ident">i</span>;
+
         <span class="comment">// If we can use the same border on the way back, prefer that.</span>
-        <span class="kw">if</span> <span class="ident">outgoing</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">i</span> <span class="op">==</span> <span class="ident">leave_i</span>) {
+        <span class="kw">if</span> <span class="ident">outgoing</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">border</span><span class="op">|</span> <span class="ident">border</span>.<span class="ident">i</span> <span class="op">==</span> <span class="ident">leave_i</span>) {
             <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="ident">TripEndpoint::Border</span>(<span class="ident">leave_i</span>), <span class="ident">TripEndpoint::Border</span>(<span class="ident">leave_i</span>)));
         }
         <span class="comment">// Otherwise, we might have to use a separate border to re-enter. Prefer the one closest to</span>
@@ -774,8 +778,8 @@
         <span class="kw">let</span> <span class="ident">leave_pt</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">leave_i</span>).<span class="ident">polygon</span>.<span class="ident">center</span>();
         <span class="kw">let</span> <span class="ident">goto_i</span> <span class="op">=</span> <span class="ident">outgoing</span>
             .<span class="ident">iter</span>()
-            .<span class="ident">min_by_key</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">center</span>().<span class="ident">dist_to</span>(<span class="ident">leave_pt</span>))<span class="question-mark">?</span>
-            .<span class="number">0</span>;
+            .<span class="ident">min_by_key</span>(<span class="op">|</span><span class="ident">border</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">border</span>.<span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">center</span>().<span class="ident">dist_to</span>(<span class="ident">leave_pt</span>))<span class="question-mark">?</span>
+            .<span class="ident">i</span>;
         <span class="prelude-val">Some</span>((<span class="ident">TripEndpoint::Border</span>(<span class="ident">leave_i</span>), <span class="ident">TripEndpoint::Border</span>(<span class="ident">goto_i</span>)))
     }
 }

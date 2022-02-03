@@ -297,20 +297,13 @@
 <span id="296">296</span>
 <span id="297">297</span>
 <span id="298">298</span>
-<span id="299">299</span>
-<span id="300">300</span>
-<span id="301">301</span>
-<span id="302">302</span>
-<span id="303">303</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">MultiMap</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">LonLat</span>, <span class="ident">PolyLine</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{
-    <span class="ident">osm</span>, <span class="ident">BuildingID</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">PathStep</span>,
-};
+<span class="kw">use</span> <span class="ident">geom::PolyLine</span>;
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">osm</span>, <span class="ident">BuildingID</span>, <span class="ident">Map</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">PathStep</span>};
 <span class="kw">use</span> <span class="ident">synthpop</span>::{
-    <span class="ident">IndividTrip</span>, <span class="ident">MapBorders</span>, <span class="ident">OrigPersonID</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>,
+    <span class="ident">IndividTrip</span>, <span class="ident">MapBorder</span>, <span class="ident">MapBorders</span>, <span class="ident">OrigPersonID</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>,
 };
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::soundcast::popdat</span>::{<span class="ident">Endpoint</span>, <span class="ident">OrigTrip</span>, <span class="ident">PopDat</span>};
@@ -334,10 +327,7 @@
     <span class="ident">to</span>: <span class="kw-2">&amp;</span><span class="ident">Endpoint</span>,
     <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
     <span class="ident">osm_id_to_bldg</span>: <span class="kw-2">&amp;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">osm::OsmID</span>, <span class="ident">BuildingID</span><span class="op">&gt;</span>,
-    (<span class="ident">in_borders</span>, <span class="ident">out_borders</span>): (
-        <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">IntersectionID</span>, <span class="ident">LonLat</span>)<span class="op">&gt;</span>,
-        <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">IntersectionID</span>, <span class="ident">LonLat</span>)<span class="op">&gt;</span>,
-    ),
+    (<span class="ident">in_borders</span>, <span class="ident">out_borders</span>): (<span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">MapBorder</span><span class="op">&gt;</span>, <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">MapBorder</span><span class="op">&gt;</span>),
     <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>,
     <span class="ident">maybe_huge_map</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>(<span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">osm::OsmID</span>, <span class="ident">BuildingID</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
     <span class="ident">only_passthrough_trips</span>: <span class="ident">bool</span>,
@@ -397,8 +387,8 @@
             <span class="comment">// Fallback to finding the nearest border with straight-line distance</span>
             <span class="ident">in_borders</span>
                 .<span class="ident">iter</span>()
-                .<span class="ident">min_by_key</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">pt</span>)<span class="op">|</span> <span class="ident">pt</span>.<span class="ident">fast_dist</span>(<span class="ident">from</span>.<span class="ident">pos</span>))
-                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">id</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">TripEndpoint::Border</span>(<span class="kw-2">*</span><span class="ident">id</span>))
+                .<span class="ident">min_by_key</span>(<span class="op">|</span><span class="ident">border</span><span class="op">|</span> <span class="ident">border</span>.<span class="ident">gps_pos</span>.<span class="ident">fast_dist</span>(<span class="ident">from</span>.<span class="ident">pos</span>))
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">border</span><span class="op">|</span> <span class="ident">TripEndpoint::Border</span>(<span class="ident">border</span>.<span class="ident">i</span>))
         })<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">to_endpt</span> <span class="op">=</span> <span class="ident">to_bldg</span>
         .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">snapper</span>.<span class="ident">snap_border</span>(<span class="ident">out_borders</span>, <span class="bool-val">false</span>, <span class="ident">map</span>, <span class="ident">maybe_huge_map</span>))
@@ -406,8 +396,8 @@
             <span class="comment">// Fallback to finding the nearest border with straight-line distance</span>
             <span class="ident">out_borders</span>
                 .<span class="ident">iter</span>()
-                .<span class="ident">min_by_key</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">pt</span>)<span class="op">|</span> <span class="ident">pt</span>.<span class="ident">fast_dist</span>(<span class="ident">to</span>.<span class="ident">pos</span>))
-                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">id</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">TripEndpoint::Border</span>(<span class="kw-2">*</span><span class="ident">id</span>))
+                .<span class="ident">min_by_key</span>(<span class="op">|</span><span class="ident">border</span><span class="op">|</span> <span class="ident">border</span>.<span class="ident">gps_pos</span>.<span class="ident">fast_dist</span>(<span class="ident">from</span>.<span class="ident">pos</span>))
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">border</span><span class="op">|</span> <span class="ident">TripEndpoint::Border</span>(<span class="ident">border</span>.<span class="ident">i</span>))
         })<span class="question-mark">?</span>;
 
     <span class="kw">if</span> <span class="ident">from_endpt</span> <span class="op">==</span> <span class="ident">to_endpt</span> {
@@ -445,7 +435,7 @@
 
     <span class="kw">fn</span> <span class="ident">snap_border</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">usable_borders</span>: <span class="kw-2">&amp;</span>[(<span class="ident">IntersectionID</span>, <span class="ident">LonLat</span>)],
+        <span class="ident">usable_borders</span>: <span class="kw-2">&amp;</span>[<span class="ident">MapBorder</span>],
         <span class="ident">incoming</span>: <span class="ident">bool</span>,
         <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
         <span class="ident">maybe_huge_map</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>(<span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">osm::OsmID</span>, <span class="ident">BuildingID</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
@@ -454,8 +444,8 @@
         <span class="comment">// Do any of the usable borders match the path?</span>
         <span class="comment">// TODO Calculate this once</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">node_id_to_border</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-        <span class="kw">for</span> (<span class="ident">i</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">usable_borders</span> {
-            <span class="ident">node_id_to_border</span>.<span class="ident">insert</span>(<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">orig_id</span>, <span class="kw-2">*</span><span class="ident">i</span>);
+        <span class="kw">for</span> <span class="ident">border</span> <span class="kw">in</span> <span class="ident">usable_borders</span> {
+            <span class="ident">node_id_to_border</span>.<span class="ident">insert</span>(<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">border</span>.<span class="ident">i</span>).<span class="ident">orig_id</span>, <span class="ident">border</span>.<span class="ident">i</span>);
         }
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">iter1</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">iter2</span>;
