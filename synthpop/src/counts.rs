@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use abstio::MapName;
 use abstutil::{prettyprint_usize, Counter, Timer};
+use geom::Distance;
 use map_model::{
     IntersectionID, Map, PathRequest, PathStepV2, PathfinderCaching, RoadID, RoutingParams,
 };
@@ -81,6 +82,20 @@ impl TrafficCounts {
                         PathStepV2::Movement(m) | PathStepV2::ContraflowMovement(m) => {
                             counts.per_intersection.add(m.parent, count);
                         }
+                    }
+                }
+
+                // If we're starting or ending at a border, count it
+                if req.start.dist_along() == Distance::ZERO {
+                    // TODO src_i and dst_i may not work for pedestrians on contraflow sidewalks
+                    let i = map.get_l(req.start.lane()).src_i;
+                    if map.get_i(i).is_border() {
+                        counts.per_intersection.add(i, count);
+                    }
+                } else {
+                    let i = map.get_l(req.end.lane()).dst_i;
+                    if map.get_i(i).is_border() {
+                        counts.per_intersection.add(i, count);
                     }
                 }
             }
