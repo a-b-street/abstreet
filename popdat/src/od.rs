@@ -235,7 +235,7 @@ fn create_zones(
                     let mut borders = all_borders.clone();
                     // TODO For remote zones, we should at least prune for borders on the correct
                     // "side" of the map. Or we can let fast_dist later take care of it.
-                    if is_remote {
+                    if !is_remote {
                         for list in vec![
                             &mut borders.incoming_walking,
                             &mut borders.incoming_driving,
