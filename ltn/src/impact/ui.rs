@@ -1,11 +1,11 @@
 use std::collections::BTreeSet;
 
 use map_gui::load::FileLoader;
-use map_gui::tools::{checkbox_per_mode, PopupMsg};
+use map_gui::tools::{checkbox_per_mode, CityPicker, Navigator, PopupMsg};
 use synthpop::{Scenario, TripMode};
 use widgetry::{
-    Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Panel, SimpleState, Slider,
-    State, Text, TextExt, Toggle, VerticalAlignment, Widget,
+    Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel, SimpleState,
+    Slider, State, Text, TextExt, Toggle, VerticalAlignment, Widget,
 };
 
 use super::{end_of_day, Filters, Impact};
@@ -47,15 +47,13 @@ impl ShowResults {
 
         let panel = Panel::new_builder(Widget::col(vec![
             map_gui::tools::app_header(ctx, app, "Low traffic neighborhoods"),
-            Widget::row(vec![
-                "Impact prediction".text_widget(ctx),
-                ctx.style().btn_close_widget(ctx),
-            ]),
+            "Impact prediction".text_widget(ctx),
+            ctx.style().btn_outline.text("Browse neighborhoods").hotkey(Key::Escape).build_def(ctx),
             Text::from(Line("This tool starts with a travel demand model, calculates the route every trip takes before and after changes, and displays volumes along roads and intersections")).wrap_to_pct(ctx, 20).into_widget(ctx),
             // TODO Dropdown for the scenario, and explain its source/limitations
             app.session.impact.filters.to_panel(ctx, app),
             app.session.impact.compare_counts.get_panel_widget(ctx).named("compare counts"),
-            ctx.style().btn_plain.text("Save before/after counts to files").build_def(ctx),
+            ctx.style().btn_outline.text("Save before/after counts to files").build_def(ctx),
         ]))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
         .build(ctx);
@@ -84,7 +82,27 @@ impl SimpleState<App> for ShowResults {
         panel: &mut Panel,
     ) -> Transition {
         match x {
-            "close" => {
+            "Home" => {
+                return Transition::Clear(vec![map_gui::tools::TitleScreen::new_state(
+                    ctx,
+                    app,
+                    map_gui::tools::Executable::LTN,
+                    Box::new(|ctx, app, _| BrowseNeighborhoods::new_state(ctx, app)),
+                )]);
+            }
+            "change map" => {
+                return Transition::Push(CityPicker::new_state(
+                    ctx,
+                    app,
+                    Box::new(|ctx, app| {
+                        Transition::Replace(BrowseNeighborhoods::new_state(ctx, app))
+                    }),
+                ));
+            }
+            "search" => {
+                return Transition::Push(Navigator::new_state(ctx, app));
+            }
+            "Browse neighborhoods" => {
                 // Don't just Pop; if we updated the results, the UI won't warn the user about a slow
                 // loading
                 Transition::Replace(BrowseNeighborhoods::new_state(ctx, app))
