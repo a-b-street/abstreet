@@ -175,10 +175,31 @@ impl Partitioning {
             .collect();
         let mut new_neighborhood_blocks = self.make_merged_blocks(map, new_owner_blocks.clone())?;
         if new_neighborhood_blocks.len() != 1 {
-            // Find all of the single blocks that don't belong to the new owner yet
+            for piece in &new_neighborhood_blocks {
+                let single_blocks = self.decompose_perimeter_into_single_blocks(&piece.perimeter);
+                // All but one of these should already belong to new_owner
+                let num_already_owned = single_blocks
+                    .iter()
+                    .filter(|x| self.block_to_neighborhood[x] == new_owner)
+                    .count();
+                error!(
+                    "one piece has {} blocks, {} of which already there",
+                    single_blocks.len(),
+                    num_already_owned
+                );
+
+                let new_neighborhood = NeighborhoodID(self.neighborhood_id_counter);
+                self.neighborhood_id_counter += 1;
+                self.neighborhoods
+                    .insert(new_neighborhood, (piece.clone(), Color::RED));
+                for x in single_blocks {
+                    self.block_to_neighborhood.insert(x, new_neighborhood);
+                }
+            }
+
+            /*// Find all of the single blocks that don't belong to the new owner yet
             let mut gaps = Vec::new();
             for gap_id in self.decompose_perimeter_into_single_blocks(
-                map,
                 &self.neighborhoods[&new_owner].0.perimeter,
             ) {
                 if self.block_to_neighborhood[&gap_id] != new_owner {
@@ -187,15 +208,15 @@ impl Partitioning {
                 } else {
                     error!("{:?} already there", gap_id);
                 }
-            }
+            }*/
 
-            //self.find_intermediate_blocks(map, new_owner_blocks, new_neighborhood_blocks);
             // This happens when a hole would be created by adding this block. There are probably
             // some smaller blocks nearby to add first.
-            bail!(
-                "You must first add intermediate blocks to avoid splitting this neighborhood into {} pieces. {} gaps",
-                new_neighborhood_blocks.len(), gaps.len()
-            );
+            /*bail!(
+                "You must first add intermediate blocks to avoid splitting this neighborhood into {} pieces",
+                new_neighborhood_blocks.len()
+            );*/
+            return Ok(None);
         }
         let new_neighborhood_block = new_neighborhood_blocks.pop().unwrap();
 
@@ -378,20 +399,7 @@ impl Partitioning {
         Ok(blocks)
     }
 
-    fn find_intermediate_blocks(
-        &self,
-        map: &Map,
-        orig_input: Vec<BlockID>,
-        merged_blocks: Vec<Block>,
-    ) {
-        // Find the "main" block containing our input
-    }
-
-    fn decompose_perimeter_into_single_blocks(
-        &self,
-        map: &Map,
-        large_perimeter: &Perimeter,
-    ) -> Vec<BlockID> {
+    fn decompose_perimeter_into_single_blocks(&self, large_perimeter: &Perimeter) -> Vec<BlockID> {
         let large_perimeter_set: BTreeSet<RoadSideID> =
             large_perimeter.roads.iter().cloned().collect();
         let mut result = Vec::new();
