@@ -86,6 +86,10 @@ pub fn disaggregate(
     let mut works_on_map = 0;
     let mut pass_through = 0;
 
+    // TODO Temp for debugging
+    let mut dump_polylines = Vec::new();
+    let mut osrm_errors = 0;
+    let osrm = crate::osrm::OSRM::new("http://127.0.0.1:5000".to_string());
     timer.start_iter("create people per desire line", desire_lines.len());
     for desire in desire_lines {
         timer.next();
@@ -111,6 +115,18 @@ pub fn disaggregate(
                 ]))
             {
                 continue;
+            }
+        }
+        if dump_polylines.len() == 100 {
+            continue;
+        }
+
+        match osrm.pathfind(map.get_gps_bounds(), home_zone.center, work_zone.center) {
+            Ok(pl) => {
+                dump_polylines.push(pl);
+            }
+            Err(_err) => {
+                osrm_errors += 1;
             }
         }
 
@@ -167,6 +183,8 @@ pub fn disaggregate(
             }
         }
     }
+    abstio::write_json("osrm.json".to_string(), &dump_polylines);
+    info!("{} OSRM errors", prettyprint_usize(osrm_errors));
     let total = on_map_only + lives_on_map + works_on_map + pass_through;
     for (x, label) in [
         (on_map_only, "live and work on-map"),

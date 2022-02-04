@@ -2901,6 +2901,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "polyline"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b4fb271c371b801041a8eaa6046cf694f84dd21817610f5ba962efd273f47779"
+dependencies = [
+ "geo-types",
+]
+
+[[package]]
 name = "popdat"
 version = "0.1.0"
 dependencies = [
@@ -2916,9 +2925,11 @@ dependencies = [
  "geozero",
  "log",
  "map_model",
+ "polyline",
  "rand",
  "rand_distr",
  "rand_xorshift",
+ "reqwest",
  "serde",
  "serde_json",
  "sim",
@@ -3194,6 +3205,7 @@ dependencies = [
  "pin-project-lite",
  "rustls",
  "serde",
+ "serde_json",
  "serde_urlencoded",
  "tokio",
  "tokio-rustls",

@@ -36,6 +36,7 @@ mod distribute_people;
 mod import_census;
 mod make_person;
 pub mod od;
+pub mod osrm;
 
 /// Represents aggregate demographic data for some part of a city. These could be census tracts or
 /// blocks, depending what data we find. All of the areas should roughly partition the map -- we
