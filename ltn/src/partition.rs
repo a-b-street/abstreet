@@ -173,13 +173,28 @@ impl Partitioning {
                 }
             })
             .collect();
-        let mut new_neighborhood_blocks = self.make_merged_blocks(map, new_owner_blocks)?;
+        let mut new_neighborhood_blocks = self.make_merged_blocks(map, new_owner_blocks.clone())?;
         if new_neighborhood_blocks.len() != 1 {
+            // Find all of the single blocks that don't belong to the new owner yet
+            let mut gaps = Vec::new();
+            for gap_id in self.decompose_perimeter_into_single_blocks(
+                map,
+                &self.neighborhoods[&new_owner].0.perimeter,
+            ) {
+                if self.block_to_neighborhood[&gap_id] != new_owner {
+                    gaps.push(gap_id);
+                    error!("{:?} missing", gap_id);
+                } else {
+                    error!("{:?} already there", gap_id);
+                }
+            }
+
+            //self.find_intermediate_blocks(map, new_owner_blocks, new_neighborhood_blocks);
             // This happens when a hole would be created by adding this block. There are probably
             // some smaller blocks nearby to add first.
             bail!(
-                "You must first add intermediate blocks to avoid splitting this neighborhood into {} pieces",
-                new_neighborhood_blocks.len()
+                "You must first add intermediate blocks to avoid splitting this neighborhood into {} pieces. {} gaps",
+                new_neighborhood_blocks.len(), gaps.len()
             );
         }
         let new_neighborhood_block = new_neighborhood_blocks.pop().unwrap();
@@ -361,5 +376,37 @@ impl Partitioning {
             blocks.push(perim.to_block(map)?);
         }
         Ok(blocks)
+    }
+
+    fn find_intermediate_blocks(
+        &self,
+        map: &Map,
+        orig_input: Vec<BlockID>,
+        merged_blocks: Vec<Block>,
+    ) {
+        // Find the "main" block containing our input
+    }
+
+    fn decompose_perimeter_into_single_blocks(
+        &self,
+        map: &Map,
+        large_perimeter: &Perimeter,
+    ) -> Vec<BlockID> {
+        let large_perimeter_set: BTreeSet<RoadSideID> =
+            large_perimeter.roads.iter().cloned().collect();
+        let mut result = Vec::new();
+        for (id, block) in self.all_single_blocks() {
+            let single_block_set: BTreeSet<RoadSideID> =
+                block.perimeter.roads.iter().cloned().collect();
+            if large_perimeter.contains(&block.perimeter)
+                || large_perimeter_set
+                    .intersection(&single_block_set)
+                    .next()
+                    .is_some()
+            {
+                result.push(id);
+            }
+        }
+        result
     }
 }

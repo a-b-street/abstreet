@@ -8,7 +8,7 @@ use widgetry::mapspace::ToggleZoomed;
 use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::{
     Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, Text, TextExt,
-    VerticalAlignment, Widget,
+    Toggle, VerticalAlignment, Widget,
 };
 
 use crate::partition::BlockID;
@@ -259,6 +259,13 @@ fn make_panel(ctx: &mut EventCtx, app: &App) -> Panel {
             Line(" and paint over blocks to remove"),
         ])
         .into_widget(ctx),
+        Toggle::checkbox(
+            ctx,
+            "add multiple blocks to avoid splits",
+            None,
+            // TODO Session state
+            true,
+        ),
         Widget::row(vec![
             ctx.style()
                 .btn_solid_primary
