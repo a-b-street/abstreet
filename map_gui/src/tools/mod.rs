@@ -332,7 +332,6 @@ pub fn find_exe(cmd: &str) -> String {
         "../../target/debug",
         // When running from the .zip release
         ".",
-        "..",
     ] {
         // Apparently std::path on Windows doesn't do any of this correction. We could build up a
         // PathBuf properly, I guess

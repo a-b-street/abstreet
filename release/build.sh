@@ -32,13 +32,7 @@ mkdir $output
 
 cp release/play_abstreet.$ext release/ungap_the_map.$ext release/INSTRUCTIONS.txt $output
 
-# Put most binaries in the root directory, but hide game to encourage people to
-# use the launch scripts. They will capture output logs. But if somebody runs
-# the game binary directly, it'll still work.
-mkdir $output/game
-cp target/release/game${suffix} $output/game
-
-for name in cli fifteen_min osm_viewer parking_mapper santa ltn; do
+for name in game cli fifteen_min osm_viewer parking_mapper santa ltn; do
 	cp target/release/${name}${suffix} $output;
 done
 
