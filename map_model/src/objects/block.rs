@@ -9,6 +9,9 @@ use geom::{Polygon, Pt2D, Ring};
 
 use crate::{CommonEndpoint, Direction, LaneID, Map, RoadID, RoadSideID, SideOfRoad};
 
+// See https://github.com/a-b-street/abstreet/issues/841. Slow but correct when enabled.
+const LOSSLESS_BLOCKFINDING: bool = true;
+
 /// A block is defined by a perimeter that traces along the sides of roads. Inside the perimeter,
 /// the block may contain buildings and interior roads. In the simple case, a block represents a
 /// single "city block", with no interior roads. It may also cover a "neighborhood", where the
@@ -263,7 +266,7 @@ impl Perimeter {
 
         // TODO This is an expensive sanity check needed for
         // https://github.com/a-b-street/abstreet/issues/841
-        if self.clone().to_block(map).is_err() {
+        if LOSSLESS_BLOCKFINDING && self.clone().to_block(map).is_err() {
             *self = orig_self;
             *other = orig_other;
             return false;
