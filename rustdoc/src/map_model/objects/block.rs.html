@@ -577,6 +577,9 @@
 <span id="576">576</span>
 <span id="577">577</span>
 <span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
@@ -587,6 +590,9 @@
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">CommonEndpoint</span>, <span class="ident">Direction</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">RoadID</span>, <span class="ident">RoadSideID</span>, <span class="ident">SideOfRoad</span>};
+
+<span class="comment">// See https://github.com/a-b-street/abstreet/issues/841. Slow but correct when enabled.</span>
+<span class="kw">const</span> <span class="ident">LOSSLESS_BLOCKFINDING</span>: <span class="ident">bool</span> <span class="op">=</span> <span class="bool-val">true</span>;
 
 <span class="doccomment">/// A block is defined by a perimeter that traces along the sides of roads. Inside the perimeter,</span>
 <span class="doccomment">/// the block may contain buildings and interior roads. In the simple case, a block represents a</span>
@@ -842,7 +848,7 @@
 
         <span class="comment">// TODO This is an expensive sanity check needed for</span>
         <span class="comment">// https://github.com/a-b-street/abstreet/issues/841</span>
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">clone</span>().<span class="ident">to_block</span>(<span class="ident">map</span>).<span class="ident">is_err</span>() {
+        <span class="kw">if</span> <span class="ident">LOSSLESS_BLOCKFINDING</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">clone</span>().<span class="ident">to_block</span>(<span class="ident">map</span>).<span class="ident">is_err</span>() {
             <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">orig_self</span>;
             <span class="kw-2">*</span><span class="ident">other</span> <span class="op">=</span> <span class="ident">orig_other</span>;
             <span class="kw">return</span> <span class="bool-val">false</span>;
