@@ -202,14 +202,32 @@
 <span id="201">201</span>
 <span id="202">202</span>
 <span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
 <span class="kw">use</span> <span class="ident">map_gui::load::FileLoader</span>;
-<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">checkbox_per_mode</span>, <span class="ident">PopupMsg</span>};
+<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">checkbox_per_mode</span>, <span class="ident">CityPicker</span>, <span class="ident">Navigator</span>, <span class="ident">PopupMsg</span>};
 <span class="kw">use</span> <span class="ident">synthpop</span>::{<span class="ident">Scenario</span>, <span class="ident">TripMode</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">SimpleState</span>, <span class="ident">Slider</span>,
-    <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">SimpleState</span>,
+    <span class="ident">Slider</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">end_of_day</span>, <span class="ident">Filters</span>, <span class="ident">Impact</span>};
@@ -251,15 +269,13 @@
 
         <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
             <span class="ident">map_gui::tools::app_header</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="string">&quot;Low traffic neighborhoods&quot;</span>),
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="string">&quot;Impact prediction&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
-            ]),
+            <span class="string">&quot;Impact prediction&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
+            <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;Browse neighborhoods&quot;</span>).<span class="ident">hotkey</span>(<span class="ident">Key::Escape</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="string">&quot;This tool starts with a travel demand model, calculates the route every trip takes before and after changes, and displays volumes along roads and intersections&quot;</span>)).<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">20</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="comment">// TODO Dropdown for the scenario, and explain its source/limitations</span>
             <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">impact</span>.<span class="ident">filters</span>.<span class="ident">to_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
             <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">impact</span>.<span class="ident">compare_counts</span>.<span class="ident">get_panel_widget</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;compare counts&quot;</span>),
-            <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_plain</span>.<span class="ident">text</span>(<span class="string">&quot;Save before/after counts to files&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+            <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;Save before/after counts to files&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         ]))
         .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Left</span>, <span class="ident">VerticalAlignment::Top</span>)
         .<span class="ident">build</span>(<span class="ident">ctx</span>);
@@ -288,7 +304,27 @@
         <span class="ident">panel</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Panel</span>,
     ) -&gt; <span class="ident">Transition</span> {
         <span class="kw">match</span> <span class="ident">x</span> {
-            <span class="string">&quot;close&quot;</span> =&gt; {
+            <span class="string">&quot;Home&quot;</span> =&gt; {
+                <span class="kw">return</span> <span class="ident">Transition::Clear</span>(<span class="macro">vec!</span>[<span class="ident">map_gui::tools::TitleScreen::new_state</span>(
+                    <span class="ident">ctx</span>,
+                    <span class="ident">app</span>,
+                    <span class="ident">map_gui::tools::Executable::LTN</span>,
+                    <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw">_</span><span class="op">|</span> <span class="ident">BrowseNeighborhoods::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
+                )]);
+            }
+            <span class="string">&quot;change map&quot;</span> =&gt; {
+                <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">CityPicker::new_state</span>(
+                    <span class="ident">ctx</span>,
+                    <span class="ident">app</span>,
+                    <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+                        <span class="ident">Transition::Replace</span>(<span class="ident">BrowseNeighborhoods::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))
+                    }),
+                ));
+            }
+            <span class="string">&quot;search&quot;</span> =&gt; {
+                <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">Navigator::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+            }
+            <span class="string">&quot;Browse neighborhoods&quot;</span> =&gt; {
                 <span class="comment">// Don&#39;t just Pop; if we updated the results, the UI won&#39;t warn the user about a slow</span>
                 <span class="comment">// loading</span>
                 <span class="ident">Transition::Replace</span>(<span class="ident">BrowseNeighborhoods::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))
