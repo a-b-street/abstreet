@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use abstutil::{Counter, Timer};
 use geom::Distance;
-use map_gui::tools::{CityPicker, ColorNetwork, DrawRoadLabels, Navigator, PopupMsg, URLManager};
+use map_gui::tools::{ColorNetwork, DrawRoadLabels, PopupMsg, URLManager};
 use synthpop::Scenario;
 use widgetry::mapspace::{ToggleZoomed, World, WorldOutcome};
 use widgetry::{
@@ -41,18 +41,8 @@ impl BrowseNeighborhoods {
         let draw_all_filters = app.session.modal_filters.draw(ctx, &app.map, None);
 
         let panel = Panel::new_builder(Widget::col(vec![
-            map_gui::tools::app_header(ctx, app, "Low traffic neighborhoods"),
-            Widget::row(vec![
-                "Click a neighborhood to edit filters"
-                    .text_widget(ctx)
-                    .centered_vert(),
-                ctx.style()
-                    .btn_plain
-                    .icon("system/assets/tools/search.svg")
-                    .hotkey(Key::K)
-                    .build_widget(ctx, "search")
-                    .align_right(),
-            ]),
+            crate::app_header(ctx, app),
+            "Click a neighborhood to edit filters".text_widget(ctx),
             Widget::col(vec![
                 Toggle::checkbox(
                     ctx,
@@ -125,26 +115,6 @@ impl State<App> for BrowseNeighborhoods {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
-                "Home" => {
-                    return Transition::Clear(vec![map_gui::tools::TitleScreen::new_state(
-                        ctx,
-                        app,
-                        map_gui::tools::Executable::LTN,
-                        Box::new(|ctx, app, _| BrowseNeighborhoods::new_state(ctx, app)),
-                    )]);
-                }
-                "change map" => {
-                    return Transition::Push(CityPicker::new_state(
-                        ctx,
-                        app,
-                        Box::new(|ctx, app| {
-                            Transition::Replace(BrowseNeighborhoods::new_state(ctx, app))
-                        }),
-                    ));
-                }
-                "search" => {
-                    return Transition::Push(Navigator::new_state(ctx, app));
-                }
                 "New" => {
                     app.session.partitioning = Partitioning::empty();
                     app.session.modal_filters = ModalFilters::default();
@@ -188,7 +158,9 @@ impl State<App> for BrowseNeighborhoods {
                     });
                     return Transition::Replace(BrowseNeighborhoods::new_state(ctx, app));
                 }
-                _ => unreachable!(),
+                x => {
+                    return crate::handle_app_header_click(ctx, app, x).unwrap();
+                }
             },
             Outcome::Changed(_) => {
                 app.session.highlight_boundary_roads =

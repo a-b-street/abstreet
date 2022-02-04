@@ -1,5 +1,5 @@
 use geom::Distance;
-use map_gui::tools::{open_browser, CityPicker, Navigator};
+use map_gui::tools::open_browser;
 use map_model::{IntersectionID, PathConstraints, RoadID};
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::{
@@ -25,7 +25,7 @@ impl Tab {
         per_tab_contents: Widget,
     ) -> PanelBuilder {
         Panel::new_builder(Widget::col(vec![
-            map_gui::tools::app_header(ctx, app, "Low traffic neighborhoods"),
+            crate::app_header(ctx, app),
             Widget::row(vec![
                 ctx.style()
                     .btn_outline
@@ -76,17 +76,6 @@ impl Tab {
         id: NeighborhoodID,
     ) -> Option<Transition> {
         Some(match action {
-            "Home" => Transition::Clear(vec![map_gui::tools::TitleScreen::new_state(
-                ctx,
-                app,
-                map_gui::tools::Executable::LTN,
-                Box::new(|ctx, app, _| BrowseNeighborhoods::new_state(ctx, app)),
-            )]),
-            "change map" => Transition::Push(CityPicker::new_state(
-                ctx,
-                app,
-                Box::new(|ctx, app| Transition::Replace(BrowseNeighborhoods::new_state(ctx, app))),
-            )),
             "Browse neighborhoods" => {
                 // Recalculate the state to redraw any changed filters
                 Transition::Replace(BrowseNeighborhoods::new_state(ctx, app))
@@ -104,11 +93,8 @@ impl Tab {
                 // dropdowns)
                 self.switch_to_state(ctx, app, id)
             }
-            "search" => {
-                return Some(Transition::Push(Navigator::new_state(ctx, app)));
-            }
-            _ => {
-                return None;
+            x => {
+                return crate::handle_app_header_click(ctx, app, x);
             }
         })
     }
@@ -145,15 +131,6 @@ impl Tab {
                     .build_def(ctx),
             );
         }
-        // Not exactly sure where to put this
-        row.push(
-            ctx.style()
-                .btn_plain
-                .icon("system/assets/tools/search.svg")
-                .hotkey(Key::K)
-                .build_widget(ctx, "search")
-                .align_right(),
-        );
         Widget::row(row)
     }
 }

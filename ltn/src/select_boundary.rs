@@ -199,7 +199,9 @@ impl State<App> for SelectBoundary {
                         ctx, app, self.id,
                     ));
                 }
-                _ => unreachable!(),
+                x => {
+                    return crate::handle_app_header_click(ctx, app, x).unwrap();
+                }
             }
         }
 
@@ -236,7 +238,7 @@ impl State<App> for SelectBoundary {
 
 fn make_panel(ctx: &mut EventCtx, app: &App) -> Panel {
     Panel::new_builder(Widget::col(vec![
-        map_gui::tools::app_header(ctx, app, "Low traffic neighborhoods"),
+        crate::app_header(ctx, app),
         "Draw a custom boundary for a neighborhood"
             .text_widget(ctx)
             .centered_vert(),

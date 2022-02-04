@@ -1,7 +1,7 @@
 use std::collections::BTreeSet;
 
 use map_gui::load::FileLoader;
-use map_gui::tools::{checkbox_per_mode, CityPicker, Navigator, PopupMsg};
+use map_gui::tools::{checkbox_per_mode, PopupMsg};
 use synthpop::{Scenario, TripMode};
 use widgetry::{
     Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel, SimpleState,
@@ -46,7 +46,7 @@ impl ShowResults {
         }
 
         let panel = Panel::new_builder(Widget::col(vec![
-            map_gui::tools::app_header(ctx, app, "Low traffic neighborhoods"),
+            crate::app_header(ctx, app),
             "Impact prediction".text_widget(ctx),
             ctx.style().btn_outline.text("Browse neighborhoods").hotkey(Key::Escape).build_def(ctx),
             Text::from(Line("This tool starts with a travel demand model, calculates the route every trip takes before and after changes, and displays volumes along roads and intersections")).wrap_to_pct(ctx, 20).into_widget(ctx),
@@ -82,26 +82,6 @@ impl SimpleState<App> for ShowResults {
         panel: &mut Panel,
     ) -> Transition {
         match x {
-            "Home" => {
-                return Transition::Clear(vec![map_gui::tools::TitleScreen::new_state(
-                    ctx,
-                    app,
-                    map_gui::tools::Executable::LTN,
-                    Box::new(|ctx, app, _| BrowseNeighborhoods::new_state(ctx, app)),
-                )]);
-            }
-            "change map" => {
-                return Transition::Push(CityPicker::new_state(
-                    ctx,
-                    app,
-                    Box::new(|ctx, app| {
-                        Transition::Replace(BrowseNeighborhoods::new_state(ctx, app))
-                    }),
-                ));
-            }
-            "search" => {
-                return Transition::Push(Navigator::new_state(ctx, app));
-            }
             "Browse neighborhoods" => {
                 // Don't just Pop; if we updated the results, the UI won't warn the user about a slow
                 // loading
@@ -125,6 +105,10 @@ impl SimpleState<App> for ShowResults {
                 ))
             }
             x => {
+                if let Some(t) = crate::handle_app_header_click(ctx, app, x) {
+                    return t;
+                }
+
                 // Avoid a double borrow
                 let mut impact = std::mem::replace(&mut app.session.impact, Impact::empty(ctx));
                 let widget = impact
