@@ -44,12 +44,6 @@ impl BrowseNeighborhoods {
             crate::app_header(ctx, app),
             "Click a neighborhood to edit filters".text_widget(ctx),
             Widget::col(vec![
-                Toggle::checkbox(
-                    ctx,
-                    "highlight boundary roads",
-                    Key::H,
-                    app.session.highlight_boundary_roads,
-                ),
                 Widget::row(vec![
                     "Draw neighborhoods:".text_widget(ctx).centered_vert(),
                     Widget::dropdown(
@@ -64,6 +58,12 @@ impl BrowseNeighborhoods {
                         ],
                     ),
                 ]),
+                Toggle::checkbox(
+                    ctx,
+                    "highlight boundary roads",
+                    Key::H,
+                    app.session.highlight_boundary_roads,
+                ),
             ])
             .section(ctx),
             Widget::col(vec![
