@@ -427,12 +427,6 @@
             <span class="ident"><span class="kw">crate</span>::app_header</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
             <span class="string">&quot;Click a neighborhood to edit filters&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                <span class="ident">Toggle::checkbox</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="string">&quot;highlight boundary roads&quot;</span>,
-                    <span class="ident">Key::H</span>,
-                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">highlight_boundary_roads</span>,
-                ),
                 <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                     <span class="string">&quot;Draw neighborhoods:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
                     <span class="ident">Widget::dropdown</span>(
@@ -447,6 +441,12 @@
                         ],
                     ),
                 ]),
+                <span class="ident">Toggle::checkbox</span>(
+                    <span class="ident">ctx</span>,
+                    <span class="string">&quot;highlight boundary roads&quot;</span>,
+                    <span class="ident">Key::H</span>,
+                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">highlight_boundary_roads</span>,
+                ),
             ])
             .<span class="ident">section</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
