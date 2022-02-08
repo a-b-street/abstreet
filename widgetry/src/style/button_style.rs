@@ -75,11 +75,10 @@ impl<'a, 'c> ButtonStyle {
 impl<'a, 'c> Style {
     /// title: name of previous screen, which you'll return to
     pub fn btn_back(&self, title: &'a str) -> ButtonBuilder<'a, 'c> {
-        self.btn_plain
+        self.btn_outline
             .icon_bytes(include_labeled_bytes!("../../icons/nav_back.svg"))
             .label_text(title)
             .padding_left(8.0)
-            .font_size(30)
     }
 
     /// A right facing caret, like ">", suitable for paging to the "next" set of results

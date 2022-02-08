@@ -28,8 +28,7 @@ impl Tab {
             crate::app_header(ctx, app),
             Widget::row(vec![
                 ctx.style()
-                    .btn_outline
-                    .text("Browse neighborhoods")
+                    .btn_back("Browse neighborhoods")
                     .hotkey(Key::Escape)
                     .build_def(ctx),
                 ctx.style()

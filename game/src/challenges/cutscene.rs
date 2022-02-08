@@ -238,9 +238,6 @@ fn make_panel(
     let col = vec![
         Widget::row(vec![
             Line(name).small_heading().into_widget(ctx),
-            // TODO This is the only use of btn_back now. Having the escape key of btn_close is
-            // confusing here, since some people might press it to mean "skip cutscene." But maybe
-            // some other sub-menus should use btn_back as well.
             ctx.style()
                 .btn_back("Home")
                 .build_widget(ctx, "quit")
