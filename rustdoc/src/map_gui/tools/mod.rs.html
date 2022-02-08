@@ -403,6 +403,11 @@
 <span id="402">402</span>
 <span id="403">403</span>
 <span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Assorted tools and UI states that&#39;re useful for applications built to display maps.</span>
 
 <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
@@ -497,6 +502,10 @@
 <span class="comment">// TODO Associate this with maps, but somehow avoid reading the entire file when listing them.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">nice_map_name</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">MapName</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
     <span class="kw">match</span> <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">country</span>.<span class="ident">as_ref</span>() {
+        <span class="string">&quot;au&quot;</span> =&gt; <span class="kw">match</span> (<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>.<span class="ident">as_ref</span>(), <span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">as_ref</span>()) {
+            (<span class="string">&quot;melbourne&quot;</span>, <span class="string">&quot;brunswick&quot;</span>) =&gt; <span class="string">&quot;Melbourne (Brunswick)&quot;</span>,
+            <span class="kw">_</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">map</span>,
+        },
         <span class="string">&quot;at&quot;</span> =&gt; <span class="kw">match</span> (<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>.<span class="ident">as_ref</span>(), <span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">as_ref</span>()) {
             (<span class="string">&quot;salzburg&quot;</span>, <span class="string">&quot;north&quot;</span>) =&gt; <span class="string">&quot;Salzburg (north)&quot;</span>,
             (<span class="string">&quot;salzburg&quot;</span>, <span class="string">&quot;south&quot;</span>) =&gt; <span class="string">&quot;Salzburg (south)&quot;</span>,
@@ -698,6 +707,7 @@
     <span class="comment">// If you add something here, please also add the flag to data/system/assets/flags.</span>
     <span class="comment">// https://github.com/hampusborgos/country-flags/tree/master/svg</span>
     <span class="kw">match</span> <span class="ident">code</span> {
+        <span class="string">&quot;au&quot;</span> =&gt; <span class="string">&quot;Australia&quot;</span>,
         <span class="string">&quot;at&quot;</span> =&gt; <span class="string">&quot;Austria&quot;</span>,
         <span class="string">&quot;br&quot;</span> =&gt; <span class="string">&quot;Brazil&quot;</span>,
         <span class="string">&quot;ca&quot;</span> =&gt; <span class="string">&quot;Canada&quot;</span>,
