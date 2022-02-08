@@ -298,9 +298,6 @@
 <span id="297">297</span>
 <span id="298">298</span>
 <span id="299">299</span>
-<span id="300">300</span>
-<span id="301">301</span>
-<span id="302">302</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">map_gui::tools::grey_out_map</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">hotkeys</span>, <span class="ident">ButtonStyle</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
@@ -541,9 +538,6 @@
     <span class="kw">let</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec!</span>[
         <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
             <span class="ident">Line</span>(<span class="ident">name</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="comment">// TODO This is the only use of btn_back now. Having the escape key of btn_close is</span>
-            <span class="comment">// confusing here, since some people might press it to mean &quot;skip cutscene.&quot; But maybe</span>
-            <span class="comment">// some other sub-menus should use btn_back as well.</span>
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_back</span>(<span class="string">&quot;Home&quot;</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;quit&quot;</span>)
