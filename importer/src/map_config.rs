@@ -21,7 +21,7 @@ pub fn config_for_map(name: &MapName) -> convert_osm::Options {
     convert_osm::Options {
         map_config: map_model::MapConfig {
             driving_side: match name.city.country.as_ref() {
-                "gb" | "jp" | "nz" | "sg" => DrivingSide::Left,
+                "au" | "gb" | "jp" | "nz" | "sg" => DrivingSide::Left,
                 _ => DrivingSide::Right,
             },
             bikes_can_use_bus_lanes: name.city.country != "pl",

@@ -92,6 +92,10 @@ pub fn grey_out_map(g: &mut GfxCtx, app: &dyn AppLike) {
 // TODO Associate this with maps, but somehow avoid reading the entire file when listing them.
 pub fn nice_map_name(name: &MapName) -> &str {
     match name.city.country.as_ref() {
+        "au" => match (name.city.city.as_ref(), name.map.as_ref()) {
+            ("melbourne", "brunswick") => "Melbourne (Brunswick)",
+            _ => &name.map,
+        },
         "at" => match (name.city.city.as_ref(), name.map.as_ref()) {
             ("salzburg", "north") => "Salzburg (north)",
             ("salzburg", "south") => "Salzburg (south)",
@@ -293,6 +297,7 @@ pub fn nice_country_name(code: &str) -> &str {
     // If you add something here, please also add the flag to data/system/assets/flags.
     // https://github.com/hampusborgos/country-flags/tree/master/svg
     match code {
+        "au" => "Australia",
         "at" => "Austria",
         "br" => "Brazil",
         "ca" => "Canada",

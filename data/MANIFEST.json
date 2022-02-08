@@ -45,6 +45,21 @@
       "uncompressed_size_bytes": 8754149,
       "compressed_size_bytes": 1967126
     },
+    "data/input/au/melbourne/osm/australia-latest.osm.pbf": {
+      "checksum": "8c8bfaf8de56aad272d69adf71849d20",
+      "uncompressed_size_bytes": 578892498,
+      "compressed_size_bytes": 578200989
+    },
+    "data/input/au/melbourne/osm/brunswick.osm": {
+      "checksum": "4578275ed32fc910220841cf12eb61cd",
+      "uncompressed_size_bytes": 17681312,
+      "compressed_size_bytes": 1940692
+    },
+    "data/input/au/melbourne/raw_maps/brunswick.bin": {
+      "checksum": "57ee6f9737bba25d38918d5351e89f5a",
+      "uncompressed_size_bytes": 6208879,
+      "compressed_size_bytes": 1042726
+    },
     "data/input/br/sao_paulo/osm/aricanduva.osm": {
       "checksum": "3708fb4be649c4f16d1de7f7c99369b6",
       "uncompressed_size_bytes": 128106393,
@@ -2000,6 +2015,11 @@
       "uncompressed_size_bytes": 7213213,
       "compressed_size_bytes": 7205382
     },
+    "data/input/shared/elevation/srtm/srtm.144.-38.tif": {
+      "checksum": "70715e9aad004294ec0acb1d5c9dcca4",
+      "uncompressed_size_bytes": 5305060,
+      "compressed_size_bytes": 5299797
+    },
     "data/input/shared/elevation/srtm/srtm.174.-37.tif": {
       "checksum": "b6d9af3a583455cfd7083d58a1726abb",
       "uncompressed_size_bytes": 3753862,
@@ -2709,6 +2729,11 @@
       "checksum": "3e3e23da2ba243ae50bf4d91cc086df8",
       "uncompressed_size_bytes": 22770248,
       "compressed_size_bytes": 8851289
+    },
+    "data/system/au/melbourne/maps/brunswick.bin": {
+      "checksum": "d5202e8d28ceaf77352242423038cf2b",
+      "uncompressed_size_bytes": 30251255,
+      "compressed_size_bytes": 11350937
     },
     "data/system/br/sao_paulo/maps/aricanduva.bin": {
       "checksum": "108bed7b3d12702017194408af21d995",
