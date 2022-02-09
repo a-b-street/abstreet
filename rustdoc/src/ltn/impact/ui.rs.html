@@ -202,8 +202,6 @@
 <span id="201">201</span>
 <span id="202">202</span>
 <span id="203">203</span>
-<span id="204">204</span>
-<span id="205">205</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
 <span class="kw">use</span> <span class="ident">map_gui::load::FileLoader</span>;
@@ -215,14 +213,13 @@
 };
 
 <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">end_of_day</span>, <span class="ident">Filters</span>, <span class="ident">Impact</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">App</span>, <span class="ident">BrowseNeighborhoods</span>, <span class="ident">Toggle3Zoomed</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">App</span>, <span class="ident">BrowseNeighborhoods</span>, <span class="ident">Transition</span>};
 
 <span class="comment">// TODO Share structure or pieces with Ungap&#39;s predict mode</span>
 <span class="comment">// ... can&#39;t we just produce data of a certain shape, and have a UI pretty tuned for that?</span>
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ShowResults</span> {
     <span class="ident">draw_all_neighborhoods</span>: <span class="ident">Drawable</span>,
-    <span class="ident">draw_all_filters</span>: <span class="ident">Toggle3Zoomed</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">ShowResults</span> {
@@ -272,7 +269,6 @@
         <span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new_state</span>(
             <span class="ident">panel</span>,
             <span class="ident">Box::new</span>(<span class="ident">ShowResults</span> {
-                <span class="ident">draw_all_filters</span>: <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>, <span class="prelude-val">None</span>),
                 <span class="ident">draw_all_neighborhoods</span>,
             }),
         )
@@ -359,7 +355,7 @@
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
         <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw_all_neighborhoods</span>);
         <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">impact</span>.<span class="ident">compare_counts</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="self">self</span>.<span class="ident">draw_all_filters</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_all_filters</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
     }
 }
 

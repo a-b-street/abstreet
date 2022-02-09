@@ -271,27 +271,6 @@
 <span id="270">270</span>
 <span id="271">271</span>
 <span id="272">272</span>
-<span id="273">273</span>
-<span id="274">274</span>
-<span id="275">275</span>
-<span id="276">276</span>
-<span id="277">277</span>
-<span id="278">278</span>
-<span id="279">279</span>
-<span id="280">280</span>
-<span id="281">281</span>
-<span id="282">282</span>
-<span id="283">283</span>
-<span id="284">284</span>
-<span id="285">285</span>
-<span id="286">286</span>
-<span id="287">287</span>
-<span id="288">288</span>
-<span id="289">289</span>
-<span id="290">290</span>
-<span id="291">291</span>
-<span id="292">292</span>
-<span id="293">293</span>
 </pre><pre class="rust"><code><span class="kw">mod</span> <span class="ident">existing</span>;
 
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
@@ -304,7 +283,6 @@
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>};
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::existing::transform_existing_filters</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::Neighborhood</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::App</span>;
 
 <span class="doccomment">/// Stored in App session state. Before making any changes, call `before_edit`.</span>
@@ -378,25 +356,12 @@
         <span class="bool-val">true</span>
     }
 
-    <span class="doccomment">/// Draw all modal filters. If `only_neighborhood` is specified, only draw filters belonging to</span>
-    <span class="doccomment">/// one area.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">only_neighborhood</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Neighborhood</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">Toggle3Zoomed</span> {
+    <span class="doccomment">/// Draw all modal filters</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">Toggle3Zoomed</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">ToggleZoomed::builder</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">low_zoom</span> <span class="op">=</span> <span class="ident">DrawUnzoomedShapes::builder</span>();
 
         <span class="kw">for</span> (<span class="ident">r</span>, <span class="ident">dist</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">roads</span> {
-            <span class="kw">if</span> <span class="ident">only_neighborhood</span>
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">n</span><span class="op">|</span> <span class="op">!</span><span class="ident">n</span>.<span class="ident">orig_perimeter</span>.<span class="ident">interior</span>.<span class="ident">contains</span>(<span class="ident">r</span>))
-                .<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>)
-            {
-                <span class="kw">continue</span>;
-            }
-
             <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>((<span class="ident">pt</span>, <span class="ident">angle</span>)) <span class="op">=</span> <span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">dist_along</span>(<span class="kw-2">*</span><span class="ident">dist</span>) {
                 <span class="kw">let</span> <span class="ident">road_width</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">get_width</span>();
@@ -429,14 +394,7 @@
                 );
             }
         }
-        <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">filter</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">intersections</span> {
-            <span class="kw">if</span> <span class="ident">only_neighborhood</span>
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">n</span><span class="op">|</span> <span class="op">!</span><span class="ident">n</span>.<span class="ident">interior_intersections</span>.<span class="ident">contains</span>(<span class="ident">i</span>))
-                .<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>)
-            {
-                <span class="kw">continue</span>;
-            }
-
+        <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">filter</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">intersections</span> {
             <span class="kw">let</span> <span class="ident">line</span> <span class="op">=</span> <span class="ident">filter</span>.<span class="ident">geometry</span>(<span class="ident">map</span>);
 
             <span class="comment">// It&#39;s really hard to see a tiny squished line thickened, so use the same circle</span>

@@ -248,6 +248,9 @@
 <span id="247">247</span>
 <span id="248">248</span>
 <span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom::Distance</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools::open_browser</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">PathConstraints</span>, <span class="ident">RoadID</span>};
@@ -257,8 +260,9 @@
     <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>, <span class="ident">DEFAULT_CORNER_RADIUS</span>,
 };
 
-<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">BrowseNeighborhoods</span>, <span class="ident">DiagonalFilter</span>, <span class="ident">Neighborhood</span>, <span class="ident">NeighborhoodID</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">after_edit</span>, <span class="ident">App</span>, <span class="ident">BrowseNeighborhoods</span>, <span class="ident">DiagonalFilter</span>, <span class="ident">Neighborhood</span>, <span class="ident">NeighborhoodID</span>, <span class="ident">Transition</span>,
+};
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Tab</span> {
@@ -456,6 +460,7 @@
 
                 <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">roads</span>.<span class="ident">insert</span>(<span class="ident">r</span>, <span class="ident">distance</span>);
             }
+            <span class="ident">after_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
             <span class="bool-val">true</span>
         }
         <span class="ident">WorldOutcome::ClickedObject</span>(<span class="ident">FilterableObj::InteriorIntersection</span>(<span class="ident">i</span>)) =&gt; {
@@ -484,6 +489,7 @@
                     .<span class="ident">intersections</span>
                     .<span class="ident">insert</span>(<span class="ident">i</span>, <span class="ident">all</span>.<span class="ident">remove</span>(<span class="number">0</span>));
             }
+            <span class="ident">after_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
             <span class="bool-val">true</span>
         }
         <span class="ident">WorldOutcome::Keypress</span>(<span class="string">&quot;debug&quot;</span>, <span class="ident">FilterableObj::InteriorIntersection</span>(<span class="ident">i</span>)) =&gt; {

@@ -398,7 +398,7 @@
         <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">neighborhood</span>.<span class="ident">fade_irrelevant</span>);
 
         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="self">self</span>.<span class="ident">neighborhood</span>.<span class="ident">draw_filters</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_all_filters</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="comment">// TODO Since we cover such a small area, treating multiple segments of one road as the</span>
         <span class="comment">// same might be nice. And we should seed the quadtree with the locations of filters and</span>
         <span class="comment">// arrows, possibly.</span>
