@@ -94,6 +94,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
     match name.city.country.as_ref() {
         "au" => match (name.city.city.as_ref(), name.map.as_ref()) {
             ("melbourne", "brunswick") => "Melbourne (Brunswick)",
+            ("melbourne", "dandenong") => "Melbourne (Dandenong)",
             _ => &name.map,
         },
         "at" => match (name.city.city.as_ref(), name.map.as_ref()) {

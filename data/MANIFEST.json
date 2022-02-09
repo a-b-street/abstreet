@@ -55,10 +55,20 @@
       "uncompressed_size_bytes": 17681312,
       "compressed_size_bytes": 1940692
     },
+    "data/input/au/melbourne/osm/dandenong.osm": {
+      "checksum": "50bce862a943525a75b9fc859a84299c",
+      "uncompressed_size_bytes": 18160601,
+      "compressed_size_bytes": 1783298
+    },
     "data/input/au/melbourne/raw_maps/brunswick.bin": {
       "checksum": "57ee6f9737bba25d38918d5351e89f5a",
       "uncompressed_size_bytes": 6208879,
       "compressed_size_bytes": 1042726
+    },
+    "data/input/au/melbourne/raw_maps/dandenong.bin": {
+      "checksum": "41c9a7828867ce35670897da869a3b89",
+      "uncompressed_size_bytes": 5549219,
+      "compressed_size_bytes": 1052429
     },
     "data/input/br/sao_paulo/osm/aricanduva.osm": {
       "checksum": "3708fb4be649c4f16d1de7f7c99369b6",
@@ -2020,6 +2030,16 @@
       "uncompressed_size_bytes": 5305060,
       "compressed_size_bytes": 5299797
     },
+    "data/input/shared/elevation/srtm/srtm.145.-38.tif": {
+      "checksum": "dc042afa9e3cd987bbc62049cbf5381b",
+      "uncompressed_size_bytes": 6864096,
+      "compressed_size_bytes": 6858325
+    },
+    "data/input/shared/elevation/srtm/srtm.145.-39.tif": {
+      "checksum": "e53de4362cc7c4265c6a15e0b5242bed",
+      "uncompressed_size_bytes": 3031331,
+      "compressed_size_bytes": 3021752
+    },
     "data/input/shared/elevation/srtm/srtm.174.-37.tif": {
       "checksum": "b6d9af3a583455cfd7083d58a1726abb",
       "uncompressed_size_bytes": 3753862,
@@ -2734,6 +2754,11 @@
       "checksum": "d5202e8d28ceaf77352242423038cf2b",
       "uncompressed_size_bytes": 30251255,
       "compressed_size_bytes": 11350937
+    },
+    "data/system/au/melbourne/maps/dandenong.bin": {
+      "checksum": "d1a992fb5b934e843a650484f3be3092",
+      "uncompressed_size_bytes": 23788739,
+      "compressed_size_bytes": 9036212
     },
     "data/system/br/sao_paulo/maps/aricanduva.bin": {
       "checksum": "108bed7b3d12702017194408af21d995",
