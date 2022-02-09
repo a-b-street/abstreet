@@ -7,7 +7,7 @@ use map_gui::tools::DrawRoadLabels;
 use map_model::{IntersectionID, Map, PathConstraints, Perimeter, RoadID};
 use widgetry::{Drawable, EventCtx, GeomBatch};
 
-use crate::{App, ModalFilters, NeighborhoodID, Toggle3Zoomed};
+use crate::{App, ModalFilters, NeighborhoodID};
 
 pub struct Neighborhood {
     pub id: NeighborhoodID,
@@ -23,7 +23,6 @@ pub struct Neighborhood {
     pub cells: Vec<Cell>,
 
     pub fade_irrelevant: Drawable,
-    pub draw_filters: Toggle3Zoomed,
     pub labels: DrawRoadLabels,
 }
 
@@ -73,7 +72,6 @@ impl Neighborhood {
             cells: Vec::new(),
 
             fade_irrelevant: Drawable::empty(ctx),
-            draw_filters: Toggle3Zoomed::empty(ctx),
             // Temporary value
             labels: DrawRoadLabels::only_major_roads(),
         };
@@ -122,8 +120,6 @@ impl Neighborhood {
             &n.borders,
             &app.session.modal_filters,
         );
-
-        n.draw_filters = app.session.modal_filters.draw(ctx, map, Some(&n));
 
         let mut label_roads = n.perimeter.clone();
         label_roads.extend(n.orig_perimeter.interior.clone());

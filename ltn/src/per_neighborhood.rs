@@ -7,8 +7,9 @@ use widgetry::{
     VerticalAlignment, Widget, DEFAULT_CORNER_RADIUS,
 };
 
-use super::{BrowseNeighborhoods, DiagonalFilter, Neighborhood, NeighborhoodID};
-use crate::{App, Transition};
+use crate::{
+    after_edit, App, BrowseNeighborhoods, DiagonalFilter, Neighborhood, NeighborhoodID, Transition,
+};
 
 #[derive(PartialEq)]
 pub enum Tab {
@@ -206,6 +207,7 @@ pub fn handle_world_outcome(
 
                 app.session.modal_filters.roads.insert(r, distance);
             }
+            after_edit(ctx, app);
             true
         }
         WorldOutcome::ClickedObject(FilterableObj::InteriorIntersection(i)) => {
@@ -234,6 +236,7 @@ pub fn handle_world_outcome(
                     .intersections
                     .insert(i, all.remove(0));
             }
+            after_edit(ctx, app);
             true
         }
         WorldOutcome::Keypress("debug", FilterableObj::InteriorIntersection(i)) => {

@@ -10,7 +10,6 @@ use widgetry::mapspace::{DrawUnzoomedShapes, ToggleZoomed};
 use widgetry::{Color, EventCtx, GeomBatch, GfxCtx};
 
 pub use self::existing::transform_existing_filters;
-use super::Neighborhood;
 use crate::App;
 
 /// Stored in App session state. Before making any changes, call `before_edit`.
@@ -84,25 +83,12 @@ impl ModalFilters {
         true
     }
 
-    /// Draw all modal filters. If `only_neighborhood` is specified, only draw filters belonging to
-    /// one area.
-    pub fn draw(
-        &self,
-        ctx: &EventCtx,
-        map: &Map,
-        only_neighborhood: Option<&Neighborhood>,
-    ) -> Toggle3Zoomed {
+    /// Draw all modal filters
+    pub fn draw(&self, ctx: &EventCtx, map: &Map) -> Toggle3Zoomed {
         let mut batch = ToggleZoomed::builder();
         let mut low_zoom = DrawUnzoomedShapes::builder();
 
         for (r, dist) in &self.roads {
-            if only_neighborhood
-                .map(|n| !n.orig_perimeter.interior.contains(r))
-                .unwrap_or(false)
-            {
-                continue;
-            }
-
             let road = map.get_r(*r);
             if let Ok((pt, angle)) = road.center_pts.dist_along(*dist) {
                 let road_width = road.get_width();
@@ -135,14 +121,7 @@ impl ModalFilters {
                 );
             }
         }
-        for (i, filter) in &self.intersections {
-            if only_neighborhood
-                .map(|n| !n.interior_intersections.contains(i))
-                .unwrap_or(false)
-            {
-                continue;
-            }
-
+        for (_, filter) in &self.intersections {
             let line = filter.geometry(map);
 
             // It's really hard to see a tiny squished line thickened, so use the same circle

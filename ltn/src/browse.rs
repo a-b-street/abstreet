@@ -12,14 +12,13 @@ use widgetry::{
 
 use super::auto::Heuristic;
 use super::{Neighborhood, NeighborhoodID, Partitioning};
-use crate::{App, ModalFilters, Toggle3Zoomed, Transition};
+use crate::{App, ModalFilters, Transition};
 
 pub struct BrowseNeighborhoods {
     panel: Panel,
     world: World<NeighborhoodID>,
     draw_over_roads: ToggleZoomed,
     labels: DrawRoadLabels,
-    draw_all_filters: Toggle3Zoomed,
     draw_boundary_roads: ToggleZoomed,
 }
 
@@ -34,13 +33,13 @@ impl BrowseNeighborhoods {
                     app.session.modal_filters = ModalFilters::default();
                     crate::filters::transform_existing_filters(ctx, app, timer);
                     app.session.partitioning = Partitioning::seed_using_heuristics(app, timer);
+                    app.session.draw_all_filters = app.session.modal_filters.draw(ctx, &app.map);
                 }
                 (
                     make_world(ctx, app, timer),
                     draw_over_roads(ctx, app, timer),
                 )
             });
-        let draw_all_filters = app.session.modal_filters.draw(ctx, &app.map, None);
 
         let panel = Panel::new_builder(Widget::col(vec![
             crate::app_header(ctx, app),
@@ -107,7 +106,6 @@ impl BrowseNeighborhoods {
             world,
             draw_over_roads,
             labels: DrawRoadLabels::only_major_roads(),
-            draw_all_filters,
             draw_boundary_roads: draw_boundary_roads(ctx, app),
         })
     }
@@ -195,7 +193,7 @@ impl State<App> for BrowseNeighborhoods {
         if self.panel.is_checked("highlight boundary roads") {
             self.draw_boundary_roads.draw(g);
         }
-        self.draw_all_filters.draw(g);
+        app.session.draw_all_filters.draw(g);
         if g.canvas.is_unzoomed() {
             self.labels.draw(g, app);
         }

@@ -9,14 +9,13 @@ use widgetry::{
 };
 
 use super::{end_of_day, Filters, Impact};
-use crate::{App, BrowseNeighborhoods, Toggle3Zoomed, Transition};
+use crate::{App, BrowseNeighborhoods, Transition};
 
 // TODO Share structure or pieces with Ungap's predict mode
 // ... can't we just produce data of a certain shape, and have a UI pretty tuned for that?
 
 pub struct ShowResults {
     draw_all_neighborhoods: Drawable,
-    draw_all_filters: Toggle3Zoomed,
 }
 
 impl ShowResults {
@@ -66,7 +65,6 @@ impl ShowResults {
         <dyn SimpleState<_>>::new_state(
             panel,
             Box::new(ShowResults {
-                draw_all_filters: app.session.modal_filters.draw(ctx, &app.map, None),
                 draw_all_neighborhoods,
             }),
         )
@@ -153,7 +151,7 @@ impl SimpleState<App> for ShowResults {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         g.redraw(&self.draw_all_neighborhoods);
         app.session.impact.compare_counts.draw(g);
-        self.draw_all_filters.draw(g);
+        app.session.draw_all_filters.draw(g);
     }
 }
 

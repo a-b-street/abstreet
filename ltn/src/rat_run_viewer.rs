@@ -201,7 +201,7 @@ impl State<App> for BrowseRatRuns {
         }
 
         g.redraw(&self.neighborhood.fade_irrelevant);
-        self.neighborhood.draw_filters.draw(g);
+        app.session.draw_all_filters.draw(g);
         if g.canvas.is_unzoomed() {
             self.neighborhood.labels.draw(g, app);
         }

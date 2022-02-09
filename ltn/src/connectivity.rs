@@ -148,7 +148,7 @@ impl State<App> for Viewer {
         g.redraw(&self.neighborhood.fade_irrelevant);
 
         self.panel.draw(g);
-        self.neighborhood.draw_filters.draw(g);
+        app.session.draw_all_filters.draw(g);
         // TODO Since we cover such a small area, treating multiple segments of one road as the
         // same might be nice. And we should seed the quadtree with the locations of filters and
         // arrows, possibly.

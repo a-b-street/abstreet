@@ -5,7 +5,8 @@ use structopt::StructOpt;
 use widgetry::{lctrl, EventCtx, GfxCtx, Key, Line, Settings, Widget};
 
 pub use browse::BrowseNeighborhoods;
-pub use filters::{DiagonalFilter, ModalFilters, Toggle3Zoomed};
+use filters::Toggle3Zoomed;
+pub use filters::{DiagonalFilter, ModalFilters};
 pub use neighborhood::{Cell, DistanceInterval, Neighborhood};
 pub use partition::{NeighborhoodID, Partitioning};
 
@@ -60,6 +61,7 @@ fn run(mut settings: Settings) {
         let session = Session {
             partitioning: Partitioning::empty(),
             modal_filters: ModalFilters::default(),
+            draw_all_filters: Toggle3Zoomed::empty(ctx),
 
             impact: impact::Impact::empty(ctx),
 
@@ -120,6 +122,7 @@ pub fn run_wasm(root_dom_id: String, assets_base_url: String, assets_are_gzipped
 pub struct Session {
     pub partitioning: Partitioning,
     pub modal_filters: ModalFilters,
+    pub draw_all_filters: Toggle3Zoomed,
 
     pub impact: impact::Impact,
 
@@ -212,4 +215,8 @@ fn handle_app_header_click(ctx: &mut EventCtx, app: &App, x: &str) -> Option<Tra
         ))),
         _ => None,
     }
+}
+
+pub fn after_edit(ctx: &EventCtx, app: &mut App) {
+    app.session.draw_all_filters = app.session.modal_filters.draw(ctx, &app.map);
 }

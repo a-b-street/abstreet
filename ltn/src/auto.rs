@@ -4,9 +4,8 @@ use abstutil::Timer;
 use map_model::RoadID;
 use widgetry::{Choice, EventCtx};
 
-use super::rat_runs::find_rat_runs;
-use super::Neighborhood;
-use crate::App;
+use crate::rat_runs::find_rat_runs;
+use crate::{after_edit, App, Neighborhood};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Heuristic {
@@ -64,6 +63,7 @@ impl Heuristic {
         }
 
         app.session.modal_filters.cancel_empty_edit();
+        after_edit(ctx, app);
     }
 }
 
