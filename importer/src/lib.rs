@@ -54,6 +54,7 @@ pub async fn regenerate_everything(shard_num: usize, num_shards: usize) {
         // TODO Autodetect this based on number of maps per city?
         if city == CityName::new("ch", "zurich")
             || city == CityName::new("gb", "leeds")
+            || city == CityName::new("gb", "london")
             || city == CityName::new("us", "nyc")
             || city == CityName::new("fr", "charleville_mezieres")
             || city == CityName::new("fr", "paris")

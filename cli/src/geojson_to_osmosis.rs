@@ -9,6 +9,8 @@ pub fn run(path: String) -> Result<()> {
         .enumerate()
     {
         let name = maybe_name.unwrap_or_else(|| format!("boundary{}", idx));
+        // Canonicalize the filename
+        let name = name.to_ascii_lowercase().replace(" ", "_");
         let path = format!("{}.poly", name);
         LonLat::write_osmosis_polygon(&path, &points)?;
         println!("Wrote {}", path);
