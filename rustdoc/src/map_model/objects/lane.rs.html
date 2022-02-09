@@ -597,6 +597,27 @@
 <span id="596">596</span>
 <span id="597">597</span>
 <span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
@@ -1157,6 +1178,27 @@
                 <span class="macro">vec!</span>[(<span class="ident">Distance::meters</span>(<span class="number">1.5</span>), <span class="string">&quot;default&quot;</span>)]
             }
             <span class="ident">LaneType::Buffer</span>(<span class="ident">BufferType::Curb</span>) =&gt; <span class="macro">vec!</span>[(<span class="ident">Distance::meters</span>(<span class="number">0.5</span>), <span class="string">&quot;default&quot;</span>)],
+        }
+    }
+
+    <span class="doccomment">/// Put a list of forward and backward lanes into left-to-right order, depending on the driving</span>
+    <span class="doccomment">/// side. Both input lists should be ordered from the center of the road going outwards.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">assemble_ltr</span>(
+        <span class="kw-2">mut</span> <span class="ident">fwd_side</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneSpec</span><span class="op">&gt;</span>,
+        <span class="kw-2">mut</span> <span class="ident">back_side</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneSpec</span><span class="op">&gt;</span>,
+        <span class="ident">driving_side</span>: <span class="ident">DrivingSide</span>,
+    ) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneSpec</span><span class="op">&gt;</span> {
+        <span class="kw">match</span> <span class="ident">driving_side</span> {
+            <span class="ident">DrivingSide::Right</span> =&gt; {
+                <span class="ident">back_side</span>.<span class="ident">reverse</span>();
+                <span class="ident">back_side</span>.<span class="ident">extend</span>(<span class="ident">fwd_side</span>);
+                <span class="ident">back_side</span>
+            }
+            <span class="ident">DrivingSide::Left</span> =&gt; {
+                <span class="ident">fwd_side</span>.<span class="ident">reverse</span>();
+                <span class="ident">fwd_side</span>.<span class="ident">extend</span>(<span class="ident">back_side</span>);
+                <span class="ident">fwd_side</span>
+            }
         }
     }
 }

@@ -557,25 +557,6 @@
 <span id="556">556</span>
 <span id="557">557</span>
 <span id="558">558</span>
-<span id="559">559</span>
-<span id="560">560</span>
-<span id="561">561</span>
-<span id="562">562</span>
-<span id="563">563</span>
-<span id="564">564</span>
-<span id="565">565</span>
-<span id="566">566</span>
-<span id="567">567</span>
-<span id="568">568</span>
-<span id="569">569</span>
-<span id="570">570</span>
-<span id="571">571</span>
-<span id="572">572</span>
-<span id="573">573</span>
-<span id="574">574</span>
-<span id="575">575</span>
-<span id="576">576</span>
-<span id="577">577</span>
 </pre><pre class="rust"><code><span class="doccomment">/// Purely from OSM tags, determine the lanes that a road segment has.</span>
 <span class="kw">use</span> <span class="ident">std::iter</span>;
 
@@ -632,7 +613,7 @@
                 <span class="ident">back_side</span>.<span class="ident">push</span>(<span class="ident">back</span>(<span class="ident">LaneType::Shoulder</span>));
             }
         }
-        <span class="kw">return</span> <span class="ident">assemble_ltr</span>(<span class="ident">fwd_side</span>, <span class="ident">back_side</span>, <span class="ident">cfg</span>.<span class="ident">driving_side</span>);
+        <span class="kw">return</span> <span class="ident">LaneSpec::assemble_ltr</span>(<span class="ident">fwd_side</span>, <span class="ident">back_side</span>, <span class="ident">cfg</span>.<span class="ident">driving_side</span>);
     }
 
     <span class="comment">// TODO Reversible roads should be handled differently?</span>
@@ -709,7 +690,7 @@
     }
 
     <span class="kw">if</span> <span class="ident">driving_lane</span> <span class="op">==</span> <span class="ident">LaneType::Construction</span> {
-        <span class="kw">return</span> <span class="ident">assemble_ltr</span>(<span class="ident">fwd_side</span>, <span class="ident">back_side</span>, <span class="ident">cfg</span>.<span class="ident">driving_side</span>);
+        <span class="kw">return</span> <span class="ident">LaneSpec::assemble_ltr</span>(<span class="ident">fwd_side</span>, <span class="ident">back_side</span>, <span class="ident">cfg</span>.<span class="ident">driving_side</span>);
     }
 
     <span class="kw">let</span> <span class="ident">fwd_bus_spec</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">s</span>) <span class="op">=</span> <span class="ident">tags</span>.<span class="ident">get</span>(<span class="string">&quot;bus:lanes:forward&quot;</span>) {
@@ -914,26 +895,7 @@
         }
     }
 
-    <span class="ident">assemble_ltr</span>(<span class="ident">fwd_side</span>, <span class="ident">back_side</span>, <span class="ident">cfg</span>.<span class="ident">driving_side</span>)
-}
-
-<span class="kw">fn</span> <span class="ident">assemble_ltr</span>(
-    <span class="kw-2">mut</span> <span class="ident">fwd_side</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneSpec</span><span class="op">&gt;</span>,
-    <span class="kw-2">mut</span> <span class="ident">back_side</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneSpec</span><span class="op">&gt;</span>,
-    <span class="ident">driving_side</span>: <span class="ident">DrivingSide</span>,
-) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneSpec</span><span class="op">&gt;</span> {
-    <span class="kw">match</span> <span class="ident">driving_side</span> {
-        <span class="ident">DrivingSide::Right</span> =&gt; {
-            <span class="ident">back_side</span>.<span class="ident">reverse</span>();
-            <span class="ident">back_side</span>.<span class="ident">extend</span>(<span class="ident">fwd_side</span>);
-            <span class="ident">back_side</span>
-        }
-        <span class="ident">DrivingSide::Left</span> =&gt; {
-            <span class="ident">fwd_side</span>.<span class="ident">reverse</span>();
-            <span class="ident">fwd_side</span>.<span class="ident">extend</span>(<span class="ident">back_side</span>);
-            <span class="ident">fwd_side</span>
-        }
-    }
+    <span class="ident">LaneSpec::assemble_ltr</span>(<span class="ident">fwd_side</span>, <span class="ident">back_side</span>, <span class="ident">cfg</span>.<span class="ident">driving_side</span>)
 }
 
 <span class="comment">// See https://wiki.openstreetmap.org/wiki/Proposed_features/cycleway:separation#Typical_values.</span>
