@@ -560,6 +560,27 @@ impl LaneSpec {
             LaneType::Buffer(BufferType::Curb) => vec![(Distance::meters(0.5), "default")],
         }
     }
+
+    /// Put a list of forward and backward lanes into left-to-right order, depending on the driving
+    /// side. Both input lists should be ordered from the center of the road going outwards.
+    pub fn assemble_ltr(
+        mut fwd_side: Vec<LaneSpec>,
+        mut back_side: Vec<LaneSpec>,
+        driving_side: DrivingSide,
+    ) -> Vec<LaneSpec> {
+        match driving_side {
+            DrivingSide::Right => {
+                back_side.reverse();
+                back_side.extend(fwd_side);
+                back_side
+            }
+            DrivingSide::Left => {
+                fwd_side.reverse();
+                fwd_side.extend(back_side);
+                fwd_side
+            }
+        }
+    }
 }
 
 // See https://wiki.openstreetmap.org/wiki/Key:turn

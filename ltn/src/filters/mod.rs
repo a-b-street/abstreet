@@ -1,3 +1,5 @@
+mod existing;
+
 use std::collections::{BTreeMap, BTreeSet};
 
 use serde::{Deserialize, Serialize};
@@ -7,6 +9,7 @@ use map_model::{IntersectionID, Map, RoadID, RoutingParams, TurnID};
 use widgetry::mapspace::{DrawUnzoomedShapes, ToggleZoomed};
 use widgetry::{Color, EventCtx, GeomBatch, GfxCtx};
 
+pub use self::existing::transform_existing_filters;
 use super::Neighborhood;
 use crate::App;
 

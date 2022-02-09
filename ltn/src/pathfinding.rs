@@ -158,7 +158,7 @@ impl RoutePlanner {
                 }
             }
             if total_dist != Distance::ZERO {
-                results.add_line(Line("Route respecting the new modal filters").fg(color));
+                results.add_line(Line("Route respecting modal filters").fg(color));
                 results.add_line(Line(format!("Time: {}", total_time)));
                 results.add_line(Line(format!("Distance: {}", total_dist)));
             }
@@ -198,14 +198,14 @@ impl RoutePlanner {
                 if total_time == total_time_after && total_dist == total_dist_after {
                     draw = draw_old_route;
                     results = Text::new();
-                    results.add_line(Line(
-                        "The route is the same before/after the new modal filters",
-                    ));
+                    results.add_line(Line("The route is the same before/after modal filters"));
                     results.add_line(Line(format!("Time: {}", total_time)));
                     results.add_line(Line(format!("Distance: {}", total_dist)));
                 } else {
                     draw.append(draw_old_route);
-                    results.add_line(Line("Route before the new modal filters").fg(color));
+                    results.add_line(
+                        Line("Route before any modal filters (existing or new)").fg(color),
+                    );
                     cmp_duration(
                         &mut results,
                         app,

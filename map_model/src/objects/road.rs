@@ -456,6 +456,10 @@ impl Road {
         bike
     }
 
+    pub fn is_driveable(&self) -> bool {
+        self.lanes.iter().any(|l| l.is_driving())
+    }
+
     pub fn common_endpoint(&self, other: &Road) -> CommonEndpoint {
         CommonEndpoint::new((self.src_i, self.dst_i), (other.src_i, other.dst_i))
     }

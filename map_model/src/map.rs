@@ -711,6 +711,13 @@ impl Map {
         self.recalculate_pathfinding_after_edits(timer);
     }
 
+    /// Normally after applying edits, you must call `recalculate_pathfinding_after_edits`.
+    /// Alternatively, you can keep the old pathfinder exactly as it is. Use with caution -- the
+    /// pathfinder and the map may be out-of-sync in arbitrary ways.
+    pub fn keep_pathfinder_despite_edits(&mut self) {
+        self.pathfinder_dirty = false;
+    }
+
     pub fn get_languages(&self) -> BTreeSet<&str> {
         let mut languages = BTreeSet::new();
         for r in self.all_roads() {

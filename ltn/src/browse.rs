@@ -30,8 +30,10 @@ impl BrowseNeighborhoods {
         let (world, draw_over_roads) =
             ctx.loading_screen("calculate neighborhoods", |ctx, timer| {
                 if &app.session.partitioning.map != app.map.get_name() {
-                    app.session.partitioning = Partitioning::seed_using_heuristics(app, timer);
+                    // Reset this first. transform_existing_filters will fill some out.
                     app.session.modal_filters = ModalFilters::default();
+                    crate::filters::transform_existing_filters(ctx, app, timer);
+                    app.session.partitioning = Partitioning::seed_using_heuristics(app, timer);
                 }
                 (
                     make_world(ctx, app, timer),
@@ -117,7 +119,6 @@ impl State<App> for BrowseNeighborhoods {
             Outcome::Clicked(x) => match x.as_ref() {
                 "New" => {
                     app.session.partitioning = Partitioning::empty();
-                    app.session.modal_filters = ModalFilters::default();
                     return Transition::Replace(BrowseNeighborhoods::new_state(ctx, app));
                 }
                 "Load proposal" => {

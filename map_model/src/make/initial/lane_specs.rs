@@ -54,7 +54,7 @@ pub fn get_lane_specs_ltr(tags: &Tags, cfg: &MapConfig) -> Vec<LaneSpec> {
                 back_side.push(back(LaneType::Shoulder));
             }
         }
-        return assemble_ltr(fwd_side, back_side, cfg.driving_side);
+        return LaneSpec::assemble_ltr(fwd_side, back_side, cfg.driving_side);
     }
 
     // TODO Reversible roads should be handled differently?
@@ -131,7 +131,7 @@ pub fn get_lane_specs_ltr(tags: &Tags, cfg: &MapConfig) -> Vec<LaneSpec> {
     }
 
     if driving_lane == LaneType::Construction {
-        return assemble_ltr(fwd_side, back_side, cfg.driving_side);
+        return LaneSpec::assemble_ltr(fwd_side, back_side, cfg.driving_side);
     }
 
     let fwd_bus_spec = if let Some(s) = tags.get("bus:lanes:forward") {
@@ -336,26 +336,7 @@ pub fn get_lane_specs_ltr(tags: &Tags, cfg: &MapConfig) -> Vec<LaneSpec> {
         }
     }
 
-    assemble_ltr(fwd_side, back_side, cfg.driving_side)
-}
-
-fn assemble_ltr(
-    mut fwd_side: Vec<LaneSpec>,
-    mut back_side: Vec<LaneSpec>,
-    driving_side: DrivingSide,
-) -> Vec<LaneSpec> {
-    match driving_side {
-        DrivingSide::Right => {
-            back_side.reverse();
-            back_side.extend(fwd_side);
-            back_side
-        }
-        DrivingSide::Left => {
-            fwd_side.reverse();
-            fwd_side.extend(back_side);
-            fwd_side
-        }
-    }
+    LaneSpec::assemble_ltr(fwd_side, back_side, cfg.driving_side)
 }
 
 // See https://wiki.openstreetmap.org/wiki/Proposed_features/cycleway:separation#Typical_values.
