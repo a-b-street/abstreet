@@ -13,7 +13,12 @@ mod import_scenario;
 mod one_step_import;
 mod osm2lanes;
 
+use std::io::Write;
+
+use abstio::CityName;
 use anyhow::Result;
+use fs_err::File;
+use importer::Job;
 use structopt::StructOpt;
 
 use abstutil::Timer;
@@ -201,10 +206,12 @@ enum Command {
     },
     /// Regenerate all maps from RawMaps in parallel.
     RegenerateAllMaps,
+    /// Generate a shell script to regenerate all cities that uses an external task runner.
+    RegenerateEverythingExternally,
     /// Import RawMaps, maps, scenarios, and city overviews for a single city.
     Import {
         #[structopt(flatten)]
-        job: importer::Job,
+        job: Job,
     },
     /// Generates JSON test cases for osm2lanes.
     #[structopt(name = "osm2lanes")]
@@ -306,6 +313,7 @@ async fn main() -> Result<()> {
             num_shards,
         } => importer::regenerate_everything(shard_num, num_shards).await,
         Command::RegenerateAllMaps => importer::regenerate_all_maps(),
+        Command::RegenerateEverythingExternally => regenerate_everything_externally()?,
         Command::Import { job } => job.run(&mut Timer::new("import one city")).await,
         Command::OSM2Lanes { map_path } => osm2lanes::run(map_path),
     }
@@ -361,4 +369,23 @@ fn minify_map(path: String) {
     map.minify(&mut timer);
     // This also changes the name, so this won't overwrite anything
     map.save();
+}
+
+fn regenerate_everything_externally() -> Result<()> {
+    let path = "regenerate.sh";
+    let mut f = File::create(path)?;
+    writeln!(f, "#!/bin/sh")?;
+    writeln!(f, "pueue parallel 16")?;
+    for city in CityName::list_all_cities_from_importer_config() {
+        let job = Job::full_for_city(city);
+        writeln!(f, "pueue add -- ./import.sh {}", job.flags().join(" "))?;
+    }
+    println!("");
+    println!(
+        "You can run {}. You'll need https://github.com/Nukesor/pueue set up first",
+        path
+    );
+    println!("Handy reminders: pueue status / pause / reset");
+    println!("pueue status | grep Success | wc -l");
+    Ok(())
 }

@@ -8,11 +8,14 @@ use geom::{Distance, PolyLine};
 use map_model::raw::{OriginalRoad, RawMap};
 
 pub fn add_data(map: &mut RawMap) -> Result<()> {
+    let input = format!("elevation_input_{}", map.name.as_filename());
+    let output = format!("elevation_output_{}", map.name.as_filename());
+
     // TODO It'd be nice to include more timing breakdown here, but if we bail out early,
     // it's tedious to call timer.stop().
-    let ids = generate_input(map)?;
+    let ids = generate_input(&input, map)?;
 
-    fs_err::create_dir_all("elevation_output")?;
+    fs_err::create_dir_all(&output)?;
     fs_err::create_dir_all(abstio::path_shared_input("elevation"))?;
     let pwd = std::env::current_dir()?.display().to_string();
     // Because elevation_lookups has so many dependencies, just depend on Docker.
@@ -25,8 +28,7 @@ pub fn add_data(map: &mut RawMap) -> Result<()> {
         // Bind the input directory to the temporary place we just created
         .arg("--mount")
         .arg(format!(
-            "type=bind,source={}/elevation_input,target=/elevation/input,readonly",
-            pwd
+            "type=bind,source={pwd}/{input},target=/elevation/input,readonly"
         ))
         // We want to cache the elevation data sources in A/B Street's S3 bucket, so bind to
         // our data/input/shared directory.
@@ -38,8 +40,7 @@ pub fn add_data(map: &mut RawMap) -> Result<()> {
         ))
         .arg("--mount")
         .arg(format!(
-            "type=bind,source={}/elevation_output,target=/elevation/output",
-            pwd
+            "type=bind,source={pwd}/{output},target=/elevation/output",
         ))
         .arg("-t")
         // https://hub.docker.com/r/abstreet/elevation_lookups
@@ -55,20 +56,20 @@ pub fn add_data(map: &mut RawMap) -> Result<()> {
         bail!("Command failed: {}", status);
     }
 
-    scrape_output(map, ids)?;
+    scrape_output(&output, map, ids)?;
 
     // Clean up temporary files
-    fs_err::remove_file("elevation_input/query")?;
-    fs_err::remove_dir("elevation_input")?;
-    fs_err::remove_file("elevation_output/query")?;
-    fs_err::remove_dir("elevation_output")?;
+    fs_err::remove_file(format!("{input}/query"))?;
+    fs_err::remove_dir(input)?;
+    fs_err::remove_file(format!("{output}/query"))?;
+    fs_err::remove_dir(output)?;
 
     Ok(())
 }
 
-fn generate_input(map: &RawMap) -> Result<Vec<OriginalRoad>> {
-    fs_err::create_dir_all("elevation_input")?;
-    let mut f = BufWriter::new(File::create("elevation_input/query")?);
+fn generate_input(input: &str, map: &RawMap) -> Result<Vec<OriginalRoad>> {
+    fs_err::create_dir_all(input)?;
+    let mut f = BufWriter::new(File::create(format!("{input}/query"))?);
     let mut ids = Vec::new();
     for (id, r) in &map.roads {
         // TODO Handle cul-de-sacs
@@ -95,10 +96,10 @@ fn generate_input(map: &RawMap) -> Result<Vec<OriginalRoad>> {
     Ok(ids)
 }
 
-fn scrape_output(map: &mut RawMap, ids: Vec<OriginalRoad>) -> Result<()> {
+fn scrape_output(output: &str, map: &mut RawMap, ids: Vec<OriginalRoad>) -> Result<()> {
     let num_ids = ids.len();
     let mut cnt = 0;
-    for (line, id) in BufReader::new(File::open("elevation_output/query")?)
+    for (line, id) in BufReader::new(File::open(format!("{output}/query"))?)
         .lines()
         .zip(ids)
     {

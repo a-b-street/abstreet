@@ -38,34 +38,8 @@ pub async fn regenerate_everything(shard_num: usize, num_shards: usize) {
 
     let mut timer = Timer::new("regenerate all maps");
     for (cnt, city) in all_cities.into_iter().enumerate() {
-        let mut job = Job {
-            city: city.clone(),
-            osm_to_raw: true,
-            raw_to_map: true,
-            scenario: false,
-            city_overview: false,
-            only_map: None,
-            opts: RawToMapOptions::default(),
-        };
-        // Only some maps run extra tasks
-        if city == CityName::seattle() || city.country == "gb" {
-            job.scenario = true;
-        }
-        // TODO Autodetect this based on number of maps per city?
-        if city == CityName::new("ch", "zurich")
-            || city == CityName::new("gb", "leeds")
-            || city == CityName::new("gb", "london")
-            || city == CityName::new("us", "nyc")
-            || city == CityName::new("fr", "charleville_mezieres")
-            || city == CityName::new("fr", "paris")
-            || city == CityName::new("at", "salzburg")
-            || city == CityName::new("ir", "tehran")
-            || city == CityName::new("pt", "portugal")
-        {
-            job.city_overview = true;
-        }
-
         if cnt % num_shards == shard_num {
+            let job = Job::full_for_city(city);
             job.run(&mut timer).await;
         }
     }
@@ -175,6 +149,60 @@ pub struct Job {
 }
 
 impl Job {
+    pub fn full_for_city(city: CityName) -> Job {
+        let mut job = Job {
+            city: city,
+            osm_to_raw: true,
+            raw_to_map: true,
+            scenario: false,
+            city_overview: false,
+            only_map: None,
+            opts: RawToMapOptions::default(),
+        };
+        // Only some maps run extra tasks
+        if job.city == CityName::seattle() || job.city.country == "gb" {
+            job.scenario = true;
+        }
+        // TODO Autodetect this based on number of maps per city?
+        if job.city == CityName::new("ch", "zurich")
+            || job.city == CityName::new("gb", "leeds")
+            || job.city == CityName::new("gb", "london")
+            || job.city == CityName::new("us", "nyc")
+            || job.city == CityName::new("fr", "charleville_mezieres")
+            || job.city == CityName::new("fr", "paris")
+            || job.city == CityName::new("at", "salzburg")
+            || job.city == CityName::new("ir", "tehran")
+            || job.city == CityName::new("pt", "portugal")
+        {
+            job.city_overview = true;
+        }
+        job
+    }
+
+    /// Return the command-line flags that should produce this job. Incomplete -- doesn't invert
+    /// RawToMapOptions
+    pub fn flags(&self) -> Vec<String> {
+        // TODO Can structopt do the inversion?
+        let mut flags = vec![];
+        flags.push(format!("--city={}", self.city.to_path()));
+        if self.osm_to_raw {
+            flags.push("--raw".to_string());
+        }
+        if self.raw_to_map {
+            flags.push("--map".to_string());
+        }
+        if self.scenario {
+            flags.push("--scenario".to_string());
+        }
+        if self.city_overview {
+            flags.push("--city-overview".to_string());
+        }
+        if let Some(ref name) = self.only_map {
+            flags.push(name.clone());
+        }
+        flags
+    }
+
     pub async fn run(self, timer: &mut Timer<'_>) {
         if !self.osm_to_raw && !self.raw_to_map && !self.scenario && !self.city_overview {
             println!(
