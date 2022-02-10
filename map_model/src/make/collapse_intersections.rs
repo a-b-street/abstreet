@@ -2,7 +2,7 @@ use std::collections::BTreeSet;
 
 use anyhow::Result;
 
-use geom::Distance;
+use geom::{Distance, Pt2D};
 
 use crate::make::initial::lane_specs::get_lane_specs_ltr;
 use crate::osm::NodeID;
@@ -202,8 +202,10 @@ pub fn collapse_intersection(raw: &mut RawMap, i: NodeID) {
     };
     // Sanity check
     assert!(i != new_i1 && i != new_i2);
-    // When we concatenate the points, the common point will be duplicated
-    new_road.center_points.dedup();
+    // Simplify curves and dedupe points. The epsilon was tuned for only one location that was
+    // breaking
+    let epsilon = 1.0;
+    new_road.center_points = Pt2D::simplify_rdp(new_road.center_points, epsilon);
 
     let new_r1 = OriginalRoad {
         osm_way_id: r1.osm_way_id,

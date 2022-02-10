@@ -43,16 +43,19 @@ pub fn prebake_all() {
         summaries.push(prebake(&map, scenario, &mut timer));
     }
 
-    let pbury_map = map_model::Map::load_synchronously(
-        MapName::new("gb", "poundbury", "center").path(),
-        &mut timer,
-    );
-    for scenario_name in ["base", "go_active", "base_with_bg", "go_active_with_bg"] {
-        let scenario: Scenario = abstio::read_binary(
-            abstio::path_scenario(pbury_map.get_name(), scenario_name),
+    // Since adding off-map traffic, these all gridlock now
+    if false {
+        let pbury_map = map_model::Map::load_synchronously(
+            MapName::new("gb", "poundbury", "center").path(),
             &mut timer,
         );
-        summaries.push(prebake(&pbury_map, scenario, &mut timer));
+        for scenario_name in ["base", "go_active", "base_with_bg", "go_active_with_bg"] {
+            let scenario: Scenario = abstio::read_binary(
+                abstio::path_scenario(pbury_map.get_name(), scenario_name),
+                &mut timer,
+            );
+            summaries.push(prebake(&pbury_map, scenario, &mut timer));
+        }
     }
 
     {
@@ -68,10 +71,10 @@ pub fn prebake_all() {
         summaries.push(prebake(&tehran_map, scenario, &mut timer));
     }
 
-    // Assume this is being run from the 'game' directory. This other tests directory is the most
-    // appropriate place to keep this.
+    // Assume this is being run from the root directory (via import.sh). This other tests directory
+    // is the most appropriate place to keep this.
     abstio::write_json(
-        "../tests/goldenfiles/prebaked_summaries.json".to_string(),
+        "tests/goldenfiles/prebaked_summaries.json".to_string(),
         &summaries,
     );
 }
