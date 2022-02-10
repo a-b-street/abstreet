@@ -69,7 +69,7 @@ impl Proposal {
     pub fn load(ctx: &mut EventCtx, app: &mut App, name: &str) -> Option<Box<dyn State<App>>> {
         ctx.loading_screen(
             "load existing proposal",
-            |ctx, mut timer| match Self::inner_load(app, name, &mut timer) {
+            |ctx, mut timer| match Self::inner_load(ctx, app, name, &mut timer) {
                 Ok(()) => None,
                 Err(err) => Some(PopupMsg::new_state(
                     ctx,
@@ -80,12 +80,13 @@ impl Proposal {
         )
     }
 
-    fn inner_load(app: &mut App, name: &str, timer: &mut Timer) -> Result<()> {
+    fn inner_load(ctx: &mut EventCtx, app: &mut App, name: &str, timer: &mut Timer) -> Result<()> {
         let proposal: Proposal =
             abstio::maybe_read_binary(abstio::path_ltn_proposals(app.map.get_name(), name), timer)?;
         // TODO We could try to detect if the file still matches this version of the map or not
         app.session.partitioning = proposal.partitioning;
         app.session.modal_filters = proposal.modal_filters;
+        app.session.draw_all_filters = app.session.modal_filters.draw(ctx, &app.map);
         Ok(())
     }
 }

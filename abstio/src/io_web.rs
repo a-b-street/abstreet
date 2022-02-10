@@ -7,7 +7,7 @@ use anyhow::Result;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 
-use abstutil::{to_json, Timer};
+use abstutil::Timer;
 
 pub use crate::io::*;
 use crate::{path_player, Manifest};
@@ -91,19 +91,7 @@ pub fn slurp_file<I: AsRef<str>>(path: I) -> Result<Vec<u8>> {
     if let Some(raw) = SYSTEM_DATA.get_file(path.trim_start_matches("../data/system/")) {
         Ok(raw.contents().to_vec())
     } else if path.starts_with(&path_player("")) {
-        let window = web_sys::window().ok_or(anyhow!("no window?"))?;
-        let storage = window
-            .local_storage()
-            .map_err(|err| {
-                anyhow!(err
-                    .as_string()
-                    .unwrap_or("local_storage failed".to_string()))
-            })?
-            .ok_or(anyhow!("no local_storage?"))?;
-        let string = storage
-            .get_item(&path)
-            .map_err(|err| anyhow!(err.as_string().unwrap_or("get_item failed".to_string())))?
-            .ok_or(anyhow!("{} missing from local storage", path))?;
+        let string = read_local_storage(path)?;
         Ok(string.into_bytes())
     } else {
         bail!("Can't slurp_file {}, it doesn't exist", path)
@@ -113,6 +101,9 @@ pub fn slurp_file<I: AsRef<str>>(path: I) -> Result<Vec<u8>> {
 pub fn maybe_read_binary<T: DeserializeOwned>(path: String, _: &mut Timer) -> Result<T> {
     if let Some(raw) = SYSTEM_DATA.get_file(path.trim_start_matches("../data/system/")) {
         bincode::deserialize(raw.contents()).map_err(|err| err.into())
+    } else if path.starts_with(&path_player("")) {
+        let string = read_local_storage(&path)?;
+        bincode::deserialize(&base64::decode(string)?).map_err(|err| err.into())
     } else {
         bail!("Can't maybe_read_binary {}, it doesn't exist", path)
     }
@@ -127,17 +118,49 @@ pub fn write_json<T: Serialize>(path: String, obj: &T) {
 
     let window = web_sys::window().unwrap();
     let storage = window.local_storage().unwrap().unwrap();
-    storage.set_item(&path, &to_json(obj)).unwrap();
+    storage.set_item(&path, &abstutil::to_json(obj)).unwrap();
 }
 
-pub fn write_binary<T: Serialize>(path: String, _obj: &T) {
-    // TODO
-    warn!("Not saving {}", path);
+pub fn write_binary<T: Serialize>(path: String, obj: &T) {
+    // Only save for data/player, for now
+    if !path.starts_with(&path_player("")) {
+        warn!("Not saving {}", path);
+        return;
+    }
+
+    let window = web_sys::window().unwrap();
+    let storage = window.local_storage().unwrap().unwrap();
+    // Local storage only supports strings, so base64 encoding needed
+    let encoded = base64::encode(abstutil::to_binary(obj));
+    storage.set_item(&path, &encoded).unwrap();
 }
 
 pub fn delete_file<I: AsRef<str>>(path: I) {
-    // TODO
-    warn!("Not deleting {}", path.as_ref());
+    let path = path.as_ref();
+    if !path.starts_with(&path_player("")) {
+        warn!("Not deleting {}", path);
+        return;
+    }
+    let window = web_sys::window().unwrap();
+    let storage = window.local_storage().unwrap().unwrap();
+    storage.remove_item(path).unwrap();
+}
+
+fn read_local_storage(path: &str) -> Result<String> {
+    let window = web_sys::window().ok_or(anyhow!("no window?"))?;
+    let storage = window
+        .local_storage()
+        .map_err(|err| {
+            anyhow!(err
+                .as_string()
+                .unwrap_or("local_storage failed".to_string()))
+        })?
+        .ok_or(anyhow!("no local_storage?"))?;
+    let string = storage
+        .get_item(&path)
+        .map_err(|err| anyhow!(err.as_string().unwrap_or("get_item failed".to_string())))?
+        .ok_or(anyhow!("{} missing from local storage", path))?;
+    Ok(string)
 }
 
 fn list_local_storage_keys() -> Vec<String> {

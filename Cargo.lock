@@ -23,6 +23,7 @@ version = "0.1.0"
 dependencies = [
  "abstutil",
  "anyhow",
+ "base64",
  "bincode",
  "fs-err",
  "futures-channel",
