@@ -363,6 +363,33 @@
 <span id="362">362</span>
 <span id="363">363</span>
 <span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
 </pre><pre class="rust"><code><span class="doccomment">//! A collection of tools, mostly related to importing maps and scenarios. These are bundled as a</span>
 <span class="doccomment">//! single executable to reduce the cost of static linking in the release&#39;s file size.</span>
 
@@ -378,7 +405,12 @@
 <span class="kw">mod</span> <span class="ident">one_step_import</span>;
 <span class="kw">mod</span> <span class="ident">osm2lanes</span>;
 
+<span class="kw">use</span> <span class="ident">std::io::Write</span>;
+
+<span class="kw">use</span> <span class="ident">abstio::CityName</span>;
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
+<span class="kw">use</span> <span class="ident">fs_err::File</span>;
+<span class="kw">use</span> <span class="ident">importer::Job</span>;
 <span class="kw">use</span> <span class="ident">structopt::StructOpt</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
@@ -566,10 +598,12 @@
     },
     <span class="doccomment">/// Regenerate all maps from RawMaps in parallel.</span>
     <span class="ident">RegenerateAllMaps</span>,
+    <span class="doccomment">/// Generate a shell script to regenerate all cities that uses an external task runner.</span>
+    <span class="ident">RegenerateEverythingExternally</span>,
     <span class="doccomment">/// Import RawMaps, maps, scenarios, and city overviews for a single city.</span>
     <span class="ident">Import</span> {
         <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">flatten</span>)]</span>
-        <span class="ident">job</span>: <span class="ident">importer::Job</span>,
+        <span class="ident">job</span>: <span class="ident">Job</span>,
     },
     <span class="doccomment">/// Generates JSON test cases for osm2lanes.</span>
     <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">name</span> <span class="op">=</span> <span class="string">&quot;osm2lanes&quot;</span>)]</span>
@@ -671,6 +705,7 @@
             <span class="ident">num_shards</span>,
         } =&gt; <span class="ident">importer::regenerate_everything</span>(<span class="ident">shard_num</span>, <span class="ident">num_shards</span>).<span class="kw">await</span>,
         <span class="ident">Command::RegenerateAllMaps</span> =&gt; <span class="ident">importer::regenerate_all_maps</span>(),
+        <span class="ident">Command::RegenerateEverythingExternally</span> =&gt; <span class="ident">regenerate_everything_externally</span>()<span class="question-mark">?</span>,
         <span class="ident">Command::Import</span> { <span class="ident">job</span> } =&gt; <span class="ident">job</span>.<span class="ident">run</span>(<span class="kw-2">&amp;mut</span> <span class="ident">Timer::new</span>(<span class="string">&quot;import one city&quot;</span>)).<span class="kw">await</span>,
         <span class="ident">Command::OSM2Lanes</span> { <span class="ident">map_path</span> } =&gt; <span class="ident">osm2lanes::run</span>(<span class="ident">map_path</span>),
     }
@@ -726,6 +761,25 @@
     <span class="ident">map</span>.<span class="ident">minify</span>(<span class="kw-2">&amp;mut</span> <span class="ident">timer</span>);
     <span class="comment">// This also changes the name, so this won&#39;t overwrite anything</span>
     <span class="ident">map</span>.<span class="ident">save</span>();
+}
+
+<span class="kw">fn</span> <span class="ident">regenerate_everything_externally</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="string">&quot;regenerate.sh&quot;</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">File::create</span>(<span class="ident">path</span>)<span class="question-mark">?</span>;
+    <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;#!/bin/sh&quot;</span>)<span class="question-mark">?</span>;
+    <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;pueue parallel 16&quot;</span>)<span class="question-mark">?</span>;
+    <span class="kw">for</span> <span class="ident">city</span> <span class="kw">in</span> <span class="ident">CityName::list_all_cities_from_importer_config</span>() {
+        <span class="kw">let</span> <span class="ident">job</span> <span class="op">=</span> <span class="ident">Job::full_for_city</span>(<span class="ident">city</span>);
+        <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;pueue add -- ./import.sh {}&quot;</span>, <span class="ident">job</span>.<span class="ident">flags</span>().<span class="ident">join</span>(<span class="string">&quot; &quot;</span>))<span class="question-mark">?</span>;
+    }
+    <span class="macro">println!</span>(<span class="string">&quot;&quot;</span>);
+    <span class="macro">println!</span>(
+        <span class="string">&quot;You can run {}. You&#39;ll need https://github.com/Nukesor/pueue set up first&quot;</span>,
+        <span class="ident">path</span>
+    );
+    <span class="macro">println!</span>(<span class="string">&quot;Handy reminders: pueue status / pause / reset&quot;</span>);
+    <span class="macro">println!</span>(<span class="string">&quot;pueue status | grep Success | wc -l&quot;</span>);
+    <span class="prelude-val">Ok</span>(())
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="cli" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>

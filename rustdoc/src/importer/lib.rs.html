@@ -340,6 +340,34 @@
 <span id="339">339</span>
 <span id="340">340</span>
 <span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
 </pre><pre class="rust"><code><span class="doccomment">//! It&#39;s assumed that the importer is run with the current directory as the project repository; aka</span>
 <span class="doccomment">//! `./data/` and `./importer/config` must exist.</span>
 
@@ -380,34 +408,8 @@
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer::new</span>(<span class="string">&quot;regenerate all maps&quot;</span>);
     <span class="kw">for</span> (<span class="ident">cnt</span>, <span class="ident">city</span>) <span class="kw">in</span> <span class="ident">all_cities</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">job</span> <span class="op">=</span> <span class="ident">Job</span> {
-            <span class="ident">city</span>: <span class="ident">city</span>.<span class="ident">clone</span>(),
-            <span class="ident">osm_to_raw</span>: <span class="bool-val">true</span>,
-            <span class="ident">raw_to_map</span>: <span class="bool-val">true</span>,
-            <span class="ident">scenario</span>: <span class="bool-val">false</span>,
-            <span class="ident">city_overview</span>: <span class="bool-val">false</span>,
-            <span class="ident">only_map</span>: <span class="prelude-val">None</span>,
-            <span class="ident">opts</span>: <span class="ident">RawToMapOptions::default</span>(),
-        };
-        <span class="comment">// Only some maps run extra tasks</span>
-        <span class="kw">if</span> <span class="ident">city</span> <span class="op">==</span> <span class="ident">CityName::seattle</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">city</span>.<span class="ident">country</span> <span class="op">==</span> <span class="string">&quot;gb&quot;</span> {
-            <span class="ident">job</span>.<span class="ident">scenario</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        }
-        <span class="comment">// TODO Autodetect this based on number of maps per city?</span>
-        <span class="kw">if</span> <span class="ident">city</span> <span class="op">==</span> <span class="ident">CityName::new</span>(<span class="string">&quot;ch&quot;</span>, <span class="string">&quot;zurich&quot;</span>)
-            <span class="op">|</span><span class="op">|</span> <span class="ident">city</span> <span class="op">==</span> <span class="ident">CityName::new</span>(<span class="string">&quot;gb&quot;</span>, <span class="string">&quot;leeds&quot;</span>)
-            <span class="op">|</span><span class="op">|</span> <span class="ident">city</span> <span class="op">==</span> <span class="ident">CityName::new</span>(<span class="string">&quot;gb&quot;</span>, <span class="string">&quot;london&quot;</span>)
-            <span class="op">|</span><span class="op">|</span> <span class="ident">city</span> <span class="op">==</span> <span class="ident">CityName::new</span>(<span class="string">&quot;us&quot;</span>, <span class="string">&quot;nyc&quot;</span>)
-            <span class="op">|</span><span class="op">|</span> <span class="ident">city</span> <span class="op">==</span> <span class="ident">CityName::new</span>(<span class="string">&quot;fr&quot;</span>, <span class="string">&quot;charleville_mezieres&quot;</span>)
-            <span class="op">|</span><span class="op">|</span> <span class="ident">city</span> <span class="op">==</span> <span class="ident">CityName::new</span>(<span class="string">&quot;fr&quot;</span>, <span class="string">&quot;paris&quot;</span>)
-            <span class="op">|</span><span class="op">|</span> <span class="ident">city</span> <span class="op">==</span> <span class="ident">CityName::new</span>(<span class="string">&quot;at&quot;</span>, <span class="string">&quot;salzburg&quot;</span>)
-            <span class="op">|</span><span class="op">|</span> <span class="ident">city</span> <span class="op">==</span> <span class="ident">CityName::new</span>(<span class="string">&quot;ir&quot;</span>, <span class="string">&quot;tehran&quot;</span>)
-            <span class="op">|</span><span class="op">|</span> <span class="ident">city</span> <span class="op">==</span> <span class="ident">CityName::new</span>(<span class="string">&quot;pt&quot;</span>, <span class="string">&quot;portugal&quot;</span>)
-        {
-            <span class="ident">job</span>.<span class="ident">city_overview</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        }
-
         <span class="kw">if</span> <span class="ident">cnt</span> <span class="op">%</span> <span class="ident">num_shards</span> <span class="op">==</span> <span class="ident">shard_num</span> {
+            <span class="kw">let</span> <span class="ident">job</span> <span class="op">=</span> <span class="ident">Job::full_for_city</span>(<span class="ident">city</span>);
             <span class="ident">job</span>.<span class="ident">run</span>(<span class="kw-2">&amp;mut</span> <span class="ident">timer</span>).<span class="kw">await</span>;
         }
     }
@@ -517,6 +519,60 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Job</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">full_for_city</span>(<span class="ident">city</span>: <span class="ident">CityName</span>) -&gt; <span class="ident">Job</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">job</span> <span class="op">=</span> <span class="ident">Job</span> {
+            <span class="ident">city</span>: <span class="ident">city</span>,
+            <span class="ident">osm_to_raw</span>: <span class="bool-val">true</span>,
+            <span class="ident">raw_to_map</span>: <span class="bool-val">true</span>,
+            <span class="ident">scenario</span>: <span class="bool-val">false</span>,
+            <span class="ident">city_overview</span>: <span class="bool-val">false</span>,
+            <span class="ident">only_map</span>: <span class="prelude-val">None</span>,
+            <span class="ident">opts</span>: <span class="ident">RawToMapOptions::default</span>(),
+        };
+        <span class="comment">// Only some maps run extra tasks</span>
+        <span class="kw">if</span> <span class="ident">job</span>.<span class="ident">city</span> <span class="op">==</span> <span class="ident">CityName::seattle</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">job</span>.<span class="ident">city</span>.<span class="ident">country</span> <span class="op">==</span> <span class="string">&quot;gb&quot;</span> {
+            <span class="ident">job</span>.<span class="ident">scenario</span> <span class="op">=</span> <span class="bool-val">true</span>;
+        }
+        <span class="comment">// TODO Autodetect this based on number of maps per city?</span>
+        <span class="kw">if</span> <span class="ident">job</span>.<span class="ident">city</span> <span class="op">==</span> <span class="ident">CityName::new</span>(<span class="string">&quot;ch&quot;</span>, <span class="string">&quot;zurich&quot;</span>)
+            <span class="op">|</span><span class="op">|</span> <span class="ident">job</span>.<span class="ident">city</span> <span class="op">==</span> <span class="ident">CityName::new</span>(<span class="string">&quot;gb&quot;</span>, <span class="string">&quot;leeds&quot;</span>)
+            <span class="op">|</span><span class="op">|</span> <span class="ident">job</span>.<span class="ident">city</span> <span class="op">==</span> <span class="ident">CityName::new</span>(<span class="string">&quot;gb&quot;</span>, <span class="string">&quot;london&quot;</span>)
+            <span class="op">|</span><span class="op">|</span> <span class="ident">job</span>.<span class="ident">city</span> <span class="op">==</span> <span class="ident">CityName::new</span>(<span class="string">&quot;us&quot;</span>, <span class="string">&quot;nyc&quot;</span>)
+            <span class="op">|</span><span class="op">|</span> <span class="ident">job</span>.<span class="ident">city</span> <span class="op">==</span> <span class="ident">CityName::new</span>(<span class="string">&quot;fr&quot;</span>, <span class="string">&quot;charleville_mezieres&quot;</span>)
+            <span class="op">|</span><span class="op">|</span> <span class="ident">job</span>.<span class="ident">city</span> <span class="op">==</span> <span class="ident">CityName::new</span>(<span class="string">&quot;fr&quot;</span>, <span class="string">&quot;paris&quot;</span>)
+            <span class="op">|</span><span class="op">|</span> <span class="ident">job</span>.<span class="ident">city</span> <span class="op">==</span> <span class="ident">CityName::new</span>(<span class="string">&quot;at&quot;</span>, <span class="string">&quot;salzburg&quot;</span>)
+            <span class="op">|</span><span class="op">|</span> <span class="ident">job</span>.<span class="ident">city</span> <span class="op">==</span> <span class="ident">CityName::new</span>(<span class="string">&quot;ir&quot;</span>, <span class="string">&quot;tehran&quot;</span>)
+            <span class="op">|</span><span class="op">|</span> <span class="ident">job</span>.<span class="ident">city</span> <span class="op">==</span> <span class="ident">CityName::new</span>(<span class="string">&quot;pt&quot;</span>, <span class="string">&quot;portugal&quot;</span>)
+        {
+            <span class="ident">job</span>.<span class="ident">city_overview</span> <span class="op">=</span> <span class="bool-val">true</span>;
+        }
+        <span class="ident">job</span>
+    }
+
+    <span class="doccomment">/// Return the command-line flags that should produce this job. Incomplete -- doesn&#39;t invert</span>
+    <span class="doccomment">/// RawToMapOptions</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">flags</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+        <span class="comment">// TODO Can structopt do the inversion?</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">flags</span> <span class="op">=</span> <span class="macro">vec!</span>[];
+        <span class="ident">flags</span>.<span class="ident">push</span>(<span class="macro">format!</span>(<span class="string">&quot;--city={}&quot;</span>, <span class="self">self</span>.<span class="ident">city</span>.<span class="ident">to_path</span>()));
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">osm_to_raw</span> {
+            <span class="ident">flags</span>.<span class="ident">push</span>(<span class="string">&quot;--raw&quot;</span>.<span class="ident">to_string</span>());
+        }
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">raw_to_map</span> {
+            <span class="ident">flags</span>.<span class="ident">push</span>(<span class="string">&quot;--map&quot;</span>.<span class="ident">to_string</span>());
+        }
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">scenario</span> {
+            <span class="ident">flags</span>.<span class="ident">push</span>(<span class="string">&quot;--scenario&quot;</span>.<span class="ident">to_string</span>());
+        }
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">city_overview</span> {
+            <span class="ident">flags</span>.<span class="ident">push</span>(<span class="string">&quot;--city-overview&quot;</span>.<span class="ident">to_string</span>());
+        }
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">name</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">only_map</span> {
+            <span class="ident">flags</span>.<span class="ident">push</span>(<span class="ident">name</span>.<span class="ident">clone</span>());
+        }
+        <span class="ident">flags</span>
+    }
+
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">run</span>(<span class="self">self</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) {
         <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">osm_to_raw</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">raw_to_map</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">scenario</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">city_overview</span> {
             <span class="macro">println!</span>(
