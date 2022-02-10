@@ -204,8 +204,6 @@ enum Command {
         #[structopt(long, default_value = "1")]
         num_shards: usize,
     },
-    /// Regenerate all maps from RawMaps in parallel.
-    RegenerateAllMaps,
     /// Generate a shell script to regenerate all cities that uses an external task runner.
     RegenerateEverythingExternally,
     /// Import RawMaps, maps, scenarios, and city overviews for a single city.
@@ -312,7 +310,6 @@ async fn main() -> Result<()> {
             shard_num,
             num_shards,
         } => importer::regenerate_everything(shard_num, num_shards).await,
-        Command::RegenerateAllMaps => importer::regenerate_all_maps(),
         Command::RegenerateEverythingExternally => regenerate_everything_externally()?,
         Command::Import { job } => job.run(&mut Timer::new("import one city")).await,
         Command::OSM2Lanes { map_path } => osm2lanes::run(map_path),
@@ -387,5 +384,6 @@ fn regenerate_everything_externally() -> Result<()> {
     );
     println!("Handy reminders: pueue status / pause / reset");
     println!("pueue status | grep Success | wc -l");
+    println!("For the long-tail: pueue status | grep Running");
     Ok(())
 }

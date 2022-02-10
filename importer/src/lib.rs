@@ -45,24 +45,6 @@ pub async fn regenerate_everything(shard_num: usize, num_shards: usize) {
     }
 }
 
-/// Regenerate all maps from RawMaps in parallel.
-pub fn regenerate_all_maps() {
-    // Omit Seattle and Berlin, because they have special follow-up actions (minifying some maps
-    // and distributing residents)
-    let all_maps: Vec<MapName> = CityName::list_all_cities_from_importer_config()
-        .into_iter()
-        .flat_map(|city| city.list_all_maps_in_city_from_importer_config())
-        .filter(|name| {
-            name != &MapName::new("de", "berlin", "center") && name.city != CityName::seattle()
-        })
-        .collect();
-    Timer::new("regenerate all maps").parallelize("import each city", all_maps, |name| {
-        // Don't pass in a timer; the logs are way too spammy.
-        // It's also recommended to run with RUST_LOG=none
-        utils::raw_to_map(&name, RawToMapOptions::default(), &mut Timer::throwaway())
-    });
-}
-
 /// Transforms a .osm file to a map in one step.
 pub async fn oneshot(
     osm_path: String,
