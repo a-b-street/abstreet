@@ -388,8 +388,6 @@
 <span id="387">387</span>
 <span id="388">388</span>
 <span id="389">389</span>
-<span id="390">390</span>
-<span id="391">391</span>
 </pre><pre class="rust"><code><span class="doccomment">//! A collection of tools, mostly related to importing maps and scenarios. These are bundled as a</span>
 <span class="doccomment">//! single executable to reduce the cost of static linking in the release&#39;s file size.</span>
 
@@ -596,8 +594,6 @@
         <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>, <span class="ident">default_value</span> <span class="op">=</span> <span class="string">&quot;1&quot;</span>)]</span>
         <span class="ident">num_shards</span>: <span class="ident">usize</span>,
     },
-    <span class="doccomment">/// Regenerate all maps from RawMaps in parallel.</span>
-    <span class="ident">RegenerateAllMaps</span>,
     <span class="doccomment">/// Generate a shell script to regenerate all cities that uses an external task runner.</span>
     <span class="ident">RegenerateEverythingExternally</span>,
     <span class="doccomment">/// Import RawMaps, maps, scenarios, and city overviews for a single city.</span>
@@ -704,7 +700,6 @@
             <span class="ident">shard_num</span>,
             <span class="ident">num_shards</span>,
         } =&gt; <span class="ident">importer::regenerate_everything</span>(<span class="ident">shard_num</span>, <span class="ident">num_shards</span>).<span class="kw">await</span>,
-        <span class="ident">Command::RegenerateAllMaps</span> =&gt; <span class="ident">importer::regenerate_all_maps</span>(),
         <span class="ident">Command::RegenerateEverythingExternally</span> =&gt; <span class="ident">regenerate_everything_externally</span>()<span class="question-mark">?</span>,
         <span class="ident">Command::Import</span> { <span class="ident">job</span> } =&gt; <span class="ident">job</span>.<span class="ident">run</span>(<span class="kw-2">&amp;mut</span> <span class="ident">Timer::new</span>(<span class="string">&quot;import one city&quot;</span>)).<span class="kw">await</span>,
         <span class="ident">Command::OSM2Lanes</span> { <span class="ident">map_path</span> } =&gt; <span class="ident">osm2lanes::run</span>(<span class="ident">map_path</span>),
@@ -779,6 +774,7 @@
     );
     <span class="macro">println!</span>(<span class="string">&quot;Handy reminders: pueue status / pause / reset&quot;</span>);
     <span class="macro">println!</span>(<span class="string">&quot;pueue status | grep Success | wc -l&quot;</span>);
+    <span class="macro">println!</span>(<span class="string">&quot;For the long-tail: pueue status | grep Running&quot;</span>);
     <span class="prelude-val">Ok</span>(())
 }
 </code></pre></div>
