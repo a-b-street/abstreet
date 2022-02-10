@@ -233,26 +233,10 @@ pub fn split_up_roads(map: &mut RawMap, mut input: OsmExtract, timer: &mut Timer
     }
 }
 
-// TODO Consider doing this in PolyLine::new always. extend() there also attempts the angle
-// deduping.
+// TODO Consider doing this in PolyLine::new always. Also in extend() -- it attempts to dedupe
+// angles.
 fn simplify_linestring(pts: Vec<Pt2D>) -> Vec<Pt2D> {
-    // Remove interior points that have nearly the same angle as the previous line segment
-    //
-    // TODO Possibly the RDP simplification below would handle this (and way more robustly)
-    let mut result: Vec<Pt2D> = Vec::new();
-    for pt in pts {
-        let l = result.len();
-        if l >= 2
-            && result[l - 2]
-                .angle_to(result[l - 1])
-                .approx_eq(result[l - 1].angle_to(pt), 0.1)
-        {
-            result.pop();
-        }
-        result.push(pt);
-    }
-
-    // Also reduce the number of points along curves. They're wasteful, and when they're too close
+    // Reduce the number of points along curves. They're wasteful, and when they're too close
     // together, actually break PolyLine shifting:
     // https://github.com/a-b-street/abstreet/issues/833
     //
@@ -261,7 +245,7 @@ fn simplify_linestring(pts: Vec<Pt2D>) -> Vec<Pt2D> {
     // got noticeably flattened. At 0.5, some intersetion polygons get a bit worse, but only in
     // places where they were already pretty broken.
     let epsilon = 0.5;
-    Pt2D::simplify_rdp(result, epsilon)
+    Pt2D::simplify_rdp(pts, epsilon)
 }
 
 /// Many "roundabouts" like https://www.openstreetmap.org/way/427144965 are so tiny that they wind
