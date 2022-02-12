@@ -143,9 +143,8 @@ impl State<App> for Viewer {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         crate::draw_with_layering(g, app, |g| self.world.draw(g));
-        g.redraw(&self.draw_top_layer);
-        // TODO This covers up the arrows
         g.redraw(&self.neighborhood.fade_irrelevant);
+        g.redraw(&self.draw_top_layer);
 
         self.panel.draw(g);
         app.session.draw_all_filters.draw(g);
