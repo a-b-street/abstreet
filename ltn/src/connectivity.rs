@@ -1,8 +1,8 @@
 use geom::{Angle, ArrowCap, Distance, PolyLine};
-use widgetry::mapspace::World;
+use widgetry::mapspace::{ToggleZoomed, World};
 use widgetry::{
-    DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Outcome, Panel, State, TextExt,
-    Toggle, Widget,
+    Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Outcome, Panel, State, TextExt, Toggle,
+    Widget,
 };
 
 use super::auto::Heuristic;
@@ -14,7 +14,7 @@ pub struct Viewer {
     panel: Panel,
     neighborhood: Neighborhood,
     world: World<FilterableObj>,
-    draw_top_layer: Drawable,
+    draw_top_layer: ToggleZoomed,
 }
 
 impl Viewer {
@@ -25,7 +25,7 @@ impl Viewer {
             panel: Panel::empty(ctx),
             neighborhood,
             world: World::unbounded(),
-            draw_top_layer: Drawable::empty(ctx),
+            draw_top_layer: ToggleZoomed::empty(ctx),
         };
         viewer.update(ctx, app);
         Box::new(viewer)
@@ -144,7 +144,7 @@ impl State<App> for Viewer {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         crate::draw_with_layering(g, app, |g| self.world.draw(g));
         g.redraw(&self.neighborhood.fade_irrelevant);
-        g.redraw(&self.draw_top_layer);
+        self.draw_top_layer.draw(g);
 
         self.panel.draw(g);
         app.session.draw_all_filters.draw(g);
@@ -161,7 +161,7 @@ fn make_world(
     ctx: &mut EventCtx,
     app: &App,
     neighborhood: &Neighborhood,
-) -> (World<FilterableObj>, Drawable) {
+) -> (World<FilterableObj>, ToggleZoomed) {
     let map = &app.map;
     let mut world = World::bounded(map.get_bounds());
 
@@ -242,7 +242,39 @@ fn make_world(
         }
     }
 
+    let mut top_layer = ToggleZoomed::builder();
+    top_layer.unzoomed = draw_top_layer.clone();
+    top_layer.zoomed = draw_top_layer.clone();
+
+    // Draw one-way arrows
+    for r in neighborhood
+        .orig_perimeter
+        .interior
+        .iter()
+        .chain(neighborhood.orig_perimeter.roads.iter().map(|id| &id.road))
+    {
+        let road = map.get_r(*r);
+        if road.osm_tags.is("oneway", "yes") {
+            let arrow_len = Distance::meters(10.0);
+            let thickness = Distance::meters(1.0);
+            for (pt, angle) in road
+                .center_pts
+                .step_along(Distance::meters(30.0), Distance::meters(5.0))
+            {
+                if let Ok(poly) = PolyLine::must_new(vec![
+                    pt.project_away(arrow_len / 2.0, angle.opposite()),
+                    pt.project_away(arrow_len / 2.0, angle),
+                ])
+                .make_arrow(thickness * 2.0, ArrowCap::Triangle)
+                .to_outline(thickness / 2.0)
+                {
+                    top_layer.unzoomed.push(Color::BLACK, poly);
+                }
+            }
+        }
+    }
+
     world.initialize_hover(ctx);
 
-    (world, ctx.upload(draw_top_layer))
+    (world, top_layer.build(ctx))
 }
