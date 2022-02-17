@@ -615,9 +615,6 @@
 <span id="614">614</span>
 <span id="615">615</span>
 <span id="616">616</span>
-<span id="617">617</span>
-<span id="618">618</span>
-<span id="619">619</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
@@ -628,7 +625,7 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">osm</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>, <span class="ident">DrivingSide</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">MapConfig</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>,
-    <span class="ident">RoadSideID</span>, <span class="ident">SideOfRoad</span>, <span class="ident">TransitStopID</span>, <span class="ident">TurnType</span>,
+    <span class="ident">RoadSideID</span>, <span class="ident">SideOfRoad</span>, <span class="ident">TurnType</span>,
 };
 
 <span class="doccomment">/// From some manually audited cases in Seattle, the length of parallel street parking spots is a</span>
@@ -866,9 +863,6 @@
 
     <span class="kw">pub</span> <span class="ident">src_i</span>: <span class="ident">IntersectionID</span>,
     <span class="kw">pub</span> <span class="ident">dst_i</span>: <span class="ident">IntersectionID</span>,
-
-    <span class="doccomment">/// Meaningless order</span>
-    <span class="kw">pub</span> <span class="ident">transit_stops</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">TransitStopID</span><span class="op">&gt;</span>,
 
     <span class="doccomment">/// {Cars, bikes} trying to start or end here might not be able to reach most lanes in the</span>
     <span class="doccomment">/// graph, because this is near a border.</span>

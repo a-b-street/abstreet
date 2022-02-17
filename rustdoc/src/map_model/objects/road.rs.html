@@ -679,12 +679,6 @@
 <span id="678">678</span>
 <span id="679">679</span>
 <span id="680">680</span>
-<span id="681">681</span>
-<span id="682">682</span>
-<span id="683">683</span>
-<span id="684">684</span>
-<span id="685">685</span>
-<span id="686">686</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
@@ -883,6 +877,9 @@
     <span class="doccomment">/// Is there a tagged crosswalk near each end of the road?</span>
     <span class="kw">pub</span> <span class="ident">crosswalk_forward</span>: <span class="ident">bool</span>,
     <span class="kw">pub</span> <span class="ident">crosswalk_backward</span>: <span class="ident">bool</span>,
+
+    <span class="doccomment">/// Meaningless order</span>
+    <span class="kw">pub</span> <span class="ident">transit_stops</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">TransitStopID</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Road</span> {
@@ -1110,14 +1107,6 @@
             .<span class="ident">unwrap_or</span>(<span class="number">0</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_transit_stops</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TransitStopID</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">lanes</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span>.<span class="ident">transit_stops</span>.<span class="ident">iter</span>())
-            .<span class="ident">cloned</span>()
-            .<span class="ident">collect</span>()
-    }
-
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_light_rail</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">lanes</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">lanes</span>[<span class="number">0</span>].<span class="ident">lane_type</span> <span class="op">==</span> <span class="ident">LaneType::LightRail</span>
     }
@@ -1276,7 +1265,6 @@
                 <span class="ident">dst_i</span>,
                 <span class="ident">lane_type</span>: <span class="ident">lane</span>.<span class="ident">lt</span>,
                 <span class="ident">dir</span>: <span class="ident">lane</span>.<span class="ident">dir</span>,
-                <span class="ident">transit_stops</span>: <span class="ident">BTreeSet::new</span>(),
                 <span class="ident">driving_blackhole</span>: <span class="bool-val">false</span>,
                 <span class="ident">biking_blackhole</span>: <span class="bool-val">false</span>,
             });

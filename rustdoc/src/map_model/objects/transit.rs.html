@@ -112,19 +112,19 @@
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_usize</span>, <span class="ident">serialize_usize</span>};
 <span class="kw">use</span> <span class="ident">geom::Time</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">Position</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">Position</span>, <span class="ident">RoadID</span>};
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Hash</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TransitStopID</span> {
-    <span class="kw">pub</span> <span class="ident">sidewalk</span>: <span class="ident">LaneID</span>,
-    <span class="doccomment">/// As long as this is unique per lane, this value is otherwise meaningless. Not contiguous or</span>
+    <span class="kw">pub</span> <span class="ident">road</span>: <span class="ident">RoadID</span>,
+    <span class="doccomment">/// As long as this is unique per road, this value is otherwise meaningless. Not contiguous or</span>
     <span class="doccomment">/// ordered in any way.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">idx</span>: <span class="ident">usize</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">TransitStopID</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;TransitStopID({0}, {1})&quot;</span>, <span class="self">self</span>.<span class="ident">sidewalk</span>, <span class="self">self</span>.<span class="ident">idx</span>)
+        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;TransitStopID({0}, {1})&quot;</span>, <span class="self">self</span>.<span class="ident">road</span>, <span class="self">self</span>.<span class="ident">idx</span>)
     }
 }
 

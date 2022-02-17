@@ -243,6 +243,7 @@
 <span id="242">242</span>
 <span id="243">243</span>
 <span id="244">244</span>
+<span id="245">245</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
@@ -307,11 +308,12 @@
             .<span class="ident">find_closest_lane</span>(<span class="ident">sidewalk_lane</span>, <span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">vehicle</span>.<span class="ident">can_use</span>(<span class="ident">l</span>, <span class="ident">map</span>))
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">sidewalk_pos</span>.<span class="ident">equiv_pos</span>(<span class="ident">l</span>, <span class="ident">map</span>))
         {
+            <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">sidewalk_lane</span>.<span class="ident">road</span>;
             <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">TransitStopID</span> {
-                <span class="ident">sidewalk</span>: <span class="ident">sidewalk_lane</span>,
-                <span class="ident">idx</span>: <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">sidewalk_lane</span>).<span class="ident">transit_stops</span>.<span class="ident">len</span>(),
+                <span class="ident">road</span>,
+                <span class="ident">idx</span>: <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">road</span>).<span class="ident">transit_stops</span>.<span class="ident">len</span>(),
             };
-            <span class="ident">map</span>.<span class="ident">mut_lane</span>(<span class="ident">sidewalk_lane</span>).<span class="ident">transit_stops</span>.<span class="ident">insert</span>(<span class="ident">id</span>);
+            <span class="ident">map</span>.<span class="ident">mut_road</span>(<span class="ident">road</span>).<span class="ident">transit_stops</span>.<span class="ident">insert</span>(<span class="ident">id</span>);
             <span class="ident">map</span>.<span class="ident">transit_stops</span>.<span class="ident">insert</span>(
                 <span class="ident">id</span>,
                 <span class="ident">TransitStop</span> {

@@ -377,10 +377,11 @@
 <span id="376">376</span>
 <span id="377">377</span>
 <span id="378">378</span>
+<span id="379">379</span>
 </pre><pre class="rust"><code><span class="doccomment">//! See &lt;https://a-b-street.github.io/docs/tech/map/importing/index.html&gt; for an overview. This module</span>
 <span class="doccomment">//! covers the RawMap-&gt;Map stage.</span>
 
-<span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
+<span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
 <span class="kw">use</span> <span class="ident">structopt::StructOpt</span>;
 
@@ -534,6 +535,7 @@
                 <span class="ident">percent_incline</span>: <span class="ident">raw_road</span>.<span class="ident">percent_incline</span>,
                 <span class="ident">crosswalk_forward</span>: <span class="ident">raw_road</span>.<span class="ident">crosswalk_forward</span>,
                 <span class="ident">crosswalk_backward</span>: <span class="ident">raw_road</span>.<span class="ident">crosswalk_backward</span>,
+                <span class="ident">transit_stops</span>: <span class="ident">BTreeSet::new</span>(),
             };
             <span class="ident">road</span>.<span class="ident">speed_limit</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">speed_limit_from_osm</span>();
             <span class="ident">road</span>.<span class="ident">access_restrictions</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">access_restrictions_from_osm</span>();
