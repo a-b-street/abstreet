@@ -1035,6 +1035,29 @@
 <span id="1034">1034</span>
 <span id="1035">1035</span>
 <span id="1036">1036</span>
+<span id="1037">1037</span>
+<span id="1038">1038</span>
+<span id="1039">1039</span>
+<span id="1040">1040</span>
+<span id="1041">1041</span>
+<span id="1042">1042</span>
+<span id="1043">1043</span>
+<span id="1044">1044</span>
+<span id="1045">1045</span>
+<span id="1046">1046</span>
+<span id="1047">1047</span>
+<span id="1048">1048</span>
+<span id="1049">1049</span>
+<span id="1050">1050</span>
+<span id="1051">1051</span>
+<span id="1052">1052</span>
+<span id="1053">1053</span>
+<span id="1054">1054</span>
+<span id="1055">1055</span>
+<span id="1056">1056</span>
+<span id="1057">1057</span>
+<span id="1058">1058</span>
+<span id="1059">1059</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
@@ -1043,8 +1066,8 @@
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">Angle</span>, <span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">GPSBounds</span>, <span class="ident">HashablePt2D</span>, <span class="ident">InfiniteLine</span>, <span class="ident">Line</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>,
-    <span class="ident">EPSILON_DIST</span>,
+    <span class="ident">Angle</span>, <span class="ident">Bounds</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">GPSBounds</span>, <span class="ident">HashablePt2D</span>, <span class="ident">InfiniteLine</span>, <span class="ident">Line</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>,
+    <span class="ident">Ring</span>, <span class="ident">EPSILON_DIST</span>,
 };
 
 <span class="comment">// TODO How to tune this?</span>
@@ -1121,8 +1144,12 @@
 
     <span class="doccomment">/// Like make_polygons, but make sure the points actually form a ring.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_thick_ring</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">width</span>: <span class="ident">Distance</span>) -&gt; <span class="ident">Ring</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">side1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">shift_with_sharp_angles</span>(<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">MITER_THRESHOLD</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">side2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">shift_with_sharp_angles</span>(<span class="op">-</span><span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">MITER_THRESHOLD</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">side1</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">shift_with_sharp_angles</span>(<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">MITER_THRESHOLD</span>)
+            .<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">side2</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">shift_with_sharp_angles</span>(<span class="op">-</span><span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">MITER_THRESHOLD</span>)
+            .<span class="ident">unwrap</span>();
         <span class="ident">side2</span>.<span class="ident">reverse</span>();
         <span class="ident">side1</span>.<span class="ident">extend</span>(<span class="ident">side2</span>);
         <span class="ident">side1</span>.<span class="ident">push</span>(<span class="ident">side1</span>[<span class="number">0</span>]);
@@ -1454,7 +1481,7 @@
     <span class="comment">// - the length before and after probably don&#39;t match up</span>
     <span class="comment">// - the number of points may not match</span>
     <span class="kw">fn</span> <span class="ident">shift_with_corrections</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">width</span>: <span class="ident">Distance</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PolyLine</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">shift_with_sharp_angles</span>(<span class="ident">width</span>, <span class="ident">MITER_THRESHOLD</span>);
+        <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">shift_with_sharp_angles</span>(<span class="ident">width</span>, <span class="ident">MITER_THRESHOLD</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">PolyLine::deduping_new</span>(<span class="ident">raw</span>)<span class="question-mark">?</span>;
         <span class="kw">if</span> <span class="ident">result</span>.<span class="ident">pts</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">len</span>() {
             <span class="ident">fix_angles</span>(<span class="self">self</span>, <span class="ident">result</span>)
@@ -1463,10 +1490,12 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">shift_with_sharp_angles</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">width</span>: <span class="ident">Distance</span>, <span class="ident">miter_threshold</span>: <span class="ident">f64</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> {
+    <span class="comment">// If we start with a valid PolyLine, I&#39;m not sure how we can ever possibly fail here, but it&#39;s</span>
+    <span class="comment">// happening. Avoid crashing.</span>
+    <span class="kw">fn</span> <span class="ident">shift_with_sharp_angles</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">width</span>: <span class="ident">Distance</span>, <span class="ident">miter_threshold</span>: <span class="ident">f64</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">2</span> {
-            <span class="kw">let</span> <span class="ident">l</span> <span class="op">=</span> <span class="ident">Line::must_new</span>(<span class="self">self</span>.<span class="ident">pts</span>[<span class="number">0</span>], <span class="self">self</span>.<span class="ident">pts</span>[<span class="number">1</span>]).<span class="ident">shift_either_direction</span>(<span class="ident">width</span>);
-            <span class="kw">return</span> <span class="macro">vec!</span>[<span class="ident">l</span>.<span class="ident">pt1</span>(), <span class="ident">l</span>.<span class="ident">pt2</span>()];
+            <span class="kw">let</span> <span class="ident">l</span> <span class="op">=</span> <span class="ident">Line::new</span>(<span class="self">self</span>.<span class="ident">pts</span>[<span class="number">0</span>], <span class="self">self</span>.<span class="ident">pts</span>[<span class="number">1</span>])<span class="question-mark">?</span>.<span class="ident">shift_either_direction</span>(<span class="ident">width</span>);
+            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="macro">vec!</span>[<span class="ident">l</span>.<span class="ident">pt1</span>(), <span class="ident">l</span>.<span class="ident">pt2</span>()]);
         }
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
@@ -1478,8 +1507,8 @@
         <span class="kw">loop</span> {
             <span class="kw">let</span> <span class="ident">pt3_raw</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pts</span>[<span class="ident">pt3_idx</span>];
 
-            <span class="kw">let</span> <span class="ident">l1</span> <span class="op">=</span> <span class="ident">Line::must_new</span>(<span class="ident">pt1_raw</span>, <span class="ident">pt2_raw</span>).<span class="ident">shift_either_direction</span>(<span class="ident">width</span>);
-            <span class="kw">let</span> <span class="ident">l2</span> <span class="op">=</span> <span class="ident">Line::must_new</span>(<span class="ident">pt2_raw</span>, <span class="ident">pt3_raw</span>).<span class="ident">shift_either_direction</span>(<span class="ident">width</span>);
+            <span class="kw">let</span> <span class="ident">l1</span> <span class="op">=</span> <span class="ident">Line::new</span>(<span class="ident">pt1_raw</span>, <span class="ident">pt2_raw</span>)<span class="question-mark">?</span>.<span class="ident">shift_either_direction</span>(<span class="ident">width</span>);
+            <span class="kw">let</span> <span class="ident">l2</span> <span class="op">=</span> <span class="ident">Line::new</span>(<span class="ident">pt2_raw</span>, <span class="ident">pt3_raw</span>)<span class="question-mark">?</span>.<span class="ident">shift_either_direction</span>(<span class="ident">width</span>);
 
             <span class="kw">if</span> <span class="ident">pt3_idx</span> <span class="op">==</span> <span class="number">2</span> {
                 <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">l1</span>.<span class="ident">pt1</span>());
@@ -1509,26 +1538,29 @@
         }
 
         <span class="macro">assert!</span>(<span class="ident">result</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">len</span>());
-        <span class="ident">result</span>
+        <span class="prelude-val">Ok</span>(<span class="ident">result</span>)
     }
 
     <span class="doccomment">/// The resulting polygon is manually triangulated and may not have a valid outer Ring (but it</span>
     <span class="doccomment">/// usually does).</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_polygons</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">width</span>: <span class="ident">Distance</span>) -&gt; <span class="ident">Polygon</span> {
-        <span class="comment">// TODO How to tune this?</span>
-        <span class="self">self</span>.<span class="ident">make_polygons_with_miter_threshold</span>(<span class="ident">width</span>, <span class="ident">MITER_THRESHOLD</span>)
-    }
-
-    <span class="doccomment">/// The resulting polygon is manually triangulated and may not have a valid outer Ring (but it</span>
-    <span class="doccomment">/// usually does).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_polygons_with_miter_threshold</span>(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">width</span>: <span class="ident">Distance</span>,
-        <span class="ident">miter_threshold</span>: <span class="ident">f64</span>,
-    ) -&gt; <span class="ident">Polygon</span> {
         <span class="comment">// TODO Don&#39;t use the angle corrections yet -- they seem to do weird things.</span>
-        <span class="kw">let</span> <span class="ident">side1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">shift_with_sharp_angles</span>(<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">miter_threshold</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">side2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">shift_with_sharp_angles</span>(<span class="op">-</span><span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">miter_threshold</span>);
+        <span class="kw">let</span> <span class="ident">side1</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">shift_with_sharp_angles</span>(<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">MITER_THRESHOLD</span>) {
+            <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) =&gt; <span class="ident">pl</span>,
+            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
+                <span class="comment">// TODO Circles will look extremely bizarre, but it emphasizes there&#39;s a bug</span>
+                <span class="comment">// without just crashing</span>
+                <span class="macro">println!</span>(<span class="string">&quot;make_polygons({}) of {:?} failed: {}&quot;</span>, <span class="ident">width</span>, <span class="self">self</span>, <span class="ident">err</span>);
+                <span class="kw">return</span> <span class="ident">Circle::new</span>(<span class="self">self</span>.<span class="ident">first_pt</span>(), <span class="ident">width</span>).<span class="ident">to_polygon</span>();
+            }
+        };
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">side2</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">shift_with_sharp_angles</span>(<span class="op">-</span><span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">MITER_THRESHOLD</span>) {
+            <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) =&gt; <span class="ident">pl</span>,
+            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
+                <span class="macro">println!</span>(<span class="string">&quot;make_polygons({}) of {:?} failed: {}&quot;</span>, <span class="ident">width</span>, <span class="self">self</span>, <span class="ident">err</span>);
+                <span class="kw">return</span> <span class="ident">Circle::new</span>(<span class="self">self</span>.<span class="ident">first_pt</span>(), <span class="ident">width</span>).<span class="ident">to_polygon</span>();
+            }
+        };
         <span class="macro">assert_eq!</span>(<span class="ident">side1</span>.<span class="ident">len</span>(), <span class="ident">side2</span>.<span class="ident">len</span>());
 
         <span class="comment">// Order the points so that they form a ring. No deduplication yet, though.</span>
@@ -1605,7 +1637,9 @@
             .<span class="ident">last_pt</span>()
             .<span class="ident">project_away</span>(<span class="ident">head_size</span>, <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="number">135.0</span>));
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">slice</span>.<span class="ident">shift_with_sharp_angles</span>(<span class="ident">thickness</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">MITER_THRESHOLD</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">slice</span>
+            .<span class="ident">shift_with_sharp_angles</span>(<span class="ident">thickness</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">MITER_THRESHOLD</span>)
+            .<span class="ident">ok</span>()<span class="question-mark">?</span>;
         <span class="kw">match</span> <span class="ident">cap</span> {
             <span class="ident">ArrowCap::Triangle</span> =&gt; {
                 <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">corner2</span>);
@@ -1613,7 +1647,9 @@
                 <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">corner1</span>);
             }
         }
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">side2</span> <span class="op">=</span> <span class="ident">slice</span>.<span class="ident">shift_with_sharp_angles</span>(<span class="op">-</span><span class="ident">thickness</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">MITER_THRESHOLD</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">side2</span> <span class="op">=</span> <span class="ident">slice</span>
+            .<span class="ident">shift_with_sharp_angles</span>(<span class="op">-</span><span class="ident">thickness</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">MITER_THRESHOLD</span>)
+            .<span class="ident">ok</span>()<span class="question-mark">?</span>;
         <span class="ident">side2</span>.<span class="ident">reverse</span>();
         <span class="ident">pts</span>.<span class="ident">extend</span>(<span class="ident">side2</span>);
         <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">pts</span>[<span class="number">0</span>]);
@@ -1649,7 +1685,12 @@
             .<span class="ident">last_pt</span>()
             .<span class="ident">project_away</span>(<span class="ident">head_size</span>, <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="number">135.0</span>));
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">slice</span>.<span class="ident">shift_with_sharp_angles</span>(<span class="ident">thickness</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">MITER_THRESHOLD</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">slice</span>.<span class="ident">shift_with_sharp_angles</span>(<span class="ident">thickness</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">MITER_THRESHOLD</span>) {
+            <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) =&gt; <span class="ident">pl</span>,
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
+                <span class="kw">return</span> <span class="self">self</span>.<span class="ident">make_polygons</span>(<span class="ident">thickness</span>);
+            }
+        };
         <span class="kw">match</span> <span class="ident">cap</span> {
             <span class="ident">ArrowCap::Triangle</span> =&gt; {
                 <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">corner2</span>);
@@ -1657,7 +1698,12 @@
                 <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">corner1</span>);
             }
         }
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">side2</span> <span class="op">=</span> <span class="ident">slice</span>.<span class="ident">shift_with_sharp_angles</span>(<span class="op">-</span><span class="ident">thickness</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">MITER_THRESHOLD</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">side2</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">slice</span>.<span class="ident">shift_with_sharp_angles</span>(<span class="op">-</span><span class="ident">thickness</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">MITER_THRESHOLD</span>) {
+            <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) =&gt; <span class="ident">pl</span>,
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
+                <span class="kw">return</span> <span class="self">self</span>.<span class="ident">make_polygons</span>(<span class="ident">thickness</span>);
+            }
+        };
         <span class="ident">side2</span>.<span class="ident">reverse</span>();
         <span class="ident">pts</span>.<span class="ident">extend</span>(<span class="ident">side2</span>);
 
