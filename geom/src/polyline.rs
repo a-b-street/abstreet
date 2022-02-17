@@ -6,8 +6,8 @@ use geo::prelude::ClosestPoint;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    Angle, Bounds, Distance, GPSBounds, HashablePt2D, InfiniteLine, Line, Polygon, Pt2D, Ring,
-    EPSILON_DIST,
+    Angle, Bounds, Circle, Distance, GPSBounds, HashablePt2D, InfiniteLine, Line, Polygon, Pt2D,
+    Ring, EPSILON_DIST,
 };
 
 // TODO How to tune this?
@@ -84,8 +84,12 @@ impl PolyLine {
 
     /// Like make_polygons, but make sure the points actually form a ring.
     pub fn to_thick_ring(&self, width: Distance) -> Ring {
-        let mut side1 = self.shift_with_sharp_angles(width / 2.0, MITER_THRESHOLD);
-        let mut side2 = self.shift_with_sharp_angles(-width / 2.0, MITER_THRESHOLD);
+        let mut side1 = self
+            .shift_with_sharp_angles(width / 2.0, MITER_THRESHOLD)
+            .unwrap();
+        let mut side2 = self
+            .shift_with_sharp_angles(-width / 2.0, MITER_THRESHOLD)
+            .unwrap();
         side2.reverse();
         side1.extend(side2);
         side1.push(side1[0]);
@@ -417,7 +421,7 @@ impl PolyLine {
     // - the length before and after probably don't match up
     // - the number of points may not match
     fn shift_with_corrections(&self, width: Distance) -> Result<PolyLine> {
-        let raw = self.shift_with_sharp_angles(width, MITER_THRESHOLD);
+        let raw = self.shift_with_sharp_angles(width, MITER_THRESHOLD)?;
         let result = PolyLine::deduping_new(raw)?;
         if result.pts.len() == self.pts.len() {
             fix_angles(self, result)
@@ -426,10 +430,12 @@ impl PolyLine {
         }
     }
 
-    fn shift_with_sharp_angles(&self, width: Distance, miter_threshold: f64) -> Vec<Pt2D> {
+    // If we start with a valid PolyLine, I'm not sure how we can ever possibly fail here, but it's
+    // happening. Avoid crashing.
+    fn shift_with_sharp_angles(&self, width: Distance, miter_threshold: f64) -> Result<Vec<Pt2D>> {
         if self.pts.len() == 2 {
-            let l = Line::must_new(self.pts[0], self.pts[1]).shift_either_direction(width);
-            return vec![l.pt1(), l.pt2()];
+            let l = Line::new(self.pts[0], self.pts[1])?.shift_either_direction(width);
+            return Ok(vec![l.pt1(), l.pt2()]);
         }
 
         let mut result: Vec<Pt2D> = Vec::new();
@@ -441,8 +447,8 @@ impl PolyLine {
         loop {
             let pt3_raw = self.pts[pt3_idx];
 
-            let l1 = Line::must_new(pt1_raw, pt2_raw).shift_either_direction(width);
-            let l2 = Line::must_new(pt2_raw, pt3_raw).shift_either_direction(width);
+            let l1 = Line::new(pt1_raw, pt2_raw)?.shift_either_direction(width);
+            let l2 = Line::new(pt2_raw, pt3_raw)?.shift_either_direction(width);
 
             if pt3_idx == 2 {
                 result.push(l1.pt1());
@@ -472,26 +478,29 @@ impl PolyLine {
         }
 
         assert!(result.len() == self.pts.len());
-        result
+        Ok(result)
     }
 
     /// The resulting polygon is manually triangulated and may not have a valid outer Ring (but it
     /// usually does).
     pub fn make_polygons(&self, width: Distance) -> Polygon {
-        // TODO How to tune this?
-        self.make_polygons_with_miter_threshold(width, MITER_THRESHOLD)
-    }
-
-    /// The resulting polygon is manually triangulated and may not have a valid outer Ring (but it
-    /// usually does).
-    pub fn make_polygons_with_miter_threshold(
-        &self,
-        width: Distance,
-        miter_threshold: f64,
-    ) -> Polygon {
         // TODO Don't use the angle corrections yet -- they seem to do weird things.
-        let side1 = self.shift_with_sharp_angles(width / 2.0, miter_threshold);
-        let mut side2 = self.shift_with_sharp_angles(-width / 2.0, miter_threshold);
+        let side1 = match self.shift_with_sharp_angles(width / 2.0, MITER_THRESHOLD) {
+            Ok(pl) => pl,
+            Err(err) => {
+                // TODO Circles will look extremely bizarre, but it emphasizes there's a bug
+                // without just crashing
+                println!("make_polygons({}) of {:?} failed: {}", width, self, err);
+                return Circle::new(self.first_pt(), width).to_polygon();
+            }
+        };
+        let mut side2 = match self.shift_with_sharp_angles(-width / 2.0, MITER_THRESHOLD) {
+            Ok(pl) => pl,
+            Err(err) => {
+                println!("make_polygons({}) of {:?} failed: {}", width, self, err);
+                return Circle::new(self.first_pt(), width).to_polygon();
+            }
+        };
         assert_eq!(side1.len(), side2.len());
 
         // Order the points so that they form a ring. No deduplication yet, though.
@@ -568,7 +577,9 @@ impl PolyLine {
             .last_pt()
             .project_away(head_size, angle.rotate_degs(135.0));
 
-        let mut pts = slice.shift_with_sharp_angles(thickness / 2.0, MITER_THRESHOLD);
+        let mut pts = slice
+            .shift_with_sharp_angles(thickness / 2.0, MITER_THRESHOLD)
+            .ok()?;
         match cap {
             ArrowCap::Triangle => {
                 pts.push(corner2);
@@ -576,7 +587,9 @@ impl PolyLine {
                 pts.push(corner1);
             }
         }
-        let mut side2 = slice.shift_with_sharp_angles(-thickness / 2.0, MITER_THRESHOLD);
+        let mut side2 = slice
+            .shift_with_sharp_angles(-thickness / 2.0, MITER_THRESHOLD)
+            .ok()?;
         side2.reverse();
         pts.extend(side2);
         pts.push(pts[0]);
@@ -612,7 +625,12 @@ impl PolyLine {
             .last_pt()
             .project_away(head_size, angle.rotate_degs(135.0));
 
-        let mut pts = slice.shift_with_sharp_angles(thickness / 2.0, MITER_THRESHOLD);
+        let mut pts = match slice.shift_with_sharp_angles(thickness / 2.0, MITER_THRESHOLD) {
+            Ok(pl) => pl,
+            Err(_) => {
+                return self.make_polygons(thickness);
+            }
+        };
         match cap {
             ArrowCap::Triangle => {
                 pts.push(corner2);
@@ -620,7 +638,12 @@ impl PolyLine {
                 pts.push(corner1);
             }
         }
-        let mut side2 = slice.shift_with_sharp_angles(-thickness / 2.0, MITER_THRESHOLD);
+        let mut side2 = match slice.shift_with_sharp_angles(-thickness / 2.0, MITER_THRESHOLD) {
+            Ok(pl) => pl,
+            Err(_) => {
+                return self.make_polygons(thickness);
+            }
+        };
         side2.reverse();
         pts.extend(side2);
 

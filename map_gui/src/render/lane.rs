@@ -56,13 +56,9 @@ impl DrawLane {
                     if map.get_config().driving_side == DrivingSide::Right {
                         shift *= -1.0;
                     }
-                    batch.push(
-                        app.cs().curb(rank),
-                        lane.lane_center_pts
-                            .shift_either_direction(shift)
-                            .unwrap()
-                            .make_polygons(width),
-                    );
+                    if let Ok(pl) = lane.lane_center_pts.shift_either_direction(shift) {
+                        batch.push(app.cs().curb(rank), pl.make_polygons(width));
+                    }
                 }
             }
             LaneType::Parking => {
