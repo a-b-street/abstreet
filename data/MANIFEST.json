@@ -1045,11 +1045,6 @@
       "uncompressed_size_bytes": 57715,
       "compressed_size_bytes": 38287
     },
-    "data/input/gb/london/osm/a5.osm": {
-      "checksum": "0f296901cc14d4d7ec3e4d7e41174970",
-      "uncompressed_size_bytes": 68642783,
-      "compressed_size_bytes": 6976468
-    },
     "data/input/gb/london/osm/barking_and_dagenham.osm": {
       "checksum": "f1ce782e15379d357292a15cf7c7e62e",
       "uncompressed_size_bytes": 20888948,
@@ -1059,11 +1054,6 @@
       "checksum": "6aa5554bfb9bc03aca12fe9bef5f8fec",
       "uncompressed_size_bytes": 83729034,
       "compressed_size_bytes": 8138249
-    },
-    "data/input/gb/london/osm/bermondsey.osm": {
-      "checksum": "7df9b4714d59ce5ce1bb14934a1d23b0",
-      "uncompressed_size_bytes": 63050725,
-      "compressed_size_bytes": 6484541
     },
     "data/input/gb/london/osm/bexley.osm": {
       "checksum": "39664197fd9d83e735f366f39e061abd",
@@ -1185,11 +1175,6 @@
       "uncompressed_size_bytes": 60790190,
       "compressed_size_bytes": 5990996
     },
-    "data/input/gb/london/osm/southbank.osm": {
-      "checksum": "a1977053138bdcc442dcaa550806d38f",
-      "uncompressed_size_bytes": 19785266,
-      "compressed_size_bytes": 2319673
-    },
     "data/input/gb/london/osm/southwark.osm": {
       "checksum": "d68c116275ccbeb3380875dd8eb97331",
       "uncompressed_size_bytes": 105015238,
@@ -1210,11 +1195,6 @@
       "uncompressed_size_bytes": 69590538,
       "compressed_size_bytes": 7605925
     },
-    "data/input/gb/london/raw_maps/a5.bin": {
-      "checksum": "f02aa9b50604b5fa188254313b39b5b2",
-      "uncompressed_size_bytes": 19397914,
-      "compressed_size_bytes": 3922575
-    },
     "data/input/gb/london/raw_maps/barking_and_dagenham.bin": {
       "checksum": "f0e7de54239aa5e7f00974be3017275d",
       "uncompressed_size_bytes": 6583621,
@@ -1224,11 +1204,6 @@
       "checksum": "0a51afdbd7210258a4ad3ab8ab079eb0",
       "uncompressed_size_bytes": 20733281,
       "compressed_size_bytes": 4810365
-    },
-    "data/input/gb/london/raw_maps/bermondsey.bin": {
-      "checksum": "894efc518488eefa39d53fda73fdb5ac",
-      "uncompressed_size_bytes": 14011742,
-      "compressed_size_bytes": 2747161
     },
     "data/input/gb/london/raw_maps/bexley.bin": {
       "checksum": "73aba9090480b64b8d8d3d7a1e987522",
@@ -1344,11 +1319,6 @@
       "checksum": "d8d6527ddcf439728cabad884d11d33e",
       "uncompressed_size_bytes": 16879033,
       "compressed_size_bytes": 3141142
-    },
-    "data/input/gb/london/raw_maps/southbank.bin": {
-      "checksum": "19b7bb4ec3caa0c6d58ddeb5cb6a8c81",
-      "uncompressed_size_bytes": 3937963,
-      "compressed_size_bytes": 772339
     },
     "data/input/gb/london/raw_maps/southwark.bin": {
       "checksum": "1d438707b005b7a8cdb4eac919555ffc",
@@ -3896,14 +3866,9 @@
       "compressed_size_bytes": 4454227
     },
     "data/system/gb/london/city.bin": {
-      "checksum": "2eb0601eabe0451f06e019f48c885ab4",
-      "uncompressed_size_bytes": 3098145,
-      "compressed_size_bytes": 1491030
-    },
-    "data/system/gb/london/maps/a5.bin": {
-      "checksum": "6936a56d8f652217245c5c00b33f4eb8",
-      "uncompressed_size_bytes": 44476630,
-      "compressed_size_bytes": 16884393
+      "checksum": "b26ecd1d436a398d637ee478ce8d990f",
+      "uncompressed_size_bytes": 2885232,
+      "compressed_size_bytes": 1390069
     },
     "data/system/gb/london/maps/barking_and_dagenham.bin": {
       "checksum": "d7c6816624c4cb5ff885e5698c6edf06",
@@ -3914,11 +3879,6 @@
       "checksum": "55785d11c14386e11b1fd6b115bb3354",
       "uncompressed_size_bytes": 56793865,
       "compressed_size_bytes": 21935441
-    },
-    "data/system/gb/london/maps/bermondsey.bin": {
-      "checksum": "1989fb2aaf4db18ab3be0e247412a2df",
-      "uncompressed_size_bytes": 40597485,
-      "compressed_size_bytes": 15119757
     },
     "data/system/gb/london/maps/bexley.bin": {
       "checksum": "a05f27febe270612f902b4c8f61a8f71",
@@ -4035,11 +3995,6 @@
       "uncompressed_size_bytes": 35323325,
       "compressed_size_bytes": 13407238
     },
-    "data/system/gb/london/maps/southbank.bin": {
-      "checksum": "f23b63ef6b4e9a6ce88a174c6c05926e",
-      "uncompressed_size_bytes": 8498485,
-      "compressed_size_bytes": 3000503
-    },
     "data/system/gb/london/maps/southwark.bin": {
       "checksum": "b307fb7e773d0d5a1251f0ce8e264c9b",
       "uncompressed_size_bytes": 40343409,
@@ -4060,11 +4015,6 @@
       "uncompressed_size_bytes": 34739855,
       "compressed_size_bytes": 12879302
     },
-    "data/system/gb/london/scenarios/a5/background.bin": {
-      "checksum": "f7809991a079f44a496af51dbb8b5135",
-      "uncompressed_size_bytes": 59868394,
-      "compressed_size_bytes": 15875855
-    },
     "data/system/gb/london/scenarios/barking_and_dagenham/background.bin": {
       "checksum": "ffd280590af6e968c14c9ac68ecaf0fa",
       "uncompressed_size_bytes": 15431722,
@@ -4074,11 +4024,6 @@
       "checksum": "49ce4d69c347fa6f4989bd929d115545",
       "uncompressed_size_bytes": 27102920,
       "compressed_size_bytes": 7133609
-    },
-    "data/system/gb/london/scenarios/bermondsey/background.bin": {
-      "checksum": "c79bd20bda38ff5290f3bb213ae8f73b",
-      "uncompressed_size_bytes": 75247398,
-      "compressed_size_bytes": 20062408
     },
     "data/system/gb/london/scenarios/bexley/background.bin": {
       "checksum": "b21646b4fd09ef6d03b51af7c529e676",
@@ -4194,11 +4139,6 @@
       "checksum": "270c976524901cf37bdb1822938717b8",
       "uncompressed_size_bytes": 20547727,
       "compressed_size_bytes": 5461955
-    },
-    "data/system/gb/london/scenarios/southbank/background.bin": {
-      "checksum": "df73b7adca1b223197ece107bfea4498",
-      "uncompressed_size_bytes": 62371100,
-      "compressed_size_bytes": 16021316
     },
     "data/system/gb/london/scenarios/southwark/background.bin": {
       "checksum": "ac658648719b06a9e9ed1a966b7508fd",
