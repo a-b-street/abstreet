@@ -4856,9 +4856,9 @@
       "compressed_size_bytes": 5791660
     },
     "data/system/us/san_francisco/maps/downtown.bin": {
-      "checksum": "795db5b07597936c2f3616164a8b23a2",
-      "uncompressed_size_bytes": 49950221,
-      "compressed_size_bytes": 19950106
+      "checksum": "d40e9b3669999d224d59511541e4f17c",
+      "uncompressed_size_bytes": 50025645,
+      "compressed_size_bytes": 19993123
     },
     "data/system/us/seattle/city.bin": {
       "checksum": "5205f53fd0402a7e39bbcda758d7ef97",
@@ -4866,9 +4866,9 @@
       "compressed_size_bytes": 169671
     },
     "data/system/us/seattle/maps/arboretum.bin": {
-      "checksum": "38fd5c4ddcb80f77e73406322a917b63",
-      "uncompressed_size_bytes": 5764659,
-      "compressed_size_bytes": 2239895
+      "checksum": "9769f87611ebb40122e6df672908073a",
+      "uncompressed_size_bytes": 5769223,
+      "compressed_size_bytes": 2241972
     },
     "data/system/us/seattle/maps/central_seattle.bin": {
       "checksum": "e430bfe2084db852ad450f9f859cab57",

@@ -291,10 +291,15 @@ impl Map {
         } else {
             CreateEngine::CH
         };
-        map.pathfinder = Pathfinder::new(&map, map.routing_params().clone(), engine, timer);
+        map.pathfinder = Pathfinder::new(&map, map.routing_params().clone(), &engine, timer);
         timer.stop("setup pathfinding");
 
         transit::finalize_transit(&mut map, &raw, timer);
+        timer.start("setup pathfinding for people using transit");
+        let mut pathfinder = std::mem::replace(&mut map.pathfinder, Pathfinder::empty());
+        pathfinder.finalize_transit(&map, &engine);
+        map.pathfinder = pathfinder;
+        timer.stop("setup pathfinding for people using transit");
 
         map
     }

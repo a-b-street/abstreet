@@ -82,17 +82,17 @@ impl Pathfinder {
     pub fn new(
         map: &Map,
         params: RoutingParams,
-        engine: CreateEngine,
+        engine: &CreateEngine,
         timer: &mut Timer,
     ) -> Pathfinder {
         timer.start("prepare pathfinding for cars");
-        let car_graph = VehiclePathfinder::new(map, PathConstraints::Car, &params, &engine);
+        let car_graph = VehiclePathfinder::new(map, PathConstraints::Car, &params, engine);
         timer.stop("prepare pathfinding for cars");
 
         // The edge weights for bikes are so different from the driving graph that reusing the node
         // ordering actually hurts!
         timer.start("prepare pathfinding for bikes");
-        let bike_graph = VehiclePathfinder::new(map, PathConstraints::Bike, &params, &engine);
+        let bike_graph = VehiclePathfinder::new(map, PathConstraints::Bike, &params, engine);
         timer.stop("prepare pathfinding for bikes");
 
         timer.start("prepare pathfinding for buses");
@@ -116,13 +116,11 @@ impl Pathfinder {
         timer.stop("prepare pathfinding for trains");
 
         timer.start("prepare pathfinding for pedestrians");
-        let walking_graph = SidewalkPathfinder::new(map, None, &engine);
+        let walking_graph = SidewalkPathfinder::new(map, None, engine);
         timer.stop("prepare pathfinding for pedestrians");
 
-        timer.start("prepare pathfinding for pedestrians using transit");
-        let walking_with_transit_graph =
-            SidewalkPathfinder::new(map, Some((&bus_graph, &train_graph)), &engine);
-        timer.stop("prepare pathfinding for pedestrians using transit");
+        // Transit routes haven't been created yet, so defer this step
+        let walking_with_transit_graph = SidewalkPathfinder::empty();
 
         Pathfinder {
             car_graph,
@@ -169,6 +167,11 @@ impl Pathfinder {
         }
         p.params = params;
         p
+    }
+
+    pub fn finalize_transit(&mut self, map: &Map, engine: &CreateEngine) {
+        self.walking_with_transit_graph =
+            SidewalkPathfinder::new(map, Some((&self.bus_graph, &self.train_graph)), engine);
     }
 
     /// Finds a path from a start to an end for a certain type of agent.
