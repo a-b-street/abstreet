@@ -905,7 +905,7 @@ impl Map {
         // Might need to update bus stops.
         if enforce_valid {
             for id in &effects.changed_roads {
-                let stops = self.get_r(*id).all_transit_stops();
+                let stops = self.get_r(*id).transit_stops.clone();
                 for s in stops {
                     let sidewalk_pos = self.get_ts(s).sidewalk_pos;
                     // Must exist, because we aren't allowed to orphan a bus stop.

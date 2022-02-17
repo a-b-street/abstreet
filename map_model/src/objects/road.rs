@@ -196,6 +196,9 @@ pub struct Road {
     /// Is there a tagged crosswalk near each end of the road?
     pub crosswalk_forward: bool,
     pub crosswalk_backward: bool,
+
+    /// Meaningless order
+    pub transit_stops: BTreeSet<TransitStopID>,
 }
 
 impl Road {
@@ -423,14 +426,6 @@ impl Road {
             .unwrap_or(0)
     }
 
-    pub fn all_transit_stops(&self) -> Vec<TransitStopID> {
-        self.lanes
-            .iter()
-            .flat_map(|l| l.transit_stops.iter())
-            .cloned()
-            .collect()
-    }
-
     pub fn is_light_rail(&self) -> bool {
         self.lanes.len() == 1 && self.lanes[0].lane_type == LaneType::LightRail
     }
@@ -589,7 +584,6 @@ impl Road {
                 dst_i,
                 lane_type: lane.lt,
                 dir: lane.dir,
-                transit_stops: BTreeSet::new(),
                 driving_blackhole: false,
                 biking_blackhole: false,
             });

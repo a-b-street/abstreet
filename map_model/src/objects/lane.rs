@@ -8,7 +8,7 @@ use geom::{Distance, Line, PolyLine, Polygon, Pt2D};
 
 use crate::{
     osm, DirectedRoadID, Direction, DrivingSide, IntersectionID, Map, MapConfig, Road, RoadID,
-    RoadSideID, SideOfRoad, TransitStopID, TurnType,
+    RoadSideID, SideOfRoad, TurnType,
 };
 
 /// From some manually audited cases in Seattle, the length of parallel street parking spots is a
@@ -246,9 +246,6 @@ pub struct Lane {
 
     pub src_i: IntersectionID,
     pub dst_i: IntersectionID,
-
-    /// Meaningless order
-    pub transit_stops: BTreeSet<TransitStopID>,
 
     /// {Cars, bikes} trying to start or end here might not be able to reach most lanes in the
     /// graph, because this is near a border.

@@ -7,19 +7,19 @@ use serde::{Deserialize, Serialize};
 use abstutil::{deserialize_usize, serialize_usize};
 use geom::Time;
 
-use crate::{LaneID, Map, PathConstraints, PathRequest, Position};
+use crate::{LaneID, Map, PathConstraints, PathRequest, Position, RoadID};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct TransitStopID {
-    pub sidewalk: LaneID,
-    /// As long as this is unique per lane, this value is otherwise meaningless. Not contiguous or
+    pub road: RoadID,
+    /// As long as this is unique per road, this value is otherwise meaningless. Not contiguous or
     /// ordered in any way.
     pub(crate) idx: usize,
 }
 
 impl fmt::Display for TransitStopID {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "TransitStopID({0}, {1})", self.sidewalk, self.idx)
+        write!(f, "TransitStopID({0}, {1})", self.road, self.idx)
     }
 }
 

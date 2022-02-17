@@ -1,7 +1,7 @@
 //! See <https://a-b-street.github.io/docs/tech/map/importing/index.html> for an overview. This module
 //! covers the RawMap->Map stage.
 
-use std::collections::{BTreeMap, HashMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
 use structopt::StructOpt;
 
@@ -155,6 +155,7 @@ impl Map {
                 percent_incline: raw_road.percent_incline,
                 crosswalk_forward: raw_road.crosswalk_forward,
                 crosswalk_backward: raw_road.crosswalk_backward,
+                transit_stops: BTreeSet::new(),
             };
             road.speed_limit = road.speed_limit_from_osm();
             road.access_restrictions = road.access_restrictions_from_osm();

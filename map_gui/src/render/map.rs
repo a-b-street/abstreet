@@ -378,10 +378,10 @@ impl DrawMap {
                 ID::Road(id) => {
                     let road = self.get_r(id);
                     for lane in &road.lanes {
-                        for ts in &map.get_l(lane.id).transit_stops {
-                            transit_stops.push(self.get_ts(*ts));
-                        }
                         lanes.push(lane);
+                    }
+                    for ts in &map.get_r(id).transit_stops {
+                        transit_stops.push(self.get_ts(*ts));
                     }
                     roads.push(road);
                 }

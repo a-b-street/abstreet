@@ -62,11 +62,12 @@ fn create_stop(
             .find_closest_lane(sidewalk_lane, |l| vehicle.can_use(l, map))
             .map(|l| sidewalk_pos.equiv_pos(l, map))
         {
+            let road = sidewalk_lane.road;
             let id = TransitStopID {
-                sidewalk: sidewalk_lane,
-                idx: map.get_l(sidewalk_lane).transit_stops.len(),
+                road,
+                idx: map.get_r(road).transit_stops.len(),
             };
-            map.mut_lane(sidewalk_lane).transit_stops.insert(id);
+            map.mut_road(road).transit_stops.insert(id);
             map.transit_stops.insert(
                 id,
                 TransitStop {

@@ -282,6 +282,9 @@ impl Map {
     pub(crate) fn mut_lane(&mut self, id: LaneID) -> &mut Lane {
         &mut self.roads[id.road.0].lanes[id.offset]
     }
+    pub(crate) fn mut_road(&mut self, id: RoadID) -> &mut Road {
+        &mut self.roads[id.0]
+    }
 
     pub fn get_i(&self, id: IntersectionID) -> &Intersection {
         &self.intersections[id.0]
@@ -899,9 +902,7 @@ impl Map {
         self.transit_stops.clear();
         self.transit_routes.clear();
         for r in &mut self.roads {
-            for l in &mut r.lanes {
-                l.transit_stops.clear();
-            }
+            r.transit_stops.clear();
         }
     }
 }

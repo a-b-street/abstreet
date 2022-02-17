@@ -388,12 +388,12 @@ impl App {
                     let road = draw_map.get_r(id);
                     for lane in &road.lanes {
                         agents_on.push(Traversable::Lane(lane.id));
-                        for ts in &map.get_l(lane.id).transit_stops {
-                            if show_objs.show(&ID::TransitStop(*ts)) {
-                                transit_stops.push(draw_map.get_ts(*ts));
-                            }
-                        }
                         lanes.push(lane);
+                    }
+                    for ts in &map.get_r(id).transit_stops {
+                        if show_objs.show(&ID::TransitStop(*ts)) {
+                            transit_stops.push(draw_map.get_ts(*ts));
+                        }
                     }
                     roads.push(road);
                 }
