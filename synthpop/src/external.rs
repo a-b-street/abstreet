@@ -77,6 +77,18 @@ impl ExternalPerson {
                 trips: Vec::new(),
             };
             for trip in person.trips {
+                if trip.departure < Time::START_OF_DAY {
+                    if skip_problems {
+                        warn!(
+                            "Skipping trip with negative departure time {:?}",
+                            trip.departure
+                        );
+                        continue;
+                    } else {
+                        bail!("Some trip has negative departure time {:?}", trip.departure);
+                    }
+                }
+
                 spec.trips.push(IndividTrip::new(
                     trip.departure,
                     trip.purpose,
