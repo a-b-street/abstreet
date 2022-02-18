@@ -80,6 +80,11 @@
       "uncompressed_size_bytes": 38981120,
       "compressed_size_bytes": 3574260
     },
+    "data/input/br/sao_paulo/osm/sao_miguel_paulista.osm": {
+      "checksum": "8f81ab38d035f4f4aad7e5389e2de87f",
+      "uncompressed_size_bytes": 2544929,
+      "compressed_size_bytes": 219003
+    },
     "data/input/br/sao_paulo/osm/sudeste-latest.osm.pbf": {
       "checksum": "ab4882c15e07742079ddb78d4ef76741",
       "uncompressed_size_bytes": 650931502,
@@ -94,6 +99,11 @@
       "checksum": "db19b26c31878b141c763194e88c9d97",
       "uncompressed_size_bytes": 9438846,
       "compressed_size_bytes": 2493976
+    },
+    "data/input/br/sao_paulo/raw_maps/sao_miguel_paulista.bin": {
+      "checksum": "1723b33e9dea6c978434f3d7743d3846",
+      "uncompressed_size_bytes": 589772,
+      "compressed_size_bytes": 145152
     },
     "data/input/ca/ca/osm/plateau.osm": {
       "checksum": "d41d8cd98f00b204e9800998ecf8427e",
@@ -2979,6 +2989,11 @@
       "checksum": "773caeda79e4460d2a6cfc8758809711",
       "uncompressed_size_bytes": 18741498,
       "compressed_size_bytes": 7123857
+    },
+    "data/system/br/sao_paulo/maps/sao_miguel_paulista.bin": {
+      "checksum": "e8f368fa1bfcf2d797216e4cffc6901f",
+      "uncompressed_size_bytes": 958698,
+      "compressed_size_bytes": 326141
     },
     "data/system/ca/montreal/maps/plateau.bin": {
       "checksum": "b6487d9cd2c5507456363cf6c4fd77ce",

@@ -107,6 +107,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
         "br" => match (name.city.city.as_ref(), name.map.as_ref()) {
             ("sao_paulo", "aricanduva") => "São Paulo (Avenue Aricanduva)",
             ("sao_paulo", "center") => "São Paulo (city center)",
+            ("sao_paulo", "sao_miguel_paulista") => "São Miguel Paulista",
             _ => &name.map,
         },
         "ca" => match (name.city.city.as_ref(), name.map.as_ref()) {
