@@ -1,7 +1,9 @@
+mod load;
 mod popup;
 pub(crate) mod screenshot;
 pub(crate) mod warper;
 
+pub use load::{FileLoader, FutureLoader, RawBytes};
 pub use popup::PopupMsg;
 
 /// Store a cached key/value pair, only recalculating when the key changes.

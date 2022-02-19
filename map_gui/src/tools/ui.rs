@@ -8,12 +8,12 @@ use anyhow::Result;
 use abstutil::prettyprint_usize;
 use geom::{Distance, Duration, Polygon};
 use synthpop::TripMode;
+use widgetry::tools::FutureLoader;
 use widgetry::{
     Choice, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Menu, Outcome, Panel,
     State, Text, TextBox, Toggle, Transition, Widget,
 };
 
-use crate::load::FutureLoader;
 use crate::tools::grey_out_map;
 use crate::AppLike;
 

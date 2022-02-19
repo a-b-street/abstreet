@@ -3,13 +3,14 @@ use maplit::btreeset;
 
 use geom::{Circle, Distance, Time};
 use map_gui::colors::ColorSchemeChoice;
-use map_gui::load::{FileLoader, FutureLoader, MapLoader};
+use map_gui::load::MapLoader;
 use map_gui::options::OptionsPanel;
 use map_gui::render::{unzoomed_agent_radius, UnzoomedAgents};
 use map_gui::tools::{ChooseSomething, Minimap, TurnExplorer, URLManager};
 use map_gui::{AppLike, ID};
 use sim::Analytics;
 use synthpop::Scenario;
+use widgetry::tools::{FileLoader, FutureLoader};
 use widgetry::{lctrl, Choice, EventCtx, GfxCtx, Key, Outcome, Panel, State, UpdateType};
 
 pub use self::gameplay::{spawn_agents_around, GameplayMode, TutorialPointer, TutorialState};

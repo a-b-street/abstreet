@@ -2255,12 +2255,10 @@ dependencies = [
  "contour",
  "flate2",
  "fs-err",
- "futures",
  "futures-channel",
  "geojson",
  "geom",
  "instant",
- "js-sys",
  "lazy_static",
  "log",
  "lyon_geom",
@@ -2272,10 +2270,7 @@ dependencies = [
  "structopt",
  "subprocess",
  "synthpop",
- "tokio",
  "wasm-bindgen",
- "wasm-bindgen-futures",
- "wasm-streams",
  "web-sys",
  "webbrowser",
  "widgetry",
@@ -4328,9 +4323,9 @@ checksum = "d7cff876b8f18eed75a66cf49b65e7f967cb354a7aa16003fb55dbfd25b44b4f"
 
 [[package]]
 name = "wasm-streams"
-version = "0.2.0"
+version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e2c6ae10c25a5ee38f767d82ae79023ae3032afbdcd915e8373144950e0a483d"
+checksum = "076e644811919817f3d28f9344a7d359d8a45cc72a7187c7ace7281d081a74ad"
 dependencies = [
  "futures",
  "js-sys",
@@ -4473,10 +4468,14 @@ name = "widgetry"
 version = "0.1.0"
 dependencies = [
  "aabb-quadtree",
+ "abstio",
  "abstutil",
  "anyhow",
  "downcast-rs",
+ "flate2",
  "fs-err",
+ "futures",
+ "futures-channel",
  "geojson",
  "geom",
  "glow",
@@ -4484,15 +4483,19 @@ dependencies = [
  "htmlescape",
  "image",
  "instant",
+ "js-sys",
  "log",
  "lru",
  "lyon",
  "serde",
  "serde_json",
  "stretch",
+ "tokio",
  "ttf-parser 0.12.2",
  "usvg",
  "wasm-bindgen",
+ "wasm-bindgen-futures",
+ "wasm-streams",
  "web-sys",
  "winit",
 ]

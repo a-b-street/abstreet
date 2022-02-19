@@ -3,13 +3,14 @@ use std::collections::BTreeMap;
 use abstio::{CityName, Manifest, MapName};
 use geom::{Distance, Percent};
 use map_model::City;
+use widgetry::tools::FileLoader;
 use widgetry::{
     lctrl, Autocomplete, ClickOutcome, ControlState, DrawBaselayer, DrawWithTooltips, EventCtx,
     GeomBatch, GfxCtx, Image, Key, Line, Outcome, Panel, RewriteColor, State, Text, TextExt,
     Transition, Widget,
 };
 
-use crate::load::{FileLoader, MapLoader};
+use crate::load::MapLoader;
 use crate::render::DrawArea;
 use crate::tools::{grey_out_map, nice_country_name, nice_map_name};
 use crate::AppLike;
