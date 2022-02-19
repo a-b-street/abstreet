@@ -1,5 +1,5 @@
 use geom::{ArrowCap, Distance, PolyLine};
-use map_gui::tools::URLManager;
+use widgetry::tools::URLManager;
 use widgetry::{Color, EventCtx, GfxCtx, Outcome, Panel, State, TextExt, Widget};
 
 use crate::app::{App, Transition};
@@ -20,7 +20,7 @@ impl ExploreMap {
     pub fn new_state(ctx: &mut EventCtx, app: &mut App, layers: Layers) -> Box<dyn State<App>> {
         app.opts.show_building_driveways = false;
 
-        URLManager::update_url_map_name(app);
+        map_gui::tools::update_url_map_name(app);
 
         Box::new(ExploreMap {
             top_panel: Tab::Explore.make_left_panel(

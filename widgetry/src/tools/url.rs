@@ -1,9 +1,7 @@
 use anyhow::Result;
 
+use crate::EventCtx;
 use geom::{GPSBounds, LonLat, Pt2D};
-use widgetry::EventCtx;
-
-use crate::AppLike;
 
 /// Utilities for reflecting the current map and viewport in the URL on the web. No effect on
 /// native.
@@ -44,18 +42,6 @@ impl URLManager {
     pub fn update_url_cam(ctx: &EventCtx, gps_bounds: &GPSBounds) {
         let cam = URLManager::get_cam_param(ctx, gps_bounds);
         must_update_url(Box::new(move |url| change_url_param(url, "--cam", &cam)))
-    }
-
-    /// Modify the current URL to set the first free parameter to the current map name.
-    pub fn update_url_map_name(app: &dyn AppLike) {
-        URLManager::update_url_free_param(
-            app.map()
-                .get_name()
-                .path()
-                .strip_prefix(&abstio::path(""))
-                .unwrap()
-                .to_string(),
-        );
     }
 
     /// Parse an OSM-style `zoom/lat/lon` string

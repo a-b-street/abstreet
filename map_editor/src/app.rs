@@ -1,8 +1,9 @@
 use geom::{Distance, Line, Polygon, Pt2D};
-use map_gui::tools::{CameraState, URLManager};
+use map_gui::tools::CameraState;
 use map_gui::AppLike;
 use map_model::osm;
 use map_model::raw::OriginalRoad;
+use widgetry::tools::URLManager;
 use widgetry::{
     lctrl, Canvas, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
     SharedAppState, State, Text, Toggle, Transition, VerticalAlignment, Widget,

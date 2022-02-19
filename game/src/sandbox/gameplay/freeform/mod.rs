@@ -8,7 +8,7 @@ use rand::Rng;
 
 use abstutil::Timer;
 use geom::{Distance, Duration};
-use map_gui::tools::{grey_out_map, open_browser, CityPicker, PromptInput, URLManager};
+use map_gui::tools::{grey_out_map, open_browser, CityPicker, PromptInput};
 use map_gui::ID;
 use map_model::{IntersectionID, Position};
 use sim::rand_dist;
@@ -31,7 +31,7 @@ pub struct Freeform {
 
 impl Freeform {
     pub fn new_state(ctx: &mut EventCtx, app: &App) -> Box<dyn GameplayState> {
-        URLManager::update_url_map_name(app);
+        map_gui::tools::update_url_map_name(app);
 
         Box::new(Freeform {
             top_right: Panel::empty(ctx),

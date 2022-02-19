@@ -3,7 +3,8 @@ use std::collections::BTreeSet;
 use serde::{Deserialize, Serialize};
 
 use abstutil::Timer;
-use map_gui::tools::{grey_out_map, open_browser, URLManager};
+use map_gui::tools::{grey_out_map, open_browser};
+use widgetry::tools::URLManager;
 use widgetry::tools::{FutureLoader, PopupMsg};
 use widgetry::{EventCtx, GfxCtx, Key, Line, Panel, SimpleState, State, Text, TextExt, Widget};
 

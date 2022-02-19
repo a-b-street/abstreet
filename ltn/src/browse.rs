@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use abstutil::{Counter, Timer};
 use geom::Distance;
-use map_gui::tools::{ColorNetwork, DrawRoadLabels, URLManager};
+use map_gui::tools::{ColorNetwork, DrawRoadLabels};
 use synthpop::Scenario;
 use widgetry::mapspace::{ToggleZoomed, World, WorldOutcome};
 use widgetry::tools::PopupMsg;
@@ -25,7 +25,7 @@ pub struct BrowseNeighborhoods {
 
 impl BrowseNeighborhoods {
     pub fn new_state(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
-        URLManager::update_url_map_name(app);
+        map_gui::tools::update_url_map_name(app);
 
         let (world, draw_over_roads) =
             ctx.loading_screen("calculate neighborhoods", |ctx, timer| {

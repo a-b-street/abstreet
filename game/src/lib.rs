@@ -13,11 +13,10 @@ use abstutil::Timer;
 use geom::Duration;
 use map_gui::colors::ColorSchemeChoice;
 use map_gui::options::Options;
-use map_gui::tools::URLManager;
 use map_model::{Map, MapEdits};
 use sim::Sim;
 use synthpop::Scenario;
-use widgetry::tools::{FutureLoader, PopupMsg};
+use widgetry::tools::{FutureLoader, PopupMsg, URLManager};
 use widgetry::{EventCtx, Settings, State, Transition};
 
 use crate::app::{App, Flags, PerMap};

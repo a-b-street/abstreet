@@ -5,6 +5,7 @@ use abstutil::Timer;
 use geom::{Circle, Distance, Duration, Pt2D, Time};
 use map_model::{IntersectionID, Map};
 use sim::Sim;
+use widgetry::tools::URLManager;
 use widgetry::{Canvas, EventCtx, GfxCtx, SharedAppState, State, Transition, Warper};
 
 use crate::colors::{ColorScheme, ColorSchemeChoice};
@@ -12,7 +13,7 @@ use crate::load::MapLoader;
 use crate::options::Options;
 use crate::render::DrawMap;
 use crate::render::{DrawOptions, Renderable};
-use crate::tools::{CameraState, URLManager};
+use crate::tools::CameraState;
 use crate::{AppLike, ID};
 
 /// Simple app state that just renders a static map, without any dynamic agents on the map.

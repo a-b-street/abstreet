@@ -6,15 +6,13 @@
 
 use abstutil::prettyprint_usize;
 use geom::{Distance, Duration};
-use map_gui::tools::{
-    draw_isochrone, open_browser, CityPicker, ColorLegend, Navigator, URLManager,
-};
+use map_gui::tools::{draw_isochrone, open_browser, CityPicker, ColorLegend, Navigator};
 use map_gui::ID;
 use map_model::connectivity::WalkingOptions;
 use map_model::{AmenityType, Building, BuildingID, LaneType};
 use std::str::FromStr;
 use widgetry::table::{Col, Filter, Table};
-use widgetry::tools::PopupMsg;
+use widgetry::tools::{PopupMsg, URLManager};
 use widgetry::{
     lctrl, Cached, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
     Line, Outcome, Panel, RewriteColor, State, Text, Toggle, Transition, VerticalAlignment, Widget,
@@ -46,7 +44,7 @@ impl Viewer {
     }
 
     pub fn new_state(ctx: &mut EventCtx, app: &App, start: BuildingID) -> Box<dyn State<App>> {
-        URLManager::update_url_map_name(app);
+        map_gui::tools::update_url_map_name(app);
 
         let options = Options::Walking(WalkingOptions::default());
         let start = app.map.get_b(start);

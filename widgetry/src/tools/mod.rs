@@ -1,10 +1,12 @@
 mod load;
 mod popup;
 pub(crate) mod screenshot;
+mod url;
 pub(crate) mod warper;
 
 pub use load::{FileLoader, FutureLoader, RawBytes};
 pub use popup::PopupMsg;
+pub use url::URLManager;
 
 /// Store a cached key/value pair, only recalculating when the key changes.
 pub struct Cached<K: PartialEq + Clone, V> {

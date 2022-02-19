@@ -22,7 +22,6 @@ pub use self::ui::{
     checkbox_per_mode, cmp_count, cmp_dist, cmp_duration, color_for_mode, percentage_bar,
     ChooseSomething, FilePicker, PromptInput,
 };
-pub use self::url::URLManager;
 pub use self::waypoints::{InputWaypoints, WaypointID};
 use crate::AppLike;
 
@@ -50,7 +49,6 @@ mod turn_explorer;
 mod ui;
 #[cfg(not(target_arch = "wasm32"))]
 mod updater;
-mod url;
 mod waypoints;
 
 // Update this ___before___ pushing the commit with "[rebuild] [release]".
@@ -405,4 +403,16 @@ pub fn intersections_from_roads(roads: &BTreeSet<RoadID>, map: &Map) -> BTreeSet
         }
     }
     results
+}
+
+/// Modify the current URL to set the first free parameter to the current map name.
+pub fn update_url_map_name(app: &dyn AppLike) {
+    widgetry::tools::URLManager::update_url_free_param(
+        app.map()
+            .get_name()
+            .path()
+            .strip_prefix(&abstio::path(""))
+            .unwrap()
+            .to_string(),
+    );
 }

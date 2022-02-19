@@ -1,7 +1,7 @@
 use abstio::{Manifest, MapName};
-use map_gui::tools::{CameraState, URLManager};
+use map_gui::tools::CameraState;
 use map_model::raw::RawMap;
-use widgetry::tools::{FileLoader, PopupMsg};
+use widgetry::tools::{FileLoader, PopupMsg, URLManager};
 use widgetry::{
     Autocomplete, EventCtx, GfxCtx, Image, Line, Outcome, Panel, State, Transition, Widget,
 };

@@ -1,11 +1,10 @@
 use abstutil::Tags;
 use geom::Distance;
-use map_gui::tools::URLManager;
 use map_gui::ID;
 use map_model::{
     BufferType, Direction, DrivingSide, EditCmd, EditRoad, LaneSpec, LaneType, RoadID,
 };
-use widgetry::tools::PopupMsg;
+use widgetry::tools::{PopupMsg, URLManager};
 use widgetry::{
     lctrl, Choice, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, TextExt, Widget,
 };

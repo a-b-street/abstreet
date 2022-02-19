@@ -4,10 +4,10 @@ use maplit::btreeset;
 
 use abstutil::prettyprint_usize;
 use geom::{Duration, Time};
-use map_gui::tools::{checkbox_per_mode, grey_out_map, ChooseSomething, CityPicker, URLManager};
+use map_gui::tools::{checkbox_per_mode, grey_out_map, ChooseSomething, CityPicker};
 use sim::SlidingWindow;
 use synthpop::{ScenarioModifier, TripMode};
-use widgetry::tools::PopupMsg;
+use widgetry::tools::{PopupMsg, URLManager};
 use widgetry::{
     lctrl, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, LinePlot, Outcome,
     Panel, PlotOptions, Series, SimpleState, Slider, Spinner, State, Text, TextExt,
