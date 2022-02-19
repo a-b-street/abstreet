@@ -632,6 +632,12 @@
 <span id="631">631</span>
 <span id="632">632</span>
 <span id="633">633</span>
+<span id="634">634</span>
+<span id="635">635</span>
+<span id="636">636</span>
+<span id="637">637</span>
+<span id="638">638</span>
+<span id="639">639</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>};
 <span class="kw">use</span> <span class="ident">std::io::Write</span>;
 
@@ -963,7 +969,7 @@
     <span class="kw">fn</span> <span class="ident">road_object</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">OriginalRoad</span>) -&gt; <span class="ident">Object</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">map</span>.<span class="ident">roads</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>];
         <span class="kw">let</span> (<span class="ident">center</span>, <span class="ident">total_width</span>) <span class="op">=</span> <span class="ident">road</span>.<span class="ident">get_geometry</span>(<span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">map</span>.<span class="ident">config</span>).<span class="ident">unwrap</span>();
-        <span class="ident">Object::new</span>(
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">obj</span> <span class="op">=</span> <span class="ident">Object::new</span>(
             <span class="ident">ID::Road</span>(<span class="ident">id</span>),
             <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="string">&quot;junction&quot;</span>, <span class="string">&quot;intersection&quot;</span>) {
                 <span class="ident">Color::PINK</span>
@@ -971,7 +977,13 @@
                 <span class="ident">Color::grey</span>(<span class="number">0.8</span>)
             },
             <span class="ident">center</span>.<span class="ident">make_polygons</span>(<span class="ident">total_width</span>),
-        )
+        );
+        <span class="comment">// TODO Ideally this&#39;d be a layer on top of everything else. Definitely don&#39;t attempt</span>
+        <span class="comment">// before refactoring to use the better World</span>
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">outline</span>) <span class="op">=</span> <span class="ident">center</span>.<span class="ident">to_thick_boundary</span>(<span class="ident">total_width</span>, <span class="ident">Distance::meters</span>(<span class="number">1.0</span>)) {
+            <span class="ident">obj</span>.<span class="ident">geometry</span>.<span class="ident">push</span>((<span class="ident">Color::BLACK</span>, <span class="ident">outline</span>));
+        }
+        <span class="ident">obj</span>
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">show_r_points</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">id</span>: <span class="ident">OriginalRoad</span>) {

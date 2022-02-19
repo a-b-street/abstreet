@@ -158,7 +158,7 @@
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Object</span><span class="op">&lt;</span><span class="ident">ID</span>: <span class="ident">ObjectID</span><span class="op">&gt;</span> {
     <span class="ident">id</span>: <span class="ident">ID</span>,
-    <span class="ident">geometry</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Color</span>, <span class="ident">Polygon</span>)<span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">geometry</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Color</span>, <span class="ident">Polygon</span>)<span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">ID</span>: <span class="ident">ObjectID</span><span class="op">&gt;</span> <span class="ident">Object</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> {
