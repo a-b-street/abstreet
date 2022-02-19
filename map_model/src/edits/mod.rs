@@ -647,7 +647,7 @@ fn recalculate_intersection_polygon(
         );
     }
 
-    let polygon = initial::intersection_polygon(
+    let polygon = raw_map::intersection_polygon(
         intersection.orig_id,
         intersection_roads,
         &mut roads,

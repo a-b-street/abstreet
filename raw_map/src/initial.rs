@@ -8,11 +8,8 @@ use anyhow::Result;
 use abstutil::{Tags, Timer};
 use geom::{Bounds, Circle, Distance, PolyLine, Polygon, Pt2D};
 
-pub use self::geometry::intersection_polygon;
 use crate::{osm, IntersectionType, LaneSpec, MapConfig};
 use crate::{OriginalRoad, RawMap, RawRoad};
-
-mod geometry;
 
 pub struct InitialMap {
     pub roads: BTreeMap<OriginalRoad, Road>,
@@ -100,7 +97,7 @@ impl InitialMap {
         timer.start_iter("find each intersection polygon", m.intersections.len());
         for i in m.intersections.values_mut() {
             timer.next();
-            match intersection_polygon(
+            match crate::intersection_polygon(
                 i.id,
                 i.roads.clone(),
                 &mut m.roads,
@@ -148,7 +145,7 @@ impl InitialMap {
                     .extend_to_length(min_len)
                     .reversed();
             }
-            i.polygon = intersection_polygon(
+            i.polygon = crate::intersection_polygon(
                 i.id,
                 i.roads.clone(),
                 &mut m.roads,

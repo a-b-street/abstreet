@@ -18,12 +18,14 @@ use abstio::{CityName, MapName};
 use abstutil::{deserialize_btreemap, serialize_btreemap, Tags, Timer};
 use geom::{Distance, GPSBounds, PolyLine, Polygon, Pt2D};
 
-pub use crate::lane_specs::get_lane_specs_ltr;
-pub use crate::types::{
+pub use self::geometry::intersection_polygon;
+pub use self::lane_specs::get_lane_specs_ltr;
+pub use self::types::{
     Amenity, AmenityType, AreaType, BufferType, Direction, DrivingSide, IntersectionType, LaneSpec,
     LaneType, MapConfig, NamePerLanguage, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS,
 };
 
+mod geometry;
 pub mod initial;
 mod lane_specs;
 pub mod osm;
@@ -201,7 +203,7 @@ impl RawMap {
         }
 
         // trim_roads_for_merging will be empty unless we've called merge_short_road
-        let (poly, debug) = initial::intersection_polygon(
+        let (poly, debug) = intersection_polygon(
             id,
             intersection_roads,
             &mut roads,
@@ -229,7 +231,7 @@ impl RawMap {
             }
         }
         for id in [road.i1, road.i2] {
-            initial::intersection_polygon(
+            intersection_polygon(
                 id,
                 self.roads_per_intersection(id).into_iter().collect(),
                 &mut roads,
