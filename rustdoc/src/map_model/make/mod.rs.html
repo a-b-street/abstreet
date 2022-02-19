@@ -374,10 +374,6 @@
 <span id="373">373</span>
 <span id="374">374</span>
 <span id="375">375</span>
-<span id="376">376</span>
-<span id="377">377</span>
-<span id="378">378</span>
-<span id="379">379</span>
 </pre><pre class="rust"><code><span class="doccomment">//! See &lt;https://a-b-street.github.io/docs/tech/map/importing/index.html&gt; for an overview. This module</span>
 <span class="doccomment">//! covers the RawMap-&gt;Map stage.</span>
 
@@ -387,6 +383,7 @@
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">MultiMap</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">HashablePt2D</span>, <span class="ident">Line</span>, <span class="ident">Polygon</span>, <span class="ident">Speed</span>, <span class="ident">EPSILON_DIST</span>};
+<span class="kw">use</span> <span class="ident">raw_map::initial</span>;
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::parking_lots::snap_driveway</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pathfind</span>::{<span class="ident">CreateEngine</span>, <span class="ident">Pathfinder</span>};
@@ -399,12 +396,7 @@
 
 <span class="kw">mod</span> <span class="ident">bridges</span>;
 <span class="kw">mod</span> <span class="ident">buildings</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">collapse_intersections</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">initial</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">merge_intersections</span>;
 <span class="kw">mod</span> <span class="ident">parking_lots</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">remove_disconnected</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">snappy</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">traffic_signals</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">transit</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">turns</span>;

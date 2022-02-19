@@ -255,7 +255,6 @@
 <span id="254">254</span>
 <span id="255">255</span>
 <span id="256">256</span>
-<span id="257">257</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
@@ -265,8 +264,7 @@
 <span class="kw">use</span> <span class="ident">abstutil::MultiMap</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">LonLat</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">kml</span>::{<span class="ident">ExtraShape</span>, <span class="ident">ExtraShapes</span>};
-<span class="kw">use</span> <span class="ident">map_model::raw</span>::{<span class="ident">RawMap</span>, <span class="ident">RawTransitRoute</span>, <span class="ident">RawTransitStop</span>};
-<span class="kw">use</span> <span class="ident">map_model::PathConstraints</span>;
+<span class="kw">use</span> <span class="ident">raw_map</span>::{<span class="ident">RawMap</span>, <span class="ident">RawTransitRoute</span>, <span class="ident">RawTransitStop</span>, <span class="ident">RawTransitType</span>};
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">import</span>(<span class="ident">map</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RawMap</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="comment">// Collect metadata about routes</span>
@@ -276,10 +274,10 @@
         <span class="kw">let</span> <span class="ident">rec</span>: <span class="ident">Route</span> <span class="op">=</span> <span class="ident">rec</span><span class="question-mark">?</span>;
         <span class="comment">// See https://developers.google.com/transit/gtfs/reference#routestxt</span>
         <span class="kw">let</span> <span class="ident">route_type</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">rec</span>.<span class="ident">route_type</span> {
-            <span class="number">3</span> =&gt; <span class="ident">PathConstraints::Bus</span>,
+            <span class="number">3</span> =&gt; <span class="ident">RawTransitType::Bus</span>,
             <span class="comment">// These aren&#39;t distinguished in the map model yet. Trams and streetcars might</span>
             <span class="comment">// particularly mess up...  or just fail to snap to a road later.</span>
-            <span class="number">0</span> <span class="op">|</span> <span class="number">1</span> <span class="op">|</span> <span class="number">2</span> =&gt; <span class="ident">PathConstraints::Train</span>,
+            <span class="number">0</span> <span class="op">|</span> <span class="number">1</span> <span class="op">|</span> <span class="number">2</span> =&gt; <span class="ident">RawTransitType::Train</span>,
             <span class="kw">_</span> =&gt; <span class="kw">continue</span>,
         };
         <span class="ident">map</span>.<span class="ident">transit_routes</span>.<span class="ident">push</span>(<span class="ident">RawTransitRoute</span> {

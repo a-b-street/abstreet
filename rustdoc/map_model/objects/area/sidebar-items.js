@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["AreaType",""]],"struct":[["Area","Areas are just used for drawing."],["AreaID",""]]});
+initSidebarItems({"struct":[["Area","Areas are just used for drawing."],["AreaID",""]]});

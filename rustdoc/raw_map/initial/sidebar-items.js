@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["intersection_polygon","Also returns a list of labeled polygons for debugging."]],"mod":[["geometry","OSM describes roads as center-lines that intersect. Turn these into road and intersection polygons roughly by"]],"struct":[["InitialMap",""],["Intersection",""],["Road",""]]});

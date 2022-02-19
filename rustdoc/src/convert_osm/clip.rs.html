@@ -167,13 +167,11 @@
 <span id="166">166</span>
 <span id="167">167</span>
 <span id="168">168</span>
-<span id="169">169</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">PolyLine</span>, <span class="ident">Ring</span>};
-<span class="kw">use</span> <span class="ident">map_model::raw</span>::{<span class="ident">OriginalRoad</span>, <span class="ident">RawMap</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">osm</span>, <span class="ident">IntersectionType</span>};
+<span class="kw">use</span> <span class="ident">raw_map</span>::{<span class="ident">osm</span>, <span class="ident">IntersectionType</span>, <span class="ident">OriginalRoad</span>, <span class="ident">RawMap</span>};
 
 <span class="comment">// TODO This needs to update turn restrictions too</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clip_map</span>(<span class="ident">map</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RawMap</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) {

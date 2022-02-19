@@ -438,6 +438,10 @@
 <span id="437">437</span>
 <span id="438">438</span>
 <span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Generate paths for different A/B Street files</span>
 
 <span class="comment">// TODO There&#39;s some repeated code here for listing files locally/from the manifest/merged. Maybe</span>
@@ -639,6 +643,10 @@
             <span class="ident">city</span>: <span class="ident">CityName::new</span>(<span class="ident">country</span>, <span class="ident">city</span>),
             <span class="ident">map</span>: <span class="ident">map</span>.<span class="ident">to_string</span>(),
         }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">blank</span>() -&gt; <span class="self">Self</span> {
+        <span class="ident"><span class="self">Self</span>::new</span>(<span class="string">&quot;zz&quot;</span>, <span class="string">&quot;blank city&quot;</span>, <span class="string">&quot;blank&quot;</span>)
     }
 
     <span class="doccomment">/// Create a MapName from a city and map within that city.</span>

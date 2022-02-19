@@ -117,9 +117,6 @@
 <span id="116">116</span>
 <span id="117">117</span>
 <span id="118">118</span>
-<span id="119">119</span>
-<span id="120">120</span>
-<span id="121">121</span>
 </pre><pre class="rust"><code><span class="doccomment">//! `map_model` describes the world where simulations occur. Importing a map from OSM partly happens</span>
 <span class="doccomment">//! in `convert_osm` and here.</span>
 <span class="doccomment">//!</span>
@@ -157,26 +154,25 @@
 <span class="kw">use</span> <span class="ident">abstio::MapName</span>;
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_btreemap</span>, <span class="ident">serialize_btreemap</span>, <span class="ident">MultiMap</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">GPSBounds</span>, <span class="ident">Polygon</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">raw_map</span> <span class="kw">as</span> <span class="ident">raw</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">raw_map</span>::{
+    <span class="ident">osm</span>, <span class="ident">Amenity</span>, <span class="ident">AmenityType</span>, <span class="ident">AreaType</span>, <span class="ident">BufferType</span>, <span class="ident">Direction</span>, <span class="ident">DrivingSide</span>, <span class="ident">IntersectionType</span>,
+    <span class="ident">LaneSpec</span>, <span class="ident">LaneType</span>, <span class="ident">MapConfig</span>, <span class="ident">NamePerLanguage</span>, <span class="ident">NORMAL_LANE_THICKNESS</span>, <span class="ident">SIDEWALK_THICKNESS</span>,
+};
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::city::City</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::edits</span>::{
     <span class="ident">EditCmd</span>, <span class="ident">EditEffects</span>, <span class="ident">EditIntersection</span>, <span class="ident">EditRoad</span>, <span class="ident">MapEdits</span>, <span class="ident">PermanentMapEdits</span>,
 };
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::make::RawToMapOptions</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::map</span>::{<span class="ident">DrivingSide</span>, <span class="ident">MapConfig</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::objects::area</span>::{<span class="ident">Area</span>, <span class="ident">AreaID</span>, <span class="ident">AreaType</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::objects::area</span>::{<span class="ident">Area</span>, <span class="ident">AreaID</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::objects::block</span>::{<span class="ident">Block</span>, <span class="ident">Perimeter</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::objects::building</span>::{
-    <span class="ident">Amenity</span>, <span class="ident">AmenityType</span>, <span class="ident">Building</span>, <span class="ident">BuildingID</span>, <span class="ident">BuildingType</span>, <span class="ident">NamePerLanguage</span>, <span class="ident">OffstreetParking</span>,
-};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::objects::intersection</span>::{<span class="ident">Intersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">IntersectionType</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::objects::lane</span>::{
-    <span class="ident">BufferType</span>, <span class="ident">CommonEndpoint</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">LaneSpec</span>, <span class="ident">LaneType</span>, <span class="ident">NORMAL_LANE_THICKNESS</span>,
-    <span class="ident">PARKING_LOT_SPOT_LENGTH</span>, <span class="ident">SIDEWALK_THICKNESS</span>,
-};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::objects::building</span>::{<span class="ident">Building</span>, <span class="ident">BuildingID</span>, <span class="ident">BuildingType</span>, <span class="ident">OffstreetParking</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::objects::intersection</span>::{<span class="ident">Intersection</span>, <span class="ident">IntersectionID</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::objects::lane</span>::{<span class="ident">CommonEndpoint</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">PARKING_LOT_SPOT_LENGTH</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::objects::movement</span>::{<span class="ident">CompressedMovementID</span>, <span class="ident">Movement</span>, <span class="ident">MovementID</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::objects::parking_lot</span>::{<span class="ident">ParkingLot</span>, <span class="ident">ParkingLotID</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::objects::road</span>::{<span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>, <span class="ident">RoadSideID</span>, <span class="ident">SideOfRoad</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::objects::road</span>::{<span class="ident">DirectedRoadID</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>, <span class="ident">RoadSideID</span>, <span class="ident">SideOfRoad</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::objects::stop_signs</span>::{<span class="ident">ControlStopSign</span>, <span class="ident">RoadWithStopSign</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::objects::traffic_signals</span>::{<span class="ident">ControlTrafficSignal</span>, <span class="ident">Stage</span>, <span class="ident">StageType</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::objects::transit</span>::{<span class="ident">TransitRoute</span>, <span class="ident">TransitRouteID</span>, <span class="ident">TransitStop</span>, <span class="ident">TransitStopID</span>};
@@ -196,9 +192,7 @@
 <span class="kw">mod</span> <span class="ident">make</span>;
 <span class="kw">mod</span> <span class="ident">map</span>;
 <span class="kw">mod</span> <span class="ident">objects</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">osm</span>;
 <span class="kw">mod</span> <span class="ident">pathfind</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">raw</span>;
 <span class="kw">mod</span> <span class="ident">traversable</span>;
 
 <span class="comment">// The map used by the simulation and UI. This struct is declared here so that the rest of the</span>

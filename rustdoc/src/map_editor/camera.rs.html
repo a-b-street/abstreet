@@ -63,7 +63,6 @@
 <span id="62">62</span>
 <span id="63">63</span>
 <span id="64">64</span>
-<span id="65">65</span>
 </pre><pre class="rust"><code><span class="comment">// TODO Huge hack -- this is just a copy of the map_gui file. I want to remove the dependency on</span>
 <span class="comment">// map_gui from map_editor, but this file really feels like it belongs there. I&#39;m choosing faster</span>
 <span class="comment">// build time for map_editor over duplicate code, for now. :\</span>
@@ -72,7 +71,6 @@
 
 <span class="kw">use</span> <span class="ident">abstio::MapName</span>;
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
-<span class="kw">use</span> <span class="ident">map_model::Map</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Canvas</span>, <span class="ident">EventCtx</span>};
 
 <span class="doccomment">/// Represents the state of a widgetry Canvas.</span>
@@ -93,7 +91,7 @@
     <span class="doccomment">/// Save the camera&#39;s configuration for the specified map, and also remember this map was the</span>
     <span class="doccomment">/// last to be used.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">save</span>(<span class="ident">canvas</span>: <span class="kw-2">&amp;</span><span class="ident">Canvas</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">MapName</span>) {
-        <span class="kw">if</span> <span class="ident">name</span> <span class="op">==</span> <span class="ident">Map::blank</span>().<span class="ident">get_name</span>() {
+        <span class="kw">if</span> <span class="ident">name</span> <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident">MapName::blank</span>() {
             <span class="kw">return</span>;
         }
 

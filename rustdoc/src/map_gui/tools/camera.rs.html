@@ -59,12 +59,10 @@
 <span id="58">58</span>
 <span id="59">59</span>
 <span id="60">60</span>
-<span id="61">61</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="ident">abstio::MapName</span>;
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
-<span class="kw">use</span> <span class="ident">map_model::Map</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Canvas</span>, <span class="ident">EventCtx</span>};
 
 <span class="doccomment">/// Represents the state of a widgetry Canvas.</span>
@@ -85,7 +83,7 @@
     <span class="doccomment">/// Save the camera&#39;s configuration for the specified map, and also remember this map was the</span>
     <span class="doccomment">/// last to be used.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">save</span>(<span class="ident">canvas</span>: <span class="kw-2">&amp;</span><span class="ident">Canvas</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">MapName</span>) {
-        <span class="kw">if</span> <span class="ident">name</span> <span class="op">==</span> <span class="ident">Map::blank</span>().<span class="ident">get_name</span>() {
+        <span class="kw">if</span> <span class="ident">name</span> <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident">MapName::blank</span>() {
             <span class="kw">return</span>;
         }
 

@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["RestrictionType",""]],"struct":[["OriginalRoad","A way to refer to roads across many maps and over time. Also trivial to relate with OSM to find upstream problems."],["RawArea",""],["RawBuilding",""],["RawIntersection",""],["RawMap",""],["RawParkingLot",""],["RawRoad",""],["RawTransitRoute",""],["RawTransitStop",""],["TurnRestriction",""]]});

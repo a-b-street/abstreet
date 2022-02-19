@@ -882,42 +882,17 @@
 <span id="881">881</span>
 <span id="882">882</span>
 <span id="883">883</span>
-<span id="884">884</span>
-<span id="885">885</span>
-<span id="886">886</span>
-<span id="887">887</span>
-<span id="888">888</span>
-<span id="889">889</span>
-<span id="890">890</span>
-<span id="891">891</span>
-<span id="892">892</span>
-<span id="893">893</span>
-<span id="894">894</span>
-<span id="895">895</span>
-<span id="896">896</span>
-<span id="897">897</span>
-<span id="898">898</span>
-<span id="899">899</span>
-<span id="900">900</span>
-<span id="901">901</span>
-<span id="902">902</span>
-<span id="903">903</span>
-<span id="904">904</span>
-<span id="905">905</span>
-<span id="906">906</span>
-<span id="907">907</span>
-<span id="908">908</span>
 </pre><pre class="rust"><code><span class="doccomment">//! A bunch of (mostly read-only) queries on a Map.</span>
 
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">petgraph::graphmap</span>::{<span class="ident">DiGraphMap</span>, <span class="ident">UnGraphMap</span>};
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="ident">abstio</span>::{<span class="ident">CityName</span>, <span class="ident">MapName</span>};
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">serialized_size_bytes</span>, <span class="ident">MultiMap</span>, <span class="ident">Tags</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">GPSBounds</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>, <span class="ident">Time</span>};
+<span class="kw">use</span> <span class="ident">raw_map</span>::{<span class="ident">DrivingSide</span>, <span class="ident">MapConfig</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::raw</span>::{<span class="ident">OriginalRoad</span>, <span class="ident">RawMap</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -928,31 +903,6 @@
     <span class="ident">Pathfinder</span>, <span class="ident">PathfinderCaching</span>, <span class="ident">Position</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>, <span class="ident">RoutingParams</span>, <span class="ident">TransitRoute</span>,
     <span class="ident">TransitRouteID</span>, <span class="ident">TransitStop</span>, <span class="ident">TransitStopID</span>, <span class="ident">Turn</span>, <span class="ident">TurnID</span>, <span class="ident">TurnType</span>, <span class="ident">Zone</span>,
 };
-
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MapConfig</span> {
-    <span class="doccomment">/// If true, driving happens on the right side of the road (USA). If false, on the left</span>
-    <span class="doccomment">/// (Australia).</span>
-    <span class="kw">pub</span> <span class="ident">driving_side</span>: <span class="ident">DrivingSide</span>,
-    <span class="kw">pub</span> <span class="ident">bikes_can_use_bus_lanes</span>: <span class="ident">bool</span>,
-    <span class="doccomment">/// If true, roads without explicitly tagged sidewalks may have sidewalks or shoulders. If</span>
-    <span class="doccomment">/// false, no sidewalks will be inferred if not tagged in OSM, and separate sidewalks will be</span>
-    <span class="doccomment">/// included.</span>
-    <span class="kw">pub</span> <span class="ident">inferred_sidewalks</span>: <span class="ident">bool</span>,
-    <span class="doccomment">/// Street parking is divided into spots of this length. 8 meters is a reasonable default, but</span>
-    <span class="doccomment">/// people in some regions might be more accustomed to squeezing into smaller spaces. This</span>
-    <span class="doccomment">/// value can be smaller than the hardcoded maximum car length; cars may render on top of each</span>
-    <span class="doccomment">/// other, but otherwise the simulation doesn&#39;t care.</span>
-    <span class="kw">pub</span> <span class="ident">street_parking_spot_length</span>: <span class="ident">Distance</span>,
-    <span class="doccomment">/// If true, turns on red which do not conflict crossing traffic (&#39;right on red&#39;) are allowed</span>
-    <span class="kw">pub</span> <span class="ident">turn_on_red</span>: <span class="ident">bool</span>,
-}
-
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">DrivingSide</span> {
-    <span class="ident">Right</span>,
-    <span class="ident">Left</span>,
-}
 
 <span class="kw">impl</span> <span class="ident">Map</span> {
     <span class="doccomment">/// Load a map from a local serialized Map or RawMap. Note this won&#39;t work on web. This should</span>
@@ -1090,7 +1040,7 @@
             <span class="ident">pathfinder</span>: <span class="ident">Pathfinder::empty</span>(),
             <span class="ident">pathfinder_dirty</span>: <span class="bool-val">false</span>,
             <span class="ident">routing_params</span>: <span class="ident">RoutingParams::default</span>(),
-            <span class="ident">name</span>: <span class="ident">MapName::new</span>(<span class="string">&quot;zz&quot;</span>, <span class="string">&quot;blank city&quot;</span>, <span class="string">&quot;blank&quot;</span>),
+            <span class="ident">name</span>: <span class="ident">MapName::blank</span>(),
             <span class="ident">edits</span>: <span class="ident">MapEdits::new</span>(),
             <span class="ident">edits_generation</span>: <span class="number">0</span>,
             <span class="ident">road_to_buildings</span>: <span class="ident">MultiMap::new</span>(),
@@ -1630,19 +1580,19 @@
         <span class="self">self</span>.<span class="ident">pathfinder_dirty</span> <span class="op">=</span> <span class="bool-val">false</span>;
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_languages</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_languages</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">languages</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">all_roads</span>() {
             <span class="kw">for</span> <span class="ident">key</span> <span class="kw">in</span> <span class="ident">r</span>.<span class="ident">osm_tags</span>.<span class="ident">inner</span>().<span class="ident">keys</span>() {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">key</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;name:&quot;</span>) {
-                    <span class="ident">languages</span>.<span class="ident">insert</span>(<span class="ident">x</span>);
+                    <span class="ident">languages</span>.<span class="ident">insert</span>(<span class="ident">x</span>.<span class="ident">to_string</span>());
                 }
             }
         }
         <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">all_buildings</span>() {
             <span class="kw">for</span> <span class="ident">a</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">b</span>.<span class="ident">amenities</span> {
-                <span class="kw">for</span> <span class="ident">lang</span> <span class="kw">in</span> <span class="ident">a</span>.<span class="ident">names</span>.<span class="number">0</span>.<span class="ident">keys</span>().<span class="ident">flatten</span>() {
-                    <span class="ident">languages</span>.<span class="ident">insert</span>(<span class="ident">lang</span>);
+                <span class="kw">for</span> <span class="ident">lang</span> <span class="kw">in</span> <span class="ident">a</span>.<span class="ident">names</span>.<span class="ident">languages</span>() {
+                    <span class="ident">languages</span>.<span class="ident">insert</span>(<span class="ident">lang</span>.<span class="ident">to_string</span>());
                 }
             }
         }

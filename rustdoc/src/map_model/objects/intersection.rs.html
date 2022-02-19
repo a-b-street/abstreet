@@ -254,13 +254,6 @@
 <span id="253">253</span>
 <span id="254">254</span>
 <span id="255">255</span>
-<span id="256">256</span>
-<span id="257">257</span>
-<span id="258">258</span>
-<span id="259">259</span>
-<span id="260">260</span>
-<span id="261">261</span>
-<span id="262">262</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 <span class="kw">use</span> <span class="ident">std::convert::TryFrom</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
@@ -269,6 +262,7 @@
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_usize</span>, <span class="ident">serialize_usize</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>};
+<span class="kw">use</span> <span class="ident">raw_map::IntersectionType</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">osm</span>, <span class="ident">CompressedMovementID</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">Movement</span>, <span class="ident">MovementID</span>, <span class="ident">PathConstraints</span>,
@@ -288,14 +282,6 @@
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Intersection #{}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>)
     }
-}
-
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">IntersectionType</span> {
-    <span class="ident">StopSign</span>,
-    <span class="ident">TrafficSignal</span>,
-    <span class="ident">Border</span>,
-    <span class="ident">Construction</span>,
 }
 
 <span class="doccomment">/// An intersection connects roads. Most have &gt;2 roads and are controlled by stop signs or traffic</span>

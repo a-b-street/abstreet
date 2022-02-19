@@ -260,12 +260,14 @@
 <span id="259">259</span>
 <span id="260">260</span>
 <span id="261">261</span>
+<span id="262">262</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">hash_map::Entry</span>, <span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Counter</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">HashablePt2D</span>, <span class="ident">Pt2D</span>};
-<span class="kw">use</span> <span class="ident">map_model::raw</span>::{<span class="ident">OriginalRoad</span>, <span class="ident">RawIntersection</span>, <span class="ident">RawMap</span>, <span class="ident">RawRoad</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">osm</span>, <span class="ident">Amenity</span>, <span class="ident">Direction</span>, <span class="ident">IntersectionType</span>};
+<span class="kw">use</span> <span class="ident">raw_map</span>::{
+    <span class="ident">osm</span>, <span class="ident">Amenity</span>, <span class="ident">Direction</span>, <span class="ident">IntersectionType</span>, <span class="ident">OriginalRoad</span>, <span class="ident">RawIntersection</span>, <span class="ident">RawMap</span>, <span class="ident">RawRoad</span>,
+};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::extract::OsmExtract</span>;
 

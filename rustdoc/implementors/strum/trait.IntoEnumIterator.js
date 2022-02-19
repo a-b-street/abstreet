@@ -1,3 +1,3 @@
 (function() {var implementors = {};
-implementors["map_model"] = [{"text":"impl IntoEnumIterator for <a class=\"enum\" href=\"map_model/objects/building/enum.AmenityType.html\" title=\"enum map_model::objects::building::AmenityType\">AmenityType</a>","synthetic":false,"types":["map_model::objects::building::AmenityType"]}];
+implementors["raw_map"] = [{"text":"impl IntoEnumIterator for <a class=\"enum\" href=\"raw_map/types/enum.AmenityType.html\" title=\"enum raw_map::types::AmenityType\">AmenityType</a>","synthetic":false,"types":["raw_map::types::AmenityType"]}];
 if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
