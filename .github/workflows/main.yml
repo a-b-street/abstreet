@@ -45,22 +45,22 @@ jobs:
             sudo apt-get install libasound2-dev libxcb-shape0-dev libxcb-xfixes0-dev libpango1.0-dev libgtk-3-dev
 
       - name: Build game
-        working-directory: game
+        working-directory: apps/game
         run: cargo build --release ${{ env.features }}
       - name: Build santa
-        working-directory: santa
+        working-directory: apps/santa
         run: cargo build --release ${{ env.features }}
       - name: Build fifteen_min
-        working-directory: fifteen_min
+        working-directory: apps/fifteen_min
         run: cargo build --release ${{ env.features }}
       - name: Build osm_viewer
-        working-directory: osm_viewer
+        working-directory: apps/osm_viewer
         run: cargo build --release ${{ env.features }}
       - name: Build parking_mapper
-        working-directory: parking_mapper
+        working-directory: apps/parking_mapper
         run: cargo build --release ${{ env.features }}
       - name: Build ltn
-        working-directory: ltn
+        working-directory: apps/ltn
         run: cargo build --release ${{ env.features }}
 
       - name: Build the CLI tool
