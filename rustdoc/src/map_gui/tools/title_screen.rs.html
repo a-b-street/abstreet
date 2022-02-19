@@ -359,11 +359,15 @@
 <span id="358">358</span>
 <span id="359">359</span>
 <span id="360">360</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">widgetry</span>::{
+<span id="361">361</span>
+<span id="362">362</span>
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">widgetry::tools::PopupMsg</span>;
+<span class="kw">use</span> <span class="ident">widgetry::tools::URLManager</span>;
+<span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">EventCtx</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>, <span class="ident">SimpleState</span>, <span class="ident">State</span>, <span class="ident">Transition</span>, <span class="ident">Widget</span>,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::tools</span>::{<span class="ident">open_browser</span>, <span class="ident">PopupMsg</span>, <span class="ident">URLManager</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::tools::open_browser</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::AppLike</span>;
 
 <span class="doccomment">/// A title screen shared among all of the A/B Street apps.</span>

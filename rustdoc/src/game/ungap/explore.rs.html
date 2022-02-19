@@ -91,7 +91,7 @@
 <span id="90">90</span>
 <span id="91">91</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>};
-<span class="kw">use</span> <span class="ident">map_gui::tools::URLManager</span>;
+<span class="kw">use</span> <span class="ident">widgetry::tools::URLManager</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
@@ -112,7 +112,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>, <span class="ident">layers</span>: <span class="ident">Layers</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">show_building_driveways</span> <span class="op">=</span> <span class="bool-val">false</span>;
 
-        <span class="ident">URLManager::update_url_map_name</span>(<span class="ident">app</span>);
+        <span class="ident">map_gui::tools::update_url_map_name</span>(<span class="ident">app</span>);
 
         <span class="ident">Box::new</span>(<span class="ident">ExploreMap</span> {
             <span class="ident">top_panel</span>: <span class="ident">Tab::Explore</span>.<span class="ident">make_left_panel</span>(

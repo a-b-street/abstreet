@@ -460,12 +460,14 @@
 <span id="459">459</span>
 <span id="460">460</span>
 <span id="461">461</span>
+<span id="462">462</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">geom::Distance</span>;
-<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">DrawRoadLabels</span>, <span class="ident">Navigator</span>, <span class="ident">PopupMsg</span>};
+<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">DrawRoadLabels</span>, <span class="ident">Navigator</span>};
 <span class="kw">use</span> <span class="ident">map_model::osm::RoadRank</span>;
 <span class="kw">use</span> <span class="ident">map_model::LaneType</span>;
+<span class="kw">use</span> <span class="ident">widgetry::tools::PopupMsg</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">ButtonBuilder</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">Drawable</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
     <span class="ident">HorizontalAlignment</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">ScreenPt</span>, <span class="ident">Text</span>, <span class="ident">Toggle</span>,

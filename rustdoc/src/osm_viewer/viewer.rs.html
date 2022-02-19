@@ -471,20 +471,16 @@
 <span id="470">470</span>
 <span id="471">471</span>
 <span id="472">472</span>
-<span id="473">473</span>
-<span id="474">474</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Counter</span>};
 <span class="kw">use</span> <span class="ident">geom::ArrowCap</span>;
 <span class="kw">use</span> <span class="ident">map_gui::options::OptionsPanel</span>;
 <span class="kw">use</span> <span class="ident">map_gui::render</span>::{<span class="ident">DrawOptions</span>, <span class="ident">BIG_ARROW_THICKNESS</span>};
-<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{
-    <span class="ident">open_browser</span>, <span class="ident">CityPicker</span>, <span class="ident">Minimap</span>, <span class="ident">MinimapControls</span>, <span class="ident">Navigator</span>, <span class="ident">PopupMsg</span>, <span class="ident">TurnExplorer</span>,
-    <span class="ident">URLManager</span>,
-};
+<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">open_browser</span>, <span class="ident">CityPicker</span>, <span class="ident">Minimap</span>, <span class="ident">MinimapControls</span>, <span class="ident">Navigator</span>, <span class="ident">TurnExplorer</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::{<span class="ident">SimpleApp</span>, <span class="ident">ID</span>};
 <span class="kw">use</span> <span class="ident">map_model::osm</span>;
+<span class="kw">use</span> <span class="ident">widgetry::tools</span>::{<span class="ident">PopupMsg</span>, <span class="ident">URLManager</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">lctrl</span>, <span class="ident">Color</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>,
     <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">Transition</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
@@ -501,7 +497,7 @@
 
 <span class="kw">impl</span> <span class="ident">Viewer</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">URLManager::update_url_map_name</span>(<span class="ident">app</span>);
+        <span class="ident">map_gui::tools::update_url_map_name</span>(<span class="ident">app</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">viewer</span> <span class="op">=</span> <span class="ident">Viewer</span> {
             <span class="ident">fixed_object_outline</span>: <span class="prelude-val">None</span>,

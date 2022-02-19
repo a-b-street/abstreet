@@ -91,12 +91,14 @@
 <span id="90">90</span>
 <span id="91">91</span>
 <span id="92">92</span>
+<span id="93">93</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="ident">abstio::MapName</span>;
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
-<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">ChooseSomething</span>, <span class="ident">PopupMsg</span>, <span class="ident">PromptInput</span>};
+<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">ChooseSomething</span>, <span class="ident">PromptInput</span>};
+<span class="kw">use</span> <span class="ident">widgetry::tools::PopupMsg</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Choice</span>, <span class="ident">EventCtx</span>, <span class="ident">State</span>, <span class="ident">Transition</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">App</span>, <span class="ident">BrowseNeighborhoods</span>, <span class="ident">ModalFilters</span>, <span class="ident">Partitioning</span>};

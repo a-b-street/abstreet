@@ -498,18 +498,20 @@
 <span id="497">497</span>
 <span id="498">498</span>
 <span id="499">499</span>
+<span id="500">500</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
 
 <span class="kw">use</span> <span class="ident">abstio</span>::{<span class="ident">CityName</span>, <span class="ident">Manifest</span>, <span class="ident">MapName</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Percent</span>};
 <span class="kw">use</span> <span class="ident">map_model::City</span>;
+<span class="kw">use</span> <span class="ident">widgetry::tools::FileLoader</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">lctrl</span>, <span class="ident">Autocomplete</span>, <span class="ident">ClickOutcome</span>, <span class="ident">ControlState</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">DrawWithTooltips</span>, <span class="ident">EventCtx</span>,
     <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>,
     <span class="ident">Transition</span>, <span class="ident">Widget</span>,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::load</span>::{<span class="ident">FileLoader</span>, <span class="ident">MapLoader</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::load::MapLoader</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::render::DrawArea</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::tools</span>::{<span class="ident">grey_out_map</span>, <span class="ident">nice_country_name</span>, <span class="ident">nice_map_name</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::AppLike</span>;

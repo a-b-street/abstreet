@@ -438,6 +438,7 @@
 <span id="437">437</span>
 <span id="438">438</span>
 <span id="439">439</span>
+<span id="440">440</span>
 </pre><pre class="rust"><code><span class="comment">// TODO Rename -- this is for KML, CSV, GeoJSON</span>
 
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
@@ -448,8 +449,9 @@
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
 <span class="kw">use</span> <span class="ident">kml</span>::{<span class="ident">ExtraShape</span>, <span class="ident">ExtraShapes</span>};
 <span class="kw">use</span> <span class="ident">map_gui::colors::ColorScheme</span>;
-<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">FilePicker</span>, <span class="ident">PopupMsg</span>};
+<span class="kw">use</span> <span class="ident">map_gui::tools::FilePicker</span>;
 <span class="kw">use</span> <span class="ident">map_model::BuildingID</span>;
+<span class="kw">use</span> <span class="ident">widgetry::tools::PopupMsg</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">lctrl</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
     <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextBox</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,

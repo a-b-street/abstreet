@@ -366,6 +366,7 @@
 <span id="365">365</span>
 <span id="366">366</span>
 <span id="367">367</span>
+<span id="368">368</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">structopt::StructOpt</span>;
 
 <span class="kw">use</span> <span class="ident">abstio::MapName</span>;
@@ -373,6 +374,7 @@
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">Map</span>};
 <span class="kw">use</span> <span class="ident">sim::Sim</span>;
+<span class="kw">use</span> <span class="ident">widgetry::tools::URLManager</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Canvas</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">SharedAppState</span>, <span class="ident">State</span>, <span class="ident">Transition</span>, <span class="ident">Warper</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::colors</span>::{<span class="ident">ColorScheme</span>, <span class="ident">ColorSchemeChoice</span>};
@@ -380,7 +382,7 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::options::Options</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::render::DrawMap</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::render</span>::{<span class="ident">DrawOptions</span>, <span class="ident">Renderable</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::tools</span>::{<span class="ident">CameraState</span>, <span class="ident">URLManager</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::tools::CameraState</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AppLike</span>, <span class="ident">ID</span>};
 
 <span class="doccomment">/// Simple app state that just renders a static map, without any dynamic agents on the map.</span>

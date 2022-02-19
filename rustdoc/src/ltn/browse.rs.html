@@ -380,13 +380,15 @@
 <span id="379">379</span>
 <span id="380">380</span>
 <span id="381">381</span>
+<span id="382">382</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Counter</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom::Distance</span>;
-<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">ColorNetwork</span>, <span class="ident">DrawRoadLabels</span>, <span class="ident">PopupMsg</span>, <span class="ident">URLManager</span>};
+<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">ColorNetwork</span>, <span class="ident">DrawRoadLabels</span>};
 <span class="kw">use</span> <span class="ident">synthpop::Scenario</span>;
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ToggleZoomed</span>, <span class="ident">World</span>, <span class="ident">WorldOutcome</span>};
+<span class="kw">use</span> <span class="ident">widgetry::tools::PopupMsg</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
     <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
@@ -406,7 +408,7 @@
 
 <span class="kw">impl</span> <span class="ident">BrowseNeighborhoods</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">URLManager::update_url_map_name</span>(<span class="ident">app</span>);
+        <span class="ident">map_gui::tools::update_url_map_name</span>(<span class="ident">app</span>);
 
         <span class="kw">let</span> (<span class="ident">world</span>, <span class="ident">draw_over_roads</span>) <span class="op">=</span>
             <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;calculate neighborhoods&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {

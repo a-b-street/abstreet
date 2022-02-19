@@ -1425,18 +1425,20 @@
 <span id="1424">1424</span>
 <span id="1425">1425</span>
 <span id="1426">1426</span>
+<span id="1427">1427</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
 <span class="kw">use</span> <span class="ident">abstio::MapName</span>;
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_gui::load::MapLoader</span>;
-<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">Minimap</span>, <span class="ident">PopupMsg</span>};
+<span class="kw">use</span> <span class="ident">map_gui::tools::Minimap</span>;
 <span class="kw">use</span> <span class="ident">map_gui::ID</span>;
 <span class="kw">use</span> <span class="ident">map_model::raw::OriginalRoad</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">osm</span>, <span class="ident">BuildingID</span>, <span class="ident">Map</span>, <span class="ident">Position</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">AgentID</span>, <span class="ident">BorderSpawnOverTime</span>, <span class="ident">CarID</span>, <span class="ident">ScenarioGenerator</span>, <span class="ident">SpawnOverTime</span>, <span class="ident">VehicleType</span>};
 <span class="kw">use</span> <span class="ident">synthpop</span>::{<span class="ident">IndividTrip</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>, <span class="ident">TripPurpose</span>};
+<span class="kw">use</span> <span class="ident">widgetry::tools::PopupMsg</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">hotkeys</span>, <span class="ident">lctrl</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
     <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">ScreenPt</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,

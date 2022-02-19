@@ -215,18 +215,20 @@
 <span id="214">214</span>
 <span id="215">215</span>
 <span id="216">216</span>
+<span id="217">217</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::io::Write</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">clipboard</span>::{<span class="ident">ClipboardContext</span>, <span class="ident">ClipboardProvider</span>};
 
 <span class="kw">use</span> <span class="ident">abstio::MapName</span>;
+<span class="kw">use</span> <span class="ident">widgetry::tools::PopupMsg</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">TextBox</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">Transition</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::load::MapLoader</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::tools</span>::{<span class="ident">find_exe</span>, <span class="ident">open_browser</span>, <span class="ident">PopupMsg</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::tools</span>::{<span class="ident">find_exe</span>, <span class="ident">open_browser</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::AppLike</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ImportCity</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span><span class="op">&gt;</span> {

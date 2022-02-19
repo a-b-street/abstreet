@@ -522,13 +522,15 @@
 <span id="521">521</span>
 <span id="522">522</span>
 <span id="523">523</span>
+<span id="524">524</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cmp::Ordering</span>;
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">FindClosest</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>};
-<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">cmp_dist</span>, <span class="ident">cmp_duration</span>, <span class="ident">PopupMsg</span>};
+<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">cmp_dist</span>, <span class="ident">cmp_duration</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">DrivingSide</span>, <span class="ident">Path</span>, <span class="ident">PathStep</span>, <span class="ident">PathfinderCaching</span>, <span class="ident">NORMAL_LANE_THICKNESS</span>};
 <span class="kw">use</span> <span class="ident">synthpop</span>::{<span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>};
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ToggleZoomed</span>, <span class="ident">ToggleZoomedBuilder</span>};
+<span class="kw">use</span> <span class="ident">widgetry::tools::PopupMsg</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">LinePlot</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">PlotOptions</span>,
     <span class="ident">ScreenDims</span>, <span class="ident">Series</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>,

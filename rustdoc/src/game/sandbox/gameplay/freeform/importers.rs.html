@@ -114,15 +114,17 @@
 <span id="113">113</span>
 <span id="114">114</span>
 <span id="115">115</span>
+<span id="116">116</span>
 </pre><pre class="rust"><code><span class="comment">// TODO This doesn&#39;t really belong in gameplay/freeform</span>
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
-<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">find_exe</span>, <span class="ident">FilePicker</span>, <span class="ident">PopupMsg</span>, <span class="ident">RunCommand</span>};
+<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">find_exe</span>, <span class="ident">FilePicker</span>, <span class="ident">RunCommand</span>};
 <span class="kw">use</span> <span class="ident">map_model::Map</span>;
 <span class="kw">use</span> <span class="ident">synthpop</span>::{<span class="ident">ExternalPerson</span>, <span class="ident">Scenario</span>};
+<span class="kw">use</span> <span class="ident">widgetry::tools::PopupMsg</span>;
 <span class="kw">use</span> <span class="ident">widgetry::EventCtx</span>;
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app::Transition</span>;
