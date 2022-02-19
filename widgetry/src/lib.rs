@@ -100,7 +100,7 @@ mod screen_geom;
 mod style;
 mod svg;
 mod text;
-mod tools;
+pub mod tools;
 mod widgets;
 
 mod backend {

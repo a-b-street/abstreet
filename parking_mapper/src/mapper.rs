@@ -4,10 +4,11 @@ use anyhow::Result;
 
 use abstutil::{prettyprint_usize, Timer};
 use geom::{Distance, FindClosest, PolyLine, Polygon};
-use map_gui::tools::{open_browser, CityPicker, ColorLegend, PopupMsg};
+use map_gui::tools::{open_browser, CityPicker, ColorLegend};
 use map_gui::{SimpleApp, ID};
 use map_model::{osm, RoadID};
 use osm::WayID;
+use widgetry::tools::PopupMsg;
 use widgetry::{
     Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Menu,
     Outcome, Panel, State, Text, TextExt, Toggle, Transition, VerticalAlignment, Widget,

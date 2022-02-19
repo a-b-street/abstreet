@@ -1,9 +1,10 @@
 use std::collections::HashMap;
 
 use geom::Distance;
-use map_gui::tools::{DrawRoadLabels, Navigator, PopupMsg};
+use map_gui::tools::{DrawRoadLabels, Navigator};
 use map_model::osm::RoadRank;
 use map_model::LaneType;
+use widgetry::tools::PopupMsg;
 use widgetry::{
     ButtonBuilder, Color, ControlState, Drawable, EdgeInsets, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Image, Key, Line, Outcome, Panel, ScreenPt, Text, Toggle,

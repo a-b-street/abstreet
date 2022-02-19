@@ -4,9 +4,10 @@ use anyhow::Result;
 use serde::Deserialize;
 
 use abstutil::Timer;
-use map_gui::tools::{find_exe, FilePicker, PopupMsg, RunCommand};
+use map_gui::tools::{find_exe, FilePicker, RunCommand};
 use map_model::Map;
 use synthpop::{ExternalPerson, Scenario};
+use widgetry::tools::PopupMsg;
 use widgetry::EventCtx;
 
 use crate::app::Transition;

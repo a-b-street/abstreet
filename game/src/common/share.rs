@@ -4,7 +4,8 @@ use serde::{Deserialize, Serialize};
 
 use abstutil::Timer;
 use map_gui::load::FutureLoader;
-use map_gui::tools::{grey_out_map, open_browser, PopupMsg, URLManager};
+use map_gui::tools::{grey_out_map, open_browser, URLManager};
+use widgetry::tools::PopupMsg;
 use widgetry::{EventCtx, GfxCtx, Key, Line, Panel, SimpleState, State, Text, TextExt, Widget};
 
 use crate::app::{App, Transition};

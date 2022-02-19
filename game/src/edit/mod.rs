@@ -4,10 +4,11 @@ use abstutil::{prettyprint_usize, Timer};
 use geom::Speed;
 use map_gui::options::OptionsPanel;
 use map_gui::render::DrawMap;
-use map_gui::tools::{grey_out_map, ChooseSomething, ColorLegend, PopupMsg};
+use map_gui::tools::{grey_out_map, ChooseSomething, ColorLegend};
 use map_gui::ID;
 use map_model::{EditCmd, IntersectionID, LaneID, MapEdits};
 use widgetry::mapspace::ToggleZoomed;
+use widgetry::tools::PopupMsg;
 use widgetry::{
     lctrl, Choice, Color, ControlState, EventCtx, GfxCtx, HorizontalAlignment, Image, Key, Line,
     Menu, Outcome, Panel, State, Text, TextBox, TextExt, VerticalAlignment, Widget,

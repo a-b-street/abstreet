@@ -2,11 +2,11 @@ use std::collections::HashMap;
 
 use geom::{Bounds, CornerRadii, Distance, Polygon, Pt2D, UnitFmt};
 use map_gui::render::{Renderable, OUTLINE_THICKNESS};
-use map_gui::tools::PopupMsg;
 use map_gui::ID;
 use map_model::{
     BufferType, Direction, EditCmd, EditRoad, LaneID, LaneSpec, LaneType, MapEdits, Road, RoadID,
 };
+use widgetry::tools::PopupMsg;
 use widgetry::{
     lctrl, Choice, Color, ControlState, DragDrop, Drawable, EdgeInsets, EventCtx, GeomBatch,
     GeomBatchStack, GfxCtx, HorizontalAlignment, Image, Key, Line, Outcome, Panel, PersistentSplit,

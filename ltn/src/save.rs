@@ -3,7 +3,8 @@ use serde::{Deserialize, Serialize};
 
 use abstio::MapName;
 use abstutil::Timer;
-use map_gui::tools::{ChooseSomething, PopupMsg, PromptInput};
+use map_gui::tools::{ChooseSomething, PromptInput};
+use widgetry::tools::PopupMsg;
 use widgetry::{Choice, EventCtx, State, Transition};
 
 use crate::{App, BrowseNeighborhoods, ModalFilters, Partitioning};

@@ -1,7 +1,7 @@
 use abstutil::Timer;
 use map_gui::tools::compare_counts::{CompareCounts, Layer};
-use map_gui::tools::PopupMsg;
 use synthpop::TrafficCounts;
+use widgetry::tools::PopupMsg;
 use widgetry::{
     EventCtx, GfxCtx, HorizontalAlignment, Line, Panel, SimpleState, State, VerticalAlignment,
     Widget,

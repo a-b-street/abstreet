@@ -6,11 +6,11 @@ use anyhow::Result;
 use serde::{Deserialize, Deserializer};
 
 use geom::{Angle, Duration, LonLat, Pt2D};
-use map_gui::tools::PopupMsg;
 use map_model::{
     osm, ControlTrafficSignal, DirectedRoadID, DrivingSide, EditCmd, EditIntersection,
     IntersectionID, Map, Movement, MovementID, Stage, StageType, TurnPriority, TurnType,
 };
+use widgetry::tools::PopupMsg;
 use widgetry::{EventCtx, State};
 
 use crate::edit::apply_map_edits;

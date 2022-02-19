@@ -1,10 +1,11 @@
 use std::cmp::Ordering;
 
 use geom::{Circle, Distance, Duration, FindClosest, PolyLine, Polygon};
-use map_gui::tools::{cmp_dist, cmp_duration, PopupMsg};
+use map_gui::tools::{cmp_dist, cmp_duration};
 use map_model::{DrivingSide, Path, PathStep, PathfinderCaching, NORMAL_LANE_THICKNESS};
 use synthpop::{TripEndpoint, TripMode};
 use widgetry::mapspace::{ToggleZoomed, ToggleZoomedBuilder};
+use widgetry::tools::PopupMsg;
 use widgetry::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, LinePlot, Outcome, Panel, PlotOptions,
     ScreenDims, Series, Text, Widget,

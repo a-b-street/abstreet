@@ -7,9 +7,9 @@ use rand_xorshift::XorShiftRng;
 use abstutil::prettyprint_usize;
 use geom::Time;
 use map_gui::load::MapLoader;
-use map_gui::tools::PopupMsg;
 use map_gui::ID;
 use map_model::BuildingID;
+use widgetry::tools::PopupMsg;
 use widgetry::{
     ButtonBuilder, Color, ControlState, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
     Image, Key, Line, Outcome, Panel, RewriteColor, State, Text, TextExt, VerticalAlignment,

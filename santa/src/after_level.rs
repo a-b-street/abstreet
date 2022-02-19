@@ -1,6 +1,7 @@
 use abstutil::prettyprint_usize;
 use geom::{Distance, PolyLine, Polygon, Pt2D};
-use map_gui::tools::{ColorLegend, PopupMsg};
+use map_gui::tools::ColorLegend;
+use widgetry::tools::PopupMsg;
 use widgetry::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel,
     SimpleState, State, Text, VerticalAlignment, Widget,

@@ -1,8 +1,9 @@
 use std::collections::BTreeSet;
 
 use map_gui::load::FileLoader;
-use map_gui::tools::{checkbox_per_mode, PopupMsg};
+use map_gui::tools::checkbox_per_mode;
 use synthpop::{Scenario, TripMode};
+use widgetry::tools::PopupMsg;
 use widgetry::{
     Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel, SimpleState,
     Slider, State, Text, TextExt, Toggle, VerticalAlignment, Widget,

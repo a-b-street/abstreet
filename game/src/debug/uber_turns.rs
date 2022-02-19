@@ -2,9 +2,9 @@ use std::collections::BTreeSet;
 
 use geom::ArrowCap;
 use map_gui::render::{DrawOptions, BIG_ARROW_THICKNESS};
-use map_gui::tools::PopupMsg;
 use map_gui::ID;
 use map_model::{IntersectionCluster, IntersectionID};
+use widgetry::tools::PopupMsg;
 use widgetry::{
     Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
     Panel, SimpleState, State, Text, TextExt, Toggle, VerticalAlignment, Widget,

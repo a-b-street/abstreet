@@ -2,9 +2,10 @@ use std::collections::HashSet;
 
 use abstutil::{Counter, Timer};
 use geom::Distance;
-use map_gui::tools::{ColorNetwork, DrawRoadLabels, PopupMsg, URLManager};
+use map_gui::tools::{ColorNetwork, DrawRoadLabels, URLManager};
 use synthpop::Scenario;
 use widgetry::mapspace::{ToggleZoomed, World, WorldOutcome};
+use widgetry::tools::PopupMsg;
 use widgetry::{
     Choice, Color, DrawBaselayer, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
     State, Text, TextExt, Toggle, VerticalAlignment, Widget,

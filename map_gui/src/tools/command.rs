@@ -4,9 +4,9 @@ use std::time::Duration;
 use instant::Instant;
 use subprocess::{Communicator, Popen};
 
+use widgetry::tools::PopupMsg;
 use widgetry::{Color, EventCtx, GfxCtx, Line, Panel, State, Text, Transition, UpdateType};
 
-use crate::tools::PopupMsg;
 use crate::AppLike;
 
 /// Executes a command and displays STDOUT and STDERR in a loading screen window. Only works on

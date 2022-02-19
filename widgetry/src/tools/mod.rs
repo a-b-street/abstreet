@@ -1,5 +1,8 @@
-pub mod screenshot;
-pub mod warper;
+mod popup;
+pub(crate) mod screenshot;
+pub(crate) mod warper;
+
+pub use popup::PopupMsg;
 
 /// Store a cached key/value pair, only recalculating when the key changes.
 pub struct Cached<K: PartialEq + Clone, V> {

@@ -14,9 +14,9 @@ use tokio::runtime::Runtime;
 use abstio::MapName;
 use abstutil::Timer;
 use geom::Duration;
+use widgetry::tools::PopupMsg;
 use widgetry::{Color, EventCtx, GfxCtx, Line, Panel, State, Text, Transition, UpdateType};
 
-use crate::tools::PopupMsg;
 use crate::AppLike;
 
 #[cfg(not(target_arch = "wasm32"))]

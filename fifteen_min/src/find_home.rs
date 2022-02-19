@@ -3,9 +3,9 @@ use std::collections::HashMap;
 use crate::App;
 use abstutil::{prettyprint_usize, Counter, Timer};
 use geom::Percent;
-use map_gui::tools::PopupMsg;
 use map_model::connectivity::Spot;
 use map_model::{AmenityType, BuildingID};
+use widgetry::tools::PopupMsg;
 use widgetry::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel,
     SimpleState, State, TextExt, Toggle, Transition, VerticalAlignment, Widget,

@@ -1,8 +1,8 @@
 use std::collections::BTreeSet;
 
 use abstutil::Timer;
-use map_gui::tools::PopupMsg;
 use map_model::{connectivity, EditCmd, PathConstraints};
+use widgetry::tools::PopupMsg;
 use widgetry::{EventCtx, State};
 
 use crate::app::App;

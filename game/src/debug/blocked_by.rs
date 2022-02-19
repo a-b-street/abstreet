@@ -2,8 +2,8 @@ use std::collections::{BTreeMap, HashSet};
 
 use abstutil::Counter;
 use geom::{ArrowCap, Circle, Distance, Duration, PolyLine, Polygon, Pt2D};
-use map_gui::tools::PopupMsg;
 use sim::{AgentID, DelayCause};
+use widgetry::tools::PopupMsg;
 use widgetry::{
     Cached, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome,
     Panel, State, Text, TextExt, VerticalAlignment, Widget,

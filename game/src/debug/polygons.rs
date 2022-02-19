@@ -1,5 +1,5 @@
 use geom::{Polygon, Pt2D, Triangle};
-use map_gui::tools::PopupMsg;
+use widgetry::tools::PopupMsg;
 use widgetry::{
     EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, Text,
     TextExt, VerticalAlignment, Widget,

@@ -8,8 +8,9 @@ use abstutil::{prettyprint_usize, Timer};
 use geom::{ArrowCap, Circle, Distance, PolyLine, Polygon, Pt2D, Ring};
 use kml::{ExtraShape, ExtraShapes};
 use map_gui::colors::ColorScheme;
-use map_gui::tools::{FilePicker, PopupMsg};
+use map_gui::tools::FilePicker;
 use map_model::BuildingID;
+use widgetry::tools::PopupMsg;
 use widgetry::{
     lctrl, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
     Outcome, Panel, State, Text, TextBox, TextExt, VerticalAlignment, Widget,

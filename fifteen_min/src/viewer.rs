@@ -7,13 +7,14 @@
 use abstutil::prettyprint_usize;
 use geom::{Distance, Duration};
 use map_gui::tools::{
-    draw_isochrone, open_browser, CityPicker, ColorLegend, Navigator, PopupMsg, URLManager,
+    draw_isochrone, open_browser, CityPicker, ColorLegend, Navigator, URLManager,
 };
 use map_gui::ID;
 use map_model::connectivity::WalkingOptions;
 use map_model::{AmenityType, Building, BuildingID, LaneType};
 use std::str::FromStr;
 use widgetry::table::{Col, Filter, Table};
+use widgetry::tools::PopupMsg;
 use widgetry::{
     lctrl, Cached, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
     Line, Outcome, Panel, RewriteColor, State, Text, Toggle, Transition, VerticalAlignment, Widget,

@@ -6,11 +6,11 @@ use abstutil::Timer;
 use geom::{Distance, Line, Polygon, Pt2D};
 use map_gui::options::TrafficSignalStyle;
 use map_gui::render::{traffic_signal, DrawMovement, DrawOptions};
-use map_gui::tools::PopupMsg;
 use map_model::{
     ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, MovementID, Stage, StageType,
     TurnPriority,
 };
+use widgetry::tools::PopupMsg;
 use widgetry::{
     include_labeled_bytes, lctrl, Color, ControlState, DragDrop, DrawBaselayer, Drawable, EventCtx,
     GeomBatch, GeomBatchStack, GfxCtx, HorizontalAlignment, Image, Key, Line, Outcome, Panel,

@@ -1,7 +1,7 @@
 use maplit::btreeset;
 
-use map_gui::tools::PopupMsg;
 use map_model::RoadID;
+use widgetry::tools::PopupMsg;
 use widgetry::{
     EventCtx, GfxCtx, HorizontalAlignment, Line, Outcome, Panel, State, VerticalAlignment, Widget,
 };

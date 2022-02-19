@@ -4,9 +4,9 @@
 use std::collections::HashSet;
 
 use geom::Distance;
-use map_gui::tools::PopupMsg;
 use map_gui::ID;
 use map_model::{EditRoad, MapEdits, RoadID};
+use widgetry::tools::PopupMsg;
 use widgetry::{
     Color, Drawable, EventCtx, Fill, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
     Panel, State, Text, TextExt, Texture, VerticalAlignment, Widget,

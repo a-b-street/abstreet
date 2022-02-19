@@ -6,10 +6,11 @@ use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
 
 use geom::Duration;
-use map_gui::tools::{grey_out_map, nice_map_name, open_browser, PopupMsg};
+use map_gui::tools::{grey_out_map, nice_map_name, open_browser};
 use map_model::AreaType;
 use sim::{AgentType, PersonID, TripID};
 use synthpop::TripEndpoint;
+use widgetry::tools::PopupMsg;
 use widgetry::{
     lctrl, ControlState, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
     SimpleState, Text, TextExt, Toggle, VerticalAlignment, Widget,

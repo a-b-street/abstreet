@@ -1,8 +1,8 @@
 use abstutil::prettyprint_usize;
 use geom::{Circle, Distance, Duration, Polygon, Pt2D, Time};
-use map_gui::tools::PopupMsg;
 use map_gui::ID;
 use sim::AlertLocation;
+use widgetry::tools::PopupMsg;
 use widgetry::{
     Choice, Color, ControlState, DrawWithTooltips, EdgeInsets, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, Panel, PersistentSplit, ScreenDims, Text, TextExt,

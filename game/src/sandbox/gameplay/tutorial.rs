@@ -4,12 +4,13 @@ use abstio::MapName;
 use abstutil::Timer;
 use geom::{ArrowCap, Distance, Duration, PolyLine, Pt2D, Time};
 use map_gui::load::MapLoader;
-use map_gui::tools::{Minimap, PopupMsg};
+use map_gui::tools::Minimap;
 use map_gui::ID;
 use map_model::raw::OriginalRoad;
 use map_model::{osm, BuildingID, Map, Position};
 use sim::{AgentID, BorderSpawnOverTime, CarID, ScenarioGenerator, SpawnOverTime, VehicleType};
 use synthpop::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
+use widgetry::tools::PopupMsg;
 use widgetry::{
     hotkeys, lctrl, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Image, Key, Line,
     Outcome, Panel, ScreenPt, State, Text, TextExt, VerticalAlignment, Widget,

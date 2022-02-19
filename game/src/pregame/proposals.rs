@@ -2,9 +2,10 @@ use std::collections::HashMap;
 
 use geom::Percent;
 use map_gui::load::MapLoader;
-use map_gui::tools::{open_browser, PopupMsg};
+use map_gui::tools::open_browser;
 use map_model::PermanentMapEdits;
 use synthpop::Scenario;
+use widgetry::tools::PopupMsg;
 use widgetry::{EventCtx, Key, Line, Panel, SimpleState, State, Text, Widget};
 
 use crate::app::{App, Transition};

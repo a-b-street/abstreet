@@ -7,7 +7,7 @@ use map_gui::colors::ColorSchemeChoice;
 use map_gui::load::MapLoader;
 use map_gui::options::OptionsPanel;
 use map_gui::render::{calculate_corners, DrawMap, DrawOptions};
-use map_gui::tools::{ChooseSomething, PopupMsg, PromptInput};
+use map_gui::tools::{ChooseSomething, PromptInput};
 use map_gui::{AppLike, ID};
 use map_model::{
     osm, ControlTrafficSignal, IntersectionID, PathConstraints, Perimeter, Position, RoadID,
@@ -15,6 +15,7 @@ use map_model::{
 };
 use sim::Sim;
 use synthpop::TripEndpoint;
+use widgetry::tools::PopupMsg;
 use widgetry::{
     lctrl, Cached, Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, Panel, State, Text, Toggle, UpdateType,

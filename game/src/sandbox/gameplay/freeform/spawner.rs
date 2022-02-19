@@ -1,9 +1,9 @@
 use abstutil::Timer;
 use geom::{Polygon, Pt2D};
-use map_gui::tools::PopupMsg;
 use map_gui::ID;
 use map_model::{BuildingID, NORMAL_LANE_THICKNESS};
 use synthpop::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
+use widgetry::tools::PopupMsg;
 use widgetry::{
     Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Spinner,
     State, TextExt, VerticalAlignment, Widget,

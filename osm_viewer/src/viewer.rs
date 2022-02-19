@@ -5,11 +5,11 @@ use geom::ArrowCap;
 use map_gui::options::OptionsPanel;
 use map_gui::render::{DrawOptions, BIG_ARROW_THICKNESS};
 use map_gui::tools::{
-    open_browser, CityPicker, Minimap, MinimapControls, Navigator, PopupMsg, TurnExplorer,
-    URLManager,
+    open_browser, CityPicker, Minimap, MinimapControls, Navigator, TurnExplorer, URLManager,
 };
 use map_gui::{SimpleApp, ID};
 use map_model::osm;
+use widgetry::tools::PopupMsg;
 use widgetry::{
     lctrl, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
     Line, Outcome, Panel, State, Text, TextExt, Toggle, Transition, VerticalAlignment, Widget,

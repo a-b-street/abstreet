@@ -20,7 +20,7 @@ pub use self::trip_files::{TripManagement, TripManagementState};
 pub use self::turn_explorer::TurnExplorer;
 pub use self::ui::{
     checkbox_per_mode, cmp_count, cmp_dist, cmp_duration, color_for_mode, percentage_bar,
-    ChooseSomething, FilePicker, PopupMsg, PromptInput,
+    ChooseSomething, FilePicker, PromptInput,
 };
 pub use self::url::URLManager;
 pub use self::waypoints::{InputWaypoints, WaypointID};
