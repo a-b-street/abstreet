@@ -200,7 +200,7 @@ fn trips_body(
             },
             {
                 let mut icon = Image::from_bytes(include_labeled_bytes!(
-                    "../../../widgetry/icons/arrow_drop_down.svg"
+                    "../../../../widgetry/icons/arrow_drop_down.svg"
                 ))
                 .build_batch(ctx)
                 .expect("invalid svg")

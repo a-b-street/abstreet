@@ -648,14 +648,14 @@ fn make_side_panel(
             ctx.style()
                 .btn_plain
                 .icon_bytes(include_labeled_bytes!(
-                    "../../../../widgetry/icons/arrow_left.svg"
+                    "../../../../../widgetry/icons/arrow_left.svg"
                 ))
                 .disabled(selected == 0)
                 .build_widget(ctx, "previous stage"),
             ctx.style()
                 .btn_plain
                 .icon_bytes(include_labeled_bytes!(
-                    "../../../../widgetry/icons/arrow_right.svg"
+                    "../../../../../widgetry/icons/arrow_right.svg"
                 ))
                 .disabled(selected == canonical_signal.stages.len() - 1)
                 .build_widget(ctx, "next stage"),

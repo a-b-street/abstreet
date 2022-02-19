@@ -77,7 +77,9 @@ impl Picker {
                     Widget::row(vec![
                         GeomBatch::load_svg_bytes(
                             &ctx.prerender,
-                            widgetry::include_labeled_bytes!("../../widgetry/icons/arrow_keys.svg"),
+                            widgetry::include_labeled_bytes!(
+                                "../../../widgetry/icons/arrow_keys.svg"
+                            ),
                         )
                         .into_widget(ctx),
                         Text::from_all(vec![

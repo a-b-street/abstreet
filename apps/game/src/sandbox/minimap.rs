@@ -138,7 +138,7 @@ fn make_agent_toggles(ctx: &mut EventCtx, app: &App, is_enabled: [bool; 4]) -> V
             .0;
         let false_btn = {
             let checkbox = Image::from_bytes(include_labeled_bytes!(
-                "../../../widgetry/icons/checkbox_no_border_unchecked.svg"
+                "../../../../widgetry/icons/checkbox_no_border_unchecked.svg"
             ))
             .color(RewriteColor::Change(Color::BLACK, color.alpha(0.3)));
             let mut row = GeomBatchStack::horizontal(vec![
@@ -157,7 +157,7 @@ fn make_agent_toggles(ctx: &mut EventCtx, app: &App, is_enabled: [bool; 4]) -> V
         // and icon into a single batch, and use that combined batch as the button's image.
         let true_btn = {
             let checkbox = Image::from_bytes(include_labeled_bytes!(
-                "../../../widgetry/icons/checkbox_no_border_checked.svg"
+                "../../../../widgetry/icons/checkbox_no_border_checked.svg"
             ))
             .color(RewriteColor::Change(Color::BLACK, color));
 

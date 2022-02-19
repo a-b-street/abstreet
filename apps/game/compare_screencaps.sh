@@ -6,7 +6,7 @@ map=$3;
 
 mkdir screens_before;
 cd screens_before;
-unzip ../../data/input/${country}/${city}/screenshots/${map}.zip;
+unzip ../../../data/input/${country}/${city}/screenshots/${map}.zip;
 cd ..;
 before=screens_before;
 after=screenshots/${country}/${city}/${map};

@@ -12,12 +12,12 @@ default = ["map_gui/native", "widgetry/native-backend"]
 wasm = ["getrandom/js", "map_gui/wasm", "wasm-bindgen", "widgetry/wasm-backend"]
 
 [dependencies]
-abstio = { path = "../abstio" }
-abstutil = { path = "../abstutil" }
-geom = { path = "../geom" }
+abstio = { path = "../../abstio" }
+abstutil = { path = "../../abstutil" }
+geom = { path = "../../geom" }
 getrandom = { version = "0.2.3", optional = true }
-map_gui = { path = "../map_gui" }
-map_model = { path = "../map_model" }
+map_gui = { path = "../../map_gui" }
+map_model = { path = "../../map_model" }
 structopt = "0.3.23"
 wasm-bindgen = { version = "0.2.70", optional = true }
-widgetry = { path = "../widgetry" }
+widgetry = { path = "../../widgetry" }

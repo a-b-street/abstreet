@@ -32,5 +32,5 @@ fi
 # Default to a dev build
 WASM_PACK_FLAGS="${WASM_PACK_FLAGS:-"--dev"}"
 
-cd $PROJECT_ROOT/$CRATE_NAME
+cd $PROJECT_ROOT/apps/$CRATE_NAME
 wasm-pack build $WASM_PACK_FLAGS --target web --out-dir "${PROJECT_ROOT}/web/src/${JS_NAME}/wasm_pkg" -- --no-default-features --features wasm

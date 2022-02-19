@@ -12,26 +12,26 @@ default = ["map_gui/native", "widgetry/native-backend"]
 wasm = ["getrandom/js", "js-sys", "map_gui/wasm", "wasm-bindgen", "web-sys", "widgetry/wasm-backend"]
 
 [dependencies]
-abstio = { path = "../abstio" }
-abstutil = { path = "../abstutil" }
+abstio = { path = "../../abstio" }
+abstutil = { path = "../../abstutil" }
 anyhow = "1.0.38"
 contour = "0.4.0"
 fs-err = "2.6.0"
 geo = "0.18"
 geojson = { version = "0.22.0", features = ["geo-types"] }
-geom = { path = "../geom" }
+geom = { path = "../../geom" }
 getrandom = { version = "0.2.3", optional = true }
 js-sys = { version = "0.3.47", optional = true }
 lazy_static = "1.4.0"
 log = "0.4"
 maplit = "1.0.2"
-map_gui = { path = "../map_gui" }
-map_model = { path = "../map_model" }
+map_gui = { path = "../../map_gui" }
+map_model = { path = "../../map_model" }
 serde = "1.0.123"
 serde_json = "1.0.61"
-synthpop = { path = "../synthpop" }
+synthpop = { path = "../../synthpop" }
 wasm-bindgen = { version = "0.2.70", optional = true }
-widgetry = { path = "../widgetry" }
+widgetry = { path = "../../widgetry" }
 structopt = "0.3.23"
 
 [dependencies.web-sys]
