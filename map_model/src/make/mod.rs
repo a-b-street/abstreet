@@ -7,6 +7,7 @@ use structopt::StructOpt;
 
 use abstutil::{MultiMap, Timer};
 use geom::{Distance, FindClosest, HashablePt2D, Line, Polygon, Speed, EPSILON_DIST};
+use raw_map::initial;
 
 pub use self::parking_lots::snap_driveway;
 use crate::pathfind::{CreateEngine, Pathfinder};
@@ -19,12 +20,7 @@ use crate::{
 
 mod bridges;
 mod buildings;
-pub mod collapse_intersections;
-pub mod initial;
-pub mod merge_intersections;
 mod parking_lots;
-pub mod remove_disconnected;
-pub mod snappy;
 pub mod traffic_signals;
 pub mod transit;
 pub mod turns;

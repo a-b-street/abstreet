@@ -2,8 +2,7 @@ use std::collections::BTreeMap;
 
 use abstutil::Timer;
 use geom::{PolyLine, Ring};
-use map_model::raw::{OriginalRoad, RawMap};
-use map_model::{osm, IntersectionType};
+use raw_map::{osm, IntersectionType, OriginalRoad, RawMap};
 
 // TODO This needs to update turn restrictions too
 pub fn clip_map(map: &mut RawMap, timer: &mut Timer) {

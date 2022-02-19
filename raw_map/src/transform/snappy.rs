@@ -4,8 +4,7 @@ use abstutil::MultiMap;
 use geom::{Distance, FindClosest, Line, PolyLine};
 use kml::{ExtraShape, ExtraShapes};
 
-use crate::raw::{OriginalRoad, RawMap};
-use crate::Direction;
+use crate::{Direction, OriginalRoad, RawMap};
 
 const DEBUG_OUTPUT: bool = true;
 
@@ -104,7 +103,7 @@ pub fn snap_cycleways(map: &mut RawMap) {
         // totally disappear.
         for i in [r.i1, r.i2] {
             if map.roads_per_intersection(i).len() == 2 {
-                crate::make::collapse_intersections::collapse_intersection(map, i);
+                crate::transform::collapse_intersections::collapse_intersection(map, i);
             }
         }
     }

@@ -2,6 +2,11 @@
 //! structure is useful to iterate quickly on parts of the map importing pipeline without having to
 //! constantly read .osm files, and to visualize the intermediate state with map_editor.
 
+#[macro_use]
+extern crate anyhow;
+#[macro_use]
+extern crate log;
+
 use std::collections::{BTreeMap, BTreeSet};
 use std::fmt;
 
@@ -13,11 +18,17 @@ use abstio::{CityName, MapName};
 use abstutil::{deserialize_btreemap, serialize_btreemap, Tags, Timer};
 use geom::{Distance, GPSBounds, PolyLine, Polygon, Pt2D};
 
-use crate::make::initial::lane_specs::get_lane_specs_ltr;
-use crate::{
-    osm, Amenity, AreaType, Direction, DrivingSide, IntersectionType, LaneType, MapConfig,
-    PathConstraints,
+pub use crate::lane_specs::get_lane_specs_ltr;
+pub use crate::types::{
+    Amenity, AmenityType, AreaType, BufferType, Direction, DrivingSide, IntersectionType, LaneSpec,
+    LaneType, MapConfig, NamePerLanguage, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS,
 };
+
+pub mod initial;
+mod lane_specs;
+pub mod osm;
+mod transform;
+mod types;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RawMap {
@@ -182,8 +193,6 @@ impl RawMap {
         &self,
         id: osm::NodeID,
     ) -> Result<(Polygon, Vec<Polygon>, Vec<(String, Polygon)>)> {
-        use crate::make::initial;
-
         let intersection_roads: BTreeSet<OriginalRoad> =
             self.roads_per_intersection(id).into_iter().collect();
         let mut roads = BTreeMap::new();
@@ -210,8 +219,6 @@ impl RawMap {
 
     /// Generate the trimmed `PolyLine` for a single RawRoad by calculating both intersections
     pub fn trimmed_road_geometry(&self, road: OriginalRoad) -> Option<PolyLine> {
-        use crate::make::initial;
-
         let mut roads = BTreeMap::new();
         for id in [road.i1, road.i2] {
             for r in self.roads_per_intersection(id) {
@@ -532,27 +539,30 @@ impl RawMap {
         timer: &mut Timer,
     ) {
         timer.start("trimming dead-end cycleways (round 1)");
-        crate::make::collapse_intersections::trim_deadends(self);
+        crate::transform::collapse_intersections::trim_deadends(self);
         timer.stop("trimming dead-end cycleways (round 1)");
 
         timer.start("snap separate cycleways");
-        crate::make::snappy::snap_cycleways(self);
+        crate::transform::snappy::snap_cycleways(self);
         timer.stop("snap separate cycleways");
 
         // More dead-ends can be created after snapping cycleways. But also, snapping can be easier
         // to do after trimming some dead-ends. So... just run it twice.
         timer.start("trimming dead-end cycleways (round 2)");
-        crate::make::collapse_intersections::trim_deadends(self);
+        crate::transform::collapse_intersections::trim_deadends(self);
         timer.stop("trimming dead-end cycleways (round 2)");
 
-        crate::make::remove_disconnected::remove_disconnected_roads(self, timer);
+        crate::transform::remove_disconnected::remove_disconnected_roads(self, timer);
 
         timer.start("merging short roads");
-        crate::make::merge_intersections::merge_short_roads(self, consolidate_all_intersections);
+        crate::transform::merge_intersections::merge_short_roads(
+            self,
+            consolidate_all_intersections,
+        );
         timer.stop("merging short roads");
 
         timer.start("collapsing degenerate intersections");
-        crate::make::collapse_intersections::collapse(self);
+        crate::transform::collapse_intersections::collapse(self);
         timer.stop("collapsing degenerate intersections");
     }
 }
@@ -739,8 +749,14 @@ pub struct RawTransitRoute {
     pub shape: PolyLine,
     /// Entries into transit_stops
     pub stops: Vec<String>,
-    pub route_type: PathConstraints,
+    pub route_type: RawTransitType,
     // TODO Schedule
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub enum RawTransitType {
+    Bus,
+    Train,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

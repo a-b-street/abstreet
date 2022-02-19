@@ -2,8 +2,7 @@ use std::collections::BTreeSet;
 
 use abstutil::{MultiMap, Timer};
 
-use crate::osm;
-use crate::raw::{OriginalRoad, RawMap};
+use crate::{osm, OriginalRoad, RawMap};
 
 /// Some roads might be totally disconnected from the largest clump because of how the map's
 /// bounding polygon was drawn, or bad map data, or which roads are filtered from OSM. Remove them.

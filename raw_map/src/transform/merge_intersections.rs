@@ -3,9 +3,8 @@ use std::collections::{BTreeSet, VecDeque};
 use abstutil::Timer;
 use geom::{Angle, Distance};
 
-use crate::osm;
 use crate::osm::NodeID;
-use crate::raw::{OriginalRoad, RawMap, RawRoad};
+use crate::{osm, OriginalRoad, RawMap, RawRoad};
 
 /// Merge tiny "roads" that're actually just part of a complicated intersection. Returns all
 /// surviving intersections adjacent to one of these merged roads.

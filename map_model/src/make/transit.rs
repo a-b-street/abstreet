@@ -6,7 +6,7 @@ use abstutil::Timer;
 use geom::{Distance, Duration, FindClosest, HashablePt2D, Time};
 
 use crate::make::match_points_to_lanes;
-use crate::raw::{RawMap, RawTransitRoute, RawTransitStop};
+use crate::raw::{RawMap, RawTransitRoute, RawTransitStop, RawTransitType};
 use crate::{
     LaneID, Map, PathConstraints, Position, TransitRoute, TransitRouteID, TransitStop,
     TransitStopID,
@@ -167,7 +167,7 @@ fn create_route(
             .get(0)
             .ok_or_else(|| anyhow!("couldn't find where shape enters map"))?;
         // Snap that to a border
-        let borders = if route.route_type == PathConstraints::Bus {
+        let borders = if route.route_type == RawTransitType::Bus {
             &snapper.bus_incoming_borders
         } else {
             &snapper.train_incoming_borders
@@ -194,7 +194,7 @@ fn create_route(
             .last()
             .ok_or_else(|| anyhow!("couldn't find where shape leaves map"))?;
         // Snap that to a border
-        let borders = if route.route_type == PathConstraints::Bus {
+        let borders = if route.route_type == RawTransitType::Bus {
             &snapper.bus_outgoing_borders
         } else {
             &snapper.train_outgoing_borders
@@ -222,7 +222,10 @@ fn create_route(
         stops,
         start,
         end_border,
-        route_type: route.route_type,
+        route_type: match route.route_type {
+            RawTransitType::Bus => PathConstraints::Bus,
+            RawTransitType::Train => PathConstraints::Train,
+        },
         spawn_times: spawn_times.clone(),
         orig_spawn_times: spawn_times,
     };

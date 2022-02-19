@@ -7,8 +7,7 @@ use serde::Deserialize;
 use abstutil::MultiMap;
 use geom::{LonLat, PolyLine, Pt2D};
 use kml::{ExtraShape, ExtraShapes};
-use map_model::raw::{RawMap, RawTransitRoute, RawTransitStop};
-use map_model::PathConstraints;
+use raw_map::{RawMap, RawTransitRoute, RawTransitStop, RawTransitType};
 
 pub fn import(map: &mut RawMap) -> Result<()> {
     // Collect metadata about routes
@@ -18,10 +17,10 @@ pub fn import(map: &mut RawMap) -> Result<()> {
         let rec: Route = rec?;
         // See https://developers.google.com/transit/gtfs/reference#routestxt
         let route_type = match rec.route_type {
-            3 => PathConstraints::Bus,
+            3 => RawTransitType::Bus,
             // These aren't distinguished in the map model yet. Trams and streetcars might
             // particularly mess up...  or just fail to snap to a road later.
-            0 | 1 | 2 => PathConstraints::Train,
+            0 | 1 | 2 => RawTransitType::Train,
             _ => continue,
         };
         map.transit_routes.push(RawTransitRoute {

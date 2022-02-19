@@ -6,8 +6,10 @@ use abstio::MapName;
 use abstutil::{Tags, Timer};
 use geom::{Distance, FindClosest, HashablePt2D, Polygon, Pt2D, Ring};
 use kml::{ExtraShape, ExtraShapes};
-use map_model::raw::{RawArea, RawBuilding, RawMap, RawParkingLot, RawRoad, RestrictionType};
-use map_model::{osm, Amenity, AreaType, Direction, DrivingSide, NamePerLanguage};
+use raw_map::{
+    osm, Amenity, AreaType, Direction, DrivingSide, NamePerLanguage, RawArea, RawBuilding, RawMap,
+    RawParkingLot, RawRoad, RestrictionType,
+};
 
 use crate::osm_geom::{get_multipolygon_members, glue_multipolygon, multipoly_geometry};
 use crate::Options;

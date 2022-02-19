@@ -201,6 +201,10 @@ impl MapName {
         }
     }
 
+    pub fn blank() -> Self {
+        Self::new("zz", "blank city", "blank")
+    }
+
     /// Create a MapName from a city and map within that city.
     pub fn from_city(city: &CityName, map: &str) -> MapName {
         MapName::new(&city.country, &city.city, map)

@@ -1,6 +1,5 @@
 use geom::{Distance, Line, Polygon, Pt2D};
-use map_model::osm;
-use map_model::raw::OriginalRoad;
+use raw_map::{osm, OriginalRoad};
 use widgetry::tools::URLManager;
 use widgetry::{
     lctrl, Canvas, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,

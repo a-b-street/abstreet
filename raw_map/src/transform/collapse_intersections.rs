@@ -4,10 +4,9 @@ use anyhow::Result;
 
 use geom::{Distance, Pt2D};
 
-use crate::make::initial::lane_specs::get_lane_specs_ltr;
+use crate::lane_specs::get_lane_specs_ltr;
 use crate::osm::NodeID;
-use crate::raw::{OriginalRoad, RawMap};
-use crate::{osm, IntersectionType, LaneSpec, LaneType};
+use crate::{osm, IntersectionType, LaneSpec, LaneType, OriginalRoad, RawMap};
 
 /// Collapse degenerate intersections:
 /// - between two cycleways

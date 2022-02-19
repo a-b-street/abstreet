@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use abstutil::{deserialize_usize, serialize_usize, Tags};
 use geom::Polygon;
+use raw_map::AreaType;
 
 use crate::osm;
 
@@ -20,18 +21,6 @@ impl fmt::Display for AreaID {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Area #{}", self.0)
     }
-}
-
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
-pub enum AreaType {
-    Park,
-    Water,
-    Island,
-    // TODO This is unused, could delete. It'll change the binary format, so no urgency.
-    MedianStrip,
-    PedestrianPlaza,
-    /// Not from OSM. A user-specified area to focus on.
-    StudyArea,
 }
 
 /// Areas are just used for drawing.

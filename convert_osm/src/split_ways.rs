@@ -2,8 +2,9 @@ use std::collections::{hash_map::Entry, BTreeMap, HashMap, HashSet};
 
 use abstutil::{Counter, Timer};
 use geom::{Distance, HashablePt2D, Pt2D};
-use map_model::raw::{OriginalRoad, RawIntersection, RawMap, RawRoad};
-use map_model::{osm, Amenity, Direction, IntersectionType};
+use raw_map::{
+    osm, Amenity, Direction, IntersectionType, OriginalRoad, RawIntersection, RawMap, RawRoad,
+};
 
 use crate::extract::OsmExtract;
 

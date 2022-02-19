@@ -1,8 +1,7 @@
 use abstutil::Timer;
 use geom::{Distance, FindClosest, PolyLine};
 use kml::ExtraShapes;
-use map_model::osm;
-use map_model::raw::{OriginalRoad, RawMap};
+use raw_map::{osm, OriginalRoad, RawMap};
 
 use crate::{OnstreetParking, Options, PrivateOffstreetParking, PublicOffstreetParking};
 

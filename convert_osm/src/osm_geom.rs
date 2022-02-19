@@ -3,7 +3,7 @@
 use anyhow::Result;
 
 use geom::{PolyLine, Polygon, Pt2D, Ring};
-use map_model::osm::{OsmID, RelationID, WayID};
+use raw_map::osm::{OsmID, RelationID, WayID};
 
 use crate::reader::{Document, Relation};
 

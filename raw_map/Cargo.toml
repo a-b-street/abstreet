@@ -1,5 +1,5 @@
 [package]
-name = "convert_osm"
+name = "raw_map"
 version = "0.1.0"
 authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 edition = "2021"
@@ -8,11 +8,10 @@ edition = "2021"
 abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
 anyhow = "1.0.38"
-csv = "1.1.4"
-fs-err = "2.6.0"
 geom = { path = "../geom" }
 kml = { path = "../kml" }
 log = "0.4.14"
-raw_map = { path = "../raw_map" }
-roxmltree = { version = "0.14.0", features=["std"] }
+petgraph = { version = "0.6.0" }
 serde = "1.0.123"
+strum = "0.21"
+strum_macros = "0.21"

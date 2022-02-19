@@ -35,26 +35,25 @@ use serde::{Deserialize, Serialize};
 use abstio::MapName;
 use abstutil::{deserialize_btreemap, serialize_btreemap, MultiMap};
 use geom::{Bounds, GPSBounds, Polygon};
+pub use raw_map as raw;
+pub use raw_map::{
+    osm, Amenity, AmenityType, AreaType, BufferType, Direction, DrivingSide, IntersectionType,
+    LaneSpec, LaneType, MapConfig, NamePerLanguage, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS,
+};
 
 pub use crate::city::City;
 pub use crate::edits::{
     EditCmd, EditEffects, EditIntersection, EditRoad, MapEdits, PermanentMapEdits,
 };
 pub use crate::make::RawToMapOptions;
-pub use crate::map::{DrivingSide, MapConfig};
-pub use crate::objects::area::{Area, AreaID, AreaType};
+pub use crate::objects::area::{Area, AreaID};
 pub use crate::objects::block::{Block, Perimeter};
-pub use crate::objects::building::{
-    Amenity, AmenityType, Building, BuildingID, BuildingType, NamePerLanguage, OffstreetParking,
-};
-pub use crate::objects::intersection::{Intersection, IntersectionID, IntersectionType};
-pub use crate::objects::lane::{
-    BufferType, CommonEndpoint, Lane, LaneID, LaneSpec, LaneType, NORMAL_LANE_THICKNESS,
-    PARKING_LOT_SPOT_LENGTH, SIDEWALK_THICKNESS,
-};
+pub use crate::objects::building::{Building, BuildingID, BuildingType, OffstreetParking};
+pub use crate::objects::intersection::{Intersection, IntersectionID};
+pub use crate::objects::lane::{CommonEndpoint, Lane, LaneID, PARKING_LOT_SPOT_LENGTH};
 pub use crate::objects::movement::{CompressedMovementID, Movement, MovementID};
 pub use crate::objects::parking_lot::{ParkingLot, ParkingLotID};
-pub use crate::objects::road::{DirectedRoadID, Direction, Road, RoadID, RoadSideID, SideOfRoad};
+pub use crate::objects::road::{DirectedRoadID, Road, RoadID, RoadSideID, SideOfRoad};
 pub use crate::objects::stop_signs::{ControlStopSign, RoadWithStopSign};
 pub use crate::objects::traffic_signals::{ControlTrafficSignal, Stage, StageType};
 pub use crate::objects::transit::{TransitRoute, TransitRouteID, TransitStop, TransitStopID};
@@ -74,9 +73,7 @@ mod edits;
 mod make;
 mod map;
 mod objects;
-pub mod osm;
 mod pathfind;
-pub mod raw;
 mod traversable;
 
 // The map used by the simulation and UI. This struct is declared here so that the rest of the

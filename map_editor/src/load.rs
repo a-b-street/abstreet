@@ -1,5 +1,5 @@
 use abstio::{Manifest, MapName};
-use map_model::raw::RawMap;
+use raw_map::RawMap;
 use widgetry::tools::{FileLoader, PopupMsg, URLManager};
 use widgetry::{
     Autocomplete, EventCtx, GfxCtx, Image, Line, Outcome, Panel, State, Transition, Widget,

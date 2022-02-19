@@ -4,11 +4,11 @@ use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
 
 use anyhow::Result;
 use petgraph::graphmap::{DiGraphMap, UnGraphMap};
-use serde::{Deserialize, Serialize};
 
 use abstio::{CityName, MapName};
 use abstutil::{prettyprint_usize, serialized_size_bytes, MultiMap, Tags, Timer};
 use geom::{Bounds, Distance, Duration, GPSBounds, Polygon, Pt2D, Ring, Time};
+use raw_map::{DrivingSide, MapConfig};
 
 use crate::raw::{OriginalRoad, RawMap};
 use crate::{
@@ -19,31 +19,6 @@ use crate::{
     Pathfinder, PathfinderCaching, Position, Road, RoadID, RoutingParams, TransitRoute,
     TransitRouteID, TransitStop, TransitStopID, Turn, TurnID, TurnType, Zone,
 };
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct MapConfig {
-    /// If true, driving happens on the right side of the road (USA). If false, on the left
-    /// (Australia).
-    pub driving_side: DrivingSide,
-    pub bikes_can_use_bus_lanes: bool,
-    /// If true, roads without explicitly tagged sidewalks may have sidewalks or shoulders. If
-    /// false, no sidewalks will be inferred if not tagged in OSM, and separate sidewalks will be
-    /// included.
-    pub inferred_sidewalks: bool,
-    /// Street parking is divided into spots of this length. 8 meters is a reasonable default, but
-    /// people in some regions might be more accustomed to squeezing into smaller spaces. This
-    /// value can be smaller than the hardcoded maximum car length; cars may render on top of each
-    /// other, but otherwise the simulation doesn't care.
-    pub street_parking_spot_length: Distance,
-    /// If true, turns on red which do not conflict crossing traffic ('right on red') are allowed
-    pub turn_on_red: bool,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
-pub enum DrivingSide {
-    Right,
-    Left,
-}
 
 impl Map {
     /// Load a map from a local serialized Map or RawMap. Note this won't work on web. This should
@@ -181,7 +156,7 @@ impl Map {
             pathfinder: Pathfinder::empty(),
             pathfinder_dirty: false,
             routing_params: RoutingParams::default(),
-            name: MapName::new("zz", "blank city", "blank"),
+            name: MapName::blank(),
             edits: MapEdits::new(),
             edits_generation: 0,
             road_to_buildings: MultiMap::new(),
@@ -721,19 +696,19 @@ impl Map {
         self.pathfinder_dirty = false;
     }
 
-    pub fn get_languages(&self) -> BTreeSet<&str> {
+    pub fn get_languages(&self) -> BTreeSet<String> {
         let mut languages = BTreeSet::new();
         for r in self.all_roads() {
             for key in r.osm_tags.inner().keys() {
                 if let Some(x) = key.strip_prefix("name:") {
-                    languages.insert(x);
+                    languages.insert(x.to_string());
                 }
             }
         }
         for b in self.all_buildings() {
             for a in &b.amenities {
-                for lang in a.names.0.keys().flatten() {
-                    languages.insert(lang);
+                for lang in a.names.languages() {
+                    languages.insert(lang.to_string());
                 }
             }
         }

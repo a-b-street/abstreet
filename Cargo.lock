@@ -586,7 +586,7 @@ dependencies = [
  "geom",
  "kml",
  "log",
- "map_model",
+ "raw_map",
  "roxmltree",
  "serde",
 ]
@@ -2232,7 +2232,7 @@ dependencies = [
  "geom",
  "getrandom",
  "log",
- "map_model",
+ "raw_map",
  "serde",
  "structopt",
  "wasm-bindgen",
@@ -2292,11 +2292,10 @@ dependencies = [
  "petgraph",
  "rand",
  "rand_xorshift",
+ "raw_map",
  "serde",
  "serde_json",
  "structopt",
- "strum 0.21.0",
- "strum_macros 0.21.1",
  "thread_local",
  "traffic_signal_data",
 ]
@@ -3169,6 +3168,22 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0a441a7a6c80ad6473bd4b74ec1c9a4c951794285bf941c2126f607c72e48211"
 dependencies = [
  "libc",
+]
+
+[[package]]
+name = "raw_map"
+version = "0.1.0"
+dependencies = [
+ "abstio",
+ "abstutil",
+ "anyhow",
+ "geom",
+ "kml",
+ "log",
+ "petgraph",
+ "serde",
+ "strum 0.21.0",
+ "strum_macros 0.21.1",
 ]
 
 [[package]]

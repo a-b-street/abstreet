@@ -4,8 +4,7 @@ use std::io::Write;
 use abstio::{CityName, MapName};
 use abstutil::{Tags, Timer};
 use geom::{Bounds, Circle, Distance, FindClosest, GPSBounds, HashablePt2D, LonLat, Polygon, Pt2D};
-use map_model::raw::{OriginalRoad, RawBuilding, RawIntersection, RawMap, RawRoad};
-use map_model::{osm, IntersectionType};
+use raw_map::{osm, IntersectionType, OriginalRoad, RawBuilding, RawIntersection, RawMap, RawRoad};
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, Line, Text};
 
 use crate::world::{Object, ObjectID, World};

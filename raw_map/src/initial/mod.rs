@@ -9,11 +9,10 @@ use abstutil::{Tags, Timer};
 use geom::{Bounds, Circle, Distance, PolyLine, Polygon, Pt2D};
 
 pub use self::geometry::intersection_polygon;
-use crate::raw::{OriginalRoad, RawMap, RawRoad};
 use crate::{osm, IntersectionType, LaneSpec, MapConfig};
+use crate::{OriginalRoad, RawMap, RawRoad};
 
 mod geometry;
-pub mod lane_specs;
 
 pub struct InitialMap {
     pub roads: BTreeMap<OriginalRoad, Road>,
@@ -36,7 +35,7 @@ pub struct Road {
 
 impl Road {
     pub fn new(id: OriginalRoad, r: &RawRoad, cfg: &MapConfig) -> Result<Road> {
-        let lane_specs_ltr = lane_specs::get_lane_specs_ltr(&r.osm_tags, cfg);
+        let lane_specs_ltr = crate::lane_specs::get_lane_specs_ltr(&r.osm_tags, cfg);
         let (trimmed_center_pts, total_width) = r.get_geometry(id, cfg)?;
 
         Ok(Road {

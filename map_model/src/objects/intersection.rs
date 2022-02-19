@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use abstutil::{deserialize_usize, serialize_usize};
 use geom::{Distance, Polygon};
+use raw_map::IntersectionType;
 
 use crate::{
     osm, CompressedMovementID, DirectedRoadID, LaneID, Map, Movement, MovementID, PathConstraints,
@@ -25,14 +26,6 @@ impl fmt::Display for IntersectionID {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Intersection #{}", self.0)
     }
-}
-
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
-pub enum IntersectionType {
-    StopSign,
-    TrafficSignal,
-    Border,
-    Construction,
 }
 
 /// An intersection connects roads. Most have >2 roads and are controlled by stop signs or traffic

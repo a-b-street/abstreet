@@ -6,13 +6,12 @@ extern crate log;
 use std::collections::{HashMap, HashSet};
 
 use anyhow::Result;
+use serde::{Deserialize, Serialize};
 
 use abstio::MapName;
 use abstutil::{Tags, Timer};
 use geom::{Distance, FindClosest, GPSBounds, HashablePt2D, LonLat, PolyLine, Polygon, Pt2D, Ring};
-use map_model::raw::{OriginalRoad, RawMap};
-use map_model::{osm, raw, Amenity, MapConfig};
-use serde::{Deserialize, Serialize};
+use raw_map::{osm, Amenity, MapConfig, OriginalRoad, RawMap};
 
 mod clip;
 mod elevation;
@@ -162,7 +161,7 @@ fn add_extra_buildings(map: &mut RawMap, path: &str) -> Result<()> {
         // Add these as new buildings, generating a new dummy OSM ID.
         map.buildings.insert(
             osm::OsmID::Way(osm::WayID(id)),
-            raw::RawBuilding {
+            raw_map::RawBuilding {
                 polygon,
                 osm_tags: Tags::empty(),
                 public_garage_name: None,

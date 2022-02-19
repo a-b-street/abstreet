@@ -20,6 +20,7 @@ members = [
   "parking_mapper",
   "piggyback",
   "popdat",
+  "raw_map",
   "santa",
   "sim",
   "synthpop",

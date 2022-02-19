@@ -1,14 +1,11 @@
-use std::collections::{BTreeMap, HashSet, VecDeque};
+use std::collections::{HashSet, VecDeque};
 use std::fmt;
 
 use serde::{Deserialize, Serialize};
-use strum::IntoEnumIterator;
-use strum_macros::{Display, EnumIter, EnumString};
 
-use abstutil::{
-    deserialize_btreemap, deserialize_usize, serialize_btreemap, serialize_usize, Tags,
-};
+use abstutil::{deserialize_usize, serialize_usize, Tags};
 use geom::{Distance, PolyLine, Polygon, Pt2D};
+use raw_map::{Amenity, AmenityType, NamePerLanguage};
 
 use crate::{osm, LaneID, Map, PathConstraints, Position};
 
@@ -53,16 +50,6 @@ pub struct Building {
     pub driveway_geom: PolyLine,
 }
 
-/// A business located inside a building.
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Amenity {
-    pub names: NamePerLanguage,
-    /// This is the specific amenity listed in OSM, not the more general `AmenityType` category.
-    pub amenity_type: String,
-    /// Depending on options while importing, these might be empty, to save file space.
-    pub osm_tags: Tags,
-}
-
 /// Represent no parking as Private(0, false).
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub enum OffstreetParking {
@@ -91,45 +78,6 @@ impl BuildingType {
             BuildingType::Residential { .. } | BuildingType::ResidentialCommercial(_, _) => true,
             BuildingType::Commercial(_) | BuildingType::Empty => false,
         }
-    }
-}
-
-/// None corresponds to the native name
-#[derive(Serialize, Deserialize, Debug, PartialEq, Eq, PartialOrd, Ord, Clone)]
-pub struct NamePerLanguage(
-    #[serde(
-        serialize_with = "serialize_btreemap",
-        deserialize_with = "deserialize_btreemap"
-    )]
-    pub(crate) BTreeMap<Option<String>, String>,
-);
-
-impl NamePerLanguage {
-    pub fn get(&self, lang: Option<&String>) -> &String {
-        // TODO Can we avoid this clone?
-        let lang = lang.cloned();
-        if let Some(name) = self.0.get(&lang) {
-            return name;
-        }
-        &self.0[&None]
-    }
-
-    pub fn new(tags: &Tags) -> Option<NamePerLanguage> {
-        let native_name = tags.get(osm::NAME)?;
-        let mut map = BTreeMap::new();
-        map.insert(None, native_name.to_string());
-        for (k, v) in tags.inner() {
-            if let Some(lang) = k.strip_prefix("name:") {
-                map.insert(Some(lang.to_string()), v.to_string());
-            }
-        }
-        Some(NamePerLanguage(map))
-    }
-
-    pub fn unnamed() -> NamePerLanguage {
-        let mut map = BTreeMap::new();
-        map.insert(None, "unnamed".to_string());
-        NamePerLanguage(map)
     }
 }
 
@@ -222,169 +170,4 @@ fn sidewalk_to_bike(sidewalk_pos: Position, map: &Map) -> Option<(Position, Posi
         })?;
     // No buffer needed
     Some((sidewalk_pos.equiv_pos(lane, map), sidewalk_pos))
-}
-
-/// Businesses are categorized into one of these types.
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, EnumString, Display, EnumIter)]
-pub enum AmenityType {
-    Bank,
-    Bar,
-    Beauty,
-    Bike,
-    Cafe,
-    CarRepair,
-    CarShare,
-    Childcare,
-    ConvenienceStore,
-    Culture,
-    Exercise,
-    FastFood,
-    Food,
-    GreenSpace,
-    Hotel,
-    Laundry,
-    Library,
-    Medical,
-    Pet,
-    Playground,
-    Pool,
-    PostOffice,
-    Religious,
-    School,
-    Shopping,
-    Supermarket,
-    Tourism,
-    University,
-}
-
-impl AmenityType {
-    fn types(self) -> Vec<&'static str> {
-        match self {
-            AmenityType::Bank => vec!["bank"],
-            AmenityType::Bar => vec!["bar", "pub", "nightclub", "biergarten"],
-            AmenityType::Beauty => vec!["hairdresser", "beauty", "chemist", "cosmetics"],
-            AmenityType::Bike => vec!["bicycle"],
-            AmenityType::Cafe => vec!["cafe", "pastry", "coffee", "tea", "bakery"],
-            AmenityType::CarRepair => vec!["car_repair"],
-            AmenityType::CarShare => vec!["car_sharing"],
-            AmenityType::Childcare => vec!["childcare", "kindergarten"],
-            AmenityType::ConvenienceStore => vec!["convenience"],
-            AmenityType::Culture => vec!["arts_centre", "art", "cinema", "theatre"],
-            AmenityType::Exercise => vec!["fitness_centre", "sports_centre", "track", "pitch"],
-            AmenityType::FastFood => vec!["fast_food", "food_court"],
-            AmenityType::Food => vec![
-                "restaurant",
-                "farm",
-                "ice_cream",
-                "seafood",
-                "cheese",
-                "chocolate",
-                "deli",
-                "butcher",
-                "confectionery",
-                "beverages",
-                "alcohol",
-            ],
-            AmenityType::GreenSpace => vec!["park", "garden", "nature_reserve"],
-            AmenityType::Hotel => vec!["hotel", "hostel", "guest_house", "motel"],
-            AmenityType::Laundry => vec!["dry_cleaning", "laundry", "tailor"],
-            AmenityType::Library => vec!["library"],
-            AmenityType::Medical => vec![
-                "clinic", "dentist", "hospital", "pharmacy", "doctors", "optician",
-            ],
-            AmenityType::Pet => vec!["veterinary", "pet", "animal_boarding", "pet_grooming"],
-            AmenityType::Playground => vec!["playground"],
-            AmenityType::Pool => vec!["swimming_pool"],
-            AmenityType::PostOffice => vec!["post_office"],
-            AmenityType::Religious => vec!["place_of_worship", "religion"],
-            AmenityType::School => vec!["school"],
-            AmenityType::Shopping => vec![
-                "wholesale",
-                "bag",
-                "marketplace",
-                "second_hand",
-                "charity",
-                "clothes",
-                "lottery",
-                "shoes",
-                "mall",
-                "department_store",
-                "car",
-                "tailor",
-                "nutrition_supplements",
-                "watches",
-                "craft",
-                "fabric",
-                "kiosk",
-                "antiques",
-                "shoemaker",
-                "hardware",
-                "houseware",
-                "mobile_phone",
-                "photo",
-                "toys",
-                "bed",
-                "florist",
-                "electronics",
-                "fishing",
-                "garden_centre",
-                "frame",
-                "watchmaker",
-                "boutique",
-                "mobile_phone",
-                "party",
-                "car_parts",
-                "video",
-                "video_games",
-                "musical_instrument",
-                "music",
-                "baby_goods",
-                "doityourself",
-                "jewelry",
-                "variety_store",
-                "gift",
-                "carpet",
-                "perfumery",
-                "curtain",
-                "appliance",
-                "furniture",
-                "lighting",
-                "sewing",
-                "books",
-                "sports",
-                "travel_agency",
-                "interior_decoration",
-                "stationery",
-                "computer",
-                "tyres",
-                "newsagent",
-                "general",
-            ],
-            AmenityType::Supermarket => vec!["supermarket", "greengrocer"],
-            AmenityType::Tourism => vec![
-                "gallery",
-                "museum",
-                "zoo",
-                "attraction",
-                "theme_park",
-                "aquarium",
-            ],
-            AmenityType::University => vec!["college", "university"],
-        }
-    }
-
-    /// All types of amenities, in alphabetical order.
-    pub fn all() -> Vec<AmenityType> {
-        AmenityType::iter().collect()
-    }
-
-    /// Categorize an OSM amenity tag.
-    pub fn categorize(a: &str) -> Option<AmenityType> {
-        for at in AmenityType::all() {
-            if at.types().contains(&a) {
-                return Some(at);
-            }
-        }
-        None
-    }
 }

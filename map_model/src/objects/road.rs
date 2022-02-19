@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 
 use abstutil::{deserialize_usize, serialize_usize, Tags};
 use geom::{Distance, PolyLine, Polygon, Speed};
+use raw_map::Direction;
 
 use crate::raw::{OriginalRoad, RestrictionType};
 use crate::{
@@ -41,30 +42,6 @@ impl RoadID {
                 dir: Direction::Back,
             },
         ]
-    }
-}
-
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
-pub enum Direction {
-    Fwd,
-    Back,
-}
-
-impl Direction {
-    pub fn opposite(self) -> Direction {
-        match self {
-            Direction::Fwd => Direction::Back,
-            Direction::Back => Direction::Fwd,
-        }
-    }
-}
-
-impl fmt::Display for Direction {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Direction::Fwd => write!(f, "forwards"),
-            Direction::Back => write!(f, "backwards"),
-        }
     }
 }
 

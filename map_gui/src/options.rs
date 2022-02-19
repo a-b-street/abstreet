@@ -240,10 +240,10 @@ impl OptionsPanel {
                         let mut have_default = false;
                         let mut choices = vec![Choice::new("Map native language", None)];
                         for lang in app.map().get_languages() {
-                            if default == Some(lang.to_string()) {
+                            if default.as_ref() == Some(&lang) {
                                 have_default = true;
                             }
-                            choices.push(Choice::new(lang, Some(lang.to_string())));
+                            choices.push(Choice::new(lang.clone(), Some(lang)));
                         }
                         // We might be switching from a map that has more languages than this
                         // map

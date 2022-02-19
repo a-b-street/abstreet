@@ -9,9 +9,9 @@ use serde::{Deserialize, Serialize};
 
 use abstutil::Timer;
 use geom::{Distance, HashablePt2D, Line, Speed, Time};
+use raw_map::{get_lane_specs_ltr, initial};
 
 pub use self::perma::PermanentMapEdits;
-use crate::make::initial::lane_specs::get_lane_specs_ltr;
 use crate::make::{match_points_to_lanes, snap_driveway, trim_path};
 use crate::{
     connectivity, AccessRestrictions, BuildingID, ControlStopSign, ControlTrafficSignal, Direction,
@@ -597,8 +597,6 @@ fn recalculate_intersection_polygon(
     changed_road_width: Distance,
     i: IntersectionID,
 ) -> Vec<RoadID> {
-    use crate::make::initial;
-
     let intersection = map.get_i(i);
 
     let mut intersection_roads = BTreeSet::new();

@@ -12,9 +12,8 @@ use anyhow::Result;
 use abstutil::wraparound_get;
 use geom::{Circle, Distance, InfiniteLine, Line, PolyLine, Polygon, Pt2D, Ring, EPSILON_DIST};
 
-use crate::make::initial::Road;
-use crate::osm;
-use crate::raw::OriginalRoad;
+use super::Road;
+use crate::{osm, OriginalRoad};
 
 const DEGENERATE_INTERSECTION_HALF_LENGTH: Distance = Distance::const_meters(2.5);
 

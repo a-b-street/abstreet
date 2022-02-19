@@ -1,5 +1,5 @@
 use geom::{ArrowCap, Distance};
-use map_model::raw::OriginalRoad;
+use raw_map::OriginalRoad;
 use widgetry::{
     Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
     Line, Panel, SimpleState, Spinner, State, Text, TextExt, Transition, VerticalAlignment, Widget,

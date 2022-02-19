@@ -6,7 +6,6 @@ use serde::{Deserialize, Serialize};
 
 use abstio::MapName;
 use abstutil::Timer;
-use map_model::Map;
 use widgetry::{Canvas, EventCtx};
 
 /// Represents the state of a widgetry Canvas.
@@ -27,7 +26,7 @@ impl CameraState {
     /// Save the camera's configuration for the specified map, and also remember this map was the
     /// last to be used.
     pub fn save(canvas: &Canvas, name: &MapName) {
-        if name == Map::blank().get_name() {
+        if name == &MapName::blank() {
             return;
         }
 

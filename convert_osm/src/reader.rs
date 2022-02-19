@@ -5,7 +5,7 @@ use anyhow::Result;
 use abstio::slurp_file;
 use abstutil::{prettyprint_usize, Tags, Timer};
 use geom::{GPSBounds, LonLat, Pt2D};
-use map_model::osm::{NodeID, OsmID, RelationID, WayID};
+use raw_map::osm::{NodeID, OsmID, RelationID, WayID};
 
 // References to missing objects are just filtered out.
 // Per https://wiki.openstreetmap.org/wiki/OSM_XML#Certainties_and_Uncertainties, we assume

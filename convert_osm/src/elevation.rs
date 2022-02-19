@@ -5,7 +5,7 @@ use anyhow::Result;
 use fs_err::File;
 
 use geom::{Distance, PolyLine};
-use map_model::raw::{OriginalRoad, RawMap};
+use raw_map::{OriginalRoad, RawMap};
 
 pub fn add_data(map: &mut RawMap) -> Result<()> {
     let input = format!("elevation_input_{}", map.name.as_filename());
