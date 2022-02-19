@@ -14,7 +14,7 @@ pub trait ObjectID: Clone + Copy + Debug + Eq + Hash {
 
 pub struct Object<ID: ObjectID> {
     id: ID,
-    geometry: Vec<(Color, Polygon)>,
+    pub geometry: Vec<(Color, Polygon)>,
 }
 
 impl<ID: ObjectID> Object<ID> {

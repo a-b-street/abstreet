@@ -329,7 +329,7 @@ impl Model {
     fn road_object(&self, id: OriginalRoad) -> Object<ID> {
         let road = &self.map.roads[&id];
         let (center, total_width) = road.get_geometry(id, &self.map.config).unwrap();
-        Object::new(
+        let mut obj = Object::new(
             ID::Road(id),
             if road.osm_tags.is("junction", "intersection") {
                 Color::PINK
@@ -337,7 +337,13 @@ impl Model {
                 Color::grey(0.8)
             },
             center.make_polygons(total_width),
-        )
+        );
+        // TODO Ideally this'd be a layer on top of everything else. Definitely don't attempt
+        // before refactoring to use the better World
+        if let Some(outline) = center.to_thick_boundary(total_width, Distance::meters(1.0)) {
+            obj.geometry.push((Color::BLACK, outline));
+        }
+        obj
     }
 
     pub fn show_r_points(&mut self, ctx: &EventCtx, id: OriginalRoad) {
