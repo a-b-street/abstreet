@@ -1,5 +1,4 @@
 use abstio::{Manifest, MapName};
-use map_gui::tools::CameraState;
 use map_model::raw::RawMap;
 use widgetry::tools::{FileLoader, PopupMsg, URLManager};
 use widgetry::{
@@ -7,6 +6,7 @@ use widgetry::{
 };
 
 use crate::app::App;
+use crate::camera::CameraState;
 
 pub struct PickMap {
     panel: Panel,

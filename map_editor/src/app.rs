@@ -1,6 +1,4 @@
 use geom::{Distance, Line, Polygon, Pt2D};
-use map_gui::tools::CameraState;
-use map_gui::AppLike;
 use map_model::osm;
 use map_model::raw::OriginalRoad;
 use widgetry::tools::URLManager;
@@ -9,6 +7,7 @@ use widgetry::{
     SharedAppState, State, Text, Toggle, Transition, VerticalAlignment, Widget,
 };
 
+use crate::camera::CameraState;
 use crate::model::{Model, ID};
 
 pub struct App {
@@ -30,60 +29,6 @@ impl SharedAppState for App {
         if !self.model.map.name.map.is_empty() {
             CameraState::save(canvas, &self.model.map.name);
         }
-    }
-}
-
-// We use a few things from map_gui that don't actually require these... maybe meaning they should
-// be lifted even further to widgetry.
-
-impl AppLike for App {
-    fn map(&self) -> &map_model::Map {
-        unreachable!()
-    }
-    fn sim(&self) -> &sim::Sim {
-        unreachable!()
-    }
-    fn cs(&self) -> &map_gui::colors::ColorScheme {
-        unreachable!()
-    }
-    fn mut_cs(&mut self) -> &mut map_gui::colors::ColorScheme {
-        unreachable!()
-    }
-    fn draw_map(&self) -> &map_gui::render::DrawMap {
-        unreachable!()
-    }
-    fn mut_draw_map(&mut self) -> &mut map_gui::render::DrawMap {
-        unreachable!()
-    }
-    fn opts(&self) -> &map_gui::options::Options {
-        unreachable!()
-    }
-    fn mut_opts(&mut self) -> &mut map_gui::options::Options {
-        unreachable!()
-    }
-    fn map_switched(&mut self, _: &mut EventCtx, _: map_model::Map, _: &mut abstutil::Timer) {
-        unreachable!()
-    }
-    fn draw_with_opts(&self, _: &mut GfxCtx, _: map_gui::render::DrawOptions) {
-        unreachable!()
-    }
-    fn make_warper(
-        &mut self,
-        _: &EventCtx,
-        _: Pt2D,
-        _: Option<f64>,
-        _: Option<map_gui::ID>,
-    ) -> Box<dyn State<App>> {
-        unreachable!()
-    }
-    fn sim_time(&self) -> geom::Time {
-        unreachable!()
-    }
-    fn current_stage_and_remaining_time(
-        &self,
-        _: map_model::IntersectionID,
-    ) -> (usize, geom::Duration) {
-        unreachable!()
     }
 }
 

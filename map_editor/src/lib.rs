@@ -12,6 +12,7 @@ use widgetry::Settings;
 use crate::app::App;
 
 mod app;
+mod camera;
 mod edit;
 mod load;
 mod model;
