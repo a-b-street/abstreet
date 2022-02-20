@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["main",""],["run",""]],"mod":[["app",""],["camera",""],["edit",""],["load",""],["model",""],["world",""]],"struct":[["Args",""]]});
+initSidebarItems({"fn":[["main",""],["run",""]],"mod":[["app",""],["camera",""],["edit",""],["load",""],["model",""]],"struct":[["Args",""]]});

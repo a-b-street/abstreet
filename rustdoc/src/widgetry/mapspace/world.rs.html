@@ -567,6 +567,62 @@
 <span id="566">566</span>
 <span id="567">567</span>
 <span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
+<span id="622">622</span>
+<span id="623">623</span>
+<span id="624">624</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 <span class="kw">use</span> <span class="ident">std::fmt::Debug</span>;
 <span class="kw">use</span> <span class="ident">std::hash::Hash</span>;
@@ -605,7 +661,8 @@
     <span class="doccomment">/// A left click occurred while not hovering on any object</span>
     <span class="ident">ClickedFreeSpace</span>(<span class="ident">Pt2D</span>),
     <span class="doccomment">/// An object is being dragged. The given offsets are relative to the previous dragging event.</span>
-    <span class="doccomment">/// The current position of the cursor is included.</span>
+    <span class="doccomment">/// The current position of the cursor is included. If you&#39;re dragging a large object, applying</span>
+    <span class="doccomment">/// the offset will likely feel more natural than centering on the cursor.</span>
     <span class="ident">Dragging</span> {
         <span class="ident">obj</span>: <span class="ident">ID</span>,
         <span class="ident">dx</span>: <span class="ident">f64</span>,
@@ -616,6 +673,13 @@
     <span class="ident">Keypress</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">ID</span>),
     <span class="doccomment">/// A hoverable object was clicked</span>
     <span class="ident">ClickedObject</span>(<span class="ident">ID</span>),
+    <span class="doccomment">/// The object being hovered on changed from (something before, to something after). Note this</span>
+    <span class="doccomment">/// transition may also occur outside of `event` -- such as during `delete` or `initialize_hover`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// TODO Bug in the map_editor: If you delete one object, then the caller does initialize_hover</span>
+    <span class="doccomment">/// and we immediately wind up on another road beneath, we don&#39;t detect this and start showing</span>
+    <span class="doccomment">/// road points.</span>
+    <span class="ident">HoverChanged</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span>),
     <span class="doccomment">/// Nothing interesting happened</span>
     <span class="ident">Nothing</span>,
 }
@@ -645,6 +709,19 @@
             }),
             <span class="ident">WorldOutcome::Keypress</span>(<span class="ident">action</span>, <span class="ident">id</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">WorldOutcome::Keypress</span>(<span class="ident">action</span>, <span class="ident">f</span>(<span class="ident">id</span>)<span class="question-mark">?</span>)),
             <span class="ident">WorldOutcome::ClickedObject</span>(<span class="ident">id</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">WorldOutcome::ClickedObject</span>(<span class="ident">f</span>(<span class="ident">id</span>)<span class="question-mark">?</span>)),
+            <span class="ident">WorldOutcome::HoverChanged</span>(<span class="ident">before</span>, <span class="ident">after</span>) =&gt; {
+                <span class="comment">// If f returns None, bail out. But preserve None if before or after originally was</span>
+                <span class="comment">// that.</span>
+                <span class="kw">let</span> <span class="ident">before</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">before</span> {
+                    <span class="prelude-val">Some</span>(<span class="ident">x</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">f</span>(<span class="ident">x</span>)<span class="question-mark">?</span>),
+                    <span class="prelude-val">None</span> =&gt; <span class="prelude-val">None</span>,
+                };
+                <span class="kw">let</span> <span class="ident">after</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">after</span> {
+                    <span class="prelude-val">Some</span>(<span class="ident">x</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">f</span>(<span class="ident">x</span>)<span class="question-mark">?</span>),
+                    <span class="prelude-val">None</span> =&gt; <span class="prelude-val">None</span>,
+                };
+                <span class="prelude-val">Some</span>(<span class="ident">WorldOutcome::HoverChanged</span>(<span class="ident">before</span>, <span class="ident">after</span>))
+            }
             <span class="ident">WorldOutcome::Nothing</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">WorldOutcome::Nothing</span>),
         }
     }
@@ -809,7 +886,7 @@
     }
 
     <span class="doccomment">/// Finalize the object, adding it to the `World`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) {
         <span class="kw">let</span> <span class="ident">hitbox</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">hitbox</span>.<span class="ident">take</span>().<span class="ident">expect</span>(<span class="string">&quot;didn&#39;t specify hitbox&quot;</span>);
         <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">hitbox</span>.<span class="ident">get_bounds</span>();
         <span class="kw">let</span> <span class="ident">quadtree_id</span> <span class="op">=</span> <span class="self">self</span>
@@ -930,7 +1007,11 @@
     }
 
     <span class="doccomment">/// After adding all objects to a `World`, call this to initially detect if the cursor is</span>
-    <span class="doccomment">/// hovering on an object.</span>
+    <span class="doccomment">/// hovering on an object. This may also be called after adding or deleting objects to</span>
+    <span class="doccomment">/// immediately recalculate hover before the mouse moves.</span>
+    <span class="comment">// TODO Maybe we should automatically do this after mutations? Except we don&#39;t want to in the</span>
+    <span class="comment">// middle of a bulk operation, like initial setup or a many-step mutation. So maybe the caller</span>
+    <span class="comment">// really should handle it.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">initialize_hover</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) {
         <span class="self">self</span>.<span class="ident">hovering</span> <span class="op">=</span> <span class="ident">ctx</span>
             .<span class="ident">canvas</span>
@@ -970,11 +1051,16 @@
                     <span class="kw">return</span> <span class="ident">WorldOutcome::ClickedObject</span>(<span class="self">self</span>.<span class="ident">hovering</span>.<span class="ident">unwrap</span>());
                 }
 
+                <span class="kw">let</span> <span class="ident">before</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">hovering</span>;
                 <span class="self">self</span>.<span class="ident">hovering</span> <span class="op">=</span> <span class="ident">ctx</span>
                     .<span class="ident">canvas</span>
                     .<span class="ident">get_cursor_in_map_space</span>()
                     .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">cursor</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">calculate_hover</span>(<span class="ident">cursor</span>));
-                <span class="kw">return</span> <span class="ident">WorldOutcome::Nothing</span>;
+                <span class="kw">return</span> <span class="kw">if</span> <span class="ident">before</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">hovering</span> {
+                    <span class="ident">WorldOutcome::Nothing</span>
+                } <span class="kw">else</span> {
+                    <span class="ident">WorldOutcome::HoverChanged</span>(<span class="ident">before</span>, <span class="self">self</span>.<span class="ident">hovering</span>)
+                };
             }
             <span class="comment">// Allow zooming, but not panning, while dragging</span>
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="ident">dy</span>)) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">get_mouse_scroll</span>() {
@@ -1001,13 +1087,22 @@
         <span class="kw">let</span> <span class="ident">cursor</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>() {
             <span class="ident">pt</span>
         } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">hovering</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-            <span class="kw">return</span> <span class="ident">WorldOutcome::Nothing</span>;
+            <span class="kw">let</span> <span class="ident">before</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">hovering</span>.<span class="ident">take</span>();
+            <span class="kw">return</span> <span class="kw">if</span> <span class="ident">before</span>.<span class="ident">is_some</span>() {
+                <span class="ident">WorldOutcome::HoverChanged</span>(<span class="ident">before</span>, <span class="prelude-val">None</span>)
+            } <span class="kw">else</span> {
+                <span class="ident">WorldOutcome::Nothing</span>
+            };
         };
 
         <span class="comment">// Possibly recalculate hovering</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">neutral_outcome</span> <span class="op">=</span> <span class="ident">WorldOutcome::Nothing</span>;
         <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
+            <span class="kw">let</span> <span class="ident">before</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">hovering</span>;
             <span class="self">self</span>.<span class="ident">hovering</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">calculate_hover</span>(<span class="ident">cursor</span>);
+            <span class="kw">if</span> <span class="ident">before</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">hovering</span> {
+                <span class="ident">neutral_outcome</span> <span class="op">=</span> <span class="ident">WorldOutcome::HoverChanged</span>(<span class="ident">before</span>, <span class="self">self</span>.<span class="ident">hovering</span>);
+            }
         }
 
         <span class="comment">// If we&#39;re hovering on a draggable thing, only allow zooming, not panning</span>
@@ -1025,7 +1120,7 @@
                 <span class="ident">allow_panning</span> <span class="op">=</span> <span class="bool-val">false</span>;
                 <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">left_mouse_button_pressed</span>() {
                     <span class="self">self</span>.<span class="ident">dragging_from</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">cursor</span>, <span class="bool-val">false</span>));
-                    <span class="kw">return</span> <span class="ident">WorldOutcome::Nothing</span>;
+                    <span class="kw">return</span> <span class="ident">neutral_outcome</span>;
                 }
             }
 
@@ -1046,7 +1141,7 @@
             <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">zoom</span>(<span class="ident">dy</span>, <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor</span>());
         }
 
-        <span class="ident">WorldOutcome::Nothing</span>
+        <span class="ident">neutral_outcome</span>
     }
 
     <span class="kw">fn</span> <span class="ident">calculate_hover</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">cursor</span>: <span class="ident">Pt2D</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> {
@@ -1116,6 +1211,23 @@
         } <span class="kw">else</span> {
             <span class="bool-val">false</span>
         }
+    }
+
+    <span class="doccomment">/// Calculate the object currently underneath the cursor. This should only be used when the</span>
+    <span class="doccomment">/// `World` is not being actively updated by calling `event`. If another state temporarily</span>
+    <span class="doccomment">/// needs to disable most interactions with objects, it can poll this instead.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">calculate_hovering</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> {
+        <span class="comment">// TODO Seems expensive! Maybe instead set some kind of &quot;locked&quot; mode and disable</span>
+        <span class="comment">// everything except hovering?</span>
+        <span class="ident">ctx</span>.<span class="ident">canvas</span>
+            .<span class="ident">get_cursor_in_map_space</span>()
+            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">cursor</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">calculate_hover</span>(<span class="ident">cursor</span>))
+    }
+
+    <span class="doccomment">/// If an object is currently being hovered on, return its keybindings. This should be used to</span>
+    <span class="doccomment">/// describe interactions; to detect the keypresses, listen for `WorldOutcome::Keypress`.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_hovered_keybindings</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">MultiKey</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>)<span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">objects</span>[<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">hovering</span><span class="question-mark">?</span>].<span class="ident">keybindings</span>)
     }
 }
 

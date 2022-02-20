@@ -73,7 +73,6 @@
 <span id="72">72</span>
 <span id="73">73</span>
 <span id="74">74</span>
-<span id="75">75</span>
 </pre><pre class="rust"><code><span class="doccomment">//! The map_editor renders and lets you edit RawMaps, which are a format in between OSM and the</span>
 <span class="doccomment">//! full Map. It&#39;s useful for debugging maps imported from OSM, and for drawing synthetic maps for</span>
 <span class="doccomment">//! testing.</span>
@@ -92,7 +91,6 @@
 <span class="kw">mod</span> <span class="ident">edit</span>;
 <span class="kw">mod</span> <span class="ident">load</span>;
 <span class="kw">mod</span> <span class="ident">model</span>;
-<span class="kw">mod</span> <span class="ident">world</span>;
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">main</span>() {
     <span class="kw">let</span> <span class="ident">settings</span> <span class="op">=</span> <span class="ident">Settings::new</span>(<span class="string">&quot;RawMap editor&quot;</span>);

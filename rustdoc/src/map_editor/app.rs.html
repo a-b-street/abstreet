@@ -392,146 +392,9 @@
 <span id="391">391</span>
 <span id="392">392</span>
 <span id="393">393</span>
-<span id="394">394</span>
-<span id="395">395</span>
-<span id="396">396</span>
-<span id="397">397</span>
-<span id="398">398</span>
-<span id="399">399</span>
-<span id="400">400</span>
-<span id="401">401</span>
-<span id="402">402</span>
-<span id="403">403</span>
-<span id="404">404</span>
-<span id="405">405</span>
-<span id="406">406</span>
-<span id="407">407</span>
-<span id="408">408</span>
-<span id="409">409</span>
-<span id="410">410</span>
-<span id="411">411</span>
-<span id="412">412</span>
-<span id="413">413</span>
-<span id="414">414</span>
-<span id="415">415</span>
-<span id="416">416</span>
-<span id="417">417</span>
-<span id="418">418</span>
-<span id="419">419</span>
-<span id="420">420</span>
-<span id="421">421</span>
-<span id="422">422</span>
-<span id="423">423</span>
-<span id="424">424</span>
-<span id="425">425</span>
-<span id="426">426</span>
-<span id="427">427</span>
-<span id="428">428</span>
-<span id="429">429</span>
-<span id="430">430</span>
-<span id="431">431</span>
-<span id="432">432</span>
-<span id="433">433</span>
-<span id="434">434</span>
-<span id="435">435</span>
-<span id="436">436</span>
-<span id="437">437</span>
-<span id="438">438</span>
-<span id="439">439</span>
-<span id="440">440</span>
-<span id="441">441</span>
-<span id="442">442</span>
-<span id="443">443</span>
-<span id="444">444</span>
-<span id="445">445</span>
-<span id="446">446</span>
-<span id="447">447</span>
-<span id="448">448</span>
-<span id="449">449</span>
-<span id="450">450</span>
-<span id="451">451</span>
-<span id="452">452</span>
-<span id="453">453</span>
-<span id="454">454</span>
-<span id="455">455</span>
-<span id="456">456</span>
-<span id="457">457</span>
-<span id="458">458</span>
-<span id="459">459</span>
-<span id="460">460</span>
-<span id="461">461</span>
-<span id="462">462</span>
-<span id="463">463</span>
-<span id="464">464</span>
-<span id="465">465</span>
-<span id="466">466</span>
-<span id="467">467</span>
-<span id="468">468</span>
-<span id="469">469</span>
-<span id="470">470</span>
-<span id="471">471</span>
-<span id="472">472</span>
-<span id="473">473</span>
-<span id="474">474</span>
-<span id="475">475</span>
-<span id="476">476</span>
-<span id="477">477</span>
-<span id="478">478</span>
-<span id="479">479</span>
-<span id="480">480</span>
-<span id="481">481</span>
-<span id="482">482</span>
-<span id="483">483</span>
-<span id="484">484</span>
-<span id="485">485</span>
-<span id="486">486</span>
-<span id="487">487</span>
-<span id="488">488</span>
-<span id="489">489</span>
-<span id="490">490</span>
-<span id="491">491</span>
-<span id="492">492</span>
-<span id="493">493</span>
-<span id="494">494</span>
-<span id="495">495</span>
-<span id="496">496</span>
-<span id="497">497</span>
-<span id="498">498</span>
-<span id="499">499</span>
-<span id="500">500</span>
-<span id="501">501</span>
-<span id="502">502</span>
-<span id="503">503</span>
-<span id="504">504</span>
-<span id="505">505</span>
-<span id="506">506</span>
-<span id="507">507</span>
-<span id="508">508</span>
-<span id="509">509</span>
-<span id="510">510</span>
-<span id="511">511</span>
-<span id="512">512</span>
-<span id="513">513</span>
-<span id="514">514</span>
-<span id="515">515</span>
-<span id="516">516</span>
-<span id="517">517</span>
-<span id="518">518</span>
-<span id="519">519</span>
-<span id="520">520</span>
-<span id="521">521</span>
-<span id="522">522</span>
-<span id="523">523</span>
-<span id="524">524</span>
-<span id="525">525</span>
-<span id="526">526</span>
-<span id="527">527</span>
-<span id="528">528</span>
-<span id="529">529</span>
-<span id="530">530</span>
-<span id="531">531</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Line</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
-<span class="kw">use</span> <span class="ident">raw_map</span>::{<span class="ident">osm</span>, <span class="ident">OriginalRoad</span>};
+<span class="kw">use</span> <span class="ident">raw_map::osm</span>;
+<span class="kw">use</span> <span class="ident">widgetry::mapspace::WorldOutcome</span>;
 <span class="kw">use</span> <span class="ident">widgetry::tools::URLManager</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">lctrl</span>, <span class="ident">Canvas</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
@@ -566,15 +429,10 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MainState</span> {
     <span class="ident">mode</span>: <span class="ident">Mode</span>,
     <span class="ident">panel</span>: <span class="ident">Panel</span>,
-
-    <span class="ident">last_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">enum</span> <span class="ident">Mode</span> {
-    <span class="ident">Viewing</span>,
-    <span class="ident">MovingIntersection</span>(<span class="ident">osm::NodeID</span>),
-    <span class="ident">MovingBuilding</span>(<span class="ident">osm::OsmID</span>),
-    <span class="ident">MovingRoadPoint</span>(<span class="ident">OriginalRoad</span>, <span class="ident">usize</span>),
+    <span class="ident">Neutral</span>,
     <span class="ident">CreatingRoad</span>(<span class="ident">osm::NodeID</span>),
     <span class="ident">SetBoundaryPt1</span>,
     <span class="ident">SetBoundaryPt2</span>(<span class="ident">Pt2D</span>),
@@ -593,31 +451,8 @@
         <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">gps_bounds</span>.<span class="ident">to_bounds</span>();
         <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">map_dims</span> <span class="op">=</span> (<span class="ident">bounds</span>.<span class="ident">width</span>(), <span class="ident">bounds</span>.<span class="ident">height</span>());
 
-        <span class="comment">// TODO Make these dynamic!</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">Text::new</span>();
-        <span class="ident">instructions</span>.<span class="ident">add_appended</span>(<span class="macro">vec!</span>[
-            <span class="ident">Line</span>(<span class="string">&quot;Press &quot;</span>),
-            <span class="ident">Key::I</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
-            <span class="ident">Line</span>(<span class="string">&quot; to create a new intersection&quot;</span>),
-        ]);
-        <span class="ident">instructions</span>.<span class="ident">add_line</span>(<span class="string">&quot;Hover on an intersection, then...&quot;</span>);
-        <span class="ident">instructions</span>.<span class="ident">add_appended</span>(<span class="macro">vec!</span>[
-            <span class="ident">Line</span>(<span class="string">&quot;- Press &quot;</span>),
-            <span class="ident">Key::R</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
-            <span class="ident">Line</span>(<span class="string">&quot; to start/end a new road&quot;</span>),
-        ]);
-        <span class="ident">instructions</span>.<span class="ident">add_appended</span>(<span class="macro">vec!</span>[
-            <span class="ident">Line</span>(<span class="string">&quot;- Click and drag&quot;</span>).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>),
-            <span class="ident">Line</span>(<span class="string">&quot; to move it&quot;</span>),
-        ]);
-        <span class="ident">instructions</span>.<span class="ident">add_appended</span>(<span class="macro">vec!</span>[
-            <span class="ident">Line</span>(<span class="string">&quot;Press &quot;</span>),
-            <span class="ident">Key::Backspace</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
-            <span class="ident">Line</span>(<span class="string">&quot; to delete something&quot;</span>),
-        ]);
-
-        <span class="ident">Box::new</span>(<span class="ident">MainState</span> {
-            <span class="ident">mode</span>: <span class="ident">Mode::Viewing</span>,
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">MainState</span> {
+            <span class="ident">mode</span>: <span class="ident">Mode::Neutral</span>,
             <span class="ident">panel</span>: <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
                 <span class="ident">Line</span>(<span class="string">&quot;RawMap Editor&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
@@ -652,7 +487,8 @@
                     ])
                     .<span class="ident">section</span>(<span class="ident">ctx</span>),
                     <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                        <span class="ident">Toggle::switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;intersection geometry&quot;</span>, <span class="ident">Key::G</span>, <span class="bool-val">false</span>),
+                        <span class="ident">Toggle::choice</span>(<span class="ident">ctx</span>, <span class="string">&quot;create&quot;</span>, <span class="string">&quot;intersection&quot;</span>, <span class="string">&quot;building&quot;</span>, <span class="prelude-val">None</span>, <span class="bool-val">true</span>),
+                        <span class="ident">Toggle::switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;show intersection geometry&quot;</span>, <span class="ident">Key::G</span>, <span class="bool-val">false</span>),
                         <span class="ident">ctx</span>.<span class="ident">style</span>()
                             .<span class="ident">btn_outline</span>
                             .<span class="ident">text</span>(<span class="string">&quot;adjust boundary&quot;</span>)
@@ -672,321 +508,211 @@
             ]))
             .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Right</span>, <span class="ident">VerticalAlignment::Top</span>)
             .<span class="ident">build</span>(<span class="ident">ctx</span>),
+        };
+        <span class="ident">state</span>.<span class="ident">update_instructions</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+        <span class="ident">Box::new</span>(<span class="ident">state</span>)
+    }
 
-            <span class="ident">last_id</span>: <span class="prelude-val">None</span>,
-        })
+    <span class="kw">fn</span> <span class="ident">update_instructions</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">keybindings</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">get_hovered_keybindings</span>() {
+            <span class="comment">// TODO Should we also say click and drag to move it? Or for clickable roads, click to</span>
+            <span class="comment">// edit?</span>
+            <span class="kw">for</span> (<span class="ident">key</span>, <span class="ident">action</span>) <span class="kw">in</span> <span class="ident">keybindings</span> {
+                <span class="ident">txt</span>.<span class="ident">add_appended</span>(<span class="macro">vec!</span>[
+                    <span class="ident">Line</span>(<span class="string">&quot;- Press &quot;</span>),
+                    <span class="ident">key</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
+                    <span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot; to {}&quot;</span>, <span class="ident">action</span>)),
+                ]);
+            }
+        } <span class="kw">else</span> {
+            <span class="ident">txt</span>.<span class="ident">add_appended</span>(<span class="macro">vec!</span>[
+                <span class="ident">Line</span>(<span class="string">&quot;Click&quot;</span>).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>),
+                <span class="ident">Line</span>(<span class="string">&quot; to create a new intersection or building&quot;</span>),
+            ]);
+        }
+        <span class="kw">let</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>);
+        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;instructions&quot;</span>, <span class="ident">instructions</span>);
     }
 }
 
 <span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MainState</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">can_move_canvas</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">mode</span> {
-            <span class="comment">// If we&#39;re hovering on anything except for a road, we can maybe start clicking and</span>
-            <span class="comment">// dragging</span>
-            <span class="ident">Mode::Viewing</span> =&gt; <span class="macro">matches!</span>(<span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">get_selection</span>(), <span class="prelude-val">None</span> <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">ID::Road</span>(<span class="kw">_</span>))),
-            <span class="ident">Mode::CreatingRoad</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">Mode::SetBoundaryPt1</span> <span class="op">|</span> <span class="ident">Mode::SetBoundaryPt2</span>(<span class="kw">_</span>) =&gt; <span class="bool-val">true</span>,
-            <span class="ident">Mode::MovingIntersection</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">Mode::MovingBuilding</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">Mode::MovingRoadPoint</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; {
-                <span class="bool-val">false</span>
-            }
-        };
-        <span class="kw">if</span> <span class="ident">can_move_canvas</span> {
-            <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>() {
-                <span class="ident">URLManager::update_url_cam</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">gps_bounds</span>);
-            }
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="ident">dy</span>)) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">get_mouse_scroll</span>() {
-            <span class="comment">// While dragging something, allow zooming</span>
-            <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">zoom</span>(<span class="ident">dy</span>, <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor</span>());
-        }
-
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
-            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">handle_mouseover</span>(<span class="ident">ctx</span>);
-        }
-
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cursor</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>();
-        <span class="comment">// Negative coordinates break the quadtree in World, so try to prevent anything involving</span>
-        <span class="comment">// them. Creating stuff near the boundary or moving things past it still crash, but this</span>
-        <span class="comment">// and drawing the boundary kind of help.</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">cursor</span> {
-            <span class="kw">if</span> <span class="ident">pt</span>.<span class="ident">x</span>() <span class="op">&lt;</span> <span class="number">0.0</span> <span class="op">|</span><span class="op">|</span> <span class="ident">pt</span>.<span class="ident">y</span>() <span class="op">&lt;</span> <span class="number">0.0</span> {
-                <span class="ident">cursor</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-            }
-        }
-
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">mode</span> {
-            <span class="ident">Mode::Viewing</span> =&gt; {
-                {
-                    <span class="kw">let</span> <span class="ident">before</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">last_id</span> {
-                        <span class="prelude-val">Some</span>(<span class="ident">ID::Road</span>(<span class="ident">r</span>)) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">ID::RoadPoint</span>(<span class="ident">r</span>, <span class="kw">_</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="ident">r</span>),
-                        <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
-                    };
-                    <span class="kw">let</span> <span class="ident">after</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">get_selection</span>() {
-                        <span class="prelude-val">Some</span>(<span class="ident">ID::Road</span>(<span class="ident">r</span>)) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">ID::RoadPoint</span>(<span class="ident">r</span>, <span class="kw">_</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="ident">r</span>),
-                        <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
-                    };
-                    <span class="kw">if</span> <span class="ident">before</span> <span class="op">!</span><span class="op">=</span> <span class="ident">after</span> {
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="ident">before</span> {
-                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">stop_showing_pts</span>(<span class="ident">id</span>);
+            <span class="ident">Mode::Neutral</span> =&gt; {
+                <span class="comment">// TODO Update URL when canvas moves</span>
+                <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+                    <span class="ident">WorldOutcome::ClickedFreeSpace</span>(<span class="ident">pt</span>) =&gt; {
+                        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;create&quot;</span>) {
+                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">create_i</span>(<span class="ident">ctx</span>, <span class="ident">pt</span>);
+                        } <span class="kw">else</span> {
+                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">create_b</span>(<span class="ident">ctx</span>, <span class="ident">pt</span>);
                         }
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">r</span>) <span class="op">=</span> <span class="ident">after</span> {
+                        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">initialize_hover</span>(<span class="ident">ctx</span>);
+                        <span class="self">self</span>.<span class="ident">update_instructions</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                    }
+                    <span class="ident">WorldOutcome::Dragging</span> {
+                        <span class="ident">obj</span>: <span class="ident">ID::Intersection</span>(<span class="ident">i</span>),
+                        <span class="ident">cursor</span>,
+                        ..
+                    } =&gt; {
+                        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">move_i</span>(<span class="ident">ctx</span>, <span class="ident">i</span>, <span class="ident">cursor</span>);
+                    }
+                    <span class="ident">WorldOutcome::Dragging</span> {
+                        <span class="ident">obj</span>: <span class="ident">ID::Building</span>(<span class="ident">b</span>),
+                        <span class="ident">dx</span>,
+                        <span class="ident">dy</span>,
+                        ..
+                    } =&gt; {
+                        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">move_b</span>(<span class="ident">ctx</span>, <span class="ident">b</span>, <span class="ident">dx</span>, <span class="ident">dy</span>);
+                    }
+                    <span class="ident">WorldOutcome::Dragging</span> {
+                        <span class="ident">obj</span>: <span class="ident">ID::RoadPoint</span>(<span class="ident">r</span>, <span class="ident">idx</span>),
+                        <span class="ident">cursor</span>,
+                        ..
+                    } =&gt; {
+                        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">move_r_pt</span>(<span class="ident">ctx</span>, <span class="ident">r</span>, <span class="ident">idx</span>, <span class="ident">cursor</span>);
+                    }
+                    <span class="ident">WorldOutcome::HoverChanged</span>(<span class="ident">before</span>, <span class="ident">after</span>) =&gt; {
+                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ID::Road</span>(<span class="ident">r</span>)) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">ID::RoadPoint</span>(<span class="ident">r</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">before</span> {
+                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">stop_showing_pts</span>(<span class="ident">r</span>);
+                        }
+                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ID::Road</span>(<span class="ident">r</span>)) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">ID::RoadPoint</span>(<span class="ident">r</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">after</span> {
                             <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">show_r_points</span>(<span class="ident">ctx</span>, <span class="ident">r</span>);
-                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">handle_mouseover</span>(<span class="ident">ctx</span>);
+                            <span class="comment">// Shouldn&#39;t need to call initialize_hover, unless the user somehow</span>
+                            <span class="comment">// warped their cursor to precisely the location of a point, in the</span>
+                            <span class="comment">// middle of the road!</span>
+                        }
+
+                        <span class="self">self</span>.<span class="ident">update_instructions</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                    }
+                    <span class="ident">WorldOutcome::Keypress</span>(<span class="string">&quot;start a road here&quot;</span>, <span class="ident">ID::Intersection</span>(<span class="ident">i</span>)) =&gt; {
+                        <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::CreatingRoad</span>(<span class="ident">i</span>);
+                    }
+                    <span class="ident">WorldOutcome::Keypress</span>(<span class="string">&quot;delete&quot;</span>, <span class="ident">ID::Intersection</span>(<span class="ident">i</span>)) =&gt; {
+                        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">delete_i</span>(<span class="ident">i</span>);
+                        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">initialize_hover</span>(<span class="ident">ctx</span>);
+                        <span class="self">self</span>.<span class="ident">update_instructions</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                    }
+                    <span class="ident">WorldOutcome::Keypress</span>(
+                        <span class="string">&quot;toggle stop sign / traffic signal&quot;</span>,
+                        <span class="ident">ID::Intersection</span>(<span class="ident">i</span>),
+                    ) =&gt; {
+                        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">toggle_i</span>(<span class="ident">ctx</span>, <span class="ident">i</span>);
+                    }
+                    <span class="ident">WorldOutcome::Keypress</span>(<span class="string">&quot;debug intersection geometry&quot;</span>, <span class="ident">ID::Intersection</span>(<span class="ident">i</span>)) =&gt; {
+                        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">debug_intersection_geometry</span>(<span class="ident">ctx</span>, <span class="ident">i</span>);
+                    }
+                    <span class="ident">WorldOutcome::Keypress</span>(<span class="string">&quot;delete&quot;</span>, <span class="ident">ID::Building</span>(<span class="ident">b</span>)) =&gt; {
+                        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">delete_b</span>(<span class="ident">b</span>);
+                        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">initialize_hover</span>(<span class="ident">ctx</span>);
+                        <span class="self">self</span>.<span class="ident">update_instructions</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                    }
+                    <span class="ident">WorldOutcome::Keypress</span>(<span class="string">&quot;delete&quot;</span>, <span class="ident">ID::Road</span>(<span class="ident">r</span>)) =&gt; {
+                        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">delete_r</span>(<span class="ident">ctx</span>, <span class="ident">r</span>);
+                        <span class="comment">// There may be something underneath the road, so recalculate immediately</span>
+                        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">initialize_hover</span>(<span class="ident">ctx</span>);
+                        <span class="self">self</span>.<span class="ident">update_instructions</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                    }
+                    <span class="ident">WorldOutcome::Keypress</span>(<span class="string">&quot;insert a new point here&quot;</span>, <span class="ident">ID::Road</span>(<span class="ident">r</span>)) =&gt; {
+                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>() {
+                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">insert_r_pt</span>(<span class="ident">ctx</span>, <span class="ident">r</span>, <span class="ident">pt</span>);
+                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">initialize_hover</span>(<span class="ident">ctx</span>);
+                            <span class="self">self</span>.<span class="ident">update_instructions</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                         }
                     }
+                    <span class="ident">WorldOutcome::Keypress</span>(<span class="string">&quot;remove interior points&quot;</span>, <span class="ident">ID::Road</span>(<span class="ident">r</span>)) =&gt; {
+                        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">clear_r_pts</span>(<span class="ident">ctx</span>, <span class="ident">r</span>);
+                        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">initialize_hover</span>(<span class="ident">ctx</span>);
+                        <span class="self">self</span>.<span class="ident">update_instructions</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                    }
+                    <span class="ident">WorldOutcome::Keypress</span>(<span class="string">&quot;delete&quot;</span>, <span class="ident">ID::RoadPoint</span>(<span class="ident">r</span>, <span class="ident">idx</span>)) =&gt; {
+                        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">delete_r_pt</span>(<span class="ident">ctx</span>, <span class="ident">r</span>, <span class="ident">idx</span>);
+                        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">initialize_hover</span>(<span class="ident">ctx</span>);
+                        <span class="self">self</span>.<span class="ident">update_instructions</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                    }
+                    <span class="ident">WorldOutcome::Keypress</span>(<span class="string">&quot;merge&quot;</span>, <span class="ident">ID::Road</span>(<span class="ident">r</span>)) =&gt; {
+                        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">merge_r</span>(<span class="ident">ctx</span>, <span class="ident">r</span>);
+                        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">initialize_hover</span>(<span class="ident">ctx</span>);
+                        <span class="self">self</span>.<span class="ident">update_instructions</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                    }
+                    <span class="ident">WorldOutcome::Keypress</span>(<span class="string">&quot;mark/unmark as a junction&quot;</span>, <span class="ident">ID::Road</span>(<span class="ident">r</span>)) =&gt; {
+                        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">toggle_junction</span>(<span class="ident">ctx</span>, <span class="ident">r</span>);
+                    }
+                    <span class="ident">WorldOutcome::ClickedObject</span>(<span class="ident">ID::Road</span>(<span class="ident">r</span>)) =&gt; {
+                        <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident"><span class="kw">crate</span>::edit::EditRoad::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">r</span>));
+                    }
+                    <span class="kw">_</span> =&gt; {}
                 }
 
-                <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">get_selection</span>() {
-                    <span class="prelude-val">Some</span>(<span class="ident">ID::Intersection</span>(<span class="ident">i</span>)) =&gt; {
-                        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">left_mouse_button_pressed</span>() {
-                            <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::MovingIntersection</span>(<span class="ident">i</span>);
-                        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key::R</span>) {
-                            <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::CreatingRoad</span>(<span class="ident">i</span>);
-                        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key::Backspace</span>) {
-                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">delete_i</span>(<span class="ident">i</span>);
-                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">handle_mouseover</span>(<span class="ident">ctx</span>);
-                        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key::T</span>) {
-                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">toggle_i</span>(<span class="ident">ctx</span>, <span class="ident">i</span>);
-                        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key::P</span>) {
-                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">debug_intersection_geometry</span>(<span class="ident">ctx</span>, <span class="ident">i</span>);
+                <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+                    <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) =&gt; <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
+                        <span class="string">&quot;adjust boundary&quot;</span> =&gt; {
+                            <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::SetBoundaryPt1</span>;
                         }
-
-                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
-                        <span class="ident">txt</span>.<span class="ident">add_appended</span>(<span class="macro">vec!</span>[
-                            <span class="ident">Line</span>(<span class="string">&quot;- Press &quot;</span>),
-                            <span class="ident">Key::R</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
-                            <span class="ident">Line</span>(<span class="string">&quot; to start a road here&quot;</span>),
-                        ]);
-                        <span class="ident">txt</span>.<span class="ident">add_appended</span>(<span class="macro">vec!</span>[
-                            <span class="ident">Line</span>(<span class="string">&quot;- Press &quot;</span>),
-                            <span class="ident">Key::Backspace</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
-                            <span class="ident">Line</span>(<span class="string">&quot; to delete&quot;</span>),
-                        ]);
-                        <span class="ident">txt</span>.<span class="ident">add_appended</span>(<span class="macro">vec!</span>[
-                            <span class="ident">Line</span>(<span class="string">&quot;- Click and drag&quot;</span>).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>),
-                            <span class="ident">Line</span>(<span class="string">&quot; to move&quot;</span>),
-                        ]);
-                        <span class="ident">txt</span>.<span class="ident">add_appended</span>(<span class="macro">vec!</span>[
-                            <span class="ident">Line</span>(<span class="string">&quot;- Press &quot;</span>),
-                            <span class="ident">Key::T</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
-                            <span class="ident">Line</span>(<span class="string">&quot; to toggle stop sign / traffic signal&quot;</span>),
-                        ]);
-                        <span class="ident">txt</span>.<span class="ident">add_appended</span>(<span class="macro">vec!</span>[
-                            <span class="ident">Line</span>(<span class="string">&quot;- Press &quot;</span>),
-                            <span class="ident">Key::P</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
-                            <span class="ident">Line</span>(<span class="string">&quot; to debug intersection geometry&quot;</span>),
-                        ]);
-                        <span class="kw">let</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>);
-                        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;instructions&quot;</span>, <span class="ident">instructions</span>);
-                    }
-                    <span class="prelude-val">Some</span>(<span class="ident">ID::Building</span>(<span class="ident">b</span>)) =&gt; {
-                        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">left_mouse_button_pressed</span>() {
-                            <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::MovingBuilding</span>(<span class="ident">b</span>);
-                        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key::Backspace</span>) {
-                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">delete_b</span>(<span class="ident">b</span>);
-                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">handle_mouseover</span>(<span class="ident">ctx</span>);
-                        }
-
-                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
-                        <span class="ident">txt</span>.<span class="ident">add_appended</span>(<span class="macro">vec!</span>[
-                            <span class="ident">Line</span>(<span class="string">&quot;- Press &quot;</span>),
-                            <span class="ident">Key::Backspace</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
-                            <span class="ident">Line</span>(<span class="string">&quot; to delete&quot;</span>),
-                        ]);
-                        <span class="ident">txt</span>.<span class="ident">add_appended</span>(<span class="macro">vec!</span>[
-                            <span class="ident">Line</span>(<span class="string">&quot;- Click and drag&quot;</span>).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>),
-                            <span class="ident">Line</span>(<span class="string">&quot; to move&quot;</span>),
-                        ]);
-                        <span class="kw">let</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>);
-                        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;instructions&quot;</span>, <span class="ident">instructions</span>);
-                    }
-                    <span class="prelude-val">Some</span>(<span class="ident">ID::Road</span>(<span class="ident">r</span>)) =&gt; {
-                        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key::Backspace</span>) {
-                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">delete_r</span>(<span class="ident">ctx</span>, <span class="ident">r</span>);
-                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">handle_mouseover</span>(<span class="ident">ctx</span>);
-                        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">cursor</span>.<span class="ident">is_some</span>() <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key::P</span>) {
-                            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">insert_r_pt</span>(<span class="ident">ctx</span>, <span class="ident">r</span>, <span class="ident">cursor</span>.<span class="ident">unwrap</span>()) {
-                                <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">force_set_selection</span>(<span class="ident">id</span>);
-                            }
-                        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key::X</span>) {
-                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">clear_r_pts</span>(<span class="ident">ctx</span>, <span class="ident">r</span>);
-                        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key::M</span>) {
-                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">merge_r</span>(<span class="ident">ctx</span>, <span class="ident">r</span>);
-                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">handle_mouseover</span>(<span class="ident">ctx</span>);
-                        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key::J</span>) {
-                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">toggle_junction</span>(<span class="ident">ctx</span>, <span class="ident">r</span>);
-                        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() {
-                            <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident"><span class="kw">crate</span>::edit::EditRoad::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">r</span>));
-                        }
-
-                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
-                        <span class="ident">txt</span>.<span class="ident">add_appended</span>(<span class="macro">vec!</span>[
-                            <span class="ident">Line</span>(<span class="string">&quot;Click&quot;</span>).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>),
-                            <span class="ident">Line</span>(<span class="string">&quot; to edit lanes&quot;</span>),
-                        ]);
-                        <span class="ident">txt</span>.<span class="ident">add_appended</span>(<span class="macro">vec!</span>[
-                            <span class="ident">Line</span>(<span class="string">&quot;- Press &quot;</span>),
-                            <span class="ident">Key::Backspace</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
-                            <span class="ident">Line</span>(<span class="string">&quot; to delete&quot;</span>),
-                        ]);
-                        <span class="ident">txt</span>.<span class="ident">add_appended</span>(<span class="macro">vec!</span>[
-                            <span class="ident">Line</span>(<span class="string">&quot;- Press &quot;</span>),
-                            <span class="ident">Key::P</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
-                            <span class="ident">Line</span>(<span class="string">&quot; to insert a new point here&quot;</span>),
-                        ]);
-                        <span class="ident">txt</span>.<span class="ident">add_appended</span>(<span class="macro">vec!</span>[
-                            <span class="ident">Line</span>(<span class="string">&quot;- Press &quot;</span>),
-                            <span class="ident">Key::X</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
-                            <span class="ident">Line</span>(<span class="string">&quot; to remove interior points&quot;</span>),
-                        ]);
-                        <span class="ident">txt</span>.<span class="ident">add_appended</span>(<span class="macro">vec!</span>[
-                            <span class="ident">Line</span>(<span class="string">&quot;- Press &quot;</span>),
-                            <span class="ident">Key::M</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
-                            <span class="ident">Line</span>(<span class="string">&quot; to merge&quot;</span>),
-                        ]);
-                        <span class="ident">txt</span>.<span class="ident">add_appended</span>(<span class="macro">vec!</span>[
-                            <span class="ident">Line</span>(<span class="string">&quot;- Press &quot;</span>),
-                            <span class="ident">Key::J</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
-                            <span class="ident">Line</span>(<span class="string">&quot; to mark/unmark as a junction&quot;</span>),
-                        ]);
-                        <span class="kw">let</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>);
-                        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;instructions&quot;</span>, <span class="ident">instructions</span>);
-                    }
-                    <span class="prelude-val">Some</span>(<span class="ident">ID::RoadPoint</span>(<span class="ident">r</span>, <span class="ident">idx</span>)) =&gt; {
-                        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">left_mouse_button_pressed</span>() {
-                            <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::MovingRoadPoint</span>(<span class="ident">r</span>, <span class="ident">idx</span>);
-                        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key::Backspace</span>) {
-                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">delete_r_pt</span>(<span class="ident">ctx</span>, <span class="ident">r</span>, <span class="ident">idx</span>);
-                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">handle_mouseover</span>(<span class="ident">ctx</span>);
-                        }
-
-                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
-                        <span class="ident">txt</span>.<span class="ident">add_appended</span>(<span class="macro">vec!</span>[
-                            <span class="ident">Line</span>(<span class="string">&quot;- Press &quot;</span>),
-                            <span class="ident">Key::Backspace</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
-                            <span class="ident">Line</span>(<span class="string">&quot; to delete&quot;</span>),
-                        ]);
-                        <span class="ident">txt</span>.<span class="ident">add_appended</span>(<span class="macro">vec!</span>[
-                            <span class="ident">Line</span>(<span class="string">&quot;- Click and drag&quot;</span>).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>),
-                            <span class="ident">Line</span>(<span class="string">&quot; to move&quot;</span>),
-                        ]);
-                        <span class="kw">let</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>);
-                        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;instructions&quot;</span>, <span class="ident">instructions</span>);
-                    }
-                    <span class="prelude-val">None</span> =&gt; {
-                        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-                            <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) =&gt; <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                                <span class="string">&quot;adjust boundary&quot;</span> =&gt; {
-                                    <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::SetBoundaryPt1</span>;
-                                }
-                                <span class="string">&quot;auto mark junctions&quot;</span> =&gt; {
-                                    <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">auto_mark_junctions</span>() {
-                                        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">road_deleted</span>(<span class="ident">r</span>);
-                                        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">road_added</span>(<span class="ident">ctx</span>, <span class="ident">r</span>);
-                                    }
-                                }
-                                <span class="string">&quot;simplify RawMap&quot;</span> =&gt; {
-                                    <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;simplify&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
-                                        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">run_all_simplifications</span>(<span class="bool-val">false</span>, <span class="ident">timer</span>);
-                                        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">recreate_world</span>(<span class="ident">ctx</span>, <span class="ident">timer</span>);
-                                    });
-                                }
-                                <span class="string">&quot;export to OSM&quot;</span> =&gt; {
-                                    <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">export_to_osm</span>();
-                                }
-                                <span class="string">&quot;overwrite RawMap&quot;</span> =&gt; {
-                                    <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">save</span>();
-                                }
-                                <span class="string">&quot;reload&quot;</span> =&gt; {
-                                    <span class="ident">CameraState::save</span>(<span class="ident">ctx</span>.<span class="ident">canvas</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">name</span>);
-                                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident"><span class="kw">crate</span>::load::load_map</span>(
-                                        <span class="ident">ctx</span>,
-                                        <span class="ident">abstio::path_raw_map</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">name</span>),
-                                        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">include_bldgs</span>,
-                                        <span class="prelude-val">None</span>,
-                                    ));
-                                }
-                                <span class="string">&quot;open another RawMap&quot;</span> =&gt; {
-                                    <span class="ident">CameraState::save</span>(<span class="ident">ctx</span>.<span class="ident">canvas</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">name</span>);
-                                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident"><span class="kw">crate</span>::load::PickMap::new_state</span>(<span class="ident">ctx</span>));
-                                }
-                                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
-                            },
-                            <span class="ident">Outcome::Changed</span>(<span class="kw">_</span>) =&gt; {
-                                <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">show_intersection_geometry</span>(
-                                    <span class="ident">ctx</span>,
-                                    <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;intersection geometry&quot;</span>),
-                                );
-                            }
-                            <span class="kw">_</span> =&gt; {
-                                <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key::I</span>) {
-                                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">cursor</span> {
-                                        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">create_i</span>(<span class="ident">ctx</span>, <span class="ident">pt</span>);
-                                        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">handle_mouseover</span>(<span class="ident">ctx</span>);
-                                    }
-                                <span class="comment">// TODO Silly bug: Mouseover doesn&#39;t actually work! I think the</span>
-                                <span class="comment">// cursor being dead-center messes</span>
-                                <span class="comment">// up the precomputed triangles.</span>
-                                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key::B</span>) {
-                                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">cursor</span> {
-                                        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">create_b</span>(<span class="ident">ctx</span>, <span class="ident">pt</span>);
-                                        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">force_set_selection</span>(<span class="ident">id</span>);
-                                    }
-                                }
-
-                                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
-                                <span class="ident">txt</span>.<span class="ident">add_appended</span>(<span class="macro">vec!</span>[
-                                    <span class="ident">Line</span>(<span class="string">&quot;- Press &quot;</span>),
-                                    <span class="ident">Key::I</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
-                                    <span class="ident">Line</span>(<span class="string">&quot; to create an intersection&quot;</span>),
-                                ]);
-                                <span class="ident">txt</span>.<span class="ident">add_appended</span>(<span class="macro">vec!</span>[
-                                    <span class="ident">Line</span>(<span class="string">&quot;- Press &quot;</span>),
-                                    <span class="ident">Key::B</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
-                                    <span class="ident">Line</span>(<span class="string">&quot; to create a building&quot;</span>),
-                                ]);
-                                <span class="kw">let</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>);
-                                <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;instructions&quot;</span>, <span class="ident">instructions</span>);
+                        <span class="string">&quot;auto mark junctions&quot;</span> =&gt; {
+                            <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">auto_mark_junctions</span>() {
+                                <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">road_deleted</span>(<span class="ident">r</span>);
+                                <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">road_added</span>(<span class="ident">ctx</span>, <span class="ident">r</span>);
                             }
                         }
+                        <span class="string">&quot;simplify RawMap&quot;</span> =&gt; {
+                            <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;simplify&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
+                                <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">run_all_simplifications</span>(<span class="bool-val">false</span>, <span class="ident">timer</span>);
+                                <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">recreate_world</span>(<span class="ident">ctx</span>, <span class="ident">timer</span>);
+                            });
+                        }
+                        <span class="string">&quot;export to OSM&quot;</span> =&gt; {
+                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">export_to_osm</span>();
+                        }
+                        <span class="string">&quot;overwrite RawMap&quot;</span> =&gt; {
+                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">save</span>();
+                        }
+                        <span class="string">&quot;reload&quot;</span> =&gt; {
+                            <span class="ident">CameraState::save</span>(<span class="ident">ctx</span>.<span class="ident">canvas</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">name</span>);
+                            <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident"><span class="kw">crate</span>::load::load_map</span>(
+                                <span class="ident">ctx</span>,
+                                <span class="ident">abstio::path_raw_map</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">name</span>),
+                                <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">include_bldgs</span>,
+                                <span class="prelude-val">None</span>,
+                            ));
+                        }
+                        <span class="string">&quot;open another RawMap&quot;</span> =&gt; {
+                            <span class="ident">CameraState::save</span>(<span class="ident">ctx</span>.<span class="ident">canvas</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">name</span>);
+                            <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident"><span class="kw">crate</span>::load::PickMap::new_state</span>(<span class="ident">ctx</span>));
+                        }
+                        <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                    },
+                    <span class="ident">Outcome::Changed</span>(<span class="kw">_</span>) =&gt; {
+                        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">show_intersection_geometry</span>(
+                            <span class="ident">ctx</span>,
+                            <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;show intersection geometry&quot;</span>),
+                        );
                     }
-                }
-            }
-            <span class="ident">Mode::MovingIntersection</span>(<span class="ident">id</span>) =&gt; {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">cursor</span> {
-                    <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">move_i</span>(<span class="ident">ctx</span>, <span class="ident">id</span>, <span class="ident">pt</span>);
-                    <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">left_mouse_button_released</span>() {
-                        <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::Viewing</span>;
-                    }
-                }
-            }
-            <span class="ident">Mode::MovingBuilding</span>(<span class="ident">id</span>) =&gt; {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">cursor</span> {
-                    <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">move_b</span>(<span class="ident">ctx</span>, <span class="ident">id</span>, <span class="ident">pt</span>);
-                    <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">left_mouse_button_released</span>() {
-                        <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::Viewing</span>;
-                    }
-                }
-            }
-            <span class="ident">Mode::MovingRoadPoint</span>(<span class="ident">r</span>, <span class="ident">idx</span>) =&gt; {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">cursor</span> {
-                    <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">move_r_pt</span>(<span class="ident">ctx</span>, <span class="ident">r</span>, <span class="ident">idx</span>, <span class="ident">pt</span>);
-                    <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">left_mouse_button_released</span>() {
-                        <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::Viewing</span>;
-                    }
+                    <span class="kw">_</span> =&gt; {}
                 }
             }
             <span class="ident">Mode::CreatingRoad</span>(<span class="ident">i1</span>) =&gt; {
+                <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>() {
+                    <span class="ident">URLManager::update_url_cam</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">gps_bounds</span>);
+                }
+
                 <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key::Escape</span>) {
-                    <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::Viewing</span>;
-                    <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">handle_mouseover</span>(<span class="ident">ctx</span>);
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ID::Intersection</span>(<span class="ident">i2</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">get_selection</span>() {
+                    <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::Neutral</span>;
+                    <span class="comment">// TODO redo mouseover?</span>
+                } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ID::Intersection</span>(<span class="ident">i2</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">calculate_hovering</span>(<span class="ident">ctx</span>) {
                     <span class="kw">if</span> <span class="ident">i1</span> <span class="op">!</span><span class="op">=</span> <span class="ident">i2</span> <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key::R</span>) {
                         <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">create_r</span>(<span class="ident">ctx</span>, <span class="ident">i1</span>, <span class="ident">i2</span>);
-                        <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::Viewing</span>;
-                        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">handle_mouseover</span>(<span class="ident">ctx</span>);
+                        <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::Neutral</span>;
+                        <span class="comment">// TODO redo mouseover?</span>
                     }
                 }
             }
             <span class="ident">Mode::SetBoundaryPt1</span> =&gt; {
+                <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>() {
+                    <span class="ident">URLManager::update_url_cam</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">gps_bounds</span>);
+                }
+
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
                 <span class="ident">txt</span>.<span class="ident">add_appended</span>(<span class="macro">vec!</span>[
                     <span class="ident">Line</span>(<span class="string">&quot;Click&quot;</span>).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>),
@@ -995,13 +721,17 @@
                 <span class="kw">let</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>);
                 <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;instructions&quot;</span>, <span class="ident">instructions</span>);
 
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">cursor</span> {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>() {
                     <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() {
                         <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::SetBoundaryPt2</span>(<span class="ident">pt</span>);
                     }
                 }
             }
             <span class="ident">Mode::SetBoundaryPt2</span>(<span class="ident">pt1</span>) =&gt; {
+                <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>() {
+                    <span class="ident">URLManager::update_url_cam</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">gps_bounds</span>);
+                }
+
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
                 <span class="ident">txt</span>.<span class="ident">add_appended</span>(<span class="macro">vec!</span>[
                     <span class="ident">Line</span>(<span class="string">&quot;Click&quot;</span>).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>),
@@ -1010,16 +740,14 @@
                 <span class="kw">let</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>);
                 <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;instructions&quot;</span>, <span class="ident">instructions</span>);
 
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt2</span>) <span class="op">=</span> <span class="ident">cursor</span> {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt2</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>() {
                     <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() {
                         <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">set_boundary</span>(<span class="ident">ctx</span>, <span class="ident">pt1</span>, <span class="ident">pt2</span>);
-                        <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::Viewing</span>;
+                        <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::Neutral</span>;
                     }
                 }
             }
         }
-
-        <span class="self">self</span>.<span class="ident">last_id</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">get_selection</span>();
 
         <span class="ident">Transition::Keep</span>
     }
@@ -1033,10 +761,11 @@
             <span class="ident">Color::rgb</span>(<span class="number">242</span>, <span class="number">239</span>, <span class="number">233</span>),
             <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">boundary_polygon</span>.<span class="ident">clone</span>(),
         );
-        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="bool-val">true</span>);
+        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">draw_extra</span>);
 
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">mode</span> {
+            <span class="ident">Mode::Neutral</span> <span class="op">|</span> <span class="ident">Mode::SetBoundaryPt1</span> =&gt; {}
             <span class="ident">Mode::CreatingRoad</span>(<span class="ident">i1</span>) =&gt; {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">cursor</span>) <span class="op">=</span> <span class="ident">g</span>.<span class="ident">get_cursor_in_map_space</span>() {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="ident">Line::new</span>(<span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">intersections</span>[<span class="kw-2">&amp;</span><span class="ident">i1</span>].<span class="ident">point</span>, <span class="ident">cursor</span>) {
@@ -1044,11 +773,6 @@
                     }
                 }
             }
-            <span class="ident">Mode::Viewing</span>
-            <span class="op">|</span> <span class="ident">Mode::MovingIntersection</span>(<span class="kw">_</span>)
-            <span class="op">|</span> <span class="ident">Mode::MovingBuilding</span>(<span class="kw">_</span>)
-            <span class="op">|</span> <span class="ident">Mode::MovingRoadPoint</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; {}
-            <span class="ident">Mode::SetBoundaryPt1</span> =&gt; {}
             <span class="ident">Mode::SetBoundaryPt2</span>(<span class="ident">pt1</span>) =&gt; {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt2</span>) <span class="op">=</span> <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>() {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">rect</span>) <span class="op">=</span> <span class="ident">Polygon::rectangle_two_corners</span>(<span class="ident">pt1</span>, <span class="ident">pt2</span>) {
