@@ -518,6 +518,12 @@
 <span id="517">517</span>
 <span id="518">518</span>
 <span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
 </pre><pre class="rust"><code><span class="doccomment">//! The convert_osm crate produces a RawMap from OSM and other data. Storing this intermediate</span>
 <span class="doccomment">//! structure is useful to iterate quickly on parts of the map importing pipeline without having to</span>
 <span class="doccomment">//! constantly read .osm files, and to visualize the intermediate state with map_editor.</span>
@@ -922,6 +928,12 @@
             }
         }
         <span class="ident">bike</span>
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_driveable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">cfg</span>: <span class="kw-2">&amp;</span><span class="ident">MapConfig</span>) -&gt; <span class="ident">bool</span> {
+        <span class="ident">get_lane_specs_ltr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">osm_tags</span>, <span class="ident">cfg</span>)
+            .<span class="ident">into_iter</span>()
+            .<span class="ident">any</span>(<span class="op">|</span><span class="ident">spec</span><span class="op">|</span> <span class="ident">spec</span>.<span class="ident">lt</span> <span class="op">==</span> <span class="ident">LaneType::Driving</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">length</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Distance</span> {
