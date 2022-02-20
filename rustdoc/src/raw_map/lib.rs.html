@@ -769,6 +769,11 @@
 <span id="768">768</span>
 <span id="769">769</span>
 <span id="770">770</span>
+<span id="771">771</span>
+<span id="772">772</span>
+<span id="773">773</span>
+<span id="774">774</span>
+<span id="775">775</span>
 </pre><pre class="rust"><code><span class="doccomment">//! The convert_osm crate produces a RawMap from OSM and other data. Storing this intermediate</span>
 <span class="doccomment">//! structure is useful to iterate quickly on parts of the map importing pipeline without having to</span>
 <span class="doccomment">//! constantly read .osm files, and to visualize the intermediate state with map_editor.</span>
@@ -950,12 +955,17 @@
         <span class="comment">// Slow, but deterministic.</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">osm_way_id</span> <span class="op">=</span> <span class="ident">start</span>;
         <span class="kw">loop</span> {
-            <span class="comment">// TODO Only checks roads, doesn&#39;t handle collisions with buildings, areas, parking</span>
-            <span class="comment">// lots</span>
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">keys</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">osm_way_id</span>.<span class="number">0</span> <span class="op">==</span> <span class="ident">osm_way_id</span>) {
+            <span class="kw">let</span> <span class="ident">candidate</span> <span class="op">=</span> <span class="ident">osm::WayID</span>(<span class="ident">osm_way_id</span>);
+            <span class="comment">// TODO Doesn&#39;t handle collisions with areas or parking lots</span>
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">keys</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">osm_way_id</span>.<span class="number">0</span> <span class="op">==</span> <span class="ident">osm_way_id</span>)
+                <span class="op">|</span><span class="op">|</span> <span class="self">self</span>
+                    .<span class="ident">buildings</span>
+                    .<span class="ident">keys</span>()
+                    .<span class="ident">any</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="ident">b</span> <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident">osm::OsmID::Way</span>(<span class="ident">candidate</span>))
+            {
                 <span class="ident">osm_way_id</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
             } <span class="kw">else</span> {
-                <span class="kw">return</span> <span class="ident">osm::WayID</span>(<span class="ident">osm_way_id</span>);
+                <span class="kw">return</span> <span class="ident">candidate</span>;
             }
         }
     }
