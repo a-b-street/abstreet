@@ -179,12 +179,17 @@ impl RawMap {
         // Slow, but deterministic.
         let mut osm_way_id = start;
         loop {
-            // TODO Only checks roads, doesn't handle collisions with buildings, areas, parking
-            // lots
-            if self.roads.keys().any(|r| r.osm_way_id.0 == osm_way_id) {
+            let candidate = osm::WayID(osm_way_id);
+            // TODO Doesn't handle collisions with areas or parking lots
+            if self.roads.keys().any(|r| r.osm_way_id.0 == osm_way_id)
+                || self
+                    .buildings
+                    .keys()
+                    .any(|b| b == &osm::OsmID::Way(candidate))
+            {
                 osm_way_id -= 1;
             } else {
-                return osm::WayID(osm_way_id);
+                return candidate;
             }
         }
     }
