@@ -177,6 +177,11 @@
 <span id="176">176</span>
 <span id="177">177</span>
 <span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">abstio::MapName</span>;
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
 <span class="kw">use</span> <span class="ident">geom::Distance</span>;
@@ -203,7 +208,7 @@
     }
 
     <span class="comment">// TODO Gradual rollout</span>
-    <span class="kw">if</span> <span class="bool-val">false</span> <span class="op">&amp;&amp;</span> <span class="ident">map</span>.<span class="ident">name</span> <span class="op">==</span> <span class="ident">MapName::seattle</span>(<span class="string">&quot;montlake&quot;</span>) {
+    <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">name</span> <span class="op">==</span> <span class="ident">MapName::seattle</span>(<span class="string">&quot;montlake&quot;</span>) {
         <span class="ident">roads</span>.<span class="ident">extend</span>(<span class="ident">map</span>.<span class="ident">find_dog_legs</span>());
     }
 
@@ -323,10 +328,9 @@
                     }
                 }
 
-                <span class="comment">// TODO Not working yet</span>
-                <span class="comment">// Are these 3 roads nearly parallel? We&#39;re near the start of a dual carriageway</span>
-                <span class="comment">// split if so, like https://www.openstreetmap.org/node/496331163</span>
-                <span class="kw">if</span> <span class="bool-val">false</span> <span class="op">&amp;&amp;</span> <span class="ident">nearly_parallel</span>(<span class="self">self</span>, <span class="ident">connections</span>, <span class="ident">i</span>).<span class="ident">unwrap_or</span>(<span class="bool-val">true</span>) {
+                <span class="comment">// Don&#39;t touch the point where dual carriageways split/join, like</span>
+                <span class="comment">// https://www.openstreetmap.org/node/496331163</span>
+                <span class="kw">if</span> <span class="ident">dual_carriageway_split</span>(<span class="self">self</span>, <span class="ident">connections</span>) {
                     <span class="kw">continue</span> <span class="lifetime">&#39;ROAD</span>;
                 }
             }
@@ -337,23 +341,29 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">nearly_parallel</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">RawMap</span>, <span class="ident">roads</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span><span class="op">&gt;</span>, <span class="ident">i</span>: <span class="ident">osm::NodeID</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">angles</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="ident">roads</span> {
-        <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">trimmed_road_geometry</span>(<span class="ident">id</span>)<span class="question-mark">?</span>;
-        <span class="kw">if</span> <span class="ident">id</span>.<span class="ident">i1</span> <span class="op">==</span> <span class="ident">i</span> {
-            <span class="ident">angles</span>.<span class="ident">push</span>(<span class="ident">pl</span>.<span class="ident">first_line</span>().<span class="ident">angle</span>());
-        } <span class="kw">else</span> {
-            <span class="ident">angles</span>.<span class="ident">push</span>(<span class="ident">pl</span>.<span class="ident">last_line</span>().<span class="ident">angle</span>());
+<span class="comment">// TODO Dedupe with find_divided_highways logic in parking_mapper</span>
+<span class="kw">fn</span> <span class="ident">dual_carriageway_split</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">RawMap</span>, <span class="ident">roads</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span> {
+    <span class="macro">assert_eq!</span>(<span class="ident">roads</span>.<span class="ident">len</span>(), <span class="number">3</span>);
+    <span class="comment">// Look for one-way roads with the same name</span>
+    <span class="kw">for</span> (<span class="ident">r1</span>, <span class="ident">r2</span>) <span class="kw">in</span> [
+        (<span class="ident">roads</span>[<span class="number">0</span>], <span class="ident">roads</span>[<span class="number">1</span>]),
+        (<span class="ident">roads</span>[<span class="number">0</span>], <span class="ident">roads</span>[<span class="number">2</span>]),
+        (<span class="ident">roads</span>[<span class="number">1</span>], <span class="ident">roads</span>[<span class="number">2</span>]),
+    ] {
+        <span class="kw">let</span> <span class="ident">road1</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">roads</span>[<span class="kw-2">&amp;</span><span class="ident">r1</span>];
+        <span class="kw">let</span> <span class="ident">road2</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">roads</span>[<span class="kw-2">&amp;</span><span class="ident">r2</span>];
+        <span class="kw">if</span> <span class="ident">road1</span>.<span class="ident">is_oneway</span>()
+            <span class="op">&amp;&amp;</span> <span class="ident">road2</span>.<span class="ident">is_oneway</span>()
+            <span class="op">&amp;&amp;</span> <span class="ident">road1</span>.<span class="ident">osm_tags</span>.<span class="ident">get</span>(<span class="ident">osm::NAME</span>) <span class="op">==</span> <span class="ident">road2</span>.<span class="ident">osm_tags</span>.<span class="ident">get</span>(<span class="ident">osm::NAME</span>)
+        {
+            <span class="comment">// If they&#39;re about the same angle, it&#39;s probably not a join/split</span>
+            <span class="kw">let</span> <span class="ident">within_degrees</span> <span class="op">=</span> <span class="number">30.0</span>;
+            <span class="kw">if</span> <span class="op">!</span><span class="ident">road1</span>.<span class="ident">angle</span>().<span class="ident">approx_eq</span>(<span class="ident">road2</span>.<span class="ident">angle</span>(), <span class="ident">within_degrees</span>) {
+                <span class="kw">return</span> <span class="bool-val">true</span>;
+            }
         }
     }
-
-    <span class="kw">let</span> <span class="ident">threshold_degrees</span> <span class="op">=</span> <span class="number">30.0</span>;
-    <span class="prelude-val">Some</span>(
-        <span class="ident">angles</span>[<span class="number">0</span>].<span class="ident">approx_parallel</span>(<span class="ident">angles</span>[<span class="number">1</span>], <span class="ident">threshold_degrees</span>)
-            <span class="op">&amp;&amp;</span> <span class="ident">angles</span>[<span class="number">0</span>].<span class="ident">approx_parallel</span>(<span class="ident">angles</span>[<span class="number">2</span>], <span class="ident">threshold_degrees</span>)
-            <span class="op">&amp;&amp;</span> <span class="ident">angles</span>[<span class="number">1</span>].<span class="ident">approx_parallel</span>(<span class="ident">angles</span>[<span class="number">2</span>], <span class="ident">threshold_degrees</span>),
-    )
+    <span class="bool-val">false</span>
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="raw_map" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>

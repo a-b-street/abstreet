@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["angle",""],["connects_dual_carriageway","Does this road go between two divided one-ways? Ideally they’re tagged explicitly (https://wiki.openstreetmap.org/wiki/Tag:dual_carriageway%3Dyes), but we can also apply simple heuristics to guess this."]]});
+initSidebarItems({"fn":[["connects_dual_carriageway","Does this road go between two divided one-ways? Ideally they’re tagged explicitly (https://wiki.openstreetmap.org/wiki/Tag:dual_carriageway%3Dyes), but we can also apply simple heuristics to guess this."]]});

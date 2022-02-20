@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["distance_heuristic",""],["find_short_roads","Combines a few different sources/methods to decide which roads are short. Marks them for merging."],["nearly_parallel",""]]});
+initSidebarItems({"fn":[["distance_heuristic",""],["dual_carriageway_split",""],["find_short_roads","Combines a few different sources/methods to decide which roads are short. Marks them for merging."]]});
