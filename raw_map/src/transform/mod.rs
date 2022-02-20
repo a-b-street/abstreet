@@ -3,7 +3,8 @@ use abstutil::Timer;
 use crate::RawMap;
 
 mod collapse_intersections;
-mod merge_intersections;
+mod dual_carriageways;
+mod find_short_roads;
 mod merge_short_road;
 mod remove_disconnected;
 mod snappy;
@@ -35,7 +36,8 @@ impl RawMap {
         remove_disconnected::remove_disconnected_roads(self, timer);
 
         timer.start("merging short roads");
-        merge_intersections::merge_short_roads(self, consolidate_all_intersections);
+        find_short_roads::find_short_roads(self, consolidate_all_intersections);
+        merge_short_road::merge_all_junctions(self);
         timer.stop("merging short roads");
 
         timer.start("collapsing degenerate intersections");

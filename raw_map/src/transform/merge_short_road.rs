@@ -1,4 +1,4 @@
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, VecDeque};
 
 use anyhow::Result;
 
@@ -71,8 +71,6 @@ impl RawMap {
                         continue;
                     }
                     // If we're going to delete this later, don't bother!
-                    // TODO When we do automatic consolidation and don't just look for this tag,
-                    // we'll need to get more clever here, or temporarily apply this tag.
                     if self.roads[&r].osm_tags.is("junction", "intersection") {
                         continue;
                     }
@@ -185,5 +183,39 @@ impl RawMap {
         }
 
         Ok((i1, i2, deleted, created))
+    }
+}
+
+/// Merge all roads marked with `junction=intersection`
+pub fn merge_all_junctions(map: &mut RawMap) {
+    let mut queue: VecDeque<OriginalRoad> = VecDeque::new();
+    for (id, road) in &map.roads {
+        if road.osm_tags.is("junction", "intersection") {
+            queue.push_back(*id);
+        }
+    }
+
+    while !queue.is_empty() {
+        let id = queue.pop_front().unwrap();
+
+        // The road might've been deleted by a previous merge_short_road call
+        if !map.roads.contains_key(&id) {
+            continue;
+        }
+
+        match map.merge_short_road(id) {
+            Ok((_, _, _, new_roads)) => {
+                // Some road IDs still in the queue might have changed, so check the new_roads for
+                // anything we should try to merge
+                for r in new_roads {
+                    if map.roads[&r].osm_tags.is("junction", "intersection") {
+                        queue.push_back(r);
+                    }
+                }
+            }
+            Err(err) => {
+                warn!("Not merging short road / junction=intersection: {}", err);
+            }
+        }
     }
 }

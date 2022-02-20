@@ -101,7 +101,7 @@ impl MainState {
                             .build_def(ctx),
                         ctx.style()
                             .btn_outline
-                            .text("auto mark junctions")
+                            .text("detect short roads")
                             .build_def(ctx),
                         ctx.style()
                             .btn_outline
@@ -256,8 +256,8 @@ impl State<App> for MainState {
                         "adjust boundary" => {
                             self.mode = Mode::SetBoundaryPt1;
                         }
-                        "auto mark junctions" => {
-                            for r in app.model.map.auto_mark_junctions() {
+                        "detect short roads" => {
+                            for r in app.model.map.find_traffic_signal_clusters() {
                                 app.model.road_deleted(r);
                                 app.model.road_added(ctx, r);
                             }
