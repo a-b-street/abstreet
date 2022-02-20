@@ -29,7 +29,10 @@ impl EditRoad {
             txt.add_line(Line(format!("{} = {}", k, v)).secondary());
         }
         if let Ok((pl, _)) = road.get_geometry(r, &app.model.map.config) {
-            txt.add_line(Line(format!("Length: {}", pl.length())));
+            txt.add_line(Line(format!("Length before trimming: {}", pl.length())));
+        }
+        if let Some(pl) = app.model.map.trimmed_road_geometry(r) {
+            txt.add_line(Line(format!("Length after trimming: {}", pl.length())));
         }
         for (rt, to) in &road.turn_restrictions {
             info!("Simple turn restriction {:?} to {}", rt, to);

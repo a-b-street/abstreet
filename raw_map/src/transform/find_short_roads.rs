@@ -22,6 +22,9 @@ pub fn find_short_roads(map: &mut RawMap, consolidate_all: bool) -> Vec<Original
         }
     }
 
+    // TODO This is on the cusp of working...
+    //roads.extend(map.find_dog_legs());
+
     // Use this to quickly test overrides to some ways before upstreaming in OSM.
     // Since these IDs might be based on already merged roads, do these last.
     if let Ok(ways) = abstio::maybe_read_json::<Vec<OriginalRoad>>(
@@ -31,15 +34,7 @@ pub fn find_short_roads(map: &mut RawMap, consolidate_all: bool) -> Vec<Original
         roads.extend(ways);
     }
 
-    for id in &roads {
-        map.roads
-            .get_mut(id)
-            .unwrap()
-            .osm_tags
-            .insert("junction", "intersection");
-    }
-
-    roads
+    map.mark_short_roads(roads)
 }
 
 fn distance_heuristic(id: OriginalRoad, map: &RawMap) -> bool {
@@ -56,6 +51,17 @@ fn distance_heuristic(id: OriginalRoad, map: &RawMap) -> bool {
 }
 
 impl RawMap {
+    fn mark_short_roads(&mut self, list: Vec<OriginalRoad>) -> Vec<OriginalRoad> {
+        for id in &list {
+            self.roads
+                .get_mut(id)
+                .unwrap()
+                .osm_tags
+                .insert("junction", "intersection");
+        }
+        list
+    }
+
     /// A heuristic to find short roads near traffic signals
     pub fn find_traffic_signal_clusters(&mut self) -> Vec<OriginalRoad> {
         let threshold = Distance::meters(20.0);
@@ -87,13 +93,50 @@ impl RawMap {
             }
         }
 
-        for id in &results {
-            self.roads
-                .get_mut(id)
-                .unwrap()
-                .osm_tags
-                .insert("junction", "intersection");
+        self.mark_short_roads(results)
+    }
+
+    /// A heuristic to find short roads in places that would otherwise be a normal four-way
+    /// intersection
+    ///
+    ///       |
+    ///       |
+    /// ---X~~X----
+    ///    |
+    ///    |
+    ///
+    /// The ~~ is the short road we want to detect
+    pub fn find_dog_legs(&mut self) -> Vec<OriginalRoad> {
+        let threshold = Distance::meters(5.0);
+
+        let mut results = Vec::new();
+        'ROAD: for id in self.roads.keys() {
+            let road_length = if let Some(pl) = self.trimmed_road_geometry(*id) {
+                pl.length()
+            } else {
+                continue;
+            };
+            if road_length > threshold {
+                continue;
+            }
+
+            // Are both intersections 3-ways of driveable roads? (Don't even attempt cycleways
+            // yet...)
+            for i in [id.i1, id.i2] {
+                let connections = self.roads_per_intersection(i);
+                if connections.len() != 3 {
+                    continue 'ROAD;
+                }
+                if connections
+                    .into_iter()
+                    .any(|r| !self.roads[&r].is_driveable(&self.config))
+                {
+                    continue 'ROAD;
+                }
+            }
+
+            results.push(*id);
         }
-        results
+        self.mark_short_roads(results)
     }
 }

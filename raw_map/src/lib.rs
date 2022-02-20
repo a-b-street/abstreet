@@ -404,6 +404,12 @@ impl RawRoad {
         bike
     }
 
+    pub fn is_driveable(&self, cfg: &MapConfig) -> bool {
+        get_lane_specs_ltr(&self.osm_tags, cfg)
+            .into_iter()
+            .any(|spec| spec.lt == LaneType::Driving)
+    }
+
     pub fn length(&self) -> Distance {
         PolyLine::unchecked_new(self.center_points.clone()).length()
     }

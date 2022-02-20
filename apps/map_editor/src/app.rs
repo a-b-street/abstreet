@@ -257,7 +257,7 @@ impl State<App> for MainState {
                             self.mode = Mode::SetBoundaryPt1;
                         }
                         "detect short roads" => {
-                            for r in app.model.map.find_traffic_signal_clusters() {
+                            for r in app.model.map.find_dog_legs() {
                                 app.model.road_deleted(r);
                                 app.model.road_added(ctx, r);
                             }
