@@ -2911,9 +2911,9 @@
       "compressed_size_bytes": 28046882
     },
     "data/input/us/seattle/screenshots/montlake.zip": {
-      "checksum": "b49b509993ccbd1666dcf712c8e0ed04",
-      "uncompressed_size_bytes": 5412207,
-      "compressed_size_bytes": 5412143
+      "checksum": "88cadd6ebef45233affc5c3cf29998fb",
+      "uncompressed_size_bytes": 5460258,
+      "compressed_size_bytes": 5460211
     },
     "data/input/us/seattle/trips_2014.csv": {
       "checksum": "d4a8e733045b28c0385fb81359d6df03",
@@ -4906,9 +4906,9 @@
       "compressed_size_bytes": 7386218
     },
     "data/system/us/seattle/maps/montlake.bin": {
-      "checksum": "df6f3f66ceaa1327d6ba70f0a993fcc2",
-      "uncompressed_size_bytes": 3111397,
-      "compressed_size_bytes": 1184433
+      "checksum": "b0974b3680feccb5b951238f4b3fd83d",
+      "uncompressed_size_bytes": 3089847,
+      "compressed_size_bytes": 1175618
     },
     "data/system/us/seattle/maps/north_seattle.bin": {
       "checksum": "a47d263ff7753acf3ca642d25e5a229a",
@@ -4956,14 +4956,14 @@
       "compressed_size_bytes": 6427759
     },
     "data/system/us/seattle/prebaked_results/montlake/car vs bike contention.bin": {
-      "checksum": "b83549f9dc9f010f1d279d930a89ec5f",
-      "uncompressed_size_bytes": 4444,
-      "compressed_size_bytes": 1379
+      "checksum": "137065d4d899c4670961157d8ce3370d",
+      "uncompressed_size_bytes": 4288,
+      "compressed_size_bytes": 1363
     },
     "data/system/us/seattle/prebaked_results/montlake/weekday.bin": {
-      "checksum": "d3e38bb47ad5bd4d57a6d1c8fabf62eb",
-      "uncompressed_size_bytes": 8090114,
-      "compressed_size_bytes": 3197694
+      "checksum": "fe1560bcc1fde0794699a2c634751013",
+      "uncompressed_size_bytes": 8048257,
+      "compressed_size_bytes": 3187685
     },
     "data/system/us/seattle/scenarios/arboretum/weekday.bin": {
       "checksum": "275e558f75306364cba3d7a038b0c8e1",
@@ -4991,9 +4991,9 @@
       "compressed_size_bytes": 2404481
     },
     "data/system/us/seattle/scenarios/montlake/weekday.bin": {
-      "checksum": "0dcdd05adffbe689f3a65180c7451595",
+      "checksum": "fbb3641f64d599b7d036d48f809dd991",
       "uncompressed_size_bytes": 1334635,
-      "compressed_size_bytes": 326462
+      "compressed_size_bytes": 326528
     },
     "data/system/us/seattle/scenarios/north_seattle/weekday.bin": {
       "checksum": "aab330481f4161ba74db9254e867194c",

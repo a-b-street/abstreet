@@ -24,7 +24,7 @@ pub fn find_short_roads(map: &mut RawMap, consolidate_all: bool) -> Vec<Original
     }
 
     // TODO Gradual rollout
-    if false && map.name == MapName::seattle("montlake") {
+    if map.name == MapName::seattle("montlake") {
         roads.extend(map.find_dog_legs());
     }
 
@@ -144,10 +144,9 @@ impl RawMap {
                     }
                 }
 
-                // TODO Not working yet
-                // Are these 3 roads nearly parallel? We're near the start of a dual carriageway
-                // split if so, like https://www.openstreetmap.org/node/496331163
-                if false && nearly_parallel(self, connections, i).unwrap_or(true) {
+                // Don't touch the point where dual carriageways split/join, like
+                // https://www.openstreetmap.org/node/496331163
+                if dual_carriageway_split(self, connections) {
                     continue 'ROAD;
                 }
             }
@@ -158,21 +157,27 @@ impl RawMap {
     }
 }
 
-fn nearly_parallel(map: &RawMap, roads: Vec<OriginalRoad>, i: osm::NodeID) -> Option<bool> {
-    let mut angles = Vec::new();
-    for id in roads {
-        let pl = map.trimmed_road_geometry(id)?;
-        if id.i1 == i {
-            angles.push(pl.first_line().angle());
-        } else {
-            angles.push(pl.last_line().angle());
+// TODO Dedupe with find_divided_highways logic in parking_mapper
+fn dual_carriageway_split(map: &RawMap, roads: Vec<OriginalRoad>) -> bool {
+    assert_eq!(roads.len(), 3);
+    // Look for one-way roads with the same name
+    for (r1, r2) in [
+        (roads[0], roads[1]),
+        (roads[0], roads[2]),
+        (roads[1], roads[2]),
+    ] {
+        let road1 = &map.roads[&r1];
+        let road2 = &map.roads[&r2];
+        if road1.is_oneway()
+            && road2.is_oneway()
+            && road1.osm_tags.get(osm::NAME) == road2.osm_tags.get(osm::NAME)
+        {
+            // If they're about the same angle, it's probably not a join/split
+            let within_degrees = 30.0;
+            if !road1.angle().approx_eq(road2.angle(), within_degrees) {
+                return true;
+            }
         }
     }
-
-    let threshold_degrees = 30.0;
-    Some(
-        angles[0].approx_parallel(angles[1], threshold_degrees)
-            && angles[0].approx_parallel(angles[2], threshold_degrees)
-            && angles[1].approx_parallel(angles[2], threshold_degrees),
-    )
+    false
 }

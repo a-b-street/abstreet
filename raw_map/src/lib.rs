@@ -16,7 +16,7 @@ use serde::{Deserialize, Serialize};
 
 use abstio::{CityName, MapName};
 use abstutil::{deserialize_btreemap, serialize_btreemap, Tags};
-use geom::{Distance, GPSBounds, PolyLine, Polygon, Pt2D};
+use geom::{Angle, Distance, GPSBounds, PolyLine, Polygon, Pt2D};
 
 pub use self::geometry::intersection_polygon;
 pub use self::lane_specs::get_lane_specs_ltr;
@@ -408,6 +408,15 @@ impl RawRoad {
         get_lane_specs_ltr(&self.osm_tags, cfg)
             .into_iter()
             .any(|spec| spec.lt == LaneType::Driving)
+    }
+
+    pub fn is_oneway(&self) -> bool {
+        self.osm_tags.is("oneway", "yes")
+    }
+
+    /// Points from first to last point. Undefined for loops.
+    pub fn angle(&self) -> Angle {
+        self.center_points[0].angle_to(*self.center_points.last().unwrap())
     }
 
     pub fn length(&self) -> Distance {

@@ -1,15 +1,13 @@
 use std::collections::BTreeSet;
 
-use geom::Angle;
-
-use crate::{osm, OriginalRoad, RawMap, RawRoad};
+use crate::{osm, OriginalRoad, RawMap};
 
 /// Does this road go between two divided one-ways? Ideally they're tagged explicitly
 /// (https://wiki.openstreetmap.org/wiki/Tag:dual_carriageway%3Dyes), but we can also apply simple
 /// heuristics to guess this.
 #[allow(unused)]
 pub fn connects_dual_carriageway(map: &RawMap, id: &OriginalRoad) -> bool {
-    let connectors_angle = angle(&map.roads[id]);
+    let connectors_angle = map.roads[id].angle();
     // There are false positives like https://www.openstreetmap.org/way/4636259 when we're looking
     // at a segment along a marked dual carriageway. Filter out by requiring the intersecting dual
     // carriageways to differ by a minimum angle.
@@ -19,7 +17,7 @@ pub fn connects_dual_carriageway(map: &RawMap, id: &OriginalRoad) -> bool {
     let mut oneway_names_i1: BTreeSet<String> = BTreeSet::new();
     for r in map.roads_per_intersection(id.i1) {
         let road = &map.roads[&r];
-        if r == *id || connectors_angle.approx_eq(angle(road), within_degrees) {
+        if r == *id || connectors_angle.approx_eq(road.angle(), within_degrees) {
             continue;
         }
         if road.osm_tags.is("dual_carriageway", "yes") {
@@ -36,7 +34,7 @@ pub fn connects_dual_carriageway(map: &RawMap, id: &OriginalRoad) -> bool {
     let mut oneway_names_i2: BTreeSet<String> = BTreeSet::new();
     for r in map.roads_per_intersection(id.i2) {
         let road = &map.roads[&r];
-        if r == *id || connectors_angle.approx_eq(angle(road), within_degrees) {
+        if r == *id || connectors_angle.approx_eq(road.angle(), within_degrees) {
             continue;
         }
         if road.osm_tags.is("dual_carriageway", "yes") {
@@ -54,8 +52,4 @@ pub fn connects_dual_carriageway(map: &RawMap, id: &OriginalRoad) -> bool {
             .intersection(&oneway_names_i2)
             .next()
             .is_some()
-}
-
-fn angle(r: &RawRoad) -> Angle {
-    r.center_points[0].angle_to(*r.center_points.last().unwrap())
 }
