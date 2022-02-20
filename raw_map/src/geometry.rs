@@ -53,14 +53,26 @@ pub fn intersection_polygon(
         {
             let road = roads.get_mut(id).unwrap();
             if road.src_i == intersection_id {
-                road.trimmed_center_pts = road
-                    .trimmed_center_pts
-                    .get_slice_starting_at(*endpt)
-                    .unwrap();
+                match road.trimmed_center_pts.safe_get_slice_starting_at(*endpt) {
+                    Some(pl) => {
+                        road.trimmed_center_pts = pl;
+                    }
+                    None => {
+                        error!("{id}'s trimmed points start past the endpt {endpt}");
+                        // Just skip. See https://github.com/a-b-street/abstreet/issues/654 for a
+                        // start to diagnose. Repro at https://www.openstreetmap.org/node/53211693.
+                    }
+                }
             } else {
                 assert_eq!(road.dst_i, intersection_id);
-                road.trimmed_center_pts =
-                    road.trimmed_center_pts.get_slice_ending_at(*endpt).unwrap();
+                match road.trimmed_center_pts.safe_get_slice_ending_at(*endpt) {
+                    Some(pl) => {
+                        road.trimmed_center_pts = pl;
+                    }
+                    None => {
+                        error!("{id}'s trimmed points end before the endpt {endpt}");
+                    }
+                }
             }
         }
     }

@@ -372,6 +372,7 @@ fn regenerate_everything_externally() -> Result<()> {
     let path = "regenerate.sh";
     let mut f = File::create(path)?;
     writeln!(f, "#!/bin/sh")?;
+    writeln!(f, "set -e")?;
     writeln!(f, "pueue parallel 16")?;
     for city in CityName::list_all_cities_from_importer_config() {
         let job = Job::full_for_city(city);

@@ -23,8 +23,22 @@ pub fn find_short_roads(map: &mut RawMap, consolidate_all: bool) -> Vec<Original
         }
     }
 
-    // TODO Gradual rollout
-    if map.name == MapName::seattle("montlake") {
+    // Gradually rolling out
+    if vec![
+        MapName::seattle("montlake"),
+        MapName::seattle("downtown"),
+        MapName::seattle("lakeslice"),
+        MapName::new("us", "phoenix", "tempe"),
+        MapName::new("gb", "bristol", "east"),
+        //MapName::new("gb", "leeds", "north"),
+        //MapName::new("gb", "london", "camden"),
+        MapName::new("gb", "london", "kennington"),
+        //MapName::new("gb", "london", "southwark"),
+        //MapName::new("gb", "manchester", "levenshulme"),
+        MapName::new("pl", "krakow", "center"),
+    ]
+    .contains(&map.name)
+    {
         roads.extend(map.find_dog_legs());
     }
 
