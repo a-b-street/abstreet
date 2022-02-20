@@ -37,8 +37,6 @@ pub mod path_counter;
 mod polygons;
 mod routes;
 mod select_roads;
-pub mod shared_row;
-pub mod streetmix;
 mod uber_turns;
 
 pub struct DebugMode {

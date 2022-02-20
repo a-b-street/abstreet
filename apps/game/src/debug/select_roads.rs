@@ -24,23 +24,11 @@ impl BulkSelect {
 
 fn make_select_panel(ctx: &mut EventCtx, selector: &RoadSelector) -> Panel {
     Panel::new_builder(Widget::col(vec![
-        Line("Select many roads").small_heading().into_widget(ctx),
-        selector.make_controls(ctx),
         Widget::row(vec![
-            ctx.style()
-                .btn_outline
-                .text(format!(
-                    "Export {} roads to shared-row",
-                    selector.roads.len()
-                ))
-                .build_widget(ctx, "export roads to shared-row"),
-            ctx.style()
-                .btn_outline
-                .text("export one road to Streetmix")
-                .build_def(ctx),
+            Line("Select many roads").small_heading().into_widget(ctx),
             ctx.style().btn_close_widget(ctx),
-        ])
-        .evenly_spaced(),
+        ]),
+        selector.make_controls(ctx),
     ]))
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
     .build(ctx)
@@ -52,33 +40,6 @@ impl State<App> for BulkSelect {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
-                }
-                "export roads to shared-row" => {
-                    let path = crate::debug::shared_row::export(
-                        self.selector.roads.iter().cloned().collect(),
-                        self.selector.intersections.iter().cloned().collect(),
-                        &app.primary.map,
-                    );
-                    return Transition::Push(PopupMsg::new_state(
-                        ctx,
-                        "Roads exported",
-                        vec![format!("Roads exported to shared-row format at {}", path)],
-                    ));
-                }
-                "export one road to Streetmix" => {
-                    let path = crate::debug::streetmix::export(
-                        *self.selector.roads.iter().next().unwrap(),
-                        &app.primary.map,
-                    );
-                    return Transition::Push(PopupMsg::new_state(
-                        ctx,
-                        "One road exported",
-                        vec![format!(
-                            "One arbitrary road from your selection exported to Streetmix format \
-                             at {}",
-                            path
-                        )],
-                    ));
                 }
                 x => {
                     if self.selector.event(ctx, app, Some(x)) {
