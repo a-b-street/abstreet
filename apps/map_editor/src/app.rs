@@ -1,5 +1,6 @@
 use geom::{Distance, Line, Polygon, Pt2D};
-use raw_map::{osm, OriginalRoad};
+use raw_map::osm;
+use widgetry::mapspace::WorldOutcome;
 use widgetry::tools::URLManager;
 use widgetry::{
     lctrl, Canvas, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
@@ -34,15 +35,10 @@ impl SharedAppState for App {
 pub struct MainState {
     mode: Mode,
     panel: Panel,
-
-    last_id: Option<ID>,
 }
 
 enum Mode {
-    Viewing,
-    MovingIntersection(osm::NodeID),
-    MovingBuilding(osm::OsmID),
-    MovingRoadPoint(OriginalRoad, usize),
+    Neutral,
     CreatingRoad(osm::NodeID),
     SetBoundaryPt1,
     SetBoundaryPt2(Pt2D),
@@ -61,31 +57,8 @@ impl MainState {
         let bounds = app.model.map.gps_bounds.to_bounds();
         ctx.canvas.map_dims = (bounds.width(), bounds.height());
 
-        // TODO Make these dynamic!
-        let mut instructions = Text::new();
-        instructions.add_appended(vec![
-            Line("Press "),
-            Key::I.txt(ctx),
-            Line(" to create a new intersection"),
-        ]);
-        instructions.add_line("Hover on an intersection, then...");
-        instructions.add_appended(vec![
-            Line("- Press "),
-            Key::R.txt(ctx),
-            Line(" to start/end a new road"),
-        ]);
-        instructions.add_appended(vec![
-            Line("- Click and drag").fg(ctx.style().text_hotkey_color),
-            Line(" to move it"),
-        ]);
-        instructions.add_appended(vec![
-            Line("Press "),
-            Key::Backspace.txt(ctx),
-            Line(" to delete something"),
-        ]);
-
-        Box::new(MainState {
-            mode: Mode::Viewing,
+        let mut state = MainState {
+            mode: Mode::Neutral,
             panel: Panel::new_builder(Widget::col(vec![
                 Line("RawMap Editor").small_heading().into_widget(ctx),
                 Widget::col(vec![
@@ -120,7 +93,8 @@ impl MainState {
                     ])
                     .section(ctx),
                     Widget::col(vec![
-                        Toggle::switch(ctx, "intersection geometry", Key::G, false),
+                        Toggle::choice(ctx, "create", "intersection", "building", None, true),
+                        Toggle::switch(ctx, "show intersection geometry", Key::G, false),
                         ctx.style()
                             .btn_outline
                             .text("adjust boundary")
@@ -140,321 +114,211 @@ impl MainState {
             ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx),
+        };
+        state.update_instructions(ctx, app);
+        Box::new(state)
+    }
 
-            last_id: None,
-        })
+    fn update_instructions(&mut self, ctx: &mut EventCtx, app: &App) {
+        let mut txt = Text::new();
+        if let Some(keybindings) = app.model.world.get_hovered_keybindings() {
+            // TODO Should we also say click and drag to move it? Or for clickable roads, click to
+            // edit?
+            for (key, action) in keybindings {
+                txt.add_appended(vec![
+                    Line("- Press "),
+                    key.txt(ctx),
+                    Line(format!(" to {}", action)),
+                ]);
+            }
+        } else {
+            txt.add_appended(vec![
+                Line("Click").fg(ctx.style().text_hotkey_color),
+                Line(" to create a new intersection or building"),
+            ]);
+        }
+        let instructions = txt.into_widget(ctx);
+        self.panel.replace(ctx, "instructions", instructions);
     }
 }
 
 impl State<App> for MainState {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition<App> {
-        let can_move_canvas = match self.mode {
-            // If we're hovering on anything except for a road, we can maybe start clicking and
-            // dragging
-            Mode::Viewing => matches!(app.model.world.get_selection(), None | Some(ID::Road(_))),
-            Mode::CreatingRoad(_) | Mode::SetBoundaryPt1 | Mode::SetBoundaryPt2(_) => true,
-            Mode::MovingIntersection(_) | Mode::MovingBuilding(_) | Mode::MovingRoadPoint(_, _) => {
-                false
-            }
-        };
-        if can_move_canvas {
-            if ctx.canvas_movement() {
-                URLManager::update_url_cam(ctx, &app.model.map.gps_bounds);
-            }
-        } else if let Some((_, dy)) = ctx.input.get_mouse_scroll() {
-            // While dragging something, allow zooming
-            ctx.canvas.zoom(dy, ctx.canvas.get_cursor());
-        }
-
-        if ctx.redo_mouseover() {
-            app.model.world.handle_mouseover(ctx);
-        }
-
-        let mut cursor = ctx.canvas.get_cursor_in_map_space();
-        // Negative coordinates break the quadtree in World, so try to prevent anything involving
-        // them. Creating stuff near the boundary or moving things past it still crash, but this
-        // and drawing the boundary kind of help.
-        if let Some(pt) = cursor {
-            if pt.x() < 0.0 || pt.y() < 0.0 {
-                cursor = None;
-            }
-        }
-
         match self.mode {
-            Mode::Viewing => {
-                {
-                    let before = match self.last_id {
-                        Some(ID::Road(r)) | Some(ID::RoadPoint(r, _)) => Some(r),
-                        _ => None,
-                    };
-                    let after = match app.model.world.get_selection() {
-                        Some(ID::Road(r)) | Some(ID::RoadPoint(r, _)) => Some(r),
-                        _ => None,
-                    };
-                    if before != after {
-                        if let Some(id) = before {
-                            app.model.stop_showing_pts(id);
+            Mode::Neutral => {
+                // TODO Update URL when canvas moves
+                match app.model.world.event(ctx) {
+                    WorldOutcome::ClickedFreeSpace(pt) => {
+                        if self.panel.is_checked("create") {
+                            app.model.create_i(ctx, pt);
+                        } else {
+                            app.model.create_b(ctx, pt);
                         }
-                        if let Some(r) = after {
+                        app.model.world.initialize_hover(ctx);
+                        self.update_instructions(ctx, app);
+                    }
+                    WorldOutcome::Dragging {
+                        obj: ID::Intersection(i),
+                        cursor,
+                        ..
+                    } => {
+                        app.model.move_i(ctx, i, cursor);
+                    }
+                    WorldOutcome::Dragging {
+                        obj: ID::Building(b),
+                        dx,
+                        dy,
+                        ..
+                    } => {
+                        app.model.move_b(ctx, b, dx, dy);
+                    }
+                    WorldOutcome::Dragging {
+                        obj: ID::RoadPoint(r, idx),
+                        cursor,
+                        ..
+                    } => {
+                        app.model.move_r_pt(ctx, r, idx, cursor);
+                    }
+                    WorldOutcome::HoverChanged(before, after) => {
+                        if let Some(ID::Road(r)) | Some(ID::RoadPoint(r, _)) = before {
+                            app.model.stop_showing_pts(r);
+                        }
+                        if let Some(ID::Road(r)) | Some(ID::RoadPoint(r, _)) = after {
                             app.model.show_r_points(ctx, r);
-                            app.model.world.handle_mouseover(ctx);
+                            // Shouldn't need to call initialize_hover, unless the user somehow
+                            // warped their cursor to precisely the location of a point, in the
+                            // middle of the road!
+                        }
+
+                        self.update_instructions(ctx, app);
+                    }
+                    WorldOutcome::Keypress("start a road here", ID::Intersection(i)) => {
+                        self.mode = Mode::CreatingRoad(i);
+                    }
+                    WorldOutcome::Keypress("delete", ID::Intersection(i)) => {
+                        app.model.delete_i(i);
+                        app.model.world.initialize_hover(ctx);
+                        self.update_instructions(ctx, app);
+                    }
+                    WorldOutcome::Keypress(
+                        "toggle stop sign / traffic signal",
+                        ID::Intersection(i),
+                    ) => {
+                        app.model.toggle_i(ctx, i);
+                    }
+                    WorldOutcome::Keypress("debug intersection geometry", ID::Intersection(i)) => {
+                        app.model.debug_intersection_geometry(ctx, i);
+                    }
+                    WorldOutcome::Keypress("delete", ID::Building(b)) => {
+                        app.model.delete_b(b);
+                        app.model.world.initialize_hover(ctx);
+                        self.update_instructions(ctx, app);
+                    }
+                    WorldOutcome::Keypress("delete", ID::Road(r)) => {
+                        app.model.delete_r(ctx, r);
+                        // There may be something underneath the road, so recalculate immediately
+                        app.model.world.initialize_hover(ctx);
+                        self.update_instructions(ctx, app);
+                    }
+                    WorldOutcome::Keypress("insert a new point here", ID::Road(r)) => {
+                        if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
+                            app.model.insert_r_pt(ctx, r, pt);
+                            app.model.world.initialize_hover(ctx);
+                            self.update_instructions(ctx, app);
                         }
                     }
+                    WorldOutcome::Keypress("remove interior points", ID::Road(r)) => {
+                        app.model.clear_r_pts(ctx, r);
+                        app.model.world.initialize_hover(ctx);
+                        self.update_instructions(ctx, app);
+                    }
+                    WorldOutcome::Keypress("delete", ID::RoadPoint(r, idx)) => {
+                        app.model.delete_r_pt(ctx, r, idx);
+                        app.model.world.initialize_hover(ctx);
+                        self.update_instructions(ctx, app);
+                    }
+                    WorldOutcome::Keypress("merge", ID::Road(r)) => {
+                        app.model.merge_r(ctx, r);
+                        app.model.world.initialize_hover(ctx);
+                        self.update_instructions(ctx, app);
+                    }
+                    WorldOutcome::Keypress("mark/unmark as a junction", ID::Road(r)) => {
+                        app.model.toggle_junction(ctx, r);
+                    }
+                    WorldOutcome::ClickedObject(ID::Road(r)) => {
+                        return Transition::Push(crate::edit::EditRoad::new_state(ctx, app, r));
+                    }
+                    _ => {}
                 }
 
-                match app.model.world.get_selection() {
-                    Some(ID::Intersection(i)) => {
-                        if ctx.input.left_mouse_button_pressed() {
-                            self.mode = Mode::MovingIntersection(i);
-                        } else if ctx.input.pressed(Key::R) {
-                            self.mode = Mode::CreatingRoad(i);
-                        } else if ctx.input.pressed(Key::Backspace) {
-                            app.model.delete_i(i);
-                            app.model.world.handle_mouseover(ctx);
-                        } else if ctx.input.pressed(Key::T) {
-                            app.model.toggle_i(ctx, i);
-                        } else if ctx.input.pressed(Key::P) {
-                            app.model.debug_intersection_geometry(ctx, i);
+                match self.panel.event(ctx) {
+                    Outcome::Clicked(x) => match x.as_ref() {
+                        "adjust boundary" => {
+                            self.mode = Mode::SetBoundaryPt1;
                         }
-
-                        let mut txt = Text::new();
-                        txt.add_appended(vec![
-                            Line("- Press "),
-                            Key::R.txt(ctx),
-                            Line(" to start a road here"),
-                        ]);
-                        txt.add_appended(vec![
-                            Line("- Press "),
-                            Key::Backspace.txt(ctx),
-                            Line(" to delete"),
-                        ]);
-                        txt.add_appended(vec![
-                            Line("- Click and drag").fg(ctx.style().text_hotkey_color),
-                            Line(" to move"),
-                        ]);
-                        txt.add_appended(vec![
-                            Line("- Press "),
-                            Key::T.txt(ctx),
-                            Line(" to toggle stop sign / traffic signal"),
-                        ]);
-                        txt.add_appended(vec![
-                            Line("- Press "),
-                            Key::P.txt(ctx),
-                            Line(" to debug intersection geometry"),
-                        ]);
-                        let instructions = txt.into_widget(ctx);
-                        self.panel.replace(ctx, "instructions", instructions);
-                    }
-                    Some(ID::Building(b)) => {
-                        if ctx.input.left_mouse_button_pressed() {
-                            self.mode = Mode::MovingBuilding(b);
-                        } else if ctx.input.pressed(Key::Backspace) {
-                            app.model.delete_b(b);
-                            app.model.world.handle_mouseover(ctx);
-                        }
-
-                        let mut txt = Text::new();
-                        txt.add_appended(vec![
-                            Line("- Press "),
-                            Key::Backspace.txt(ctx),
-                            Line(" to delete"),
-                        ]);
-                        txt.add_appended(vec![
-                            Line("- Click and drag").fg(ctx.style().text_hotkey_color),
-                            Line(" to move"),
-                        ]);
-                        let instructions = txt.into_widget(ctx);
-                        self.panel.replace(ctx, "instructions", instructions);
-                    }
-                    Some(ID::Road(r)) => {
-                        if ctx.input.pressed(Key::Backspace) {
-                            app.model.delete_r(ctx, r);
-                            app.model.world.handle_mouseover(ctx);
-                        } else if cursor.is_some() && ctx.input.pressed(Key::P) {
-                            if let Some(id) = app.model.insert_r_pt(ctx, r, cursor.unwrap()) {
-                                app.model.world.force_set_selection(id);
-                            }
-                        } else if ctx.input.pressed(Key::X) {
-                            app.model.clear_r_pts(ctx, r);
-                        } else if ctx.input.pressed(Key::M) {
-                            app.model.merge_r(ctx, r);
-                            app.model.world.handle_mouseover(ctx);
-                        } else if ctx.input.pressed(Key::J) {
-                            app.model.toggle_junction(ctx, r);
-                        } else if ctx.normal_left_click() {
-                            return Transition::Push(crate::edit::EditRoad::new_state(ctx, app, r));
-                        }
-
-                        let mut txt = Text::new();
-                        txt.add_appended(vec![
-                            Line("Click").fg(ctx.style().text_hotkey_color),
-                            Line(" to edit lanes"),
-                        ]);
-                        txt.add_appended(vec![
-                            Line("- Press "),
-                            Key::Backspace.txt(ctx),
-                            Line(" to delete"),
-                        ]);
-                        txt.add_appended(vec![
-                            Line("- Press "),
-                            Key::P.txt(ctx),
-                            Line(" to insert a new point here"),
-                        ]);
-                        txt.add_appended(vec![
-                            Line("- Press "),
-                            Key::X.txt(ctx),
-                            Line(" to remove interior points"),
-                        ]);
-                        txt.add_appended(vec![
-                            Line("- Press "),
-                            Key::M.txt(ctx),
-                            Line(" to merge"),
-                        ]);
-                        txt.add_appended(vec![
-                            Line("- Press "),
-                            Key::J.txt(ctx),
-                            Line(" to mark/unmark as a junction"),
-                        ]);
-                        let instructions = txt.into_widget(ctx);
-                        self.panel.replace(ctx, "instructions", instructions);
-                    }
-                    Some(ID::RoadPoint(r, idx)) => {
-                        if ctx.input.left_mouse_button_pressed() {
-                            self.mode = Mode::MovingRoadPoint(r, idx);
-                        } else if ctx.input.pressed(Key::Backspace) {
-                            app.model.delete_r_pt(ctx, r, idx);
-                            app.model.world.handle_mouseover(ctx);
-                        }
-
-                        let mut txt = Text::new();
-                        txt.add_appended(vec![
-                            Line("- Press "),
-                            Key::Backspace.txt(ctx),
-                            Line(" to delete"),
-                        ]);
-                        txt.add_appended(vec![
-                            Line("- Click and drag").fg(ctx.style().text_hotkey_color),
-                            Line(" to move"),
-                        ]);
-                        let instructions = txt.into_widget(ctx);
-                        self.panel.replace(ctx, "instructions", instructions);
-                    }
-                    None => {
-                        match self.panel.event(ctx) {
-                            Outcome::Clicked(x) => match x.as_ref() {
-                                "adjust boundary" => {
-                                    self.mode = Mode::SetBoundaryPt1;
-                                }
-                                "auto mark junctions" => {
-                                    for r in app.model.map.auto_mark_junctions() {
-                                        app.model.road_deleted(r);
-                                        app.model.road_added(ctx, r);
-                                    }
-                                }
-                                "simplify RawMap" => {
-                                    ctx.loading_screen("simplify", |ctx, timer| {
-                                        app.model.map.run_all_simplifications(false, timer);
-                                        app.model.recreate_world(ctx, timer);
-                                    });
-                                }
-                                "export to OSM" => {
-                                    app.model.export_to_osm();
-                                }
-                                "overwrite RawMap" => {
-                                    app.model.map.save();
-                                }
-                                "reload" => {
-                                    CameraState::save(ctx.canvas, &app.model.map.name);
-                                    return Transition::Push(crate::load::load_map(
-                                        ctx,
-                                        abstio::path_raw_map(&app.model.map.name),
-                                        app.model.include_bldgs,
-                                        None,
-                                    ));
-                                }
-                                "open another RawMap" => {
-                                    CameraState::save(ctx.canvas, &app.model.map.name);
-                                    return Transition::Push(crate::load::PickMap::new_state(ctx));
-                                }
-                                _ => unreachable!(),
-                            },
-                            Outcome::Changed(_) => {
-                                app.model.show_intersection_geometry(
-                                    ctx,
-                                    self.panel.is_checked("intersection geometry"),
-                                );
-                            }
-                            _ => {
-                                if ctx.input.pressed(Key::I) {
-                                    if let Some(pt) = cursor {
-                                        app.model.create_i(ctx, pt);
-                                        app.model.world.handle_mouseover(ctx);
-                                    }
-                                // TODO Silly bug: Mouseover doesn't actually work! I think the
-                                // cursor being dead-center messes
-                                // up the precomputed triangles.
-                                } else if ctx.input.pressed(Key::B) {
-                                    if let Some(pt) = cursor {
-                                        let id = app.model.create_b(ctx, pt);
-                                        app.model.world.force_set_selection(id);
-                                    }
-                                }
-
-                                let mut txt = Text::new();
-                                txt.add_appended(vec![
-                                    Line("- Press "),
-                                    Key::I.txt(ctx),
-                                    Line(" to create an intersection"),
-                                ]);
-                                txt.add_appended(vec![
-                                    Line("- Press "),
-                                    Key::B.txt(ctx),
-                                    Line(" to create a building"),
-                                ]);
-                                let instructions = txt.into_widget(ctx);
-                                self.panel.replace(ctx, "instructions", instructions);
+                        "auto mark junctions" => {
+                            for r in app.model.map.auto_mark_junctions() {
+                                app.model.road_deleted(r);
+                                app.model.road_added(ctx, r);
                             }
                         }
+                        "simplify RawMap" => {
+                            ctx.loading_screen("simplify", |ctx, timer| {
+                                app.model.map.run_all_simplifications(false, timer);
+                                app.model.recreate_world(ctx, timer);
+                            });
+                        }
+                        "export to OSM" => {
+                            app.model.export_to_osm();
+                        }
+                        "overwrite RawMap" => {
+                            app.model.map.save();
+                        }
+                        "reload" => {
+                            CameraState::save(ctx.canvas, &app.model.map.name);
+                            return Transition::Push(crate::load::load_map(
+                                ctx,
+                                abstio::path_raw_map(&app.model.map.name),
+                                app.model.include_bldgs,
+                                None,
+                            ));
+                        }
+                        "open another RawMap" => {
+                            CameraState::save(ctx.canvas, &app.model.map.name);
+                            return Transition::Push(crate::load::PickMap::new_state(ctx));
+                        }
+                        _ => unreachable!(),
+                    },
+                    Outcome::Changed(_) => {
+                        app.model.show_intersection_geometry(
+                            ctx,
+                            self.panel.is_checked("show intersection geometry"),
+                        );
                     }
-                }
-            }
-            Mode::MovingIntersection(id) => {
-                if let Some(pt) = cursor {
-                    app.model.move_i(ctx, id, pt);
-                    if ctx.input.left_mouse_button_released() {
-                        self.mode = Mode::Viewing;
-                    }
-                }
-            }
-            Mode::MovingBuilding(id) => {
-                if let Some(pt) = cursor {
-                    app.model.move_b(ctx, id, pt);
-                    if ctx.input.left_mouse_button_released() {
-                        self.mode = Mode::Viewing;
-                    }
-                }
-            }
-            Mode::MovingRoadPoint(r, idx) => {
-                if let Some(pt) = cursor {
-                    app.model.move_r_pt(ctx, r, idx, pt);
-                    if ctx.input.left_mouse_button_released() {
-                        self.mode = Mode::Viewing;
-                    }
+                    _ => {}
                 }
             }
             Mode::CreatingRoad(i1) => {
+                if ctx.canvas_movement() {
+                    URLManager::update_url_cam(ctx, &app.model.map.gps_bounds);
+                }
+
                 if ctx.input.pressed(Key::Escape) {
-                    self.mode = Mode::Viewing;
-                    app.model.world.handle_mouseover(ctx);
-                } else if let Some(ID::Intersection(i2)) = app.model.world.get_selection() {
+                    self.mode = Mode::Neutral;
+                    // TODO redo mouseover?
+                } else if let Some(ID::Intersection(i2)) = app.model.world.calculate_hovering(ctx) {
                     if i1 != i2 && ctx.input.pressed(Key::R) {
                         app.model.create_r(ctx, i1, i2);
-                        self.mode = Mode::Viewing;
-                        app.model.world.handle_mouseover(ctx);
+                        self.mode = Mode::Neutral;
+                        // TODO redo mouseover?
                     }
                 }
             }
             Mode::SetBoundaryPt1 => {
+                if ctx.canvas_movement() {
+                    URLManager::update_url_cam(ctx, &app.model.map.gps_bounds);
+                }
+
                 let mut txt = Text::new();
                 txt.add_appended(vec![
                     Line("Click").fg(ctx.style().text_hotkey_color),
@@ -463,13 +327,17 @@ impl State<App> for MainState {
                 let instructions = txt.into_widget(ctx);
                 self.panel.replace(ctx, "instructions", instructions);
 
-                if let Some(pt) = cursor {
+                if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
                     if ctx.normal_left_click() {
                         self.mode = Mode::SetBoundaryPt2(pt);
                     }
                 }
             }
             Mode::SetBoundaryPt2(pt1) => {
+                if ctx.canvas_movement() {
+                    URLManager::update_url_cam(ctx, &app.model.map.gps_bounds);
+                }
+
                 let mut txt = Text::new();
                 txt.add_appended(vec![
                     Line("Click").fg(ctx.style().text_hotkey_color),
@@ -478,16 +346,14 @@ impl State<App> for MainState {
                 let instructions = txt.into_widget(ctx);
                 self.panel.replace(ctx, "instructions", instructions);
 
-                if let Some(pt2) = cursor {
+                if let Some(pt2) = ctx.canvas.get_cursor_in_map_space() {
                     if ctx.normal_left_click() {
                         app.model.set_boundary(ctx, pt1, pt2);
-                        self.mode = Mode::Viewing;
+                        self.mode = Mode::Neutral;
                     }
                 }
             }
         }
-
-        self.last_id = app.model.world.get_selection();
 
         Transition::Keep
     }
@@ -501,10 +367,11 @@ impl State<App> for MainState {
             Color::rgb(242, 239, 233),
             app.model.map.boundary_polygon.clone(),
         );
-        app.model.world.draw(g, |_| true);
+        app.model.world.draw(g);
         g.redraw(&app.model.draw_extra);
 
         match self.mode {
+            Mode::Neutral | Mode::SetBoundaryPt1 => {}
             Mode::CreatingRoad(i1) => {
                 if let Some(cursor) = g.get_cursor_in_map_space() {
                     if let Ok(l) = Line::new(app.model.map.intersections[&i1].point, cursor) {
@@ -512,11 +379,6 @@ impl State<App> for MainState {
                     }
                 }
             }
-            Mode::Viewing
-            | Mode::MovingIntersection(_)
-            | Mode::MovingBuilding(_)
-            | Mode::MovingRoadPoint(_, _) => {}
-            Mode::SetBoundaryPt1 => {}
             Mode::SetBoundaryPt2(pt1) => {
                 if let Some(pt2) = g.canvas.get_cursor_in_map_space() {
                     if let Some(rect) = Polygon::rectangle_two_corners(pt1, pt2) {

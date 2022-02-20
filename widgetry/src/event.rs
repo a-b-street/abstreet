@@ -441,6 +441,10 @@ impl MultiKey {
                 .join(", "),
         }
     }
+
+    pub fn txt(&self, ctx: &EventCtx) -> TextSpan {
+        Line(self.describe()).fg(ctx.style().text_hotkey_color)
+    }
 }
 
 pub fn lctrl(key: Key) -> MultiKey {

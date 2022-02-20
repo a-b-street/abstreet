@@ -5,13 +5,13 @@ use abstio::{CityName, MapName};
 use abstutil::{Tags, Timer};
 use geom::{Bounds, Circle, Distance, FindClosest, GPSBounds, HashablePt2D, LonLat, Polygon, Pt2D};
 use raw_map::{osm, IntersectionType, OriginalRoad, RawBuilding, RawIntersection, RawMap, RawRoad};
-use widgetry::{Color, Drawable, EventCtx, GeomBatch, Line, Text};
-
-use crate::world::{Object, ObjectID, World};
+use widgetry::mapspace::{ObjectID, World};
+use widgetry::{Color, Drawable, EventCtx, GeomBatch, Key, Line, Text};
 
 const INTERSECTION_RADIUS: Distance = Distance::const_meters(2.5);
 const BUILDING_LENGTH: Distance = Distance::const_meters(30.0);
 
+// The caller should generally call world.initialize_hover after a mutation.
 pub struct Model {
     // map and world are pub. The main crate should use them directly for simple stuff, to avoid
     // boilerplate delegation methods. Complex changes should be proper methods on the model.
@@ -23,6 +23,15 @@ pub struct Model {
     pub include_bldgs: bool,
     intersection_geom: bool,
 }
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub enum ID {
+    Building(osm::OsmID),
+    Intersection(osm::NodeID),
+    Road(OriginalRoad),
+    RoadPoint(OriginalRoad, usize),
+}
+impl ObjectID for ID {}
 
 // Construction
 impl Model {
@@ -39,7 +48,7 @@ impl Model {
             draw_extra: Drawable::empty(ctx),
 
             include_bldgs: false,
-            world: World::new(),
+            world: World::unbounded(),
             intersection_geom: false,
         }
     }
@@ -54,7 +63,7 @@ impl Model {
 
     pub fn recreate_world(&mut self, ctx: &EventCtx, timer: &mut Timer) {
         self.showing_pts = None;
-        self.world = World::new();
+        self.world = World::unbounded();
 
         if self.include_bldgs {
             for id in self.map.buildings.keys().cloned().collect::<Vec<_>>() {
@@ -74,6 +83,9 @@ impl Model {
             timer.next();
             self.road_added(ctx, id);
         }
+
+        self.world.initialize_hover(ctx);
+        // No need to restore dragging
     }
 }
 
@@ -110,17 +122,7 @@ impl Model {
         self.map.gps_bounds.update(pt1.to_gps(&seattle_bounds));
         self.map.gps_bounds.update(pt2.to_gps(&seattle_bounds));
 
-        // Re-add everything to the world, since we just shifted coordinates around
-        self.world = World::new();
-        for id in self.map.buildings.keys().cloned().collect::<Vec<_>>() {
-            self.bldg_added(ctx, id);
-        }
-        for id in self.map.intersections.keys().cloned().collect::<Vec<_>>() {
-            self.intersection_added(ctx, id);
-        }
-        for id in self.map.roads.keys().cloned().collect::<Vec<_>>() {
-            self.road_added(ctx, id);
-        }
+        self.recreate_world(ctx, &mut Timer::throwaway());
     }
 
     fn compute_bounds(&self) -> Bounds {
@@ -166,7 +168,17 @@ impl Model {
         };
 
         self.world
-            .add(ctx, Object::new(ID::Intersection(id), color, poly));
+            .add(ID::Intersection(id))
+            .hitbox(poly)
+            .zorder(1)
+            .draw_color(color)
+            .hover_alpha(0.5)
+            .draggable()
+            .hotkey(Key::R, "start a road here")
+            .hotkey(Key::Backspace, "delete")
+            .hotkey(Key::T, "toggle stop sign / traffic signal")
+            .hotkey(Key::P, "debug intersection geometry")
+            .build(ctx);
     }
 
     pub fn create_i(&mut self, ctx: &EventCtx, point: Pt2D) {
@@ -184,7 +196,7 @@ impl Model {
     }
 
     pub fn move_i(&mut self, ctx: &EventCtx, id: osm::NodeID, point: Pt2D) {
-        self.world.delete(ID::Intersection(id));
+        self.world.delete_before_replacement(ID::Intersection(id));
         for r in self.map.move_intersection(id, point).unwrap() {
             self.road_deleted(r);
             self.road_added(ctx, r);
@@ -202,7 +214,7 @@ impl Model {
     }
 
     pub fn toggle_i(&mut self, ctx: &EventCtx, id: osm::NodeID) {
-        self.world.delete(ID::Intersection(id));
+        self.world.delete_before_replacement(ID::Intersection(id));
 
         let i = self.map.intersections.get_mut(&id).unwrap();
         if i.intersection_type == IntersectionType::TrafficSignal {
@@ -221,7 +233,7 @@ impl Model {
             timer.start_iter("intersection geometry", self.map.intersections.len());
             for id in self.map.intersections.keys().cloned().collect::<Vec<_>>() {
                 timer.next();
-                self.world.delete(ID::Intersection(id));
+                self.world.delete_before_replacement(ID::Intersection(id));
                 self.intersection_added(ctx, id);
             }
         });
@@ -254,7 +266,35 @@ impl Model {
 // Roads
 impl Model {
     pub fn road_added(&mut self, ctx: &EventCtx, id: OriginalRoad) {
-        self.world.add(ctx, self.road_object(id));
+        let road = &self.map.roads[&id];
+        let (center, total_width) = road.get_geometry(id, &self.map.config).unwrap();
+        let hitbox = center.make_polygons(total_width);
+        let mut draw = GeomBatch::new();
+        draw.push(
+            if road.osm_tags.is("junction", "intersection") {
+                Color::PINK
+            } else {
+                Color::grey(0.8)
+            },
+            hitbox.clone(),
+        );
+        if let Some(outline) = center.to_thick_boundary(total_width, Distance::meters(1.0)) {
+            draw.push(Color::BLACK, outline);
+        }
+
+        self.world
+            .add(ID::Road(id))
+            .hitbox(hitbox)
+            .zorder(0)
+            .draw(draw)
+            .hover_alpha(0.5)
+            .clickable()
+            .hotkey(Key::Backspace, "delete")
+            .hotkey(Key::P, "insert a new point here")
+            .hotkey(Key::X, "remove interior points")
+            .hotkey(Key::M, "merge")
+            .hotkey(Key::J, "mark/unmark as a junction")
+            .build(ctx);
     }
 
     pub fn road_deleted(&mut self, id: OriginalRoad) {
@@ -290,8 +330,8 @@ impl Model {
         osm_tags.insert(osm::NAME, "Streety McStreetFace");
         osm_tags.insert(osm::MAXSPEED, "25 mph");
 
-        self.world.delete(ID::Intersection(i1));
-        self.world.delete(ID::Intersection(i2));
+        self.world.delete_before_replacement(ID::Intersection(i1));
+        self.world.delete_before_replacement(ID::Intersection(i2));
 
         self.map.roads.insert(
             id,
@@ -317,32 +357,14 @@ impl Model {
     pub fn delete_r(&mut self, ctx: &EventCtx, id: OriginalRoad) {
         self.stop_showing_pts(id);
         self.road_deleted(id);
-        self.world.delete(ID::Intersection(id.i1));
-        self.world.delete(ID::Intersection(id.i2));
+        self.world
+            .delete_before_replacement(ID::Intersection(id.i1));
+        self.world
+            .delete_before_replacement(ID::Intersection(id.i2));
         self.map.roads.remove(&id).unwrap();
 
         self.intersection_added(ctx, id.i1);
         self.intersection_added(ctx, id.i2);
-    }
-
-    fn road_object(&self, id: OriginalRoad) -> Object<ID> {
-        let road = &self.map.roads[&id];
-        let (center, total_width) = road.get_geometry(id, &self.map.config).unwrap();
-        let mut obj = Object::new(
-            ID::Road(id),
-            if road.osm_tags.is("junction", "intersection") {
-                Color::PINK
-            } else {
-                Color::grey(0.8)
-            },
-            center.make_polygons(total_width),
-        );
-        // TODO Ideally this'd be a layer on top of everything else. Definitely don't attempt
-        // before refactoring to use the better World
-        if let Some(outline) = center.to_thick_boundary(total_width, Distance::meters(1.0)) {
-            obj.geometry.push((Color::BLACK, outline));
-        }
-        obj
     }
 
     pub fn show_r_points(&mut self, ctx: &EventCtx, id: OriginalRoad) {
@@ -358,14 +380,15 @@ impl Model {
         for (idx, pt) in r.center_points.iter().enumerate() {
             // Don't show handles for the intersections
             if idx != 0 && idx != r.center_points.len() - 1 {
-                self.world.add(
-                    ctx,
-                    Object::new(
-                        ID::RoadPoint(id, idx),
-                        Color::GREEN,
-                        Circle::new(*pt, INTERSECTION_RADIUS / 2.0).to_polygon(),
-                    ),
-                );
+                self.world
+                    .add(ID::RoadPoint(id, idx))
+                    .hitbox(Circle::new(*pt, INTERSECTION_RADIUS / 2.0).to_polygon())
+                    .zorder(3)
+                    .draw_color(Color::GREEN)
+                    .hover_alpha(0.5)
+                    .draggable()
+                    .hotkey(Key::Backspace, "delete")
+                    .build(ctx);
             }
         }
     }
@@ -375,19 +398,24 @@ impl Model {
             return;
         }
         self.showing_pts = None;
-        let r = &self.map.roads[&id];
-        for idx in 1..=r.center_points.len() - 2 {
+        for idx in 1..=self.map.roads[&id].center_points.len() - 2 {
             self.world.delete(ID::RoadPoint(id, idx));
         }
     }
 
     pub fn move_r_pt(&mut self, ctx: &EventCtx, id: OriginalRoad, idx: usize, point: Pt2D) {
         assert_eq!(self.showing_pts, Some(id));
+        // stop_showing_pts deletes the points, but we want to use delete_before_replacement
+        self.showing_pts = None;
+        for idx in 1..=self.map.roads[&id].center_points.len() - 2 {
+            self.world.delete_before_replacement(ID::RoadPoint(id, idx));
+        }
 
-        self.stop_showing_pts(id);
         self.road_deleted(id);
-        self.world.delete(ID::Intersection(id.i1));
-        self.world.delete(ID::Intersection(id.i2));
+        self.world
+            .delete_before_replacement(ID::Intersection(id.i1));
+        self.world
+            .delete_before_replacement(ID::Intersection(id.i2));
 
         let pts = &mut self.map.roads.get_mut(&id).unwrap().center_points;
         pts[idx] = point;
@@ -398,16 +426,23 @@ impl Model {
         self.show_r_points(ctx, id);
     }
 
-    pub fn delete_r_pt(&mut self, ctx: &EventCtx, id: OriginalRoad, idx: usize) {
+    fn change_r_points<F: FnMut(&mut Vec<Pt2D>)>(
+        &mut self,
+        ctx: &EventCtx,
+        id: OriginalRoad,
+        mut transform: F,
+    ) {
         assert_eq!(self.showing_pts, Some(id));
 
         self.stop_showing_pts(id);
         self.road_deleted(id);
-        self.world.delete(ID::Intersection(id.i1));
-        self.world.delete(ID::Intersection(id.i2));
+        self.world
+            .delete_before_replacement(ID::Intersection(id.i1));
+        self.world
+            .delete_before_replacement(ID::Intersection(id.i2));
 
         let pts = &mut self.map.roads.get_mut(&id).unwrap().center_points;
-        pts.remove(idx);
+        transform(pts);
 
         self.road_added(ctx, id);
         self.intersection_added(ctx, id.i1);
@@ -415,53 +450,32 @@ impl Model {
         self.show_r_points(ctx, id);
     }
 
-    pub fn insert_r_pt(&mut self, ctx: &EventCtx, id: OriginalRoad, pt: Pt2D) -> Option<ID> {
-        assert_eq!(self.showing_pts, Some(id));
+    pub fn delete_r_pt(&mut self, ctx: &EventCtx, id: OriginalRoad, idx: usize) {
+        self.change_r_points(ctx, id, |pts| {
+            pts.remove(idx);
+        });
+    }
 
-        self.stop_showing_pts(id);
-        self.road_deleted(id);
-        self.world.delete(ID::Intersection(id.i1));
-        self.world.delete(ID::Intersection(id.i2));
-
+    pub fn insert_r_pt(&mut self, ctx: &EventCtx, id: OriginalRoad, pt: Pt2D) {
         let mut closest = FindClosest::new(&self.compute_bounds());
-        let pts = &mut self.map.roads.get_mut(&id).unwrap().center_points;
-        for (idx, pair) in pts.windows(2).enumerate() {
-            closest.add(idx + 1, &[pair[0], pair[1]]);
-        }
-        let new_id = if let Some((idx, _)) = closest.closest_pt(pt, Distance::meters(5.0)) {
-            pts.insert(idx, pt);
-            Some(ID::RoadPoint(id, idx))
-        } else {
-            error!("Couldn't figure out where to insert new point");
-            None
-        };
-
-        self.road_added(ctx, id);
-        self.intersection_added(ctx, id.i1);
-        self.intersection_added(ctx, id.i2);
-        self.show_r_points(ctx, id);
-
-        new_id
+        self.change_r_points(ctx, id, move |pts| {
+            for (idx, pair) in pts.windows(2).enumerate() {
+                closest.add(idx + 1, &[pair[0], pair[1]]);
+            }
+            if let Some((idx, _)) = closest.closest_pt(pt, Distance::meters(5.0)) {
+                pts.insert(idx, pt);
+            } else {
+                warn!("Couldn't figure out where to insert new point");
+            }
+        });
     }
 
     pub fn clear_r_pts(&mut self, ctx: &EventCtx, id: OriginalRoad) {
-        assert_eq!(self.showing_pts, Some(id));
-
-        self.stop_showing_pts(id);
-        self.road_deleted(id);
-        self.world.delete(ID::Intersection(id.i1));
-        self.world.delete(ID::Intersection(id.i2));
-
-        let r = &mut self.map.roads.get_mut(&id).unwrap();
-        r.center_points = vec![r.center_points[0], *r.center_points.last().unwrap()];
-
-        self.road_added(ctx, id);
-        self.intersection_added(ctx, id.i1);
-        self.intersection_added(ctx, id.i2);
-        self.show_r_points(ctx, id);
+        self.change_r_points(ctx, id, |pts| {
+            *pts = vec![pts[0], *pts.last().unwrap()];
+        });
     }
 
-    // TODO Need to show_r_points of the thing we wind up selecting after this.
     pub fn merge_r(&mut self, ctx: &EventCtx, id: OriginalRoad) {
         self.stop_showing_pts(id);
 
@@ -477,7 +491,8 @@ impl Model {
                 }
             };
 
-        self.world.delete(ID::Intersection(retained_i));
+        self.world
+            .delete_before_replacement(ID::Intersection(retained_i));
         self.intersection_added(ctx, retained_i);
 
         self.world.delete(ID::Intersection(deleted_i));
@@ -510,10 +525,15 @@ impl Model {
 impl Model {
     fn bldg_added(&mut self, ctx: &EventCtx, id: osm::OsmID) {
         let b = &self.map.buildings[&id];
-        self.world.add(
-            ctx,
-            Object::new(ID::Building(id), Color::BLUE, b.polygon.clone()),
-        );
+        self.world
+            .add(ID::Building(id))
+            .hitbox(b.polygon.clone())
+            .zorder(2)
+            .draw_color(Color::BLUE)
+            .hover_alpha(0.5)
+            .draggable()
+            .hotkey(Key::Backspace, "delete")
+            .build(ctx);
     }
 
     pub fn create_b(&mut self, ctx: &EventCtx, center: Pt2D) -> ID {
@@ -532,15 +552,11 @@ impl Model {
         ID::Building(id)
     }
 
-    pub fn move_b(&mut self, ctx: &EventCtx, id: osm::OsmID, new_center: Pt2D) {
-        self.world.delete(ID::Building(id));
+    pub fn move_b(&mut self, ctx: &EventCtx, id: osm::OsmID, dx: f64, dy: f64) {
+        self.world.delete_before_replacement(ID::Building(id));
 
         let b = self.map.buildings.get_mut(&id).unwrap();
-        let old_center = b.polygon.center();
-        b.polygon = b.polygon.translate(
-            new_center.x() - old_center.x(),
-            new_center.y() - old_center.y(),
-        );
+        b.polygon = b.polygon.translate(dx, dy);
 
         self.bldg_added(ctx, id);
     }
@@ -548,25 +564,6 @@ impl Model {
     pub fn delete_b(&mut self, id: osm::OsmID) {
         self.world.delete(ID::Building(id));
         self.map.buildings.remove(&id).unwrap();
-    }
-}
-
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
-pub enum ID {
-    Building(osm::OsmID),
-    Intersection(osm::NodeID),
-    Road(OriginalRoad),
-    RoadPoint(OriginalRoad, usize),
-}
-
-impl ObjectID for ID {
-    fn zorder(&self) -> usize {
-        match self {
-            ID::Road(_) => 0,
-            ID::Intersection(_) => 1,
-            ID::Building(_) => 2,
-            ID::RoadPoint(_, _) => 3,
-        }
     }
 }
 
