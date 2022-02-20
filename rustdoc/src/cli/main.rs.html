@@ -388,6 +388,7 @@
 <span id="387">387</span>
 <span id="388">388</span>
 <span id="389">389</span>
+<span id="390">390</span>
 </pre><pre class="rust"><code><span class="doccomment">//! A collection of tools, mostly related to importing maps and scenarios. These are bundled as a</span>
 <span class="doccomment">//! single executable to reduce the cost of static linking in the release&#39;s file size.</span>
 
@@ -762,6 +763,7 @@
     <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="string">&quot;regenerate.sh&quot;</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">File::create</span>(<span class="ident">path</span>)<span class="question-mark">?</span>;
     <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;#!/bin/sh&quot;</span>)<span class="question-mark">?</span>;
+    <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;set -e&quot;</span>)<span class="question-mark">?</span>;
     <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;pueue parallel 16&quot;</span>)<span class="question-mark">?</span>;
     <span class="kw">for</span> <span class="ident">city</span> <span class="kw">in</span> <span class="ident">CityName::list_all_cities_from_importer_config</span>() {
         <span class="kw">let</span> <span class="ident">job</span> <span class="op">=</span> <span class="ident">Job::full_for_city</span>(<span class="ident">city</span>);
