@@ -685,12 +685,18 @@
 <span id="684">684</span>
 <span id="685">685</span>
 <span id="686">686</span>
+<span id="687">687</span>
+<span id="688">688</span>
+<span id="689">689</span>
 </pre><pre class="rust"><code><span class="doccomment">//! OSM describes roads as center-lines that intersect. Turn these into road and intersection</span>
 <span class="doccomment">//! polygons roughly by</span>
+<span class="doccomment">//!</span>
 <span class="doccomment">//! 1) treating the road as a PolyLine with a width, so that it has a left and right edge</span>
 <span class="doccomment">//! 2) finding the places where the edges of different roads intersect</span>
 <span class="doccomment">//! 3) &quot;Trimming back&quot; the center lines to avoid the overlap</span>
 <span class="doccomment">//! 4) Producing a polygon for the intersection itsef</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! I wrote a novella about this: &lt;https://a-b-street.github.io/docs/tech/map/geometry/index.html&gt;</span>
 
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
