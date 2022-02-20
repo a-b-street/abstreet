@@ -1,1 +1,1 @@
-initSidebarItems({});
+initSidebarItems({"fn":[["merge_all_junctions","Merge all roads marked with `junction=intersection`"]]});

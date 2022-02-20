@@ -44,12 +44,15 @@
 <span id="43">43</span>
 <span id="44">44</span>
 <span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::RawMap</span>;
 
 <span class="kw">mod</span> <span class="ident">collapse_intersections</span>;
-<span class="kw">mod</span> <span class="ident">merge_intersections</span>;
+<span class="kw">mod</span> <span class="ident">dual_carriageways</span>;
+<span class="kw">mod</span> <span class="ident">find_short_roads</span>;
 <span class="kw">mod</span> <span class="ident">merge_short_road</span>;
 <span class="kw">mod</span> <span class="ident">remove_disconnected</span>;
 <span class="kw">mod</span> <span class="ident">snappy</span>;
@@ -81,7 +84,8 @@
         <span class="ident">remove_disconnected::remove_disconnected_roads</span>(<span class="self">self</span>, <span class="ident">timer</span>);
 
         <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;merging short roads&quot;</span>);
-        <span class="ident">merge_intersections::merge_short_roads</span>(<span class="self">self</span>, <span class="ident">consolidate_all_intersections</span>);
+        <span class="ident">find_short_roads::find_short_roads</span>(<span class="self">self</span>, <span class="ident">consolidate_all_intersections</span>);
+        <span class="ident">merge_short_road::merge_all_junctions</span>(<span class="self">self</span>);
         <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;merging short roads&quot;</span>);
 
         <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;collapsing degenerate intersections&quot;</span>);

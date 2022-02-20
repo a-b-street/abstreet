@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["collapse_intersections",""],["merge_intersections",""],["merge_short_road",""],["remove_disconnected",""],["snappy",""]]});
+initSidebarItems({"mod":[["collapse_intersections",""],["dual_carriageways",""],["find_short_roads",""],["merge_short_road",""],["remove_disconnected",""],["snappy",""]]});

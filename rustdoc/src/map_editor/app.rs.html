@@ -495,7 +495,7 @@
                             .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                         <span class="ident">ctx</span>.<span class="ident">style</span>()
                             .<span class="ident">btn_outline</span>
-                            .<span class="ident">text</span>(<span class="string">&quot;auto mark junctions&quot;</span>)
+                            .<span class="ident">text</span>(<span class="string">&quot;detect short roads&quot;</span>)
                             .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                         <span class="ident">ctx</span>.<span class="ident">style</span>()
                             .<span class="ident">btn_outline</span>
@@ -650,8 +650,8 @@
                         <span class="string">&quot;adjust boundary&quot;</span> =&gt; {
                             <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::SetBoundaryPt1</span>;
                         }
-                        <span class="string">&quot;auto mark junctions&quot;</span> =&gt; {
-                            <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">auto_mark_junctions</span>() {
+                        <span class="string">&quot;detect short roads&quot;</span> =&gt; {
+                            <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">find_traffic_signal_clusters</span>() {
                                 <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">road_deleted</span>(<span class="ident">r</span>);
                                 <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">road_added</span>(<span class="ident">ctx</span>, <span class="ident">r</span>);
                             }

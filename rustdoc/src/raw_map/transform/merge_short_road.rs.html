@@ -188,7 +188,39 @@
 <span id="187">187</span>
 <span id="188">188</span>
 <span id="189">189</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">VecDeque</span>};
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 
@@ -261,8 +293,6 @@
                         <span class="kw">continue</span>;
                     }
                     <span class="comment">// If we&#39;re going to delete this later, don&#39;t bother!</span>
-                    <span class="comment">// TODO When we do automatic consolidation and don&#39;t just look for this tag,</span>
-                    <span class="comment">// we&#39;ll need to get more clever here, or temporarily apply this tag.</span>
                     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">roads</span>[<span class="kw-2">&amp;</span><span class="ident">r</span>].<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="string">&quot;junction&quot;</span>, <span class="string">&quot;intersection&quot;</span>) {
                         <span class="kw">continue</span>;
                     }
@@ -375,6 +405,40 @@
         }
 
         <span class="prelude-val">Ok</span>((<span class="ident">i1</span>, <span class="ident">i2</span>, <span class="ident">deleted</span>, <span class="ident">created</span>))
+    }
+}
+
+<span class="doccomment">/// Merge all roads marked with `junction=intersection`</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">merge_all_junctions</span>(<span class="ident">map</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RawMap</span>) {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">queue</span>: <span class="ident">VecDeque</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">VecDeque::new</span>();
+    <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">road</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">roads</span> {
+        <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="string">&quot;junction&quot;</span>, <span class="string">&quot;intersection&quot;</span>) {
+            <span class="ident">queue</span>.<span class="ident">push_back</span>(<span class="kw-2">*</span><span class="ident">id</span>);
+        }
+    }
+
+    <span class="kw">while</span> <span class="op">!</span><span class="ident">queue</span>.<span class="ident">is_empty</span>() {
+        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">queue</span>.<span class="ident">pop_front</span>().<span class="ident">unwrap</span>();
+
+        <span class="comment">// The road might&#39;ve been deleted by a previous merge_short_road call</span>
+        <span class="kw">if</span> <span class="op">!</span><span class="ident">map</span>.<span class="ident">roads</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>) {
+            <span class="kw">continue</span>;
+        }
+
+        <span class="kw">match</span> <span class="ident">map</span>.<span class="ident">merge_short_road</span>(<span class="ident">id</span>) {
+            <span class="prelude-val">Ok</span>((<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">new_roads</span>)) =&gt; {
+                <span class="comment">// Some road IDs still in the queue might have changed, so check the new_roads for</span>
+                <span class="comment">// anything we should try to merge</span>
+                <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">new_roads</span> {
+                    <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">roads</span>[<span class="kw-2">&amp;</span><span class="ident">r</span>].<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="string">&quot;junction&quot;</span>, <span class="string">&quot;intersection&quot;</span>) {
+                        <span class="ident">queue</span>.<span class="ident">push_back</span>(<span class="ident">r</span>);
+                    }
+                }
+            }
+            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
+                <span class="macro">warn!</span>(<span class="string">&quot;Not merging short road / junction=intersection: {}&quot;</span>, <span class="ident">err</span>);
+            }
+        }
     }
 }
 </code></pre></div>
