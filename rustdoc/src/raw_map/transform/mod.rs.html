@@ -46,6 +46,10 @@
 <span id="45">45</span>
 <span id="46">46</span>
 <span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::RawMap</span>;
@@ -67,6 +71,8 @@
         <span class="ident">consolidate_all_intersections</span>: <span class="ident">bool</span>,
         <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>,
     ) {
+        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;simplify RawMap&quot;</span>);
+
         <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;trimming dead-end cycleways (round 1)&quot;</span>);
         <span class="ident">collapse_intersections::trim_deadends</span>(<span class="self">self</span>);
         <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;trimming dead-end cycleways (round 1)&quot;</span>);
@@ -91,6 +97,8 @@
         <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;collapsing degenerate intersections&quot;</span>);
         <span class="ident">collapse_intersections::collapse</span>(<span class="self">self</span>);
         <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;collapsing degenerate intersections&quot;</span>);
+
+        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;simplify RawMap&quot;</span>);
     }
 }
 </code></pre></div>
