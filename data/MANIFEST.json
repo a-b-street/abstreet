@@ -745,6 +745,21 @@
       "uncompressed_size_bytes": 22706561,
       "compressed_size_bytes": 5133061
     },
+    "data/input/gb/derby/osm/center.osm": {
+      "checksum": "23b27036176c8ce84d87a117c34a7926",
+      "uncompressed_size_bytes": 50877509,
+      "compressed_size_bytes": 5235593
+    },
+    "data/input/gb/derby/osm/derbyshire-latest.osm.pbf": {
+      "checksum": "09b70ef7ab0832172df86cd4eed54053",
+      "uncompressed_size_bytes": 33351902,
+      "compressed_size_bytes": 33329235
+    },
+    "data/input/gb/derby/raw_maps/center.bin": {
+      "checksum": "4816a9895a5b6b11392ea422794402d3",
+      "uncompressed_size_bytes": 13487129,
+      "compressed_size_bytes": 2973962
+    },
     "data/input/gb/dickens_heath/osm/center.osm": {
       "checksum": "ee0f02fd05bae34e7fe8c56494cc002e",
       "uncompressed_size_bytes": 67026672,
@@ -3509,6 +3524,16 @@
       "checksum": "51803864cf2935f2010b066820ab6956",
       "uncompressed_size_bytes": 7596973,
       "compressed_size_bytes": 2036902
+    },
+    "data/system/gb/derby/maps/center.bin": {
+      "checksum": "3f6cd494f06b2091efe0810857c31b89",
+      "uncompressed_size_bytes": 33804643,
+      "compressed_size_bytes": 13232622
+    },
+    "data/system/gb/derby/scenarios/center/background.bin": {
+      "checksum": "3bbe867cd1a9bef177f9b6bb6447decb",
+      "uncompressed_size_bytes": 9040030,
+      "compressed_size_bytes": 2368126
     },
     "data/system/gb/dickens_heath/maps/center.bin": {
       "checksum": "8931d73b42a42cb6d2e6d4527fb90ded",

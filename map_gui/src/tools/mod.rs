@@ -166,6 +166,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("clackers_brook", "center") => "Clackers Brook",
             ("cricklewood", "center") => "Cricklewood",
             ("culm", "center") => "Culm",
+            ("derby", "center") => "Derby",
             ("dickens_heath", "center") => "Dickens Heath",
             ("didcot", "center") => "Didcot (Harwell)",
             ("dunton_hills", "center") => "Dunton Hills",
