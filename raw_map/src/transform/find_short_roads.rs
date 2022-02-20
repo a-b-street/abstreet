@@ -1,7 +1,8 @@
+use abstio::MapName;
 use abstutil::Timer;
 use geom::Distance;
 
-use crate::{IntersectionType, OriginalRoad, RawMap};
+use crate::{osm, IntersectionType, OriginalRoad, RawMap};
 
 /// Combines a few different sources/methods to decide which roads are short. Marks them for
 /// merging.
@@ -22,8 +23,10 @@ pub fn find_short_roads(map: &mut RawMap, consolidate_all: bool) -> Vec<Original
         }
     }
 
-    // TODO This is on the cusp of working...
-    //roads.extend(map.find_dog_legs());
+    // TODO Gradual rollout
+    if false && map.name == MapName::seattle("montlake") {
+        roads.extend(map.find_dog_legs());
+    }
 
     // Use this to quickly test overrides to some ways before upstreaming in OSM.
     // Since these IDs might be based on already merged roads, do these last.
@@ -78,12 +81,14 @@ impl RawMap {
             if road.osm_tags.is("junction", "intersection") {
                 continue;
             }
-            let i1 = self.intersections[&id.i1].intersection_type;
-            let i2 = self.intersections[&id.i2].intersection_type;
-            if i1 == IntersectionType::Border || i2 == IntersectionType::Border {
+            let i1 = &self.intersections[&id.i1];
+            let i2 = &self.intersections[&id.i2];
+            if i1.is_border() || i2.is_border() {
                 continue;
             }
-            if i1 != IntersectionType::TrafficSignal && i2 != IntersectionType::TrafficSignal {
+            if i1.intersection_type != IntersectionType::TrafficSignal
+                && i2.intersection_type != IntersectionType::TrafficSignal
+            {
                 continue;
             }
             if let Ok((pl, _)) = road.get_geometry(*id, &self.config) {
@@ -120,17 +125,29 @@ impl RawMap {
                 continue;
             }
 
-            // Are both intersections 3-ways of driveable roads? (Don't even attempt cycleways
-            // yet...)
             for i in [id.i1, id.i2] {
                 let connections = self.roads_per_intersection(i);
                 if connections.len() != 3 {
                     continue 'ROAD;
                 }
-                if connections
-                    .into_iter()
-                    .any(|r| !self.roads[&r].is_driveable(&self.config))
-                {
+                for r in &connections {
+                    // Are both intersections 3-ways of driveable roads? (Don't even attempt
+                    // cycleways yet...)
+                    if !self.roads[r].is_driveable(&self.config) {
+                        continue 'ROAD;
+                    }
+                    // Don't do anything near border intersections
+                    if self.intersections[&r.i1].is_border()
+                        || self.intersections[&r.i2].is_border()
+                    {
+                        continue 'ROAD;
+                    }
+                }
+
+                // TODO Not working yet
+                // Are these 3 roads nearly parallel? We're near the start of a dual carriageway
+                // split if so, like https://www.openstreetmap.org/node/496331163
+                if false && nearly_parallel(self, connections, i).unwrap_or(true) {
                     continue 'ROAD;
                 }
             }
@@ -139,4 +156,23 @@ impl RawMap {
         }
         self.mark_short_roads(results)
     }
+}
+
+fn nearly_parallel(map: &RawMap, roads: Vec<OriginalRoad>, i: osm::NodeID) -> Option<bool> {
+    let mut angles = Vec::new();
+    for id in roads {
+        let pl = map.trimmed_road_geometry(id)?;
+        if id.i1 == i {
+            angles.push(pl.first_line().angle());
+        } else {
+            angles.push(pl.last_line().angle());
+        }
+    }
+
+    let threshold_degrees = 30.0;
+    Some(
+        angles[0].approx_parallel(angles[1], threshold_degrees)
+            && angles[0].approx_parallel(angles[2], threshold_degrees)
+            && angles[1].approx_parallel(angles[2], threshold_degrees),
+    )
 }

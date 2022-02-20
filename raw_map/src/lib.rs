@@ -446,6 +446,12 @@ pub struct RawIntersection {
     pub trim_roads_for_merging: BTreeMap<(osm::WayID, bool), Pt2D>,
 }
 
+impl RawIntersection {
+    fn is_border(&self) -> bool {
+        self.intersection_type == IntersectionType::Border
+    }
+}
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct RawBuilding {
     pub polygon: Polygon,

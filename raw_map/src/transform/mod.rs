@@ -19,6 +19,8 @@ impl RawMap {
         consolidate_all_intersections: bool,
         timer: &mut Timer,
     ) {
+        timer.start("simplify RawMap");
+
         timer.start("trimming dead-end cycleways (round 1)");
         collapse_intersections::trim_deadends(self);
         timer.stop("trimming dead-end cycleways (round 1)");
@@ -43,5 +45,7 @@ impl RawMap {
         timer.start("collapsing degenerate intersections");
         collapse_intersections::collapse(self);
         timer.stop("collapsing degenerate intersections");
+
+        timer.stop("simplify RawMap");
     }
 }
