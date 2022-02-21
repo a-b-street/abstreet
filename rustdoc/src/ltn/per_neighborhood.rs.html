@@ -251,6 +251,7 @@
 <span id="250">250</span>
 <span id="251">251</span>
 <span id="252">252</span>
+<span id="253">253</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom::Distance</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools::open_browser</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">PathConstraints</span>, <span class="ident">RoadID</span>};
@@ -342,6 +343,7 @@
             <span class="string">&quot;undo&quot;</span> =&gt; {
                 <span class="kw">let</span> <span class="ident">prev</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">previous_version</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
                 <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span> <span class="op">=</span> <span class="ident">prev</span>;
+                <span class="ident">after_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 <span class="comment">// Recreate the current state. This will reset any panel state (checkboxes and</span>
                 <span class="comment">// dropdowns)</span>
                 <span class="self">self</span>.<span class="ident">switch_to_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>)
