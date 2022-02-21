@@ -71,6 +71,16 @@ pub fn prebake_all() {
         summaries.push(prebake(&tehran_map, scenario, &mut timer));
     }
 
+    {
+        let map = map_model::Map::load_synchronously(
+            MapName::new("br", "sao_paulo", "sao_miguel_paulista").path(),
+            &mut timer,
+        );
+        let scenario: Scenario =
+            abstio::read_binary(abstio::path_scenario(map.get_name(), "Full"), &mut timer);
+        summaries.push(prebake(&map, scenario, &mut timer));
+    }
+
     // Assume this is being run from the root directory (via import.sh). This other tests directory
     // is the most appropriate place to keep this.
     abstio::write_json(

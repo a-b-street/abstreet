@@ -3010,6 +3010,11 @@
       "uncompressed_size_bytes": 958698,
       "compressed_size_bytes": 326141
     },
+    "data/system/br/sao_paulo/prebaked_results/sao_miguel_paulista/Full.bin": {
+      "checksum": "fe0a1c6e0cf086b359b75728f74c65da",
+      "uncompressed_size_bytes": 27622094,
+      "compressed_size_bytes": 9361365
+    },
     "data/system/br/sao_paulo/scenarios/sao_miguel_paulista/Full.bin": {
       "checksum": "541fdf1f2ba80b4b6cb88f36b186a707",
       "uncompressed_size_bytes": 6083724,
