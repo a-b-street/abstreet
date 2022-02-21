@@ -3010,6 +3010,11 @@
       "uncompressed_size_bytes": 958698,
       "compressed_size_bytes": 326141
     },
+    "data/system/br/sao_paulo/scenarios/sao_miguel_paulista/Full.bin": {
+      "checksum": "541fdf1f2ba80b4b6cb88f36b186a707",
+      "uncompressed_size_bytes": 6083724,
+      "compressed_size_bytes": 991711
+    },
     "data/system/ca/montreal/maps/plateau.bin": {
       "checksum": "b6487d9cd2c5507456363cf6c4fd77ce",
       "uncompressed_size_bytes": 10354981,

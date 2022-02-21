@@ -5,12 +5,13 @@ use rand_xorshift::XorShiftRng;
 use abstutil::{prettyprint_usize, Timer};
 use geom::{Distance, Duration, FindClosest};
 use map_model::{AmenityType, BuildingID, Map};
-use synthpop::{IndividTrip, Scenario, TripEndpoint, TripMode, TripPurpose};
+use synthpop::{IndividTrip, Scenario, ScenarioModifier, TripEndpoint, TripMode, TripPurpose};
 
 pub fn run(
     input_scenario: String,
     should_add_return_trips: bool,
     should_add_lunch_trips: bool,
+    modifiers: Vec<ScenarioModifier>,
     rng_seed: u64,
 ) {
     let mut rng = XorShiftRng::seed_from_u64(rng_seed);
@@ -24,6 +25,10 @@ pub fn run(
     }
     if should_add_lunch_trips {
         add_lunch_trips(&mut scenario, &map, &mut rng, &mut timer);
+    }
+
+    for m in modifiers {
+        scenario = m.apply(&map, scenario);
     }
 
     scenario.save();

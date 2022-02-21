@@ -58,6 +58,9 @@ enum Command {
         /// Before a person's final trp home, insert a round-trip to a nearby cafe or restaurant
         #[structopt(long)]
         add_lunch_trips: bool,
+        /// A JSON list of modifiers to transform the scenario. These can be generated with the GUI.
+        #[structopt(long, parse(try_from_str = parse_modifiers), default_value = "[]")]
+        scenario_modifiers: ModifierList,
         /// A seed for generating random numbers
         #[structopt(long, default_value = "42")]
         rng_seed: u64,
@@ -220,6 +223,13 @@ enum Command {
     },
 }
 
+// See https://github.com/TeXitoi/structopt/issues/94
+type ModifierList = Vec<synthpop::ScenarioModifier>;
+
+fn parse_modifiers(x: &str) -> Result<ModifierList> {
+    abstutil::from_json(&x.to_string().into_bytes())
+}
+
 #[tokio::main]
 async fn main() -> Result<()> {
     let cmd = Command::from_args();
@@ -245,8 +255,15 @@ async fn main() -> Result<()> {
             input_scenario,
             add_return_trips,
             add_lunch_trips,
+            scenario_modifiers,
             rng_seed,
-        } => augment_scenario::run(input_scenario, add_return_trips, add_lunch_trips, rng_seed),
+        } => augment_scenario::run(
+            input_scenario,
+            add_return_trips,
+            add_lunch_trips,
+            scenario_modifiers,
+            rng_seed,
+        ),
         Command::ClipOSM {
             pbf_path,
             clip_path,
