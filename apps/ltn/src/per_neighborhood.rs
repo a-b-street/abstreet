@@ -89,6 +89,7 @@ impl Tab {
             "undo" => {
                 let prev = app.session.modal_filters.previous_version.take().unwrap();
                 app.session.modal_filters = prev;
+                after_edit(ctx, app);
                 // Recreate the current state. This will reset any panel state (checkboxes and
                 // dropdowns)
                 self.switch_to_state(ctx, app, id)
