@@ -13,6 +13,7 @@ use crate::{
 };
 
 pub fn finalize_transit(map: &mut Map, raw: &RawMap, timer: &mut Timer) {
+    timer.start("finalize transit");
     // Snap stops to sidewalks and driving lanes, similar to buildings
     let mut query: HashSet<HashablePt2D> = HashSet::new();
     for stop in raw.transit_stops.values() {
@@ -24,8 +25,9 @@ pub fn finalize_transit(map: &mut Map, raw: &RawMap, timer: &mut Timer) {
         |l| l.is_walkable(),
         // Stops can be very close to intersections
         Distance::ZERO,
-        // Stops shouldn't be far from sidewalks
-        Distance::meters(3.0),
+        // Stops shouldn't be far from sidewalks. Some stop positions are listed at the center of a
+        // road, and there are roads around 20 meters wide, so let's take about half of that.
+        Distance::meters(10.0),
         timer,
     );
 
@@ -45,6 +47,7 @@ pub fn finalize_transit(map: &mut Map, raw: &RawMap, timer: &mut Timer) {
     }
 
     // TODO Clean up unused stops; maybe one of the routes didn't work. Re-map IDs...
+    timer.stop("finalize transit");
 }
 
 fn create_stop(
@@ -150,6 +153,23 @@ fn create_route(
         .iter()
         .filter_map(|gtfs_id| gtfs_to_stop_id.get(gtfs_id).cloned())
         .collect();
+    if map.transit_routes.len() == 2 {
+        // orig is RawTransitRoute { ... stops: ["8587387", "8595022", "8592804", "8587062"] }
+
+        // we wound up with stops [TransitStopID { road: RoadID(2623), idx: 0 }, TransitStopID {
+        // road: RoadID(138), idx: 0 }]
+
+        // So after convert_osm/src/gtfs.rs, this route has 4 stops.
+        // In the loop above (gtfs_to_stop_id.get), only 2 of the stops survive
+
+        // Couldn't create stop 8592804: Stop position Pt2D(2656.1206, 1903.9984) wasn't close to a
+        // sidewalk
+        // Couldn't create stop 8587062: Stop position Pt2D(1837.3282, 1937.1835) wasn't close to a
+        // sidewalk
+
+        //panic!("orig is {:?}. we wound up with stops {:?}", route, stops);
+    }
+
     if stops.is_empty() {
         bail!("No valid stops");
     }

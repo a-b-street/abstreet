@@ -77,6 +77,8 @@ pub fn config_for_map(name: &MapName) -> convert_osm::Options {
             Some("http://metro.kingcounty.gov/GTFS/google_transit.zip".to_string())
         } else if name.city == CityName::new("us", "san_francisco") {
             Some("https://gtfs.sfmta.com/transitdata/google_transit.zip".to_string())
+        } else if name.city == CityName::new("ch", "geneva") {
+            Some("https://malaspinas.academy/gtfs/tpg.zip".to_string())
         } else {
             None
         },

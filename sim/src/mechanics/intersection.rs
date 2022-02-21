@@ -1020,7 +1020,9 @@ impl IntersectionSimState {
                     let head = if let Some(c) = q.laggy_head {
                         c
                     } else {
-                        q.get_active_cars()[0]
+                        // TODO This starts crashing when more buses in Geneva are introduced. No
+                        // idea why, and no time to look into it
+                        q.get_active_cars().get(0)?
                     };
                     if current != head {
                         queue.push(head);
