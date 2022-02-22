@@ -23,8 +23,8 @@
   {
     "map": "sao_miguel_paulista (in sao_paulo (br))",
     "scenario": "Full",
-    "finished_trips": 122264,
-    "cancelled_trips": 33727,
-    "total_trip_duration_seconds": 102586742.44089983
+    "finished_trips": 122948,
+    "cancelled_trips": 33043,
+    "total_trip_duration_seconds": 103803144.64800021
   }
 ]

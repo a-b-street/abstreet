@@ -196,6 +196,7 @@ impl Sim {
             || map.get_name().city == CityName::new("ir", "tehran")
             || map.get_name() == &MapName::new("gb", "poundbury", "center")
             || map.get_name() == &MapName::new("us", "phoenix", "tempe")
+            || map.get_name() == &MapName::new("br", "sao_paulo", "sao_miguel_paulista")
         {
             opts.infinite_parking = true;
         }
