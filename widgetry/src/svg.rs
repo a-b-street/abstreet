@@ -46,7 +46,7 @@ pub fn load_svg_bytes(
 }
 
 pub fn load_svg_from_bytes_uncached(bytes: &[u8]) -> anyhow::Result<(GeomBatch, Bounds)> {
-    let svg_tree = usvg::Tree::from_data(bytes, &usvg::Options::default())?;
+    let svg_tree = usvg::Tree::from_data(bytes, &usvg::Options::default().to_ref())?;
     let mut batch = GeomBatch::new();
     match add_svg_inner(&mut batch, svg_tree, HIGH_QUALITY) {
         Ok(bounds) => Ok((batch, bounds)),

@@ -120,7 +120,7 @@ impl Assets {
             .fontdb
             .with_face_data(self.font_to_id[&font], |data, face_index| {
                 let font = ttf_parser::Face::from_slice(data, face_index).unwrap();
-                let units_per_em = font.units_per_em().unwrap();
+                let units_per_em = font.units_per_em();
                 let ascent = font.ascender();
                 let descent = font.descender();
                 let scale = (font_size as f64) / (units_per_em as f64);

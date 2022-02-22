@@ -499,7 +499,7 @@ fn render_line(spans: Vec<TextSpan>, tolerance: f32, assets: &Assets) -> GeomBat
     }
     write!(&mut svg, "{}</text></svg>", contents).unwrap();
 
-    let svg_tree = match usvg::Tree::from_str(&svg, &assets.text_opts.borrow()) {
+    let svg_tree = match usvg::Tree::from_str(&svg, &assets.text_opts.borrow().to_ref()) {
         Ok(t) => t,
         Err(err) => panic!("render_line({}): {}", contents, err),
     };
@@ -593,7 +593,7 @@ impl TextSpan {
         )
         .unwrap();
 
-        let svg_tree = match usvg::Tree::from_str(&svg, &assets.text_opts.borrow()) {
+        let svg_tree = match usvg::Tree::from_str(&svg, &assets.text_opts.borrow().to_ref()) {
             Ok(t) => t,
             Err(err) => panic!("curvey({}): {}", self.text, err),
         };
