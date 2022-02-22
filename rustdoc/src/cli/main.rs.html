@@ -406,6 +406,22 @@
 <span id="405">405</span>
 <span id="406">406</span>
 <span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
 </pre><pre class="rust"><code><span class="doccomment">//! A collection of tools, mostly related to importing maps and scenarios. These are bundled as a</span>
 <span class="doccomment">//! single executable to reduce the cost of static linking in the release&#39;s file size.</span>
 
@@ -629,6 +645,14 @@
         <span class="attribute">#[<span class="ident">structopt</span>()]</span>
         <span class="ident">map_path</span>: <span class="ident">String</span>,
     },
+    <span class="doccomment">/// Simulate a full day of a scenario, and write the &quot;prebaked results,&quot; so the UI can later be</span>
+    <span class="doccomment">/// used for A/B testing.</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">name</span> <span class="op">=</span> <span class="string">&quot;prebake-scenario&quot;</span>)]</span>
+    <span class="ident">PrebakeScenario</span> {
+        <span class="doccomment">/// The path to a scenario file</span>
+        <span class="attribute">#[<span class="ident">structopt</span>()]</span>
+        <span class="ident">scenario_path</span>: <span class="ident">String</span>,
+    },
 }
 
 <span class="comment">// See https://github.com/TeXitoi/structopt/issues/94</span>
@@ -738,6 +762,7 @@
         <span class="ident">Command::RegenerateEverythingExternally</span> =&gt; <span class="ident">regenerate_everything_externally</span>()<span class="question-mark">?</span>,
         <span class="ident">Command::Import</span> { <span class="ident">job</span> } =&gt; <span class="ident">job</span>.<span class="ident">run</span>(<span class="kw-2">&amp;mut</span> <span class="ident">Timer::new</span>(<span class="string">&quot;import one city&quot;</span>)).<span class="kw">await</span>,
         <span class="ident">Command::OSM2Lanes</span> { <span class="ident">map_path</span> } =&gt; <span class="ident">osm2lanes::run</span>(<span class="ident">map_path</span>),
+        <span class="ident">Command::PrebakeScenario</span> { <span class="ident">scenario_path</span> } =&gt; <span class="ident">prebake_scenario</span>(<span class="ident">scenario_path</span>),
     }
     <span class="prelude-val">Ok</span>(())
 }
@@ -812,6 +837,13 @@
     <span class="macro">println!</span>(<span class="string">&quot;pueue status | grep Success | wc -l&quot;</span>);
     <span class="macro">println!</span>(<span class="string">&quot;For the long-tail: pueue status | grep Running&quot;</span>);
     <span class="prelude-val">Ok</span>(())
+}
+
+<span class="kw">fn</span> <span class="ident">prebake_scenario</span>(<span class="ident">path</span>: <span class="ident">String</span>) {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer::new</span>(<span class="string">&quot;prebake scenario&quot;</span>);
+    <span class="kw">let</span> <span class="ident">scenario</span>: <span class="ident">synthpop::Scenario</span> <span class="op">=</span> <span class="ident">abstio::must_read_object</span>(<span class="ident">path</span>, <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>);
+    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">map_model::Map::load_synchronously</span>(<span class="ident">scenario</span>.<span class="ident">map_name</span>.<span class="ident">path</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>);
+    <span class="ident">sim::prebake::prebake</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">scenario</span>, <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>);
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="cli" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
