@@ -323,9 +323,9 @@ dependencies = [
 
 [[package]]
 name = "cbindgen"
-version = "0.19.0"
+version = "0.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "38728c31b994e4b849cf59feefb4a8bf26acd299ee0b92c9fb35bd14ad4b8dfa"
+checksum = "51e3973b165dc0f435831a9e426de67e894de532754ff7a3f307c03ee5dec7dc"
 dependencies = [
  "clap",
  "heck",
@@ -1373,8 +1373,9 @@ dependencies = [
 
 [[package]]
 name = "geo"
-version = "0.18.0"
-source = "git+https://github.com/georust/geo#2ebbc7f8a8774d9a4a68e9a1b40bcdd22b02fac9"
+version = "0.19.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "61faf6a68f9432b5287c393268e86a07e4dfed79e6e0962b0e6e59b2f70c77d8"
 dependencies = [
  "geo-types",
  "geographiclib-rs",
@@ -1397,8 +1398,9 @@ dependencies = [
 
 [[package]]
 name = "geo-types"
-version = "0.7.2"
-source = "git+https://github.com/georust/geo#2ebbc7f8a8774d9a4a68e9a1b40bcdd22b02fac9"
+version = "0.7.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "658ffd4025e593f0b64e8fa7a1afc4082e4471ac823034b9d4e338edc9adc6fb"
 dependencies = [
  "approx",
  "num-traits",
@@ -2974,7 +2976,7 @@ dependencies = [
 [[package]]
 name = "polylabel"
 version = "2.4.0"
-source = "git+https://github.com/urschrei/polylabel-rs#d86089e93af18517651e866a53a79461bda331b7"
+source = "git+https://github.com/urschrei/polylabel-rs#4ac85aaa652825784186ee8344a0d9a6c446be16"
 dependencies = [
  "cbindgen",
  "geo",
