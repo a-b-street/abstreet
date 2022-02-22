@@ -59,6 +59,7 @@ mod events;
 mod make;
 mod mechanics;
 mod pandemic;
+pub mod prebake;
 mod recorder;
 mod render;
 mod router;

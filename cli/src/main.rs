@@ -221,6 +221,14 @@ enum Command {
         #[structopt()]
         map_path: String,
     },
+    /// Simulate a full day of a scenario, and write the "prebaked results," so the UI can later be
+    /// used for A/B testing.
+    #[structopt(name = "prebake-scenario")]
+    PrebakeScenario {
+        /// The path to a scenario file
+        #[structopt()]
+        scenario_path: String,
+    },
 }
 
 // See https://github.com/TeXitoi/structopt/issues/94
@@ -330,6 +338,7 @@ async fn main() -> Result<()> {
         Command::RegenerateEverythingExternally => regenerate_everything_externally()?,
         Command::Import { job } => job.run(&mut Timer::new("import one city")).await,
         Command::OSM2Lanes { map_path } => osm2lanes::run(map_path),
+        Command::PrebakeScenario { scenario_path } => prebake_scenario(scenario_path),
     }
     Ok(())
 }
@@ -404,4 +413,11 @@ fn regenerate_everything_externally() -> Result<()> {
     println!("pueue status | grep Success | wc -l");
     println!("For the long-tail: pueue status | grep Running");
     Ok(())
+}
+
+fn prebake_scenario(path: String) {
+    let mut timer = Timer::new("prebake scenario");
+    let scenario: synthpop::Scenario = abstio::must_read_object(path, &mut timer);
+    let map = map_model::Map::load_synchronously(scenario.map_name.path(), &mut timer);
+    sim::prebake::prebake(&map, scenario, &mut timer);
 }
