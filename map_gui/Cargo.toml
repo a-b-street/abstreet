@@ -30,7 +30,7 @@ log = "0.4.14"
 lyon_geom = ">=0.16.2"
 map_model = { path = "../map_model" }
 regex = "1.5.4"
-rfd = "0.4.0"
+rfd = "0.8.0"
 serde = "1.0.123"
 sim = { path = "../sim" }
 synthpop = { path = "../synthpop" }
