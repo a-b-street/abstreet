@@ -55,7 +55,7 @@ pub fn find_short_roads(map: &mut RawMap, consolidate_all: bool) -> Vec<Original
 }
 
 fn distance_heuristic(id: OriginalRoad, map: &RawMap) -> bool {
-    let road_length = if let Some(pl) = map.trimmed_road_geometry(id) {
+    let road_length = if let Ok(pl) = map.trimmed_road_geometry(id) {
         pl.length()
     } else {
         // The road or something near it collapsed down into a single point or something. This can
@@ -105,7 +105,7 @@ impl RawMap {
             {
                 continue;
             }
-            if let Ok((pl, _)) = road.get_geometry(*id, &self.config) {
+            if let Ok((pl, _)) = self.untrimmed_road_geometry(*id) {
                 if pl.length() <= threshold {
                     results.push(*id);
                 }
@@ -130,7 +130,7 @@ impl RawMap {
 
         let mut results = Vec::new();
         'ROAD: for id in self.roads.keys() {
-            let road_length = if let Some(pl) = self.trimmed_road_geometry(*id) {
+            let road_length = if let Ok(pl) = self.trimmed_road_geometry(*id) {
                 pl.length()
             } else {
                 continue;

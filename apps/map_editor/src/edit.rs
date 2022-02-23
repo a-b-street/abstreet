@@ -17,7 +17,7 @@ impl EditRoad {
         let road = &app.model.map.roads[&r];
 
         let mut batch = GeomBatch::new();
-        if let Some(pl) = app.model.map.trimmed_road_geometry(r) {
+        if let Ok(pl) = app.model.map.trimmed_road_geometry(r) {
             batch.push(
                 Color::BLACK,
                 pl.make_arrow(Distance::meters(1.0), ArrowCap::Triangle),
@@ -28,10 +28,10 @@ impl EditRoad {
         for (k, v) in road.osm_tags.inner() {
             txt.add_line(Line(format!("{} = {}", k, v)).secondary());
         }
-        if let Ok((pl, _)) = road.get_geometry(r, &app.model.map.config) {
+        if let Ok((pl, _)) = app.model.map.untrimmed_road_geometry(r) {
             txt.add_line(Line(format!("Length before trimming: {}", pl.length())));
         }
-        if let Some(pl) = app.model.map.trimmed_road_geometry(r) {
+        if let Ok(pl) = app.model.map.trimmed_road_geometry(r) {
             txt.add_line(Line(format!("Length after trimming: {}", pl.length())));
         }
         for (rt, to) in &road.turn_restrictions {

@@ -75,20 +75,17 @@ impl RawMap {
                         continue;
                     }
 
-                    if let Some(pl) = self.trimmed_road_geometry(r) {
-                        if r.i1 == i {
-                            if trim_roads_for_merging.contains_key(&(r.osm_way_id, true)) {
-                                panic!("trim_roads_for_merging has an i1 duplicate for {}", r);
-                            }
-                            trim_roads_for_merging.insert((r.osm_way_id, true), pl.first_pt());
-                        } else {
-                            if trim_roads_for_merging.contains_key(&(r.osm_way_id, false)) {
-                                panic!("trim_roads_for_merging has an i2 duplicate for {}", r);
-                            }
-                            trim_roads_for_merging.insert((r.osm_way_id, false), pl.last_pt());
+                    let pl = self.trimmed_road_geometry(r).unwrap();
+                    if r.i1 == i {
+                        if trim_roads_for_merging.contains_key(&(r.osm_way_id, true)) {
+                            panic!("trim_roads_for_merging has an i1 duplicate for {}", r);
                         }
+                        trim_roads_for_merging.insert((r.osm_way_id, true), pl.first_pt());
                     } else {
-                        panic!("No trimmed_road_geometry at all for {}", r);
+                        if trim_roads_for_merging.contains_key(&(r.osm_way_id, false)) {
+                            panic!("trim_roads_for_merging has an i2 duplicate for {}", r);
+                        }
+                        trim_roads_for_merging.insert((r.osm_way_id, false), pl.last_pt());
                     }
                 }
             }

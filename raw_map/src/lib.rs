@@ -204,7 +204,7 @@ impl RawMap {
             self.roads_per_intersection(id).into_iter().collect();
         let mut roads = BTreeMap::new();
         for r in &intersection_roads {
-            roads.insert(*r, initial::Road::new(*r, &self.roads[r], &self.config)?);
+            roads.insert(*r, initial::Road::new(self, *r)?);
         }
 
         // trim_roads_for_merging will be empty unless we've called merge_short_road
@@ -225,13 +225,13 @@ impl RawMap {
     }
 
     /// Generate the trimmed `PolyLine` for a single RawRoad by calculating both intersections
-    pub fn trimmed_road_geometry(&self, road: OriginalRoad) -> Option<PolyLine> {
+    pub fn trimmed_road_geometry(&self, road: OriginalRoad) -> Result<PolyLine> {
         let mut roads = BTreeMap::new();
         for id in [road.i1, road.i2] {
             for r in self.roads_per_intersection(id) {
                 roads.insert(
                     r,
-                    initial::Road::new(r, &self.roads[&r], &self.config).ok()?,
+                    initial::Road::new(self, r).with_context(|| road.to_string())?,
                 );
             }
         }
@@ -243,10 +243,44 @@ impl RawMap {
                 // TODO Not sure if we should use this or not
                 &BTreeMap::new(),
             )
-            .unwrap();
+            .with_context(|| road.to_string())?;
         }
 
-        Some(roads.remove(&road).unwrap().trimmed_center_pts)
+        Ok(roads.remove(&road).unwrap().trimmed_center_pts)
+    }
+
+    /// Returns the corrected (but untrimmed) center and total width for a road
+    pub fn untrimmed_road_geometry(&self, id: OriginalRoad) -> Result<(PolyLine, Distance)> {
+        let road = &self.roads[&id];
+        let lane_specs = get_lane_specs_ltr(&road.osm_tags, &self.config);
+        let mut total_width = Distance::ZERO;
+        let mut sidewalk_right = None;
+        let mut sidewalk_left = None;
+        for l in &lane_specs {
+            total_width += l.width;
+            if l.lt.is_walkable() {
+                if l.dir == Direction::Back {
+                    sidewalk_left = Some(l.width);
+                } else {
+                    sidewalk_right = Some(l.width);
+                }
+            }
+        }
+
+        // If there's a sidewalk on only one side, adjust the true center of the road.
+        let mut true_center =
+            PolyLine::new(road.center_points.clone()).with_context(|| id.to_string())?;
+        match (sidewalk_right, sidewalk_left) {
+            (Some(w), None) => {
+                true_center = true_center.must_shift_right(w / 2.0);
+            }
+            (None, Some(w)) => {
+                true_center = true_center.must_shift_right(w / 2.0);
+            }
+            _ => {}
+        }
+
+        Ok((true_center, total_width))
     }
 
     pub fn save(&self) {
@@ -335,39 +369,6 @@ pub struct RawRoad {
 }
 
 impl RawRoad {
-    /// Returns the corrected center and total width
-    pub fn get_geometry(&self, id: OriginalRoad, cfg: &MapConfig) -> Result<(PolyLine, Distance)> {
-        let lane_specs = get_lane_specs_ltr(&self.osm_tags, cfg);
-        let mut total_width = Distance::ZERO;
-        let mut sidewalk_right = None;
-        let mut sidewalk_left = None;
-        for l in &lane_specs {
-            total_width += l.width;
-            if l.lt.is_walkable() {
-                if l.dir == Direction::Back {
-                    sidewalk_left = Some(l.width);
-                } else {
-                    sidewalk_right = Some(l.width);
-                }
-            }
-        }
-
-        // If there's a sidewalk on only one side, adjust the true center of the road.
-        let mut true_center =
-            PolyLine::new(self.center_points.clone()).with_context(|| id.to_string())?;
-        match (sidewalk_right, sidewalk_left) {
-            (Some(w), None) => {
-                true_center = true_center.must_shift_right(w / 2.0);
-            }
-            (None, Some(w)) => {
-                true_center = true_center.must_shift_right(w / 2.0);
-            }
-            _ => {}
-        }
-
-        Ok((true_center, total_width))
-    }
-
     // TODO For the moment, treating all rail things as light rail
     pub fn is_light_rail(&self) -> bool {
         self.osm_tags.is_any("railway", vec!["light_rail", "rail"])

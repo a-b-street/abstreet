@@ -8,8 +8,8 @@ use anyhow::Result;
 use abstutil::{Tags, Timer};
 use geom::{Bounds, Circle, Distance, PolyLine, Polygon, Pt2D};
 
-use crate::{osm, IntersectionType, LaneSpec, MapConfig};
-use crate::{OriginalRoad, RawMap, RawRoad};
+use crate::{osm, IntersectionType, LaneSpec};
+use crate::{OriginalRoad, RawMap};
 
 pub struct InitialMap {
     pub roads: BTreeMap<OriginalRoad, Road>,
@@ -31,9 +31,10 @@ pub struct Road {
 }
 
 impl Road {
-    pub fn new(id: OriginalRoad, r: &RawRoad, cfg: &MapConfig) -> Result<Road> {
-        let lane_specs_ltr = crate::lane_specs::get_lane_specs_ltr(&r.osm_tags, cfg);
-        let (trimmed_center_pts, total_width) = r.get_geometry(id, cfg)?;
+    pub fn new(map: &RawMap, id: OriginalRoad) -> Result<Road> {
+        let road = &map.roads[&id];
+        let lane_specs_ltr = crate::lane_specs::get_lane_specs_ltr(&road.osm_tags, &map.config);
+        let (trimmed_center_pts, total_width) = map.untrimmed_road_geometry(id)?;
 
         Ok(Road {
             id,
@@ -42,7 +43,7 @@ impl Road {
             trimmed_center_pts,
             half_width: total_width / 2.0,
             lane_specs_ltr,
-            osm_tags: r.osm_tags.clone(),
+            osm_tags: road.osm_tags.clone(),
         })
     }
 }
@@ -78,20 +79,21 @@ impl InitialMap {
             );
         }
 
-        for (id, r) in &raw.roads {
+        for (id, road) in &raw.roads {
+            let id = *id;
             if id.i1 == id.i2 {
                 warn!("Skipping loop {}", id);
                 continue;
             }
-            if PolyLine::new(r.center_points.clone()).is_err() {
+            if PolyLine::new(road.center_points.clone()).is_err() {
                 warn!("Skipping broken geom {}", id);
                 continue;
             }
 
-            m.intersections.get_mut(&id.i1).unwrap().roads.insert(*id);
-            m.intersections.get_mut(&id.i2).unwrap().roads.insert(*id);
+            m.intersections.get_mut(&id.i1).unwrap().roads.insert(id);
+            m.intersections.get_mut(&id.i2).unwrap().roads.insert(id);
 
-            m.roads.insert(*id, Road::new(*id, r, &raw.config).unwrap());
+            m.roads.insert(id, Road::new(raw, id).unwrap());
         }
 
         timer.start_iter("find each intersection polygon", m.intersections.len());
