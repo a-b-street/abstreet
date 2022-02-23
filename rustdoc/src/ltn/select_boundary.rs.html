@@ -469,12 +469,12 @@
                     <span class="comment">// back to a different neighborhood than we started with. And also the original</span>
                     <span class="comment">// partitioning will have been lost!!!</span>
                     <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">orig_partitioning</span>.<span class="ident">clone</span>();
-                    <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident"><span class="kw">super</span>::connectivity::Viewer::new_state</span>(
+                    <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident"><span class="kw">crate</span>::connectivity::Viewer::new_state</span>(
                         <span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">id</span>,
                     ));
                 }
                 <span class="string">&quot;Confirm&quot;</span> =&gt; {
-                    <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident"><span class="kw">super</span>::connectivity::Viewer::new_state</span>(
+                    <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident"><span class="kw">crate</span>::connectivity::Viewer::new_state</span>(
                         <span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">id</span>,
                     ));
                 }

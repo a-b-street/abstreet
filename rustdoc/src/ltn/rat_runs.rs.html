@@ -171,7 +171,6 @@
 <span id="170">170</span>
 <span id="171">171</span>
 <span id="172">172</span>
-<span id="173">173</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Counter</span>, <span class="ident">Timer</span>};
@@ -180,8 +179,7 @@
     <span class="ident">PathfinderCaching</span>, <span class="ident">Position</span>, <span class="ident">RoadID</span>,
 };
 
-<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">Cell</span>, <span class="ident">Neighborhood</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::App</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">App</span>, <span class="ident">Cell</span>, <span class="ident">Neighborhood</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RatRuns</span> {
     <span class="kw">pub</span> <span class="ident">paths</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span>,

@@ -237,7 +237,6 @@
 <span id="236">236</span>
 <span id="237">237</span>
 <span id="238">238</span>
-<span id="239">239</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::type_complexity</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">structopt::StructOpt</span>;
@@ -256,7 +255,6 @@
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
 
-<span class="kw">mod</span> <span class="ident">auto</span>;
 <span class="kw">mod</span> <span class="ident">browse</span>;
 <span class="kw">mod</span> <span class="ident">connectivity</span>;
 <span class="kw">mod</span> <span class="ident">draw_cells</span>;
@@ -312,7 +310,7 @@
             <span class="ident">draw_neighborhood_style</span>: <span class="ident">browse::Style::SimpleColoring</span>,
             <span class="ident">draw_cells_as_areas</span>: <span class="bool-val">true</span>,
             <span class="ident">draw_borders_as_arrows</span>: <span class="bool-val">true</span>,
-            <span class="ident">heuristic</span>: <span class="ident">auto::Heuristic::OnlyOneBorder</span>,
+            <span class="ident">heuristic</span>: <span class="ident">filters::auto::Heuristic::OnlyOneBorder</span>,
             <span class="ident">main_road_penalty</span>: <span class="number">1.0</span>,
 
             <span class="ident">current_trip_name</span>: <span class="prelude-val">None</span>,
@@ -381,7 +379,7 @@
     <span class="comment">// Connectivity:</span>
     <span class="kw">pub</span> <span class="ident">draw_cells_as_areas</span>: <span class="ident">bool</span>,
     <span class="kw">pub</span> <span class="ident">draw_borders_as_arrows</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">heuristic</span>: <span class="ident">auto::Heuristic</span>,
+    <span class="kw">pub</span> <span class="ident">heuristic</span>: <span class="ident">filters::auto::Heuristic</span>,
     <span class="comment">// Pathfinding</span>
     <span class="kw">pub</span> <span class="ident">main_road_penalty</span>: <span class="ident">f64</span>,
 

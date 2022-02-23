@@ -350,7 +350,7 @@
                 <span class="ident">Transition::Replace</span>(<span class="ident">BrowseNeighborhoods::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))
             }
             <span class="string">&quot;Adjust boundary&quot;</span> =&gt; <span class="ident">Transition::Replace</span>(
-                <span class="ident"><span class="kw">super</span>::select_boundary::SelectBoundary::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>),
+                <span class="ident"><span class="kw">crate</span>::select_boundary::SelectBoundary::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>),
             ),
             <span class="string">&quot;Connectivity&quot;</span> =&gt; <span class="ident">Tab::Connectivity</span>.<span class="ident">switch_to_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>),
             <span class="string">&quot;Rat runs&quot;</span> =&gt; <span class="ident">Tab::RatRuns</span>.<span class="ident">switch_to_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>),
@@ -384,9 +384,9 @@
         <span class="ident">id</span>: <span class="ident">NeighborhoodID</span>,
     ) -&gt; <span class="ident">Transition</span> {
         <span class="ident">Transition::Replace</span>(<span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Tab::Connectivity</span> =&gt; <span class="ident"><span class="kw">super</span>::connectivity::Viewer::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>),
-            <span class="ident">Tab::RatRuns</span> =&gt; <span class="ident"><span class="kw">super</span>::rat_run_viewer::BrowseRatRuns::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>),
-            <span class="ident">Tab::Pathfinding</span> =&gt; <span class="ident"><span class="kw">super</span>::pathfinding::RoutePlanner::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>),
+            <span class="ident">Tab::Connectivity</span> =&gt; <span class="ident"><span class="kw">crate</span>::connectivity::Viewer::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>),
+            <span class="ident">Tab::RatRuns</span> =&gt; <span class="ident"><span class="kw">crate</span>::rat_run_viewer::BrowseRatRuns::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>),
+            <span class="ident">Tab::Pathfinding</span> =&gt; <span class="ident"><span class="kw">crate</span>::pathfinding::RoutePlanner::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>),
         })
     }
 

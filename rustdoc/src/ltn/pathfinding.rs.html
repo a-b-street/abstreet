@@ -309,7 +309,6 @@
 <span id="308">308</span>
 <span id="309">309</span>
 <span id="310">310</span>
-<span id="311">311</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>};
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{
     <span class="ident">cmp_dist</span>, <span class="ident">cmp_duration</span>, <span class="ident">InputWaypoints</span>, <span class="ident">TripManagement</span>, <span class="ident">TripManagementState</span>, <span class="ident">WaypointID</span>,
@@ -321,9 +320,8 @@
     <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RoundedF64</span>, <span class="ident">Spinner</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::per_neighborhood</span>::{<span class="ident">FilterableObj</span>, <span class="ident">Tab</span>};
-<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">Neighborhood</span>, <span class="ident">NeighborhoodID</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::per_neighborhood</span>::{<span class="ident">FilterableObj</span>, <span class="ident">Tab</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">App</span>, <span class="ident">Neighborhood</span>, <span class="ident">NeighborhoodID</span>, <span class="ident">Transition</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RoutePlanner</span> {
     <span class="ident">panel</span>: <span class="ident">Panel</span>,
@@ -416,7 +414,7 @@
         <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">panel</span>;
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">world</span> <span class="op">=</span> <span class="ident">World::bounded</span>(<span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>());
-        <span class="ident"><span class="kw">super</span>::per_neighborhood::populate_world</span>(
+        <span class="ident"><span class="kw">crate</span>::per_neighborhood::populate_world</span>(
             <span class="ident">ctx</span>,
             <span class="ident">app</span>,
             <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">neighborhood</span>,
@@ -554,7 +552,7 @@
             <span class="ident">Obj::Filterable</span>(<span class="ident">id</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">id</span>),
             <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
         }) {
-            <span class="kw">if</span> <span class="ident"><span class="kw">super</span>::per_neighborhood::handle_world_outcome</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">outcome</span>) {
+            <span class="kw">if</span> <span class="ident"><span class="kw">crate</span>::per_neighborhood::handle_world_outcome</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">outcome</span>) {
                 <span class="self">self</span>.<span class="ident">neighborhood</span> <span class="op">=</span> <span class="ident">Neighborhood::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">neighborhood</span>.<span class="ident">id</span>);
                 <span class="self">self</span>.<span class="ident">update_everything</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 <span class="kw">return</span> <span class="ident">Transition::Keep</span>;
