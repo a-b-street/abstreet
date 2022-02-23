@@ -518,7 +518,7 @@
                 <span class="ident">orig_id</span>: <span class="ident">r</span>.<span class="ident">id</span>,
                 <span class="ident">lanes</span>: <span class="ident">Vec::new</span>(),
                 <span class="ident">center_pts</span>: <span class="ident">r</span>.<span class="ident">trimmed_center_pts</span>,
-                <span class="ident">untrimmed_center_pts</span>: <span class="ident">raw_road</span>.<span class="ident">get_geometry</span>(<span class="ident">r</span>.<span class="ident">id</span>, <span class="ident">map</span>.<span class="ident">get_config</span>()).<span class="ident">unwrap</span>().<span class="number">0</span>,
+                <span class="ident">untrimmed_center_pts</span>: <span class="ident">raw</span>.<span class="ident">untrimmed_road_geometry</span>(<span class="ident">r</span>.<span class="ident">id</span>).<span class="ident">unwrap</span>().<span class="number">0</span>,
                 <span class="ident">src_i</span>: <span class="ident">i1</span>,
                 <span class="ident">dst_i</span>: <span class="ident">i2</span>,
                 <span class="ident">speed_limit</span>: <span class="ident">Speed::ZERO</span>,
