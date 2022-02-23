@@ -3,6 +3,7 @@ use std::collections::BTreeSet;
 use anyhow::Result;
 
 use geom::Distance;
+use map_gui::tools::DrawRoadLabels;
 use map_model::Block;
 use widgetry::mapspace::ToggleZoomed;
 use widgetry::mapspace::{World, WorldOutcome};
@@ -26,6 +27,8 @@ pub struct SelectBoundary {
     // As an optimization, don't repeatedly attempt to make an edit that'll fail. The bool is
     // whether the block is already included or not
     last_failed_change: Option<(BlockID, bool)>,
+
+    labels: DrawRoadLabels,
 }
 
 impl SelectBoundary {
@@ -39,6 +42,8 @@ impl SelectBoundary {
 
             orig_partitioning: app.session.partitioning.clone(),
             last_failed_change: None,
+
+            labels: DrawRoadLabels::only_major_roads(),
         };
 
         let initial_boundary = app.session.partitioning.neighborhood_block(id);
@@ -229,10 +234,13 @@ impl State<App> for SelectBoundary {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &App) {
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.world.draw(g);
         self.draw_outline.draw(g);
         self.panel.draw(g);
+        if g.canvas.is_unzoomed() {
+            self.labels.draw(g, app);
+        }
     }
 }
 
