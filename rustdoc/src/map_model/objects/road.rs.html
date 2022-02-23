@@ -647,15 +647,6 @@
 <span id="646">646</span>
 <span id="647">647</span>
 <span id="648">648</span>
-<span id="649">649</span>
-<span id="650">650</span>
-<span id="651">651</span>
-<span id="652">652</span>
-<span id="653">653</span>
-<span id="654">654</span>
-<span id="655">655</span>
-<span id="656">656</span>
-<span id="657">657</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
@@ -848,9 +839,9 @@
             .<span class="ident">collect</span>()
     }
 
-    <span class="doccomment">/// Gets the left PolyLine of the road</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_left_side</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">PolyLine</span> {
-        <span class="self">self</span>.<span class="ident">center_pts</span>.<span class="ident">must_shift_left</span>(<span class="self">self</span>.<span class="ident">get_half_width</span>())
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">shift_from_left_side</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">width_from_left_side</span>: <span class="ident">Distance</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PolyLine</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">center_pts</span>
+            .<span class="ident">shift_from_center</span>(<span class="self">self</span>.<span class="ident">get_width</span>(), <span class="ident">width_from_left_side</span>)
     }
 
     <span class="doccomment">/// lane must belong to this road. Offset 0 is the centermost lane on each side of a road, then</span>
@@ -1174,16 +1165,7 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">recreate_lanes</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">lane_specs_ltr</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneSpec</span><span class="op">&gt;</span>) {
         <span class="self">self</span>.<span class="ident">lanes</span>.<span class="ident">clear</span>();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_width</span> <span class="op">=</span> <span class="ident">Distance::ZERO</span>;
-        <span class="kw">for</span> <span class="ident">lane</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">lane_specs_ltr</span> {
-            <span class="ident">total_width</span> <span class="op">+</span><span class="op">=</span> <span class="ident">lane</span>.<span class="ident">width</span>;
-        }
-        <span class="comment">// TODO Maybe easier to use the road&#39;s &quot;yellow center line&quot; and shift left/right from</span>
-        <span class="comment">// there.</span>
-        <span class="kw">let</span> <span class="ident">road_left_pts</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">center_pts</span>
-            .<span class="ident">shift_left</span>(<span class="ident">total_width</span> <span class="op">/</span> <span class="number">2.0</span>)
-            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">center_pts</span>.<span class="ident">clone</span>());
+        <span class="kw">let</span> <span class="ident">total_width</span> <span class="op">=</span> <span class="ident">lane_specs_ltr</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">width</span>).<span class="ident">sum</span>();
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">width_so_far</span> <span class="op">=</span> <span class="ident">Distance::ZERO</span>;
         <span class="kw">for</span> <span class="ident">lane</span> <span class="kw">in</span> <span class="ident">lane_specs_ltr</span> {
@@ -1198,18 +1180,18 @@
                 (<span class="self">self</span>.<span class="ident">dst_i</span>, <span class="self">self</span>.<span class="ident">src_i</span>)
             };
 
-            <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) <span class="op">=</span> <span class="ident">road_left_pts</span>.<span class="ident">shift_right</span>(<span class="ident">width_so_far</span> <span class="op">+</span> (<span class="ident">lane</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>)) {
-                <span class="ident">pl</span>
-            } <span class="kw">else</span> {
-                <span class="macro">error!</span>(<span class="string">&quot;{} geometry broken; lane not shifted!&quot;</span>, <span class="ident">id</span>);
-                <span class="ident">road_left_pts</span>.<span class="ident">clone</span>()
-            };
+            <span class="ident">width_so_far</span> <span class="op">+</span><span class="op">=</span> <span class="ident">lane</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>;
+            <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="self">self</span>
+                .<span class="ident">center_pts</span>
+                .<span class="ident">shift_from_center</span>(<span class="ident">total_width</span>, <span class="ident">width_so_far</span>)
+                .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">center_pts</span>.<span class="ident">clone</span>());
+            <span class="ident">width_so_far</span> <span class="op">+</span><span class="op">=</span> <span class="ident">lane</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>;
+
             <span class="kw">let</span> <span class="ident">lane_center_pts</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">dir</span> <span class="op">==</span> <span class="ident">Direction::Fwd</span> {
                 <span class="ident">pl</span>
             } <span class="kw">else</span> {
                 <span class="ident">pl</span>.<span class="ident">reversed</span>()
             };
-            <span class="ident">width_so_far</span> <span class="op">+</span><span class="op">=</span> <span class="ident">lane</span>.<span class="ident">width</span>;
 
             <span class="self">self</span>.<span class="ident">lanes</span>.<span class="ident">push</span>(<span class="ident">Lane</span> {
                 <span class="ident">id</span>,
