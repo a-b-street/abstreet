@@ -38,6 +38,7 @@ impl Tab {
                     .hotkey(Key::B)
                     .build_def(ctx),
             ]),
+            app.session.alt_proposals.to_widget(ctx, app).section(ctx),
             self.make_buttons(ctx),
             Widget::col(vec![
                 Widget::row(vec![
@@ -95,12 +96,25 @@ impl Tab {
                 self.switch_to_state(ctx, app, id)
             }
             x => {
-                return crate::handle_app_header_click(ctx, app, x);
+                if let Some(t) = crate::handle_app_header_click(ctx, app, x) {
+                    return Some(t);
+                }
+                return crate::save::AltProposals::handle_action(
+                    ctx,
+                    app,
+                    crate::save::PreserveState::per_neighborhood(app, self, id),
+                    x,
+                );
             }
         })
     }
 
-    fn switch_to_state(self, ctx: &mut EventCtx, app: &mut App, id: NeighborhoodID) -> Transition {
+    pub fn switch_to_state(
+        self,
+        ctx: &mut EventCtx,
+        app: &mut App,
+        id: NeighborhoodID,
+    ) -> Transition {
         Transition::Replace(match self {
             Tab::Connectivity => super::connectivity::Viewer::new_state(ctx, app, id),
             Tab::RatRuns => super::rat_run_viewer::BrowseRatRuns::new_state(ctx, app, id),
@@ -111,9 +125,9 @@ impl Tab {
     fn make_buttons(self, ctx: &mut EventCtx) -> Widget {
         let mut row = Vec::new();
         for (tab, label, key) in [
-            (Tab::Connectivity, "Connectivity", Key::Num1),
-            (Tab::RatRuns, "Rat runs", Key::Num2),
-            (Tab::Pathfinding, "Pathfinding", Key::Num3),
+            (Tab::Connectivity, "Connectivity", Key::F1),
+            (Tab::RatRuns, "Rat runs", Key::F2),
+            (Tab::Pathfinding, "Pathfinding", Key::F3),
         ] {
             // TODO Match the TabController styling
             row.push(

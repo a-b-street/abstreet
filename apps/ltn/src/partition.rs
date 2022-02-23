@@ -41,7 +41,7 @@ pub struct Partitioning {
 
     neighborhood_id_counter: usize,
 
-    // Invariant: This is a bijection, every block belongs to exactly one neighborhood
+    // Invariant: This is a surjection, every block belongs to exactly one neighborhood
     block_to_neighborhood: BTreeMap<BlockID, NeighborhoodID>,
 }
 
@@ -57,6 +57,10 @@ impl Partitioning {
 
             block_to_neighborhood: BTreeMap::new(),
         }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.neighborhoods.is_empty()
     }
 
     pub fn seed_using_heuristics(app: &App, timer: &mut Timer) -> Partitioning {
@@ -329,6 +333,15 @@ impl Partitioning {
 
     pub fn block_to_neighborhood(&self, id: BlockID) -> NeighborhoodID {
         self.block_to_neighborhood[&id]
+    }
+
+    pub fn some_block_in_neighborhood(&self, id: NeighborhoodID) -> BlockID {
+        for (block, neighborhood) in &self.block_to_neighborhood {
+            if id == *neighborhood {
+                return *block;
+            }
+        }
+        unreachable!("{:?} has no blocks", id);
     }
 
     /// Blocks on the "frontier" are adjacent to the perimeter, either just inside or outside.
