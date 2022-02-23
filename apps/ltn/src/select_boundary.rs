@@ -190,12 +190,12 @@ impl State<App> for SelectBoundary {
                     // back to a different neighborhood than we started with. And also the original
                     // partitioning will have been lost!!!
                     app.session.partitioning = self.orig_partitioning.clone();
-                    return Transition::Replace(super::connectivity::Viewer::new_state(
+                    return Transition::Replace(crate::connectivity::Viewer::new_state(
                         ctx, app, self.id,
                     ));
                 }
                 "Confirm" => {
-                    return Transition::Replace(super::connectivity::Viewer::new_state(
+                    return Transition::Replace(crate::connectivity::Viewer::new_state(
                         ctx, app, self.id,
                     ));
                 }

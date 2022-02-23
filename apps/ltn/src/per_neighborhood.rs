@@ -82,7 +82,7 @@ impl Tab {
                 Transition::Replace(BrowseNeighborhoods::new_state(ctx, app))
             }
             "Adjust boundary" => Transition::Replace(
-                super::select_boundary::SelectBoundary::new_state(ctx, app, id),
+                crate::select_boundary::SelectBoundary::new_state(ctx, app, id),
             ),
             "Connectivity" => Tab::Connectivity.switch_to_state(ctx, app, id),
             "Rat runs" => Tab::RatRuns.switch_to_state(ctx, app, id),
@@ -116,9 +116,9 @@ impl Tab {
         id: NeighborhoodID,
     ) -> Transition {
         Transition::Replace(match self {
-            Tab::Connectivity => super::connectivity::Viewer::new_state(ctx, app, id),
-            Tab::RatRuns => super::rat_run_viewer::BrowseRatRuns::new_state(ctx, app, id),
-            Tab::Pathfinding => super::pathfinding::RoutePlanner::new_state(ctx, app, id),
+            Tab::Connectivity => crate::connectivity::Viewer::new_state(ctx, app, id),
+            Tab::RatRuns => crate::rat_run_viewer::BrowseRatRuns::new_state(ctx, app, id),
+            Tab::Pathfinding => crate::pathfinding::RoutePlanner::new_state(ctx, app, id),
         })
     }
 

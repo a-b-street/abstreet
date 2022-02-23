@@ -3,8 +3,7 @@ use anyhow::Result;
 use geom::{PolyLine, Pt2D};
 use widgetry::EventCtx;
 
-use super::Neighborhood;
-use crate::App;
+use crate::{App, Neighborhood};
 
 /// Returns the path where the file was written
 pub fn write_geojson_file(ctx: &EventCtx, app: &App) -> Result<String> {
@@ -69,7 +68,7 @@ fn geojson_string(ctx: &EventCtx, app: &App) -> Result<String> {
 
         // Cells per neighborhood
         let render_cells =
-            super::draw_cells::RenderCells::new(map, &Neighborhood::new(ctx, app, *id));
+            crate::draw_cells::RenderCells::new(map, &Neighborhood::new(ctx, app, *id));
         for (idx, multipolygon) in render_cells.to_multipolygons().into_iter().enumerate() {
             let mut feature = Feature {
                 bbox: None,

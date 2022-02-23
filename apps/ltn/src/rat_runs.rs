@@ -6,8 +6,7 @@ use map_model::{
     PathfinderCaching, Position, RoadID,
 };
 
-use super::{Cell, Neighborhood};
-use crate::App;
+use crate::{App, Cell, Neighborhood};
 
 pub struct RatRuns {
     pub paths: Vec<Path>,

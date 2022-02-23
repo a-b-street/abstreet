@@ -1,3 +1,4 @@
+pub mod auto;
 mod existing;
 
 use std::collections::{BTreeMap, BTreeSet};

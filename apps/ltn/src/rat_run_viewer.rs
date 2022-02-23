@@ -6,10 +6,9 @@ use widgetry::{
     Color, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text, TextExt, Toggle, Widget,
 };
 
-use super::per_neighborhood::{FilterableObj, Tab};
-use super::rat_runs::{find_rat_runs, RatRuns};
-use super::{Neighborhood, NeighborhoodID};
-use crate::{App, Transition};
+use crate::per_neighborhood::{FilterableObj, Tab};
+use crate::rat_runs::{find_rat_runs, RatRuns};
+use crate::{App, Neighborhood, NeighborhoodID, Transition};
 
 pub struct BrowseRatRuns {
     panel: Panel,
@@ -177,7 +176,7 @@ impl State<App> for BrowseRatRuns {
         // TODO Bit weird to allow this while showing individual paths, since we don't draw the
         // world
         let world_outcome = self.world.event(ctx);
-        if super::per_neighborhood::handle_world_outcome(ctx, app, world_outcome) {
+        if crate::per_neighborhood::handle_world_outcome(ctx, app, world_outcome) {
             // TODO We could be a bit more efficient here, but simplest to just start over with a
             // new state
             return Transition::Replace(BrowseRatRuns::new_state(ctx, app, self.neighborhood.id));
@@ -217,7 +216,7 @@ fn make_world(
     let map = &app.map;
     let mut world = World::bounded(map.get_bounds());
 
-    super::per_neighborhood::populate_world(ctx, app, neighborhood, &mut world, |id| id, 0);
+    crate::per_neighborhood::populate_world(ctx, app, neighborhood, &mut world, |id| id, 0);
 
     // Bit hacky. Go through and fill out tooltips for the objects just added to the world.
     for r in &neighborhood.orig_perimeter.interior {

@@ -5,10 +5,9 @@ use widgetry::{
     Widget,
 };
 
-use super::auto::Heuristic;
-use super::per_neighborhood::{FilterableObj, Tab};
-use super::{Neighborhood, NeighborhoodID};
-use crate::{App, Transition};
+use crate::filters::auto::Heuristic;
+use crate::per_neighborhood::{FilterableObj, Tab};
+use crate::{App, Neighborhood, NeighborhoodID, Transition};
 
 pub struct Viewer {
     panel: Panel,
@@ -129,7 +128,7 @@ impl State<App> for Viewer {
         }
 
         let world_outcome = self.world.event(ctx);
-        if super::per_neighborhood::handle_world_outcome(ctx, app, world_outcome) {
+        if crate::per_neighborhood::handle_world_outcome(ctx, app, world_outcome) {
             self.neighborhood = Neighborhood::new(ctx, app, self.neighborhood.id);
             self.update(ctx, app);
         }
@@ -165,13 +164,13 @@ fn make_world(
     let map = &app.map;
     let mut world = World::bounded(map.get_bounds());
 
-    super::per_neighborhood::populate_world(ctx, app, neighborhood, &mut world, |id| id, 0);
+    crate::per_neighborhood::populate_world(ctx, app, neighborhood, &mut world, |id| id, 0);
 
     // The world is drawn in between areas and roads, but some things need to be drawn on top of
     // roads
     let mut draw_top_layer = GeomBatch::new();
 
-    let render_cells = super::draw_cells::RenderCells::new(map, neighborhood);
+    let render_cells = crate::draw_cells::RenderCells::new(map, neighborhood);
     if app.session.draw_cells_as_areas {
         world.draw_master_batch(ctx, render_cells.draw());
     } else {

@@ -5,7 +5,7 @@ use map_gui::tools::Grid;
 use map_model::Map;
 use widgetry::{Color, GeomBatch};
 
-use super::Neighborhood;
+use crate::Neighborhood;
 
 lazy_static::lazy_static! {
     static ref COLORS: [Color; 6] = [

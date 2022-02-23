@@ -16,7 +16,6 @@ extern crate anyhow;
 #[macro_use]
 extern crate log;
 
-mod auto;
 mod browse;
 mod connectivity;
 mod draw_cells;
@@ -72,7 +71,7 @@ fn run(mut settings: Settings) {
             draw_neighborhood_style: browse::Style::SimpleColoring,
             draw_cells_as_areas: true,
             draw_borders_as_arrows: true,
-            heuristic: auto::Heuristic::OnlyOneBorder,
+            heuristic: filters::auto::Heuristic::OnlyOneBorder,
             main_road_penalty: 1.0,
 
             current_trip_name: None,
@@ -141,7 +140,7 @@ pub struct Session {
     // Connectivity:
     pub draw_cells_as_areas: bool,
     pub draw_borders_as_arrows: bool,
-    pub heuristic: auto::Heuristic,
+    pub heuristic: filters::auto::Heuristic,
     // Pathfinding
     pub main_road_penalty: f64,
 

@@ -11,9 +11,8 @@ use widgetry::{
     State, Text, TextExt, Toggle, VerticalAlignment, Widget,
 };
 
-use super::auto::Heuristic;
-use super::{Neighborhood, NeighborhoodID};
-use crate::{App, Transition};
+use crate::filters::auto::Heuristic;
+use crate::{App, Neighborhood, NeighborhoodID, Transition};
 
 pub struct BrowseNeighborhoods {
     panel: Panel,
@@ -110,7 +109,7 @@ impl State<App> for BrowseNeighborhoods {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "Export to GeoJSON" => {
-                    let result = super::export::write_geojson_file(ctx, app);
+                    let result = crate::export::write_geojson_file(ctx, app);
                     return Transition::Push(match result {
                         Ok(path) => PopupMsg::new_state(
                             ctx,
@@ -123,7 +122,7 @@ impl State<App> for BrowseNeighborhoods {
                     });
                 }
                 "Calculate" | "Show impact" => {
-                    return Transition::Push(super::impact::ShowResults::new_state(ctx, app));
+                    return Transition::Push(crate::impact::ShowResults::new_state(ctx, app));
                 }
                 "Automatically stop rat-runs" => {
                     ctx.loading_screen("automatically filter all neighborhoods", |ctx, timer| {
@@ -168,7 +167,7 @@ impl State<App> for BrowseNeighborhoods {
         }
 
         if let WorldOutcome::ClickedObject(id) = self.world.event(ctx) {
-            return Transition::Push(super::connectivity::Viewer::new_state(ctx, app, id));
+            return Transition::Push(crate::connectivity::Viewer::new_state(ctx, app, id));
         }
 
         Transition::Keep
@@ -211,7 +210,7 @@ fn make_world(ctx: &mut EventCtx, app: &App, timer: &mut Timer) -> World<Neighbo
                 // TODO The cell colors are confusing alongside the other neighborhood colors. I
                 // tried greying out everything else, but then the view is too jumpy.
                 let neighborhood = Neighborhood::new(ctx, app, *id);
-                let render_cells = super::draw_cells::RenderCells::new(map, &neighborhood);
+                let render_cells = crate::draw_cells::RenderCells::new(map, &neighborhood);
                 let hovered_batch = render_cells.draw();
                 world
                     .add(*id)
@@ -223,7 +222,7 @@ fn make_world(ctx: &mut EventCtx, app: &App, timer: &mut Timer) -> World<Neighbo
             }
             Style::Quietness => {
                 let neighborhood = Neighborhood::new(ctx, app, *id);
-                let rat_runs = super::rat_runs::find_rat_runs(app, &neighborhood, timer);
+                let rat_runs = crate::rat_runs::find_rat_runs(app, &neighborhood, timer);
                 let (quiet_streets, total_streets) =
                     rat_runs.quiet_and_total_streets(&neighborhood);
                 let pct = if total_streets == 0 {
@@ -265,7 +264,7 @@ fn draw_over_roads(ctx: &mut EventCtx, app: &App, timer: &mut Timer) -> ToggleZo
 
     for id in app.session.partitioning.all_neighborhoods().keys() {
         let neighborhood = Neighborhood::new(ctx, app, *id);
-        let rat_runs = super::rat_runs::find_rat_runs(app, &neighborhood, timer);
+        let rat_runs = crate::rat_runs::find_rat_runs(app, &neighborhood, timer);
         count_per_road.extend(rat_runs.count_per_road);
         count_per_intersection.extend(rat_runs.count_per_intersection);
     }

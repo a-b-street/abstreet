@@ -9,9 +9,8 @@ use widgetry::{
     Color, EventCtx, GfxCtx, Line, Outcome, Panel, RoundedF64, Spinner, State, Text, Widget,
 };
 
-use super::per_neighborhood::{FilterableObj, Tab};
-use super::{Neighborhood, NeighborhoodID};
-use crate::{App, Transition};
+use crate::per_neighborhood::{FilterableObj, Tab};
+use crate::{App, Neighborhood, NeighborhoodID, Transition};
 
 pub struct RoutePlanner {
     panel: Panel,
@@ -104,7 +103,7 @@ impl RoutePlanner {
         self.panel = panel;
 
         let mut world = World::bounded(app.map.get_bounds());
-        super::per_neighborhood::populate_world(
+        crate::per_neighborhood::populate_world(
             ctx,
             app,
             &self.neighborhood,
@@ -242,7 +241,7 @@ impl State<App> for RoutePlanner {
             Obj::Filterable(id) => Some(id),
             _ => None,
         }) {
-            if super::per_neighborhood::handle_world_outcome(ctx, app, outcome) {
+            if crate::per_neighborhood::handle_world_outcome(ctx, app, outcome) {
                 self.neighborhood = Neighborhood::new(ctx, app, self.neighborhood.id);
                 self.update_everything(ctx, app);
                 return Transition::Keep;

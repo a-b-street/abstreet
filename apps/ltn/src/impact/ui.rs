@@ -8,7 +8,7 @@ use widgetry::{
     Slider, State, Text, TextExt, Toggle, VerticalAlignment, Widget,
 };
 
-use super::{end_of_day, Filters, Impact};
+use crate::impact::{end_of_day, Filters, Impact};
 use crate::{App, BrowseNeighborhoods, Transition};
 
 // TODO Share structure or pieces with Ungap's predict mode
