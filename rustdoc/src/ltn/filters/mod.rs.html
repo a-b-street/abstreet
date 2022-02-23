@@ -271,6 +271,15 @@
 <span id="270">270</span>
 <span id="271">271</span>
 <span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
 </pre><pre class="rust"><code><span class="kw">mod</span> <span class="ident">existing</span>;
 
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
@@ -295,9 +304,13 @@
     <span class="doccomment">/// Edit history is preserved recursively</span>
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>, <span class="ident">skip_deserializing</span>)]</span>
     <span class="kw">pub</span> <span class="ident">previous_version</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ModalFilters</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// This changes every time an edit occurs</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>, <span class="ident">skip_deserializing</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">change_key</span>: <span class="ident">usize</span>,
+}
+
+<span class="doccomment">/// This logically changes every time an edit occurs. MapName isn&#39;t captured here.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ChangeKey</span> {
+    <span class="ident">roads</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">RoadID</span>, <span class="ident">Distance</span><span class="op">&gt;</span>,
+    <span class="ident">intersections</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">IntersectionID</span>, <span class="ident">DiagonalFilter</span><span class="op">&gt;</span>,
 }
 
 <span class="doccomment">/// A diagonal filter exists in an intersection. It&#39;s defined by two roads (the order is</span>
@@ -322,7 +335,6 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">before_edit</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
         <span class="kw">let</span> <span class="ident">copy</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">clone</span>();
         <span class="self">self</span>.<span class="ident">previous_version</span> <span class="op">=</span> <span class="ident">Box::new</span>(<span class="prelude-val">Some</span>(<span class="ident">copy</span>));
-        <span class="self">self</span>.<span class="ident">change_key</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
     }
 
     <span class="doccomment">/// If it&#39;s possible no edits were made, undo the previous call to `before_edit` and collapse</span>
@@ -331,7 +343,6 @@
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">prev</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">previous_version</span>.<span class="ident">take</span>() {
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">roads</span> <span class="op">==</span> <span class="ident">prev</span>.<span class="ident">roads</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">intersections</span> <span class="op">==</span> <span class="ident">prev</span>.<span class="ident">intersections</span> {
                 <span class="self">self</span>.<span class="ident">previous_version</span> <span class="op">=</span> <span class="ident">prev</span>.<span class="ident">previous_version</span>;
-                <span class="comment">// Leave change_key alone for simplicity</span>
             } <span class="kw">else</span> {
                 <span class="comment">// There was a real difference, keep</span>
                 <span class="self">self</span>.<span class="ident">previous_version</span> <span class="op">=</span> <span class="ident">Box::new</span>(<span class="prelude-val">Some</span>(<span class="ident">prev</span>));
@@ -414,6 +425,13 @@
             );
         }
         <span class="ident">Toggle3Zoomed::new</span>(<span class="ident">batch</span>.<span class="ident">build</span>(<span class="ident">ctx</span>), <span class="ident">low_zoom</span>.<span class="ident">build</span>())
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_change_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ChangeKey</span> {
+        <span class="ident">ChangeKey</span> {
+            <span class="ident">roads</span>: <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">clone</span>(),
+            <span class="ident">intersections</span>: <span class="self">self</span>.<span class="ident">intersections</span>.<span class="ident">clone</span>(),
+        }
     }
 }
 

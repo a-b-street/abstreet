@@ -252,6 +252,20 @@
 <span id="251">251</span>
 <span id="252">252</span>
 <span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom::Distance</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools::open_browser</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">PathConstraints</span>, <span class="ident">RoadID</span>};
@@ -292,6 +306,7 @@
                     .<span class="ident">hotkey</span>(<span class="ident">Key::B</span>)
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             ]),
+            <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">alt_proposals</span>.<span class="ident">to_widget</span>(<span class="ident">ctx</span>, <span class="ident">app</span>).<span class="ident">section</span>(<span class="ident">ctx</span>),
             <span class="self">self</span>.<span class="ident">make_buttons</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
                 <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
@@ -349,12 +364,25 @@
                 <span class="self">self</span>.<span class="ident">switch_to_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>)
             }
             <span class="ident">x</span> =&gt; {
-                <span class="kw">return</span> <span class="ident"><span class="kw">crate</span>::handle_app_header_click</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">x</span>);
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::handle_app_header_click</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">x</span>) {
+                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>);
+                }
+                <span class="kw">return</span> <span class="ident"><span class="kw">crate</span>::save::AltProposals::handle_action</span>(
+                    <span class="ident">ctx</span>,
+                    <span class="ident">app</span>,
+                    <span class="ident"><span class="kw">crate</span>::save::PreserveState::per_neighborhood</span>(<span class="ident">app</span>, <span class="self">self</span>, <span class="ident">id</span>),
+                    <span class="ident">x</span>,
+                );
             }
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">switch_to_state</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">NeighborhoodID</span>) -&gt; <span class="ident">Transition</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">switch_to_state</span>(
+        <span class="self">self</span>,
+        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
+        <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
+        <span class="ident">id</span>: <span class="ident">NeighborhoodID</span>,
+    ) -&gt; <span class="ident">Transition</span> {
         <span class="ident">Transition::Replace</span>(<span class="kw">match</span> <span class="self">self</span> {
             <span class="ident">Tab::Connectivity</span> =&gt; <span class="ident"><span class="kw">super</span>::connectivity::Viewer::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>),
             <span class="ident">Tab::RatRuns</span> =&gt; <span class="ident"><span class="kw">super</span>::rat_run_viewer::BrowseRatRuns::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>),
@@ -365,9 +393,9 @@
     <span class="kw">fn</span> <span class="ident">make_buttons</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">Widget</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">for</span> (<span class="ident">tab</span>, <span class="ident">label</span>, <span class="ident">key</span>) <span class="kw">in</span> [
-            (<span class="ident">Tab::Connectivity</span>, <span class="string">&quot;Connectivity&quot;</span>, <span class="ident">Key::Num1</span>),
-            (<span class="ident">Tab::RatRuns</span>, <span class="string">&quot;Rat runs&quot;</span>, <span class="ident">Key::Num2</span>),
-            (<span class="ident">Tab::Pathfinding</span>, <span class="string">&quot;Pathfinding&quot;</span>, <span class="ident">Key::Num3</span>),
+            (<span class="ident">Tab::Connectivity</span>, <span class="string">&quot;Connectivity&quot;</span>, <span class="ident">Key::F1</span>),
+            (<span class="ident">Tab::RatRuns</span>, <span class="string">&quot;Rat runs&quot;</span>, <span class="ident">Key::F2</span>),
+            (<span class="ident">Tab::Pathfinding</span>, <span class="string">&quot;Pathfinding&quot;</span>, <span class="ident">Key::F3</span>),
         ] {
             <span class="comment">// TODO Match the TabController styling</span>
             <span class="ident">row</span>.<span class="ident">push</span>(

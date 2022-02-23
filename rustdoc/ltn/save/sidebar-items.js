@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Proposal","Captures all of the edits somebody makes to a map in the LTN tool. Note this separate from `map_model::MapEdits`."]]});
+initSidebarItems({"enum":[["PreserveState",""]],"fn":[["load_picker_ui",""],["save_ui",""],["stash_current_proposal",""],["switch_to_existing_proposal",""]],"struct":[["AltProposals",""],["Proposal","Captures all of the edits somebody makes to a map in the LTN tool. Note this separate from `map_model::MapEdits`."]]});
