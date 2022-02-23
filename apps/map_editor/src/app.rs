@@ -1,7 +1,7 @@
 use geom::{Distance, Line, Polygon, Pt2D};
 use raw_map::osm;
 use widgetry::mapspace::WorldOutcome;
-use widgetry::tools::URLManager;
+use widgetry::tools::{open_browser, URLManager};
 use widgetry::{
     lctrl, Canvas, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
     SharedAppState, State, Text, Toggle, Transition, VerticalAlignment, Widget,
@@ -209,6 +209,9 @@ impl State<App> for MainState {
                     WorldOutcome::Keypress("debug intersection geometry", ID::Intersection(i)) => {
                         app.model.debug_intersection_geometry(ctx, i);
                     }
+                    WorldOutcome::Keypress("debug in OSM", ID::Intersection(i)) => {
+                        open_browser(i.to_string());
+                    }
                     WorldOutcome::Keypress("delete", ID::Building(b)) => {
                         app.model.delete_b(b);
                         app.model.world.initialize_hover(ctx);
@@ -244,6 +247,9 @@ impl State<App> for MainState {
                     }
                     WorldOutcome::Keypress("mark/unmark as a junction", ID::Road(r)) => {
                         app.model.toggle_junction(ctx, r);
+                    }
+                    WorldOutcome::Keypress("debug in OSM", ID::Road(r)) => {
+                        open_browser(r.osm_way_id.to_string());
                     }
                     WorldOutcome::ClickedObject(ID::Road(r)) => {
                         return Transition::Push(crate::edit::EditRoad::new_state(ctx, app, r));

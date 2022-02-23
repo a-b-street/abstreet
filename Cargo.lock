@@ -2239,7 +2239,6 @@ dependencies = [
  "synthpop",
  "wasm-bindgen",
  "web-sys",
- "webbrowser",
  "widgetry",
 ]
 
@@ -4399,6 +4398,7 @@ dependencies = [
  "wasm-bindgen-futures",
  "wasm-streams",
  "web-sys",
+ "webbrowser",
  "winit",
 ]
 

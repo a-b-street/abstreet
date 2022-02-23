@@ -178,6 +178,7 @@ impl Model {
             .hotkey(Key::Backspace, "delete")
             .hotkey(Key::T, "toggle stop sign / traffic signal")
             .hotkey(Key::P, "debug intersection geometry")
+            .hotkey(Key::D, "debug in OSM")
             .build(ctx);
     }
 
@@ -294,6 +295,7 @@ impl Model {
             .hotkey(Key::X, "remove interior points")
             .hotkey(Key::M, "merge")
             .hotkey(Key::J, "mark/unmark as a junction")
+            .hotkey(Key::D, "debug in OSM")
             .build(ctx);
     }
 

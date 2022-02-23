@@ -193,7 +193,7 @@ impl<A: AppLike + 'static> State<A> for CityPicker<A> {
                 "import new city" => {
                     #[cfg(target_arch = "wasm32")]
                     {
-                        crate::tools::open_browser(
+                        widgetry::tools::open_browser(
                             "https://a-b-street.github.io/docs/user/new_city.html",
                         );
                     }

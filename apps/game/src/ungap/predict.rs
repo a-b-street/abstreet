@@ -3,12 +3,12 @@ use std::collections::HashSet;
 use abstio::Manifest;
 use abstutil::{prettyprint_bytes, prettyprint_usize, Counter, Timer};
 use geom::{Distance, Duration, UnitFmt};
-use map_gui::tools::{open_browser, percentage_bar, ColorNetwork};
+use map_gui::tools::{percentage_bar, ColorNetwork};
 use map_gui::ID;
 use map_model::{PathRequest, PathStepV2, RoadID};
 use synthpop::{Scenario, TripEndpoint, TripMode};
 use widgetry::mapspace::ToggleZoomed;
-use widgetry::tools::FileLoader;
+use widgetry::tools::{open_browser, FileLoader};
 use widgetry::{EventCtx, GfxCtx, Line, Outcome, Panel, Spinner, State, Text, TextExt, Widget};
 
 use crate::app::{App, Transition};

@@ -65,3 +65,7 @@ impl<K: PartialEq + Clone, V> Default for Cached<K, V> {
         Cached::new()
     }
 }
+
+pub fn open_browser<I: AsRef<str>>(url: I) {
+    let _ = webbrowser::open(url.as_ref());
+}

@@ -3,7 +3,6 @@ use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 pub use trip::OpenTrip;
 
 use geom::{Circle, Distance, Polygon, Time};
-use map_gui::tools::open_browser;
 use map_gui::ID;
 use map_model::{
     AreaID, BuildingID, IntersectionID, LaneID, ParkingLotID, TransitRouteID, TransitStopID,
@@ -13,6 +12,7 @@ use sim::{
     VehicleType,
 };
 use widgetry::mapspace::{ToggleZoomed, ToggleZoomedBuilder};
+use widgetry::tools::open_browser;
 use widgetry::{
     EventCtx, GfxCtx, Key, Line, LinePlot, Outcome, Panel, PlotOptions, Series, Text, TextExt,
     Toggle, Widget,

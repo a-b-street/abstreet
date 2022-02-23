@@ -38,7 +38,6 @@ structopt = "0.3.23"
 subprocess = { git = "https://github.com/hniksic/rust-subprocess", optional = true }
 wasm-bindgen = { version = "0.2.70", optional = true }
 web-sys = { version = "0.3.47", optional = true }
-webbrowser = "0.5.5"
 widgetry = { path = "../widgetry" }
 fs-err = "2.6.0"
 

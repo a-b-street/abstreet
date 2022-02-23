@@ -318,10 +318,6 @@ pub fn nice_country_name(code: &str) -> &str {
     }
 }
 
-pub fn open_browser<I: AsRef<str>>(url: I) {
-    let _ = webbrowser::open(url.as_ref());
-}
-
 /// Returns the path to an executable. Native-only.
 pub fn find_exe(cmd: &str) -> String {
     for dir in [

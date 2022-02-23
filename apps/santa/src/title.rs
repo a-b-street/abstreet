@@ -1,5 +1,5 @@
 use geom::Percent;
-use map_gui::tools::open_browser;
+use widgetry::tools::open_browser;
 use widgetry::{
     ButtonBuilder, Color, ControlState, EdgeInsets, EventCtx, GeomBatch, GfxCtx, Key, Line, Panel,
     RewriteColor, SimpleState, State, Text, TextExt, Widget,

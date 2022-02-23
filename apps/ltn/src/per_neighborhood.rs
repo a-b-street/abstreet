@@ -1,7 +1,7 @@
 use geom::Distance;
-use map_gui::tools::open_browser;
 use map_model::{IntersectionID, PathConstraints, RoadID};
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
+use widgetry::tools::open_browser;
 use widgetry::{
     lctrl, Color, EventCtx, HorizontalAlignment, Image, Key, Panel, PanelBuilder, TextExt,
     VerticalAlignment, Widget, DEFAULT_CORNER_RADIUS,

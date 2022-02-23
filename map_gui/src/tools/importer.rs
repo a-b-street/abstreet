@@ -4,13 +4,13 @@ use anyhow::Result;
 use clipboard::{ClipboardContext, ClipboardProvider};
 
 use abstio::MapName;
-use widgetry::tools::PopupMsg;
+use widgetry::tools::{open_browser, PopupMsg};
 use widgetry::{
     EventCtx, GfxCtx, Line, Outcome, Panel, State, TextBox, TextExt, Toggle, Transition, Widget,
 };
 
 use crate::load::MapLoader;
-use crate::tools::{find_exe, open_browser};
+use crate::tools::find_exe;
 use crate::AppLike;
 
 pub struct ImportCity<A: AppLike> {
