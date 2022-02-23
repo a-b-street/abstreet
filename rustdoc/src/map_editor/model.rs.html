@@ -634,6 +634,8 @@
 <span id="633">633</span>
 <span id="634">634</span>
 <span id="635">635</span>
+<span id="636">636</span>
+<span id="637">637</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>};
 <span class="kw">use</span> <span class="ident">std::io::Write</span>;
 
@@ -814,6 +816,7 @@
             .<span class="ident">hotkey</span>(<span class="ident">Key::Backspace</span>, <span class="string">&quot;delete&quot;</span>)
             .<span class="ident">hotkey</span>(<span class="ident">Key::T</span>, <span class="string">&quot;toggle stop sign / traffic signal&quot;</span>)
             .<span class="ident">hotkey</span>(<span class="ident">Key::P</span>, <span class="string">&quot;debug intersection geometry&quot;</span>)
+            .<span class="ident">hotkey</span>(<span class="ident">Key::D</span>, <span class="string">&quot;debug in OSM&quot;</span>)
             .<span class="ident">build</span>(<span class="ident">ctx</span>);
     }
 
@@ -930,6 +933,7 @@
             .<span class="ident">hotkey</span>(<span class="ident">Key::X</span>, <span class="string">&quot;remove interior points&quot;</span>)
             .<span class="ident">hotkey</span>(<span class="ident">Key::M</span>, <span class="string">&quot;merge&quot;</span>)
             .<span class="ident">hotkey</span>(<span class="ident">Key::J</span>, <span class="string">&quot;mark/unmark as a junction&quot;</span>)
+            .<span class="ident">hotkey</span>(<span class="ident">Key::D</span>, <span class="string">&quot;debug in OSM&quot;</span>)
             .<span class="ident">build</span>(<span class="ident">ctx</span>);
     }
 
