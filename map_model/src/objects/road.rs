@@ -190,9 +190,9 @@ impl Road {
             .collect()
     }
 
-    /// Gets the left PolyLine of the road
-    pub fn get_left_side(&self) -> PolyLine {
-        self.center_pts.must_shift_left(self.get_half_width())
+    pub fn shift_from_left_side(&self, width_from_left_side: Distance) -> Result<PolyLine> {
+        self.center_pts
+            .shift_from_center(self.get_width(), width_from_left_side)
     }
 
     /// lane must belong to this road. Offset 0 is the centermost lane on each side of a road, then
@@ -516,16 +516,7 @@ impl Road {
     pub(crate) fn recreate_lanes(&mut self, lane_specs_ltr: Vec<LaneSpec>) {
         self.lanes.clear();
 
-        let mut total_width = Distance::ZERO;
-        for lane in &lane_specs_ltr {
-            total_width += lane.width;
-        }
-        // TODO Maybe easier to use the road's "yellow center line" and shift left/right from
-        // there.
-        let road_left_pts = self
-            .center_pts
-            .shift_left(total_width / 2.0)
-            .unwrap_or_else(|_| self.center_pts.clone());
+        let total_width = lane_specs_ltr.iter().map(|x| x.width).sum();
 
         let mut width_so_far = Distance::ZERO;
         for lane in lane_specs_ltr {
@@ -540,18 +531,18 @@ impl Road {
                 (self.dst_i, self.src_i)
             };
 
-            let pl = if let Ok(pl) = road_left_pts.shift_right(width_so_far + (lane.width / 2.0)) {
-                pl
-            } else {
-                error!("{} geometry broken; lane not shifted!", id);
-                road_left_pts.clone()
-            };
+            width_so_far += lane.width / 2.0;
+            let pl = self
+                .center_pts
+                .shift_from_center(total_width, width_so_far)
+                .unwrap_or_else(|_| self.center_pts.clone());
+            width_so_far += lane.width / 2.0;
+
             let lane_center_pts = if lane.dir == Direction::Fwd {
                 pl
             } else {
                 pl.reversed()
             };
-            width_so_far += lane.width;
 
             self.lanes.push(Lane {
                 id,

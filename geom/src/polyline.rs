@@ -417,6 +417,22 @@ impl PolyLine {
         self.shift_with_corrections(width)
     }
 
+    /// `self` represents some center, with `total_width`. Logically this shifts left by
+    /// `total_width / 2`, then right by `width_from_left_side`, but without exasperating sharp
+    /// bends.
+    pub fn shift_from_center(
+        &self,
+        total_width: Distance,
+        width_from_left_side: Distance,
+    ) -> Result<PolyLine> {
+        let half_width = total_width / 2.0;
+        if width_from_left_side < half_width {
+            self.shift_left(half_width - width_from_left_side)
+        } else {
+            self.shift_right(width_from_left_side - half_width)
+        }
+    }
+
     // Things to remember about shifting polylines:
     // - the length before and after probably don't match up
     // - the number of points may not match

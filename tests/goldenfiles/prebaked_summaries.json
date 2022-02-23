@@ -4,27 +4,27 @@
     "scenario": "weekday",
     "finished_trips": 76640,
     "cancelled_trips": 0,
-    "total_trip_duration_seconds": 43735836.876801066
+    "total_trip_duration_seconds": 43816297.68860026
   },
   {
     "map": "montlake (in seattle (us))",
     "scenario": "weekday",
-    "finished_trips": 36713,
-    "cancelled_trips": 83,
-    "total_trip_duration_seconds": 18485539.44410009
+    "finished_trips": 36715,
+    "cancelled_trips": 81,
+    "total_trip_duration_seconds": 18514844.62500008
   },
   {
     "map": "parliament (in tehran (ir))",
     "scenario": "random people going to and from work",
     "finished_trips": 29350,
     "cancelled_trips": 16734,
-    "total_trip_duration_seconds": 41822176.78990006
+    "total_trip_duration_seconds": 41860049.65870012
   },
   {
     "map": "sao_miguel_paulista (in sao_paulo (br))",
     "scenario": "Full",
     "finished_trips": 122948,
     "cancelled_trips": 33043,
-    "total_trip_duration_seconds": 103803144.64800021
+    "total_trip_duration_seconds": 103775524.31170104
   }
 ]

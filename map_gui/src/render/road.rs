@@ -47,7 +47,7 @@ impl DrawRoad {
                 && pair[0].lane_type.is_for_moving_vehicles()
                 && pair[1].lane_type.is_for_moving_vehicles()
             {
-                let pl = r.get_left_side().must_shift_right(width);
+                let pl = r.shift_from_left_side(width).unwrap();
                 batch.extend(
                     center_line_color,
                     pl.dashed_lines(

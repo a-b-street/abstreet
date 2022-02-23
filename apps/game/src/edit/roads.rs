@@ -1026,14 +1026,11 @@ fn draw_drop_position(app: &App, r: RoadID, from: usize, to: usize) -> GeomBatch
     if from == to {
         return batch;
     }
-    let mut width = Distance::ZERO;
     let map = &app.primary.map;
     let road = map.get_r(r);
     let take_num = if from < to { to + 1 } else { to };
-    for l in road.lanes.iter().take(take_num) {
-        width += l.width;
-    }
-    if let Ok(pl) = road.get_left_side().shift_right(width) {
+    let width = road.lanes.iter().take(take_num).map(|x| x.width).sum();
+    if let Ok(pl) = road.shift_from_left_side(width) {
         batch.push(app.cs.selected, pl.make_polygons(OUTLINE_THICKNESS));
     }
     batch
