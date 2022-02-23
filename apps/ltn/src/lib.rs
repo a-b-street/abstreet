@@ -2,6 +2,7 @@
 
 use structopt::StructOpt;
 
+use abstutil::Timer;
 use widgetry::{lctrl, EventCtx, GfxCtx, Key, Line, Settings, Widget};
 
 pub use browse::BrowseNeighborhoods;
@@ -59,10 +60,12 @@ fn run(mut settings: Settings) {
         .canvas_settings(opts.canvas_settings.clone());
     widgetry::run(settings, move |ctx| {
         let session = Session {
+            proposal_name: None,
             partitioning: Partitioning::empty(),
             modal_filters: ModalFilters::default(),
-            draw_all_filters: Toggle3Zoomed::empty(ctx),
 
+            alt_proposals: save::AltProposals::new(),
+            draw_all_filters: Toggle3Zoomed::empty(ctx),
             impact: impact::Impact::empty(ctx),
 
             highlight_boundary_roads: false,
@@ -119,11 +122,16 @@ pub fn run_wasm(root_dom_id: String, assets_base_url: String, assets_are_gzipped
     run(settings);
 }
 
+// TODO Tension: Many of these are per-map. game::App nicely wraps these up. Time to stop abusing
+// SimpleApp?
 pub struct Session {
+    // These come from a save::Proposal
+    pub proposal_name: Option<String>,
     pub partitioning: Partitioning,
     pub modal_filters: ModalFilters,
-    pub draw_all_filters: Toggle3Zoomed,
 
+    pub alt_proposals: save::AltProposals,
+    pub draw_all_filters: Toggle3Zoomed,
     pub impact: impact::Impact,
 
     // Remember form settings in different tabs.
@@ -218,5 +226,14 @@ fn handle_app_header_click(ctx: &mut EventCtx, app: &App, x: &str) -> Option<Tra
 }
 
 pub fn after_edit(ctx: &EventCtx, app: &mut App) {
+    app.session.draw_all_filters = app.session.modal_filters.draw(ctx, &app.map);
+}
+
+pub fn clear_current_proposal(ctx: &EventCtx, app: &mut App, timer: &mut Timer) {
+    app.session.proposal_name = None;
+    // Reset this first. transform_existing_filters will fill some out.
+    app.session.modal_filters = ModalFilters::default();
+    crate::filters::transform_existing_filters(ctx, app, timer);
+    app.session.partitioning = Partitioning::seed_using_heuristics(app, timer);
     app.session.draw_all_filters = app.session.modal_filters.draw(ctx, &app.map);
 }

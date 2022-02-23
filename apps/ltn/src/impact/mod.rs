@@ -11,6 +11,7 @@ use synthpop::{Scenario, TrafficCounts, TripEndpoint, TripMode};
 use widgetry::EventCtx;
 
 pub use self::ui::ShowResults;
+use crate::filters::ChangeKey;
 use crate::App;
 
 // TODO Configurable main road penalty, like in the pathfinding tool
@@ -31,7 +32,7 @@ pub struct Impact {
     filtered_trips: Vec<(PathRequest, usize)>,
 
     pub compare_counts: CompareCounts,
-    pub change_key: usize,
+    pub change_key: ChangeKey,
 }
 
 #[derive(PartialEq)]
@@ -57,7 +58,7 @@ impl Impact {
             filtered_trips: Vec::new(),
 
             compare_counts: CompareCounts::empty(ctx),
-            change_key: 0,
+            change_key: ChangeKey::default(),
         }
     }
 
@@ -71,7 +72,7 @@ impl Impact {
         let map = &app.map;
 
         impact.map = app.map.get_name().clone();
-        impact.change_key = app.session.modal_filters.change_key;
+        impact.change_key = app.session.modal_filters.get_change_key();
         impact.all_trips = timer
             .parallelize("analyze trips", scenario.all_trips().collect(), |trip| {
                 TripEndpoint::path_req(trip.origin, trip.destination, trip.mode, map)
@@ -132,7 +133,7 @@ impl Impact {
     }
 
     fn map_edits_changed(&mut self, ctx: &mut EventCtx, app: &App, timer: &mut Timer) {
-        self.change_key = app.session.modal_filters.change_key;
+        self.change_key = app.session.modal_filters.get_change_key();
         let map = &app.map;
 
         let counts_b = {

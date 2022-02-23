@@ -12,8 +12,8 @@ use widgetry::{
 };
 
 use super::auto::Heuristic;
-use super::{Neighborhood, NeighborhoodID, Partitioning};
-use crate::{App, ModalFilters, Transition};
+use super::{Neighborhood, NeighborhoodID};
+use crate::{App, Transition};
 
 pub struct BrowseNeighborhoods {
     panel: Panel,
@@ -30,11 +30,8 @@ impl BrowseNeighborhoods {
         let (world, draw_over_roads) =
             ctx.loading_screen("calculate neighborhoods", |ctx, timer| {
                 if &app.session.partitioning.map != app.map.get_name() {
-                    // Reset this first. transform_existing_filters will fill some out.
-                    app.session.modal_filters = ModalFilters::default();
-                    crate::filters::transform_existing_filters(ctx, app, timer);
-                    app.session.partitioning = Partitioning::seed_using_heuristics(app, timer);
-                    app.session.draw_all_filters = app.session.modal_filters.draw(ctx, &app.map);
+                    app.session.alt_proposals = crate::save::AltProposals::new();
+                    crate::clear_current_proposal(ctx, app, timer);
                 }
                 (
                     make_world(ctx, app, timer),
@@ -69,11 +66,7 @@ impl BrowseNeighborhoods {
             ])
             .section(ctx),
             Widget::col(vec![
-                Widget::row(vec![
-                    ctx.style().btn_outline.text("New").build_def(ctx),
-                    ctx.style().btn_outline.text("Load proposal").build_def(ctx),
-                    ctx.style().btn_outline.text("Save proposal").build_def(ctx),
-                ]),
+                app.session.alt_proposals.to_widget(ctx, app),
                 ctx.style()
                     .btn_outline
                     .text("Export to GeoJSON")
@@ -116,16 +109,6 @@ impl State<App> for BrowseNeighborhoods {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
-                "New" => {
-                    app.session.partitioning = Partitioning::empty();
-                    return Transition::Replace(BrowseNeighborhoods::new_state(ctx, app));
-                }
-                "Load proposal" => {
-                    return Transition::Push(crate::save::Proposal::load_picker_ui(ctx, app));
-                }
-                "Save proposal" => {
-                    return Transition::Push(crate::save::Proposal::save_ui(ctx));
-                }
                 "Export to GeoJSON" => {
                     let result = super::export::write_geojson_file(ctx, app);
                     return Transition::Push(match result {
@@ -159,7 +142,16 @@ impl State<App> for BrowseNeighborhoods {
                     return Transition::Replace(BrowseNeighborhoods::new_state(ctx, app));
                 }
                 x => {
-                    return crate::handle_app_header_click(ctx, app, x).unwrap();
+                    if let Some(t) = crate::handle_app_header_click(ctx, app, x) {
+                        return t;
+                    }
+                    return crate::save::AltProposals::handle_action(
+                        ctx,
+                        app,
+                        crate::save::PreserveState::BrowseNeighborhoods,
+                        x,
+                    )
+                    .unwrap();
                 }
             },
             Outcome::Changed(_) => {
@@ -358,7 +350,7 @@ fn impact_widget(ctx: &EventCtx, app: &App) -> Widget {
         ]);
     }
 
-    if app.session.impact.change_key == app.session.modal_filters.change_key {
+    if app.session.impact.change_key == app.session.modal_filters.get_change_key() {
         // Nothing to calculate!
         return ctx
             .style()
