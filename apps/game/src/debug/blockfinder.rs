@@ -341,8 +341,12 @@ impl OneBlock {
                 .build_def(ctx),
             ctx.style()
                 .btn_outline
-                .text("Debug polygon")
+                .text("Debug polygon by points")
                 .hotkey(Key::D)
+                .build_def(ctx),
+            ctx.style()
+                .btn_outline
+                .text("Debug polygon by triangles")
                 .build_def(ctx),
         ]))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
@@ -381,7 +385,7 @@ impl SimpleState<App> for OneBlock {
                     None,
                 ));
             }
-            "Debug polygon" => {
+            "Debug polygon by points" => {
                 return Transition::Push(polygons::PolygonDebugger::new_state(
                     ctx,
                     "pt",
@@ -391,6 +395,19 @@ impl SimpleState<App> for OneBlock {
                         .into_points()
                         .into_iter()
                         .map(polygons::Item::Point)
+                        .collect(),
+                    None,
+                ));
+            }
+            "Debug polygon by triangles" => {
+                return Transition::Push(polygons::PolygonDebugger::new_state(
+                    ctx,
+                    "pt",
+                    self.block
+                        .polygon
+                        .triangles()
+                        .into_iter()
+                        .map(polygons::Item::Triangle)
                         .collect(),
                     None,
                 ));
