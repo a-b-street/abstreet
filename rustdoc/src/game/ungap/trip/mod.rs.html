@@ -333,6 +333,9 @@
 <span id="332">332</span>
 <span id="333">333</span>
 <span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">InputWaypoints</span>, <span class="ident">TripManagement</span>, <span class="ident">TripManagementState</span>, <span class="ident">WaypointID</span>};
 <span class="kw">use</span> <span class="ident">map_model::RoutingParams</span>;
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ObjectID</span>, <span class="ident">World</span>, <span class="ident">WorldOutcome</span>};
@@ -524,10 +527,13 @@
                 <span class="self">self</span>.<span class="ident">recalculate_routes</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 <span class="kw">return</span> <span class="ident">Transition::Keep</span>;
             }
-            <span class="ident">x</span> =&gt; <span class="ident">x</span>.<span class="ident">map_id</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">id</span> {
-                <span class="ident">ID::Waypoint</span>(<span class="ident">id</span>) =&gt; <span class="ident">id</span>,
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
-            }),
+            <span class="ident">x</span> =&gt; <span class="ident">x</span>
+                .<span class="ident">maybe_map_id</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">id</span> {
+                    <span class="ident">ID::Waypoint</span>(<span class="ident">id</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">id</span>),
+                    <span class="comment">// Ignore HoverChanged events</span>
+                    <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+                })
+                .<span class="ident">unwrap_or</span>(<span class="ident">WorldOutcome::Nothing</span>),
         };
 
         <span class="kw">let</span> <span class="ident">panel_outcome</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">input_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>);

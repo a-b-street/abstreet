@@ -618,11 +618,6 @@
 <span id="617">617</span>
 <span id="618">618</span>
 <span id="619">619</span>
-<span id="620">620</span>
-<span id="621">621</span>
-<span id="622">622</span>
-<span id="623">623</span>
-<span id="624">624</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 <span class="kw">use</span> <span class="ident">std::fmt::Debug</span>;
 <span class="kw">use</span> <span class="ident">std::hash::Hash</span>;
@@ -688,11 +683,6 @@
     <span class="doccomment">/// If the outcome references some ID, transform it to another type. This is useful when some</span>
     <span class="doccomment">/// component owns a World that contains a few different types of objects, some of which are</span>
     <span class="doccomment">/// managed by another component that only cares about its IDs.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_id</span><span class="op">&lt;</span><span class="ident">O</span>: <span class="ident">ObjectID</span>, <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">I</span>) -&gt; <span class="ident">O</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident">WorldOutcome</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">maybe_map_id</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">f</span>(<span class="ident">id</span>))).<span class="ident">unwrap</span>()
-    }
-
-    <span class="doccomment">/// Like `map_id`, but the transformation may fail.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_map_id</span><span class="op">&lt;</span><span class="ident">O</span>: <span class="ident">ObjectID</span>, <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">I</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">WorldOutcome</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident">WorldOutcome::ClickedFreeSpace</span>(<span class="ident">pt</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">WorldOutcome::ClickedFreeSpace</span>(<span class="ident">pt</span>)),

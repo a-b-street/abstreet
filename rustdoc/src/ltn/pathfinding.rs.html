@@ -309,13 +309,16 @@
 <span id="308">308</span>
 <span id="309">309</span>
 <span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>};
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{
     <span class="ident">cmp_dist</span>, <span class="ident">cmp_duration</span>, <span class="ident">InputWaypoints</span>, <span class="ident">TripManagement</span>, <span class="ident">TripManagementState</span>, <span class="ident">WaypointID</span>,
 };
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">PathfinderCaching</span>, <span class="ident">NORMAL_LANE_THICKNESS</span>};
 <span class="kw">use</span> <span class="ident">synthpop</span>::{<span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>};
-<span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ObjectID</span>, <span class="ident">ToggleZoomed</span>, <span class="ident">World</span>};
+<span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ObjectID</span>, <span class="ident">ToggleZoomed</span>, <span class="ident">World</span>, <span class="ident">WorldOutcome</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RoundedF64</span>, <span class="ident">Spinner</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>,
 };
@@ -560,10 +563,13 @@
             <span class="comment">// Fall through. Clicking free space and other ID-less outcomes will match here, but we</span>
             <span class="comment">// don&#39;t want them to.</span>
         }
-        <span class="kw">let</span> <span class="ident">world_outcome_for_waypoints</span> <span class="op">=</span> <span class="ident">world_outcome</span>.<span class="ident">map_id</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">id</span> {
-            <span class="ident">Obj::Waypoint</span>(<span class="ident">id</span>) =&gt; <span class="ident">id</span>,
-            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
-        });
+        <span class="comment">// Ignore HoverChanged events for filterable objects</span>
+        <span class="kw">let</span> <span class="ident">world_outcome_for_waypoints</span> <span class="op">=</span> <span class="ident">world_outcome</span>
+            .<span class="ident">maybe_map_id</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">id</span> {
+                <span class="ident">Obj::Waypoint</span>(<span class="ident">id</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">id</span>),
+                <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+            })
+            .<span class="ident">unwrap_or</span>(<span class="ident">WorldOutcome::Nothing</span>);
 
         <span class="kw">let</span> <span class="ident">panel_outcome</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>);
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) <span class="op">=</span> <span class="ident">panel_outcome</span> {
