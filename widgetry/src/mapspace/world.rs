@@ -63,11 +63,6 @@ impl<I: ObjectID> WorldOutcome<I> {
     /// If the outcome references some ID, transform it to another type. This is useful when some
     /// component owns a World that contains a few different types of objects, some of which are
     /// managed by another component that only cares about its IDs.
-    pub fn map_id<O: ObjectID, F: Fn(I) -> O>(self, f: F) -> WorldOutcome<O> {
-        self.maybe_map_id(|id| Some(f(id))).unwrap()
-    }
-
-    /// Like `map_id`, but the transformation may fail.
     pub fn maybe_map_id<O: ObjectID, F: Fn(I) -> Option<O>>(self, f: F) -> Option<WorldOutcome<O>> {
         match self {
             WorldOutcome::ClickedFreeSpace(pt) => Some(WorldOutcome::ClickedFreeSpace(pt)),

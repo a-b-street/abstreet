@@ -4,7 +4,7 @@ use map_gui::tools::{
 };
 use map_model::{PathfinderCaching, NORMAL_LANE_THICKNESS};
 use synthpop::{TripEndpoint, TripMode};
-use widgetry::mapspace::{ObjectID, ToggleZoomed, World};
+use widgetry::mapspace::{ObjectID, ToggleZoomed, World, WorldOutcome};
 use widgetry::{
     Color, EventCtx, GfxCtx, Line, Outcome, Panel, RoundedF64, Spinner, State, Text, Widget,
 };
@@ -249,10 +249,13 @@ impl State<App> for RoutePlanner {
             // Fall through. Clicking free space and other ID-less outcomes will match here, but we
             // don't want them to.
         }
-        let world_outcome_for_waypoints = world_outcome.map_id(|id| match id {
-            Obj::Waypoint(id) => id,
-            _ => unreachable!(),
-        });
+        // Ignore HoverChanged events for filterable objects
+        let world_outcome_for_waypoints = world_outcome
+            .maybe_map_id(|id| match id {
+                Obj::Waypoint(id) => Some(id),
+                _ => None,
+            })
+            .unwrap_or(WorldOutcome::Nothing);
 
         let panel_outcome = self.panel.event(ctx);
         if let Outcome::Clicked(ref x) = panel_outcome {

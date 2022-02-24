@@ -189,10 +189,13 @@ impl State<App> for TripPlanner {
                 self.recalculate_routes(ctx, app);
                 return Transition::Keep;
             }
-            x => x.map_id(|id| match id {
-                ID::Waypoint(id) => id,
-                _ => unreachable!(),
-            }),
+            x => x
+                .maybe_map_id(|id| match id {
+                    ID::Waypoint(id) => Some(id),
+                    // Ignore HoverChanged events
+                    _ => None,
+                })
+                .unwrap_or(WorldOutcome::Nothing),
         };
 
         let panel_outcome = self.input_panel.event(ctx);
