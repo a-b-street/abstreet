@@ -2,11 +2,12 @@ use std::collections::BTreeSet;
 
 use anyhow::Result;
 
-use geom::Distance;
+use geom::{Distance, Polygon};
 use map_gui::tools::DrawRoadLabels;
 use map_model::Block;
 use widgetry::mapspace::ToggleZoomed;
 use widgetry::mapspace::{World, WorldOutcome};
+use widgetry::tools::Lasso;
 use widgetry::{
     Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, Text, TextExt,
     VerticalAlignment, Widget,
@@ -29,6 +30,8 @@ pub struct SelectBoundary {
     last_failed_change: Option<(BlockID, bool)>,
 
     labels: DrawRoadLabels,
+
+    lasso: Option<Lasso>,
 }
 
 impl SelectBoundary {
@@ -44,6 +47,8 @@ impl SelectBoundary {
             last_failed_change: None,
 
             labels: DrawRoadLabels::only_major_roads(),
+
+            lasso: None,
         };
 
         let initial_boundary = app.session.partitioning.neighborhood_block(id);
@@ -184,10 +189,77 @@ impl SelectBoundary {
     fn currently_have_block(&self, app: &App, id: BlockID) -> bool {
         app.session.partitioning.block_to_neighborhood(id) == self.id
     }
+
+    fn add_blocks_freehand(&mut self, ctx: &mut EventCtx, app: &mut App, lasso_polygon: Polygon) {
+        // Find all of the blocks within the polygon
+        let mut add_blocks = Vec::new();
+        for (id, block) in app.session.partitioning.all_single_blocks() {
+            if lasso_polygon.contains_pt(block.polygon.center()) {
+                if app.session.partitioning.block_to_neighborhood(id) != self.id {
+                    add_blocks.push(id);
+                }
+            }
+        }
+
+        while !add_blocks.is_empty() {
+            // Proceed in rounds. Calculate the current frontier, find all of the blocks in there,
+            // try to add them, repeat.
+            //
+            // It should be safe to add multiple blocks in a round without recalculating the
+            // frontier; adding one block shouldn't mess up the frontier for another
+            let mut changed = false;
+            let mut still_todo = Vec::new();
+            for block_id in add_blocks.drain(..) {
+                if self.frontier.contains(&block_id) {
+                    let old_owner = app.session.partitioning.block_to_neighborhood(block_id);
+                    if let Ok(_) = app
+                        .session
+                        .partitioning
+                        .transfer_block(&app.map, block_id, old_owner, self.id)
+                    {
+                        changed = true;
+                    } else {
+                        still_todo.push(block_id);
+                    }
+                } else {
+                    still_todo.push(block_id);
+                }
+            }
+            if changed {
+                add_blocks = still_todo;
+                self.frontier = app.session.partitioning.calculate_frontier(
+                    &app.session
+                        .partitioning
+                        .neighborhood_block(self.id)
+                        .perimeter,
+                );
+            } else {
+                info!("Giving up on adding {} blocks", still_todo.len());
+                break;
+            }
+        }
+
+        // Just redraw everything
+        app.session.partitioning.recalculate_coloring();
+        self.world = World::bounded(app.map.get_bounds());
+        for id in app.session.partitioning.all_block_ids() {
+            self.add_block(ctx, app, id);
+        }
+        self.redraw_outline(ctx, app.session.partitioning.neighborhood_block(self.id));
+        self.panel = make_panel(ctx, app);
+    }
 }
 
 impl State<App> for SelectBoundary {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        if let Some(ref mut lasso) = self.lasso {
+            if let Some(polygon) = lasso.event(ctx) {
+                self.lasso = None;
+                self.add_blocks_freehand(ctx, app, polygon);
+            }
+            return Transition::Keep;
+        }
+
         if let Outcome::Clicked(x) = self.panel.event(ctx) {
             match x.as_ref() {
                 "Cancel" => {
@@ -203,6 +275,11 @@ impl State<App> for SelectBoundary {
                     return Transition::Replace(crate::connectivity::Viewer::new_state(
                         ctx, app, self.id,
                     ));
+                }
+                "Select freehand" => {
+                    // TODO Focus on the button in the panel, make it clear everything else is
+                    // inactive
+                    self.lasso = Some(Lasso::new());
                 }
                 x => {
                     return crate::handle_app_header_click(ctx, app, x).unwrap();
@@ -241,6 +318,9 @@ impl State<App> for SelectBoundary {
         if g.canvas.is_unzoomed() {
             self.labels.draw(g, app);
         }
+        if let Some(ref lasso) = self.lasso {
+            lasso.draw(g);
+        }
     }
 }
 
@@ -267,6 +347,11 @@ fn make_panel(ctx: &mut EventCtx, app: &App) -> Panel {
             Line(" and paint over blocks to remove"),
         ])
         .into_widget(ctx),
+        ctx.style()
+            .btn_outline
+            .icon_text("system/assets/tools/select.svg", "Select freehand")
+            .hotkey(Key::F)
+            .build_def(ctx),
         Widget::row(vec![
             ctx.style()
                 .btn_solid_primary
