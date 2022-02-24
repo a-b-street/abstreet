@@ -271,12 +271,9 @@ impl RoadSelector {
                 Mode::Erase => Some("system/assets/tools/eraser.svg"),
                 Mode::Route { .. } => Some("system/assets/tools/pin.svg"),
             } {
-                let mut batch = GeomBatch::new();
-                batch.append(
-                    GeomBatch::load_svg(g, cursor)
-                        .centered_on(g.canvas.get_cursor().to_pt())
-                        .color(RewriteColor::ChangeAll(Color::GREEN)),
-                );
+                let batch = GeomBatch::load_svg(g, cursor)
+                    .centered_on(g.canvas.get_cursor().to_pt())
+                    .color(RewriteColor::ChangeAll(Color::GREEN));
                 g.fork_screenspace();
                 batch.draw(g);
                 g.unfork();

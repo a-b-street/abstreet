@@ -246,7 +246,6 @@ impl SelectBoundary {
             self.add_block(ctx, app, id);
         }
         self.redraw_outline(ctx, app.session.partitioning.neighborhood_block(self.id));
-        self.panel = make_panel(ctx, app);
     }
 }
 
@@ -256,6 +255,7 @@ impl State<App> for SelectBoundary {
             if let Some(polygon) = lasso.event(ctx) {
                 self.lasso = None;
                 self.add_blocks_freehand(ctx, app, polygon);
+                self.panel = make_panel(ctx, app);
             }
             return Transition::Keep;
         }
@@ -277,9 +277,8 @@ impl State<App> for SelectBoundary {
                     ));
                 }
                 "Select freehand" => {
-                    // TODO Focus on the button in the panel, make it clear everything else is
-                    // inactive
                     self.lasso = Some(Lasso::new());
+                    self.panel = make_panel_for_lasso(ctx, app);
                 }
                 x => {
                     return crate::handle_app_header_click(ctx, app, x).unwrap();
@@ -365,6 +364,22 @@ fn make_panel(ctx: &mut EventCtx, app: &App) -> Panel {
                 .build_def(ctx),
         ]),
         Text::new().into_widget(ctx).named("warning"),
+    ]))
+    .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
+    .build(ctx)
+}
+
+fn make_panel_for_lasso(ctx: &mut EventCtx, app: &App) -> Panel {
+    Panel::new_builder(Widget::col(vec![
+        crate::app_header(ctx, app),
+        "Draw a custom boundary for a neighborhood"
+            .text_widget(ctx)
+            .centered_vert(),
+        Text::from_all(vec![
+            Line("Click and drag").fg(ctx.style().text_hotkey_color),
+            Line(" to select the blocks to add to this neighborhood"),
+        ])
+        .into_widget(ctx),
     ]))
     .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
     .build(ctx)
