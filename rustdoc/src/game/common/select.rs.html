@@ -297,9 +297,6 @@
 <span id="296">296</span>
 <span id="297">297</span>
 <span id="298">298</span>
-<span id="299">299</span>
-<span id="300">300</span>
-<span id="301">301</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
 <span class="kw">use</span> <span class="ident">map_gui::tools::intersections_from_roads</span>;
@@ -573,12 +570,9 @@
                 <span class="ident">Mode::Erase</span> =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/tools/eraser.svg&quot;</span>),
                 <span class="ident">Mode::Route</span> { .. } =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/tools/pin.svg&quot;</span>),
             } {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-                <span class="ident">batch</span>.<span class="ident">append</span>(
-                    <span class="ident">GeomBatch::load_svg</span>(<span class="ident">g</span>, <span class="ident">cursor</span>)
-                        .<span class="ident">centered_on</span>(<span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor</span>().<span class="ident">to_pt</span>())
-                        .<span class="ident">color</span>(<span class="ident">RewriteColor::ChangeAll</span>(<span class="ident">Color::GREEN</span>)),
-                );
+                <span class="kw">let</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::load_svg</span>(<span class="ident">g</span>, <span class="ident">cursor</span>)
+                    .<span class="ident">centered_on</span>(<span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor</span>().<span class="ident">to_pt</span>())
+                    .<span class="ident">color</span>(<span class="ident">RewriteColor::ChangeAll</span>(<span class="ident">Color::GREEN</span>));
                 <span class="ident">g</span>.<span class="ident">fork_screenspace</span>();
                 <span class="ident">batch</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
                 <span class="ident">g</span>.<span class="ident">unfork</span>();

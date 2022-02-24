@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Lasso","Draw freehand polygons"]]});

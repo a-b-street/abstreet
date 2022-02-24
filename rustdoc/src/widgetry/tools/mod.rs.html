@@ -70,12 +70,16 @@
 <span id="69">69</span>
 <span id="70">70</span>
 <span id="71">71</span>
-</pre><pre class="rust"><code><span class="kw">mod</span> <span class="ident">load</span>;
+<span id="72">72</span>
+<span id="73">73</span>
+</pre><pre class="rust"><code><span class="kw">mod</span> <span class="ident">lasso</span>;
+<span class="kw">mod</span> <span class="ident">load</span>;
 <span class="kw">mod</span> <span class="ident">popup</span>;
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">screenshot</span>;
 <span class="kw">mod</span> <span class="ident">url</span>;
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">warper</span>;
 
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">lasso::Lasso</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">load</span>::{<span class="ident">FileLoader</span>, <span class="ident">FutureLoader</span>, <span class="ident">RawBytes</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">popup::PopupMsg</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">url::URLManager</span>;
