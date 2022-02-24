@@ -1,9 +1,11 @@
+mod lasso;
 mod load;
 mod popup;
 pub(crate) mod screenshot;
 mod url;
 pub(crate) mod warper;
 
+pub use lasso::Lasso;
 pub use load::{FileLoader, FutureLoader, RawBytes};
 pub use popup::PopupMsg;
 pub use url::URLManager;
