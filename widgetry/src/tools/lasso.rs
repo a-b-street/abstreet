@@ -11,8 +11,8 @@ pub struct Lasso {
 }
 
 impl Lasso {
-    pub fn new() -> Lasso {
-        Lasso {
+    pub fn new() -> Self {
+        Self {
             points: Vec::new(),
             polygon: None,
         }
@@ -60,6 +60,50 @@ impl Lasso {
         }
         if let Some(ref polygon) = self.polygon {
             g.draw_polygon(Color::RED.alpha(0.5), polygon.clone());
+        }
+    }
+}
+
+/// Draw freehand PolyLine
+pub struct PolyLineLasso {
+    pl: Option<PolyLine>,
+}
+
+impl PolyLineLasso {
+    pub fn new() -> Self {
+        Self { pl: None }
+    }
+
+    /// When this returns a polyline, the interaction is finished
+    pub fn event(&mut self, ctx: &mut EventCtx) -> Option<PolyLine> {
+        if self.pl.is_none() {
+            if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
+                if ctx.input.left_mouse_button_pressed() {
+                    self.pl = Some(PolyLine::must_new(vec![pt, pt.offset(0.1, 0.1)]));
+                }
+            }
+            return None;
+        }
+
+        if ctx.input.left_mouse_button_released() {
+            return self.pl.take();
+        }
+
+        if ctx.redo_mouseover() {
+            if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
+                let pl = self.pl.take().unwrap();
+                self.pl = Some(pl.optionally_push(pt));
+            }
+        }
+        None
+    }
+
+    pub fn draw(&self, g: &mut GfxCtx) {
+        if let Some(ref pl) = self.pl {
+            g.draw_polygon(
+                Color::RED.alpha(0.8),
+                pl.make_polygons(Distance::meters(5.0) / g.canvas.cam_zoom),
+            );
         }
     }
 }

@@ -1,13 +1,15 @@
 use geom::{Angle, ArrowCap, Distance, PolyLine};
+use map_model::Perimeter;
 use widgetry::mapspace::{ToggleZoomed, World};
+use widgetry::tools::PolyLineLasso;
 use widgetry::{
-    Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Outcome, Panel, State, TextExt, Toggle,
-    Widget,
+    Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, ScreenPt, State,
+    Text, TextExt, Toggle, Widget,
 };
 
 use crate::filters::auto::Heuristic;
 use crate::per_neighborhood::{FilterableObj, Tab};
-use crate::{App, Neighborhood, NeighborhoodID, Transition};
+use crate::{after_edit, App, Neighborhood, NeighborhoodID, Transition};
 
 pub struct Viewer {
     panel: Panel,
@@ -84,6 +86,14 @@ impl Viewer {
                             .hotkey(Key::A)
                             .build_def(ctx),
                     ]),
+                    ctx.style()
+                        .btn_outline
+                        .icon_text(
+                            "system/assets/tools/select.svg",
+                            "Create filters along a shape",
+                        )
+                        .hotkey(Key::F)
+                        .build_def(ctx),
                 ]),
             )
             .build(ctx);
@@ -107,6 +117,12 @@ impl State<App> for Viewer {
                     self.neighborhood = Neighborhood::new(ctx, app, self.neighborhood.id);
                     self.update(ctx, app);
                     return Transition::Keep;
+                } else if x == "Create filters along a shape" {
+                    return Transition::Push(FreehandFilters::new_state(
+                        ctx,
+                        &self.neighborhood,
+                        self.panel.center_of("Create filters along a shape"),
+                    ));
                 }
 
                 return Tab::Connectivity
@@ -276,4 +292,78 @@ fn make_world(
     world.initialize_hover(ctx);
 
     (world, top_layer.build(ctx))
+}
+
+struct FreehandFilters {
+    lasso: PolyLineLasso,
+    id: NeighborhoodID,
+    perimeter: Perimeter,
+    instructions: Text,
+    instructions_at: ScreenPt,
+}
+
+impl FreehandFilters {
+    fn new_state(
+        ctx: &EventCtx,
+        neighborhood: &Neighborhood,
+        instructions_at: ScreenPt,
+    ) -> Box<dyn State<App>> {
+        Box::new(Self {
+            lasso: PolyLineLasso::new(),
+            id: neighborhood.id,
+            perimeter: neighborhood.orig_perimeter.clone(),
+            instructions_at,
+            instructions: Text::from_all(vec![
+                Line("Click and drag").fg(ctx.style().text_hotkey_color),
+                Line(" across the roads you want to flter"),
+            ]),
+        })
+    }
+}
+
+impl State<App> for FreehandFilters {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        if let Some(pl) = self.lasso.event(ctx) {
+            make_filters_along_path(ctx, app, &self.perimeter, pl);
+            return Transition::Multi(vec![
+                Transition::Pop,
+                Transition::Replace(Viewer::new_state(ctx, app, self.id)),
+            ]);
+        }
+        Transition::Keep
+    }
+
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
+        self.lasso.draw(g);
+        // Hacky, but just draw instructions over the other panel
+        g.draw_tooltip_at(self.instructions.clone(), self.instructions_at);
+    }
+
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::PreviousState
+    }
+}
+
+fn make_filters_along_path(
+    ctx: &mut EventCtx,
+    app: &mut App,
+    perimeter: &Perimeter,
+    path: PolyLine,
+) {
+    app.session.modal_filters.before_edit();
+    for r in &perimeter.interior {
+        if app.session.modal_filters.roads.contains_key(r) {
+            continue;
+        }
+        let road = app.map.get_r(*r);
+        if let Some((pt, _)) = road.center_pts.intersection(&path) {
+            let dist = road
+                .center_pts
+                .dist_along_of_point(pt)
+                .map(|pair| pair.0)
+                .unwrap_or(road.center_pts.length() / 2.0);
+            app.session.modal_filters.roads.insert(*r, dist);
+        }
+    }
+    after_edit(ctx, app);
 }

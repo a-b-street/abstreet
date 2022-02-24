@@ -158,7 +158,16 @@ impl<'a> GfxCtx<'a> {
 
     // Canvas stuff.
 
+    /// Draw a tooltip where the mouse is
     pub fn draw_mouse_tooltip(&mut self, txt: Text) {
+        self.draw_tooltip_at(
+            txt,
+            ScreenPt::new(self.canvas.cursor.x, self.canvas.cursor.y + 20.0),
+        )
+    }
+
+    /// Draw a tooltip somewhere on the screen
+    pub fn draw_tooltip_at(&mut self, txt: Text, center: ScreenPt) {
         if txt.is_empty() {
             return;
         }
@@ -171,10 +180,7 @@ impl<'a> GfxCtx<'a> {
         let dims = ScreenDims::new(raw_dims.width + 2.0 * pad, raw_dims.height + 2.0 * pad);
 
         // TODO Maybe also consider the cursor as a valid center
-        let pt = dims.top_left_for_corner(
-            ScreenPt::new(self.canvas.cursor.x, self.canvas.cursor.y + 20.0),
-            self.canvas,
-        );
+        let pt = dims.top_left_for_corner(center, self.canvas);
         let mut batch = GeomBatch::new();
         // TODO Outline?
         batch.push(
