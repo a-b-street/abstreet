@@ -194,10 +194,25 @@ impl Lane {
         }
     }
 
-    /// This is just based on typical driving sides. Bidirectional or contraflow cycletracks as
-    /// input may produce weird results.
-    // TODO Reconsider this -- it's confusing
+    /// This does the reasonable thing for the leftmost and rightmost lane on a road -- except for
+    /// roads with exactly one lane. For lanes in the middle of a road, it uses the direction of
+    /// the lane -- so bidirectional/contraflow cycletracks will produce weird results.
+    // TODO This is such a weird API; make blockfinding not depend on this
     pub fn get_nearest_side_of_road(&self, map: &Map) -> RoadSideID {
+        if self.id.offset == 0 {
+            return RoadSideID {
+                road: self.id.road,
+                side: SideOfRoad::Left,
+            };
+        }
+        let parent = map.get_r(self.id.road);
+        if parent.lanes.last().as_ref().unwrap().id == self.id {
+            return RoadSideID {
+                road: self.id.road,
+                side: SideOfRoad::Right,
+            };
+        }
+
         let side = match (self.dir, map.get_config().driving_side) {
             (Direction::Fwd, DrivingSide::Right) => SideOfRoad::Right,
             (Direction::Back, DrivingSide::Right) => SideOfRoad::Left,
