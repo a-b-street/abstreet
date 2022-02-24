@@ -1,9 +1,10 @@
 use serde::{Deserialize, Serialize};
 
-use geom::{Distance, LonLat, PolyLine, Pt2D, Ring};
+use geom::{Distance, LonLat, Pt2D, Ring};
 use map_gui::render::DrawOptions;
 use map_gui::tools::{ChooseSomething, PromptInput};
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
+use widgetry::tools::Lasso;
 use widgetry::{
     lctrl, Choice, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
     Line, Outcome, Panel, SimpleState, State, Text, TextBox, VerticalAlignment, Widget,
@@ -405,14 +406,14 @@ struct DrawFreehand {
 
 impl State<App> for DrawFreehand {
     fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
-        if let Some(result) = self.lasso.event(ctx) {
+        if let Some(polygon) = self.lasso.event(ctx) {
             let idx = self.new_idx;
             return Transition::Multi(vec![
                 Transition::Pop,
                 Transition::ModifyState(Box::new(move |state, ctx, app| {
                     let editor = state.downcast_mut::<StoryMapEditor>().unwrap();
                     editor.story.markers.push(Marker {
-                        pts: result.into_points(),
+                        pts: polygon.into_points(),
                         label: String::new(),
                     });
 
@@ -433,80 +434,5 @@ impl State<App> for DrawFreehand {
 
     fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.lasso.draw(g);
-    }
-}
-
-// TODO This should totally be an widgetry tool
-struct Lasso {
-    pl: Option<PolyLine>,
-}
-
-impl Lasso {
-    fn new() -> Lasso {
-        Lasso { pl: None }
-    }
-
-    fn event(&mut self, ctx: &mut EventCtx) -> Option<Ring> {
-        if self.pl.is_none() {
-            if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
-                if ctx.input.left_mouse_button_pressed() {
-                    self.pl = Some(PolyLine::must_new(vec![pt, pt.offset(0.1, 0.0)]));
-                }
-            }
-            return None;
-        }
-
-        if ctx.input.left_mouse_button_released() {
-            return Some(simplify(self.pl.take().unwrap().into_points()));
-        }
-
-        let current_pl = self.pl.as_ref().unwrap();
-        if ctx.redo_mouseover() {
-            if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
-                if let Ok(pl) = PolyLine::new(vec![current_pl.last_pt(), pt]) {
-                    // Did we make a crossing?
-                    if let Some((hit, _)) = current_pl.intersection(&pl) {
-                        if let Some(slice) = current_pl.get_slice_starting_at(hit) {
-                            return Some(simplify(slice.into_points()));
-                        }
-                    }
-
-                    let mut pts = current_pl.points().clone();
-                    pts.push(pt);
-                    if let Ok(new) = PolyLine::new(pts) {
-                        self.pl = Some(new);
-                    }
-                }
-            }
-        }
-        None
-    }
-
-    fn draw(&self, g: &mut GfxCtx) {
-        if let Some(ref pl) = self.pl {
-            g.draw_polygon(
-                Color::RED.alpha(0.8),
-                pl.make_polygons(Distance::meters(5.0) / g.canvas.cam_zoom),
-            );
-        }
-    }
-}
-
-fn simplify(mut raw: Vec<Pt2D>) -> Ring {
-    // TODO This is eating some of the shapes entirely. Wasn't meant for this.
-    if false {
-        let pts = raw
-            .into_iter()
-            .map(|pt| lttb::DataPoint::new(pt.x(), pt.y()))
-            .collect();
-        let mut downsampled = Vec::new();
-        for pt in lttb::lttb(pts, 50) {
-            downsampled.push(Pt2D::new(pt.x, pt.y));
-        }
-        downsampled.push(downsampled[0]);
-        Ring::must_new(downsampled)
-    } else {
-        raw.push(raw[0]);
-        Ring::must_new(raw)
     }
 }
