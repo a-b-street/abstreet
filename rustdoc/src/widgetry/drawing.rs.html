@@ -316,6 +316,12 @@
 <span id="315">315</span>
 <span id="316">316</span>
 <span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cell::Cell</span>;
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
@@ -476,7 +482,16 @@
 
     <span class="comment">// Canvas stuff.</span>
 
+    <span class="doccomment">/// Draw a tooltip where the mouse is</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw_mouse_tooltip</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">txt</span>: <span class="ident">Text</span>) {
+        <span class="self">self</span>.<span class="ident">draw_tooltip_at</span>(
+            <span class="ident">txt</span>,
+            <span class="ident">ScreenPt::new</span>(<span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">cursor</span>.<span class="ident">x</span>, <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">cursor</span>.<span class="ident">y</span> <span class="op">+</span> <span class="number">20.0</span>),
+        )
+    }
+
+    <span class="doccomment">/// Draw a tooltip somewhere on the screen</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw_tooltip_at</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">txt</span>: <span class="ident">Text</span>, <span class="ident">center</span>: <span class="ident">ScreenPt</span>) {
         <span class="kw">if</span> <span class="ident">txt</span>.<span class="ident">is_empty</span>() {
             <span class="kw">return</span>;
         }
@@ -489,10 +504,7 @@
         <span class="kw">let</span> <span class="ident">dims</span> <span class="op">=</span> <span class="ident">ScreenDims::new</span>(<span class="ident">raw_dims</span>.<span class="ident">width</span> <span class="op">+</span> <span class="number">2.0</span> <span class="op">*</span> <span class="ident">pad</span>, <span class="ident">raw_dims</span>.<span class="ident">height</span> <span class="op">+</span> <span class="number">2.0</span> <span class="op">*</span> <span class="ident">pad</span>);
 
         <span class="comment">// TODO Maybe also consider the cursor as a valid center</span>
-        <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">dims</span>.<span class="ident">top_left_for_corner</span>(
-            <span class="ident">ScreenPt::new</span>(<span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">cursor</span>.<span class="ident">x</span>, <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">cursor</span>.<span class="ident">y</span> <span class="op">+</span> <span class="number">20.0</span>),
-            <span class="self">self</span>.<span class="ident">canvas</span>,
-        );
+        <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">dims</span>.<span class="ident">top_left_for_corner</span>(<span class="ident">center</span>, <span class="self">self</span>.<span class="ident">canvas</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
         <span class="comment">// TODO Outline?</span>
         <span class="ident">batch</span>.<span class="ident">push</span>(

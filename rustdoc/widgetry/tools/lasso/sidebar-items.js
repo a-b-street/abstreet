@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Lasso","Draw freehand polygons"]]});
+initSidebarItems({"struct":[["Lasso","Draw freehand polygons"],["PolyLineLasso","Draw freehand PolyLine"]]});
