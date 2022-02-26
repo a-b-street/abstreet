@@ -278,7 +278,7 @@ fn draw_over_roads(ctx: &mut EventCtx, app: &App, timer: &mut Timer) -> ToggleZo
     colorer.build(ctx)
 }
 
-fn draw_boundary_roads(ctx: &EventCtx, app: &App) -> ToggleZoomed {
+pub fn draw_boundary_roads(ctx: &EventCtx, app: &App) -> ToggleZoomed {
     let mut seen_roads = HashSet::new();
     let mut seen_borders = HashSet::new();
     let mut batch = ToggleZoomed::builder();
