@@ -143,6 +143,11 @@ impl<T: Ord + PartialEq + Clone> Counter<T> {
         list
     }
 
+    /// If two keys share the maximum, returns one of them arbitrarily (and deterministically)
+    pub fn max_key(&self) -> T {
+        self.map.iter().max_by_key(|pair| pair.1).unwrap().0.clone()
+    }
+
     pub fn max(&self) -> usize {
         self.map.values().max().cloned().unwrap_or(0)
     }

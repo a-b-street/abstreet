@@ -335,6 +335,16 @@ impl Partitioning {
         self.block_to_neighborhood[&id]
     }
 
+    pub fn all_blocks_in_neighborhood(&self, id: NeighborhoodID) -> Vec<BlockID> {
+        let mut result = Vec::new();
+        for (block, n) in &self.block_to_neighborhood {
+            if *n == id {
+                result.push(*block);
+            }
+        }
+        result
+    }
+
     pub fn some_block_in_neighborhood(&self, id: NeighborhoodID) -> BlockID {
         for (block, neighborhood) in &self.block_to_neighborhood {
             if id == *neighborhood {

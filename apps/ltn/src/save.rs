@@ -2,7 +2,7 @@ use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
 use abstio::MapName;
-use abstutil::Timer;
+use abstutil::{Counter, Timer};
 use map_gui::tools::{ChooseSomething, PromptInput};
 use widgetry::tools::PopupMsg;
 use widgetry::{Choice, EventCtx, Key, State, Widget};
@@ -268,17 +268,15 @@ impl AltProposals {
 // After switching proposals, we have to recreate state
 pub enum PreserveState {
     BrowseNeighborhoods,
-    PerNeighborhood(Tab, BlockID),
+    PerNeighborhood(Tab, Vec<BlockID>),
 }
 
 impl PreserveState {
     pub fn per_neighborhood(app: &App, tab: Tab, id: NeighborhoodID) -> Self {
         // When we swap proposals, neighborhood IDs will change if the partitioning is different.
-        // In the common case, just filters will change. Use some block in the current neighborhood
-        // to figure out the new ID.
-        // TODO "Some block" really is arbitrary, so this might not always do the expected thing
-        let block = app.session.partitioning.some_block_in_neighborhood(id);
-        Self::PerNeighborhood(tab, block)
+        // In the common case, just filters will change. But even if the boundary is a bit
+        // different, match up by all the blocks in the current neighborhood.
+        Self::PerNeighborhood(tab, app.session.partitioning.all_blocks_in_neighborhood(id))
     }
 
     fn switch_to_state(self, ctx: &mut EventCtx, app: &mut App) -> Transition {
@@ -286,10 +284,14 @@ impl PreserveState {
             PreserveState::BrowseNeighborhoods => {
                 Transition::Replace(BrowseNeighborhoods::new_state(ctx, app))
             }
-            PreserveState::PerNeighborhood(tab, block) => {
-                // The partitioning has now changed, so figure out the neighborhood now
-                let neighborhood = app.session.partitioning.block_to_neighborhood(block);
-                tab.switch_to_state(ctx, app, neighborhood)
+            PreserveState::PerNeighborhood(tab, blocks) => {
+                // Count which new neighborhoods have the blocks from the original. Pick the one
+                // with the most matches
+                let mut count = Counter::new();
+                for block in blocks {
+                    count.inc(app.session.partitioning.block_to_neighborhood(block));
+                }
+                tab.switch_to_state(ctx, app, count.max_key())
             }
         }
     }
