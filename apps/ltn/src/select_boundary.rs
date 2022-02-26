@@ -191,61 +191,68 @@ impl SelectBoundary {
     }
 
     fn add_blocks_freehand(&mut self, ctx: &mut EventCtx, app: &mut App, lasso_polygon: Polygon) {
-        // Find all of the blocks within the polygon
-        let mut add_blocks = Vec::new();
-        for (id, block) in app.session.partitioning.all_single_blocks() {
-            if lasso_polygon.contains_pt(block.polygon.center()) {
-                if app.session.partitioning.block_to_neighborhood(id) != self.id {
-                    add_blocks.push(id);
+        ctx.loading_screen("expand current neighborhood boundary", |ctx, timer| {
+            timer.start("find matching blocks");
+            // Find all of the blocks within the polygon
+            let mut add_blocks = Vec::new();
+            for (id, block) in app.session.partitioning.all_single_blocks() {
+                if lasso_polygon.contains_pt(block.polygon.center()) {
+                    if app.session.partitioning.block_to_neighborhood(id) != self.id {
+                        add_blocks.push(id);
+                    }
                 }
             }
-        }
+            timer.stop("find matching blocks");
 
-        while !add_blocks.is_empty() {
-            // Proceed in rounds. Calculate the current frontier, find all of the blocks in there,
-            // try to add them, repeat.
-            //
-            // It should be safe to add multiple blocks in a round without recalculating the
-            // frontier; adding one block shouldn't mess up the frontier for another
-            let mut changed = false;
-            let mut still_todo = Vec::new();
-            for block_id in add_blocks.drain(..) {
-                if self.frontier.contains(&block_id) {
-                    let old_owner = app.session.partitioning.block_to_neighborhood(block_id);
-                    if let Ok(_) = app
-                        .session
-                        .partitioning
-                        .transfer_block(&app.map, block_id, old_owner, self.id)
-                    {
-                        changed = true;
+            while !add_blocks.is_empty() {
+                let span = format!("try to add {} blocks", add_blocks.len());
+                timer.start(&span);
+                // Proceed in rounds. Calculate the current frontier, find all of the blocks in there,
+                // try to add them, repeat.
+                //
+                // It should be safe to add multiple blocks in a round without recalculating the
+                // frontier; adding one block shouldn't mess up the frontier for another
+                let mut changed = false;
+                let mut still_todo = Vec::new();
+                for block_id in add_blocks.drain(..) {
+                    if self.frontier.contains(&block_id) {
+                        let old_owner = app.session.partitioning.block_to_neighborhood(block_id);
+                        if let Ok(_) = app
+                            .session
+                            .partitioning
+                            .transfer_block(&app.map, block_id, old_owner, self.id)
+                        {
+                            changed = true;
+                        } else {
+                            still_todo.push(block_id);
+                        }
                     } else {
                         still_todo.push(block_id);
                     }
+                }
+                timer.stop(&span);
+                if changed {
+                    add_blocks = still_todo;
+                    self.frontier = app.session.partitioning.calculate_frontier(
+                        &app.session
+                            .partitioning
+                            .neighborhood_block(self.id)
+                            .perimeter,
+                    );
                 } else {
-                    still_todo.push(block_id);
+                    info!("Giving up on adding {} blocks", still_todo.len());
+                    break;
                 }
             }
-            if changed {
-                add_blocks = still_todo;
-                self.frontier = app.session.partitioning.calculate_frontier(
-                    &app.session
-                        .partitioning
-                        .neighborhood_block(self.id)
-                        .perimeter,
-                );
-            } else {
-                info!("Giving up on adding {} blocks", still_todo.len());
-                break;
-            }
-        }
 
-        // Just redraw everything
-        app.session.partitioning.recalculate_coloring();
-        self.world = World::bounded(app.map.get_bounds());
-        for id in app.session.partitioning.all_block_ids() {
-            self.add_block(ctx, app, id);
-        }
-        self.redraw_outline(ctx, app.session.partitioning.neighborhood_block(self.id));
+            // Just redraw everything
+            app.session.partitioning.recalculate_coloring();
+            self.world = World::bounded(app.map.get_bounds());
+            for id in app.session.partitioning.all_block_ids() {
+                self.add_block(ctx, app, id);
+            }
+            self.redraw_outline(ctx, app.session.partitioning.neighborhood_block(self.id));
+        });
     }
 }
 
