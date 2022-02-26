@@ -264,15 +264,32 @@ impl Perimeter {
         // Make sure we didn't wind up with any internal dead-ends
         self.collapse_deadends();
 
-        // TODO This is an expensive sanity check needed for
-        // https://github.com/a-b-street/abstreet/issues/841
-        if LOSSLESS_BLOCKFINDING && self.clone().to_block(map).is_err() {
-            *self = orig_self;
-            *other = orig_other;
-            return false;
+        // TODO Something in this method is buggy and produces invalid merges. Use a lightweight
+        // detection and bail out for now. https://github.com/a-b-street/abstreet/issues/841
+        if LOSSLESS_BLOCKFINDING {
+            if let Err(err) = self.check_continuity(map) {
+                error!(
+                    "A merged perimeter couldn't be blockified: {}. {:?}",
+                    err, self
+                );
+                *self = orig_self;
+                *other = orig_other;
+                return false;
+            }
         }
 
         true
+    }
+
+    fn check_continuity(&self, map: &Map) -> Result<()> {
+        for pair in self.roads.windows(2) {
+            let r1 = map.get_r(pair[0].road);
+            let r2 = map.get_r(pair[1].road);
+            if r1.common_endpoint(r2) == CommonEndpoint::None {
+                bail!("Part of the perimeter goes from {:?} to {:?}, but they don't share a common endpoint", pair[0], pair[1]);
+            }
+        }
+        Ok(())
     }
 
     /// Try to merge all given perimeters. If successful, only one perimeter will be returned.

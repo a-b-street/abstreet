@@ -303,6 +303,7 @@ impl Lane {
     }
 }
 
+#[derive(PartialEq)]
 pub enum CommonEndpoint {
     /// Two lanes/roads share one endpoint
     One(IntersectionID),
