@@ -404,6 +404,11 @@
 <span id="402">402</span>
 <span id="403">403</span>
 <span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cmp::Ord</span>;
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 <span class="kw">use</span> <span class="ident">std::marker::PhantomData</span>;
@@ -547,6 +552,11 @@
         <span class="ident">list</span>.<span class="ident">reverse</span>();
         <span class="ident">list</span>.<span class="ident">truncate</span>(<span class="ident">n</span>);
         <span class="ident">list</span>
+    }
+
+    <span class="doccomment">/// If two keys share the maximum, returns one of them arbitrarily (and deterministically)</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">T</span> {
+        <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">iter</span>().<span class="ident">max_by_key</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="ident">pair</span>.<span class="number">1</span>).<span class="ident">unwrap</span>().<span class="number">0</span>.<span class="ident">clone</span>()
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
