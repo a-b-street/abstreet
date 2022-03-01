@@ -90,33 +90,35 @@ impl RenderCellsBuilder {
         for (cell_idx, cell) in neighborhood.cells.iter().enumerate() {
             for (r, interval) in &cell.roads {
                 let road = map.get_r(*r);
-                // Walk along the center line. We could look at the road's thickness and fill out
-                // points based on that, but the diffusion should take care of it.
-                for (pt, _) in road
-                    .center_pts
-                    .exact_slice(interval.start, interval.end)
-                    .step_along(Distance::meters(RESOLUTION_M / 2.0), Distance::ZERO)
-                {
-                    let grid_idx = grid.idx(
-                        ((pt.x() - bounds.min_x) / RESOLUTION_M) as usize,
-                        ((pt.y() - bounds.min_y) / RESOLUTION_M) as usize,
-                    );
-                    // Due to tunnels/bridges, sometimes a road belongs to a neighborhood, but
-                    // leaks outside the neighborhood's boundary. Avoid crashing. The real fix is
-                    // to better define boundaries in the face of z-order changes.
-                    //
-                    // Example is https://www.openstreetmap.org/way/87298633
-                    if grid_idx >= grid.data.len() {
-                        warn!(
-                            "{} leaks outside its neighborhood's boundary polygon, near {}",
-                            road.id, pt
+                // Some roads with a filter are _very_ short, and this fails. The connecting roads
+                // on either side should contribute a grid cell and wind up fine.
+                if let Ok(slice) = road.center_pts.maybe_exact_slice(interval.start, interval.end) {
+                    // Walk along the center line. We could look at the road's thickness and fill
+                    // out points based on that, but the diffusion should take care of it.
+                    for (pt, _) in
+                        slice.step_along(Distance::meters(RESOLUTION_M / 2.0), Distance::ZERO)
+                    {
+                        let grid_idx = grid.idx(
+                            ((pt.x() - bounds.min_x) / RESOLUTION_M) as usize,
+                            ((pt.y() - bounds.min_y) / RESOLUTION_M) as usize,
                         );
-                        continue;
-                    }
+                        // Due to tunnels/bridges, sometimes a road belongs to a neighborhood, but
+                        // leaks outside the neighborhood's boundary. Avoid crashing. The real fix
+                        // is to better define boundaries in the face of z-order changes.
+                        //
+                        // Example is https://www.openstreetmap.org/way/87298633
+                        if grid_idx >= grid.data.len() {
+                            warn!(
+                                "{} leaks outside its neighborhood's boundary polygon, near {}",
+                                road.id, pt
+                            );
+                            continue;
+                        }
 
-                    // If roads from two different cells are close enough to clobber originally, oh
-                    // well?
-                    grid.data[grid_idx] = Some(cell_idx);
+                        // If roads from two different cells are close enough to clobber
+                        // originally, oh well?
+                        grid.data[grid_idx] = Some(cell_idx);
+                    }
                 }
             }
         }
