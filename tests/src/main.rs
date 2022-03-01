@@ -258,6 +258,7 @@ fn test_blockfinding() -> Result<()> {
         MapName::new("gb", "london", "camden"),
         MapName::new("gb", "london", "southwark"),
         MapName::new("gb", "manchester", "levenshulme"),
+        MapName::new("fr", "lyon", "center"),
     ] {
         let map = map_model::Map::load_synchronously(name.path(), &mut timer);
         let mut single_blocks = Perimeter::find_all_single_blocks(&map);
@@ -286,6 +287,8 @@ fn test_blockfinding() -> Result<()> {
         let mut num_merged_block_failures = 0;
         for perimeter in merged {
             if perimeter.to_block(&map).is_err() {
+                // Note this means the LTN UI will crash upfront -- every block must be in the
+                // partitioning.
                 num_merged_block_failures += 1;
             }
         }

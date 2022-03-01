@@ -16,3 +16,5 @@ data/system/gb/london/maps/southwark.bin
     2134 single blocks (2 failures to blockify), 47 partial merges, 0 failures to blockify partitions
 data/system/gb/manchester/maps/levenshulme.bin
     1349 single blocks (1 failures to blockify), 8 partial merges, 0 failures to blockify partitions
+data/system/fr/lyon/maps/center.bin
+    5113 single blocks (8 failures to blockify), 167 partial merges, 0 failures to blockify partitions

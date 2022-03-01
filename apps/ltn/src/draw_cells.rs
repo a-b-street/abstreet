@@ -92,7 +92,10 @@ impl RenderCellsBuilder {
                 let road = map.get_r(*r);
                 // Some roads with a filter are _very_ short, and this fails. The connecting roads
                 // on either side should contribute a grid cell and wind up fine.
-                if let Ok(slice) = road.center_pts.maybe_exact_slice(interval.start, interval.end) {
+                if let Ok(slice) = road
+                    .center_pts
+                    .maybe_exact_slice(interval.start, interval.end)
+                {
                     // Walk along the center line. We could look at the road's thickness and fill
                     // out points based on that, but the diffusion should take care of it.
                     for (pt, _) in

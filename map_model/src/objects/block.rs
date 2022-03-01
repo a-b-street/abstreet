@@ -4,6 +4,7 @@ use std::fmt;
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
+use abstio::MapName;
 use abstutil::wraparound_get;
 use geom::{Polygon, Pt2D, Ring};
 
@@ -135,6 +136,16 @@ impl Perimeter {
                 skip.insert(r.id);
             }
         }
+
+        // TODO This map crashes otherwise. Workaround temporarily.
+        if map.get_name() == &MapName::new("fr", "lyon", "center") {
+            for r in map.all_roads() {
+                if r.zorder != 0 {
+                    skip.insert(r.id);
+                }
+            }
+        }
+
         skip
     }
 
