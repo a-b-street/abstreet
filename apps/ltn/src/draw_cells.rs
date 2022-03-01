@@ -87,6 +87,7 @@ impl RenderCellsBuilder {
         );
 
         // Initially fill out the grid based on the roads in each cell
+        let mut warn_leak = true;
         for (cell_idx, cell) in neighborhood.cells.iter().enumerate() {
             for (r, interval) in &cell.roads {
                 let road = map.get_r(*r);
@@ -111,10 +112,15 @@ impl RenderCellsBuilder {
                         //
                         // Example is https://www.openstreetmap.org/way/87298633
                         if grid_idx >= grid.data.len() {
-                            warn!(
-                                "{} leaks outside its neighborhood's boundary polygon, near {}",
-                                road.id, pt
-                            );
+                            if warn_leak {
+                                warn!(
+                                    "{} leaks outside its neighborhood's boundary polygon, near {}",
+                                    road.id, pt
+                                );
+                                // In some neighborhoods, there are so many warnings that logging
+                                // causes noticeable slowdown!
+                                warn_leak = false;
+                            }
                             continue;
                         }
 
