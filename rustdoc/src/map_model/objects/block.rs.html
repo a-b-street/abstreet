@@ -868,7 +868,7 @@
         <span class="comment">// detection and bail out for now. https://github.com/a-b-street/abstreet/issues/841</span>
         <span class="kw">if</span> <span class="ident">LOSSLESS_BLOCKFINDING</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">check_continuity</span>(<span class="ident">map</span>) {
-                <span class="macro">error!</span>(
+                <span class="macro">debug!</span>(
                     <span class="string">&quot;A merged perimeter couldn&#39;t be blockified: {}. {:?}&quot;</span>,
                     <span class="ident">err</span>, <span class="self">self</span>
                 );
