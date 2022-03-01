@@ -11,6 +11,7 @@ use crate::App;
 /// for filters.
 pub fn transform_existing_filters(ctx: &EventCtx, app: &mut App, timer: &mut Timer) {
     let mut edits = app.map.get_edits().clone();
+    let mut filtered_roads = Vec::new();
     for r in detect_filters(&app.map) {
         edits.commands.push(app.map.edit_road_cmd(r.id, |new| {
             // Use a fixed [sidewalk, driving, driving, sidewalk] configuration
@@ -41,12 +42,7 @@ pub fn transform_existing_filters(ctx: &EventCtx, app: &mut App, timer: &mut Tim
             ];
             new.lanes_ltr = LaneSpec::assemble_ltr(fwd, back, app.map.get_config().driving_side);
         }));
-
-        // Don't call before_edit; this transformation happens before the user starts editing
-        app.session
-            .modal_filters
-            .roads
-            .insert(r.id, r.length() / 2.0);
+        filtered_roads.push(r.id);
     }
     if edits.commands.is_empty() {
         return;
@@ -74,6 +70,15 @@ pub fn transform_existing_filters(ctx: &EventCtx, app: &mut App, timer: &mut Tim
     // 3) The impact tool does use the contraction hierarchy for the "before" count. This should be
     //    fine -- the situation represented before the roads are transformed is what we want.
     app.map.keep_pathfinder_despite_edits();
+
+    // Create the filters after applying edits. Road length may change.
+    // (And don't call before_edit; this transformation happens before the user starts editing)
+    for r in filtered_roads {
+        app.session
+            .modal_filters
+            .roads
+            .insert(r, app.map.get_r(r).length() / 2.0);
+    }
 }
 
 fn detect_filters(map: &Map) -> Vec<&Road> {

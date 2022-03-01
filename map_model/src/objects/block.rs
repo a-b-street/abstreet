@@ -268,7 +268,7 @@ impl Perimeter {
         // detection and bail out for now. https://github.com/a-b-street/abstreet/issues/841
         if LOSSLESS_BLOCKFINDING {
             if let Err(err) = self.check_continuity(map) {
-                error!(
+                debug!(
                     "A merged perimeter couldn't be blockified: {}. {:?}",
                     err, self
                 );
