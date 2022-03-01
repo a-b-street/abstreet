@@ -300,6 +300,9 @@
 <span id="298">298</span>
 <span id="299">299</span>
 <span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">Polygon</span>};
@@ -394,7 +397,10 @@
                 <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
                 <span class="comment">// Some roads with a filter are _very_ short, and this fails. The connecting roads</span>
                 <span class="comment">// on either side should contribute a grid cell and wind up fine.</span>
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">slice</span>) <span class="op">=</span> <span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">maybe_exact_slice</span>(<span class="ident">interval</span>.<span class="ident">start</span>, <span class="ident">interval</span>.<span class="ident">end</span>) {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">slice</span>) <span class="op">=</span> <span class="ident">road</span>
+                    .<span class="ident">center_pts</span>
+                    .<span class="ident">maybe_exact_slice</span>(<span class="ident">interval</span>.<span class="ident">start</span>, <span class="ident">interval</span>.<span class="ident">end</span>)
+                {
                     <span class="comment">// Walk along the center line. We could look at the road&#39;s thickness and fill</span>
                     <span class="comment">// out points based on that, but the diffusion should take care of it.</span>
                     <span class="kw">for</span> (<span class="ident">pt</span>, <span class="kw">_</span>) <span class="kw">in</span>
