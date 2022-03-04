@@ -61,7 +61,9 @@ impl DrawIntersection {
         }
 
         if i.is_private(map) {
-            default_geom.push(app.cs().private_road.alpha(0.5), i.polygon.clone());
+            if let Some(color) = app.cs().private_road {
+                default_geom.push(color.alpha(0.5), i.polygon.clone());
+            }
         }
 
         match i.intersection_type {

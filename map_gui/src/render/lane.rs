@@ -175,7 +175,9 @@ impl DrawLane {
         }
 
         if road.is_private() {
-            batch.push(app.cs().private_road.alpha(0.5), self.polygon.clone());
+            if let Some(color) = app.cs().private_road {
+                batch.push(color.alpha(0.5), self.polygon.clone());
+            }
         }
 
         if self.zorder < 0 {

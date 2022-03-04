@@ -30,8 +30,10 @@ impl DrawRoad {
 
     pub fn render_center_line(&self, app: &dyn AppLike) -> GeomBatch {
         let r = app.map().get_r(self.id);
-        let center_line_color = if r.is_private() {
-            app.cs().road_center_line.lerp(app.cs().private_road, 0.5)
+        let center_line_color = if r.is_private() && app.cs().private_road.is_some() {
+            app.cs()
+                .road_center_line
+                .lerp(app.cs().private_road.unwrap(), 0.5)
         } else {
             app.cs().road_center_line
         };
@@ -65,8 +67,10 @@ impl DrawRoad {
     pub fn render<P: AsRef<Prerender>>(&self, prerender: &P, app: &dyn AppLike) -> GeomBatch {
         let prerender = prerender.as_ref();
         let r = app.map().get_r(self.id);
-        let center_line_color = if r.is_private() {
-            app.cs().road_center_line.lerp(app.cs().private_road, 0.5)
+        let center_line_color = if r.is_private() && app.cs().private_road.is_some() {
+            app.cs()
+                .road_center_line
+                .lerp(app.cs().private_road.unwrap(), 0.5)
         } else {
             app.cs().road_center_line
         };
@@ -79,10 +83,10 @@ impl DrawRoad {
             if r.length() >= Distance::meters(30.0) && name != "???" {
                 // TODO If it's definitely straddling bus/bike lanes, change the color? Or
                 // even easier, just skip the center lines?
-                let bg = if r.is_private() {
+                let bg = if r.is_private() && app.cs().private_road.is_some() {
                     app.cs()
                         .zoomed_road_surface(LaneType::Driving, r.get_rank())
-                        .lerp(app.cs().private_road, 0.5)
+                        .lerp(app.cs().private_road.unwrap(), 0.5)
                 } else {
                     app.cs()
                         .zoomed_road_surface(LaneType::Driving, r.get_rank())

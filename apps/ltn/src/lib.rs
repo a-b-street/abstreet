@@ -50,7 +50,7 @@ struct Args {
 
 fn run(mut settings: Settings) {
     let mut opts = map_gui::options::Options::load_or_default();
-    opts.color_scheme = map_gui::colors::ColorSchemeChoice::DayMode;
+    opts.color_scheme = map_gui::colors::ColorSchemeChoice::LTN;
     let args = Args::from_iter(abstutil::cli_args());
     args.app_args.override_options(&mut opts);
 

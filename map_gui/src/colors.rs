@@ -30,6 +30,7 @@ pub enum ColorSchemeChoice {
     NightMode,
     Textured,
     ClassicDayMode,
+    LTN,
 }
 
 impl ColorSchemeChoice {
@@ -39,6 +40,7 @@ impl ColorSchemeChoice {
             Choice::new("night mode", ColorSchemeChoice::NightMode),
             Choice::new("textured", ColorSchemeChoice::Textured),
             Choice::new("classic", ColorSchemeChoice::ClassicDayMode),
+            Choice::new("LTN", ColorSchemeChoice::LTN),
         ]
     }
 
@@ -89,7 +91,7 @@ pub struct ColorScheme {
     pub general_road_marking: Color,
     pub road_center_line: Color,
     pub light_rail_track: Color,
-    pub private_road: Color,
+    pub private_road: Option<Color>,
     pub unzoomed_highway: Color,
     pub unzoomed_arterial: Color,
     pub unzoomed_residential: Color,
@@ -167,6 +169,7 @@ impl ColorScheme {
             ColorSchemeChoice::NightMode => ColorScheme::night_mode(),
             ColorSchemeChoice::Textured => ColorScheme::textured(),
             ColorSchemeChoice::ClassicDayMode => ColorScheme::classic(),
+            ColorSchemeChoice::LTN => ColorScheme::ltn(),
         };
         cs.scheme = scheme;
         ctx.set_style(cs.gui_style.clone());
@@ -209,7 +212,7 @@ impl ColorScheme {
             general_road_marking: Color::WHITE,
             road_center_line: Color::YELLOW,
             light_rail_track: hex("#844204"),
-            private_road: hex("#F0B0C0"),
+            private_road: Some(hex("#F0B0C0")),
             unzoomed_highway: hex("#E892A2"),
             unzoomed_arterial: hex("#FFC73E"),
             unzoomed_residential: Color::WHITE,
@@ -313,7 +316,7 @@ impl ColorScheme {
         cs.unzoomed_residential = cs.driving_lane;
         cs.unzoomed_interesting_intersection = cs.unzoomed_highway;
         cs.stop_sign = hex("#A32015");
-        cs.private_road = hex("#9E757F");
+        cs.private_road = Some(hex("#9E757F"));
         cs.pedestrian_plaza = hex("#94949C").into();
         cs.study_area = hex("#D9B002").into();
 
@@ -351,6 +354,13 @@ impl ColorScheme {
         cs.residential_building = hex("#C5D2E5");
         cs.commercial_building = hex("#99AECC");
 
+        cs
+    }
+
+    fn ltn() -> ColorScheme {
+        let mut cs = ColorScheme::day_mode();
+        cs.scheme = ColorSchemeChoice::LTN;
+        cs.private_road = None;
         cs
     }
 }
@@ -438,7 +448,6 @@ impl ColorScheme {
             self.unzoomed_residential.as_hex()
         )?;
         writeln!(f, "unzoomed_trail {}", self.unzoomed_trail.as_hex())?;
-        writeln!(f, "private_road {}", self.private_road.as_hex())?;
         writeln!(
             f,
             "residential_building {}",
@@ -474,11 +483,10 @@ impl ColorScheme {
         self.unzoomed_arterial = colors[1];
         self.unzoomed_residential = colors[2];
         self.unzoomed_trail = colors[3];
-        self.private_road = colors[4];
-        self.residential_building = colors[5];
-        self.commercial_building = colors[6];
-        self.grass = Fill::Color(colors[7]);
-        self.water = Fill::Color(colors[8]);
+        self.residential_building = colors[4];
+        self.commercial_building = colors[5];
+        self.grass = Fill::Color(colors[6]);
+        self.water = Fill::Color(colors[7]);
 
         Ok(())
     }

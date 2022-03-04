@@ -211,8 +211,8 @@ impl DrawMap {
                     cs.light_rail_track
                 } else if r.is_cycleway() {
                     cs.unzoomed_trail
-                } else if r.is_private() {
-                    cs.private_road
+                } else if r.is_private() && cs.private_road.is_some() {
+                    cs.private_road.unwrap()
                 } else {
                     cs.unzoomed_road_surface(r.get_rank())
                 },
@@ -246,8 +246,8 @@ impl DrawMap {
                         cs.light_rail_track
                     } else if i.is_cycleway(map) {
                         cs.unzoomed_trail
-                    } else if i.is_private(map) {
-                        cs.private_road
+                    } else if i.is_private(map) && cs.private_road.is_some() {
+                        cs.private_road.unwrap()
                     } else {
                         cs.unzoomed_road_surface(i.get_rank(map))
                     }
