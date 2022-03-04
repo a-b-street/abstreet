@@ -58,7 +58,14 @@ pub fn find_rat_runs(app: &App, neighborhood: &Neighborhood, timer: &mut Timer) 
 
     let mut params = map.routing_params().clone();
     modal_filters.update_routing_params(&mut params);
-    let mut paths: Vec<Path> = timer
+    // Don't allow leaving the neighborhood and using perimeter roads at all. Even if the optimal
+    // path is to leave and re-enter, don't do that. The point of this view is to show possible
+    // detours people might try to take in response to one filter. Note the original "demand model"
+    // input is bogus anyway; it's all possible entrances and exits to the neighborhood, without
+    // regards for the larger path somebody actually wants to take.
+    params.avoid_roads.extend(neighborhood.perimeter.clone());
+
+    let paths: Vec<Path> = timer
         .parallelize(
             "calculate paths between entrances and exits",
             requests,
@@ -67,18 +74,6 @@ pub fn find_rat_runs(app: &App, neighborhood: &Neighborhood, timer: &mut Timer) 
         .into_iter()
         .flatten()
         .collect();
-
-    // Some paths dip out of the neighborhood. Even though the entrance and exit is in the same
-    // cell, the optimal path is to use a boundary road. Filter those out.
-    paths.retain(|path| {
-        path.get_steps().iter().all(|step| {
-            if let PathStep::Lane(l) = step {
-                neighborhood.orig_perimeter.interior.contains(&l.road)
-            } else {
-                true
-            }
-        })
-    });
 
     // TODO Rank the likeliness of each rat run by
     // 1) Calculating a path between similar start/endpoints -- travelling along the perimeter,
