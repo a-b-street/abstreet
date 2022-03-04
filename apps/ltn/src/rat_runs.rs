@@ -58,7 +58,7 @@ pub fn find_rat_runs(app: &App, neighborhood: &Neighborhood, timer: &mut Timer) 
 
     let mut params = map.routing_params().clone();
     modal_filters.update_routing_params(&mut params);
-    let paths: Vec<Path> = timer
+    let mut paths: Vec<Path> = timer
         .parallelize(
             "calculate paths between entrances and exits",
             requests,
@@ -67,6 +67,18 @@ pub fn find_rat_runs(app: &App, neighborhood: &Neighborhood, timer: &mut Timer) 
         .into_iter()
         .flatten()
         .collect();
+
+    // Some paths dip out of the neighborhood. Even though the entrance and exit is in the same
+    // cell, the optimal path is to use a boundary road. Filter those out.
+    paths.retain(|path| {
+        path.get_steps().iter().all(|step| {
+            if let PathStep::Lane(l) = step {
+                neighborhood.orig_perimeter.interior.contains(&l.road)
+            } else {
+                true
+            }
+        })
+    });
 
     // TODO Rank the likeliness of each rat run by
     // 1) Calculating a path between similar start/endpoints -- travelling along the perimeter,
