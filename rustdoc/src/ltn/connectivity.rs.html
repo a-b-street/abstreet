@@ -353,22 +353,6 @@
 <span id="351">351</span>
 <span id="352">352</span>
 <span id="353">353</span>
-<span id="354">354</span>
-<span id="355">355</span>
-<span id="356">356</span>
-<span id="357">357</span>
-<span id="358">358</span>
-<span id="359">359</span>
-<span id="360">360</span>
-<span id="361">361</span>
-<span id="362">362</span>
-<span id="363">363</span>
-<span id="364">364</span>
-<span id="365">365</span>
-<span id="366">366</span>
-<span id="367">367</span>
-<span id="368">368</span>
-<span id="369">369</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>};
 <span class="kw">use</span> <span class="ident">map_model::Perimeter</span>;
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ToggleZoomed</span>, <span class="ident">World</span>};
@@ -432,17 +416,6 @@
                             <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_cells_as_areas</span>,
                         ),
                     ]),
-                    <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                        <span class="string">&quot;Draw entrances/exits as&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
-                        <span class="ident">Toggle::choice</span>(
-                            <span class="ident">ctx</span>,
-                            <span class="string">&quot;draw borders&quot;</span>,
-                            <span class="string">&quot;arrows&quot;</span>,
-                            <span class="string">&quot;outlines&quot;</span>,
-                            <span class="ident">Key::E</span>,
-                            <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_borders_as_arrows</span>,
-                        ),
-                    ]),
                     <span class="ident">warning</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                         <span class="ident">Widget::dropdown</span>(
@@ -502,7 +475,6 @@
             }
             <span class="ident">Outcome::Changed</span>(<span class="ident">x</span>) =&gt; {
                 <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_cells_as_areas</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;draw cells&quot;</span>);
-                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_borders_as_arrows</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;draw borders&quot;</span>);
                 <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">heuristic</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;heuristic&quot;</span>);
 
                 <span class="kw">if</span> <span class="ident">x</span> <span class="op">!</span><span class="op">=</span> <span class="string">&quot;heuristic&quot;</span> {
@@ -608,23 +580,19 @@
                 <span class="kw">continue</span>;
             }
 
-            <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_borders_as_arrows</span> {
-                <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">center</span>();
-                <span class="kw">let</span> <span class="ident">angle</span> <span class="op">=</span> <span class="ident">Angle::average</span>(<span class="ident">angles</span>);
+            <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">center</span>();
+            <span class="kw">let</span> <span class="ident">angle</span> <span class="op">=</span> <span class="ident">Angle::average</span>(<span class="ident">angles</span>);
 
-                <span class="comment">// TODO Consider showing borders with one-way roads. For now, always point the</span>
-                <span class="comment">// arrow into the neighborhood</span>
-                <span class="ident">draw_top_layer</span>.<span class="ident">push</span>(
-                    <span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>),
-                    <span class="ident">PolyLine::must_new</span>(<span class="macro">vec!</span>[
-                        <span class="ident">center</span>.<span class="ident">project_away</span>(<span class="ident">Distance::meters</span>(<span class="number">30.0</span>), <span class="ident">angle</span>.<span class="ident">opposite</span>()),
-                        <span class="ident">center</span>.<span class="ident">project_away</span>(<span class="ident">Distance::meters</span>(<span class="number">10.0</span>), <span class="ident">angle</span>.<span class="ident">opposite</span>()),
-                    ])
-                    .<span class="ident">make_arrow</span>(<span class="ident">Distance::meters</span>(<span class="number">6.0</span>), <span class="ident">ArrowCap::Triangle</span>),
-                );
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">p</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">2.0</span>)) {
-                <span class="ident">draw_top_layer</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">p</span>);
-            }
+            <span class="comment">// TODO Consider showing borders with one-way roads. For now, always point the</span>
+            <span class="comment">// arrow into the neighborhood</span>
+            <span class="ident">draw_top_layer</span>.<span class="ident">push</span>(
+                <span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>),
+                <span class="ident">PolyLine::must_new</span>(<span class="macro">vec!</span>[
+                    <span class="ident">center</span>.<span class="ident">project_away</span>(<span class="ident">Distance::meters</span>(<span class="number">30.0</span>), <span class="ident">angle</span>.<span class="ident">opposite</span>()),
+                    <span class="ident">center</span>.<span class="ident">project_away</span>(<span class="ident">Distance::meters</span>(<span class="number">10.0</span>), <span class="ident">angle</span>.<span class="ident">opposite</span>()),
+                ])
+                .<span class="ident">make_arrow</span>(<span class="ident">Distance::meters</span>(<span class="number">6.0</span>), <span class="ident">ArrowCap::Triangle</span>),
+            );
         }
     }
 
