@@ -1,4 +1,3 @@
-use geom::ArrowCap;
 use map_gui::tools::{percentage_bar, ColorNetwork};
 use map_model::{PathRequest, NORMAL_LANE_THICKNESS};
 use widgetry::mapspace::{ToggleZoomed, World};
@@ -13,7 +12,8 @@ use crate::{App, Neighborhood, NeighborhoodID, Transition};
 pub struct BrowseRatRuns {
     panel: Panel,
     rat_runs: RatRuns,
-    current_idx: usize,
+    // When None, show the heatmap of all rat runs
+    current_idx: Option<usize>,
 
     draw_path: ToggleZoomed,
     draw_heatmap: ToggleZoomed,
@@ -45,13 +45,12 @@ impl BrowseRatRuns {
         let mut state = BrowseRatRuns {
             panel: Panel::empty(ctx),
             rat_runs,
-            current_idx: 0,
+            current_idx: None,
             draw_path: ToggleZoomed::empty(ctx),
             draw_heatmap: colorer.build(ctx),
             neighborhood,
             world,
         };
-        state.recalculate(ctx, app);
 
         if let Some(req) = start_with_request {
             if let Some(idx) = state
@@ -60,14 +59,11 @@ impl BrowseRatRuns {
                 .iter()
                 .position(|path| path.get_req() == &req)
             {
-                state.current_idx = idx;
-                state
-                    .panel
-                    .set_checked("show heatmap of all rat-runs", false);
-                // We need to call recalculate twice -- we can't set the checkbox otherwise.
-                state.recalculate(ctx, app);
+                state.current_idx = Some(idx);
             }
         }
+
+        state.recalculate(ctx, app);
 
         Box::new(state)
     }
@@ -99,39 +95,6 @@ impl BrowseRatRuns {
                 ctx,
                 app,
                 Widget::col(vec![
-                    Widget::row(vec![
-                        "Rat runs:".text_widget(ctx).centered_vert(),
-                        ctx.style()
-                            .btn_prev()
-                            .disabled(self.current_idx == 0)
-                            .hotkey(Key::LeftArrow)
-                            .build_widget(ctx, "previous rat run"),
-                        Text::from(
-                            Line(format!(
-                                "{}/{}",
-                                self.current_idx + 1,
-                                self.rat_runs.paths.len()
-                            ))
-                            .secondary(),
-                        )
-                        .into_widget(ctx)
-                        .centered_vert(),
-                        ctx.style()
-                            .btn_next()
-                            .disabled(self.current_idx == self.rat_runs.paths.len() - 1)
-                            .hotkey(Key::RightArrow)
-                            .build_widget(ctx, "next rat run"),
-                    ]),
-                    // TODO This should disable the individual path controls, or maybe even be a different
-                    // state entirely...
-                    Toggle::checkbox(
-                        ctx,
-                        "show heatmap of all rat-runs",
-                        Key::R,
-                        self.panel
-                            .maybe_is_checked("show heatmap of all rat-runs")
-                            .unwrap_or(true),
-                    ),
                     percentage_bar(
                         ctx,
                         Text::from(Line(format!(
@@ -140,14 +103,49 @@ impl BrowseRatRuns {
                         ))),
                         (quiet_streets as f64) / (total_streets as f64),
                     ),
+                    Widget::row(vec![
+                        "Show rat-runs".text_widget(ctx).centered_vert(),
+                        Toggle::choice(
+                            ctx,
+                            "show rat-runs",
+                            "all (heatmap)",
+                            "individually",
+                            Key::R,
+                            self.current_idx.is_none(),
+                        ),
+                    ]),
+                    if let Some(idx) = self.current_idx {
+                        Widget::row(vec![
+                            ctx.style()
+                                .btn_prev()
+                                .disabled(idx == 0)
+                                .hotkey(Key::LeftArrow)
+                                .build_widget(ctx, "previous rat run"),
+                            Text::from(
+                                Line(format!("{}/{}", idx + 1, self.rat_runs.paths.len()))
+                                    .secondary(),
+                            )
+                            .into_widget(ctx)
+                            .centered_vert(),
+                            ctx.style()
+                                .btn_next()
+                                .disabled(idx == self.rat_runs.paths.len() - 1)
+                                .hotkey(Key::RightArrow)
+                                .build_widget(ctx, "next rat run"),
+                        ])
+                    } else {
+                        Widget::nothing()
+                    },
                 ]),
             )
             .build(ctx);
 
         let mut draw_path = ToggleZoomed::builder();
-        let color = Color::RED;
-        let path = &self.rat_runs.paths[self.current_idx];
-        if let Some(pl) = path.trace(&app.map) {
+        if let Some(pl) = self
+            .current_idx
+            .and_then(|idx| self.rat_runs.paths[idx].trace(&app.map))
+        {
+            let color = Color::RED;
             let shape = pl.make_polygons(3.0 * NORMAL_LANE_THICKNESS);
             draw_path.unzoomed.push(color.alpha(0.8), shape.clone());
             draw_path.zoomed.push(color.alpha(0.5), shape);
@@ -172,18 +170,18 @@ impl BrowseRatRuns {
 
 impl State<App> for BrowseRatRuns {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        if let Outcome::Clicked(x) = self.panel.event(ctx) {
-            match x.as_ref() {
+        match self.panel.event(ctx) {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "previous rat run" => {
-                    self.current_idx -= 1;
-                    self.panel
-                        .set_checked("show heatmap of all rat-runs", false);
+                    for idx in &mut self.current_idx {
+                        *idx -= 1;
+                    }
                     self.recalculate(ctx, app);
                 }
                 "next rat run" => {
-                    self.current_idx += 1;
-                    self.panel
-                        .set_checked("show heatmap of all rat-runs", false);
+                    for idx in &mut self.current_idx {
+                        *idx += 1;
+                    }
                     self.recalculate(ctx, app);
                 }
                 x => {
@@ -191,7 +189,16 @@ impl State<App> for BrowseRatRuns {
                         .handle_action(ctx, app, x, self.neighborhood.id)
                         .unwrap();
                 }
+            },
+            Outcome::Changed(_) => {
+                if self.panel.is_checked("show rat-runs") {
+                    self.current_idx = None;
+                } else {
+                    self.current_idx = Some(0);
+                }
+                self.recalculate(ctx, app);
             }
+            _ => {}
         }
 
         // TODO Bit weird to allow this while showing individual paths, since we don't draw the
@@ -199,12 +206,9 @@ impl State<App> for BrowseRatRuns {
         let world_outcome = self.world.event(ctx);
         if crate::per_neighborhood::handle_world_outcome(ctx, app, world_outcome) {
             // Reset state, but if possible, preserve the current individual rat run.
-            let current_request = if self.current_idx == 0 {
-                None
-            } else {
-                // TODO Off-by-one? Or we just have no way to show the 0th path?
-                Some(self.rat_runs.paths[self.current_idx].get_req().clone())
-            };
+            let current_request = self
+                .current_idx
+                .map(|idx| self.rat_runs.paths[idx].get_req().clone());
             return Transition::Replace(BrowseRatRuns::new_state(
                 ctx,
                 app,
@@ -219,15 +223,11 @@ impl State<App> for BrowseRatRuns {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
 
-        if self
-            .panel
-            .maybe_is_checked("show heatmap of all rat-runs")
-            .unwrap_or(false)
-        {
+        if self.current_idx.is_some() {
+            self.draw_path.draw(g);
+        } else {
             self.draw_heatmap.draw(g);
             self.world.draw(g);
-        } else {
-            self.draw_path.draw(g);
         }
 
         g.redraw(&self.neighborhood.fade_irrelevant);
