@@ -90,55 +90,40 @@ impl BrowseRatRuns {
             return;
         }
 
-        self.panel = Tab::RatRuns
-            .panel_builder(
-                ctx,
-                app,
-                Widget::col(vec![
-                    percentage_bar(
-                        ctx,
-                        Text::from(Line(format!(
-                            "{} / {} streets have no through-traffic",
-                            quiet_streets, total_streets
-                        ))),
-                        (quiet_streets as f64) / (total_streets as f64),
-                    ),
-                    Widget::row(vec![
-                        "Show rat-runs".text_widget(ctx).centered_vert(),
-                        Toggle::choice(
+        // Optimization to avoid recalculating the whole panel
+        if self.panel.has_widget("prev/next controls") && self.current_idx.is_some() {
+            let controls = self.prev_next_controls(ctx);
+            self.panel.replace(ctx, "prev/next controls", controls);
+        } else {
+            self.panel = Tab::RatRuns
+                .panel_builder(
+                    ctx,
+                    app,
+                    Widget::col(vec![
+                        percentage_bar(
                             ctx,
-                            "show rat-runs",
-                            "all (heatmap)",
-                            "individually",
-                            Key::R,
-                            self.current_idx.is_none(),
+                            Text::from(Line(format!(
+                                "{} / {} streets have no through-traffic",
+                                quiet_streets, total_streets
+                            ))),
+                            (quiet_streets as f64) / (total_streets as f64),
                         ),
-                    ]),
-                    if let Some(idx) = self.current_idx {
                         Widget::row(vec![
-                            ctx.style()
-                                .btn_prev()
-                                .disabled(idx == 0)
-                                .hotkey(Key::LeftArrow)
-                                .build_widget(ctx, "previous rat run"),
-                            Text::from(
-                                Line(format!("{}/{}", idx + 1, self.rat_runs.paths.len()))
-                                    .secondary(),
-                            )
-                            .into_widget(ctx)
-                            .centered_vert(),
-                            ctx.style()
-                                .btn_next()
-                                .disabled(idx == self.rat_runs.paths.len() - 1)
-                                .hotkey(Key::RightArrow)
-                                .build_widget(ctx, "next rat run"),
-                        ])
-                    } else {
-                        Widget::nothing()
-                    },
-                ]),
-            )
-            .build(ctx);
+                            "Show rat-runs".text_widget(ctx).centered_vert(),
+                            Toggle::choice(
+                                ctx,
+                                "show rat-runs",
+                                "all (heatmap)",
+                                "individually",
+                                Key::R,
+                                self.current_idx.is_none(),
+                            ),
+                        ]),
+                        self.prev_next_controls(ctx),
+                    ]),
+                )
+                .build(ctx);
+        }
 
         let mut draw_path = ToggleZoomed::builder();
         if let Some(pl) = self
@@ -165,6 +150,29 @@ impl BrowseRatRuns {
                 .append(map_gui::tools::goal_marker(ctx, pl.last_pt(), 0.5));
         }
         self.draw_path = draw_path.build(ctx);
+    }
+
+    fn prev_next_controls(&self, ctx: &EventCtx) -> Widget {
+        if let Some(idx) = self.current_idx {
+            Widget::row(vec![
+                ctx.style()
+                    .btn_prev()
+                    .disabled(idx == 0)
+                    .hotkey(Key::LeftArrow)
+                    .build_widget(ctx, "previous rat run"),
+                Text::from(Line(format!("{}/{}", idx + 1, self.rat_runs.paths.len())).secondary())
+                    .into_widget(ctx)
+                    .centered_vert(),
+                ctx.style()
+                    .btn_next()
+                    .disabled(idx == self.rat_runs.paths.len() - 1)
+                    .hotkey(Key::RightArrow)
+                    .build_widget(ctx, "next rat run"),
+            ])
+            .named("prev/next controls")
+        } else {
+            Widget::nothing()
+        }
     }
 }
 
