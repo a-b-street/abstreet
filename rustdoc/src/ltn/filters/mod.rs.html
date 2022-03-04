@@ -282,6 +282,44 @@
 <span id="280">280</span>
 <span id="281">281</span>
 <span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
 </pre><pre class="rust"><code><span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">auto</span>;
 <span class="kw">mod</span> <span class="ident">existing</span>;
 
@@ -295,7 +333,7 @@
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>};
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::existing::transform_existing_filters</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::App</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">after_edit</span>, <span class="ident">App</span>};
 
 <span class="doccomment">/// Stored in App session state. Before making any changes, call `before_edit`.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Default</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
@@ -439,19 +477,57 @@
 }
 
 <span class="kw">impl</span> <span class="ident">DiagonalFilter</span> {
-    <span class="doccomment">/// Find all possible diagonal filters at an intersection</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">filters_for</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DiagonalFilter</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cycle_through_alternatives</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>) {
+        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">before_edit</span>();
         <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>;
         <span class="kw">let</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">get_roads_sorted_by_incoming_angle</span>(<span class="ident">map</span>);
-        <span class="comment">// TODO Handle &gt;4-ways</span>
-        <span class="kw">if</span> <span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">4</span> {
-            <span class="kw">return</span> <span class="ident">Vec::new</span>();
+
+        <span class="kw">if</span> <span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">4</span> {
+            <span class="comment">// 4-way intersections are the only place where true diagonal filters can be placed</span>
+            <span class="kw">let</span> <span class="ident">alt1</span> <span class="op">=</span> <span class="ident">DiagonalFilter::new</span>(<span class="ident">map</span>, <span class="ident">i</span>, <span class="ident">roads</span>[<span class="number">0</span>], <span class="ident">roads</span>[<span class="number">1</span>]);
+            <span class="kw">let</span> <span class="ident">alt2</span> <span class="op">=</span> <span class="ident">DiagonalFilter::new</span>(<span class="ident">map</span>, <span class="ident">i</span>, <span class="ident">roads</span>[<span class="number">1</span>], <span class="ident">roads</span>[<span class="number">2</span>]);
+
+            <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">intersections</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>) {
+                <span class="prelude-val">Some</span>(<span class="ident">prev</span>) =&gt; {
+                    <span class="kw">if</span> <span class="ident">prev</span> <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident">alt1</span> {
+                        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">intersections</span>.<span class="ident">insert</span>(<span class="ident">i</span>, <span class="ident">alt2</span>);
+                    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">prev</span> <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident">alt2</span> {
+                        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">intersections</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>);
+                    } <span class="kw">else</span> {
+                        <span class="macro">unreachable!</span>()
+                    }
+                }
+                <span class="prelude-val">None</span> =&gt; {
+                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">intersections</span>.<span class="ident">insert</span>(<span class="ident">i</span>, <span class="ident">alt1</span>);
+                }
+            }
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">2</span> {
+            <span class="comment">// Diagonal filters elsewhere don&#39;t really make sense. They&#39;re equivalent to filtering</span>
+            <span class="comment">// one road. Just cycle through those.</span>
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">add_filter_to</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="ident">roads</span>
+                .<span class="ident">iter</span>()
+                .<span class="ident">position</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">roads</span>.<span class="ident">contains_key</span>(<span class="ident">r</span>))
+            {
+                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">roads</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">roads</span>[<span class="ident">idx</span>]);
+                <span class="kw">if</span> <span class="ident">idx</span> <span class="op">!</span><span class="op">=</span> <span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {
+                    <span class="ident">add_filter_to</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">roads</span>[<span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>]);
+                }
+            } <span class="kw">else</span> {
+                <span class="ident">add_filter_to</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">roads</span>[<span class="number">0</span>]);
+            }
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">r</span>) <span class="op">=</span> <span class="ident">add_filter_to</span> {
+                <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>);
+                <span class="kw">let</span> <span class="ident">dist</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">i</span> <span class="op">==</span> <span class="ident">road</span>.<span class="ident">src_i</span> {
+                    <span class="ident">Distance::ZERO</span>
+                } <span class="kw">else</span> {
+                    <span class="ident">road</span>.<span class="ident">length</span>()
+                };
+                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">roads</span>.<span class="ident">insert</span>(<span class="ident">r</span>, <span class="ident">dist</span>);
+            }
         }
 
-        <span class="macro">vec!</span>[
-            <span class="ident">DiagonalFilter::new</span>(<span class="ident">map</span>, <span class="ident">i</span>, <span class="ident">roads</span>[<span class="number">0</span>], <span class="ident">roads</span>[<span class="number">1</span>]),
-            <span class="ident">DiagonalFilter::new</span>(<span class="ident">map</span>, <span class="ident">i</span>, <span class="ident">roads</span>[<span class="number">1</span>], <span class="ident">roads</span>[<span class="number">2</span>]),
-        ]
+        <span class="ident">after_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
     }
 
     <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>, <span class="ident">r1</span>: <span class="ident">RoadID</span>, <span class="ident">r2</span>: <span class="ident">RoadID</span>) -&gt; <span class="ident">DiagonalFilter</span> {

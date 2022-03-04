@@ -242,31 +242,6 @@
 <span id="240">240</span>
 <span id="241">241</span>
 <span id="242">242</span>
-<span id="243">243</span>
-<span id="244">244</span>
-<span id="245">245</span>
-<span id="246">246</span>
-<span id="247">247</span>
-<span id="248">248</span>
-<span id="249">249</span>
-<span id="250">250</span>
-<span id="251">251</span>
-<span id="252">252</span>
-<span id="253">253</span>
-<span id="254">254</span>
-<span id="255">255</span>
-<span id="256">256</span>
-<span id="257">257</span>
-<span id="258">258</span>
-<span id="259">259</span>
-<span id="260">260</span>
-<span id="261">261</span>
-<span id="262">262</span>
-<span id="263">263</span>
-<span id="264">264</span>
-<span id="265">265</span>
-<span id="266">266</span>
-<span id="267">267</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom::Distance</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">PathConstraints</span>, <span class="ident">RoadID</span>};
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ObjectID</span>, <span class="ident">World</span>, <span class="ident">WorldOutcome</span>};
@@ -495,32 +470,7 @@
             <span class="bool-val">true</span>
         }
         <span class="ident">WorldOutcome::ClickedObject</span>(<span class="ident">FilterableObj::InteriorIntersection</span>(<span class="ident">i</span>)) =&gt; {
-            <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">4</span> {
-                <span class="comment">// Misleading. Nothing changes, but we&#39;ll &quot;fall through&quot; to other cases without</span>
-                <span class="comment">// this</span>
-                <span class="kw">return</span> <span class="bool-val">true</span>;
-            }
-
-            <span class="comment">// Toggle through all possible filters</span>
-            <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">before_edit</span>();
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all</span> <span class="op">=</span> <span class="ident">DiagonalFilter::filters_for</span>(<span class="ident">app</span>, <span class="ident">i</span>);
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">current</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">intersections</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>) {
-                <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">all</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span> <span class="op">==</span> <span class="ident">current</span>).<span class="ident">unwrap</span>();
-                <span class="kw">if</span> <span class="ident">idx</span> <span class="op">==</span> <span class="ident">all</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {
-                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">intersections</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>);
-                } <span class="kw">else</span> {
-                    <span class="ident">app</span>.<span class="ident">session</span>
-                        .<span class="ident">modal_filters</span>
-                        .<span class="ident">intersections</span>
-                        .<span class="ident">insert</span>(<span class="ident">i</span>, <span class="ident">all</span>.<span class="ident">remove</span>(<span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>));
-                }
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">all</span>.<span class="ident">is_empty</span>() {
-                <span class="ident">app</span>.<span class="ident">session</span>
-                    .<span class="ident">modal_filters</span>
-                    .<span class="ident">intersections</span>
-                    .<span class="ident">insert</span>(<span class="ident">i</span>, <span class="ident">all</span>.<span class="ident">remove</span>(<span class="number">0</span>));
-            }
-            <span class="ident">after_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+            <span class="ident">DiagonalFilter::cycle_through_alternatives</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">i</span>);
             <span class="bool-val">true</span>
         }
         <span class="ident">WorldOutcome::Keypress</span>(<span class="string">&quot;debug&quot;</span>, <span class="ident">FilterableObj::InteriorIntersection</span>(<span class="ident">i</span>)) =&gt; {
