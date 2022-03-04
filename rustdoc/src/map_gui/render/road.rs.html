@@ -183,6 +183,10 @@
 <span id="181">181</span>
 <span id="182">182</span>
 <span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
@@ -215,8 +219,10 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">render_center_line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>) -&gt; <span class="ident">GeomBatch</span> {
         <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">id</span>);
-        <span class="kw">let</span> <span class="ident">center_line_color</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">is_private</span>() {
-            <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">road_center_line</span>.<span class="ident">lerp</span>(<span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">private_road</span>, <span class="number">0.5</span>)
+        <span class="kw">let</span> <span class="ident">center_line_color</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">is_private</span>() <span class="op">&amp;&amp;</span> <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">private_road</span>.<span class="ident">is_some</span>() {
+            <span class="ident">app</span>.<span class="ident">cs</span>()
+                .<span class="ident">road_center_line</span>
+                .<span class="ident">lerp</span>(<span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">private_road</span>.<span class="ident">unwrap</span>(), <span class="number">0.5</span>)
         } <span class="kw">else</span> {
             <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">road_center_line</span>
         };
@@ -250,8 +256,10 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">render</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Prerender</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="ident">P</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>) -&gt; <span class="ident">GeomBatch</span> {
         <span class="kw">let</span> <span class="ident">prerender</span> <span class="op">=</span> <span class="ident">prerender</span>.<span class="ident">as_ref</span>();
         <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">id</span>);
-        <span class="kw">let</span> <span class="ident">center_line_color</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">is_private</span>() {
-            <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">road_center_line</span>.<span class="ident">lerp</span>(<span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">private_road</span>, <span class="number">0.5</span>)
+        <span class="kw">let</span> <span class="ident">center_line_color</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">is_private</span>() <span class="op">&amp;&amp;</span> <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">private_road</span>.<span class="ident">is_some</span>() {
+            <span class="ident">app</span>.<span class="ident">cs</span>()
+                .<span class="ident">road_center_line</span>
+                .<span class="ident">lerp</span>(<span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">private_road</span>.<span class="ident">unwrap</span>(), <span class="number">0.5</span>)
         } <span class="kw">else</span> {
             <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">road_center_line</span>
         };
@@ -264,10 +272,10 @@
             <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">length</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">30.0</span>) <span class="op">&amp;&amp;</span> <span class="ident">name</span> <span class="op">!</span><span class="op">=</span> <span class="string">&quot;???&quot;</span> {
                 <span class="comment">// TODO If it&#39;s definitely straddling bus/bike lanes, change the color? Or</span>
                 <span class="comment">// even easier, just skip the center lines?</span>
-                <span class="kw">let</span> <span class="ident">bg</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">is_private</span>() {
+                <span class="kw">let</span> <span class="ident">bg</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">is_private</span>() <span class="op">&amp;&amp;</span> <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">private_road</span>.<span class="ident">is_some</span>() {
                     <span class="ident">app</span>.<span class="ident">cs</span>()
                         .<span class="ident">zoomed_road_surface</span>(<span class="ident">LaneType::Driving</span>, <span class="ident">r</span>.<span class="ident">get_rank</span>())
-                        .<span class="ident">lerp</span>(<span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">private_road</span>, <span class="number">0.5</span>)
+                        .<span class="ident">lerp</span>(<span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">private_road</span>.<span class="ident">unwrap</span>(), <span class="number">0.5</span>)
                 } <span class="kw">else</span> {
                     <span class="ident">app</span>.<span class="ident">cs</span>()
                         .<span class="ident">zoomed_road_surface</span>(<span class="ident">LaneType::Driving</span>, <span class="ident">r</span>.<span class="ident">get_rank</span>())

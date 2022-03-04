@@ -288,7 +288,7 @@
 
 <span class="kw">fn</span> <span class="ident">run</span>(<span class="kw-2">mut</span> <span class="ident">settings</span>: <span class="ident">Settings</span>) {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">map_gui::options::Options::load_or_default</span>();
-    <span class="ident">opts</span>.<span class="ident">color_scheme</span> <span class="op">=</span> <span class="ident">map_gui::colors::ColorSchemeChoice::DayMode</span>;
+    <span class="ident">opts</span>.<span class="ident">color_scheme</span> <span class="op">=</span> <span class="ident">map_gui::colors::ColorSchemeChoice::LTN</span>;
     <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">Args::from_iter</span>(<span class="ident">abstutil::cli_args</span>());
     <span class="ident">args</span>.<span class="ident">app_args</span>.<span class="ident">override_options</span>(<span class="kw-2">&amp;mut</span> <span class="ident">opts</span>);
 
