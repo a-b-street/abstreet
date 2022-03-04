@@ -226,32 +226,7 @@ pub fn handle_world_outcome(
             true
         }
         WorldOutcome::ClickedObject(FilterableObj::InteriorIntersection(i)) => {
-            if map.get_i(i).roads.len() != 4 {
-                // Misleading. Nothing changes, but we'll "fall through" to other cases without
-                // this
-                return true;
-            }
-
-            // Toggle through all possible filters
-            app.session.modal_filters.before_edit();
-            let mut all = DiagonalFilter::filters_for(app, i);
-            if let Some(current) = app.session.modal_filters.intersections.get(&i) {
-                let idx = all.iter().position(|x| x == current).unwrap();
-                if idx == all.len() - 1 {
-                    app.session.modal_filters.intersections.remove(&i);
-                } else {
-                    app.session
-                        .modal_filters
-                        .intersections
-                        .insert(i, all.remove(idx + 1));
-                }
-            } else if !all.is_empty() {
-                app.session
-                    .modal_filters
-                    .intersections
-                    .insert(i, all.remove(0));
-            }
-            after_edit(ctx, app);
+            DiagonalFilter::cycle_through_alternatives(ctx, app, i);
             true
         }
         WorldOutcome::Keypress("debug", FilterableObj::InteriorIntersection(i)) => {

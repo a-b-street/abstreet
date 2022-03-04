@@ -11,7 +11,7 @@ use widgetry::mapspace::{DrawUnzoomedShapes, ToggleZoomed};
 use widgetry::{Color, EventCtx, GeomBatch, GfxCtx};
 
 pub use self::existing::transform_existing_filters;
-use crate::App;
+use crate::{after_edit, App};
 
 /// Stored in App session state. Before making any changes, call `before_edit`.
 #[derive(Clone, Default, Serialize, Deserialize)]
@@ -155,19 +155,57 @@ impl ModalFilters {
 }
 
 impl DiagonalFilter {
-    /// Find all possible diagonal filters at an intersection
-    pub fn filters_for(app: &App, i: IntersectionID) -> Vec<DiagonalFilter> {
+    pub fn cycle_through_alternatives(ctx: &EventCtx, app: &mut App, i: IntersectionID) {
+        app.session.modal_filters.before_edit();
         let map = &app.map;
         let roads = map.get_i(i).get_roads_sorted_by_incoming_angle(map);
-        // TODO Handle >4-ways
-        if roads.len() != 4 {
-            return Vec::new();
+
+        if roads.len() == 4 {
+            // 4-way intersections are the only place where true diagonal filters can be placed
+            let alt1 = DiagonalFilter::new(map, i, roads[0], roads[1]);
+            let alt2 = DiagonalFilter::new(map, i, roads[1], roads[2]);
+
+            match app.session.modal_filters.intersections.get(&i) {
+                Some(prev) => {
+                    if prev == &alt1 {
+                        app.session.modal_filters.intersections.insert(i, alt2);
+                    } else if prev == &alt2 {
+                        app.session.modal_filters.intersections.remove(&i);
+                    } else {
+                        unreachable!()
+                    }
+                }
+                None => {
+                    app.session.modal_filters.intersections.insert(i, alt1);
+                }
+            }
+        } else if roads.len() > 2 {
+            // Diagonal filters elsewhere don't really make sense. They're equivalent to filtering
+            // one road. Just cycle through those.
+            let mut add_filter_to = None;
+            if let Some(idx) = roads
+                .iter()
+                .position(|r| app.session.modal_filters.roads.contains_key(r))
+            {
+                app.session.modal_filters.roads.remove(&roads[idx]);
+                if idx != roads.len() - 1 {
+                    add_filter_to = Some(roads[idx + 1]);
+                }
+            } else {
+                add_filter_to = Some(roads[0]);
+            }
+            if let Some(r) = add_filter_to {
+                let road = map.get_r(r);
+                let dist = if i == road.src_i {
+                    Distance::ZERO
+                } else {
+                    road.length()
+                };
+                app.session.modal_filters.roads.insert(r, dist);
+            }
         }
 
-        vec![
-            DiagonalFilter::new(map, i, roads[0], roads[1]),
-            DiagonalFilter::new(map, i, roads[1], roads[2]),
-        ]
+        after_edit(ctx, app);
     }
 
     fn new(map: &Map, i: IntersectionID, r1: RoadID, r2: RoadID) -> DiagonalFilter {
