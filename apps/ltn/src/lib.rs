@@ -70,7 +70,6 @@ fn run(mut settings: Settings) {
             highlight_boundary_roads: false,
             draw_neighborhood_style: browse::Style::SimpleColoring,
             draw_cells_as_areas: true,
-            draw_borders_as_arrows: true,
             heuristic: filters::auto::Heuristic::OnlyOneBorder,
             main_road_penalty: 1.0,
 
@@ -139,7 +138,6 @@ pub struct Session {
     pub draw_neighborhood_style: browse::Style,
     // Connectivity:
     pub draw_cells_as_areas: bool,
-    pub draw_borders_as_arrows: bool,
     pub heuristic: filters::auto::Heuristic,
     // Pathfinding
     pub main_road_penalty: f64,

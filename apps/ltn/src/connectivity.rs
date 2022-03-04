@@ -61,17 +61,6 @@ impl Viewer {
                             app.session.draw_cells_as_areas,
                         ),
                     ]),
-                    Widget::row(vec![
-                        "Draw entrances/exits as".text_widget(ctx).centered_vert(),
-                        Toggle::choice(
-                            ctx,
-                            "draw borders",
-                            "arrows",
-                            "outlines",
-                            Key::E,
-                            app.session.draw_borders_as_arrows,
-                        ),
-                    ]),
                     warning.text_widget(ctx),
                     Widget::row(vec![
                         Widget::dropdown(
@@ -131,7 +120,6 @@ impl State<App> for Viewer {
             }
             Outcome::Changed(x) => {
                 app.session.draw_cells_as_areas = self.panel.is_checked("draw cells");
-                app.session.draw_borders_as_arrows = self.panel.is_checked("draw borders");
                 app.session.heuristic = self.panel.dropdown_value("heuristic");
 
                 if x != "heuristic" {
@@ -237,23 +225,19 @@ fn make_world(
                 continue;
             }
 
-            if app.session.draw_borders_as_arrows {
-                let center = map.get_i(*i).polygon.center();
-                let angle = Angle::average(angles);
+            let center = map.get_i(*i).polygon.center();
+            let angle = Angle::average(angles);
 
-                // TODO Consider showing borders with one-way roads. For now, always point the
-                // arrow into the neighborhood
-                draw_top_layer.push(
-                    color.alpha(0.8),
-                    PolyLine::must_new(vec![
-                        center.project_away(Distance::meters(30.0), angle.opposite()),
-                        center.project_away(Distance::meters(10.0), angle.opposite()),
-                    ])
-                    .make_arrow(Distance::meters(6.0), ArrowCap::Triangle),
-                );
-            } else if let Ok(p) = map.get_i(*i).polygon.to_outline(Distance::meters(2.0)) {
-                draw_top_layer.push(color, p);
-            }
+            // TODO Consider showing borders with one-way roads. For now, always point the
+            // arrow into the neighborhood
+            draw_top_layer.push(
+                color.alpha(0.8),
+                PolyLine::must_new(vec![
+                    center.project_away(Distance::meters(30.0), angle.opposite()),
+                    center.project_away(Distance::meters(10.0), angle.opposite()),
+                ])
+                .make_arrow(Distance::meters(6.0), ArrowCap::Triangle),
+            );
         }
     }
 
