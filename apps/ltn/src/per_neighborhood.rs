@@ -117,7 +117,7 @@ impl Tab {
     ) -> Transition {
         Transition::Replace(match self {
             Tab::Connectivity => crate::connectivity::Viewer::new_state(ctx, app, id),
-            Tab::RatRuns => crate::rat_run_viewer::BrowseRatRuns::new_state(ctx, app, id),
+            Tab::RatRuns => crate::rat_run_viewer::BrowseRatRuns::new_state(ctx, app, id, None),
             Tab::Pathfinding => crate::pathfinding::RoutePlanner::new_state(ctx, app, id),
         })
     }

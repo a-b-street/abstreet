@@ -1,6 +1,6 @@
 use geom::ArrowCap;
 use map_gui::tools::{percentage_bar, ColorNetwork};
-use map_model::NORMAL_LANE_THICKNESS;
+use map_model::{PathRequest, NORMAL_LANE_THICKNESS};
 use widgetry::mapspace::{ToggleZoomed, World};
 use widgetry::{
     Color, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text, TextExt, Toggle, Widget,
@@ -22,7 +22,12 @@ pub struct BrowseRatRuns {
 }
 
 impl BrowseRatRuns {
-    pub fn new_state(ctx: &mut EventCtx, app: &App, id: NeighborhoodID) -> Box<dyn State<App>> {
+    pub fn new_state(
+        ctx: &mut EventCtx,
+        app: &App,
+        id: NeighborhoodID,
+        start_with_request: Option<PathRequest>,
+    ) -> Box<dyn State<App>> {
         let neighborhood = Neighborhood::new(ctx, app, id);
 
         let rat_runs = ctx.loading_screen("find rat runs", |_, timer| {
@@ -47,6 +52,23 @@ impl BrowseRatRuns {
             world,
         };
         state.recalculate(ctx, app);
+
+        if let Some(req) = start_with_request {
+            if let Some(idx) = state
+                .rat_runs
+                .paths
+                .iter()
+                .position(|path| path.get_req() == &req)
+            {
+                state.current_idx = idx;
+                state
+                    .panel
+                    .set_checked("show heatmap of all rat-runs", false);
+                // We need to call recalculate twice -- we can't set the checkbox otherwise.
+                state.recalculate(ctx, app);
+            }
+        }
+
         Box::new(state)
     }
 
@@ -126,8 +148,7 @@ impl BrowseRatRuns {
         let color = Color::RED;
         let path = &self.rat_runs.paths[self.current_idx];
         if let Some(pl) = path.trace(&app.map) {
-            // TODO This produces a really buggy shape sometimes!
-            let shape = pl.make_arrow(3.0 * NORMAL_LANE_THICKNESS, ArrowCap::Triangle);
+            let shape = pl.make_polygons(3.0 * NORMAL_LANE_THICKNESS);
             draw_path.unzoomed.push(color.alpha(0.8), shape.clone());
             draw_path.zoomed.push(color.alpha(0.5), shape);
 
@@ -177,9 +198,19 @@ impl State<App> for BrowseRatRuns {
         // world
         let world_outcome = self.world.event(ctx);
         if crate::per_neighborhood::handle_world_outcome(ctx, app, world_outcome) {
-            // TODO We could be a bit more efficient here, but simplest to just start over with a
-            // new state
-            return Transition::Replace(BrowseRatRuns::new_state(ctx, app, self.neighborhood.id));
+            // Reset state, but if possible, preserve the current individual rat run.
+            let current_request = if self.current_idx == 0 {
+                None
+            } else {
+                // TODO Off-by-one? Or we just have no way to show the 0th path?
+                Some(self.rat_runs.paths[self.current_idx].get_req().clone())
+            };
+            return Transition::Replace(BrowseRatRuns::new_state(
+                ctx,
+                app,
+                self.neighborhood.id,
+                current_request,
+            ));
         }
 
         Transition::Keep
