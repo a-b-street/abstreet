@@ -208,6 +208,11 @@
 <span id="206">206</span>
 <span id="207">207</span>
 <span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 
 <span class="kw">use</span> <span class="ident">aabb_quadtree::QuadTree</span>;
@@ -221,33 +226,44 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::AppLike</span>;
 
 <span class="doccomment">/// Labels roads when unzoomed. Label size and frequency depends on the zoom level.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// By default, the text is white; it works well on dark backgrounds.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DrawRoadLabels</span> {
     <span class="ident">per_zoom</span>: <span class="ident">RefCell</span><span class="op">&lt;</span>[<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Drawable</span><span class="op">&gt;</span>; <span class="number">11</span>]<span class="op">&gt;</span>,
     <span class="ident">include_roads</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">Road</span>) -&gt; <span class="ident">bool</span><span class="op">&gt;</span>,
+    <span class="ident">fg_color</span>: <span class="ident">Color</span>,
+    <span class="ident">outline_color</span>: <span class="ident">Color</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">DrawRoadLabels</span> {
     <span class="doccomment">/// Label roads that the predicate approves</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">include_roads</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">Road</span>) -&gt; <span class="ident">bool</span><span class="op">&gt;</span>) -&gt; <span class="ident">DrawRoadLabels</span> {
-        <span class="ident">DrawRoadLabels</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">include_roads</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">Road</span>) -&gt; <span class="ident">bool</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">Self</span> {
             <span class="ident">per_zoom</span>: <span class="ident">Default::default</span>(),
             <span class="ident">include_roads</span>,
+            <span class="ident">fg_color</span>: <span class="ident">Color::WHITE</span>,
+            <span class="ident">outline_color</span>: <span class="ident">Color::BLACK</span>,
         }
     }
 
     <span class="doccomment">/// Only label major roads</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">only_major_roads</span>() -&gt; <span class="ident">DrawRoadLabels</span> {
-        <span class="ident">DrawRoadLabels::new</span>(<span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">only_major_roads</span>() -&gt; <span class="self">Self</span> {
+        <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> {
             <span class="ident">r</span>.<span class="ident">get_rank</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">osm::RoadRank::Local</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">r</span>.<span class="ident">is_light_rail</span>()
         }))
     }
 
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">light_background</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">fg_color</span> <span class="op">=</span> <span class="ident">Color::BLACK</span>;
+        <span class="self">self</span>.<span class="ident">outline_color</span> <span class="op">=</span> <span class="ident">Color::WHITE</span>;
+        <span class="self">self</span>
+    }
+
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>) {
-        <span class="kw">let</span> (<span class="ident">zoom</span>, <span class="ident">idx</span>) <span class="op">=</span> <span class="ident">DrawRoadLabels::discretize_zoom</span>(<span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span>);
+        <span class="kw">let</span> (<span class="ident">zoom</span>, <span class="ident">idx</span>) <span class="op">=</span> <span class="ident"><span class="self">Self</span>::discretize_zoom</span>(<span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span>);
         <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">per_zoom</span>.<span class="ident">borrow_mut</span>()[<span class="ident">idx</span>];
         <span class="kw">if</span> <span class="ident">value</span>.<span class="ident">is_none</span>() {
-            <span class="macro">debug!</span>(<span class="string">&quot;computing DrawRoadLabels(zoom: {}, idx: {})&quot;</span>, <span class="ident">zoom</span>, <span class="ident">idx</span>);
-            <span class="kw-2">*</span><span class="ident">value</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">DrawRoadLabels::render</span>(<span class="ident">g</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">include_roads</span>, <span class="ident">zoom</span>));
+            <span class="kw-2">*</span><span class="ident">value</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">render</span>(<span class="ident">g</span>, <span class="ident">app</span>, <span class="ident">zoom</span>));
         }
         <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="ident">value</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>());
     }
@@ -262,22 +278,16 @@
         (<span class="ident">rounded</span> <span class="op">/</span> <span class="number">10.0</span>, <span class="ident">idx</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">render</span>(
-        <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>,
-        <span class="ident">include_roads</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">Road</span>) -&gt; <span class="ident">bool</span>,
-        <span class="ident">zoom</span>: <span class="ident">f64</span>,
-    ) -&gt; <span class="ident">Drawable</span> {
+    <span class="kw">fn</span> <span class="ident">render</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>, <span class="ident">zoom</span>: <span class="ident">f64</span>) -&gt; <span class="ident">Drawable</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
         <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>();
 
         <span class="kw">let</span> <span class="ident">text_scale</span> <span class="op">=</span> <span class="number">1.0</span> <span class="op">+</span> <span class="number">2.0</span> <span class="op">*</span> (<span class="number">1.0</span> <span class="op">-</span> <span class="ident">zoom</span>);
-        <span class="comment">//println!(&quot;at zoom {}, scale labels {}&quot;, zoom, text_scale);</span>
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">quadtree</span> <span class="op">=</span> <span class="ident">QuadTree::default</span>(<span class="ident">map</span>.<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>());
 
         <span class="lifetime">&#39;ROAD</span>: <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">include_roads</span>(<span class="ident">r</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">length</span>() <span class="op">&lt;</span> <span class="ident">Distance::meters</span>(<span class="number">30.0</span>) {
+            <span class="kw">if</span> <span class="op">!</span>(<span class="self">self</span>.<span class="ident">include_roads</span>)(<span class="ident">r</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">length</span>() <span class="op">&lt;</span> <span class="ident">Distance::meters</span>(<span class="number">30.0</span>) {
                 <span class="kw">continue</span>;
             }
 
@@ -318,8 +328,8 @@
             <span class="kw">let</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::from</span>(
                 <span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>)
                     .<span class="ident">big_heading_plain</span>()
-                    .<span class="ident">fg</span>(<span class="ident">Color::WHITE</span>)
-                    .<span class="ident">outlined</span>(<span class="ident">Color::BLACK</span>),
+                    .<span class="ident">fg</span>(<span class="self">self</span>.<span class="ident">fg_color</span>)
+                    .<span class="ident">outlined</span>(<span class="self">self</span>.<span class="ident">outline_color</span>),
             );
             <span class="kw">let</span> <span class="ident">txt_batch</span> <span class="op">=</span> <span class="ident">txt</span>
                 .<span class="ident">render_autocropped</span>(<span class="ident">g</span>)

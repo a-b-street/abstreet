@@ -314,6 +314,7 @@
 <span id="312">312</span>
 <span id="313">313</span>
 <span id="314">314</span>
+<span id="315">315</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">maplit::btreeset</span>;
@@ -439,7 +440,8 @@
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">label_roads</span> <span class="op">=</span> <span class="ident">n</span>.<span class="ident">perimeter</span>.<span class="ident">clone</span>();
         <span class="ident">label_roads</span>.<span class="ident">extend</span>(<span class="ident">n</span>.<span class="ident">orig_perimeter</span>.<span class="ident">interior</span>.<span class="ident">clone</span>());
-        <span class="ident">n</span>.<span class="ident">labels</span> <span class="op">=</span> <span class="ident">DrawRoadLabels::new</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">label_roads</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>.<span class="ident">id</span>)));
+        <span class="ident">n</span>.<span class="ident">labels</span> <span class="op">=</span>
+            <span class="ident">DrawRoadLabels::new</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">label_roads</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>.<span class="ident">id</span>))).<span class="ident">light_background</span>();
 
         <span class="ident">n</span>
     }
