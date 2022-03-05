@@ -541,6 +541,18 @@
 <span id="539">539</span>
 <span id="540">540</span>
 <span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
 </pre><pre class="rust"><code><span class="doccomment">//! The convert_osm crate produces a RawMap from OSM and other data. Storing this intermediate</span>
 <span class="doccomment">//! structure is useful to iterate quickly on parts of the map importing pipeline without having to</span>
 <span class="doccomment">//! constantly read .osm files, and to visualize the intermediate state with map_editor.</span>
@@ -652,6 +664,16 @@
             <span class="string">&quot;OriginalRoad::new({}, ({}, {}))&quot;</span>,
             <span class="self">self</span>.<span class="ident">osm_way_id</span>.<span class="number">0</span>, <span class="self">self</span>.<span class="ident">i1</span>.<span class="number">0</span>, <span class="self">self</span>.<span class="ident">i2</span>.<span class="number">0</span>
         )
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_common_endpoint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="ident">OriginalRoad</span>) -&gt; <span class="ident">bool</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">i1</span> <span class="op">==</span> <span class="ident">other</span>.<span class="ident">i1</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">i1</span> <span class="op">==</span> <span class="ident">other</span>.<span class="ident">i2</span> {
+            <span class="kw">return</span> <span class="bool-val">true</span>;
+        }
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">i2</span> <span class="op">==</span> <span class="ident">other</span>.<span class="ident">i1</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">i2</span> <span class="op">==</span> <span class="ident">other</span>.<span class="ident">i2</span> {
+            <span class="kw">return</span> <span class="bool-val">true</span>;
+        }
+        <span class="bool-val">false</span>
     }
 
     <span class="comment">// TODO Doesn&#39;t handle two roads between the same pair of intersections</span>
@@ -823,7 +845,7 @@
             <span class="kw">_</span> =&gt; {}
         }
 
-        <span class="prelude-val">Ok</span>((<span class="ident">true_center</span>, <span class="ident">total_width</span>))
+        <span class="prelude-val">Ok</span>((<span class="ident">true_center</span>, <span class="ident">road</span>.<span class="ident">scale_width</span> <span class="op">*</span> <span class="ident">total_width</span>))
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">save</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
@@ -901,6 +923,8 @@
     <span class="doccomment">/// cul-de-sac roads for roundabout handling. No transformation of these points whatsoever has</span>
     <span class="doccomment">/// happened.</span>
     <span class="kw">pub</span> <span class="ident">center_points</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Multiply the width of each lane by this ratio, to prevent overlapping roads.</span>
+    <span class="kw">pub</span> <span class="ident">scale_width</span>: <span class="ident">f64</span>,
     <span class="kw">pub</span> <span class="ident">osm_tags</span>: <span class="ident">Tags</span>,
     <span class="kw">pub</span> <span class="ident">turn_restrictions</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">RestrictionType</span>, <span class="ident">OriginalRoad</span>)<span class="op">&gt;</span>,
     <span class="doccomment">/// (via, to). For turn restrictions where &#39;via&#39; is an entire road. Only BanTurns.</span>

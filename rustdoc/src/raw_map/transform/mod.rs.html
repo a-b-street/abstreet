@@ -51,6 +51,11 @@
 <span id="49">49</span>
 <span id="50">50</span>
 <span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::RawMap</span>;
@@ -60,6 +65,7 @@
 <span class="kw">mod</span> <span class="ident">find_short_roads</span>;
 <span class="kw">mod</span> <span class="ident">merge_short_road</span>;
 <span class="kw">mod</span> <span class="ident">remove_disconnected</span>;
+<span class="kw">mod</span> <span class="ident">shrink_roads</span>;
 <span class="kw">mod</span> <span class="ident">snappy</span>;
 
 <span class="kw">impl</span> <span class="ident">RawMap</span> {
@@ -98,6 +104,10 @@
         <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;collapsing degenerate intersections&quot;</span>);
         <span class="ident">collapse_intersections::collapse</span>(<span class="self">self</span>);
         <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;collapsing degenerate intersections&quot;</span>);
+
+        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;shrinking overlapping roads&quot;</span>);
+        <span class="ident">shrink_roads::shrink</span>(<span class="self">self</span>, <span class="ident">timer</span>);
+        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;shrinking overlapping roads&quot;</span>);
 
         <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;simplify RawMap&quot;</span>);
     }

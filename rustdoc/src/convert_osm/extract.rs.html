@@ -627,6 +627,7 @@
 <span id="625">625</span>
 <span id="626">626</span>
 <span id="627">627</span>
+<span id="628">628</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
 <span class="kw">use</span> <span class="ident">osm</span>::{<span class="ident">NodeID</span>, <span class="ident">OsmID</span>, <span class="ident">RelationID</span>, <span class="ident">WayID</span>};
@@ -742,6 +743,7 @@
                 <span class="ident">id</span>,
                 <span class="ident">RawRoad</span> {
                     <span class="ident">center_points</span>: <span class="ident">way</span>.<span class="ident">pts</span>.<span class="ident">clone</span>(),
+                    <span class="ident">scale_width</span>: <span class="number">1.0</span>,
                     <span class="ident">osm_tags</span>: <span class="ident">way</span>.<span class="ident">tags</span>.<span class="ident">clone</span>(),
                     <span class="ident">turn_restrictions</span>: <span class="ident">Vec::new</span>(),
                     <span class="ident">complicated_turn_restrictions</span>: <span class="ident">Vec::new</span>(),

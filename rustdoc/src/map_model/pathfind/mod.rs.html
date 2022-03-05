@@ -231,9 +231,6 @@
 <span id="229">229</span>
 <span id="230">230</span>
 <span id="231">231</span>
-<span id="232">232</span>
-<span id="233">233</span>
-<span id="234">234</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Everything related to pathfinding through a map for different types of agents.</span>
 
 <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
@@ -428,13 +425,10 @@
     <span class="doccomment">/// Don&#39;t allow crossing these roads at all. Only affects vehicle routing, not pedestrian.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// TODO The route may cross one of these roads if it&#39;s the start or end!</span>
-    <span class="comment">// TODO Include in serde during the next full map importing</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>, <span class="ident">skip_deserializing</span>)]</span>
     <span class="kw">pub</span> <span class="ident">avoid_roads</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>,
 
     <span class="doccomment">/// Don&#39;t allow movements between these roads at all. Only affects vehicle routing, not</span>
     <span class="doccomment">/// pedestrian.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>, <span class="ident">skip_deserializing</span>)]</span>
     <span class="kw">pub</span> <span class="ident">avoid_movements_between</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span>(<span class="ident">RoadID</span>, <span class="ident">RoadID</span>)<span class="op">&gt;</span>,
 }
 
