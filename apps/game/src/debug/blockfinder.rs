@@ -166,7 +166,14 @@ impl State<App> for Blockfinder {
                         // ID...
                         self.world.delete(id);
                     }
-                    let results = Perimeter::merge_all(&app.primary.map, perimeters, true);
+                    let stepwise_debug = true;
+                    let use_expensive_blockfinding = false;
+                    let results = Perimeter::merge_all(
+                        &app.primary.map,
+                        perimeters,
+                        stepwise_debug,
+                        use_expensive_blockfinding,
+                    );
                     let debug = results.len() > 1;
                     for perimeter in results {
                         let id = self.new_id();
@@ -220,10 +227,13 @@ impl State<App> for Blockfinder {
                         for perimeters in partitions {
                             // If we got more than one result back, merging partially failed. Oh
                             // well?
+                            let stepwise_debug = false;
+                            let use_expensive_blockfinding = false;
                             merged.extend(Perimeter::merge_all(
                                 &app.primary.map,
                                 perimeters,
-                                false,
+                                stepwise_debug,
+                                use_expensive_blockfinding,
                             ));
                         }
                         self.add_blocks_with_coloring(ctx, app, merged, &mut Timer::throwaway());

@@ -259,6 +259,7 @@ fn test_blockfinding() -> Result<()> {
         MapName::new("gb", "london", "southwark"),
         MapName::new("gb", "manchester", "levenshulme"),
         MapName::new("fr", "lyon", "center"),
+        MapName::new("us", "seattle", "north_seattle"),
     ] {
         let map = map_model::Map::load_synchronously(name.path(), &mut timer);
         let mut single_blocks = Perimeter::find_all_single_blocks(&map);
@@ -277,7 +278,10 @@ fn test_blockfinding() -> Result<()> {
         let mut num_partial_merges = 0;
         let mut merged = Vec::new();
         for perimeters in partitions {
-            let newly_merged = Perimeter::merge_all(&map, perimeters, false);
+            let stepwise_debug = false;
+            let use_expensive_blockfinding = false;
+            let newly_merged =
+                Perimeter::merge_all(&map, perimeters, stepwise_debug, use_expensive_blockfinding);
             if newly_merged.len() > 1 {
                 num_partial_merges += 1;
             }
@@ -287,8 +291,7 @@ fn test_blockfinding() -> Result<()> {
         let mut num_merged_block_failures = 0;
         for perimeter in merged {
             if perimeter.to_block(&map).is_err() {
-                // Note this means the LTN UI will crash upfront -- every block must be in the
-                // partitioning.
+                // Note this means the LTN UI will fallback to use_expensive_blockfinding = true
                 num_merged_block_failures += 1;
             }
         }

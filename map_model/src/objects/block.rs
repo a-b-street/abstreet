@@ -4,14 +4,10 @@ use std::fmt;
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
-use abstio::MapName;
 use abstutil::wraparound_get;
 use geom::{Polygon, Pt2D, Ring};
 
 use crate::{CommonEndpoint, Direction, LaneID, Map, RoadID, RoadSideID, SideOfRoad};
-
-// See https://github.com/a-b-street/abstreet/issues/841. Slow but correct when enabled.
-const LOSSLESS_BLOCKFINDING: bool = true;
 
 /// A block is defined by a perimeter that traces along the sides of roads. Inside the perimeter,
 /// the block may contain buildings and interior roads. In the simple case, a block represents a
@@ -136,16 +132,6 @@ impl Perimeter {
                 skip.insert(r.id);
             }
         }
-
-        // TODO This map crashes otherwise. Workaround temporarily.
-        if map.get_name() == &MapName::new("fr", "lyon", "center") {
-            for r in map.all_roads() {
-                if r.zorder != 0 {
-                    skip.insert(r.id);
-                }
-            }
-        }
-
         skip
     }
 
@@ -170,7 +156,13 @@ impl Perimeter {
     /// TODO Due to https://github.com/a-b-street/abstreet/issues/841, it seems like rotation
     /// sometimes breaks `to_block`, so for now, always revert to the original upon failure.
     // TODO Would it be cleaner to return a Result here and always restore the invariant?
-    fn try_to_merge(&mut self, map: &Map, other: &mut Perimeter, debug_failures: bool) -> bool {
+    fn try_to_merge(
+        &mut self,
+        map: &Map,
+        other: &mut Perimeter,
+        debug_failures: bool,
+        use_expensive_blockfinding: bool,
+    ) -> bool {
         let orig_self = self.clone();
         let orig_other = other.clone();
 
@@ -275,18 +267,23 @@ impl Perimeter {
         // Make sure we didn't wind up with any internal dead-ends
         self.collapse_deadends();
 
-        // TODO Something in this method is buggy and produces invalid merges. Use a lightweight
-        // detection and bail out for now. https://github.com/a-b-street/abstreet/issues/841
-        if LOSSLESS_BLOCKFINDING {
-            if let Err(err) = self.check_continuity(map) {
-                debug!(
-                    "A merged perimeter couldn't be blockified: {}. {:?}",
-                    err, self
-                );
-                *self = orig_self;
-                *other = orig_other;
-                return false;
-            }
+        // TODO Something in this method is buggy and produces invalid merges.
+        // https://github.com/a-b-street/abstreet/issues/841
+        // First try a lightweight detection for problems. If the caller detects the net result is
+        // invalid, they'll override this flag and try again.
+        let err = if use_expensive_blockfinding {
+            self.clone().to_block(map).err()
+        } else {
+            self.check_continuity(map).err()
+        };
+        if let Some(err) = err {
+            debug!(
+                "A merged perimeter couldn't be blockified: {}. {:?}",
+                err, self
+            );
+            *self = orig_self;
+            *other = orig_other;
+            return false;
         }
 
         true
@@ -306,7 +303,12 @@ impl Perimeter {
     /// Try to merge all given perimeters. If successful, only one perimeter will be returned.
     /// Perimeters are never "destroyed" -- if not merged, they'll appear in the results. If
     /// `stepwise_debug` is true, returns after performing just one merge.
-    pub fn merge_all(map: &Map, mut input: Vec<Perimeter>, stepwise_debug: bool) -> Vec<Perimeter> {
+    pub fn merge_all(
+        map: &Map,
+        mut input: Vec<Perimeter>,
+        stepwise_debug: bool,
+        use_expensive_blockfinding: bool,
+    ) -> Vec<Perimeter> {
         // Internal dead-ends break merging, so first collapse of those. Do this before even
         // looking for neighbors, since find_common_roads doesn't understand dead-ends.
         for p in &mut input {
@@ -324,7 +326,12 @@ impl Perimeter {
                 }
 
                 for other in &mut results {
-                    if other.try_to_merge(map, &mut perimeter, stepwise_debug) {
+                    if other.try_to_merge(
+                        map,
+                        &mut perimeter,
+                        stepwise_debug,
+                        use_expensive_blockfinding,
+                    ) {
                         // To debug, return after any single change
                         debug = stepwise_debug;
                         continue 'INPUT;
