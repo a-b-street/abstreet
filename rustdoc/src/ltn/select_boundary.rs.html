@@ -700,9 +700,9 @@
 <span class="kw">fn</span> <span class="ident">make_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Panel</span> {
     <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
         <span class="ident"><span class="kw">crate</span>::app_header</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-        <span class="string">&quot;Draw a custom boundary for a neighborhood&quot;</span>
-            .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
-            .<span class="ident">centered_vert</span>(),
+        <span class="ident">Line</span>(<span class="string">&quot;Adjusting neighborhood boundary&quot;</span>)
+            .<span class="ident">small_heading</span>()
+            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[
             <span class="ident">Line</span>(<span class="string">&quot;Click&quot;</span>).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>),
             <span class="ident">Line</span>(<span class="string">&quot; to add/remove a block&quot;</span>),

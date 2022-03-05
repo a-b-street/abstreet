@@ -203,6 +203,12 @@
 <span id="201">201</span>
 <span id="202">202</span>
 <span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
 <span class="kw">use</span> <span class="ident">map_gui::tools::checkbox_per_mode</span>;
@@ -251,8 +257,14 @@
 
         <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
             <span class="ident"><span class="kw">crate</span>::app_header</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-            <span class="string">&quot;Impact prediction&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_back</span>(<span class="string">&quot;Browse neighborhoods&quot;</span>).<span class="ident">hotkey</span>(<span class="ident">Key::Escape</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+                <span class="ident">Line</span>(<span class="string">&quot;Impact prediction&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
+                    .<span class="ident">btn_back</span>(<span class="string">&quot;Browse neighborhoods&quot;</span>)
+                    .<span class="ident">hotkey</span>(<span class="ident">Key::Escape</span>)
+                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
+                    .<span class="ident">align_right</span>(),
+            ]),
             <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="string">&quot;This tool starts with a travel demand model, calculates the route every trip takes before and after changes, and displays volumes along roads and intersections&quot;</span>)).<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">20</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="comment">// TODO Dropdown for the scenario, and explain its source/limitations</span>
             <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">impact</span>.<span class="ident">filters</span>.<span class="ident">to_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),

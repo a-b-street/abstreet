@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Obj",""]],"struct":[["RoutePlanner",""]]});
+initSidebarItems({"struct":[["RoutePlanner",""]]});

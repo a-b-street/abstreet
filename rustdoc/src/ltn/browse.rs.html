@@ -371,8 +371,6 @@
 <span id="369">369</span>
 <span id="370">370</span>
 <span id="371">371</span>
-<span id="372">372</span>
-<span id="373">373</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Counter</span>, <span class="ident">Timer</span>};
@@ -415,7 +413,21 @@
 
         <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
             <span class="ident"><span class="kw">crate</span>::app_header</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+            <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">alt_proposals</span>.<span class="ident">to_widget</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
             <span class="string">&quot;Click a neighborhood to edit filters&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
+            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
+                    .<span class="ident">btn_outline</span>
+                    .<span class="ident">text</span>(<span class="string">&quot;Plan a route&quot;</span>)
+                    .<span class="ident">hotkey</span>(<span class="ident">Key::R</span>)
+                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
+                    .<span class="ident">btn_outline</span>
+                    .<span class="ident">text</span>(<span class="string">&quot;Export to GeoJSON&quot;</span>)
+                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+            ])
+            .<span class="ident">section</span>(<span class="ident">ctx</span>),
+            <span class="ident">Line</span>(<span class="string">&quot;Advanced&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
                 <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                     <span class="string">&quot;Draw neighborhoods:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
@@ -440,19 +452,10 @@
             ])
             .<span class="ident">section</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">alt_proposals</span>.<span class="ident">to_widget</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_outline</span>
-                    .<span class="ident">text</span>(<span class="string">&quot;Export to GeoJSON&quot;</span>)
-                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-            ])
-            .<span class="ident">section</span>(<span class="ident">ctx</span>),
-            <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                <span class="string">&quot;Predict proposal impact (experimental)&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
+                <span class="string">&quot;Predict proposal impact&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">impact_widget</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
             ])
             .<span class="ident">section</span>(<span class="ident">ctx</span>),
-            <span class="comment">// TODO Consider putting some of the edit controls here, like undo?</span>
             <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[<span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                 <span class="ident">Widget::dropdown</span>(
                     <span class="ident">ctx</span>,
@@ -462,7 +465,7 @@
                 ),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_outline</span>
-                    .<span class="ident">text</span>(<span class="string">&quot;Automatically stop rat-runs&quot;</span>)
+                    .<span class="ident">text</span>(<span class="string">&quot;Automatically place filters&quot;</span>)
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             ])])
             .<span class="ident">section</span>(<span class="ident">ctx</span>),
@@ -499,7 +502,10 @@
                 <span class="string">&quot;Calculate&quot;</span> <span class="op">|</span> <span class="string">&quot;Show impact&quot;</span> =&gt; {
                     <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident"><span class="kw">crate</span>::impact::ShowResults::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
                 }
-                <span class="string">&quot;Automatically stop rat-runs&quot;</span> =&gt; {
+                <span class="string">&quot;Plan a route&quot;</span> =&gt; {
+                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident"><span class="kw">crate</span>::pathfinding::RoutePlanner::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+                }
+                <span class="string">&quot;Automatically place filters&quot;</span> =&gt; {
                     <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;automatically filter all neighborhoods&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
                         <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="ident">app</span>
                             .<span class="ident">session</span>
@@ -717,20 +723,13 @@
                 <span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;We need to load a {} file&quot;</span>, <span class="ident">size</span>)),
             ])
             .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_solid_primary</span>
-                .<span class="ident">text</span>(<span class="string">&quot;Calculate&quot;</span>)
-                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+            <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;Calculate&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         ]);
     }
 
     <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">impact</span>.<span class="ident">change_key</span> <span class="op">==</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">get_change_key</span>() {
         <span class="comment">// Nothing to calculate!</span>
-        <span class="kw">return</span> <span class="ident">ctx</span>
-            .<span class="ident">style</span>()
-            .<span class="ident">btn_solid_primary</span>
-            .<span class="ident">text</span>(<span class="string">&quot;Show impact&quot;</span>)
-            .<span class="ident">build_def</span>(<span class="ident">ctx</span>);
+        <span class="kw">return</span> <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;Show impact&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>);
     }
 
     <span class="comment">// We&#39;ll need to do some pathfinding</span>
@@ -740,10 +739,7 @@
             <span class="ident">Line</span>(<span class="string">&quot;The application may freeze up during that time.&quot;</span>),
         ])
         .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-        <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_solid_primary</span>
-            .<span class="ident">text</span>(<span class="string">&quot;Calculate&quot;</span>)
-            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+        <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;Calculate&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
     ])
 }
 </code></pre></div>

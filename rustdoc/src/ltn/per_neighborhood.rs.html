@@ -242,12 +242,22 @@
 <span id="240">240</span>
 <span id="241">241</span>
 <span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom::Distance</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">PathConstraints</span>, <span class="ident">RoadID</span>};
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ObjectID</span>, <span class="ident">World</span>, <span class="ident">WorldOutcome</span>};
 <span class="kw">use</span> <span class="ident">widgetry::tools::open_browser</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">lctrl</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Panel</span>, <span class="ident">PanelBuilder</span>, <span class="ident">TextExt</span>,
+    <span class="ident">lctrl</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">PanelBuilder</span>, <span class="ident">TextExt</span>,
     <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>, <span class="ident">DEFAULT_CORNER_RADIUS</span>,
 };
 
@@ -259,7 +269,6 @@
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Tab</span> {
     <span class="ident">Connectivity</span>,
     <span class="ident">RatRuns</span>,
-    <span class="ident">Pathfinding</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Tab</span> {
@@ -271,19 +280,17 @@
     ) -&gt; <span class="ident">PanelBuilder</span> {
         <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
             <span class="ident"><span class="kw">crate</span>::app_header</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+            <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">alt_proposals</span>.<span class="ident">to_widget</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
             <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+                <span class="ident">Line</span>(<span class="string">&quot;Editing neighborhood&quot;</span>)
+                    .<span class="ident">small_heading</span>()
+                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_back</span>(<span class="string">&quot;Browse neighborhoods&quot;</span>)
                     .<span class="ident">hotkey</span>(<span class="ident">Key::Escape</span>)
-                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_outline</span>
-                    .<span class="ident">text</span>(<span class="string">&quot;Adjust boundary&quot;</span>)
-                    .<span class="ident">hotkey</span>(<span class="ident">Key::B</span>)
-                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
+                    .<span class="ident">align_right</span>(),
             ]),
-            <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">alt_proposals</span>.<span class="ident">to_widget</span>(<span class="ident">ctx</span>, <span class="ident">app</span>).<span class="ident">section</span>(<span class="ident">ctx</span>),
-            <span class="self">self</span>.<span class="ident">make_buttons</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
                 <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                     <span class="ident">Image::from_path</span>(<span class="string">&quot;system/assets/tools/pencil.svg&quot;</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
@@ -308,6 +315,7 @@
                 ]),
             ])
             .<span class="ident">section</span>(<span class="ident">ctx</span>),
+            <span class="self">self</span>.<span class="ident">make_buttons</span>(<span class="ident">ctx</span>),
             <span class="ident">per_tab_contents</span>.<span class="ident">section</span>(<span class="ident">ctx</span>),
         ]))
         .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Left</span>, <span class="ident">VerticalAlignment::Top</span>)
@@ -330,7 +338,6 @@
             ),
             <span class="string">&quot;Connectivity&quot;</span> =&gt; <span class="ident">Tab::Connectivity</span>.<span class="ident">switch_to_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>),
             <span class="string">&quot;Rat runs&quot;</span> =&gt; <span class="ident">Tab::RatRuns</span>.<span class="ident">switch_to_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>),
-            <span class="string">&quot;Pathfinding&quot;</span> =&gt; <span class="ident">Tab::Pathfinding</span>.<span class="ident">switch_to_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>),
             <span class="string">&quot;undo&quot;</span> =&gt; {
                 <span class="kw">let</span> <span class="ident">prev</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">previous_version</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
                 <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span> <span class="op">=</span> <span class="ident">prev</span>;
@@ -362,7 +369,6 @@
         <span class="ident">Transition::Replace</span>(<span class="kw">match</span> <span class="self">self</span> {
             <span class="ident">Tab::Connectivity</span> =&gt; <span class="ident"><span class="kw">crate</span>::connectivity::Viewer::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>),
             <span class="ident">Tab::RatRuns</span> =&gt; <span class="ident"><span class="kw">crate</span>::rat_run_viewer::BrowseRatRuns::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>, <span class="prelude-val">None</span>),
-            <span class="ident">Tab::Pathfinding</span> =&gt; <span class="ident"><span class="kw">crate</span>::pathfinding::RoutePlanner::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>),
         })
     }
 
@@ -371,7 +377,6 @@
         <span class="kw">for</span> (<span class="ident">tab</span>, <span class="ident">label</span>, <span class="ident">key</span>) <span class="kw">in</span> [
             (<span class="ident">Tab::Connectivity</span>, <span class="string">&quot;Connectivity&quot;</span>, <span class="ident">Key::F1</span>),
             (<span class="ident">Tab::RatRuns</span>, <span class="string">&quot;Rat runs&quot;</span>, <span class="ident">Key::F2</span>),
-            (<span class="ident">Tab::Pathfinding</span>, <span class="string">&quot;Pathfinding&quot;</span>, <span class="ident">Key::F3</span>),
         ] {
             <span class="comment">// TODO Match the TabController styling</span>
             <span class="ident">row</span>.<span class="ident">push</span>(
@@ -390,6 +395,21 @@
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             );
         }
+        <span class="comment">// TODO The 3rd doesn&#39;t really act like a tab</span>
+        <span class="ident">row</span>.<span class="ident">push</span>(
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_tab</span>
+                .<span class="ident">text</span>(<span class="string">&quot;Adjust boundary&quot;</span>)
+                .<span class="ident">corner_rounding</span>(<span class="ident">geom::CornerRadii</span> {
+                    <span class="ident">top_left</span>: <span class="ident">DEFAULT_CORNER_RADIUS</span>,
+                    <span class="ident">top_right</span>: <span class="ident">DEFAULT_CORNER_RADIUS</span>,
+                    <span class="ident">bottom_left</span>: <span class="number">0.0</span>,
+                    <span class="ident">bottom_right</span>: <span class="number">0.0</span>,
+                })
+                .<span class="ident">hotkey</span>(<span class="ident">Key::B</span>)
+                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+        );
+
         <span class="ident">Widget::row</span>(<span class="ident">row</span>)
     }
 }
