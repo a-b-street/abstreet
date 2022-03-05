@@ -1520,6 +1520,31 @@
       "uncompressed_size_bytes": 4603466,
       "compressed_size_bytes": 1055155
     },
+    "data/input/gb/nottingham/osm/center.osm": {
+      "checksum": "97c5898289345058f0c551c2cf358e8c",
+      "uncompressed_size_bytes": 42346328,
+      "compressed_size_bytes": 4466574
+    },
+    "data/input/gb/nottingham/osm/huge.osm": {
+      "checksum": "d74d7981e99b6918079c61320f020aa3",
+      "uncompressed_size_bytes": 266630292,
+      "compressed_size_bytes": 24999997
+    },
+    "data/input/gb/nottingham/osm/nottinghamshire-latest.osm.pbf": {
+      "checksum": "f747f9e1dd803a78acd692b72128af5d",
+      "uncompressed_size_bytes": 27167662,
+      "compressed_size_bytes": 27146742
+    },
+    "data/input/gb/nottingham/raw_maps/center.bin": {
+      "checksum": "512b407e9e2ced3b1d15ac80a39e0a12",
+      "uncompressed_size_bytes": 12330518,
+      "compressed_size_bytes": 2323132
+    },
+    "data/input/gb/nottingham/raw_maps/huge.bin": {
+      "checksum": "883e01ff15d9ca67fbf289ce378fa1b0",
+      "uncompressed_size_bytes": 82613279,
+      "compressed_size_bytes": 14864453
+    },
     "data/input/gb/poundbury/osm/center.osm": {
       "checksum": "6427a7065d2c4c355337e593682c9932",
       "uncompressed_size_bytes": 8989647,
@@ -4379,6 +4404,26 @@
       "checksum": "3f653fe0d78d1805529e069d14e77a6b",
       "uncompressed_size_bytes": 12261173,
       "compressed_size_bytes": 3219229
+    },
+    "data/system/gb/nottingham/maps/center.bin": {
+      "checksum": "436b5e51be5cce49a05501ede4eb8b62",
+      "uncompressed_size_bytes": 23651877,
+      "compressed_size_bytes": 8903407
+    },
+    "data/system/gb/nottingham/maps/huge.bin": {
+      "checksum": "fa48b53660cc89de47245406838dd428",
+      "uncompressed_size_bytes": 151993400,
+      "compressed_size_bytes": 58672348
+    },
+    "data/system/gb/nottingham/scenarios/center/background.bin": {
+      "checksum": "a41af635068a5bed629b9d4da098f0b4",
+      "uncompressed_size_bytes": 10120575,
+      "compressed_size_bytes": 2720642
+    },
+    "data/system/gb/nottingham/scenarios/huge/background.bin": {
+      "checksum": "4b7d29404d0cac70ac850c8592993a13",
+      "uncompressed_size_bytes": 20805706,
+      "compressed_size_bytes": 5768590
     },
     "data/system/gb/poundbury/maps/center.bin": {
       "checksum": "386049d8671a8aadb9dff8d576087182",

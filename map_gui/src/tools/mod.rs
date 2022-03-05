@@ -195,6 +195,8 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("newborough_road", "center") => "Newborough Road",
             ("newcastle_great_park", "center") => "Newcastle Great Park",
             ("newcastle_upon_tyne", "center") => "Newcastle upon Tyne",
+            ("nottingham", "center") => "Nottingham (city center)",
+            ("nottingham", "huge") => "Nottingham (entire area)",
             ("northwick_park", "center") => "Northwick Park",
             ("poundbury", "center") => "Poundbury",
             ("priors_hall", "center") => "Priors Hall",
