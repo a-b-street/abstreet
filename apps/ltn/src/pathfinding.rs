@@ -1,25 +1,25 @@
 use geom::{Distance, Duration};
 use map_gui::tools::{
-    cmp_dist, cmp_duration, InputWaypoints, TripManagement, TripManagementState, WaypointID,
+    cmp_dist, cmp_duration, DrawRoadLabels, InputWaypoints, TripManagement, TripManagementState,
+    WaypointID,
 };
 use map_model::{PathfinderCaching, NORMAL_LANE_THICKNESS};
 use synthpop::{TripEndpoint, TripMode};
-use widgetry::mapspace::{ObjectID, ToggleZoomed, World, WorldOutcome};
+use widgetry::mapspace::{ToggleZoomed, World};
 use widgetry::{
-    Color, EventCtx, GfxCtx, Line, Outcome, Panel, RoundedF64, Spinner, State, Text, Widget,
+    Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, RoundedF64,
+    Spinner, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
-use crate::per_neighborhood::{FilterableObj, Tab};
-use crate::{App, Neighborhood, NeighborhoodID, Transition};
+use crate::{handle_app_header_click, App, Transition};
 
 pub struct RoutePlanner {
     panel: Panel,
     waypoints: InputWaypoints,
     files: TripManagement<App, RoutePlanner>,
-    world: World<Obj>,
+    world: World<WaypointID>,
     draw_routes: ToggleZoomed,
-
-    neighborhood: Neighborhood,
+    labels: DrawRoadLabels,
 }
 
 impl TripManagementState<App> for RoutePlanner {
@@ -38,24 +38,15 @@ impl TripManagementState<App> for RoutePlanner {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-enum Obj {
-    Waypoint(WaypointID),
-    Filterable(FilterableObj),
-}
-impl ObjectID for Obj {}
-
 impl RoutePlanner {
-    pub fn new_state(ctx: &mut EventCtx, app: &mut App, id: NeighborhoodID) -> Box<dyn State<App>> {
-        let neighborhood = Neighborhood::new(ctx, app, id);
-
+    pub fn new_state(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
         let mut rp = RoutePlanner {
             panel: Panel::empty(ctx),
             waypoints: InputWaypoints::new(app),
             files: TripManagement::new(app),
             world: World::unbounded(),
             draw_routes: ToggleZoomed::empty(ctx),
-            neighborhood,
+            labels: DrawRoadLabels::only_major_roads(),
         };
 
         if let Some(current_name) = &app.session.current_trip_name {
@@ -71,10 +62,19 @@ impl RoutePlanner {
         self.files.autosave(app);
         let results_widget = self.recalculate_paths(ctx, app);
 
-        let contents = Widget::col(vec![
-            self.files.get_panel_widget(ctx),
-            Widget::horiz_separator(ctx, 1.0),
-            self.waypoints.get_panel_widget(ctx),
+        let mut panel = Panel::new_builder(Widget::col(vec![
+            crate::app_header(ctx, app),
+            "Plan a route".text_widget(ctx),
+            ctx.style()
+                .btn_back("Browse neighborhoods")
+                .hotkey(Key::Escape)
+                .build_def(ctx),
+            Widget::col(vec![
+                self.files.get_panel_widget(ctx),
+                Widget::horiz_separator(ctx, 1.0),
+                self.waypoints.get_panel_widget(ctx),
+            ])
+            .section(ctx),
             Widget::row(vec![
                 Line("Slow-down factor for main roads:")
                     .into_widget(ctx)
@@ -93,26 +93,23 @@ impl RoutePlanner {
             ])
             .into_widget(ctx),
             results_widget,
-        ]);
-        let mut panel = Tab::Pathfinding
-            .panel_builder(ctx, app, contents)
-            // Hovering on waypoint cards
-            .ignore_initial_events()
-            .build(ctx);
+        ]))
+        // Hovering on waypoint cards
+        .ignore_initial_events()
+        .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
+        .build(ctx);
         panel.restore(ctx, &self.panel);
         self.panel = panel;
 
+        // Fade all neighborhood interiors, so it's very clear when a route cuts through
+        let mut batch = GeomBatch::new();
+        for (block, _) in app.session.partitioning.all_neighborhoods().values() {
+            batch.push(app.cs.fade_map_dark, block.polygon.clone());
+        }
+
         let mut world = World::bounded(app.map.get_bounds());
-        crate::per_neighborhood::populate_world(
-            ctx,
-            app,
-            &self.neighborhood,
-            &mut world,
-            Obj::Filterable,
-            0,
-        );
-        self.waypoints
-            .rebuild_world(ctx, &mut world, Obj::Waypoint, 1);
+        world.draw_master_batch(ctx, batch);
+        self.waypoints.rebuild_world(ctx, &mut world, |x| x, 0);
         world.initialize_hover(ctx);
         world.rebuilt_during_drag(&self.world);
         self.world = world;
@@ -198,8 +195,14 @@ impl RoutePlanner {
                     draw = draw_old_route;
                     results = Text::new();
                     results.add_line(Line("The route is the same before/after modal filters"));
-                    results.add_line(Line(format!("Time: {}", total_time)));
-                    results.add_line(Line(format!("Distance: {}", total_dist)));
+                    results.add_line(Line(format!(
+                        "Time: {}",
+                        total_time.to_string(&app.opts.units)
+                    )));
+                    results.add_line(Line(format!(
+                        "Distance: {}",
+                        total_dist.to_string(&app.opts.units)
+                    )));
                 } else {
                     draw.append(draw_old_route);
                     results.add_line(
@@ -234,39 +237,19 @@ impl RoutePlanner {
 
 impl State<App> for RoutePlanner {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        let world_outcome = self.world.event(ctx);
-        // TODO map_id can only extract one case. Do a bit of a hack to handle filter managament
-        // first.
-        if let Some(outcome) = world_outcome.clone().maybe_map_id(|id| match id {
-            Obj::Filterable(id) => Some(id),
-            _ => None,
-        }) {
-            if crate::per_neighborhood::handle_world_outcome(ctx, app, outcome) {
-                self.neighborhood = Neighborhood::new(ctx, app, self.neighborhood.id);
-                self.update_everything(ctx, app);
-                return Transition::Keep;
-            }
-            // Fall through. Clicking free space and other ID-less outcomes will match here, but we
-            // don't want them to.
-        }
-        // Ignore HoverChanged events for filterable objects
-        let world_outcome_for_waypoints = world_outcome
-            .maybe_map_id(|id| match id {
-                Obj::Waypoint(id) => Some(id),
-                _ => None,
-            })
-            .unwrap_or(WorldOutcome::Nothing);
-
         let panel_outcome = self.panel.event(ctx);
         if let Outcome::Clicked(ref x) = panel_outcome {
-            if let Some(t) = Tab::Pathfinding.handle_action(ctx, app, x, self.neighborhood.id) {
-                return t;
+            if x == "Browse neighborhoods" {
+                return Transition::Pop;
             }
             if let Some(t) = self.files.on_click(ctx, app, x) {
                 // Bit hacky...
                 if matches!(t, Transition::Keep) {
                     self.sync_from_file_management(ctx, app);
                 }
+                return t;
+            }
+            if let Some(t) = handle_app_header_click(ctx, app, x) {
                 return t;
             }
         }
@@ -281,7 +264,7 @@ impl State<App> for RoutePlanner {
 
         if self
             .waypoints
-            .event(app, panel_outcome, world_outcome_for_waypoints)
+            .event(app, panel_outcome, self.world.event(ctx))
         {
             // Sync from waypoints to file management
             // TODO Maaaybe this directly live in the InputWaypoints system?
@@ -295,14 +278,13 @@ impl State<App> for RoutePlanner {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
 
-        g.redraw(&self.neighborhood.fade_irrelevant);
+        self.world.draw(g);
+
         self.draw_routes.draw(g);
         app.session.draw_all_filters.draw(g);
         if g.canvas.is_unzoomed() {
-            self.neighborhood.labels.draw(g, app);
+            self.labels.draw(g, app);
         }
-
-        self.world.draw(g);
     }
 
     fn on_destroy(&mut self, _: &mut EventCtx, app: &mut App) {
