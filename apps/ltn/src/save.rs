@@ -5,7 +5,7 @@ use abstio::MapName;
 use abstutil::{Counter, Timer};
 use map_gui::tools::{ChooseSomething, PromptInput};
 use widgetry::tools::PopupMsg;
-use widgetry::{Choice, EventCtx, Key, State, Widget};
+use widgetry::{Choice, EventCtx, Key, Line, State, Widget};
 
 use crate::partition::BlockID;
 use crate::per_neighborhood::Tab;
@@ -171,9 +171,10 @@ impl AltProposals {
 
     pub fn to_widget(&self, ctx: &EventCtx, app: &App) -> Widget {
         let mut col = vec![Widget::row(vec![
+            Line("Proposals").small_heading().into_widget(ctx),
             ctx.style().btn_outline.text("New").build_def(ctx),
-            ctx.style().btn_outline.text("Load proposal").build_def(ctx),
-            ctx.style().btn_outline.text("Save proposal").build_def(ctx),
+            ctx.style().btn_outline.text("Load").build_def(ctx),
+            ctx.style().btn_outline.text("Save").build_def(ctx),
         ])];
         for (idx, proposal) in self.list.iter().enumerate() {
             let button = if let Some(proposal) = proposal {
@@ -208,7 +209,7 @@ impl AltProposals {
                 break;
             }
         }
-        Widget::col(col)
+        Widget::col(col).section(ctx)
     }
 
     pub fn handle_action(
@@ -231,10 +232,10 @@ impl AltProposals {
                 app.session.alt_proposals.list.push(None);
                 app.session.alt_proposals.current = app.session.alt_proposals.list.len() - 1;
             }
-            "Load proposal" => {
+            "Load" => {
                 return Some(Transition::Push(load_picker_ui(ctx, app, preserve_state)));
             }
-            "Save proposal" => {
+            "Save" => {
                 return Some(Transition::Push(save_ui(ctx, app, preserve_state)));
             }
             _ => {

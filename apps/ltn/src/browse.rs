@@ -40,7 +40,21 @@ impl BrowseNeighborhoods {
 
         let panel = Panel::new_builder(Widget::col(vec![
             crate::app_header(ctx, app),
+            app.session.alt_proposals.to_widget(ctx, app),
             "Click a neighborhood to edit filters".text_widget(ctx),
+            Widget::row(vec![
+                ctx.style()
+                    .btn_outline
+                    .text("Plan a route")
+                    .hotkey(Key::R)
+                    .build_def(ctx),
+                ctx.style()
+                    .btn_outline
+                    .text("Export to GeoJSON")
+                    .build_def(ctx),
+            ])
+            .section(ctx),
+            Line("Advanced").small_heading().into_widget(ctx),
             Widget::col(vec![
                 Widget::row(vec![
                     "Draw neighborhoods:".text_widget(ctx).centered_vert(),
@@ -65,26 +79,10 @@ impl BrowseNeighborhoods {
             ])
             .section(ctx),
             Widget::col(vec![
-                app.session.alt_proposals.to_widget(ctx, app),
-                ctx.style()
-                    .btn_outline
-                    .text("Export to GeoJSON")
-                    .build_def(ctx),
-            ])
-            .section(ctx),
-            Widget::col(vec![ctx
-                .style()
-                .btn_outline
-                .text("Plan a route")
-                .hotkey(Key::R)
-                .build_def(ctx)])
-            .section(ctx),
-            Widget::col(vec![
-                "Predict proposal impact (experimental)".text_widget(ctx),
+                "Predict proposal impact".text_widget(ctx),
                 impact_widget(ctx, app),
             ])
             .section(ctx),
-            // TODO Consider putting some of the edit controls here, like undo?
             Widget::col(vec![Widget::row(vec![
                 Widget::dropdown(
                     ctx,
@@ -94,7 +92,7 @@ impl BrowseNeighborhoods {
                 ),
                 ctx.style()
                     .btn_outline
-                    .text("Automatically stop rat-runs")
+                    .text("Automatically place filters")
                     .build_def(ctx),
             ])])
             .section(ctx),
@@ -134,7 +132,7 @@ impl State<App> for BrowseNeighborhoods {
                 "Plan a route" => {
                     return Transition::Push(crate::pathfinding::RoutePlanner::new_state(ctx, app));
                 }
-                "Automatically stop rat-runs" => {
+                "Automatically place filters" => {
                     ctx.loading_screen("automatically filter all neighborhoods", |ctx, timer| {
                         for id in app
                             .session
@@ -352,20 +350,13 @@ fn impact_widget(ctx: &EventCtx, app: &App) -> Widget {
                 Line(format!("We need to load a {} file", size)),
             ])
             .into_widget(ctx),
-            ctx.style()
-                .btn_solid_primary
-                .text("Calculate")
-                .build_def(ctx),
+            ctx.style().btn_outline.text("Calculate").build_def(ctx),
         ]);
     }
 
     if app.session.impact.change_key == app.session.modal_filters.get_change_key() {
         // Nothing to calculate!
-        return ctx
-            .style()
-            .btn_solid_primary
-            .text("Show impact")
-            .build_def(ctx);
+        return ctx.style().btn_outline.text("Show impact").build_def(ctx);
     }
 
     // We'll need to do some pathfinding
@@ -375,9 +366,6 @@ fn impact_widget(ctx: &EventCtx, app: &App) -> Widget {
             Line("The application may freeze up during that time."),
         ])
         .into_widget(ctx),
-        ctx.style()
-            .btn_solid_primary
-            .text("Calculate")
-            .build_def(ctx),
+        ctx.style().btn_outline.text("Calculate").build_def(ctx),
     ])
 }

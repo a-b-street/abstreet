@@ -3,7 +3,7 @@ use map_model::{IntersectionID, PathConstraints, RoadID};
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::tools::open_browser;
 use widgetry::{
-    lctrl, Color, EventCtx, HorizontalAlignment, Image, Key, Panel, PanelBuilder, TextExt,
+    lctrl, Color, EventCtx, HorizontalAlignment, Image, Key, Line, Panel, PanelBuilder, TextExt,
     VerticalAlignment, Widget, DEFAULT_CORNER_RADIUS,
 };
 
@@ -26,19 +26,17 @@ impl Tab {
     ) -> PanelBuilder {
         Panel::new_builder(Widget::col(vec![
             crate::app_header(ctx, app),
+            app.session.alt_proposals.to_widget(ctx, app),
             Widget::row(vec![
+                Line("Editing neighborhood")
+                    .small_heading()
+                    .into_widget(ctx),
                 ctx.style()
                     .btn_back("Browse neighborhoods")
                     .hotkey(Key::Escape)
-                    .build_def(ctx),
-                ctx.style()
-                    .btn_outline
-                    .text("Adjust boundary")
-                    .hotkey(Key::B)
-                    .build_def(ctx),
+                    .build_def(ctx)
+                    .align_right(),
             ]),
-            app.session.alt_proposals.to_widget(ctx, app).section(ctx),
-            self.make_buttons(ctx),
             Widget::col(vec![
                 Widget::row(vec![
                     Image::from_path("system/assets/tools/pencil.svg").into_widget(ctx),
@@ -63,6 +61,7 @@ impl Tab {
                 ]),
             ])
             .section(ctx),
+            self.make_buttons(ctx),
             per_tab_contents.section(ctx),
         ]))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
@@ -142,6 +141,21 @@ impl Tab {
                     .build_def(ctx),
             );
         }
+        // TODO The 3rd doesn't really act like a tab
+        row.push(
+            ctx.style()
+                .btn_tab
+                .text("Adjust boundary")
+                .corner_rounding(geom::CornerRadii {
+                    top_left: DEFAULT_CORNER_RADIUS,
+                    top_right: DEFAULT_CORNER_RADIUS,
+                    bottom_left: 0.0,
+                    bottom_right: 0.0,
+                })
+                .hotkey(Key::B)
+                .build_def(ctx),
+        );
+
         Widget::row(row)
     }
 }
