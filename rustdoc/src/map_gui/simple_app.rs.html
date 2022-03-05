@@ -374,6 +374,17 @@
 <span id="372">372</span>
 <span id="373">373</span>
 <span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">structopt::StructOpt</span>;
 
 <span class="kw">use</span> <span class="ident">abstio::MapName</span>;
@@ -382,7 +393,7 @@
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">Map</span>};
 <span class="kw">use</span> <span class="ident">sim::Sim</span>;
 <span class="kw">use</span> <span class="ident">widgetry::tools::URLManager</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Canvas</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">SharedAppState</span>, <span class="ident">State</span>, <span class="ident">Transition</span>, <span class="ident">Warper</span>};
+<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Canvas</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Settings</span>, <span class="ident">SharedAppState</span>, <span class="ident">State</span>, <span class="ident">Transition</span>, <span class="ident">Warper</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::colors</span>::{<span class="ident">ColorScheme</span>, <span class="ident">ColorSchemeChoice</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::load::MapLoader</span>;
@@ -427,6 +438,9 @@
     <span class="doccomment">/// When making a screen recording, enable this option to hide some UI elements</span>
     <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
     <span class="kw">pub</span> <span class="ident">minimal_controls</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// Override the monitor&#39;s auto-detected scale factor</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">scale_factor</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">SimpleAppArgs</span> {
@@ -439,6 +453,14 @@
             <span class="ident">opts</span>.<span class="ident">color_scheme</span> <span class="op">=</span> <span class="ident">cs</span>;
             <span class="ident">opts</span>.<span class="ident">toggle_day_night_colors</span> <span class="op">=</span> <span class="bool-val">false</span>;
         }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update_widgetry_settings</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">settings</span>: <span class="ident">Settings</span>) -&gt; <span class="ident">Settings</span> {
+        <span class="ident">settings</span> <span class="op">=</span> <span class="ident">settings</span>.<span class="ident">read_svg</span>(<span class="ident">Box::new</span>(<span class="ident">abstio::slurp_bytes</span>));
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">s</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">scale_factor</span> {
+            <span class="ident">settings</span> <span class="op">=</span> <span class="ident">settings</span>.<span class="ident">scale_factor</span>(<span class="ident">s</span>);
+        }
+        <span class="ident">settings</span>
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">MapName</span> {

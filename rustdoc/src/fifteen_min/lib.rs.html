@@ -83,8 +83,8 @@
     <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">map_gui::SimpleAppArgs::from_iter</span>(<span class="ident">abstutil::cli_args</span>());
     <span class="ident">args</span>.<span class="ident">override_options</span>(<span class="kw-2">&amp;mut</span> <span class="ident">options</span>);
 
-    <span class="ident">settings</span> <span class="op">=</span> <span class="ident">settings</span>
-        .<span class="ident">read_svg</span>(<span class="ident">Box::new</span>(<span class="ident">abstio::slurp_bytes</span>))
+    <span class="ident">settings</span> <span class="op">=</span> <span class="ident">args</span>
+        .<span class="ident">update_widgetry_settings</span>(<span class="ident">settings</span>)
         .<span class="ident">canvas_settings</span>(<span class="ident">options</span>.<span class="ident">canvas_settings</span>.<span class="ident">clone</span>());
     <span class="ident">widgetry::run</span>(<span class="ident">settings</span>, <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> {
         <span class="ident">map_gui::SimpleApp::new</span>(<span class="ident">ctx</span>, <span class="ident">options</span>, <span class="ident">args</span>.<span class="ident">map_name</span>(), <span class="ident">args</span>.<span class="ident">cam</span>, (), <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
