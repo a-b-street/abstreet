@@ -268,6 +268,7 @@ impl AltProposals {
 // After switching proposals, we have to recreate state
 pub enum PreserveState {
     BrowseNeighborhoods,
+    Route,
     PerNeighborhood(Tab, Vec<BlockID>),
 }
 
@@ -283,6 +284,9 @@ impl PreserveState {
         match self {
             PreserveState::BrowseNeighborhoods => {
                 Transition::Replace(BrowseNeighborhoods::new_state(ctx, app))
+            }
+            PreserveState::Route => {
+                Transition::Replace(crate::pathfinding::RoutePlanner::new_state(ctx, app))
             }
             PreserveState::PerNeighborhood(tab, blocks) => {
                 // Count which new neighborhoods have the blocks from the original. Pick the one

@@ -11,7 +11,7 @@ use widgetry::{
     Spinner, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
-use crate::{handle_app_header_click, App, Transition};
+use crate::{handle_app_header_click, App, BrowseNeighborhoods, Transition};
 
 pub struct RoutePlanner {
     panel: Panel,
@@ -69,6 +69,7 @@ impl RoutePlanner {
                 .btn_back("Browse neighborhoods")
                 .hotkey(Key::Escape)
                 .build_def(ctx),
+            app.session.alt_proposals.to_widget(ctx, app).section(ctx),
             Widget::col(vec![
                 self.files.get_panel_widget(ctx),
                 Widget::horiz_separator(ctx, 1.0),
@@ -240,7 +241,7 @@ impl State<App> for RoutePlanner {
         let panel_outcome = self.panel.event(ctx);
         if let Outcome::Clicked(ref x) = panel_outcome {
             if x == "Browse neighborhoods" {
-                return Transition::Pop;
+                return Transition::Replace(BrowseNeighborhoods::new_state(ctx, app));
             }
             if let Some(t) = self.files.on_click(ctx, app, x) {
                 // Bit hacky...
@@ -250,6 +251,14 @@ impl State<App> for RoutePlanner {
                 return t;
             }
             if let Some(t) = handle_app_header_click(ctx, app, x) {
+                return t;
+            }
+            if let Some(t) = crate::save::AltProposals::handle_action(
+                ctx,
+                app,
+                crate::save::PreserveState::Route,
+                x,
+            ) {
                 return t;
             }
         }
