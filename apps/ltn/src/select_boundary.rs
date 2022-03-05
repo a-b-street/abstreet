@@ -319,9 +319,9 @@ impl State<App> for SelectBoundary {
 fn make_panel(ctx: &mut EventCtx, app: &App) -> Panel {
     Panel::new_builder(Widget::col(vec![
         crate::app_header(ctx, app),
-        "Draw a custom boundary for a neighborhood"
-            .text_widget(ctx)
-            .centered_vert(),
+        Line("Adjusting neighborhood boundary")
+            .small_heading()
+            .into_widget(ctx),
         Text::from_all(vec![
             Line("Click").fg(ctx.style().text_hotkey_color),
             Line(" to add/remove a block"),

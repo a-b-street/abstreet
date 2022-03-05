@@ -8,7 +8,7 @@ use synthpop::{TripEndpoint, TripMode};
 use widgetry::mapspace::{ToggleZoomed, World};
 use widgetry::{
     Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, RoundedF64,
-    Spinner, State, Text, TextExt, VerticalAlignment, Widget,
+    Spinner, State, Text, VerticalAlignment, Widget,
 };
 
 use crate::{handle_app_header_click, App, BrowseNeighborhoods, Transition};
@@ -64,12 +64,15 @@ impl RoutePlanner {
 
         let mut panel = Panel::new_builder(Widget::col(vec![
             crate::app_header(ctx, app),
-            "Plan a route".text_widget(ctx),
-            ctx.style()
-                .btn_back("Browse neighborhoods")
-                .hotkey(Key::Escape)
-                .build_def(ctx),
-            app.session.alt_proposals.to_widget(ctx, app).section(ctx),
+            app.session.alt_proposals.to_widget(ctx, app),
+            Widget::row(vec![
+                Line("Plan a route").small_heading().into_widget(ctx),
+                ctx.style()
+                    .btn_back("Browse neighborhoods")
+                    .hotkey(Key::Escape)
+                    .build_def(ctx)
+                    .align_right(),
+            ]),
             Widget::col(vec![
                 self.files.get_panel_widget(ctx),
                 Widget::horiz_separator(ctx, 1.0),

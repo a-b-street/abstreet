@@ -50,6 +50,14 @@ impl Viewer {
                 ctx,
                 app,
                 Widget::col(vec![
+                    ctx.style()
+                        .btn_outline
+                        .icon_text(
+                            "system/assets/tools/select.svg",
+                            "Create filters along a shape",
+                        )
+                        .hotkey(Key::F)
+                        .build_def(ctx),
                     Widget::row(vec![
                         "Draw traffic cells as".text_widget(ctx).centered_vert(),
                         Toggle::choice(
@@ -75,14 +83,6 @@ impl Viewer {
                             .hotkey(Key::A)
                             .build_def(ctx),
                     ]),
-                    ctx.style()
-                        .btn_outline
-                        .icon_text(
-                            "system/assets/tools/select.svg",
-                            "Create filters along a shape",
-                        )
-                        .hotkey(Key::F)
-                        .build_def(ctx),
                 ]),
             )
             .build(ctx);
