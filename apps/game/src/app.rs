@@ -3,7 +3,6 @@ use std::collections::BTreeMap;
 
 use anyhow::Result;
 use maplit::btreemap;
-use rand::seq::{IteratorRandom, SliceRandom};
 use structopt::StructOpt;
 
 use abstio::MapName;
@@ -534,7 +533,7 @@ impl map_gui::AppLike for App {
             ctx,
             timer,
         );
-        self.primary.init_camera_for_loaded_map(ctx, false);
+        self.primary.init_camera_for_loaded_map(ctx);
         self.secondary = None;
     }
 
@@ -693,26 +692,13 @@ impl PerMap {
         }
     }
 
-    pub fn init_camera_for_loaded_map(&mut self, ctx: &mut EventCtx, splash: bool) {
-        let mut rng = self.current_flags.sim_flags.make_rng();
-        let rand_focus_pt = self
-            .map
-            .all_buildings()
-            .choose(&mut rng)
-            .and_then(|b| self.canonical_point(ID::Building(b.id)))
-            .or_else(|| {
-                self.map
-                    .all_lanes()
-                    .choose(&mut rng)
-                    .and_then(|l| self.canonical_point(ID::Lane(l.id)))
-            })
-            .unwrap_or_else(|| self.map.get_bounds().center());
-
-        if splash {
-            ctx.canvas.center_on_map_pt(rand_focus_pt);
-        } else if !CameraState::load(ctx, self.map.get_name()) {
-            info!("Couldn't load camera state, just focusing on an arbitrary building");
-            ctx.canvas.center_on_map_pt(rand_focus_pt);
+    pub fn init_camera_for_loaded_map(&mut self, ctx: &mut EventCtx) {
+        if !CameraState::load(ctx, self.map.get_name()) {
+            // If we didn't restore a previous camera position, start zoomed out, centered on the
+            // map's center.
+            ctx.canvas.cam_zoom = ctx.canvas.min_zoom();
+            ctx.canvas
+                .center_on_map_pt(self.map.get_boundary_polygon().center());
         }
     }
 

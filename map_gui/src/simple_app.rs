@@ -293,7 +293,13 @@ impl<T: 'static> AppLike for SimpleApp<T> {
         CameraState::save(ctx.canvas, self.map.get_name());
         self.map = map;
         self.draw_map = DrawMap::new(ctx, &self.map, &self.opts, &self.cs, timer);
-        CameraState::load(ctx, self.map.get_name());
+        if !CameraState::load(ctx, self.map.get_name()) {
+            // If we didn't restore a previous camera position, start zoomed out, centered on the
+            // map's center.
+            ctx.canvas.cam_zoom = ctx.canvas.min_zoom();
+            ctx.canvas
+                .center_on_map_pt(self.map.get_boundary_polygon().center());
+        }
     }
 
     fn draw_with_opts(&self, g: &mut GfxCtx, opts: DrawOptions) {

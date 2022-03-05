@@ -399,7 +399,7 @@ fn continue_app_setup(
         setup.center_camera.as_ref(),
         app.primary.map.get_gps_bounds(),
     ) {
-        app.primary.init_camera_for_loaded_map(ctx, title);
+        app.primary.init_camera_for_loaded_map(ctx);
     }
 
     // Handle savestates
