@@ -72,6 +72,13 @@ impl BrowseNeighborhoods {
                     .build_def(ctx),
             ])
             .section(ctx),
+            Widget::col(vec![ctx
+                .style()
+                .btn_outline
+                .text("Plan a route")
+                .hotkey(Key::R)
+                .build_def(ctx)])
+            .section(ctx),
             Widget::col(vec![
                 "Predict proposal impact (experimental)".text_widget(ctx),
                 impact_widget(ctx, app),
@@ -123,6 +130,9 @@ impl State<App> for BrowseNeighborhoods {
                 }
                 "Calculate" | "Show impact" => {
                     return Transition::Push(crate::impact::ShowResults::new_state(ctx, app));
+                }
+                "Plan a route" => {
+                    return Transition::Push(crate::pathfinding::RoutePlanner::new_state(ctx, app));
                 }
                 "Automatically stop rat-runs" => {
                     ctx.loading_screen("automatically filter all neighborhoods", |ctx, timer| {

@@ -15,7 +15,6 @@ use crate::{
 pub enum Tab {
     Connectivity,
     RatRuns,
-    Pathfinding,
 }
 
 impl Tab {
@@ -86,7 +85,6 @@ impl Tab {
             ),
             "Connectivity" => Tab::Connectivity.switch_to_state(ctx, app, id),
             "Rat runs" => Tab::RatRuns.switch_to_state(ctx, app, id),
-            "Pathfinding" => Tab::Pathfinding.switch_to_state(ctx, app, id),
             "undo" => {
                 let prev = app.session.modal_filters.previous_version.take().unwrap();
                 app.session.modal_filters = prev;
@@ -118,7 +116,6 @@ impl Tab {
         Transition::Replace(match self {
             Tab::Connectivity => crate::connectivity::Viewer::new_state(ctx, app, id),
             Tab::RatRuns => crate::rat_run_viewer::BrowseRatRuns::new_state(ctx, app, id, None),
-            Tab::Pathfinding => crate::pathfinding::RoutePlanner::new_state(ctx, app, id),
         })
     }
 
@@ -127,7 +124,6 @@ impl Tab {
         for (tab, label, key) in [
             (Tab::Connectivity, "Connectivity", Key::F1),
             (Tab::RatRuns, "Rat runs", Key::F2),
-            (Tab::Pathfinding, "Pathfinding", Key::F3),
         ] {
             // TODO Match the TabController styling
             row.push(
