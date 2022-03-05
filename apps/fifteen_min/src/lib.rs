@@ -24,8 +24,8 @@ fn run(mut settings: Settings) {
     let args = map_gui::SimpleAppArgs::from_iter(abstutil::cli_args());
     args.override_options(&mut options);
 
-    settings = settings
-        .read_svg(Box::new(abstio::slurp_bytes))
+    settings = args
+        .update_widgetry_settings(settings)
         .canvas_settings(options.canvas_settings.clone());
     widgetry::run(settings, |ctx| {
         map_gui::SimpleApp::new(ctx, options, args.map_name(), args.cam, (), |ctx, app| {

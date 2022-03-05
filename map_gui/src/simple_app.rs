@@ -6,7 +6,7 @@ use geom::{Circle, Distance, Duration, Pt2D, Time};
 use map_model::{IntersectionID, Map};
 use sim::Sim;
 use widgetry::tools::URLManager;
-use widgetry::{Canvas, EventCtx, GfxCtx, SharedAppState, State, Transition, Warper};
+use widgetry::{Canvas, EventCtx, GfxCtx, Settings, SharedAppState, State, Transition, Warper};
 
 use crate::colors::{ColorScheme, ColorSchemeChoice};
 use crate::load::MapLoader;
@@ -51,6 +51,9 @@ pub struct SimpleAppArgs {
     /// When making a screen recording, enable this option to hide some UI elements
     #[structopt(long)]
     pub minimal_controls: bool,
+    /// Override the monitor's auto-detected scale factor
+    #[structopt(long)]
+    pub scale_factor: Option<f64>,
 }
 
 impl SimpleAppArgs {
@@ -63,6 +66,14 @@ impl SimpleAppArgs {
             opts.color_scheme = cs;
             opts.toggle_day_night_colors = false;
         }
+    }
+
+    pub fn update_widgetry_settings(&self, mut settings: Settings) -> Settings {
+        settings = settings.read_svg(Box::new(abstio::slurp_bytes));
+        if let Some(s) = self.scale_factor {
+            settings = settings.scale_factor(s);
+        }
+        settings
     }
 
     pub fn map_name(&self) -> MapName {

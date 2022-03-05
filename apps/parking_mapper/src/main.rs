@@ -11,8 +11,8 @@ fn main() {
     let args = map_gui::SimpleAppArgs::from_iter(abstutil::cli_args());
     args.override_options(&mut options);
 
-    let settings = widgetry::Settings::new("OSM parking mapper")
-        .read_svg(Box::new(abstio::slurp_bytes))
+    let settings = args
+        .update_widgetry_settings(widgetry::Settings::new("OSM parking mapper"))
         .canvas_settings(options.canvas_settings.clone());
     widgetry::run(settings, |ctx| {
         map_gui::SimpleApp::new(ctx, options, args.map_name(), args.cam, (), |ctx, app| {
