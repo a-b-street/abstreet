@@ -3101,6 +3101,7 @@ dependencies = [
 name = "raw_map"
 version = "0.1.0"
 dependencies = [
+ "aabb-quadtree",
  "abstio",
  "abstutil",
  "anyhow",

@@ -342,6 +342,7 @@ impl Model {
                     self.map.intersections[&i1].point,
                     self.map.intersections[&i2].point,
                 ],
+                scale_width: 1.0,
                 osm_tags,
                 turn_restrictions: Vec::new(),
                 complicated_turn_restrictions: Vec::new(),

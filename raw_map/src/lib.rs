@@ -111,6 +111,16 @@ impl OriginalRoad {
         )
     }
 
+    pub fn has_common_endpoint(&self, other: OriginalRoad) -> bool {
+        if self.i1 == other.i1 || self.i1 == other.i2 {
+            return true;
+        }
+        if self.i2 == other.i1 || self.i2 == other.i2 {
+            return true;
+        }
+        false
+    }
+
     // TODO Doesn't handle two roads between the same pair of intersections
     pub fn common_endpt(&self, other: OriginalRoad) -> osm::NodeID {
         #![allow(clippy::suspicious_operation_groupings)]
@@ -280,7 +290,7 @@ impl RawMap {
             _ => {}
         }
 
-        Ok((true_center, total_width))
+        Ok((true_center, road.scale_width * total_width))
     }
 
     pub fn save(&self) {
@@ -358,6 +368,8 @@ pub struct RawRoad {
     /// cul-de-sac roads for roundabout handling. No transformation of these points whatsoever has
     /// happened.
     pub center_points: Vec<Pt2D>,
+    /// Multiply the width of each lane by this ratio, to prevent overlapping roads.
+    pub scale_width: f64,
     pub osm_tags: Tags,
     pub turn_restrictions: Vec<(RestrictionType, OriginalRoad)>,
     /// (via, to). For turn restrictions where 'via' is an entire road. Only BanTurns.

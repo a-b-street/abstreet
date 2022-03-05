@@ -33,7 +33,10 @@ pub struct Road {
 impl Road {
     pub fn new(map: &RawMap, id: OriginalRoad) -> Result<Road> {
         let road = &map.roads[&id];
-        let lane_specs_ltr = crate::lane_specs::get_lane_specs_ltr(&road.osm_tags, &map.config);
+        let mut lane_specs_ltr = crate::lane_specs::get_lane_specs_ltr(&road.osm_tags, &map.config);
+        for l in &mut lane_specs_ltr {
+            l.width *= road.scale_width;
+        }
         let (trimmed_center_pts, total_width) = map.untrimmed_road_geometry(id)?;
 
         Ok(Road {
