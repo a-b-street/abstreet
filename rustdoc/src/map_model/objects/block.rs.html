@@ -609,20 +609,23 @@
 <span id="607">607</span>
 <span id="608">608</span>
 <span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
-<span class="kw">use</span> <span class="ident">abstio::MapName</span>;
 <span class="kw">use</span> <span class="ident">abstutil::wraparound_get</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">CommonEndpoint</span>, <span class="ident">Direction</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">RoadID</span>, <span class="ident">RoadSideID</span>, <span class="ident">SideOfRoad</span>};
-
-<span class="comment">// See https://github.com/a-b-street/abstreet/issues/841. Slow but correct when enabled.</span>
-<span class="kw">const</span> <span class="ident">LOSSLESS_BLOCKFINDING</span>: <span class="ident">bool</span> <span class="op">=</span> <span class="bool-val">true</span>;
 
 <span class="doccomment">/// A block is defined by a perimeter that traces along the sides of roads. Inside the perimeter,</span>
 <span class="doccomment">/// the block may contain buildings and interior roads. In the simple case, a block represents a</span>
@@ -747,16 +750,6 @@
                 <span class="ident">skip</span>.<span class="ident">insert</span>(<span class="ident">r</span>.<span class="ident">id</span>);
             }
         }
-
-        <span class="comment">// TODO This map crashes otherwise. Workaround temporarily.</span>
-        <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_name</span>() <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident">MapName::new</span>(<span class="string">&quot;fr&quot;</span>, <span class="string">&quot;lyon&quot;</span>, <span class="string">&quot;center&quot;</span>) {
-            <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
-                <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">zorder</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-                    <span class="ident">skip</span>.<span class="ident">insert</span>(<span class="ident">r</span>.<span class="ident">id</span>);
-                }
-            }
-        }
-
         <span class="ident">skip</span>
     }
 
@@ -781,7 +774,13 @@
     <span class="doccomment">/// TODO Due to https://github.com/a-b-street/abstreet/issues/841, it seems like rotation</span>
     <span class="doccomment">/// sometimes breaks `to_block`, so for now, always revert to the original upon failure.</span>
     <span class="comment">// TODO Would it be cleaner to return a Result here and always restore the invariant?</span>
-    <span class="kw">fn</span> <span class="ident">try_to_merge</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">other</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Perimeter</span>, <span class="ident">debug_failures</span>: <span class="ident">bool</span>) -&gt; <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">try_to_merge</span>(
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
+        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
+        <span class="ident">other</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Perimeter</span>,
+        <span class="ident">debug_failures</span>: <span class="ident">bool</span>,
+        <span class="ident">use_expensive_blockfinding</span>: <span class="ident">bool</span>,
+    ) -&gt; <span class="ident">bool</span> {
         <span class="kw">let</span> <span class="ident">orig_self</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">clone</span>();
         <span class="kw">let</span> <span class="ident">orig_other</span> <span class="op">=</span> <span class="ident">other</span>.<span class="ident">clone</span>();
 
@@ -886,18 +885,23 @@
         <span class="comment">// Make sure we didn&#39;t wind up with any internal dead-ends</span>
         <span class="self">self</span>.<span class="ident">collapse_deadends</span>();
 
-        <span class="comment">// TODO Something in this method is buggy and produces invalid merges. Use a lightweight</span>
-        <span class="comment">// detection and bail out for now. https://github.com/a-b-street/abstreet/issues/841</span>
-        <span class="kw">if</span> <span class="ident">LOSSLESS_BLOCKFINDING</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">check_continuity</span>(<span class="ident">map</span>) {
-                <span class="macro">debug!</span>(
-                    <span class="string">&quot;A merged perimeter couldn&#39;t be blockified: {}. {:?}&quot;</span>,
-                    <span class="ident">err</span>, <span class="self">self</span>
-                );
-                <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">orig_self</span>;
-                <span class="kw-2">*</span><span class="ident">other</span> <span class="op">=</span> <span class="ident">orig_other</span>;
-                <span class="kw">return</span> <span class="bool-val">false</span>;
-            }
+        <span class="comment">// TODO Something in this method is buggy and produces invalid merges.</span>
+        <span class="comment">// https://github.com/a-b-street/abstreet/issues/841</span>
+        <span class="comment">// First try a lightweight detection for problems. If the caller detects the net result is</span>
+        <span class="comment">// invalid, they&#39;ll override this flag and try again.</span>
+        <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">use_expensive_blockfinding</span> {
+            <span class="self">self</span>.<span class="ident">clone</span>().<span class="ident">to_block</span>(<span class="ident">map</span>).<span class="ident">err</span>()
+        } <span class="kw">else</span> {
+            <span class="self">self</span>.<span class="ident">check_continuity</span>(<span class="ident">map</span>).<span class="ident">err</span>()
+        };
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">err</span> {
+            <span class="macro">debug!</span>(
+                <span class="string">&quot;A merged perimeter couldn&#39;t be blockified: {}. {:?}&quot;</span>,
+                <span class="ident">err</span>, <span class="self">self</span>
+            );
+            <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">orig_self</span>;
+            <span class="kw-2">*</span><span class="ident">other</span> <span class="op">=</span> <span class="ident">orig_other</span>;
+            <span class="kw">return</span> <span class="bool-val">false</span>;
         }
 
         <span class="bool-val">true</span>
@@ -917,7 +921,12 @@
     <span class="doccomment">/// Try to merge all given perimeters. If successful, only one perimeter will be returned.</span>
     <span class="doccomment">/// Perimeters are never &quot;destroyed&quot; -- if not merged, they&#39;ll appear in the results. If</span>
     <span class="doccomment">/// `stepwise_debug` is true, returns after performing just one merge.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">merge_all</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="kw-2">mut</span> <span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Perimeter</span><span class="op">&gt;</span>, <span class="ident">stepwise_debug</span>: <span class="ident">bool</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Perimeter</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">merge_all</span>(
+        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
+        <span class="kw-2">mut</span> <span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Perimeter</span><span class="op">&gt;</span>,
+        <span class="ident">stepwise_debug</span>: <span class="ident">bool</span>,
+        <span class="ident">use_expensive_blockfinding</span>: <span class="ident">bool</span>,
+    ) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Perimeter</span><span class="op">&gt;</span> {
         <span class="comment">// Internal dead-ends break merging, so first collapse of those. Do this before even</span>
         <span class="comment">// looking for neighbors, since find_common_roads doesn&#39;t understand dead-ends.</span>
         <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">input</span> {
@@ -935,7 +944,12 @@
                 }
 
                 <span class="kw">for</span> <span class="ident">other</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">results</span> {
-                    <span class="kw">if</span> <span class="ident">other</span>.<span class="ident">try_to_merge</span>(<span class="ident">map</span>, <span class="kw-2">&amp;mut</span> <span class="ident">perimeter</span>, <span class="ident">stepwise_debug</span>) {
+                    <span class="kw">if</span> <span class="ident">other</span>.<span class="ident">try_to_merge</span>(
+                        <span class="ident">map</span>,
+                        <span class="kw-2">&amp;mut</span> <span class="ident">perimeter</span>,
+                        <span class="ident">stepwise_debug</span>,
+                        <span class="ident">use_expensive_blockfinding</span>,
+                    ) {
                         <span class="comment">// To debug, return after any single change</span>
                         <span class="ident">debug</span> <span class="op">=</span> <span class="ident">stepwise_debug</span>;
                         <span class="kw">continue</span> <span class="lifetime">&#39;INPUT</span>;

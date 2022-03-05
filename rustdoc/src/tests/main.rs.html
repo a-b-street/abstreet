@@ -300,6 +300,9 @@
 <span id="298">298</span>
 <span id="299">299</span>
 <span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Integration tests</span>
 
 <span class="kw">use</span> <span class="ident">std::io::Write</span>;
@@ -561,6 +564,7 @@
         <span class="ident">MapName::new</span>(<span class="string">&quot;gb&quot;</span>, <span class="string">&quot;london&quot;</span>, <span class="string">&quot;southwark&quot;</span>),
         <span class="ident">MapName::new</span>(<span class="string">&quot;gb&quot;</span>, <span class="string">&quot;manchester&quot;</span>, <span class="string">&quot;levenshulme&quot;</span>),
         <span class="ident">MapName::new</span>(<span class="string">&quot;fr&quot;</span>, <span class="string">&quot;lyon&quot;</span>, <span class="string">&quot;center&quot;</span>),
+        <span class="ident">MapName::new</span>(<span class="string">&quot;us&quot;</span>, <span class="string">&quot;seattle&quot;</span>, <span class="string">&quot;north_seattle&quot;</span>),
     ] {
         <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">map_model::Map::load_synchronously</span>(<span class="ident">name</span>.<span class="ident">path</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">single_blocks</span> <span class="op">=</span> <span class="ident">Perimeter::find_all_single_blocks</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>);
@@ -579,7 +583,10 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">num_partial_merges</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">merged</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">for</span> <span class="ident">perimeters</span> <span class="kw">in</span> <span class="ident">partitions</span> {
-            <span class="kw">let</span> <span class="ident">newly_merged</span> <span class="op">=</span> <span class="ident">Perimeter::merge_all</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">perimeters</span>, <span class="bool-val">false</span>);
+            <span class="kw">let</span> <span class="ident">stepwise_debug</span> <span class="op">=</span> <span class="bool-val">false</span>;
+            <span class="kw">let</span> <span class="ident">use_expensive_blockfinding</span> <span class="op">=</span> <span class="bool-val">false</span>;
+            <span class="kw">let</span> <span class="ident">newly_merged</span> <span class="op">=</span>
+                <span class="ident">Perimeter::merge_all</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">perimeters</span>, <span class="ident">stepwise_debug</span>, <span class="ident">use_expensive_blockfinding</span>);
             <span class="kw">if</span> <span class="ident">newly_merged</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">1</span> {
                 <span class="ident">num_partial_merges</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
             }
@@ -589,8 +596,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">num_merged_block_failures</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">for</span> <span class="ident">perimeter</span> <span class="kw">in</span> <span class="ident">merged</span> {
             <span class="kw">if</span> <span class="ident">perimeter</span>.<span class="ident">to_block</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>).<span class="ident">is_err</span>() {
-                <span class="comment">// Note this means the LTN UI will crash upfront -- every block must be in the</span>
-                <span class="comment">// partitioning.</span>
+                <span class="comment">// Note this means the LTN UI will fallback to use_expensive_blockfinding = true</span>
                 <span class="ident">num_merged_block_failures</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
             }
         }
