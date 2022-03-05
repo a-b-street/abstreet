@@ -46,7 +46,7 @@ impl SelectBoundary {
             orig_partitioning: app.session.partitioning.clone(),
             last_failed_change: None,
 
-            labels: DrawRoadLabels::only_major_roads(),
+            labels: DrawRoadLabels::only_major_roads().light_background(),
 
             lasso: None,
         };

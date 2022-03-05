@@ -11,33 +11,44 @@ use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Line, Text};
 use crate::AppLike;
 
 /// Labels roads when unzoomed. Label size and frequency depends on the zoom level.
+///
+/// By default, the text is white; it works well on dark backgrounds.
 pub struct DrawRoadLabels {
     per_zoom: RefCell<[Option<Drawable>; 11]>,
     include_roads: Box<dyn Fn(&Road) -> bool>,
+    fg_color: Color,
+    outline_color: Color,
 }
 
 impl DrawRoadLabels {
     /// Label roads that the predicate approves
-    pub fn new(include_roads: Box<dyn Fn(&Road) -> bool>) -> DrawRoadLabels {
-        DrawRoadLabels {
+    pub fn new(include_roads: Box<dyn Fn(&Road) -> bool>) -> Self {
+        Self {
             per_zoom: Default::default(),
             include_roads,
+            fg_color: Color::WHITE,
+            outline_color: Color::BLACK,
         }
     }
 
     /// Only label major roads
-    pub fn only_major_roads() -> DrawRoadLabels {
-        DrawRoadLabels::new(Box::new(|r| {
+    pub fn only_major_roads() -> Self {
+        Self::new(Box::new(|r| {
             r.get_rank() != osm::RoadRank::Local && !r.is_light_rail()
         }))
     }
 
+    pub fn light_background(mut self) -> Self {
+        self.fg_color = Color::BLACK;
+        self.outline_color = Color::WHITE;
+        self
+    }
+
     pub fn draw(&self, g: &mut GfxCtx, app: &dyn AppLike) {
-        let (zoom, idx) = DrawRoadLabels::discretize_zoom(g.canvas.cam_zoom);
+        let (zoom, idx) = Self::discretize_zoom(g.canvas.cam_zoom);
         let value = &mut self.per_zoom.borrow_mut()[idx];
         if value.is_none() {
-            debug!("computing DrawRoadLabels(zoom: {}, idx: {})", zoom, idx);
-            *value = Some(DrawRoadLabels::render(g, app, &self.include_roads, zoom));
+            *value = Some(self.render(g, app, zoom));
         }
         g.redraw(value.as_ref().unwrap());
     }
@@ -52,22 +63,16 @@ impl DrawRoadLabels {
         (rounded / 10.0, idx)
     }
 
-    fn render(
-        g: &mut GfxCtx,
-        app: &dyn AppLike,
-        include_roads: &dyn Fn(&Road) -> bool,
-        zoom: f64,
-    ) -> Drawable {
+    fn render(&self, g: &mut GfxCtx, app: &dyn AppLike, zoom: f64) -> Drawable {
         let mut batch = GeomBatch::new();
         let map = app.map();
 
         let text_scale = 1.0 + 2.0 * (1.0 - zoom);
-        //println!("at zoom {}, scale labels {}", zoom, text_scale);
 
         let mut quadtree = QuadTree::default(map.get_bounds().as_bbox());
 
         'ROAD: for r in map.all_roads() {
-            if !include_roads(r) || r.length() < Distance::meters(30.0) {
+            if !(self.include_roads)(r) || r.length() < Distance::meters(30.0) {
                 continue;
             }
 
@@ -108,8 +113,8 @@ impl DrawRoadLabels {
             let txt = Text::from(
                 Line(&name)
                     .big_heading_plain()
-                    .fg(Color::WHITE)
-                    .outlined(Color::BLACK),
+                    .fg(self.fg_color)
+                    .outlined(self.outline_color),
             );
             let txt_batch = txt
                 .render_autocropped(g)

@@ -103,7 +103,7 @@ impl BrowseNeighborhoods {
             panel,
             world,
             draw_over_roads,
-            labels: DrawRoadLabels::only_major_roads(),
+            labels: DrawRoadLabels::only_major_roads().light_background(),
             draw_boundary_roads: draw_boundary_roads(ctx, app),
         })
     }

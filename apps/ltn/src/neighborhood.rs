@@ -123,7 +123,8 @@ impl Neighborhood {
 
         let mut label_roads = n.perimeter.clone();
         label_roads.extend(n.orig_perimeter.interior.clone());
-        n.labels = DrawRoadLabels::new(Box::new(move |r| label_roads.contains(&r.id)));
+        n.labels =
+            DrawRoadLabels::new(Box::new(move |r| label_roads.contains(&r.id))).light_background();
 
         n
     }
