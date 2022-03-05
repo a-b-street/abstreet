@@ -1,24 +1,17 @@
 [
   {
-    "map": "arboretum (in seattle (us))",
-    "scenario": "weekday",
-    "finished_trips": 76640,
-    "cancelled_trips": 0,
-    "total_trip_duration_seconds": 43816297.68860026
-  },
-  {
     "map": "montlake (in seattle (us))",
     "scenario": "weekday",
-    "finished_trips": 36715,
-    "cancelled_trips": 81,
-    "total_trip_duration_seconds": 18514844.62500008
+    "finished_trips": 36710,
+    "cancelled_trips": 86,
+    "total_trip_duration_seconds": 18533515.794600103
   },
   {
     "map": "parliament (in tehran (ir))",
     "scenario": "random people going to and from work",
     "finished_trips": 29350,
     "cancelled_trips": 16734,
-    "total_trip_duration_seconds": 41860049.65870012
+    "total_trip_duration_seconds": 41782683.482600205
   },
   {
     "map": "sao_miguel_paulista (in sao_paulo (br))",

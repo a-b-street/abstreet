@@ -7,6 +7,7 @@ mod dual_carriageways;
 mod find_short_roads;
 mod merge_short_road;
 mod remove_disconnected;
+mod shrink_roads;
 mod snappy;
 
 impl RawMap {
@@ -45,6 +46,10 @@ impl RawMap {
         timer.start("collapsing degenerate intersections");
         collapse_intersections::collapse(self);
         timer.stop("collapsing degenerate intersections");
+
+        timer.start("shrinking overlapping roads");
+        shrink_roads::shrink(self, timer);
+        timer.stop("shrinking overlapping roads");
 
         timer.stop("simplify RawMap");
     }

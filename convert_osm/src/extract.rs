@@ -113,6 +113,7 @@ pub fn extract_osm(
                 id,
                 RawRoad {
                     center_points: way.pts.clone(),
+                    scale_width: 1.0,
                     osm_tags: way.tags.clone(),
                     turn_restrictions: Vec::new(),
                     complicated_turn_restrictions: Vec::new(),

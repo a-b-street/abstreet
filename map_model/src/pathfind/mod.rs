@@ -192,13 +192,10 @@ pub struct RoutingParams {
     /// Don't allow crossing these roads at all. Only affects vehicle routing, not pedestrian.
     ///
     /// TODO The route may cross one of these roads if it's the start or end!
-    // TODO Include in serde during the next full map importing
-    #[serde(skip_serializing, skip_deserializing)]
     pub avoid_roads: BTreeSet<RoadID>,
 
     /// Don't allow movements between these roads at all. Only affects vehicle routing, not
     /// pedestrian.
-    #[serde(skip_serializing, skip_deserializing)]
     pub avoid_movements_between: BTreeSet<(RoadID, RoadID)>,
 }
 

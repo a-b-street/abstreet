@@ -5,6 +5,7 @@ authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 edition = "2021"
 
 [dependencies]
+aabb-quadtree = "0.1.0"
 abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
 anyhow = "1.0.38"
