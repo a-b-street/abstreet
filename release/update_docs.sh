@@ -17,7 +17,7 @@ if [ "$OLD_PATCH" == "" ] || [ "$NEW_PATCH" == "" ]; then
 fi
 
 # This assumes https://github.com/a-b-street/docs is checked out at ~/docs
-perl -pi -e "s/${OLD_MAJOR}_${OLD_MINOR}_${OLD_PATCH}/${NEW_MAJOR}_${NEW_MINOR}_${NEW_PATCH}/g" README.md ~/docs/book/src/user/README.md ~/docs/book/src/software/*.md ~/docs/book/src/proposals/*/*.md
+perl -pi -e "s/${OLD_MAJOR}_${OLD_MINOR}_${OLD_PATCH}/${NEW_MAJOR}_${NEW_MINOR}_${NEW_PATCH}/g" README.md ~/docs/book/src/user/README.md ~/docs/book/src/software/*.md ~/docs/book/src/software/*/*.md ~/docs/book/src/proposals/*/*.md
 perl -pi -e "s/${OLD_MAJOR}\.${OLD_MINOR}\.${OLD_PATCH}/${NEW_MAJOR}\.${NEW_MINOR}\.${NEW_PATCH}/g" README.md ~/docs/book/src/user/README.md ~/docs/book/src/software/*.md ~/docs/book/src/software/*/*.md ~/docs/book/src/proposals/*/*.md
 
 echo "Don't forget to:"
