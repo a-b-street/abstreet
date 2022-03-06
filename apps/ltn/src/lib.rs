@@ -24,10 +24,10 @@ mod filters;
 mod impact;
 mod neighborhood;
 mod partition;
-mod pathfinding;
 mod per_neighborhood;
 mod rat_run_viewer;
 mod rat_runs;
+mod route_planner;
 mod save;
 mod select_boundary;
 

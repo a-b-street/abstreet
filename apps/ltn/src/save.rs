@@ -287,7 +287,7 @@ impl PreserveState {
                 Transition::Replace(BrowseNeighborhoods::new_state(ctx, app))
             }
             PreserveState::Route => {
-                Transition::Replace(crate::pathfinding::RoutePlanner::new_state(ctx, app))
+                Transition::Replace(crate::route_planner::RoutePlanner::new_state(ctx, app))
             }
             PreserveState::PerNeighborhood(tab, blocks) => {
                 // Count which new neighborhoods have the blocks from the original. Pick the one

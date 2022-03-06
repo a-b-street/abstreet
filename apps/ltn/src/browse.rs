@@ -130,7 +130,9 @@ impl State<App> for BrowseNeighborhoods {
                     return Transition::Push(crate::impact::ShowResults::new_state(ctx, app));
                 }
                 "Plan a route" => {
-                    return Transition::Push(crate::pathfinding::RoutePlanner::new_state(ctx, app));
+                    return Transition::Push(crate::route_planner::RoutePlanner::new_state(
+                        ctx, app,
+                    ));
                 }
                 "Automatically place filters" => {
                     ctx.loading_screen("automatically filter all neighborhoods", |ctx, timer| {
