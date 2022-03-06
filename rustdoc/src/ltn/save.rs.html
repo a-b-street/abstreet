@@ -592,7 +592,7 @@
                 <span class="ident">Transition::Replace</span>(<span class="ident">BrowseNeighborhoods::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))
             }
             <span class="ident">PreserveState::Route</span> =&gt; {
-                <span class="ident">Transition::Replace</span>(<span class="ident"><span class="kw">crate</span>::pathfinding::RoutePlanner::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))
+                <span class="ident">Transition::Replace</span>(<span class="ident"><span class="kw">crate</span>::route_planner::RoutePlanner::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))
             }
             <span class="ident">PreserveState::PerNeighborhood</span>(<span class="ident">tab</span>, <span class="ident">blocks</span>) =&gt; {
                 <span class="comment">// Count which new neighborhoods have the blocks from the original. Pick the one</span>
