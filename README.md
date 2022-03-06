@@ -1,5 +1,7 @@
 # A/B Street
 
+[![DOI](https://zenodo.org/badge/135952436.svg)](https://zenodo.org/badge/latestdoi/135952436)
+
 Ever been stuck in traffic on a bus, wondering why is there legal street parking
 instead of a dedicated bus lane? A/B Street is a project to plan, simulate, and
 communicate visions for making cities friendlier to people walking, biking, and
