@@ -87,18 +87,18 @@ impl BrowseNeighborhoods {
                     impact_widget(ctx, app),
                 ])
                 .section(ctx),
-                Widget::col(vec![Widget::row(vec![
+                Widget::col(vec![
+                    ctx.style()
+                        .btn_outline
+                        .text("Automatically place filters")
+                        .build_def(ctx),
                     Widget::dropdown(
                         ctx,
                         "heuristic",
                         app.session.heuristic,
                         Heuristic::choices(),
                     ),
-                    ctx.style()
-                        .btn_outline
-                        .text("Automatically place filters")
-                        .build_def(ctx),
-                ])])
+                ])
                 .section(ctx),
             ]),
         )
@@ -353,9 +353,9 @@ fn impact_widget(ctx: &EventCtx, app: &App) -> Widget {
             .unwrap_or_else(|| "???".to_string());
         return Widget::col(vec![
             Text::from_multiline(vec![
-                Line("Predicting impact of your proposal may take a moment."),
-                Line("The application may freeze up during that time."),
-                Line(format!("We need to load a {} file", size)),
+                Line("This will take a moment.").small(),
+                Line("The app may freeze while calculating.").small(),
+                Line(format!("We need to load a {} file", size)).small(),
             ])
             .into_widget(ctx),
             ctx.style().btn_outline.text("Calculate").build_def(ctx),
