@@ -73,19 +73,17 @@ impl Viewer {
                         ),
                     ]),
                     warning.text_widget(ctx),
-                    Widget::row(vec![
-                        Widget::dropdown(
-                            ctx,
-                            "heuristic",
-                            app.session.heuristic,
-                            Heuristic::choices(),
-                        ),
-                        ctx.style()
-                            .btn_outline
-                            .text("Automatically stop rat-runs")
-                            .hotkey(Key::A)
-                            .build_def(ctx),
-                    ]),
+                    ctx.style()
+                        .btn_outline
+                        .text("Automatically stop rat-runs")
+                        .hotkey(Key::A)
+                        .build_def(ctx),
+                    Widget::dropdown(
+                        ctx,
+                        "heuristic",
+                        app.session.heuristic,
+                        Heuristic::choices(),
+                    ),
                 ]),
             )
             .build(ctx);

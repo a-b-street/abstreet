@@ -151,7 +151,9 @@ impl SelectBoundary {
             }
             Err(err) => {
                 self.last_failed_change = Some((id, self.currently_have_block(app, id)));
-                let label = err.to_string().text_widget(ctx);
+                let label = Text::from(Line(err.to_string()))
+                    .wrap_to_pct(ctx, 15)
+                    .into_widget(ctx);
                 self.left_panel.replace(ctx, "warning", label);
             }
         }

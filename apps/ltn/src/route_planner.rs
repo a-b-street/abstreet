@@ -66,14 +66,11 @@ impl RoutePlanner {
 
         let contents = Widget::col(vec![
             app.session.alt_proposals.to_widget(ctx, app),
-            Widget::row(vec![
-                Line("Plan a route").small_heading().into_widget(ctx),
-                ctx.style()
-                    .btn_back("Browse neighborhoods")
-                    .hotkey(Key::Escape)
-                    .build_def(ctx)
-                    .align_right(),
-            ]),
+            ctx.style()
+                .btn_back("Browse neighborhoods")
+                .hotkey(Key::Escape)
+                .build_def(ctx),
+            Line("Plan a route").small_heading().into_widget(ctx),
             Widget::col(vec![
                 self.files.get_panel_widget(ctx),
                 Widget::horiz_separator(ctx, 1.0),

@@ -47,14 +47,11 @@ impl ShowResults {
         }
 
         let contents = Widget::col(vec![
-            Widget::row(vec![
-                Line("Impact prediction").small_heading().into_widget(ctx),
-                ctx.style()
-                    .btn_back("Browse neighborhoods")
-                    .hotkey(Key::Escape)
-                    .build_def(ctx)
-                    .align_right(),
-            ]),
+            ctx.style()
+                .btn_back("Browse neighborhoods")
+                .hotkey(Key::Escape)
+                .build_def(ctx),
+            Line("Impact prediction").small_heading().into_widget(ctx),
             Text::from(Line("This tool starts with a travel demand model, calculates the route every trip takes before and after changes, and displays volumes along roads and intersections")).wrap_to_pct(ctx, 20).into_widget(ctx),
             // TODO Dropdown for the scenario, and explain its source/limitations
             app.session.impact.filters.to_panel(ctx, app),

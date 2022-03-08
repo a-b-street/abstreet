@@ -3,7 +3,7 @@ use map_model::{IntersectionID, PathConstraints, RoadID};
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::tools::open_browser;
 use widgetry::{
-    lctrl, Color, EventCtx, Image, Key, Line, Panel, PanelBuilder, TextExt, Widget,
+    lctrl, Color, EventCtx, Image, Key, Line, Panel, PanelBuilder, Text, TextExt, Widget,
     DEFAULT_CORNER_RADIUS,
 };
 
@@ -27,22 +27,23 @@ impl Tab {
     ) -> PanelBuilder {
         let contents = Widget::col(vec![
             app.session.alt_proposals.to_widget(ctx, app),
-            Widget::row(vec![
-                Line("Editing neighborhood")
-                    .small_heading()
-                    .into_widget(ctx),
-                ctx.style()
-                    .btn_back("Browse neighborhoods")
-                    .hotkey(Key::Escape)
-                    .build_def(ctx)
-                    .align_right(),
-            ]),
+            ctx.style()
+                .btn_back("Browse neighborhoods")
+                .hotkey(Key::Escape)
+                .build_def(ctx),
+            Line("Editing neighborhood")
+                .small_heading()
+                .into_widget(ctx),
             Widget::col(vec![
                 Widget::row(vec![
-                    Image::from_path("system/assets/tools/pencil.svg").into_widget(ctx),
-                    "Click a road or intersection to add or remove a modal filter"
-                        .text_widget(ctx)
+                    Image::from_path("system/assets/tools/pencil.svg")
+                        .into_widget(ctx)
                         .centered_vert(),
+                    Text::from(Line(
+                        "Click a road or intersection to add or remove a modal filter",
+                    ))
+                    .wrap_to_pct(ctx, 15)
+                    .into_widget(ctx),
                 ]),
                 Widget::row(vec![
                     format!(
