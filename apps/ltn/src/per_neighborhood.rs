@@ -3,7 +3,8 @@ use map_model::{IntersectionID, PathConstraints, RoadID};
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::tools::open_browser;
 use widgetry::{
-    lctrl, Color, EventCtx, Image, Key, Line, PanelBuilder, TextExt, Widget, DEFAULT_CORNER_RADIUS,
+    lctrl, Color, EventCtx, Image, Key, Line, Panel, PanelBuilder, TextExt, Widget,
+    DEFAULT_CORNER_RADIUS,
 };
 
 use crate::{
@@ -21,9 +22,10 @@ impl Tab {
         self,
         ctx: &mut EventCtx,
         app: &App,
+        top_panel: &Panel,
         per_tab_contents: Widget,
     ) -> PanelBuilder {
-        crate::common::left_panel_builder(Widget::col(vec![
+        let contents = Widget::col(vec![
             app.session.alt_proposals.to_widget(ctx, app),
             Widget::row(vec![
                 Line("Editing neighborhood")
@@ -61,7 +63,8 @@ impl Tab {
             .section(ctx),
             self.make_buttons(ctx),
             per_tab_contents.section(ctx),
-        ]))
+        ]);
+        crate::common::left_panel_builder(ctx, top_panel, contents)
     }
 
     pub fn handle_action(

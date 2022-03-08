@@ -51,6 +51,7 @@ impl Viewer {
             .panel_builder(
                 ctx,
                 app,
+                &self.top_panel,
                 Widget::col(vec![
                     ctx.style()
                         .btn_outline

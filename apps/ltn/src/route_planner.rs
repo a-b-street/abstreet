@@ -64,7 +64,7 @@ impl RoutePlanner {
         self.files.autosave(app);
         let results_widget = self.recalculate_paths(ctx, app);
 
-        let mut panel = crate::common::left_panel_builder(Widget::col(vec![
+        let contents = Widget::col(vec![
             app.session.alt_proposals.to_widget(ctx, app),
             Widget::row(vec![
                 Line("Plan a route").small_heading().into_widget(ctx),
@@ -98,10 +98,11 @@ impl RoutePlanner {
             ])
             .into_widget(ctx),
             results_widget,
-        ]))
-        // Hovering on waypoint cards
-        .ignore_initial_events()
-        .build(ctx);
+        ]);
+        let mut panel = crate::common::left_panel_builder(ctx, &self.top_panel, contents)
+            // Hovering on waypoint cards
+            .ignore_initial_events()
+            .build(ctx);
         panel.restore(ctx, &self.left_panel);
         self.left_panel = panel;
 
