@@ -8,8 +8,7 @@ use widgetry::mapspace::ToggleZoomed;
 use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::tools::Lasso;
 use widgetry::{
-    Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State,
-    Text, TextExt, VerticalAlignment, Widget,
+    Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, State, Text, TextExt, Widget,
 };
 
 use crate::browse::draw_boundary_roads;
@@ -17,7 +16,8 @@ use crate::partition::BlockID;
 use crate::{App, NeighborhoodID, Partitioning, Transition};
 
 pub struct SelectBoundary {
-    panel: Panel,
+    top_panel: Panel,
+    left_panel: Panel,
     id: NeighborhoodID,
     world: World<BlockID>,
     draw_boundary_roads: ToggleZoomed,
@@ -37,7 +37,8 @@ pub struct SelectBoundary {
 impl SelectBoundary {
     pub fn new_state(ctx: &mut EventCtx, app: &App, id: NeighborhoodID) -> Box<dyn State<App>> {
         let mut state = SelectBoundary {
-            panel: make_panel(ctx, app),
+            top_panel: crate::common::app_top_panel(ctx, app),
+            left_panel: make_panel(ctx),
             id,
             world: World::bounded(app.map.get_bounds()),
             draw_boundary_roads: draw_boundary_roads(ctx, app),
@@ -144,12 +145,12 @@ impl SelectBoundary {
                 }
 
                 self.draw_boundary_roads = draw_boundary_roads(ctx, app);
-                self.panel = make_panel(ctx, app);
+                self.left_panel = make_panel(ctx);
             }
             Err(err) => {
                 self.last_failed_change = Some((id, self.currently_have_block(app, id)));
                 let label = err.to_string().text_widget(ctx);
-                self.panel.replace(ctx, "warning", label);
+                self.left_panel.replace(ctx, "warning", label);
             }
         }
 
@@ -248,12 +249,15 @@ impl State<App> for SelectBoundary {
             if let Some(polygon) = lasso.event(ctx) {
                 self.lasso = None;
                 self.add_blocks_freehand(ctx, app, polygon);
-                self.panel = make_panel(ctx, app);
+                self.left_panel = make_panel(ctx);
             }
             return Transition::Keep;
         }
 
-        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+        if let Some(t) = crate::common::handle_top_panel(ctx, app, &mut self.top_panel) {
+            return t;
+        }
+        if let Outcome::Clicked(x) = self.left_panel.event(ctx) {
             match x.as_ref() {
                 "Cancel" => {
                     // TODO If we destroyed the current neighborhood, then we cancel, we'll pop
@@ -271,11 +275,9 @@ impl State<App> for SelectBoundary {
                 }
                 "Select freehand" => {
                     self.lasso = Some(Lasso::new());
-                    self.panel = make_panel_for_lasso(ctx, app);
+                    self.left_panel = make_panel_for_lasso(ctx);
                 }
-                x => {
-                    return crate::handle_app_header_click(ctx, app, x).unwrap();
-                }
+                _ => unreachable!(),
             }
         }
 
@@ -306,7 +308,8 @@ impl State<App> for SelectBoundary {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.world.draw(g);
         self.draw_boundary_roads.draw(g);
-        self.panel.draw(g);
+        self.top_panel.draw(g);
+        self.left_panel.draw(g);
         if g.canvas.is_unzoomed() {
             self.labels.draw(g, app);
         }
@@ -316,9 +319,8 @@ impl State<App> for SelectBoundary {
     }
 }
 
-fn make_panel(ctx: &mut EventCtx, app: &App) -> Panel {
-    Panel::new_builder(Widget::col(vec![
-        crate::app_header(ctx, app),
+fn make_panel(ctx: &mut EventCtx) -> Panel {
+    crate::common::left_panel_builder(Widget::col(vec![
         Line("Adjusting neighborhood boundary")
             .small_heading()
             .into_widget(ctx),
@@ -358,13 +360,11 @@ fn make_panel(ctx: &mut EventCtx, app: &App) -> Panel {
         ]),
         Text::new().into_widget(ctx).named("warning"),
     ]))
-    .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
     .build(ctx)
 }
 
-fn make_panel_for_lasso(ctx: &mut EventCtx, app: &App) -> Panel {
-    Panel::new_builder(Widget::col(vec![
-        crate::app_header(ctx, app),
+fn make_panel_for_lasso(ctx: &mut EventCtx) -> Panel {
+    crate::common::left_panel_builder(Widget::col(vec![
         "Draw a custom boundary for a neighborhood"
             .text_widget(ctx)
             .centered_vert(),
@@ -374,6 +374,5 @@ fn make_panel_for_lasso(ctx: &mut EventCtx, app: &App) -> Panel {
         ])
         .into_widget(ctx),
     ]))
-    .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
     .build(ctx)
 }

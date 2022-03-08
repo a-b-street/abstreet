@@ -7,14 +7,15 @@ use map_model::{PathfinderCaching, NORMAL_LANE_THICKNESS};
 use synthpop::{TripEndpoint, TripMode};
 use widgetry::mapspace::{ToggleZoomed, World};
 use widgetry::{
-    Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, RoundedF64,
-    Spinner, State, Text, VerticalAlignment, Widget,
+    Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, RoundedF64, Spinner, State,
+    Text, Widget,
 };
 
-use crate::{handle_app_header_click, App, BrowseNeighborhoods, Transition};
+use crate::{App, BrowseNeighborhoods, Transition};
 
 pub struct RoutePlanner {
-    panel: Panel,
+    top_panel: Panel,
+    left_panel: Panel,
     waypoints: InputWaypoints,
     files: TripManagement<App, RoutePlanner>,
     world: World<WaypointID>,
@@ -41,7 +42,8 @@ impl TripManagementState<App> for RoutePlanner {
 impl RoutePlanner {
     pub fn new_state(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
         let mut rp = RoutePlanner {
-            panel: Panel::empty(ctx),
+            top_panel: crate::common::app_top_panel(ctx, app),
+            left_panel: Panel::empty(ctx),
             waypoints: InputWaypoints::new(app),
             files: TripManagement::new(app),
             world: World::unbounded(),
@@ -62,8 +64,7 @@ impl RoutePlanner {
         self.files.autosave(app);
         let results_widget = self.recalculate_paths(ctx, app);
 
-        let mut panel = Panel::new_builder(Widget::col(vec![
-            crate::app_header(ctx, app),
+        let mut panel = crate::common::left_panel_builder(Widget::col(vec![
             app.session.alt_proposals.to_widget(ctx, app),
             Widget::row(vec![
                 Line("Plan a route").small_heading().into_widget(ctx),
@@ -100,10 +101,9 @@ impl RoutePlanner {
         ]))
         // Hovering on waypoint cards
         .ignore_initial_events()
-        .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
         .build(ctx);
-        panel.restore(ctx, &self.panel);
-        self.panel = panel;
+        panel.restore(ctx, &self.left_panel);
+        self.left_panel = panel;
 
         // Fade all neighborhood interiors, so it's very clear when a route cuts through
         let mut batch = GeomBatch::new();
@@ -241,7 +241,11 @@ impl RoutePlanner {
 
 impl State<App> for RoutePlanner {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        let panel_outcome = self.panel.event(ctx);
+        if let Some(t) = crate::common::handle_top_panel(ctx, app, &mut self.top_panel) {
+            return t;
+        }
+
+        let panel_outcome = self.left_panel.event(ctx);
         if let Outcome::Clicked(ref x) = panel_outcome {
             if x == "Browse neighborhoods" {
                 return Transition::Replace(BrowseNeighborhoods::new_state(ctx, app));
@@ -251,9 +255,6 @@ impl State<App> for RoutePlanner {
                 if matches!(t, Transition::Keep) {
                     self.sync_from_file_management(ctx, app);
                 }
-                return t;
-            }
-            if let Some(t) = handle_app_header_click(ctx, app, x) {
                 return t;
             }
             if let Some(t) = crate::save::AltProposals::handle_action(
@@ -269,7 +270,7 @@ impl State<App> for RoutePlanner {
         if let Outcome::Changed(ref x) = panel_outcome {
             if x == "main road penalty" {
                 app.session.main_road_penalty =
-                    self.panel.spinner::<RoundedF64>("main road penalty").0;
+                    self.left_panel.spinner::<RoundedF64>("main road penalty").0;
                 self.update_everything(ctx, app);
             }
         }
@@ -288,7 +289,8 @@ impl State<App> for RoutePlanner {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.panel.draw(g);
+        self.top_panel.draw(g);
+        self.left_panel.draw(g);
 
         self.world.draw(g);
 

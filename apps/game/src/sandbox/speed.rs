@@ -155,7 +155,7 @@ impl TimePanel {
         ]))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top);
         if let Some(h) = self.override_height {
-            panel = panel.exact_height(h);
+            panel = panel.exact_height_pixels(h);
         }
         self.panel = panel.build(ctx);
     }

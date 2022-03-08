@@ -7,15 +7,16 @@ use synthpop::Scenario;
 use widgetry::mapspace::{ToggleZoomed, World, WorldOutcome};
 use widgetry::tools::PopupMsg;
 use widgetry::{
-    Choice, Color, DrawBaselayer, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    State, Text, TextExt, Toggle, VerticalAlignment, Widget,
+    Choice, Color, DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text,
+    TextExt, Toggle, Widget,
 };
 
 use crate::filters::auto::Heuristic;
 use crate::{App, Neighborhood, NeighborhoodID, Transition};
 
 pub struct BrowseNeighborhoods {
-    panel: Panel,
+    top_panel: Panel,
+    left_panel: Panel,
     world: World<NeighborhoodID>,
     draw_over_roads: ToggleZoomed,
     labels: DrawRoadLabels,
@@ -38,8 +39,7 @@ impl BrowseNeighborhoods {
                 )
             });
 
-        let panel = Panel::new_builder(Widget::col(vec![
-            crate::app_header(ctx, app),
+        let left_panel = crate::common::left_panel_builder(Widget::col(vec![
             app.session.alt_proposals.to_widget(ctx, app),
             "Click a neighborhood to edit filters".text_widget(ctx),
             Widget::row(vec![
@@ -97,10 +97,10 @@ impl BrowseNeighborhoods {
             ])])
             .section(ctx),
         ]))
-        .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
         .build(ctx);
         Box::new(BrowseNeighborhoods {
-            panel,
+            top_panel: crate::common::app_top_panel(ctx, app),
+            left_panel,
             world,
             draw_over_roads,
             labels: DrawRoadLabels::only_major_roads().light_background(),
@@ -111,7 +111,10 @@ impl BrowseNeighborhoods {
 
 impl State<App> for BrowseNeighborhoods {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.panel.event(ctx) {
+        if let Some(t) = crate::common::handle_top_panel(ctx, app, &mut self.top_panel) {
+            return t;
+        }
+        match self.left_panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "Export to GeoJSON" => {
                     let result = crate::export::write_geojson_file(ctx, app);
@@ -151,9 +154,6 @@ impl State<App> for BrowseNeighborhoods {
                     return Transition::Replace(BrowseNeighborhoods::new_state(ctx, app));
                 }
                 x => {
-                    if let Some(t) = crate::handle_app_header_click(ctx, app, x) {
-                        return t;
-                    }
                     return crate::save::AltProposals::handle_action(
                         ctx,
                         app,
@@ -165,8 +165,8 @@ impl State<App> for BrowseNeighborhoods {
             },
             Outcome::Changed(_) => {
                 app.session.highlight_boundary_roads =
-                    self.panel.is_checked("highlight boundary roads");
-                app.session.draw_neighborhood_style = self.panel.dropdown_value("style");
+                    self.left_panel.is_checked("highlight boundary roads");
+                app.session.draw_neighborhood_style = self.left_panel.dropdown_value("style");
 
                 ctx.loading_screen("change style", |ctx, timer| {
                     self.world = make_world(ctx, app, timer);
@@ -191,8 +191,9 @@ impl State<App> for BrowseNeighborhoods {
         crate::draw_with_layering(g, app, |g| self.world.draw(g));
         self.draw_over_roads.draw(g);
 
-        self.panel.draw(g);
-        if self.panel.is_checked("highlight boundary roads") {
+        self.top_panel.draw(g);
+        self.left_panel.draw(g);
+        if self.left_panel.is_checked("highlight boundary roads") {
             self.draw_boundary_roads.draw(g);
         }
         app.session.draw_all_filters.draw(g);

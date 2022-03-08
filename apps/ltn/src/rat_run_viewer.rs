@@ -10,7 +10,8 @@ use crate::rat_runs::{find_rat_runs, RatRuns};
 use crate::{App, Neighborhood, NeighborhoodID, Transition};
 
 pub struct BrowseRatRuns {
-    panel: Panel,
+    top_panel: Panel,
+    left_panel: Panel,
     rat_runs: RatRuns,
     // When None, show the heatmap of all rat runs
     current_idx: Option<usize>,
@@ -43,7 +44,8 @@ impl BrowseRatRuns {
         let world = make_world(ctx, app, &neighborhood, &rat_runs);
 
         let mut state = BrowseRatRuns {
-            panel: Panel::empty(ctx),
+            top_panel: crate::common::app_top_panel(ctx, app),
+            left_panel: Panel::empty(ctx),
             rat_runs,
             current_idx: None,
             draw_path: ToggleZoomed::empty(ctx),
@@ -73,7 +75,7 @@ impl BrowseRatRuns {
             self.rat_runs.quiet_and_total_streets(&self.neighborhood);
 
         if self.rat_runs.paths.is_empty() {
-            self.panel = Tab::RatRuns
+            self.left_panel = Tab::RatRuns
                 .panel_builder(
                     ctx,
                     app,
@@ -91,11 +93,11 @@ impl BrowseRatRuns {
         }
 
         // Optimization to avoid recalculating the whole panel
-        if self.panel.has_widget("prev/next controls") && self.current_idx.is_some() {
+        if self.left_panel.has_widget("prev/next controls") && self.current_idx.is_some() {
             let controls = self.prev_next_controls(ctx);
-            self.panel.replace(ctx, "prev/next controls", controls);
+            self.left_panel.replace(ctx, "prev/next controls", controls);
         } else {
-            self.panel = Tab::RatRuns
+            self.left_panel = Tab::RatRuns
                 .panel_builder(
                     ctx,
                     app,
@@ -178,7 +180,10 @@ impl BrowseRatRuns {
 
 impl State<App> for BrowseRatRuns {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.panel.event(ctx) {
+        if let Some(t) = crate::common::handle_top_panel(ctx, app, &mut self.top_panel) {
+            return t;
+        }
+        match self.left_panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "previous rat run" => {
                     for idx in &mut self.current_idx {
@@ -199,7 +204,7 @@ impl State<App> for BrowseRatRuns {
                 }
             },
             Outcome::Changed(_) => {
-                if self.panel.is_checked("show rat-runs") {
+                if self.left_panel.is_checked("show rat-runs") {
                     self.current_idx = None;
                 } else {
                     self.current_idx = Some(0);
@@ -229,7 +234,8 @@ impl State<App> for BrowseRatRuns {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.panel.draw(g);
+        self.top_panel.draw(g);
+        self.left_panel.draw(g);
 
         if self.current_idx.is_some() {
             self.draw_path.draw(g);

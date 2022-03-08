@@ -12,7 +12,8 @@ use crate::per_neighborhood::{FilterableObj, Tab};
 use crate::{after_edit, App, Neighborhood, NeighborhoodID, Transition};
 
 pub struct Viewer {
-    panel: Panel,
+    top_panel: Panel,
+    left_panel: Panel,
     neighborhood: Neighborhood,
     world: World<FilterableObj>,
     draw_top_layer: ToggleZoomed,
@@ -23,7 +24,8 @@ impl Viewer {
         let neighborhood = Neighborhood::new(ctx, app, id);
 
         let mut viewer = Viewer {
-            panel: Panel::empty(ctx),
+            top_panel: crate::common::app_top_panel(ctx, app),
+            left_panel: Panel::empty(ctx),
             neighborhood,
             world: World::unbounded(),
             draw_top_layer: ToggleZoomed::empty(ctx),
@@ -45,7 +47,7 @@ impl Viewer {
             format!("{} cells are totally disconnected", disconnected_cells)
         };
 
-        self.panel = Tab::Connectivity
+        self.left_panel = Tab::Connectivity
             .panel_builder(
                 ctx,
                 app,
@@ -95,7 +97,10 @@ impl Viewer {
 
 impl State<App> for Viewer {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.panel.event(ctx) {
+        if let Some(t) = crate::common::handle_top_panel(ctx, app, &mut self.top_panel) {
+            return t;
+        }
+        match self.left_panel.event(ctx) {
             Outcome::Clicked(x) => {
                 if x == "Automatically stop rat-runs" {
                     ctx.loading_screen("automatically filter a neighborhood", |ctx, timer| {
@@ -110,7 +115,7 @@ impl State<App> for Viewer {
                     return Transition::Push(FreehandFilters::new_state(
                         ctx,
                         &self.neighborhood,
-                        self.panel.center_of("Create filters along a shape"),
+                        self.left_panel.center_of("Create filters along a shape"),
                     ));
                 }
 
@@ -119,8 +124,8 @@ impl State<App> for Viewer {
                     .unwrap();
             }
             Outcome::Changed(x) => {
-                app.session.draw_cells_as_areas = self.panel.is_checked("draw cells");
-                app.session.heuristic = self.panel.dropdown_value("heuristic");
+                app.session.draw_cells_as_areas = self.left_panel.is_checked("draw cells");
+                app.session.heuristic = self.left_panel.dropdown_value("heuristic");
 
                 if x != "heuristic" {
                     let (world, draw_top_layer) = make_world(ctx, app, &self.neighborhood);
@@ -149,7 +154,8 @@ impl State<App> for Viewer {
         g.redraw(&self.neighborhood.fade_irrelevant);
         self.draw_top_layer.draw(g);
 
-        self.panel.draw(g);
+        self.top_panel.draw(g);
+        self.left_panel.draw(g);
         app.session.draw_all_filters.draw(g);
         // TODO Since we cover such a small area, treating multiple segments of one road as the
         // same might be nice. And we should seed the quadtree with the locations of filters and
