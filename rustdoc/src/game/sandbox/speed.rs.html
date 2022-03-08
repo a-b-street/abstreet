@@ -572,8 +572,8 @@
 <span class="kw">use</span> <span class="ident">widgetry::tools::PopupMsg</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">DrawWithTooltips</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
-    <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">PersistentSplit</span>, <span class="ident">ScreenDims</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>,
-    <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">PanelDims</span>, <span class="ident">PersistentSplit</span>, <span class="ident">ScreenDims</span>, <span class="ident">Text</span>,
+    <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
@@ -722,7 +722,7 @@
         ]))
         .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Left</span>, <span class="ident">VerticalAlignment::Top</span>);
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">h</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">override_height</span> {
-            <span class="ident">panel</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">exact_height</span>(<span class="ident">h</span>);
+            <span class="ident">panel</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">dims_height</span>(<span class="ident">PanelDims::ExactPixels</span>(<span class="ident">h</span>));
         }
         <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">build</span>(<span class="ident">ctx</span>);
     }

@@ -646,15 +646,16 @@
 <span id="644">644</span>
 <span id="645">645</span>
 <span id="646">646</span>
+<span id="647">647</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">rand::SeedableRng</span>;
 <span class="kw">use</span> <span class="ident">rand_xorshift::XorShiftRng</span>;
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Duration</span>, <span class="ident">Percent</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>, <span class="ident">UnitFmt</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Duration</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>, <span class="ident">UnitFmt</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">lctrl</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">ContentMode</span>, <span class="ident">DragDrop</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">Fill</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
-    <span class="ident">HorizontalAlignment</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">LinePlot</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">PersistentSplit</span>, <span class="ident">PlotOptions</span>,
-    <span class="ident">ScreenDims</span>, <span class="ident">Series</span>, <span class="ident">Settings</span>, <span class="ident">SharedAppState</span>, <span class="ident">StackAxis</span>, <span class="ident">State</span>, <span class="ident">TabController</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>,
-    <span class="ident">Texture</span>, <span class="ident">Toggle</span>, <span class="ident">Transition</span>, <span class="ident">UpdateType</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">HorizontalAlignment</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">LinePlot</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">PanelDims</span>, <span class="ident">PersistentSplit</span>,
+    <span class="ident">PlotOptions</span>, <span class="ident">ScreenDims</span>, <span class="ident">Series</span>, <span class="ident">Settings</span>, <span class="ident">SharedAppState</span>, <span class="ident">StackAxis</span>, <span class="ident">State</span>, <span class="ident">TabController</span>,
+    <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Texture</span>, <span class="ident">Toggle</span>, <span class="ident">Transition</span>, <span class="ident">UpdateType</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">main</span>() {
@@ -769,7 +770,8 @@
         ]))
         <span class="comment">// Don&#39;t let the panel exceed this percentage of the window. Scrollbars appear</span>
         <span class="comment">// automatically if needed.</span>
-        .<span class="ident">max_size</span>(<span class="ident">Percent::int</span>(<span class="number">30</span>), <span class="ident">Percent::int</span>(<span class="number">40</span>))
+        .<span class="ident">dims_width</span>(<span class="ident">PanelDims::MaxPercent</span>(<span class="number">0.3</span>))
+        .<span class="ident">dims_height</span>(<span class="ident">PanelDims::MaxPercent</span>(<span class="number">0.4</span>))
         <span class="comment">// We take up 30% width, and we want to leave 10% window width as buffer.</span>
         .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Percent</span>(<span class="number">0.6</span>), <span class="ident">VerticalAlignment::Center</span>)
         .<span class="ident">build</span>(<span class="ident">ctx</span>);

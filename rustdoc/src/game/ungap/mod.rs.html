@@ -190,8 +190,6 @@
 <span id="188">188</span>
 <span id="189">189</span>
 <span id="190">190</span>
-<span id="191">191</span>
-<span id="192">192</span>
 </pre><pre class="rust"><code><span class="kw">mod</span> <span class="ident">bike_network</span>;
 <span class="kw">mod</span> <span class="ident">explore</span>;
 <span class="kw">mod</span> <span class="ident">layers</span>;
@@ -203,7 +201,7 @@
 <span class="kw">use</span> <span class="ident">geom::CornerRadii</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools::CityPicker</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">EventCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">ScreenDims</span>, <span class="ident">State</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">EventCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">PanelDims</span>, <span class="ident">State</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
     <span class="ident">DEFAULT_CORNER_RADIUS</span>,
 };
 
@@ -313,10 +311,8 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[<span class="ident">header</span>, <span class="ident">tabs</span>]))
             <span class="comment">// The different tabs have different widths. To avoid the UI bouncing around as the user</span>
             <span class="comment">// navigates, this is hardcoded to be a bit wider than the widest tab.</span>
-            .<span class="ident">exact_size</span>(<span class="ident">ScreenDims</span> {
-                <span class="ident">width</span>: <span class="number">620.0</span>,
-                <span class="ident">height</span>: <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_height</span>,
-            })
+            .<span class="ident">dims_width</span>(<span class="ident">PanelDims::ExactPixels</span>(<span class="number">620.0</span>))
+            .<span class="ident">dims_height</span>(<span class="ident">PanelDims::ExactPercent</span>(<span class="number">1.0</span>))
             .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Left</span>, <span class="ident">VerticalAlignment::Top</span>);
         <span class="kw">if</span> <span class="self">self</span> <span class="op">==</span> <span class="ident">Tab::Trip</span> {
             <span class="comment">// Hovering on a card</span>

@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Dims",""]],"struct":[["Panel",""],["PanelBuilder",""]]});
+initSidebarItems({"enum":[["PanelDims",""]],"struct":[["Panel",""],["PanelBuilder",""]]});

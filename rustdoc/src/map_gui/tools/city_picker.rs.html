@@ -500,6 +500,8 @@
 <span id="498">498</span>
 <span id="499">499</span>
 <span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
 
 <span class="kw">use</span> <span class="ident">abstio</span>::{<span class="ident">CityName</span>, <span class="ident">Manifest</span>, <span class="ident">MapName</span>};
@@ -508,8 +510,8 @@
 <span class="kw">use</span> <span class="ident">widgetry::tools::FileLoader</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">lctrl</span>, <span class="ident">Autocomplete</span>, <span class="ident">ClickOutcome</span>, <span class="ident">ControlState</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">DrawWithTooltips</span>, <span class="ident">EventCtx</span>,
-    <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>,
-    <span class="ident">Transition</span>, <span class="ident">Widget</span>,
+    <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">PanelDims</span>, <span class="ident">RewriteColor</span>, <span class="ident">State</span>, <span class="ident">Text</span>,
+    <span class="ident">TextExt</span>, <span class="ident">Transition</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::load::MapLoader</span>;
@@ -780,7 +782,8 @@
                 .<span class="ident">padding</span>(<span class="number">8</span>),
                 <span class="ident">Widget::custom_row</span>(<span class="ident">buttons</span>).<span class="ident">flex_wrap</span>(<span class="ident">ctx</span>, <span class="ident">Percent::int</span>(<span class="number">70</span>)),
             ]))
-            .<span class="ident">exact_size_percent</span>(<span class="number">80</span>, <span class="number">80</span>)
+            .<span class="ident">dims_width</span>(<span class="ident">PanelDims::ExactPercent</span>(<span class="number">0.8</span>))
+            .<span class="ident">dims_height</span>(<span class="ident">PanelDims::ExactPercent</span>(<span class="number">0.8</span>))
             .<span class="ident">build</span>(<span class="ident">ctx</span>),
         })
     }
@@ -906,7 +909,8 @@
         <span class="ident">Box::new</span>(<span class="ident">CitiesInCountryPicker</span> {
             <span class="ident">on_load</span>: <span class="prelude-val">Some</span>(<span class="ident">on_load</span>),
             <span class="ident">panel</span>: <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="ident">col</span>))
-                .<span class="ident">exact_size_percent</span>(<span class="number">80</span>, <span class="number">80</span>)
+                .<span class="ident">dims_width</span>(<span class="ident">PanelDims::ExactPercent</span>(<span class="number">0.8</span>))
+                .<span class="ident">dims_height</span>(<span class="ident">PanelDims::ExactPercent</span>(<span class="number">0.8</span>))
                 .<span class="ident">build</span>(<span class="ident">ctx</span>),
         })
     }

@@ -353,6 +353,11 @@
 <span id="351">351</span>
 <span id="352">352</span>
 <span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>};
 <span class="kw">use</span> <span class="ident">map_model::Perimeter</span>;
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ToggleZoomed</span>, <span class="ident">World</span>};
@@ -367,7 +372,8 @@
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">after_edit</span>, <span class="ident">App</span>, <span class="ident">Neighborhood</span>, <span class="ident">NeighborhoodID</span>, <span class="ident">Transition</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Viewer</span> {
-    <span class="ident">panel</span>: <span class="ident">Panel</span>,
+    <span class="ident">top_panel</span>: <span class="ident">Panel</span>,
+    <span class="ident">left_panel</span>: <span class="ident">Panel</span>,
     <span class="ident">neighborhood</span>: <span class="ident">Neighborhood</span>,
     <span class="ident">world</span>: <span class="ident">World</span><span class="op">&lt;</span><span class="ident">FilterableObj</span><span class="op">&gt;</span>,
     <span class="ident">draw_top_layer</span>: <span class="ident">ToggleZoomed</span>,
@@ -378,7 +384,8 @@
         <span class="kw">let</span> <span class="ident">neighborhood</span> <span class="op">=</span> <span class="ident">Neighborhood::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">viewer</span> <span class="op">=</span> <span class="ident">Viewer</span> {
-            <span class="ident">panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
+            <span class="ident">top_panel</span>: <span class="ident"><span class="kw">crate</span>::common::app_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+            <span class="ident">left_panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
             <span class="ident">neighborhood</span>,
             <span class="ident">world</span>: <span class="ident">World::unbounded</span>(),
             <span class="ident">draw_top_layer</span>: <span class="ident">ToggleZoomed::empty</span>(<span class="ident">ctx</span>),
@@ -400,10 +407,11 @@
             <span class="macro">format!</span>(<span class="string">&quot;{} cells are totally disconnected&quot;</span>, <span class="ident">disconnected_cells</span>)
         };
 
-        <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">Tab::Connectivity</span>
+        <span class="self">self</span>.<span class="ident">left_panel</span> <span class="op">=</span> <span class="ident">Tab::Connectivity</span>
             .<span class="ident">panel_builder</span>(
                 <span class="ident">ctx</span>,
                 <span class="ident">app</span>,
+                <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">top_panel</span>,
                 <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
                         .<span class="ident">btn_outline</span>
@@ -425,19 +433,17 @@
                         ),
                     ]),
                     <span class="ident">warning</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                        <span class="ident">Widget::dropdown</span>(
-                            <span class="ident">ctx</span>,
-                            <span class="string">&quot;heuristic&quot;</span>,
-                            <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">heuristic</span>,
-                            <span class="ident">Heuristic::choices</span>(),
-                        ),
-                        <span class="ident">ctx</span>.<span class="ident">style</span>()
-                            .<span class="ident">btn_outline</span>
-                            .<span class="ident">text</span>(<span class="string">&quot;Automatically stop rat-runs&quot;</span>)
-                            .<span class="ident">hotkey</span>(<span class="ident">Key::A</span>)
-                            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-                    ]),
+                    <span class="ident">ctx</span>.<span class="ident">style</span>()
+                        .<span class="ident">btn_outline</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;Automatically stop rat-runs&quot;</span>)
+                        .<span class="ident">hotkey</span>(<span class="ident">Key::A</span>)
+                        .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                    <span class="ident">Widget::dropdown</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="string">&quot;heuristic&quot;</span>,
+                        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">heuristic</span>,
+                        <span class="ident">Heuristic::choices</span>(),
+                    ),
                 ]),
             )
             .<span class="ident">build</span>(<span class="ident">ctx</span>);
@@ -450,7 +456,10 @@
 
 <span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Viewer</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::common::handle_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">top_panel</span>) {
+            <span class="kw">return</span> <span class="ident">t</span>;
+        }
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) =&gt; {
                 <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;Automatically stop rat-runs&quot;</span> {
                     <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;automatically filter a neighborhood&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
@@ -465,7 +474,7 @@
                     <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">FreehandFilters::new_state</span>(
                         <span class="ident">ctx</span>,
                         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">neighborhood</span>,
-                        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">center_of</span>(<span class="string">&quot;Create filters along a shape&quot;</span>),
+                        <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">center_of</span>(<span class="string">&quot;Create filters along a shape&quot;</span>),
                     ));
                 }
 
@@ -474,8 +483,8 @@
                     .<span class="ident">unwrap</span>();
             }
             <span class="ident">Outcome::Changed</span>(<span class="ident">x</span>) =&gt; {
-                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_cells_as_areas</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;draw cells&quot;</span>);
-                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">heuristic</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;heuristic&quot;</span>);
+                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_cells_as_areas</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;draw cells&quot;</span>);
+                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">heuristic</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;heuristic&quot;</span>);
 
                 <span class="kw">if</span> <span class="ident">x</span> <span class="op">!</span><span class="op">=</span> <span class="string">&quot;heuristic&quot;</span> {
                     <span class="kw">let</span> (<span class="ident">world</span>, <span class="ident">draw_top_layer</span>) <span class="op">=</span> <span class="ident">make_world</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">neighborhood</span>);
@@ -504,7 +513,8 @@
         <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">neighborhood</span>.<span class="ident">fade_irrelevant</span>);
         <span class="self">self</span>.<span class="ident">draw_top_layer</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
 
-        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+        <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+        <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_all_filters</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="comment">// TODO Since we cover such a small area, treating multiple segments of one road as the</span>
         <span class="comment">// same might be nice. And we should seed the quadtree with the locations of filters and</span>

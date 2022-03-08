@@ -457,6 +457,7 @@
 <span id="455">455</span>
 <span id="456">456</span>
 <span id="457">457</span>
+<span id="458">458</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">instant::Instant</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil::prettyprint_usize</span>;
@@ -466,7 +467,7 @@
 <span class="kw">use</span> <span class="ident">map_gui::ID</span>;
 <span class="kw">use</span> <span class="ident">widgetry::tools::PopupMsg</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Choice</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">ScreenDims</span>,
+    <span class="ident">Choice</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">PanelDims</span>,
     <span class="ident">Slider</span>, <span class="ident">State</span>, <span class="ident">TabController</span>, <span class="ident">Text</span>, <span class="ident">Toggle</span>, <span class="ident">UpdateType</span>, <span class="ident">Widget</span>,
 };
 
@@ -562,7 +563,8 @@
                 <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">tabs</span>.<span class="ident">build_widget</span>(<span class="ident">ctx</span>),
             ]))
-            .<span class="ident">exact_size</span>(<span class="ident">ScreenDims::new</span>(<span class="number">640.0</span>, <span class="number">360.0</span>))
+            .<span class="ident">dims_width</span>(<span class="ident">PanelDims::ExactPixels</span>(<span class="number">640.0</span>))
+            .<span class="ident">dims_height</span>(<span class="ident">PanelDims::ExactPixels</span>(<span class="number">360.0</span>))
             .<span class="ident">build</span>(<span class="ident">ctx</span>),
             <span class="ident">tabs</span>,
         })

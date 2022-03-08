@@ -379,6 +379,17 @@
 <span id="377">377</span>
 <span id="378">378</span>
 <span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
@@ -389,8 +400,7 @@
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">World</span>, <span class="ident">WorldOutcome</span>};
 <span class="kw">use</span> <span class="ident">widgetry::tools::Lasso</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>,
-    <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::browse::draw_boundary_roads</span>;
@@ -398,7 +408,8 @@
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">App</span>, <span class="ident">NeighborhoodID</span>, <span class="ident">Partitioning</span>, <span class="ident">Transition</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SelectBoundary</span> {
-    <span class="ident">panel</span>: <span class="ident">Panel</span>,
+    <span class="ident">top_panel</span>: <span class="ident">Panel</span>,
+    <span class="ident">left_panel</span>: <span class="ident">Panel</span>,
     <span class="ident">id</span>: <span class="ident">NeighborhoodID</span>,
     <span class="ident">world</span>: <span class="ident">World</span><span class="op">&lt;</span><span class="ident">BlockID</span><span class="op">&gt;</span>,
     <span class="ident">draw_boundary_roads</span>: <span class="ident">ToggleZoomed</span>,
@@ -417,8 +428,11 @@
 
 <span class="kw">impl</span> <span class="ident">SelectBoundary</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">NeighborhoodID</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">top_panel</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::common::app_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+        <span class="kw">let</span> <span class="ident">left_panel</span> <span class="op">=</span> <span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">top_panel</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">SelectBoundary</span> {
-            <span class="ident">panel</span>: <span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+            <span class="ident">top_panel</span>,
+            <span class="ident">left_panel</span>,
             <span class="ident">id</span>,
             <span class="ident">world</span>: <span class="ident">World::bounded</span>(<span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>()),
             <span class="ident">draw_boundary_roads</span>: <span class="ident">draw_boundary_roads</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
@@ -525,12 +539,14 @@
                 }
 
                 <span class="self">self</span>.<span class="ident">draw_boundary_roads</span> <span class="op">=</span> <span class="ident">draw_boundary_roads</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-                <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                <span class="self">self</span>.<span class="ident">left_panel</span> <span class="op">=</span> <span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">top_panel</span>);
             }
             <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
                 <span class="self">self</span>.<span class="ident">last_failed_change</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">id</span>, <span class="self">self</span>.<span class="ident">currently_have_block</span>(<span class="ident">app</span>, <span class="ident">id</span>)));
-                <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="ident">err</span>.<span class="ident">to_string</span>().<span class="ident">text_widget</span>(<span class="ident">ctx</span>);
-                <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;warning&quot;</span>, <span class="ident">label</span>);
+                <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="ident">err</span>.<span class="ident">to_string</span>()))
+                    .<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">15</span>)
+                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>);
+                <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;warning&quot;</span>, <span class="ident">label</span>);
             }
         }
 
@@ -629,12 +645,15 @@
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">polygon</span>) <span class="op">=</span> <span class="ident">lasso</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
                 <span class="self">self</span>.<span class="ident">lasso</span> <span class="op">=</span> <span class="prelude-val">None</span>;
                 <span class="self">self</span>.<span class="ident">add_blocks_freehand</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">polygon</span>);
-                <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                <span class="self">self</span>.<span class="ident">left_panel</span> <span class="op">=</span> <span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">top_panel</span>);
             }
             <span class="kw">return</span> <span class="ident">Transition::Keep</span>;
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::common::handle_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">top_panel</span>) {
+            <span class="kw">return</span> <span class="ident">t</span>;
+        }
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;Cancel&quot;</span> =&gt; {
                     <span class="comment">// TODO If we destroyed the current neighborhood, then we cancel, we&#39;ll pop</span>
@@ -652,11 +671,9 @@
                 }
                 <span class="string">&quot;Select freehand&quot;</span> =&gt; {
                     <span class="self">self</span>.<span class="ident">lasso</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Lasso::new</span>());
-                    <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">make_panel_for_lasso</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                    <span class="self">self</span>.<span class="ident">left_panel</span> <span class="op">=</span> <span class="ident">make_panel_for_lasso</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">top_panel</span>);
                 }
-                <span class="ident">x</span> =&gt; {
-                    <span class="kw">return</span> <span class="ident"><span class="kw">crate</span>::handle_app_header_click</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">x</span>).<span class="ident">unwrap</span>();
-                }
+                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
             }
         }
 
@@ -687,7 +704,8 @@
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
         <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="self">self</span>.<span class="ident">draw_boundary_roads</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+        <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+        <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="kw">if</span> <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">is_unzoomed</span>() {
             <span class="self">self</span>.<span class="ident">labels</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
         }
@@ -697,65 +715,69 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">make_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Panel</span> {
-    <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-        <span class="ident"><span class="kw">crate</span>::app_header</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-        <span class="ident">Line</span>(<span class="string">&quot;Adjusting neighborhood boundary&quot;</span>)
-            .<span class="ident">small_heading</span>()
+<span class="kw">fn</span> <span class="ident">make_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">top_panel</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) -&gt; <span class="ident">Panel</span> {
+    <span class="ident"><span class="kw">crate</span>::common::left_panel_builder</span>(
+        <span class="ident">ctx</span>,
+        <span class="ident">top_panel</span>,
+        <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+            <span class="ident">Line</span>(<span class="string">&quot;Adjusting neighborhood boundary&quot;</span>)
+                .<span class="ident">small_heading</span>()
+                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+            <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[
+                <span class="ident">Line</span>(<span class="string">&quot;Click&quot;</span>).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>),
+                <span class="ident">Line</span>(<span class="string">&quot; to add/remove a block&quot;</span>),
+            ])
             .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-        <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[
-            <span class="ident">Line</span>(<span class="string">&quot;Click&quot;</span>).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>),
-            <span class="ident">Line</span>(<span class="string">&quot; to add/remove a block&quot;</span>),
-        ])
-        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-        <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[
-            <span class="ident">Line</span>(<span class="string">&quot;Hold &quot;</span>),
-            <span class="ident">Line</span>(<span class="ident">Key::LeftControl</span>.<span class="ident">describe</span>()).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>),
-            <span class="ident">Line</span>(<span class="string">&quot; and paint over blocks to add&quot;</span>),
-        ])
-        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-        <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[
-            <span class="ident">Line</span>(<span class="string">&quot;Hold &quot;</span>),
-            <span class="ident">Line</span>(<span class="ident">Key::LeftShift</span>.<span class="ident">describe</span>()).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>),
-            <span class="ident">Line</span>(<span class="string">&quot; and paint over blocks to remove&quot;</span>),
-        ])
-        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-        <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_outline</span>
-            .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/tools/select.svg&quot;</span>, <span class="string">&quot;Select freehand&quot;</span>)
-            .<span class="ident">hotkey</span>(<span class="ident">Key::F</span>)
-            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+            <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[
+                <span class="ident">Line</span>(<span class="string">&quot;Hold &quot;</span>),
+                <span class="ident">Line</span>(<span class="ident">Key::LeftControl</span>.<span class="ident">describe</span>()).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>),
+                <span class="ident">Line</span>(<span class="string">&quot; and paint over blocks to add&quot;</span>),
+            ])
+            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+            <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[
+                <span class="ident">Line</span>(<span class="string">&quot;Hold &quot;</span>),
+                <span class="ident">Line</span>(<span class="ident">Key::LeftShift</span>.<span class="ident">describe</span>()).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>),
+                <span class="ident">Line</span>(<span class="string">&quot; and paint over blocks to remove&quot;</span>),
+            ])
+            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_solid_primary</span>
-                .<span class="ident">text</span>(<span class="string">&quot;Confirm&quot;</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">Key::Enter</span>)
+                .<span class="ident">btn_outline</span>
+                .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/tools/select.svg&quot;</span>, <span class="string">&quot;Select freehand&quot;</span>)
+                .<span class="ident">hotkey</span>(<span class="ident">Key::F</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_solid_destructive</span>
-                .<span class="ident">text</span>(<span class="string">&quot;Cancel&quot;</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">Key::Escape</span>)
-                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
+                    .<span class="ident">btn_solid_primary</span>
+                    .<span class="ident">text</span>(<span class="string">&quot;Confirm&quot;</span>)
+                    .<span class="ident">hotkey</span>(<span class="ident">Key::Enter</span>)
+                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
+                    .<span class="ident">btn_solid_destructive</span>
+                    .<span class="ident">text</span>(<span class="string">&quot;Cancel&quot;</span>)
+                    .<span class="ident">hotkey</span>(<span class="ident">Key::Escape</span>)
+                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+            ]),
+            <span class="ident">Text::new</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;warning&quot;</span>),
         ]),
-        <span class="ident">Text::new</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;warning&quot;</span>),
-    ]))
-    .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Left</span>, <span class="ident">VerticalAlignment::Top</span>)
+    )
     .<span class="ident">build</span>(<span class="ident">ctx</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">make_panel_for_lasso</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Panel</span> {
-    <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-        <span class="ident"><span class="kw">crate</span>::app_header</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-        <span class="string">&quot;Draw a custom boundary for a neighborhood&quot;</span>
-            .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
-            .<span class="ident">centered_vert</span>(),
-        <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[
-            <span class="ident">Line</span>(<span class="string">&quot;Click and drag&quot;</span>).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>),
-            <span class="ident">Line</span>(<span class="string">&quot; to select the blocks to add to this neighborhood&quot;</span>),
-        ])
-        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-    ]))
-    .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Left</span>, <span class="ident">VerticalAlignment::Top</span>)
+<span class="kw">fn</span> <span class="ident">make_panel_for_lasso</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">top_panel</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) -&gt; <span class="ident">Panel</span> {
+    <span class="ident"><span class="kw">crate</span>::common::left_panel_builder</span>(
+        <span class="ident">ctx</span>,
+        <span class="ident">top_panel</span>,
+        <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+            <span class="string">&quot;Draw a custom boundary for a neighborhood&quot;</span>
+                .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
+                .<span class="ident">centered_vert</span>(),
+            <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[
+                <span class="ident">Line</span>(<span class="string">&quot;Click and drag&quot;</span>).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>),
+                <span class="ident">Line</span>(<span class="string">&quot; to select the blocks to add to this neighborhood&quot;</span>),
+            ])
+            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+        ]),
+    )
     .<span class="ident">build</span>(<span class="ident">ctx</span>)
 }
 </code></pre></div>

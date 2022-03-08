@@ -373,6 +373,12 @@
 <span id="371">371</span>
 <span id="372">372</span>
 <span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Counter</span>, <span class="ident">Timer</span>};
@@ -382,15 +388,16 @@
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ToggleZoomed</span>, <span class="ident">World</span>, <span class="ident">WorldOutcome</span>};
 <span class="kw">use</span> <span class="ident">widgetry::tools::PopupMsg</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
-    <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>,
+    <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::filters::auto::Heuristic</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">App</span>, <span class="ident">Neighborhood</span>, <span class="ident">NeighborhoodID</span>, <span class="ident">Transition</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BrowseNeighborhoods</span> {
-    <span class="ident">panel</span>: <span class="ident">Panel</span>,
+    <span class="ident">top_panel</span>: <span class="ident">Panel</span>,
+    <span class="ident">left_panel</span>: <span class="ident">Panel</span>,
     <span class="ident">world</span>: <span class="ident">World</span><span class="op">&lt;</span><span class="ident">NeighborhoodID</span><span class="op">&gt;</span>,
     <span class="ident">draw_over_roads</span>: <span class="ident">ToggleZoomed</span>,
     <span class="ident">labels</span>: <span class="ident">DrawRoadLabels</span>,
@@ -413,69 +420,73 @@
                 )
             });
 
-        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="ident"><span class="kw">crate</span>::app_header</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-            <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">alt_proposals</span>.<span class="ident">to_widget</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-            <span class="string">&quot;Click a neighborhood to edit filters&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_outline</span>
-                    .<span class="ident">text</span>(<span class="string">&quot;Plan a route&quot;</span>)
-                    .<span class="ident">hotkey</span>(<span class="ident">Key::R</span>)
-                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_outline</span>
-                    .<span class="ident">text</span>(<span class="string">&quot;Export to GeoJSON&quot;</span>)
-                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-            ])
-            .<span class="ident">section</span>(<span class="ident">ctx</span>),
-            <span class="ident">Line</span>(<span class="string">&quot;Advanced&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+        <span class="kw">let</span> <span class="ident">top_panel</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::common::app_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+        <span class="kw">let</span> <span class="ident">left_panel</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::common::left_panel_builder</span>(
+            <span class="ident">ctx</span>,
+            <span class="kw-2">&amp;</span><span class="ident">top_panel</span>,
             <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">alt_proposals</span>.<span class="ident">to_widget</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+                <span class="string">&quot;Click a neighborhood to edit filters&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                    <span class="string">&quot;Draw neighborhoods:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
+                    <span class="ident">ctx</span>.<span class="ident">style</span>()
+                        .<span class="ident">btn_outline</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;Plan a route&quot;</span>)
+                        .<span class="ident">hotkey</span>(<span class="ident">Key::R</span>)
+                        .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                    <span class="ident">ctx</span>.<span class="ident">style</span>()
+                        .<span class="ident">btn_outline</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;Export to GeoJSON&quot;</span>)
+                        .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                ])
+                .<span class="ident">section</span>(<span class="ident">ctx</span>),
+                <span class="ident">Line</span>(<span class="string">&quot;Advanced&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+                <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+                    <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+                        <span class="string">&quot;Draw neighborhoods:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
+                        <span class="ident">Widget::dropdown</span>(
+                            <span class="ident">ctx</span>,
+                            <span class="string">&quot;style&quot;</span>,
+                            <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_neighborhood_style</span>,
+                            <span class="macro">vec!</span>[
+                                <span class="ident">Choice::new</span>(<span class="string">&quot;simple&quot;</span>, <span class="ident">Style::SimpleColoring</span>),
+                                <span class="ident">Choice::new</span>(<span class="string">&quot;cells&quot;</span>, <span class="ident">Style::Cells</span>),
+                                <span class="ident">Choice::new</span>(<span class="string">&quot;quietness&quot;</span>, <span class="ident">Style::Quietness</span>),
+                                <span class="ident">Choice::new</span>(<span class="string">&quot;all rat-runs&quot;</span>, <span class="ident">Style::RatRuns</span>),
+                            ],
+                        ),
+                    ]),
+                    <span class="ident">Toggle::checkbox</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="string">&quot;highlight boundary roads&quot;</span>,
+                        <span class="ident">Key::H</span>,
+                        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">highlight_boundary_roads</span>,
+                    ),
+                ])
+                .<span class="ident">section</span>(<span class="ident">ctx</span>),
+                <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+                    <span class="string">&quot;Predict proposal impact&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
+                    <span class="ident">impact_widget</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+                ])
+                .<span class="ident">section</span>(<span class="ident">ctx</span>),
+                <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+                    <span class="ident">ctx</span>.<span class="ident">style</span>()
+                        .<span class="ident">btn_outline</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;Automatically place filters&quot;</span>)
+                        .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                     <span class="ident">Widget::dropdown</span>(
                         <span class="ident">ctx</span>,
-                        <span class="string">&quot;style&quot;</span>,
-                        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_neighborhood_style</span>,
-                        <span class="macro">vec!</span>[
-                            <span class="ident">Choice::new</span>(<span class="string">&quot;simple&quot;</span>, <span class="ident">Style::SimpleColoring</span>),
-                            <span class="ident">Choice::new</span>(<span class="string">&quot;cells&quot;</span>, <span class="ident">Style::Cells</span>),
-                            <span class="ident">Choice::new</span>(<span class="string">&quot;quietness&quot;</span>, <span class="ident">Style::Quietness</span>),
-                            <span class="ident">Choice::new</span>(<span class="string">&quot;all rat-runs&quot;</span>, <span class="ident">Style::RatRuns</span>),
-                        ],
+                        <span class="string">&quot;heuristic&quot;</span>,
+                        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">heuristic</span>,
+                        <span class="ident">Heuristic::choices</span>(),
                     ),
-                ]),
-                <span class="ident">Toggle::checkbox</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="string">&quot;highlight boundary roads&quot;</span>,
-                    <span class="ident">Key::H</span>,
-                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">highlight_boundary_roads</span>,
-                ),
-            ])
-            .<span class="ident">section</span>(<span class="ident">ctx</span>),
-            <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                <span class="string">&quot;Predict proposal impact&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">impact_widget</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-            ])
-            .<span class="ident">section</span>(<span class="ident">ctx</span>),
-            <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[<span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">Widget::dropdown</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="string">&quot;heuristic&quot;</span>,
-                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">heuristic</span>,
-                    <span class="ident">Heuristic::choices</span>(),
-                ),
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_outline</span>
-                    .<span class="ident">text</span>(<span class="string">&quot;Automatically place filters&quot;</span>)
-                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-            ])])
-            .<span class="ident">section</span>(<span class="ident">ctx</span>),
-        ]))
-        .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Left</span>, <span class="ident">VerticalAlignment::Top</span>)
+                ])
+                .<span class="ident">section</span>(<span class="ident">ctx</span>),
+            ]),
+        )
         .<span class="ident">build</span>(<span class="ident">ctx</span>);
         <span class="ident">Box::new</span>(<span class="ident">BrowseNeighborhoods</span> {
-            <span class="ident">panel</span>,
+            <span class="ident">top_panel</span>,
+            <span class="ident">left_panel</span>,
             <span class="ident">world</span>,
             <span class="ident">draw_over_roads</span>,
             <span class="ident">labels</span>: <span class="ident">DrawRoadLabels::only_major_roads</span>().<span class="ident">light_background</span>(),
@@ -486,7 +497,10 @@
 
 <span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">BrowseNeighborhoods</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::common::handle_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">top_panel</span>) {
+            <span class="kw">return</span> <span class="ident">t</span>;
+        }
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) =&gt; <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;Export to GeoJSON&quot;</span> =&gt; {
                     <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::export::write_geojson_file</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
@@ -526,9 +540,6 @@
                     <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">BrowseNeighborhoods::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
                 }
                 <span class="ident">x</span> =&gt; {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::handle_app_header_click</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">x</span>) {
-                        <span class="kw">return</span> <span class="ident">t</span>;
-                    }
                     <span class="kw">return</span> <span class="ident"><span class="kw">crate</span>::save::AltProposals::handle_action</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">app</span>,
@@ -540,8 +551,8 @@
             },
             <span class="ident">Outcome::Changed</span>(<span class="kw">_</span>) =&gt; {
                 <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">highlight_boundary_roads</span> <span class="op">=</span>
-                    <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;highlight boundary roads&quot;</span>);
-                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_neighborhood_style</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;style&quot;</span>);
+                    <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;highlight boundary roads&quot;</span>);
+                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_neighborhood_style</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;style&quot;</span>);
 
                 <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;change style&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
                     <span class="self">self</span>.<span class="ident">world</span> <span class="op">=</span> <span class="ident">make_world</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">timer</span>);
@@ -566,8 +577,9 @@
         <span class="ident"><span class="kw">crate</span>::draw_with_layering</span>(<span class="ident">g</span>, <span class="ident">app</span>, <span class="op">|</span><span class="ident">g</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">draw</span>(<span class="ident">g</span>));
         <span class="self">self</span>.<span class="ident">draw_over_roads</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
 
-        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;highlight boundary roads&quot;</span>) {
+        <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+        <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;highlight boundary roads&quot;</span>) {
             <span class="self">self</span>.<span class="ident">draw_boundary_roads</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         }
         <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_all_filters</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
@@ -722,9 +734,9 @@
             .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="string">&quot;???&quot;</span>.<span class="ident">to_string</span>());
         <span class="kw">return</span> <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
             <span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
-                <span class="ident">Line</span>(<span class="string">&quot;Predicting impact of your proposal may take a moment.&quot;</span>),
-                <span class="ident">Line</span>(<span class="string">&quot;The application may freeze up during that time.&quot;</span>),
-                <span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;We need to load a {} file&quot;</span>, <span class="ident">size</span>)),
+                <span class="ident">Line</span>(<span class="string">&quot;This will take a moment.&quot;</span>).<span class="ident">small</span>(),
+                <span class="ident">Line</span>(<span class="string">&quot;The app may freeze while calculating.&quot;</span>).<span class="ident">small</span>(),
+                <span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;We need to load a {} file&quot;</span>, <span class="ident">size</span>)).<span class="ident">small</span>(),
             ])
             .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;Calculate&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),

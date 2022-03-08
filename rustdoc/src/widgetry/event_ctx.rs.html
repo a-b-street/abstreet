@@ -308,6 +308,8 @@
 <span id="306">306</span>
 <span id="307">307</span>
 <span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::VecDeque</span>;
 
 <span class="kw">use</span> <span class="ident">instant::Instant</span>;
@@ -317,7 +319,8 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">svg</span>, <span class="ident">Canvas</span>, <span class="ident">CanvasSettings</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">Event</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>,
-    <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">Prerender</span>, <span class="ident">ScreenDims</span>, <span class="ident">Style</span>, <span class="ident">Text</span>, <span class="ident">UserInput</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">PanelDims</span>, <span class="ident">Prerender</span>, <span class="ident">ScreenDims</span>, <span class="ident">Style</span>, <span class="ident">Text</span>, <span class="ident">UserInput</span>, <span class="ident">VerticalAlignment</span>,
+    <span class="ident">Widget</span>,
 };
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>
@@ -513,7 +516,8 @@
                 .<span class="ident">padding</span>(<span class="number">16</span>)
                 .<span class="ident">bg</span>(<span class="ident">Color::grey</span>(<span class="number">0.3</span>)),
         ]))
-        .<span class="ident">exact_size_percent</span>(<span class="number">80</span>, <span class="number">80</span>)
+        .<span class="ident">dims_width</span>(<span class="ident">PanelDims::ExactPercent</span>(<span class="number">0.8</span>))
+        .<span class="ident">dims_height</span>(<span class="ident">PanelDims::ExactPercent</span>(<span class="number">0.8</span>))
         .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Center</span>, <span class="ident">VerticalAlignment::Center</span>)
         .<span class="ident">build_custom</span>(<span class="self">self</span>)
     }
