@@ -4,8 +4,8 @@ use map_gui::tools::checkbox_per_mode;
 use synthpop::{Scenario, TripMode};
 use widgetry::tools::{FileLoader, PopupMsg};
 use widgetry::{
-    Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel, SimpleState,
-    Slider, State, Text, TextExt, Toggle, VerticalAlignment, Widget,
+    Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, Slider, State, Text, TextExt,
+    Toggle, Widget,
 };
 
 use crate::impact::{end_of_day, Filters, Impact};
@@ -15,6 +15,8 @@ use crate::{App, BrowseNeighborhoods, Transition};
 // ... can't we just produce data of a certain shape, and have a UI pretty tuned for that?
 
 pub struct ShowResults {
+    top_panel: Panel,
+    left_panel: Panel,
     draw_all_neighborhoods: Drawable,
 }
 
@@ -44,8 +46,7 @@ impl ShowResults {
             });
         }
 
-        let panel = Panel::new_builder(Widget::col(vec![
-            crate::app_header(ctx, app),
+        let left_panel = crate::common::left_panel_builder(Widget::col(vec![
             Widget::row(vec![
                 Line("Impact prediction").small_heading().into_widget(ctx),
                 ctx.style()
@@ -60,7 +61,6 @@ impl ShowResults {
             app.session.impact.compare_counts.get_panel_widget(ctx).named("compare counts"),
             ctx.style().btn_outline.text("Save before/after counts to files").build_def(ctx),
         ]))
-        .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
         .build(ctx);
 
         let mut batch = GeomBatch::new();
@@ -68,93 +68,81 @@ impl ShowResults {
             batch.push(color.alpha(0.2), block.polygon.clone());
         }
         let draw_all_neighborhoods = batch.upload(ctx);
-        <dyn SimpleState<_>>::new_state(
-            panel,
-            Box::new(ShowResults {
-                draw_all_neighborhoods,
-            }),
-        )
+        Box::new(Self {
+            top_panel: crate::common::app_top_panel(ctx, app),
+            left_panel,
+            draw_all_neighborhoods,
+        })
     }
 }
-
-impl SimpleState<App> for ShowResults {
-    fn on_click(
-        &mut self,
-        ctx: &mut EventCtx,
-        app: &mut App,
-        x: &str,
-        panel: &mut Panel,
-    ) -> Transition {
-        match x {
-            "Browse neighborhoods" => {
-                // Don't just Pop; if we updated the results, the UI won't warn the user about a slow
-                // loading
-                Transition::Replace(BrowseNeighborhoods::new_state(ctx, app))
-            }
-            "Save before/after counts to files" => {
-                let path1 = "counts_a.json";
-                let path2 = "counts_b.json";
-                abstio::write_json(
-                    path1.to_string(),
-                    &app.session.impact.compare_counts.counts_a,
-                );
-                abstio::write_json(
-                    path2.to_string(),
-                    &app.session.impact.compare_counts.counts_b,
-                );
-                Transition::Push(PopupMsg::new_state(
-                    ctx,
-                    "Saved",
-                    vec![format!("Saved {} and {}", path1, path2)],
-                ))
-            }
-            x => {
-                if let Some(t) = crate::handle_app_header_click(ctx, app, x) {
-                    return t;
+impl State<App> for ShowResults {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        if let Some(t) = crate::common::handle_top_panel(ctx, app, &mut self.top_panel) {
+            return t;
+        }
+        match self.left_panel.event(ctx) {
+            Outcome::Clicked(x) => match x.as_ref() {
+                "Browse neighborhoods" => {
+                    // Don't just Pop; if we updated the results, the UI won't warn the user about a slow
+                    // loading
+                    return Transition::Replace(BrowseNeighborhoods::new_state(ctx, app));
+                }
+                "Save before/after counts to files" => {
+                    let path1 = "counts_a.json";
+                    let path2 = "counts_b.json";
+                    abstio::write_json(
+                        path1.to_string(),
+                        &app.session.impact.compare_counts.counts_a,
+                    );
+                    abstio::write_json(
+                        path2.to_string(),
+                        &app.session.impact.compare_counts.counts_b,
+                    );
+                    return Transition::Push(PopupMsg::new_state(
+                        ctx,
+                        "Saved",
+                        vec![format!("Saved {} and {}", path1, path2)],
+                    ));
+                }
+                x => {
+                    // Avoid a double borrow
+                    let mut impact = std::mem::replace(&mut app.session.impact, Impact::empty(ctx));
+                    let widget = impact
+                        .compare_counts
+                        .on_click(ctx, app, x)
+                        .expect("button click didn't belong to CompareCounts");
+                    app.session.impact = impact;
+                    self.left_panel.replace(ctx, "compare counts", widget);
+                    return Transition::Keep;
+                }
+            },
+            Outcome::Changed(_) => {
+                // TODO The sliders should only trigger updates when the user lets go; way too slow
+                // otherwise
+                let filters = Filters::from_panel(&self.left_panel);
+                if filters == app.session.impact.filters {
+                    return Transition::Keep;
                 }
 
                 // Avoid a double borrow
                 let mut impact = std::mem::replace(&mut app.session.impact, Impact::empty(ctx));
-                let widget = impact
-                    .compare_counts
-                    .on_click(ctx, app, x)
-                    .expect("button click didn't belong to CompareCounts");
+                impact.filters = Filters::from_panel(&self.left_panel);
+                ctx.loading_screen("update filters", |ctx, timer| {
+                    impact.trips_changed(ctx, app, timer);
+                });
                 app.session.impact = impact;
-                panel.replace(ctx, "compare counts", widget);
-                Transition::Keep
+                return Transition::Keep;
             }
+            _ => {}
         }
-    }
 
-    fn other_event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         app.session.impact.compare_counts.other_event(ctx);
         Transition::Keep
     }
 
-    // TODO The sliders should only trigger updates when the user lets go; way too slow otherwise
-    fn panel_changed(
-        &mut self,
-        ctx: &mut EventCtx,
-        app: &mut App,
-        panel: &mut Panel,
-    ) -> Option<Transition> {
-        let filters = Filters::from_panel(panel);
-        if filters == app.session.impact.filters {
-            return None;
-        }
-
-        // Avoid a double borrow
-        let mut impact = std::mem::replace(&mut app.session.impact, Impact::empty(ctx));
-        impact.filters = Filters::from_panel(panel);
-        ctx.loading_screen("update filters", |ctx, timer| {
-            impact.trips_changed(ctx, app, timer);
-        });
-        app.session.impact = impact;
-
-        None
-    }
-
     fn draw(&self, g: &mut GfxCtx, app: &App) {
+        self.top_panel.draw(g);
+        self.left_panel.draw(g);
         g.redraw(&self.draw_all_neighborhoods);
         app.session.impact.compare_counts.draw(g);
         app.session.draw_all_filters.draw(g);
@@ -162,7 +150,7 @@ impl SimpleState<App> for ShowResults {
 }
 
 impl Filters {
-    fn from_panel(panel: &mut Panel) -> Filters {
+    fn from_panel(panel: &Panel) -> Filters {
         let (p1, p2) = (
             panel.slider("depart from").get_percent(),
             panel.slider("depart until").get_percent(),

@@ -61,9 +61,17 @@ impl Panel {
                 ScreenDims::new(w * canvas_dims.width, h * canvas_dims.height)
             }
             Dims::ExactSize(dims) => dims,
-            Dims::ExactHeight(h) => {
+            Dims::ExactHeightPixels(h) => {
                 ScreenDims::new(self.contents_dims.width.min(canvas_dims.width), h)
             }
+            Dims::ExactHeightPercent(pct) => ScreenDims::new(
+                self.contents_dims.width.min(canvas_dims.width),
+                pct * canvas_dims.height,
+            ),
+            Dims::ExactWidthPercent(pct) => ScreenDims::new(
+                pct * canvas_dims.width,
+                self.contents_dims.height.min(canvas_dims.height),
+            ),
         };
         self.container_dims = new_container_dims;
     }
@@ -588,7 +596,9 @@ pub struct PanelBuilder {
 enum Dims {
     MaxPercent(Percent, Percent),
     ExactPercent(f64, f64),
-    ExactHeight(f64),
+    ExactHeightPixels(f64),
+    ExactHeightPercent(f64),
+    ExactWidthPercent(f64),
     ExactSize(ScreenDims),
 }
 
@@ -623,8 +633,16 @@ impl PanelBuilder {
                     height: Dimension::Points((h * ctx.canvas.window_height) as f32),
                 };
             }
-            Dims::ExactHeight(h) => {
+            Dims::ExactHeightPixels(h) => {
                 panel.top_level.layout.style.min_size.height = Dimension::Points(h as f32);
+            }
+            Dims::ExactHeightPercent(pct) => {
+                panel.top_level.layout.style.min_size.height =
+                    Dimension::Points((pct * ctx.canvas.window_height) as f32);
+            }
+            Dims::ExactWidthPercent(pct) => {
+                panel.top_level.layout.style.min_size.width =
+                    Dimension::Points((pct * ctx.canvas.window_width) as f32);
             }
             Dims::ExactSize(dims) => {
                 panel.top_level.layout.style.min_size = dims.into();
@@ -687,8 +705,18 @@ impl PanelBuilder {
         self
     }
 
-    pub fn exact_height(mut self, height: f64) -> PanelBuilder {
-        self.dims = Dims::ExactHeight(height);
+    pub fn exact_height_pixels(mut self, height: f64) -> PanelBuilder {
+        self.dims = Dims::ExactHeightPixels(height);
+        self
+    }
+
+    pub fn exact_height_percent(mut self, pct: f64) -> PanelBuilder {
+        self.dims = Dims::ExactHeightPercent(pct);
+        self
+    }
+
+    pub fn exact_width_percent(mut self, pct: f64) -> PanelBuilder {
+        self.dims = Dims::ExactWidthPercent(pct);
         self
     }
 

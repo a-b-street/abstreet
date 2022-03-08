@@ -3,7 +3,7 @@
 use structopt::StructOpt;
 
 use abstutil::Timer;
-use widgetry::{lctrl, EventCtx, GfxCtx, Key, Line, Settings, Widget};
+use widgetry::{EventCtx, GfxCtx, Settings};
 
 pub use browse::BrowseNeighborhoods;
 use filters::Toggle3Zoomed;
@@ -17,6 +17,7 @@ extern crate anyhow;
 extern crate log;
 
 mod browse;
+mod common;
 mod connectivity;
 mod draw_cells;
 mod export;
@@ -176,50 +177,6 @@ fn draw_with_layering<F: Fn(&mut GfxCtx)>(g: &mut GfxCtx, app: &App, custom: F) 
                 drawn_all_buildings = true;
             }
         }
-    }
-}
-
-// Like map_gui::tools::app_header, but squeezing in a search button
-fn app_header(ctx: &EventCtx, app: &App) -> Widget {
-    Widget::col(vec![
-        Widget::row(vec![
-            map_gui::tools::home_btn(ctx),
-            Line("Low traffic neighborhoods")
-                .small_heading()
-                .into_widget(ctx)
-                .centered_vert(),
-        ]),
-        Widget::row(vec![
-            map_gui::tools::change_map_btn(ctx, app),
-            ctx.style()
-                .btn_plain
-                .icon("system/assets/tools/search.svg")
-                .hotkey(lctrl(Key::F))
-                .build_widget(ctx, "search")
-                .align_right(),
-        ]),
-    ])
-}
-
-fn handle_app_header_click(ctx: &mut EventCtx, app: &App, x: &str) -> Option<Transition> {
-    match x {
-        "Home" => Some(Transition::Clear(vec![
-            map_gui::tools::TitleScreen::new_state(
-                ctx,
-                app,
-                map_gui::tools::Executable::LTN,
-                Box::new(|ctx, app, _| BrowseNeighborhoods::new_state(ctx, app)),
-            ),
-        ])),
-        "change map" => Some(Transition::Push(map_gui::tools::CityPicker::new_state(
-            ctx,
-            app,
-            Box::new(|ctx, app| Transition::Replace(BrowseNeighborhoods::new_state(ctx, app))),
-        ))),
-        "search" => Some(Transition::Push(map_gui::tools::Navigator::new_state(
-            ctx, app,
-        ))),
-        _ => None,
     }
 }
 
