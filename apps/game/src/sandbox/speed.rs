@@ -5,8 +5,8 @@ use sim::AlertLocation;
 use widgetry::tools::PopupMsg;
 use widgetry::{
     Choice, Color, ControlState, DrawWithTooltips, EdgeInsets, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Panel, PersistentSplit, ScreenDims, Text, TextExt,
-    VerticalAlignment, Widget,
+    HorizontalAlignment, Key, Line, Outcome, Panel, PanelDims, PersistentSplit, ScreenDims, Text,
+    TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -155,7 +155,7 @@ impl TimePanel {
         ]))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top);
         if let Some(h) = self.override_height {
-            panel = panel.exact_height_pixels(h);
+            panel = panel.dims_height(PanelDims::ExactPixels(h));
         }
         self.panel = panel.build(ctx);
     }

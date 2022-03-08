@@ -1,12 +1,12 @@
 use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
 
-use geom::{Angle, Duration, Percent, Polygon, Pt2D, Time, UnitFmt};
+use geom::{Angle, Duration, Polygon, Pt2D, Time, UnitFmt};
 use widgetry::{
     lctrl, Choice, Color, ContentMode, DragDrop, Drawable, EventCtx, Fill, GeomBatch, GfxCtx,
-    HorizontalAlignment, Image, Key, Line, LinePlot, Outcome, Panel, PersistentSplit, PlotOptions,
-    ScreenDims, Series, Settings, SharedAppState, StackAxis, State, TabController, Text, TextExt,
-    Texture, Toggle, Transition, UpdateType, VerticalAlignment, Widget,
+    HorizontalAlignment, Image, Key, Line, LinePlot, Outcome, Panel, PanelDims, PersistentSplit,
+    PlotOptions, ScreenDims, Series, Settings, SharedAppState, StackAxis, State, TabController,
+    Text, TextExt, Texture, Toggle, Transition, UpdateType, VerticalAlignment, Widget,
 };
 
 pub fn main() {
@@ -121,7 +121,8 @@ impl Demo {
         ]))
         // Don't let the panel exceed this percentage of the window. Scrollbars appear
         // automatically if needed.
-        .max_size(Percent::int(30), Percent::int(40))
+        .dims_width(PanelDims::MaxPercent(0.3))
+        .dims_height(PanelDims::MaxPercent(0.4))
         // We take up 30% width, and we want to leave 10% window width as buffer.
         .aligned(HorizontalAlignment::Percent(0.6), VerticalAlignment::Center)
         .build(ctx);

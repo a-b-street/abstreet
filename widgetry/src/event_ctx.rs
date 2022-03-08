@@ -7,7 +7,8 @@ use geom::{Percent, Polygon};
 
 use crate::{
     svg, Canvas, CanvasSettings, Color, Drawable, Event, GeomBatch, GfxCtx, HorizontalAlignment,
-    Key, Line, Panel, Prerender, ScreenDims, Style, Text, UserInput, VerticalAlignment, Widget,
+    Key, Line, Panel, PanelDims, Prerender, ScreenDims, Style, Text, UserInput, VerticalAlignment,
+    Widget,
 };
 
 #[derive(Clone, PartialEq, Debug)]
@@ -203,7 +204,8 @@ impl<'a> EventCtx<'a> {
                 .padding(16)
                 .bg(Color::grey(0.3)),
         ]))
-        .exact_size_percent(80, 80)
+        .dims_width(PanelDims::ExactPercent(0.8))
+        .dims_height(PanelDims::ExactPercent(0.8))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Center)
         .build_custom(self)
     }

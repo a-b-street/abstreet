@@ -7,7 +7,7 @@ use map_gui::tools::grey_out_map;
 use map_gui::ID;
 use widgetry::tools::PopupMsg;
 use widgetry::{
-    Choice, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, ScreenDims,
+    Choice, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, PanelDims,
     Slider, State, TabController, Text, Toggle, UpdateType, Widget,
 };
 
@@ -103,7 +103,8 @@ impl JumpToTime {
                 ctx.style().btn_close_widget(ctx),
                 tabs.build_widget(ctx),
             ]))
-            .exact_size(ScreenDims::new(640.0, 360.0))
+            .dims_width(PanelDims::ExactPixels(640.0))
+            .dims_height(PanelDims::ExactPixels(360.0))
             .build(ctx),
             tabs,
         })

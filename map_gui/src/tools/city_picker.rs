@@ -6,8 +6,8 @@ use map_model::City;
 use widgetry::tools::FileLoader;
 use widgetry::{
     lctrl, Autocomplete, ClickOutcome, ControlState, DrawBaselayer, DrawWithTooltips, EventCtx,
-    GeomBatch, GfxCtx, Image, Key, Line, Outcome, Panel, RewriteColor, State, Text, TextExt,
-    Transition, Widget,
+    GeomBatch, GfxCtx, Image, Key, Line, Outcome, Panel, PanelDims, RewriteColor, State, Text,
+    TextExt, Transition, Widget,
 };
 
 use crate::load::MapLoader;
@@ -278,7 +278,8 @@ impl<A: AppLike + 'static> AllCityPicker<A> {
                 .padding(8),
                 Widget::custom_row(buttons).flex_wrap(ctx, Percent::int(70)),
             ]))
-            .exact_size_percent(80, 80)
+            .dims_width(PanelDims::ExactPercent(0.8))
+            .dims_height(PanelDims::ExactPercent(0.8))
             .build(ctx),
         })
     }
@@ -404,7 +405,8 @@ impl<A: AppLike + 'static> CitiesInCountryPicker<A> {
         Box::new(CitiesInCountryPicker {
             on_load: Some(on_load),
             panel: Panel::new_builder(Widget::col(col))
-                .exact_size_percent(80, 80)
+                .dims_width(PanelDims::ExactPercent(0.8))
+                .dims_height(PanelDims::ExactPercent(0.8))
                 .build(ctx),
         })
     }
