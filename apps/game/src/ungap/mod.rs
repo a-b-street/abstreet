@@ -9,7 +9,7 @@ mod trip;
 use geom::CornerRadii;
 use map_gui::tools::CityPicker;
 use widgetry::{
-    EventCtx, HorizontalAlignment, Key, Line, Panel, ScreenDims, State, VerticalAlignment, Widget,
+    EventCtx, HorizontalAlignment, Key, Line, Panel, PanelDims, State, VerticalAlignment, Widget,
     DEFAULT_CORNER_RADIUS,
 };
 
@@ -119,10 +119,8 @@ impl Tab {
         let mut panel = Panel::new_builder(Widget::col(vec![header, tabs]))
             // The different tabs have different widths. To avoid the UI bouncing around as the user
             // navigates, this is hardcoded to be a bit wider than the widest tab.
-            .exact_size(ScreenDims {
-                width: 620.0,
-                height: ctx.canvas.window_height,
-            })
+            .dims_width(PanelDims::ExactPixels(620.0))
+            .dims_height(PanelDims::ExactPercent(1.0))
             .aligned(HorizontalAlignment::Left, VerticalAlignment::Top);
         if self == Tab::Trip {
             // Hovering on a card

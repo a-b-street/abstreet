@@ -7,7 +7,7 @@ use stretch::node::{Node, Stretch};
 use stretch::number::Number;
 use stretch::style::{Dimension, Style};
 
-use geom::{Percent, Polygon};
+use geom::Polygon;
 
 use crate::widgets::slider;
 use crate::widgets::spinner::SpinnerValue;
@@ -24,7 +24,8 @@ pub struct Panel {
     cached_flexbox: Option<(Stretch, Vec<Node>, ScreenDims)>,
     horiz: HorizontalAlignment,
     vert: VerticalAlignment,
-    dims: Dims,
+    dims_x: PanelDims,
+    dims_y: PanelDims,
 
     scrollable_x: bool,
     scrollable_y: bool,
@@ -39,7 +40,8 @@ impl Panel {
             top_level,
             horiz: HorizontalAlignment::Center,
             vert: VerticalAlignment::Center,
-            dims: Dims::MaxPercent(Percent::int(100), Percent::int(100)),
+            dims_x: PanelDims::MaxPercent(1.0),
+            dims_y: PanelDims::MaxPercent(1.0),
             ignore_initial_events: false,
         }
     }
@@ -50,30 +52,17 @@ impl Panel {
     }
 
     fn update_container_dims_for_canvas_dims(&mut self, canvas_dims: ScreenDims) {
-        let new_container_dims = match self.dims {
-            Dims::MaxPercent(w, h) => ScreenDims::new(
-                self.contents_dims.width.min(w.inner() * canvas_dims.width),
-                self.contents_dims
-                    .height
-                    .min(h.inner() * canvas_dims.height),
-            ),
-            Dims::ExactPercent(w, h) => {
-                ScreenDims::new(w * canvas_dims.width, h * canvas_dims.height)
-            }
-            Dims::ExactSize(dims) => dims,
-            Dims::ExactHeightPixels(h) => {
-                ScreenDims::new(self.contents_dims.width.min(canvas_dims.width), h)
-            }
-            Dims::ExactHeightPercent(pct) => ScreenDims::new(
-                self.contents_dims.width.min(canvas_dims.width),
-                pct * canvas_dims.height,
-            ),
-            Dims::ExactWidthPercent(pct) => ScreenDims::new(
-                pct * canvas_dims.width,
-                self.contents_dims.height.min(canvas_dims.height),
-            ),
+        let width = match self.dims_x {
+            PanelDims::MaxPercent(pct) => self.contents_dims.width.min(pct * canvas_dims.width),
+            PanelDims::ExactPercent(pct) => pct * canvas_dims.width,
+            PanelDims::ExactPixels(x) => x,
         };
-        self.container_dims = new_container_dims;
+        let height = match self.dims_y {
+            PanelDims::MaxPercent(pct) => self.contents_dims.height.min(pct * canvas_dims.height),
+            PanelDims::ExactPercent(pct) => pct * canvas_dims.height,
+            PanelDims::ExactPixels(x) => x,
+        };
+        self.container_dims = ScreenDims::new(width, height);
     }
 
     fn recompute_scrollbar_layout(&mut self, ctx: &EventCtx) {
@@ -589,17 +578,16 @@ pub struct PanelBuilder {
     top_level: Widget,
     horiz: HorizontalAlignment,
     vert: VerticalAlignment,
-    dims: Dims,
+    dims_x: PanelDims,
+    dims_y: PanelDims,
     ignore_initial_events: bool,
 }
 
-enum Dims {
-    MaxPercent(Percent, Percent),
-    ExactPercent(f64, f64),
-    ExactHeightPixels(f64),
-    ExactHeightPercent(f64),
-    ExactWidthPercent(f64),
-    ExactSize(ScreenDims),
+#[derive(Clone, Copy)]
+pub enum PanelDims {
+    MaxPercent(f64),
+    ExactPercent(f64),
+    ExactPixels(f64),
 }
 
 impl PanelBuilder {
@@ -615,7 +603,8 @@ impl PanelBuilder {
 
             horiz: self.horiz,
             vert: self.vert,
-            dims: self.dims,
+            dims_x: self.dims_x,
+            dims_y: self.dims_y,
 
             scrollable_x: false,
             scrollable_y: false,
@@ -624,30 +613,27 @@ impl PanelBuilder {
             clip_rect: None,
             cached_flexbox: None,
         };
-        match panel.dims {
-            Dims::ExactPercent(w, h) => {
+        match self.dims_x {
+            PanelDims::MaxPercent(_) => {}
+            PanelDims::ExactPercent(pct) => {
                 // Don't set size, because then scrolling breaks -- the actual size has to be based
                 // on the contents.
-                panel.top_level.layout.style.min_size = Size {
-                    width: Dimension::Points((w * ctx.canvas.window_width) as f32),
-                    height: Dimension::Points((h * ctx.canvas.window_height) as f32),
-                };
-            }
-            Dims::ExactHeightPixels(h) => {
-                panel.top_level.layout.style.min_size.height = Dimension::Points(h as f32);
-            }
-            Dims::ExactHeightPercent(pct) => {
-                panel.top_level.layout.style.min_size.height =
-                    Dimension::Points((pct * ctx.canvas.window_height) as f32);
-            }
-            Dims::ExactWidthPercent(pct) => {
                 panel.top_level.layout.style.min_size.width =
                     Dimension::Points((pct * ctx.canvas.window_width) as f32);
             }
-            Dims::ExactSize(dims) => {
-                panel.top_level.layout.style.min_size = dims.into();
+            PanelDims::ExactPixels(x) => {
+                panel.top_level.layout.style.min_size.width = Dimension::Points(x as f32);
             }
-            Dims::MaxPercent(_, _) => {}
+        }
+        match self.dims_y {
+            PanelDims::MaxPercent(_) => {}
+            PanelDims::ExactPercent(pct) => {
+                panel.top_level.layout.style.min_size.height =
+                    Dimension::Points((pct * ctx.canvas.window_height) as f32);
+            }
+            PanelDims::ExactPixels(x) => {
+                panel.top_level.layout.style.min_size.height = Dimension::Points(x as f32);
+            }
         }
 
         // There is a dependency cycle in our layout logic. As a consequence:
@@ -692,37 +678,20 @@ impl PanelBuilder {
         self
     }
 
-    pub fn max_size(mut self, width: Percent, height: Percent) -> PanelBuilder {
-        if width == Percent::int(100) && height == Percent::int(100) {
-            panic!("By default, Panels are capped at 100% of the screen. This is redundant.");
-        }
-        self.dims = Dims::MaxPercent(width, height);
+    pub fn dims_width(mut self, dims: PanelDims) -> PanelBuilder {
+        self.dims_x = dims;
         self
     }
 
-    pub fn exact_size_percent(mut self, pct_width: usize, pct_height: usize) -> PanelBuilder {
-        self.dims = Dims::ExactPercent((pct_width as f64) / 100.0, (pct_height as f64) / 100.0);
+    pub fn dims_height(mut self, dims: PanelDims) -> PanelBuilder {
+        self.dims_y = dims;
         self
     }
 
-    pub fn exact_height_pixels(mut self, height: f64) -> PanelBuilder {
-        self.dims = Dims::ExactHeightPixels(height);
-        self
-    }
-
-    pub fn exact_height_percent(mut self, pct: f64) -> PanelBuilder {
-        self.dims = Dims::ExactHeightPercent(pct);
-        self
-    }
-
-    pub fn exact_width_percent(mut self, pct: f64) -> PanelBuilder {
-        self.dims = Dims::ExactWidthPercent(pct);
-        self
-    }
-
-    pub fn exact_size(mut self, size: ScreenDims) -> PanelBuilder {
-        self.dims = Dims::ExactSize(size);
-        self
+    // TODO Change all callers
+    pub fn exact_size_percent(self, x: usize, y: usize) -> PanelBuilder {
+        self.dims_width(PanelDims::ExactPercent((x as f64) / 100.0))
+            .dims_height(PanelDims::ExactPercent((y as f64) / 100.0))
     }
 
     /// When a panel is built, a fake, "no-op" mouseover event is immediately fired, to let all

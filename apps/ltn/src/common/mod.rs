@@ -1,5 +1,5 @@
 use widgetry::{
-    lctrl, EventCtx, HorizontalAlignment, Key, Line, Outcome, Panel, PanelBuilder,
+    lctrl, EventCtx, HorizontalAlignment, Key, Line, Outcome, Panel, PanelBuilder, PanelDims,
     VerticalAlignment, Widget,
 };
 
@@ -21,7 +21,7 @@ pub fn app_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
             .align_right(),
     ]))
     .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
-    .exact_width_percent(1.0)
+    .dims_width(PanelDims::ExactPercent(1.0))
     .build(ctx)
 }
 
@@ -58,5 +58,5 @@ pub fn left_panel_builder(contents: Widget) -> PanelBuilder {
             HorizontalAlignment::Percent(0.0),
             VerticalAlignment::Percent(0.1),
         )
-        .exact_height_percent(0.9)
+        .dims_height(PanelDims::ExactPercent(0.9))
 }
