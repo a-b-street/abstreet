@@ -46,7 +46,7 @@ impl ShowResults {
             });
         }
 
-        let left_panel = crate::common::left_panel_builder(Widget::col(vec![
+        let contents = Widget::col(vec![
             Widget::row(vec![
                 Line("Impact prediction").small_heading().into_widget(ctx),
                 ctx.style()
@@ -60,8 +60,9 @@ impl ShowResults {
             app.session.impact.filters.to_panel(ctx, app),
             app.session.impact.compare_counts.get_panel_widget(ctx).named("compare counts"),
             ctx.style().btn_outline.text("Save before/after counts to files").build_def(ctx),
-        ]))
-        .build(ctx);
+        ]);
+        let top_panel = crate::common::app_top_panel(ctx, app);
+        let left_panel = crate::common::left_panel_builder(ctx, &top_panel, contents).build(ctx);
 
         let mut batch = GeomBatch::new();
         for (_, (block, color)) in app.session.partitioning.all_neighborhoods() {
@@ -69,7 +70,7 @@ impl ShowResults {
         }
         let draw_all_neighborhoods = batch.upload(ctx);
         Box::new(Self {
-            top_panel: crate::common::app_top_panel(ctx, app),
+            top_panel,
             left_panel,
             draw_all_neighborhoods,
         })

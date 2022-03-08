@@ -79,6 +79,7 @@ impl BrowseRatRuns {
                 .panel_builder(
                     ctx,
                     app,
+                    &self.top_panel,
                     percentage_bar(
                         ctx,
                         Text::from(Line(format!(
@@ -101,6 +102,7 @@ impl BrowseRatRuns {
                 .panel_builder(
                     ctx,
                     app,
+                    &self.top_panel,
                     Widget::col(vec![
                         percentage_bar(
                             ctx,

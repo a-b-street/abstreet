@@ -36,9 +36,11 @@ pub struct SelectBoundary {
 
 impl SelectBoundary {
     pub fn new_state(ctx: &mut EventCtx, app: &App, id: NeighborhoodID) -> Box<dyn State<App>> {
+        let top_panel = crate::common::app_top_panel(ctx, app);
+        let left_panel = make_panel(ctx, &top_panel);
         let mut state = SelectBoundary {
-            top_panel: crate::common::app_top_panel(ctx, app),
-            left_panel: make_panel(ctx),
+            top_panel,
+            left_panel,
             id,
             world: World::bounded(app.map.get_bounds()),
             draw_boundary_roads: draw_boundary_roads(ctx, app),
@@ -145,7 +147,7 @@ impl SelectBoundary {
                 }
 
                 self.draw_boundary_roads = draw_boundary_roads(ctx, app);
-                self.left_panel = make_panel(ctx);
+                self.left_panel = make_panel(ctx, &self.top_panel);
             }
             Err(err) => {
                 self.last_failed_change = Some((id, self.currently_have_block(app, id)));
@@ -249,7 +251,7 @@ impl State<App> for SelectBoundary {
             if let Some(polygon) = lasso.event(ctx) {
                 self.lasso = None;
                 self.add_blocks_freehand(ctx, app, polygon);
-                self.left_panel = make_panel(ctx);
+                self.left_panel = make_panel(ctx, &self.top_panel);
             }
             return Transition::Keep;
         }
@@ -275,7 +277,7 @@ impl State<App> for SelectBoundary {
                 }
                 "Select freehand" => {
                     self.lasso = Some(Lasso::new());
-                    self.left_panel = make_panel_for_lasso(ctx);
+                    self.left_panel = make_panel_for_lasso(ctx, &self.top_panel);
                 }
                 _ => unreachable!(),
             }
@@ -319,60 +321,68 @@ impl State<App> for SelectBoundary {
     }
 }
 
-fn make_panel(ctx: &mut EventCtx) -> Panel {
-    crate::common::left_panel_builder(Widget::col(vec![
-        Line("Adjusting neighborhood boundary")
-            .small_heading()
+fn make_panel(ctx: &mut EventCtx, top_panel: &Panel) -> Panel {
+    crate::common::left_panel_builder(
+        ctx,
+        top_panel,
+        Widget::col(vec![
+            Line("Adjusting neighborhood boundary")
+                .small_heading()
+                .into_widget(ctx),
+            Text::from_all(vec![
+                Line("Click").fg(ctx.style().text_hotkey_color),
+                Line(" to add/remove a block"),
+            ])
             .into_widget(ctx),
-        Text::from_all(vec![
-            Line("Click").fg(ctx.style().text_hotkey_color),
-            Line(" to add/remove a block"),
-        ])
-        .into_widget(ctx),
-        Text::from_all(vec![
-            Line("Hold "),
-            Line(Key::LeftControl.describe()).fg(ctx.style().text_hotkey_color),
-            Line(" and paint over blocks to add"),
-        ])
-        .into_widget(ctx),
-        Text::from_all(vec![
-            Line("Hold "),
-            Line(Key::LeftShift.describe()).fg(ctx.style().text_hotkey_color),
-            Line(" and paint over blocks to remove"),
-        ])
-        .into_widget(ctx),
-        ctx.style()
-            .btn_outline
-            .icon_text("system/assets/tools/select.svg", "Select freehand")
-            .hotkey(Key::F)
-            .build_def(ctx),
-        Widget::row(vec![
+            Text::from_all(vec![
+                Line("Hold "),
+                Line(Key::LeftControl.describe()).fg(ctx.style().text_hotkey_color),
+                Line(" and paint over blocks to add"),
+            ])
+            .into_widget(ctx),
+            Text::from_all(vec![
+                Line("Hold "),
+                Line(Key::LeftShift.describe()).fg(ctx.style().text_hotkey_color),
+                Line(" and paint over blocks to remove"),
+            ])
+            .into_widget(ctx),
             ctx.style()
-                .btn_solid_primary
-                .text("Confirm")
-                .hotkey(Key::Enter)
+                .btn_outline
+                .icon_text("system/assets/tools/select.svg", "Select freehand")
+                .hotkey(Key::F)
                 .build_def(ctx),
-            ctx.style()
-                .btn_solid_destructive
-                .text("Cancel")
-                .hotkey(Key::Escape)
-                .build_def(ctx),
+            Widget::row(vec![
+                ctx.style()
+                    .btn_solid_primary
+                    .text("Confirm")
+                    .hotkey(Key::Enter)
+                    .build_def(ctx),
+                ctx.style()
+                    .btn_solid_destructive
+                    .text("Cancel")
+                    .hotkey(Key::Escape)
+                    .build_def(ctx),
+            ]),
+            Text::new().into_widget(ctx).named("warning"),
         ]),
-        Text::new().into_widget(ctx).named("warning"),
-    ]))
+    )
     .build(ctx)
 }
 
-fn make_panel_for_lasso(ctx: &mut EventCtx) -> Panel {
-    crate::common::left_panel_builder(Widget::col(vec![
-        "Draw a custom boundary for a neighborhood"
-            .text_widget(ctx)
-            .centered_vert(),
-        Text::from_all(vec![
-            Line("Click and drag").fg(ctx.style().text_hotkey_color),
-            Line(" to select the blocks to add to this neighborhood"),
-        ])
-        .into_widget(ctx),
-    ]))
+fn make_panel_for_lasso(ctx: &mut EventCtx, top_panel: &Panel) -> Panel {
+    crate::common::left_panel_builder(
+        ctx,
+        top_panel,
+        Widget::col(vec![
+            "Draw a custom boundary for a neighborhood"
+                .text_widget(ctx)
+                .centered_vert(),
+            Text::from_all(vec![
+                Line("Click and drag").fg(ctx.style().text_hotkey_color),
+                Line(" to select the blocks to add to this neighborhood"),
+            ])
+            .into_widget(ctx),
+        ]),
+    )
     .build(ctx)
 }

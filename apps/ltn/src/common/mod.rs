@@ -12,13 +12,13 @@ pub fn app_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
             .small_heading()
             .into_widget(ctx)
             .centered_vert(),
-        map_gui::tools::change_map_btn(ctx, app),
+        map_gui::tools::change_map_btn(ctx, app).centered_vert(),
         ctx.style()
             .btn_plain
             .icon("system/assets/tools/search.svg")
             .hotkey(lctrl(Key::F))
             .build_widget(ctx, "search")
-            .align_right(),
+            .centered_vert(),
     ]))
     .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
     .dims_width(PanelDims::ExactPercent(1.0))
@@ -51,12 +51,14 @@ pub fn handle_top_panel(ctx: &mut EventCtx, app: &App, panel: &mut Panel) -> Opt
     }
 }
 
-pub fn left_panel_builder(contents: Widget) -> PanelBuilder {
+pub fn left_panel_builder(ctx: &EventCtx, top_panel: &Panel, contents: Widget) -> PanelBuilder {
+    let top_height = top_panel.panel_dims().height;
     Panel::new_builder(contents)
-        // TODO Vertical alignment below top panel is brittle
         .aligned(
             HorizontalAlignment::Percent(0.0),
-            VerticalAlignment::Percent(0.1),
+            VerticalAlignment::Below(top_height),
         )
-        .dims_height(PanelDims::ExactPercent(0.9))
+        .dims_height(PanelDims::ExactPixels(
+            ctx.canvas.window_height - top_height,
+        ))
 }

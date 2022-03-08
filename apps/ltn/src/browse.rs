@@ -39,67 +39,72 @@ impl BrowseNeighborhoods {
                 )
             });
 
-        let left_panel = crate::common::left_panel_builder(Widget::col(vec![
-            app.session.alt_proposals.to_widget(ctx, app),
-            "Click a neighborhood to edit filters".text_widget(ctx),
-            Widget::row(vec![
-                ctx.style()
-                    .btn_outline
-                    .text("Plan a route")
-                    .hotkey(Key::R)
-                    .build_def(ctx),
-                ctx.style()
-                    .btn_outline
-                    .text("Export to GeoJSON")
-                    .build_def(ctx),
-            ])
-            .section(ctx),
-            Line("Advanced").small_heading().into_widget(ctx),
+        let top_panel = crate::common::app_top_panel(ctx, app);
+        let left_panel = crate::common::left_panel_builder(
+            ctx,
+            &top_panel,
             Widget::col(vec![
+                app.session.alt_proposals.to_widget(ctx, app),
+                "Click a neighborhood to edit filters".text_widget(ctx),
                 Widget::row(vec![
-                    "Draw neighborhoods:".text_widget(ctx).centered_vert(),
+                    ctx.style()
+                        .btn_outline
+                        .text("Plan a route")
+                        .hotkey(Key::R)
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_outline
+                        .text("Export to GeoJSON")
+                        .build_def(ctx),
+                ])
+                .section(ctx),
+                Line("Advanced").small_heading().into_widget(ctx),
+                Widget::col(vec![
+                    Widget::row(vec![
+                        "Draw neighborhoods:".text_widget(ctx).centered_vert(),
+                        Widget::dropdown(
+                            ctx,
+                            "style",
+                            app.session.draw_neighborhood_style,
+                            vec![
+                                Choice::new("simple", Style::SimpleColoring),
+                                Choice::new("cells", Style::Cells),
+                                Choice::new("quietness", Style::Quietness),
+                                Choice::new("all rat-runs", Style::RatRuns),
+                            ],
+                        ),
+                    ]),
+                    Toggle::checkbox(
+                        ctx,
+                        "highlight boundary roads",
+                        Key::H,
+                        app.session.highlight_boundary_roads,
+                    ),
+                ])
+                .section(ctx),
+                Widget::col(vec![
+                    "Predict proposal impact".text_widget(ctx),
+                    impact_widget(ctx, app),
+                ])
+                .section(ctx),
+                Widget::col(vec![Widget::row(vec![
                     Widget::dropdown(
                         ctx,
-                        "style",
-                        app.session.draw_neighborhood_style,
-                        vec![
-                            Choice::new("simple", Style::SimpleColoring),
-                            Choice::new("cells", Style::Cells),
-                            Choice::new("quietness", Style::Quietness),
-                            Choice::new("all rat-runs", Style::RatRuns),
-                        ],
+                        "heuristic",
+                        app.session.heuristic,
+                        Heuristic::choices(),
                     ),
-                ]),
-                Toggle::checkbox(
-                    ctx,
-                    "highlight boundary roads",
-                    Key::H,
-                    app.session.highlight_boundary_roads,
-                ),
-            ])
-            .section(ctx),
-            Widget::col(vec![
-                "Predict proposal impact".text_widget(ctx),
-                impact_widget(ctx, app),
-            ])
-            .section(ctx),
-            Widget::col(vec![Widget::row(vec![
-                Widget::dropdown(
-                    ctx,
-                    "heuristic",
-                    app.session.heuristic,
-                    Heuristic::choices(),
-                ),
-                ctx.style()
-                    .btn_outline
-                    .text("Automatically place filters")
-                    .build_def(ctx),
-            ])])
-            .section(ctx),
-        ]))
+                    ctx.style()
+                        .btn_outline
+                        .text("Automatically place filters")
+                        .build_def(ctx),
+                ])])
+                .section(ctx),
+            ]),
+        )
         .build(ctx);
         Box::new(BrowseNeighborhoods {
-            top_panel: crate::common::app_top_panel(ctx, app),
+            top_panel,
             left_panel,
             world,
             draw_over_roads,
