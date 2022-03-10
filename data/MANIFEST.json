@@ -1815,6 +1815,21 @@
       "uncompressed_size_bytes": 13175873,
       "compressed_size_bytes": 2404999
     },
+    "data/input/in/pune/osm/center.osm": {
+      "checksum": "17c1dc1726a4b0cb024c3c5914523dcb",
+      "uncompressed_size_bytes": 168275126,
+      "compressed_size_bytes": 15380598
+    },
+    "data/input/in/pune/osm/india-latest.osm.pbf": {
+      "checksum": "9f9a01be6662552c2d9d1b7e9583ba6f",
+      "uncompressed_size_bytes": 1127649368,
+      "compressed_size_bytes": 1125265768
+    },
+    "data/input/in/pune/raw_maps/center.bin": {
+      "checksum": "e8263d339493ea59555efc0d33b26eb5",
+      "uncompressed_size_bytes": 54186774,
+      "compressed_size_bytes": 11491680
+    },
     "data/input/ir/tehran/osm/boundary0.osm": {
       "checksum": "dacfe24fa30f4ecd5fe0033744e654a7",
       "uncompressed_size_bytes": 3672813,
@@ -2364,6 +2379,11 @@
       "checksum": "e613c55fa99f22f5b88f7c35a178b1cc",
       "uncompressed_size_bytes": 4571786,
       "compressed_size_bytes": 4528975
+    },
+    "data/input/shared/elevation/srtm/srtm.73.18.tif": {
+      "checksum": "034a6b5f691c77365015277fe3f772ff",
+      "uncompressed_size_bytes": 7484585,
+      "compressed_size_bytes": 7479503
     },
     "data/input/shared/elevation/srtm/srtm.8.47.tif": {
       "checksum": "66c9f56f9091e9c6ae44470b9eca2745",
@@ -4749,6 +4769,11 @@
       "checksum": "b10b37cead64f3ffdb37ccf1b67c211a",
       "uncompressed_size_bytes": 43600072,
       "compressed_size_bytes": 15696351
+    },
+    "data/system/in/pune/maps/center.bin": {
+      "checksum": "629938e9ac25ac6bb9391a6d2dd9dc82",
+      "uncompressed_size_bytes": 208685449,
+      "compressed_size_bytes": 82255847
     },
     "data/system/ir/tehran/city.bin": {
       "checksum": "24b0f2ede5ebb1a483458a21ca349ade",

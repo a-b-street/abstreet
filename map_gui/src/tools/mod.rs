@@ -218,6 +218,10 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("tel_aviv", "center") => "Tel Aviv (city center)",
             _ => &name.map,
         },
+        "in" => match (name.city.city.as_ref(), name.map.as_ref()) {
+            ("pune", "center") => "Pune",
+            _ => &name.map,
+        },
         "ir" => match (name.city.city.as_ref(), name.map.as_ref()) {
             ("tehran", "parliament") => "Tehran (near Parliament)",
             // TODO I'm not naming the other 9 maps in Tehran, because I'm not sure yet the
@@ -307,6 +311,7 @@ pub fn nice_country_name(code: &str) -> &str {
         "fr" => "France",
         "gb" => "Great Britain",
         "il" => "Israel",
+        "in" => "India",
         "ir" => "Iran",
         "jp" => "Japan",
         "ly" => "Libya",
