@@ -107,7 +107,7 @@
     <span class="ident">convert_osm::Options</span> {
         <span class="ident">map_config</span>: <span class="ident">map_model::MapConfig</span> {
             <span class="ident">driving_side</span>: <span class="kw">match</span> <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">country</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;au&quot;</span> <span class="op">|</span> <span class="string">&quot;gb&quot;</span> <span class="op">|</span> <span class="string">&quot;jp&quot;</span> <span class="op">|</span> <span class="string">&quot;nz&quot;</span> <span class="op">|</span> <span class="string">&quot;sg&quot;</span> =&gt; <span class="ident">DrivingSide::Left</span>,
+                <span class="string">&quot;au&quot;</span> <span class="op">|</span> <span class="string">&quot;gb&quot;</span> <span class="op">|</span> <span class="string">&quot;in&quot;</span> <span class="op">|</span> <span class="string">&quot;jp&quot;</span> <span class="op">|</span> <span class="string">&quot;nz&quot;</span> <span class="op">|</span> <span class="string">&quot;sg&quot;</span> =&gt; <span class="ident">DrivingSide::Left</span>,
                 <span class="kw">_</span> =&gt; <span class="ident">DrivingSide::Right</span>,
             },
             <span class="ident">bikes_can_use_bus_lanes</span>: <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">country</span> <span class="op">!</span><span class="op">=</span> <span class="string">&quot;pl&quot;</span>,

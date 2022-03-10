@@ -417,6 +417,11 @@
 <span id="415">415</span>
 <span id="416">416</span>
 <span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Assorted tools and UI states that&#39;re useful for applications built to display maps.</span>
 
 <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
@@ -637,6 +642,10 @@
             (<span class="string">&quot;tel_aviv&quot;</span>, <span class="string">&quot;center&quot;</span>) =&gt; <span class="string">&quot;Tel Aviv (city center)&quot;</span>,
             <span class="kw">_</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">map</span>,
         },
+        <span class="string">&quot;in&quot;</span> =&gt; <span class="kw">match</span> (<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>.<span class="ident">as_ref</span>(), <span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">as_ref</span>()) {
+            (<span class="string">&quot;pune&quot;</span>, <span class="string">&quot;center&quot;</span>) =&gt; <span class="string">&quot;Pune&quot;</span>,
+            <span class="kw">_</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">map</span>,
+        },
         <span class="string">&quot;ir&quot;</span> =&gt; <span class="kw">match</span> (<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>.<span class="ident">as_ref</span>(), <span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">as_ref</span>()) {
             (<span class="string">&quot;tehran&quot;</span>, <span class="string">&quot;parliament&quot;</span>) =&gt; <span class="string">&quot;Tehran (near Parliament)&quot;</span>,
             <span class="comment">// TODO I&#39;m not naming the other 9 maps in Tehran, because I&#39;m not sure yet the</span>
@@ -726,6 +735,7 @@
         <span class="string">&quot;fr&quot;</span> =&gt; <span class="string">&quot;France&quot;</span>,
         <span class="string">&quot;gb&quot;</span> =&gt; <span class="string">&quot;Great Britain&quot;</span>,
         <span class="string">&quot;il&quot;</span> =&gt; <span class="string">&quot;Israel&quot;</span>,
+        <span class="string">&quot;in&quot;</span> =&gt; <span class="string">&quot;India&quot;</span>,
         <span class="string">&quot;ir&quot;</span> =&gt; <span class="string">&quot;Iran&quot;</span>,
         <span class="string">&quot;jp&quot;</span> =&gt; <span class="string">&quot;Japan&quot;</span>,
         <span class="string">&quot;ly&quot;</span> =&gt; <span class="string">&quot;Libya&quot;</span>,
