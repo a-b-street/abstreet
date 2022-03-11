@@ -2,7 +2,7 @@ use std::collections::{HashMap, HashSet};
 
 use osm::{NodeID, OsmID, RelationID, WayID};
 
-use abstio::MapName;
+use abstio::{CityName, MapName};
 use abstutil::{Tags, Timer};
 use geom::{Distance, FindClosest, HashablePt2D, Polygon, Pt2D, Ring};
 use kml::{ExtraShape, ExtraShapes};
@@ -101,7 +101,7 @@ pub fn extract_osm(
 
         way.tags.insert(osm::OSM_WAY_ID, id.0.to_string());
 
-        if is_road(&mut way.tags, opts) {
+        if is_road(&mut way.tags, opts, &map.name) {
             // TODO Hardcoding these overrides. OSM is correct, these don't have
             // sidewalks; there's a crosswalk mapped. But until we can snap sidewalks properly, do
             // this to prevent the sidewalks from being disconnected.
@@ -355,7 +355,7 @@ pub fn extract_osm(
     out
 }
 
-fn is_road(tags: &mut Tags, opts: &Options) -> bool {
+fn is_road(tags: &mut Tags, opts: &Options, name: &MapName) -> bool {
     if tags.is("area", "yes") {
         return false;
     }
@@ -506,6 +506,10 @@ fn is_road(tags: &mut Tags, opts: &Options) -> bool {
             if tags.is_any(osm::HIGHWAY, vec!["residential", "living_street"])
                 && !tags.is("dual_carriageway", "yes")
             {
+                tags.insert(osm::SIDEWALK, "both");
+            }
+            // Hack for Geneva, which maps sidewalks as separate ways
+            if name.city == CityName::new("ch", "geneva") {
                 tags.insert(osm::SIDEWALK, "both");
             }
         } else {

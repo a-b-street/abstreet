@@ -136,9 +136,9 @@
       "compressed_size_bytes": 375492248
     },
     "data/input/ch/geneva/raw_maps/center.bin": {
-      "checksum": "afff69b7004063ae51cb8e34551d1a00",
-      "uncompressed_size_bytes": 12441310,
-      "compressed_size_bytes": 2737170
+      "checksum": "20c12ba771f4084d1a682687a6bc18f9",
+      "uncompressed_size_bytes": 12439880,
+      "compressed_size_bytes": 2736375
     },
     "data/input/ch/zurich/osm/center.osm": {
       "checksum": "c2851c4c0904eb0514299840f567c27d",
@@ -3071,9 +3071,9 @@
       "compressed_size_bytes": 3838389
     },
     "data/system/ch/geneva/maps/center.bin": {
-      "checksum": "77b398852dd9a533e94a13fe92a56bff",
-      "uncompressed_size_bytes": 32256239,
-      "compressed_size_bytes": 12082511
+      "checksum": "2299dcfa0f38c52d76be64cdb18e5c16",
+      "uncompressed_size_bytes": 33200833,
+      "compressed_size_bytes": 12482100
     },
     "data/system/ch/zurich/city.bin": {
       "checksum": "a209c74a10aa23d23feaf25e1c057efb",
