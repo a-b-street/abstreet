@@ -154,10 +154,17 @@ impl<A: AppLike + 'static> CityPicker<A> {
                         } else {
                             // On native this shows the "import" instructions modal within
                             // the app
-                            ctx.style()
-                                .btn_outline
-                                .text("Import a new city into A/B Street")
-                                .build_widget(ctx, "import new city")
+                            Widget::row(vec![
+                                ctx.style()
+                                    .btn_outline
+                                    .text("Import a new city into A/B Street")
+                                    .build_widget(ctx, "import new city"),
+                                ctx.style()
+                                    .btn_outline
+                                    .text("Re-import this map with latest OpenStreetMap data")
+                                    .tooltip("OSM edits take a few minutes to appear in Overpass. Note this will create a new copy of the map, not overwrite the original.")
+                                    .build_widget(ctx, "re-import this city"),
+                            ])
                         },
                         ctx.style()
                             .btn_outline
@@ -203,6 +210,16 @@ impl<A: AppLike + 'static> State<A> for CityPicker<A> {
                             ctx,
                             self.on_load.take().unwrap(),
                         ));
+                    }
+                }
+                "re-import this city" => {
+                    #[cfg(target_arch = "wasm32")]
+                    {
+                        unreachable!()
+                    }
+                    #[cfg(not(target_arch = "wasm32"))]
+                    {
+                        return reimport_city(ctx, app);
                     }
                 }
                 x => {
@@ -499,4 +516,62 @@ fn chose_city<A: AppLike + 'static>(
         name,
         on_load.take().unwrap(),
     ))
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+fn reimport_city<A: AppLike + 'static>(ctx: &mut EventCtx, app: &A) -> Transition<A> {
+    use geojson::{Feature, FeatureCollection, GeoJson};
+
+    let name = format!("updated_{}", app.map().get_name().as_filename());
+
+    let mut args = vec![
+        crate::tools::find_exe("cli"),
+        "one-step-import".to_string(),
+        "--geojson-path=boundary.json".to_string(),
+        format!("--map-name={}", name),
+    ];
+    if app.map().get_config().driving_side == map_model::DrivingSide::Left {
+        args.push("--drive-on-left".to_string());
+    }
+
+    // Write the current map boundary
+    abstio::write_json(
+        "boundary.json".to_string(),
+        &GeoJson::from(FeatureCollection {
+            bbox: None,
+            foreign_members: None,
+            features: vec![Feature {
+                bbox: None,
+                id: None,
+                properties: None,
+                foreign_members: None,
+                geometry: Some(
+                    app.map()
+                        .get_boundary_polygon()
+                        .to_geojson(Some(app.map().get_gps_bounds())),
+                ),
+            }],
+        }),
+    );
+
+    return Transition::Push(crate::tools::RunCommand::new_state(
+        ctx,
+        true,
+        args,
+        Box::new(|_, _, success, _| {
+            if success {
+                abstio::delete_file("boundary.json");
+
+                Transition::ConsumeState(Box::new(move |state, ctx, app| {
+                    let mut state = state.downcast::<CityPicker<A>>().ok().unwrap();
+                    let on_load = state.on_load.take().unwrap();
+                    let map_name = MapName::new("zz", "oneshot", &name);
+                    vec![MapLoader::new_state(ctx, app, map_name, on_load)]
+                }))
+            } else {
+                // The popup already explained the failure
+                Transition::Keep
+            }
+        }),
+    ));
 }
