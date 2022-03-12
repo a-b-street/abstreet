@@ -351,6 +351,13 @@
 <span id="349">349</span>
 <span id="350">350</span>
 <span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
 </pre><pre class="rust"><code><span class="doccomment">//! It&#39;s assumed that the importer is run with the current directory as the project repository; aka</span>
 <span class="doccomment">//! `./data/` and `./importer/config` must exist.</span>
 
@@ -673,9 +680,16 @@
                 }
 
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">city</span>.<span class="ident">country</span> <span class="op">==</span> <span class="string">&quot;gb&quot;</span> {
-                    <span class="ident">uk::generate_scenario</span>(<span class="ident">maybe_map</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="ident">config</span>, <span class="ident">timer</span>)
-                        .<span class="kw">await</span>
-                        .<span class="ident">unwrap</span>();
+                    <span class="kw">if</span> <span class="ident">name</span> <span class="op">==</span> <span class="ident">MapName::new</span>(<span class="string">&quot;gb&quot;</span>, <span class="string">&quot;london&quot;</span>, <span class="string">&quot;central&quot;</span>) {
+                        <span class="comment">// No scenario for Central London, which has buildings stripped out</span>
+                        <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">maybe_map</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>();
+                        <span class="ident">map</span>.<span class="ident">minify_buildings</span>(<span class="ident">timer</span>);
+                        <span class="ident">map</span>.<span class="ident">save</span>();
+                    } <span class="kw">else</span> {
+                        <span class="ident">uk::generate_scenario</span>(<span class="ident">maybe_map</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="ident">config</span>, <span class="ident">timer</span>)
+                            .<span class="kw">await</span>
+                            .<span class="ident">unwrap</span>();
+                    }
                 }
             }
             <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="ident">name</span>.<span class="ident">describe</span>());

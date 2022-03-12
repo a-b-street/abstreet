@@ -883,6 +883,27 @@
 <span id="881">881</span>
 <span id="882">882</span>
 <span id="883">883</span>
+<span id="884">884</span>
+<span id="885">885</span>
+<span id="886">886</span>
+<span id="887">887</span>
+<span id="888">888</span>
+<span id="889">889</span>
+<span id="890">890</span>
+<span id="891">891</span>
+<span id="892">892</span>
+<span id="893">893</span>
+<span id="894">894</span>
+<span id="895">895</span>
+<span id="896">896</span>
+<span id="897">897</span>
+<span id="898">898</span>
+<span id="899">899</span>
+<span id="900">900</span>
+<span id="901">901</span>
+<span id="902">902</span>
+<span id="903">903</span>
+<span id="904">904</span>
 </pre><pre class="rust"><code><span class="doccomment">//! A bunch of (mostly read-only) queries on a Map.</span>
 
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
@@ -1755,6 +1776,27 @@
             <span class="self">self</span>.<span class="ident">routing_params</span>().<span class="ident">clone</span>(),
             <span class="ident"><span class="kw">crate</span>::pathfind::CreateEngine::CH</span>,
             <span class="macro">vec!</span>[<span class="ident">PathConstraints::Car</span>, <span class="ident">PathConstraints::Bike</span>],
+            <span class="ident">timer</span>,
+        );
+
+        <span class="comment">// Remove all routes, since we remove that pathfinder</span>
+        <span class="self">self</span>.<span class="ident">transit_stops</span>.<span class="ident">clear</span>();
+        <span class="self">self</span>.<span class="ident">transit_routes</span>.<span class="ident">clear</span>();
+        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">roads</span> {
+            <span class="ident">r</span>.<span class="ident">transit_stops</span>.<span class="ident">clear</span>();
+        }
+    }
+
+    <span class="doccomment">/// Modifies the map in-place, removing buildings.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">minify_buildings</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) {
+        <span class="self">self</span>.<span class="ident">buildings</span>.<span class="ident">clear</span>();
+
+        <span class="comment">// We only need the CHs for driving.</span>
+        <span class="self">self</span>.<span class="ident">pathfinder</span> <span class="op">=</span> <span class="ident">Pathfinder::new_limited</span>(
+            <span class="self">self</span>,
+            <span class="self">self</span>.<span class="ident">routing_params</span>().<span class="ident">clone</span>(),
+            <span class="ident"><span class="kw">crate</span>::pathfind::CreateEngine::CH</span>,
+            <span class="macro">vec!</span>[<span class="ident">PathConstraints::Car</span>],
             <span class="ident">timer</span>,
         );
 
