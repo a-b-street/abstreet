@@ -320,9 +320,16 @@ impl Job {
                 }
 
                 if self.city.country == "gb" {
-                    uk::generate_scenario(maybe_map.as_ref().unwrap(), &config, timer)
-                        .await
-                        .unwrap();
+                    if name == MapName::new("gb", "london", "central") {
+                        // No scenario for Central London, which has buildings stripped out
+                        let map = maybe_map.as_mut().unwrap();
+                        map.minify_buildings(timer);
+                        map.save();
+                    } else {
+                        uk::generate_scenario(maybe_map.as_ref().unwrap(), &config, timer)
+                            .await
+                            .unwrap();
+                    }
                 }
             }
             timer.stop(name.describe());

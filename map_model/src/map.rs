@@ -880,4 +880,25 @@ impl Map {
             r.transit_stops.clear();
         }
     }
+
+    /// Modifies the map in-place, removing buildings.
+    pub fn minify_buildings(&mut self, timer: &mut Timer) {
+        self.buildings.clear();
+
+        // We only need the CHs for driving.
+        self.pathfinder = Pathfinder::new_limited(
+            self,
+            self.routing_params().clone(),
+            crate::pathfind::CreateEngine::CH,
+            vec![PathConstraints::Car],
+            timer,
+        );
+
+        // Remove all routes, since we remove that pathfinder
+        self.transit_stops.clear();
+        self.transit_routes.clear();
+        for r in &mut self.roads {
+            r.transit_stops.clear();
+        }
+    }
 }

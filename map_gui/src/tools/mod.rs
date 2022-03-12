@@ -184,6 +184,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("leeds", "west") => "West Leeds",
             ("lockleaze", "center") => "Lockleaze",
             ("london", "camden") => "Camden",
+            ("london", "central") => "Central London",
             ("london", "hackney") => "Hackney",
             ("london", "kennington") => "Kennington (London)",
             ("london", "kingston_upon_thames") => "Kingston upon Thames",

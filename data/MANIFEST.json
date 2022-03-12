@@ -1100,6 +1100,11 @@
       "uncompressed_size_bytes": 53941469,
       "compressed_size_bytes": 5796207
     },
+    "data/input/gb/london/osm/central.osm": {
+      "checksum": "d048e12cac1d707a992a9639431e6ba4",
+      "uncompressed_size_bytes": 246624113,
+      "compressed_size_bytes": 27005184
+    },
     "data/input/gb/london/osm/city_of_london.osm": {
       "checksum": "61865a713f56df39b5ed35a3450c1b76",
       "uncompressed_size_bytes": 17665914,
@@ -1249,6 +1254,11 @@
       "checksum": "75a9e4d2aa0b7dcba9c5dee8994496cc",
       "uncompressed_size_bytes": 13424557,
       "compressed_size_bytes": 2818395
+    },
+    "data/input/gb/london/raw_maps/central.bin": {
+      "checksum": "ecb8c024cd191b233fd3484ae04aa668",
+      "uncompressed_size_bytes": 68507442,
+      "compressed_size_bytes": 14035838
     },
     "data/input/gb/london/raw_maps/city_of_london.bin": {
       "checksum": "92003a4831a949fa33c049ae4327c067",
@@ -3961,9 +3971,9 @@
       "compressed_size_bytes": 4454227
     },
     "data/system/gb/london/city.bin": {
-      "checksum": "b1ff3696de991f8878e0a8caacd550fa",
-      "uncompressed_size_bytes": 2885173,
-      "compressed_size_bytes": 1390038
+      "checksum": "7b617cf3b7df81efe4f5bf4542a429db",
+      "uncompressed_size_bytes": 3184401,
+      "compressed_size_bytes": 1530953
     },
     "data/system/gb/london/maps/barking_and_dagenham.bin": {
       "checksum": "5da6a7062c2fee02a5fbe0267c619fff",
@@ -3994,6 +4004,11 @@
       "checksum": "a630a9dbb99fdf29c75028dddc994160",
       "uncompressed_size_bytes": 28758904,
       "compressed_size_bytes": 10826802
+    },
+    "data/system/gb/london/maps/central.bin": {
+      "checksum": "047a71177dce7eafbb4e71bf5e9fca47",
+      "uncompressed_size_bytes": 68336322,
+      "compressed_size_bytes": 26393753
     },
     "data/system/gb/london/maps/city_of_london.bin": {
       "checksum": "99903e6d491871f3f3402eee7f62ac66",
