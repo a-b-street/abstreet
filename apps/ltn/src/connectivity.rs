@@ -1,14 +1,16 @@
 use geom::{Angle, ArrowCap, Distance, PolyLine};
+use map_gui::tools::ColorNetwork;
 use map_model::Perimeter;
 use widgetry::mapspace::{ToggleZoomed, World};
 use widgetry::tools::PolyLineLasso;
 use widgetry::{
-    Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, ScreenPt, State,
-    Text, TextExt, Toggle, Widget,
+    Color, DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, ScreenPt, State, Text,
+    TextExt, Toggle, Widget,
 };
 
 use crate::filters::auto::Heuristic;
 use crate::per_neighborhood::{FilterableObj, Tab};
+use crate::rat_runs::find_rat_runs;
 use crate::{after_edit, App, Neighborhood, NeighborhoodID, Transition};
 
 pub struct Viewer {
@@ -170,24 +172,36 @@ fn make_world(
     app: &App,
     neighborhood: &Neighborhood,
 ) -> (World<FilterableObj>, ToggleZoomed) {
-    let map = &app.map;
-    let mut world = World::bounded(map.get_bounds());
+    let rat_runs = ctx.loading_screen("find rat runs", |_, timer| {
+        find_rat_runs(app, neighborhood, timer)
+    });
 
-    crate::per_neighborhood::populate_world(ctx, app, neighborhood, &mut world, |id| id, 0);
+    let mut world = crate::per_neighborhood::make_world(ctx, app, neighborhood, &rat_runs);
+    let map = &app.map;
 
     // The world is drawn in between areas and roads, but some things need to be drawn on top of
     // roads
-    let mut draw_top_layer = GeomBatch::new();
+    let mut draw_top_layer = ToggleZoomed::builder();
 
     let render_cells = crate::draw_cells::RenderCells::new(map, neighborhood);
     if app.session.draw_cells_as_areas {
         world.draw_master_batch(ctx, render_cells.draw());
+
+        let mut colorer = ColorNetwork::no_fading(app);
+        colorer.ranked_roads(rat_runs.count_per_road.clone(), &app.cs.good_to_bad_red);
+        // TODO These two will be on different scales, which'll look really weird!
+        colorer.ranked_intersections(
+            rat_runs.count_per_intersection.clone(),
+            &app.cs.good_to_bad_red,
+        );
+
+        draw_top_layer.append(colorer.draw);
     } else {
         for (idx, cell) in neighborhood.cells.iter().enumerate() {
             let color = render_cells.colors[idx].alpha(0.9);
             for (r, interval) in &cell.roads {
                 let road = map.get_r(*r);
-                draw_top_layer.push(
+                draw_top_layer = draw_top_layer.push(
                     color,
                     road.center_pts
                         .exact_slice(interval.start, interval.end)
@@ -197,7 +211,7 @@ fn make_world(
             for i in
                 map_gui::tools::intersections_from_roads(&cell.roads.keys().cloned().collect(), map)
             {
-                draw_top_layer.push(color, map.get_i(i).polygon.clone());
+                draw_top_layer = draw_top_layer.push(color, map.get_i(i).polygon.clone());
             }
         }
     }
@@ -235,7 +249,7 @@ fn make_world(
 
             // TODO Consider showing borders with one-way roads. For now, always point the
             // arrow into the neighborhood
-            draw_top_layer.push(
+            draw_top_layer = draw_top_layer.push(
                 color.alpha(0.8),
                 PolyLine::must_new(vec![
                     center.project_away(Distance::meters(30.0), angle.opposite()),
@@ -245,10 +259,6 @@ fn make_world(
             );
         }
     }
-
-    let mut top_layer = ToggleZoomed::builder();
-    top_layer.unzoomed = draw_top_layer.clone();
-    top_layer.zoomed = draw_top_layer.clone();
 
     // Draw one-way arrows
     for r in neighborhood
@@ -272,15 +282,13 @@ fn make_world(
                 .make_arrow(thickness * 2.0, ArrowCap::Triangle)
                 .to_outline(thickness / 2.0)
                 {
-                    top_layer.unzoomed.push(Color::BLACK, poly);
+                    draw_top_layer.unzoomed.push(Color::BLACK, poly);
                 }
             }
         }
     }
 
-    world.initialize_hover(ctx);
-
-    (world, top_layer.build(ctx))
+    (world, draw_top_layer.build(ctx))
 }
 
 struct FreehandFilters {
