@@ -7,6 +7,7 @@ use widgetry::{
     DEFAULT_CORNER_RADIUS,
 };
 
+use crate::rat_runs::RatRuns;
 use crate::{
     after_edit, App, BrowseNeighborhoods, DiagonalFilter, Neighborhood, NeighborhoodID, Transition,
 };
@@ -165,25 +166,27 @@ pub enum FilterableObj {
 }
 impl ObjectID for FilterableObj {}
 
-/// Adds clickable objects for managing filters on roads and intersections. The caller is
-/// responsible for base drawing behavior, initialize_hover, etc.
-pub fn populate_world<T: ObjectID, F: Fn(FilterableObj) -> T>(
+/// Creates clickable objects for managing filters on roads and intersections. Everything is
+/// invisible; the caller is responsible for drawing things.
+pub fn make_world(
     ctx: &mut EventCtx,
     app: &App,
     neighborhood: &Neighborhood,
-    world: &mut World<T>,
-    wrap_id: F,
-    zorder: usize,
-) {
+    rat_runs: &RatRuns,
+) -> World<FilterableObj> {
     let map = &app.map;
+    let mut world = World::bounded(map.get_bounds());
 
     for r in &neighborhood.orig_perimeter.interior {
         world
-            .add(wrap_id(FilterableObj::InteriorRoad(*r)))
+            .add(FilterableObj::InteriorRoad(*r))
             .hitbox(map.get_r(*r).get_thick_polygon())
-            .zorder(zorder)
             .drawn_in_master_batch()
             .hover_outline(Color::BLACK, Distance::meters(5.0))
+            .tooltip(Text::from(format!(
+                "{} rat-runs cross this street",
+                rat_runs.count_per_road.get(*r)
+            )))
             .hotkey(lctrl(Key::D), "debug")
             .clickable()
             .build(ctx);
@@ -191,15 +194,21 @@ pub fn populate_world<T: ObjectID, F: Fn(FilterableObj) -> T>(
 
     for i in &neighborhood.interior_intersections {
         world
-            .add(wrap_id(FilterableObj::InteriorIntersection(*i)))
+            .add(FilterableObj::InteriorIntersection(*i))
             .hitbox(map.get_i(*i).polygon.clone())
-            .zorder(zorder)
             .drawn_in_master_batch()
             .hover_outline(Color::BLACK, Distance::meters(5.0))
+            .tooltip(Text::from(format!(
+                "{} rat-runs cross this intersection",
+                rat_runs.count_per_intersection.get(*i)
+            )))
             .clickable()
             .hotkey(lctrl(Key::D), "debug")
             .build(ctx);
     }
+
+    world.initialize_hover(ctx);
+    world
 }
 
 /// If true, the neighborhood has changed and the caller should recalculate stuff, including the
