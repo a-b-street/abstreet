@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["make_world",""]],"struct":[["BrowseRatRuns",""]]});
+initSidebarItems({"struct":[["BrowseRatRuns",""]]});
