@@ -178,14 +178,16 @@ pub fn make_world(
     let mut world = World::bounded(map.get_bounds());
 
     for r in &neighborhood.orig_perimeter.interior {
+        let road = map.get_r(*r);
         world
             .add(FilterableObj::InteriorRoad(*r))
-            .hitbox(map.get_r(*r).get_thick_polygon())
+            .hitbox(road.get_thick_polygon())
             .drawn_in_master_batch()
             .hover_outline(Color::BLACK, Distance::meters(5.0))
             .tooltip(Text::from(format!(
-                "{} rat-runs cross this street",
-                rat_runs.count_per_road.get(*r)
+                "{} rat-runs cross {}",
+                rat_runs.count_per_road.get(*r),
+                road.get_name(app.opts.language.as_ref()),
             )))
             .hotkey(lctrl(Key::D), "debug")
             .clickable()
