@@ -82,6 +82,7 @@
 <span id="80">80</span>
 <span id="81">81</span>
 <span id="82">82</span>
+<span id="83">83</span>
 </pre><pre class="rust"><code><span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">anyhow</span>;
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
@@ -118,6 +119,7 @@
 
     <span class="ident">settings</span> <span class="op">=</span> <span class="ident">settings</span>
         .<span class="ident">read_svg</span>(<span class="ident">Box::new</span>(<span class="ident">abstio::slurp_bytes</span>))
+        .<span class="ident">window_icon</span>(<span class="ident">abstio::path</span>(<span class="string">&quot;system/assets/pregame/icon.png&quot;</span>))
         .<span class="ident">canvas_settings</span>(<span class="ident">opts</span>.<span class="ident">canvas_settings</span>.<span class="ident">clone</span>());
     <span class="ident">widgetry::run</span>(<span class="ident">settings</span>, <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> {
         <span class="kw">let</span> <span class="ident">session</span> <span class="op">=</span> <span class="ident">session::Session::load</span>();

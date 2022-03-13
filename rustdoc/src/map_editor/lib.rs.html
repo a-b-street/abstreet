@@ -74,6 +74,8 @@
 <span id="72">72</span>
 <span id="73">73</span>
 <span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
 </pre><pre class="rust"><code><span class="doccomment">//! The map_editor renders and lets you edit RawMaps, which are a format in between OSM and the</span>
 <span class="doccomment">//! full Map. It&#39;s useful for debugging maps imported from OSM, and for drawing synthetic maps for</span>
 <span class="doccomment">//! testing.</span>
@@ -115,7 +117,9 @@
 <span class="kw">fn</span> <span class="ident">run</span>(<span class="kw-2">mut</span> <span class="ident">settings</span>: <span class="ident">Settings</span>) {
     <span class="ident">abstutil::logger::setup</span>();
 
-    <span class="ident">settings</span> <span class="op">=</span> <span class="ident">settings</span>.<span class="ident">read_svg</span>(<span class="ident">Box::new</span>(<span class="ident">abstio::slurp_bytes</span>));
+    <span class="ident">settings</span> <span class="op">=</span> <span class="ident">settings</span>
+        .<span class="ident">read_svg</span>(<span class="ident">Box::new</span>(<span class="ident">abstio::slurp_bytes</span>))
+        .<span class="ident">window_icon</span>(<span class="ident">abstio::path</span>(<span class="string">&quot;system/assets/pregame/icon.png&quot;</span>));
     <span class="ident">widgetry::run</span>(<span class="ident">settings</span>, <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> {
         <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">Args::from_iter</span>(<span class="ident">abstutil::cli_args</span>());
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">app</span> <span class="op">=</span> <span class="ident">App</span> {
