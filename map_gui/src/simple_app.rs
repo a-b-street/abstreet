@@ -69,7 +69,9 @@ impl SimpleAppArgs {
     }
 
     pub fn update_widgetry_settings(&self, mut settings: Settings) -> Settings {
-        settings = settings.read_svg(Box::new(abstio::slurp_bytes));
+        settings = settings
+            .read_svg(Box::new(abstio::slurp_bytes))
+            .window_icon(abstio::path("system/assets/pregame/icon.png"));
         if let Some(s) = self.scale_factor {
             settings = settings.scale_factor(s);
         }

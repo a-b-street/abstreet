@@ -39,7 +39,9 @@ struct Args {
 fn run(mut settings: Settings) {
     abstutil::logger::setup();
 
-    settings = settings.read_svg(Box::new(abstio::slurp_bytes));
+    settings = settings
+        .read_svg(Box::new(abstio::slurp_bytes))
+        .window_icon(abstio::path("system/assets/pregame/icon.png"));
     widgetry::run(settings, |ctx| {
         let args = Args::from_iter(abstutil::cli_args());
         let mut app = App {

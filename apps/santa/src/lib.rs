@@ -34,6 +34,7 @@ fn run(mut settings: Settings) {
 
     settings = settings
         .read_svg(Box::new(abstio::slurp_bytes))
+        .window_icon(abstio::path("system/assets/pregame/icon.png"))
         .canvas_settings(opts.canvas_settings.clone());
     widgetry::run(settings, |ctx| {
         let session = session::Session::load();
