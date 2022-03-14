@@ -320,6 +320,8 @@
 <span id="318">318</span>
 <span id="319">319</span>
 <span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
 </pre><pre class="rust"><code><span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">auto</span>;
 <span class="kw">mod</span> <span class="ident">existing</span>;
 
@@ -330,10 +332,10 @@
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Line</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">RoadID</span>, <span class="ident">RoutingParams</span>, <span class="ident">TurnID</span>};
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">DrawUnzoomedShapes</span>, <span class="ident">ToggleZoomed</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>};
+<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>};
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::existing::transform_existing_filters</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">after_edit</span>, <span class="ident">App</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">after_edit</span>, <span class="ident">colors</span>, <span class="ident">App</span>};
 
 <span class="doccomment">/// Stored in App session state. Before making any changes, call `before_edit`.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Default</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
@@ -420,14 +422,15 @@
 
                 <span class="comment">// TODO DrawUnzoomedShapes can do lines, but they don&#39;t stretch as the radius does,</span>
                 <span class="comment">// so it looks weird</span>
-                <span class="ident">low_zoom</span>.<span class="ident">add_circle</span>(<span class="ident">pt</span>, <span class="ident">Distance::meters</span>(<span class="number">8.0</span>), <span class="ident">Color::RED</span>);
-                <span class="ident">low_zoom</span>.<span class="ident">add_circle</span>(<span class="ident">pt</span>, <span class="ident">Distance::meters</span>(<span class="number">6.0</span>), <span class="ident">Color::WHITE</span>);
+                <span class="ident">low_zoom</span>.<span class="ident">add_circle</span>(<span class="ident">pt</span>, <span class="ident">Distance::meters</span>(<span class="number">8.0</span>), <span class="kw-2">*</span><span class="ident">colors::FILTER_OUTER</span>);
+                <span class="ident">low_zoom</span>.<span class="ident">add_circle</span>(<span class="ident">pt</span>, <span class="ident">Distance::meters</span>(<span class="number">6.0</span>), <span class="kw-2">*</span><span class="ident">colors::FILTER_INNER</span>);
 
-                <span class="ident">batch</span>
-                    .<span class="ident">unzoomed</span>
-                    .<span class="ident">push</span>(<span class="ident">Color::RED</span>, <span class="ident">Circle::new</span>(<span class="ident">pt</span>, <span class="ident">road_width</span>).<span class="ident">to_polygon</span>());
                 <span class="ident">batch</span>.<span class="ident">unzoomed</span>.<span class="ident">push</span>(
-                    <span class="ident">Color::WHITE</span>,
+                    <span class="kw-2">*</span><span class="ident">colors::FILTER_OUTER</span>,
+                    <span class="ident">Circle::new</span>(<span class="ident">pt</span>, <span class="ident">road_width</span>).<span class="ident">to_polygon</span>(),
+                );
+                <span class="ident">batch</span>.<span class="ident">unzoomed</span>.<span class="ident">push</span>(
+                    <span class="kw-2">*</span><span class="ident">colors::FILTER_INNER</span>,
                     <span class="ident">Line::must_new</span>(
                         <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="number">0.8</span> <span class="op">*</span> <span class="ident">road_width</span>, <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="number">90.0</span>)),
                         <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="number">0.8</span> <span class="op">*</span> <span class="ident">road_width</span>, <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="op">-</span><span class="number">90.0</span>)),
@@ -452,12 +455,13 @@
             <span class="comment">// It&#39;s really hard to see a tiny squished line thickened, so use the same circle</span>
             <span class="comment">// symbology at really low zooms</span>
             <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">line</span>.<span class="ident">middle</span>().<span class="ident">unwrap</span>();
-            <span class="ident">low_zoom</span>.<span class="ident">add_circle</span>(<span class="ident">pt</span>, <span class="ident">Distance::meters</span>(<span class="number">8.0</span>), <span class="ident">Color::RED</span>);
-            <span class="ident">low_zoom</span>.<span class="ident">add_circle</span>(<span class="ident">pt</span>, <span class="ident">Distance::meters</span>(<span class="number">6.0</span>), <span class="ident">Color::WHITE</span>);
+            <span class="ident">low_zoom</span>.<span class="ident">add_circle</span>(<span class="ident">pt</span>, <span class="ident">Distance::meters</span>(<span class="number">8.0</span>), <span class="kw-2">*</span><span class="ident">colors::FILTER_OUTER</span>);
+            <span class="ident">low_zoom</span>.<span class="ident">add_circle</span>(<span class="ident">pt</span>, <span class="ident">Distance::meters</span>(<span class="number">6.0</span>), <span class="kw-2">*</span><span class="ident">colors::FILTER_INNER</span>);
 
-            <span class="ident">batch</span>
-                .<span class="ident">unzoomed</span>
-                .<span class="ident">push</span>(<span class="ident">Color::RED</span>, <span class="ident">line</span>.<span class="ident">make_polygons</span>(<span class="ident">Distance::meters</span>(<span class="number">3.0</span>)));
+            <span class="ident">batch</span>.<span class="ident">unzoomed</span>.<span class="ident">push</span>(
+                <span class="kw-2">*</span><span class="ident">colors::FILTER_OUTER</span>,
+                <span class="ident">line</span>.<span class="ident">make_polygons</span>(<span class="ident">Distance::meters</span>(<span class="number">3.0</span>)),
+            );
 
             <span class="ident">draw_zoomed_planters</span>(
                 <span class="ident">ctx</span>,

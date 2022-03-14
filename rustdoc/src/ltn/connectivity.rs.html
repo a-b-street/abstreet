@@ -372,14 +372,14 @@
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ToggleZoomed</span>, <span class="ident">World</span>};
 <span class="kw">use</span> <span class="ident">widgetry::tools::PolyLineLasso</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Color</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">ScreenPt</span>, <span class="ident">State</span>, <span class="ident">Text</span>,
-    <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">Widget</span>,
+    <span class="ident">DrawBaselayer</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">ScreenPt</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>,
+    <span class="ident">Toggle</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::filters::auto::Heuristic</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::per_neighborhood</span>::{<span class="ident">FilterableObj</span>, <span class="ident">Tab</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::rat_runs::find_rat_runs</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">after_edit</span>, <span class="ident">App</span>, <span class="ident">Neighborhood</span>, <span class="ident">NeighborhoodID</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">after_edit</span>, <span class="ident">colors</span>, <span class="ident">App</span>, <span class="ident">Neighborhood</span>, <span class="ident">NeighborhoodID</span>, <span class="ident">Transition</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Viewer</span> {
     <span class="ident">top_panel</span>: <span class="ident">Panel</span>,
@@ -650,7 +650,7 @@
                 .<span class="ident">make_arrow</span>(<span class="ident">thickness</span> <span class="op">*</span> <span class="number">2.0</span>, <span class="ident">ArrowCap::Triangle</span>)
                 .<span class="ident">to_outline</span>(<span class="ident">thickness</span> <span class="op">/</span> <span class="number">2.0</span>)
                 {
-                    <span class="ident">draw_top_layer</span>.<span class="ident">unzoomed</span>.<span class="ident">push</span>(<span class="ident">Color::BLACK</span>, <span class="ident">poly</span>);
+                    <span class="ident">draw_top_layer</span>.<span class="ident">unzoomed</span>.<span class="ident">push</span>(<span class="ident">colors::OUTLINE</span>, <span class="ident">poly</span>);
                 }
             }
         }

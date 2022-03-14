@@ -261,18 +261,20 @@
 <span id="259">259</span>
 <span id="260">260</span>
 <span id="261">261</span>
+<span id="262">262</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom::Distance</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">PathConstraints</span>, <span class="ident">RoadID</span>};
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ObjectID</span>, <span class="ident">World</span>, <span class="ident">WorldOutcome</span>};
 <span class="kw">use</span> <span class="ident">widgetry::tools::open_browser</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">lctrl</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">PanelBuilder</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>,
+    <span class="ident">lctrl</span>, <span class="ident">EventCtx</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">PanelBuilder</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>,
     <span class="ident">DEFAULT_CORNER_RADIUS</span>,
 };
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::rat_runs::RatRuns</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">after_edit</span>, <span class="ident">App</span>, <span class="ident">BrowseNeighborhoods</span>, <span class="ident">DiagonalFilter</span>, <span class="ident">Neighborhood</span>, <span class="ident">NeighborhoodID</span>, <span class="ident">Transition</span>,
+    <span class="ident">after_edit</span>, <span class="ident">colors</span>, <span class="ident">App</span>, <span class="ident">BrowseNeighborhoods</span>, <span class="ident">DiagonalFilter</span>, <span class="ident">Neighborhood</span>, <span class="ident">NeighborhoodID</span>,
+    <span class="ident">Transition</span>,
 };
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>)]</span>
@@ -446,7 +448,7 @@
             .<span class="ident">add</span>(<span class="ident">FilterableObj::InteriorRoad</span>(<span class="kw-2">*</span><span class="ident">r</span>))
             .<span class="ident">hitbox</span>(<span class="ident">road</span>.<span class="ident">get_thick_polygon</span>())
             .<span class="ident">drawn_in_master_batch</span>()
-            .<span class="ident">hover_outline</span>(<span class="ident">Color::BLACK</span>, <span class="ident">Distance::meters</span>(<span class="number">5.0</span>))
+            .<span class="ident">hover_outline</span>(<span class="ident">colors::OUTLINE</span>, <span class="ident">Distance::meters</span>(<span class="number">5.0</span>))
             .<span class="ident">tooltip</span>(<span class="ident">Text::from</span>(<span class="macro">format!</span>(
                 <span class="string">&quot;{} rat-runs cross {}&quot;</span>,
                 <span class="ident">rat_runs</span>.<span class="ident">count_per_road</span>.<span class="ident">get</span>(<span class="kw-2">*</span><span class="ident">r</span>),
@@ -462,7 +464,7 @@
             .<span class="ident">add</span>(<span class="ident">FilterableObj::InteriorIntersection</span>(<span class="kw-2">*</span><span class="ident">i</span>))
             .<span class="ident">hitbox</span>(<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>())
             .<span class="ident">drawn_in_master_batch</span>()
-            .<span class="ident">hover_outline</span>(<span class="ident">Color::BLACK</span>, <span class="ident">Distance::meters</span>(<span class="number">5.0</span>))
+            .<span class="ident">hover_outline</span>(<span class="ident">colors::OUTLINE</span>, <span class="ident">Distance::meters</span>(<span class="number">5.0</span>))
             .<span class="ident">tooltip</span>(<span class="ident">Text::from</span>(<span class="macro">format!</span>(
                 <span class="string">&quot;{} rat-runs cross this intersection&quot;</span>,
                 <span class="ident">rat_runs</span>.<span class="ident">count_per_intersection</span>.<span class="ident">get</span>(<span class="kw-2">*</span><span class="ident">i</span>)

@@ -316,11 +316,11 @@
 <span class="kw">use</span> <span class="ident">synthpop</span>::{<span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>};
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ToggleZoomed</span>, <span class="ident">World</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RoundedF64</span>, <span class="ident">Spinner</span>, <span class="ident">State</span>,
-    <span class="ident">Text</span>, <span class="ident">Widget</span>,
+    <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RoundedF64</span>, <span class="ident">Spinner</span>, <span class="ident">State</span>, <span class="ident">Text</span>,
+    <span class="ident">Widget</span>,
 };
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">App</span>, <span class="ident">BrowseNeighborhoods</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">colors</span>, <span class="ident">App</span>, <span class="ident">BrowseNeighborhoods</span>, <span class="ident">Transition</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RoutePlanner</span> {
     <span class="ident">top_panel</span>: <span class="ident">Panel</span>,
@@ -440,7 +440,7 @@
 
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_time</span> <span class="op">=</span> <span class="ident">Duration::ZERO</span>;
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_dist</span> <span class="op">=</span> <span class="ident">Distance::ZERO</span>;
-            <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident">Color::RED</span>;
+            <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident">colors::PLAN_ROUTE_AFTER</span>;
             <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>().<span class="ident">windows</span>(<span class="number">2</span>) {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">path</span>, <span class="ident">pl</span>)) <span class="op">=</span>
                     <span class="ident">TripEndpoint::path_req</span>(<span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>], <span class="ident">TripMode::Drive</span>, <span class="ident">map</span>)
@@ -478,7 +478,7 @@
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw_old_route</span> <span class="op">=</span> <span class="ident">ToggleZoomed::builder</span>();
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_time</span> <span class="op">=</span> <span class="ident">Duration::ZERO</span>;
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_dist</span> <span class="op">=</span> <span class="ident">Distance::ZERO</span>;
-            <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident">Color::BLUE</span>;
+            <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident">colors::PLAN_ROUTE_BEFORE</span>;
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">routing_params</span>().<span class="ident">clone</span>();
             <span class="ident">params</span>.<span class="ident">main_road_penalty</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">main_road_penalty</span>;
             <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>().<span class="ident">windows</span>(<span class="number">2</span>) {
