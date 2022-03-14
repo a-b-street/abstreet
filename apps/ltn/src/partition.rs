@@ -159,11 +159,11 @@ impl Partitioning {
             .values()
             .map(|pair| pair.0.perimeter.clone())
             .collect();
-        let colors = Perimeter::calculate_coloring(&perims, colors::NEIGHBORHOODS.len())
+        let colors = Perimeter::calculate_coloring(&perims, colors::ADJACENT_STUFF.len())
             .unwrap_or_else(|| (0..perims.len()).collect());
         let orig_coloring: Vec<Color> = self.neighborhoods.values().map(|pair| pair.1).collect();
         for (pair, color_idx) in self.neighborhoods.values_mut().zip(colors.into_iter()) {
-            pair.1 = colors::NEIGHBORHOODS[color_idx % colors::NEIGHBORHOODS.len()];
+            pair.1 = colors::ADJACENT_STUFF[color_idx % colors::ADJACENT_STUFF.len()];
         }
         let new_coloring: Vec<Color> = self.neighborhoods.values().map(|pair| pair.1).collect();
         orig_coloring != new_coloring
