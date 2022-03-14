@@ -5,20 +5,7 @@ use map_gui::tools::Grid;
 use map_model::Map;
 use widgetry::{Color, GeomBatch};
 
-use crate::Neighborhood;
-
-lazy_static::lazy_static! {
-    static ref COLORS: [Color; 6] = [
-        Color::BLUE,
-        Color::YELLOW,
-        Color::hex("#3CAEA3"),
-        Color::PURPLE,
-        Color::PINK,
-        Color::ORANGE,
-    ];
-}
-const CAR_FREE_COLOR: Color = Color::GREEN;
-const DISCONNECTED_COLOR: Color = Color::RED;
+use crate::{colors, Neighborhood};
 
 const RESOLUTION_M: f64 = 10.0;
 
@@ -53,7 +40,7 @@ impl RenderCells {
         let mut batch = GeomBatch::new();
         for (color, polygons) in self.colors.iter().zip(self.polygons_per_cell.iter()) {
             for poly in polygons {
-                batch.push(color.alpha(0.5), poly.clone());
+                batch.push(*color, poly.clone());
             }
         }
         batch
@@ -154,9 +141,9 @@ impl RenderCellsBuilder {
         // Color car-free cells in a special way
         for (idx, cell) in neighborhood.cells.iter().enumerate() {
             if cell.car_free {
-                cell_colors[idx] = CAR_FREE_COLOR;
+                cell_colors[idx] = colors::CAR_FREE_CELL;
             } else if cell.is_disconnected() {
-                cell_colors[idx] = DISCONNECTED_COLOR;
+                cell_colors[idx] = colors::DISCONNECTED_CELL;
             }
         }
 
@@ -287,7 +274,8 @@ fn color_cells(num_cells: usize, adjacencies: HashSet<(usize, usize)>) -> Vec<Co
     // This is the same greedy logic as Perimeter::calculate_coloring
     let mut assigned_colors = Vec::new();
     for this_idx in 0..num_cells {
-        let mut available_colors: Vec<bool> = std::iter::repeat(true).take(COLORS.len()).collect();
+        let mut available_colors: Vec<bool> =
+            std::iter::repeat(true).take(colors::CELLS.len()).collect();
         // Find all neighbors
         for other_idx in 0..num_cells {
             if adjacencies.contains(&(this_idx, other_idx)) {
@@ -305,5 +293,8 @@ fn color_cells(num_cells: usize, adjacencies: HashSet<(usize, usize)>) -> Vec<Co
             assigned_colors.push(0);
         }
     }
-    assigned_colors.into_iter().map(|idx| COLORS[idx]).collect()
+    assigned_colors
+        .into_iter()
+        .map(|idx| colors::CELLS[idx])
+        .collect()
 }

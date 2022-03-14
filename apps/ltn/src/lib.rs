@@ -17,6 +17,7 @@ extern crate anyhow;
 extern crate log;
 
 mod browse;
+mod colors;
 mod common;
 mod connectivity;
 mod draw_cells;

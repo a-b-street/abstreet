@@ -1,11 +1,11 @@
 use map_gui::tools::percentage_bar;
 use map_model::{PathRequest, NORMAL_LANE_THICKNESS};
 use widgetry::mapspace::{ToggleZoomed, World};
-use widgetry::{Color, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text, Widget};
+use widgetry::{EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text, Widget};
 
 use crate::per_neighborhood::{FilterableObj, Tab};
 use crate::rat_runs::{find_rat_runs, RatRuns};
-use crate::{App, Neighborhood, NeighborhoodID, Transition};
+use crate::{colors, App, Neighborhood, NeighborhoodID, Transition};
 
 pub struct BrowseRatRuns {
     top_panel: Panel,
@@ -108,7 +108,7 @@ impl BrowseRatRuns {
 
         let mut draw_path = ToggleZoomed::builder();
         if let Some(pl) = self.rat_runs.paths[self.current_idx].trace(&app.map) {
-            let color = Color::RED;
+            let color = colors::RAT_RUN_PATH;
             let shape = pl.make_polygons(3.0 * NORMAL_LANE_THICKNESS);
             draw_path.unzoomed.push(color.alpha(0.8), shape.clone());
             draw_path.zoomed.push(color.alpha(0.5), shape);

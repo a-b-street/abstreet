@@ -3,13 +3,14 @@ use map_model::{IntersectionID, PathConstraints, RoadID};
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::tools::open_browser;
 use widgetry::{
-    lctrl, Color, EventCtx, Image, Key, Line, Panel, PanelBuilder, Text, TextExt, Widget,
+    lctrl, EventCtx, Image, Key, Line, Panel, PanelBuilder, Text, TextExt, Widget,
     DEFAULT_CORNER_RADIUS,
 };
 
 use crate::rat_runs::RatRuns;
 use crate::{
-    after_edit, App, BrowseNeighborhoods, DiagonalFilter, Neighborhood, NeighborhoodID, Transition,
+    after_edit, colors, App, BrowseNeighborhoods, DiagonalFilter, Neighborhood, NeighborhoodID,
+    Transition,
 };
 
 #[derive(PartialEq)]
@@ -183,7 +184,7 @@ pub fn make_world(
             .add(FilterableObj::InteriorRoad(*r))
             .hitbox(road.get_thick_polygon())
             .drawn_in_master_batch()
-            .hover_outline(Color::BLACK, Distance::meters(5.0))
+            .hover_outline(colors::OUTLINE, Distance::meters(5.0))
             .tooltip(Text::from(format!(
                 "{} rat-runs cross {}",
                 rat_runs.count_per_road.get(*r),
@@ -199,7 +200,7 @@ pub fn make_world(
             .add(FilterableObj::InteriorIntersection(*i))
             .hitbox(map.get_i(*i).polygon.clone())
             .drawn_in_master_batch()
-            .hover_outline(Color::BLACK, Distance::meters(5.0))
+            .hover_outline(colors::OUTLINE, Distance::meters(5.0))
             .tooltip(Text::from(format!(
                 "{} rat-runs cross this intersection",
                 rat_runs.count_per_intersection.get(*i)

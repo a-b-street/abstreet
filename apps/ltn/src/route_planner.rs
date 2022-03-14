@@ -7,11 +7,11 @@ use map_model::{PathfinderCaching, NORMAL_LANE_THICKNESS};
 use synthpop::{TripEndpoint, TripMode};
 use widgetry::mapspace::{ToggleZoomed, World};
 use widgetry::{
-    Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, RoundedF64, Spinner, State,
-    Text, Widget,
+    EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, RoundedF64, Spinner, State, Text,
+    Widget,
 };
 
-use crate::{App, BrowseNeighborhoods, Transition};
+use crate::{colors, App, BrowseNeighborhoods, Transition};
 
 pub struct RoutePlanner {
     top_panel: Panel,
@@ -131,7 +131,7 @@ impl RoutePlanner {
 
             let mut total_time = Duration::ZERO;
             let mut total_dist = Distance::ZERO;
-            let color = Color::RED;
+            let color = colors::PLAN_ROUTE_AFTER;
             for pair in self.waypoints.get_waypoints().windows(2) {
                 if let Some((path, pl)) =
                     TripEndpoint::path_req(pair[0], pair[1], TripMode::Drive, map)
@@ -169,7 +169,7 @@ impl RoutePlanner {
             let mut draw_old_route = ToggleZoomed::builder();
             let mut total_time = Duration::ZERO;
             let mut total_dist = Distance::ZERO;
-            let color = Color::BLUE;
+            let color = colors::PLAN_ROUTE_BEFORE;
             let mut params = map.routing_params().clone();
             params.main_road_penalty = app.session.main_road_penalty;
             for pair in self.waypoints.get_waypoints().windows(2) {

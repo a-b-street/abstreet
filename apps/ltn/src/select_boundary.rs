@@ -8,12 +8,12 @@ use widgetry::mapspace::ToggleZoomed;
 use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::tools::Lasso;
 use widgetry::{
-    Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, State, Text, TextExt, Widget,
+    EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, State, Text, TextExt, Widget,
 };
 
 use crate::browse::draw_boundary_roads;
 use crate::partition::BlockID;
-use crate::{App, NeighborhoodID, Partitioning, Transition};
+use crate::{colors, App, NeighborhoodID, Partitioning, Transition};
 
 pub struct SelectBoundary {
     top_panel: Panel,
@@ -75,7 +75,7 @@ impl SelectBoundary {
                 .world
                 .add(id)
                 .hitbox(app.session.partitioning.get_block(id).polygon.clone())
-                .draw_color(Color::BLUE.alpha(0.5))
+                .draw_color(colors::BLOCK_IN_BOUNDARY)
                 .hover_alpha(0.8);
             if self.frontier.contains(&id) {
                 obj = obj
@@ -88,7 +88,7 @@ impl SelectBoundary {
             self.world
                 .add(id)
                 .hitbox(app.session.partitioning.get_block(id).polygon.clone())
-                .draw_color(Color::CYAN.alpha(0.2))
+                .draw_color(colors::BLOCK_IN_FRONTIER)
                 .hover_alpha(0.8)
                 .hotkey(Key::Space, "add")
                 .hotkey(Key::LeftControl, "add")

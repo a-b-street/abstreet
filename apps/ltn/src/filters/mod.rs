@@ -8,10 +8,10 @@ use serde::{Deserialize, Serialize};
 use geom::{Circle, Distance, Line};
 use map_model::{IntersectionID, Map, RoadID, RoutingParams, TurnID};
 use widgetry::mapspace::{DrawUnzoomedShapes, ToggleZoomed};
-use widgetry::{Color, EventCtx, GeomBatch, GfxCtx};
+use widgetry::{EventCtx, GeomBatch, GfxCtx};
 
 pub use self::existing::transform_existing_filters;
-use crate::{after_edit, App};
+use crate::{after_edit, colors, App};
 
 /// Stored in App session state. Before making any changes, call `before_edit`.
 #[derive(Clone, Default, Serialize, Deserialize)]
@@ -98,14 +98,15 @@ impl ModalFilters {
 
                 // TODO DrawUnzoomedShapes can do lines, but they don't stretch as the radius does,
                 // so it looks weird
-                low_zoom.add_circle(pt, Distance::meters(8.0), Color::RED);
-                low_zoom.add_circle(pt, Distance::meters(6.0), Color::WHITE);
+                low_zoom.add_circle(pt, Distance::meters(8.0), *colors::FILTER_OUTER);
+                low_zoom.add_circle(pt, Distance::meters(6.0), *colors::FILTER_INNER);
 
-                batch
-                    .unzoomed
-                    .push(Color::RED, Circle::new(pt, road_width).to_polygon());
                 batch.unzoomed.push(
-                    Color::WHITE,
+                    *colors::FILTER_OUTER,
+                    Circle::new(pt, road_width).to_polygon(),
+                );
+                batch.unzoomed.push(
+                    *colors::FILTER_INNER,
                     Line::must_new(
                         pt.project_away(0.8 * road_width, angle.rotate_degs(90.0)),
                         pt.project_away(0.8 * road_width, angle.rotate_degs(-90.0)),
@@ -130,12 +131,13 @@ impl ModalFilters {
             // It's really hard to see a tiny squished line thickened, so use the same circle
             // symbology at really low zooms
             let pt = line.middle().unwrap();
-            low_zoom.add_circle(pt, Distance::meters(8.0), Color::RED);
-            low_zoom.add_circle(pt, Distance::meters(6.0), Color::WHITE);
+            low_zoom.add_circle(pt, Distance::meters(8.0), *colors::FILTER_OUTER);
+            low_zoom.add_circle(pt, Distance::meters(6.0), *colors::FILTER_INNER);
 
-            batch
-                .unzoomed
-                .push(Color::RED, line.make_polygons(Distance::meters(3.0)));
+            batch.unzoomed.push(
+                *colors::FILTER_OUTER,
+                line.make_polygons(Distance::meters(3.0)),
+            );
 
             draw_zoomed_planters(
                 ctx,

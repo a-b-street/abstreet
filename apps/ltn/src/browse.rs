@@ -7,12 +7,12 @@ use synthpop::Scenario;
 use widgetry::mapspace::{ToggleZoomed, World, WorldOutcome};
 use widgetry::tools::PopupMsg;
 use widgetry::{
-    Choice, Color, DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text,
-    TextExt, Toggle, Widget,
+    Choice, DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text, TextExt,
+    Toggle, Widget,
 };
 
 use crate::filters::auto::Heuristic;
-use crate::{App, Neighborhood, NeighborhoodID, Transition};
+use crate::{colors, App, Neighborhood, NeighborhoodID, Transition};
 
 pub struct BrowseNeighborhoods {
     top_panel: Panel,
@@ -217,8 +217,8 @@ fn make_world(ctx: &mut EventCtx, app: &App, timer: &mut Timer) -> World<Neighbo
                 world
                     .add(*id)
                     .hitbox(block.polygon.clone())
-                    .draw_color(color.alpha(0.3))
-                    .hover_outline(Color::BLACK, Distance::meters(5.0))
+                    .draw_color(*color)
+                    .hover_outline(colors::OUTLINE, Distance::meters(5.0))
                     .clickable()
                     .build(ctx);
             }
@@ -251,7 +251,7 @@ fn make_world(ctx: &mut EventCtx, app: &App, timer: &mut Timer) -> World<Neighbo
                     .add(*id)
                     .hitbox(block.polygon.clone())
                     .draw_color(color.alpha(0.5))
-                    .hover_outline(Color::BLACK, Distance::meters(5.0))
+                    .hover_outline(colors::OUTLINE, Distance::meters(5.0))
                     .clickable()
                     .build(ctx);
             }
@@ -261,7 +261,7 @@ fn make_world(ctx: &mut EventCtx, app: &App, timer: &mut Timer) -> World<Neighbo
                     .hitbox(block.polygon.clone())
                     // Slight lie, because draw_over_roads has to be drawn after the World
                     .drawn_in_master_batch()
-                    .hover_outline(Color::BLACK, Distance::meters(5.0))
+                    .hover_outline(colors::OUTLINE, Distance::meters(5.0))
                     .clickable()
                     .build(ctx);
             }
@@ -306,24 +306,27 @@ pub fn draw_boundary_roads(ctx: &EventCtx, app: &App) -> ToggleZoomed {
             }
             seen_roads.insert(r);
             let road = app.map.get_r(r);
-            batch
-                .unzoomed
-                .push(Color::RED.alpha(0.6), road.get_thick_polygon());
+            batch.unzoomed.push(
+                colors::HIGHLIGHT_BOUNDARY_UNZOOMED,
+                road.get_thick_polygon(),
+            );
             batch
                 .zoomed
-                .push(Color::RED.alpha(0.5), road.get_thick_polygon());
+                .push(colors::HIGHLIGHT_BOUNDARY_ZOOMED, road.get_thick_polygon());
 
             for i in [road.src_i, road.dst_i] {
                 if seen_borders.contains(&i) {
                     continue;
                 }
                 seen_borders.insert(i);
-                batch
-                    .unzoomed
-                    .push(Color::RED.alpha(0.6), app.map.get_i(i).polygon.clone());
-                batch
-                    .zoomed
-                    .push(Color::RED.alpha(0.5), app.map.get_i(i).polygon.clone());
+                batch.unzoomed.push(
+                    colors::HIGHLIGHT_BOUNDARY_UNZOOMED,
+                    app.map.get_i(i).polygon.clone(),
+                );
+                batch.zoomed.push(
+                    colors::HIGHLIGHT_BOUNDARY_ZOOMED,
+                    app.map.get_i(i).polygon.clone(),
+                );
             }
         }
     }

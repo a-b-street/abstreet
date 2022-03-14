@@ -9,16 +9,7 @@ use map_model::osm::RoadRank;
 use map_model::{Block, Map, Perimeter, RoadID, RoadSideID};
 use widgetry::Color;
 
-use crate::App;
-
-const COLORS: [Color; 6] = [
-    Color::BLUE,
-    Color::YELLOW,
-    Color::GREEN,
-    Color::PURPLE,
-    Color::PINK,
-    Color::ORANGE,
-];
+use crate::{colors, App};
 
 /// An opaque ID, won't be contiguous as we adjust boundaries
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
@@ -121,7 +112,7 @@ impl Partitioning {
 
             let mut neighborhoods = BTreeMap::new();
             for block in blocks {
-                neighborhoods.insert(NeighborhoodID(neighborhoods.len()), (block, Color::RED));
+                neighborhoods.insert(NeighborhoodID(neighborhoods.len()), (block, Color::CLEAR));
             }
             let neighborhood_id_counter = neighborhoods.len();
             let mut p = Partitioning {
@@ -168,11 +159,11 @@ impl Partitioning {
             .values()
             .map(|pair| pair.0.perimeter.clone())
             .collect();
-        let colors = Perimeter::calculate_coloring(&perims, COLORS.len())
+        let colors = Perimeter::calculate_coloring(&perims, colors::NEIGHBORHOODS.len())
             .unwrap_or_else(|| (0..perims.len()).collect());
         let orig_coloring: Vec<Color> = self.neighborhoods.values().map(|pair| pair.1).collect();
         for (pair, color_idx) in self.neighborhoods.values_mut().zip(colors.into_iter()) {
-            pair.1 = COLORS[color_idx % COLORS.len()];
+            pair.1 = colors::NEIGHBORHOODS[color_idx % colors::NEIGHBORHOODS.len()];
         }
         let new_coloring: Vec<Color> = self.neighborhoods.values().map(|pair| pair.1).collect();
         orig_coloring != new_coloring
@@ -246,7 +237,7 @@ impl Partitioning {
             self.neighborhood_id_counter += 1;
             // Temporary color
             self.neighborhoods
-                .insert(new_neighborhood, (split_piece, Color::RED));
+                .insert(new_neighborhood, (split_piece, Color::CLEAR));
         }
         if new_splits {
             // We need to update the owner of all single blocks in these new pieces
@@ -302,7 +293,7 @@ impl Partitioning {
         self.neighborhood_id_counter += 1;
         // Temporary color
         self.neighborhoods
-            .insert(new_owner, (self.get_block(id).clone(), Color::RED));
+            .insert(new_owner, (self.get_block(id).clone(), Color::CLEAR));
         let result = self.transfer_block(map, id, old_owner, new_owner);
         if result.is_err() {
             // Revert the change above!
