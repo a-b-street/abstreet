@@ -616,6 +616,55 @@
 <span id="614">614</span>
 <span id="615">615</span>
 <span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
+<span id="622">622</span>
+<span id="623">623</span>
+<span id="624">624</span>
+<span id="625">625</span>
+<span id="626">626</span>
+<span id="627">627</span>
+<span id="628">628</span>
+<span id="629">629</span>
+<span id="630">630</span>
+<span id="631">631</span>
+<span id="632">632</span>
+<span id="633">633</span>
+<span id="634">634</span>
+<span id="635">635</span>
+<span id="636">636</span>
+<span id="637">637</span>
+<span id="638">638</span>
+<span id="639">639</span>
+<span id="640">640</span>
+<span id="641">641</span>
+<span id="642">642</span>
+<span id="643">643</span>
+<span id="644">644</span>
+<span id="645">645</span>
+<span id="646">646</span>
+<span id="647">647</span>
+<span id="648">648</span>
+<span id="649">649</span>
+<span id="650">650</span>
+<span id="651">651</span>
+<span id="652">652</span>
+<span id="653">653</span>
+<span id="654">654</span>
+<span id="655">655</span>
+<span id="656">656</span>
+<span id="657">657</span>
+<span id="658">658</span>
+<span id="659">659</span>
+<span id="660">660</span>
+<span id="661">661</span>
+<span id="662">662</span>
+<span id="663">663</span>
+<span id="664">664</span>
+<span id="665">665</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
@@ -822,6 +871,14 @@
             <span class="macro">println!</span>(<span class="string">&quot;\nCommon: {:?}\n{:?}\n{:?}&quot;</span>, <span class="ident">common</span>, <span class="self">self</span>, <span class="ident">other</span>);
         }
 
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">reverse_to_fix_winding_order</span>(<span class="ident">map</span>, <span class="ident">other</span>) {
+            <span class="comment">// Revert, reverse one, and try again. This should never recurse.</span>
+            <span class="self">self</span>.<span class="ident">restore_invariant</span>();
+            <span class="ident">other</span>.<span class="ident">restore_invariant</span>();
+            <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">reverse</span>();
+            <span class="kw">return</span> <span class="self">self</span>.<span class="ident">try_to_merge</span>(<span class="ident">map</span>, <span class="ident">other</span>, <span class="ident">debug_failures</span>, <span class="ident">use_expensive_blockfinding</span>);
+        }
+
         <span class="comment">// Check if all of the common roads are at the end of each perimeter,</span>
         <span class="comment">// so we can &quot;blindly&quot; do this snipping. If this isn&#39;t true, then the overlapping portions</span>
         <span class="comment">// are split by non-overlapping roads. This happens when merging the two blocks would</span>
@@ -916,6 +973,47 @@
             }
         }
         <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="doccomment">/// Should we reverse one perimeter to match the winding order?</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is only meant to be called in the middle of try_to_merge. It assumes both perimeters</span>
+    <span class="doccomment">/// have already been rotated so the common roads are at the end. The invariant of first=last</span>
+    <span class="doccomment">/// is not true.</span>
+    <span class="kw">fn</span> <span class="ident">reverse_to_fix_winding_order</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Perimeter</span>) -&gt; <span class="ident">bool</span> {
+        <span class="comment">// Using geometry to determine winding order is brittle. Look for any common road, and see</span>
+        <span class="comment">// where it points.</span>
+        <span class="kw">let</span> <span class="ident">common_example</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="ident">road</span>;
+        <span class="kw">let</span> <span class="ident">last_common_for_self</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">map</span>
+            .<span class="ident">get_r</span>(<span class="ident">common_example</span>)
+            .<span class="ident">common_endpoint</span>(<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">wraparound_get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">roads</span>, <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">isize</span>).<span class="ident">road</span>))
+        {
+            <span class="ident">CommonEndpoint::One</span>(<span class="ident">i</span>) =&gt; <span class="ident">i</span>,
+            <span class="ident">CommonEndpoint::Both</span> =&gt; {
+                <span class="comment">// If the common road is a loop on the intersection, then this perimeter must be of</span>
+                <span class="comment">// length 2 (or 3 with the invariant), and reversing it is meaningless.</span>
+                <span class="kw">return</span> <span class="bool-val">false</span>;
+            }
+            <span class="ident">CommonEndpoint::None</span> =&gt; <span class="macro">unreachable!</span>(),
+        };
+
+        <span class="comment">// Find the same road in the other perimeter</span>
+        <span class="kw">let</span> <span class="ident">other_idx</span> <span class="op">=</span> <span class="ident">other</span>
+            .<span class="ident">roads</span>
+            .<span class="ident">iter</span>()
+            .<span class="ident">position</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">road</span> <span class="op">==</span> <span class="ident">common_example</span>)
+            .<span class="ident">unwrap</span>() <span class="kw">as</span> <span class="ident">isize</span>;
+        <span class="kw">let</span> <span class="ident">last_common_for_other</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">map</span>
+            .<span class="ident">get_r</span>(<span class="ident">common_example</span>)
+            .<span class="ident">common_endpoint</span>(<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">wraparound_get</span>(<span class="kw-2">&amp;</span><span class="ident">other</span>.<span class="ident">roads</span>, <span class="ident">other_idx</span> <span class="op">+</span> <span class="number">1</span>).<span class="ident">road</span>))
+        {
+            <span class="ident">CommonEndpoint::One</span>(<span class="ident">i</span>) =&gt; <span class="ident">i</span>,
+            <span class="ident">CommonEndpoint::Both</span> =&gt; {
+                <span class="kw">return</span> <span class="bool-val">false</span>;
+            }
+            <span class="ident">CommonEndpoint::None</span> =&gt; <span class="macro">unreachable!</span>(),
+        };
+        <span class="ident">last_common_for_self</span> <span class="op">==</span> <span class="ident">last_common_for_other</span>
     }
 
     <span class="doccomment">/// Try to merge all given perimeters. If successful, only one perimeter will be returned.</span>

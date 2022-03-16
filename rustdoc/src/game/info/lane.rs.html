@@ -287,6 +287,11 @@
 <span id="285">285</span>
 <span id="286">286</span>
 <span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">abstutil::prettyprint_usize</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">LaneID</span>, <span class="ident">PathConstraints</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">EventCtx</span>, <span class="ident">Line</span>, <span class="ident">LinePlot</span>, <span class="ident">PlotOptions</span>, <span class="ident">Series</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>};
@@ -450,8 +455,13 @@
         ),
     ));
     <span class="ident">kv</span>.<span class="ident">push</span>((
-        <span class="string">&quot;Dir and offset&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="macro">format!</span>(<span class="string">&quot;{}, {}&quot;</span>, <span class="ident">l</span>.<span class="ident">dir</span>, <span class="ident">l</span>.<span class="ident">id</span>.<span class="ident">offset</span>),
+        <span class="string">&quot;Dir, side, offset&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="macro">format!</span>(
+            <span class="string">&quot;{}, {:?}, {}&quot;</span>,
+            <span class="ident">l</span>.<span class="ident">dir</span>,
+            <span class="ident">l</span>.<span class="ident">get_nearest_side_of_road</span>(<span class="ident">map</span>).<span class="ident">side</span>,
+            <span class="ident">l</span>.<span class="ident">id</span>.<span class="ident">offset</span>
+        ),
     ));
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">reserved</span>, <span class="ident">total</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">debug_queue_lengths</span>(<span class="ident">l</span>.<span class="ident">id</span>) {
         <span class="ident">kv</span>.<span class="ident">push</span>((
