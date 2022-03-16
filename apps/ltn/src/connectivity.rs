@@ -118,11 +118,23 @@ impl State<App> for Viewer {
                         &self.neighborhood,
                         self.left_panel.center_of("Create filters along a shape"),
                     ));
+                } else if let Some(t) =
+                    Tab::Connectivity.handle_action(ctx, app, x.as_ref(), self.neighborhood.id)
+                {
+                    return t;
                 }
 
-                return Tab::Connectivity
-                    .handle_action(ctx, app, x.as_ref(), self.neighborhood.id)
-                    .unwrap();
+                return crate::save::AltProposals::handle_action(
+                    ctx,
+                    app,
+                    crate::save::PreserveState::Connectivity(
+                        app.session
+                            .partitioning
+                            .all_blocks_in_neighborhood(self.neighborhood.id),
+                    ),
+                    &x,
+                )
+                .unwrap();
             }
             Outcome::Changed(x) => {
                 app.session.draw_cells_as_areas = self.left_panel.is_checked("draw cells");

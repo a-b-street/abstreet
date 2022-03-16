@@ -173,9 +173,26 @@ impl State<App> for BrowseRatRuns {
                     self.recalculate(ctx, app);
                 }
                 x => {
-                    return Tab::RatRuns
-                        .handle_action(ctx, app, x, self.neighborhood.id)
-                        .unwrap();
+                    if let Some(t) = Tab::RatRuns.handle_action(ctx, app, x, self.neighborhood.id) {
+                        return t;
+                    }
+                    let current_request = if self.rat_runs.paths.is_empty() {
+                        None
+                    } else {
+                        Some(self.rat_runs.paths[self.current_idx].get_req().clone())
+                    };
+                    return crate::save::AltProposals::handle_action(
+                        ctx,
+                        app,
+                        crate::save::PreserveState::RatRuns(
+                            current_request,
+                            app.session
+                                .partitioning
+                                .all_blocks_in_neighborhood(self.neighborhood.id),
+                        ),
+                        x,
+                    )
+                    .unwrap();
                 }
             },
             _ => {}

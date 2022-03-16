@@ -77,33 +77,28 @@ impl Tab {
         action: &str,
         id: NeighborhoodID,
     ) -> Option<Transition> {
-        Some(match action {
+        match action {
             "Browse neighborhoods" => {
                 // Recalculate the state to redraw any changed filters
-                Transition::Replace(BrowseNeighborhoods::new_state(ctx, app))
+                Some(Transition::Replace(BrowseNeighborhoods::new_state(
+                    ctx, app,
+                )))
             }
-            "Adjust boundary" => Transition::Replace(
+            "Adjust boundary" => Some(Transition::Replace(
                 crate::select_boundary::SelectBoundary::new_state(ctx, app, id),
-            ),
-            "Connectivity" => Tab::Connectivity.switch_to_state(ctx, app, id),
-            "Rat runs" => Tab::RatRuns.switch_to_state(ctx, app, id),
+            )),
+            "Connectivity" => Some(Tab::Connectivity.switch_to_state(ctx, app, id)),
+            "Rat runs" => Some(Tab::RatRuns.switch_to_state(ctx, app, id)),
             "undo" => {
                 let prev = app.session.modal_filters.previous_version.take().unwrap();
                 app.session.modal_filters = prev;
                 after_edit(ctx, app);
                 // Recreate the current state. This will reset any panel state (checkboxes and
                 // dropdowns)
-                self.switch_to_state(ctx, app, id)
+                Some(self.switch_to_state(ctx, app, id))
             }
-            x => {
-                return crate::save::AltProposals::handle_action(
-                    ctx,
-                    app,
-                    crate::save::PreserveState::per_neighborhood(app, self, id),
-                    x,
-                );
-            }
-        })
+            _ => None,
+        }
     }
 
     pub fn switch_to_state(

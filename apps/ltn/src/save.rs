@@ -4,12 +4,12 @@ use serde::{Deserialize, Serialize};
 use abstio::MapName;
 use abstutil::{Counter, Timer};
 use map_gui::tools::{ChooseSomething, PromptInput};
+use map_model::PathRequest;
 use widgetry::tools::PopupMsg;
 use widgetry::{Choice, EventCtx, Key, Line, State, Widget};
 
 use crate::partition::BlockID;
-use crate::per_neighborhood::Tab;
-use crate::{App, BrowseNeighborhoods, ModalFilters, NeighborhoodID, Partitioning, Transition};
+use crate::{App, BrowseNeighborhoods, ModalFilters, Partitioning, Transition};
 
 /// Captures all of the edits somebody makes to a map in the LTN tool. Note this separate from
 /// `map_model::MapEdits`.
@@ -267,20 +267,18 @@ impl AltProposals {
 }
 
 // After switching proposals, we have to recreate state
+//
+// To preserve per-neigbhorhood states, we have to transform neighborhood IDs, which may change if
+// the partitioning is different. If the boundary is a bit different, match up by all the blocks in
+// the current neighborhood.
 pub enum PreserveState {
     BrowseNeighborhoods,
     Route,
-    PerNeighborhood(Tab, Vec<BlockID>),
+    Connectivity(Vec<BlockID>),
+    RatRuns(Option<PathRequest>, Vec<BlockID>),
 }
 
 impl PreserveState {
-    pub fn per_neighborhood(app: &App, tab: Tab, id: NeighborhoodID) -> Self {
-        // When we swap proposals, neighborhood IDs will change if the partitioning is different.
-        // In the common case, just filters will change. But even if the boundary is a bit
-        // different, match up by all the blocks in the current neighborhood.
-        Self::PerNeighborhood(tab, app.session.partitioning.all_blocks_in_neighborhood(id))
-    }
-
     fn switch_to_state(self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self {
             PreserveState::BrowseNeighborhoods => {
@@ -289,14 +287,30 @@ impl PreserveState {
             PreserveState::Route => {
                 Transition::Replace(crate::route_planner::RoutePlanner::new_state(ctx, app))
             }
-            PreserveState::PerNeighborhood(tab, blocks) => {
+            PreserveState::Connectivity(blocks) => {
                 // Count which new neighborhoods have the blocks from the original. Pick the one
                 // with the most matches
                 let mut count = Counter::new();
                 for block in blocks {
                     count.inc(app.session.partitioning.block_to_neighborhood(block));
                 }
-                tab.switch_to_state(ctx, app, count.max_key())
+                Transition::Replace(crate::connectivity::Viewer::new_state(
+                    ctx,
+                    app,
+                    count.max_key(),
+                ))
+            }
+            PreserveState::RatRuns(req, blocks) => {
+                let mut count = Counter::new();
+                for block in blocks {
+                    count.inc(app.session.partitioning.block_to_neighborhood(block));
+                }
+                Transition::Replace(crate::rat_run_viewer::BrowseRatRuns::new_state(
+                    ctx,
+                    app,
+                    count.max_key(),
+                    req,
+                ))
             }
         }
     }
