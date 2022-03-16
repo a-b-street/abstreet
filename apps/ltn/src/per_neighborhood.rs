@@ -87,30 +87,28 @@ impl Tab {
             "Adjust boundary" => Some(Transition::Replace(
                 crate::select_boundary::SelectBoundary::new_state(ctx, app, id),
             )),
-            "Connectivity" => Some(Tab::Connectivity.switch_to_state(ctx, app, id)),
-            "Rat runs" => Some(Tab::RatRuns.switch_to_state(ctx, app, id)),
+            "Connectivity" => Some(Transition::Replace(crate::connectivity::Viewer::new_state(
+                ctx, app, id,
+            ))),
+            "Rat runs" => Some(Transition::Replace(
+                crate::rat_run_viewer::BrowseRatRuns::new_state(ctx, app, id, None),
+            )),
             "undo" => {
                 let prev = app.session.modal_filters.previous_version.take().unwrap();
                 app.session.modal_filters = prev;
                 after_edit(ctx, app);
                 // Recreate the current state. This will reset any panel state (checkboxes and
                 // dropdowns)
-                Some(self.switch_to_state(ctx, app, id))
+                Some(Transition::Replace(match self {
+                    Tab::Connectivity => crate::connectivity::Viewer::new_state(ctx, app, id),
+                    // TODO Preserve the current rat run
+                    Tab::RatRuns => {
+                        crate::rat_run_viewer::BrowseRatRuns::new_state(ctx, app, id, None)
+                    }
+                }))
             }
             _ => None,
         }
-    }
-
-    pub fn switch_to_state(
-        self,
-        ctx: &mut EventCtx,
-        app: &mut App,
-        id: NeighborhoodID,
-    ) -> Transition {
-        Transition::Replace(match self {
-            Tab::Connectivity => crate::connectivity::Viewer::new_state(ctx, app, id),
-            Tab::RatRuns => crate::rat_run_viewer::BrowseRatRuns::new_state(ctx, app, id, None),
-        })
     }
 
     fn make_buttons(self, ctx: &mut EventCtx) -> Widget {
