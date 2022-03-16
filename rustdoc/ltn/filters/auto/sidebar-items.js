@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Heuristic",""]],"fn":[["brute_force",""],["greedy",""],["only_one_border",""],["try_to_filter_road",""]]});
+initSidebarItems({"enum":[["Heuristic",""]],"fn":[["brute_force",""],["greedy",""],["only_one_border",""],["split_cells",""],["try_to_filter_road",""]]});
