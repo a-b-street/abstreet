@@ -303,18 +303,32 @@
 <span id="301">301</span>
 <span id="302">302</span>
 <span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="ident">abstio::MapName</span>;
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Counter</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">ChooseSomething</span>, <span class="ident">PromptInput</span>};
+<span class="kw">use</span> <span class="ident">map_model::PathRequest</span>;
 <span class="kw">use</span> <span class="ident">widgetry::tools::PopupMsg</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Choice</span>, <span class="ident">EventCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">State</span>, <span class="ident">Widget</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::partition::BlockID</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::per_neighborhood::Tab</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">App</span>, <span class="ident">BrowseNeighborhoods</span>, <span class="ident">ModalFilters</span>, <span class="ident">NeighborhoodID</span>, <span class="ident">Partitioning</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">App</span>, <span class="ident">BrowseNeighborhoods</span>, <span class="ident">ModalFilters</span>, <span class="ident">Partitioning</span>, <span class="ident">Transition</span>};
 
 <span class="doccomment">/// Captures all of the edits somebody makes to a map in the LTN tool. Note this separate from</span>
 <span class="doccomment">/// `map_model::MapEdits`.</span>
@@ -572,20 +586,18 @@
 }
 
 <span class="comment">// After switching proposals, we have to recreate state</span>
+<span class="comment">//</span>
+<span class="comment">// To preserve per-neigbhorhood states, we have to transform neighborhood IDs, which may change if</span>
+<span class="comment">// the partitioning is different. If the boundary is a bit different, match up by all the blocks in</span>
+<span class="comment">// the current neighborhood.</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">PreserveState</span> {
     <span class="ident">BrowseNeighborhoods</span>,
     <span class="ident">Route</span>,
-    <span class="ident">PerNeighborhood</span>(<span class="ident">Tab</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BlockID</span><span class="op">&gt;</span>),
+    <span class="ident">Connectivity</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BlockID</span><span class="op">&gt;</span>),
+    <span class="ident">RatRuns</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathRequest</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BlockID</span><span class="op">&gt;</span>),
 }
 
 <span class="kw">impl</span> <span class="ident">PreserveState</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">per_neighborhood</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">tab</span>: <span class="ident">Tab</span>, <span class="ident">id</span>: <span class="ident">NeighborhoodID</span>) -&gt; <span class="self">Self</span> {
-        <span class="comment">// When we swap proposals, neighborhood IDs will change if the partitioning is different.</span>
-        <span class="comment">// In the common case, just filters will change. But even if the boundary is a bit</span>
-        <span class="comment">// different, match up by all the blocks in the current neighborhood.</span>
-        <span class="ident"><span class="self">Self</span>::PerNeighborhood</span>(<span class="ident">tab</span>, <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">all_blocks_in_neighborhood</span>(<span class="ident">id</span>))
-    }
-
     <span class="kw">fn</span> <span class="ident">switch_to_state</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident">PreserveState::BrowseNeighborhoods</span> =&gt; {
@@ -594,14 +606,30 @@
             <span class="ident">PreserveState::Route</span> =&gt; {
                 <span class="ident">Transition::Replace</span>(<span class="ident"><span class="kw">crate</span>::route_planner::RoutePlanner::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))
             }
-            <span class="ident">PreserveState::PerNeighborhood</span>(<span class="ident">tab</span>, <span class="ident">blocks</span>) =&gt; {
+            <span class="ident">PreserveState::Connectivity</span>(<span class="ident">blocks</span>) =&gt; {
                 <span class="comment">// Count which new neighborhoods have the blocks from the original. Pick the one</span>
                 <span class="comment">// with the most matches</span>
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">Counter::new</span>();
                 <span class="kw">for</span> <span class="ident">block</span> <span class="kw">in</span> <span class="ident">blocks</span> {
                     <span class="ident">count</span>.<span class="ident">inc</span>(<span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">block_to_neighborhood</span>(<span class="ident">block</span>));
                 }
-                <span class="ident">tab</span>.<span class="ident">switch_to_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">count</span>.<span class="ident">max_key</span>())
+                <span class="ident">Transition::Replace</span>(<span class="ident"><span class="kw">crate</span>::connectivity::Viewer::new_state</span>(
+                    <span class="ident">ctx</span>,
+                    <span class="ident">app</span>,
+                    <span class="ident">count</span>.<span class="ident">max_key</span>(),
+                ))
+            }
+            <span class="ident">PreserveState::RatRuns</span>(<span class="ident">req</span>, <span class="ident">blocks</span>) =&gt; {
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">Counter::new</span>();
+                <span class="kw">for</span> <span class="ident">block</span> <span class="kw">in</span> <span class="ident">blocks</span> {
+                    <span class="ident">count</span>.<span class="ident">inc</span>(<span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">block_to_neighborhood</span>(<span class="ident">block</span>));
+                }
+                <span class="ident">Transition::Replace</span>(<span class="ident"><span class="kw">crate</span>::rat_run_viewer::BrowseRatRuns::new_state</span>(
+                    <span class="ident">ctx</span>,
+                    <span class="ident">app</span>,
+                    <span class="ident">count</span>.<span class="ident">max_key</span>(),
+                    <span class="ident">req</span>,
+                ))
             }
         }
     }
