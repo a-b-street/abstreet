@@ -204,6 +204,14 @@ impl Perimeter {
             println!("\nCommon: {:?}\n{:?}\n{:?}", common, self, other);
         }
 
+        if self.reverse_to_fix_winding_order(map, other) {
+            // Revert, reverse one, and try again. This should never recurse.
+            self.restore_invariant();
+            other.restore_invariant();
+            self.roads.reverse();
+            return self.try_to_merge(map, other, debug_failures, use_expensive_blockfinding);
+        }
+
         // Check if all of the common roads are at the end of each perimeter,
         // so we can "blindly" do this snipping. If this isn't true, then the overlapping portions
         // are split by non-overlapping roads. This happens when merging the two blocks would
@@ -298,6 +306,47 @@ impl Perimeter {
             }
         }
         Ok(())
+    }
+
+    /// Should we reverse one perimeter to match the winding order?
+    ///
+    /// This is only meant to be called in the middle of try_to_merge. It assumes both perimeters
+    /// have already been rotated so the common roads are at the end. The invariant of first=last
+    /// is not true.
+    fn reverse_to_fix_winding_order(&self, map: &Map, other: &Perimeter) -> bool {
+        // Using geometry to determine winding order is brittle. Look for any common road, and see
+        // where it points.
+        let common_example = self.roads.last().unwrap().road;
+        let last_common_for_self = match map
+            .get_r(common_example)
+            .common_endpoint(map.get_r(wraparound_get(&self.roads, self.roads.len() as isize).road))
+        {
+            CommonEndpoint::One(i) => i,
+            CommonEndpoint::Both => {
+                // If the common road is a loop on the intersection, then this perimeter must be of
+                // length 2 (or 3 with the invariant), and reversing it is meaningless.
+                return false;
+            }
+            CommonEndpoint::None => unreachable!(),
+        };
+
+        // Find the same road in the other perimeter
+        let other_idx = other
+            .roads
+            .iter()
+            .position(|x| x.road == common_example)
+            .unwrap() as isize;
+        let last_common_for_other = match map
+            .get_r(common_example)
+            .common_endpoint(map.get_r(wraparound_get(&other.roads, other_idx + 1).road))
+        {
+            CommonEndpoint::One(i) => i,
+            CommonEndpoint::Both => {
+                return false;
+            }
+            CommonEndpoint::None => unreachable!(),
+        };
+        last_common_for_self == last_common_for_other
     }
 
     /// Try to merge all given perimeters. If successful, only one perimeter will be returned.
