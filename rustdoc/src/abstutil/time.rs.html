@@ -583,10 +583,6 @@
 <span id="581">581</span>
 <span id="582">582</span>
 <span id="583">583</span>
-<span id="584">584</span>
-<span id="585">585</span>
-<span id="586">586</span>
-<span id="587">587</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::io</span>::{<span class="ident">stdout</span>, <span class="ident">BufReader</span>, <span class="ident">ErrorKind</span>, <span class="ident">Read</span>, <span class="ident">Write</span>};
 
 <span class="kw">use</span> <span class="ident">anyhow</span>::{<span class="ident">Context</span>, <span class="prelude-ty">Result</span>};
@@ -825,12 +821,7 @@
             <span class="kw">return</span>;
         }
         <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">raw_name</span>.<span class="ident">into</span>();
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">StackEntry::Progress</span>(<span class="ident">p</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">stack</span>.<span class="ident">last</span>() {
-            <span class="macro">panic!</span>(
-                <span class="string">&quot;Can&#39;t start_iter({}) while Progress({}) is top of the stack&quot;</span>,
-                <span class="ident">name</span>, <span class="ident">p</span>.<span class="ident">label</span>
-            );
-        }
+        <span class="comment">// Note we may have two StackEntry::Progress entries nested</span>
 
         <span class="self">self</span>.<span class="ident">stack</span>
             .<span class="ident">push</span>(<span class="ident">StackEntry::Progress</span>(<span class="ident">Progress::new</span>(<span class="ident">name</span>, <span class="ident">total_items</span>)));
@@ -872,6 +863,7 @@
                 <span class="ident">s</span>.<span class="ident">nested_results</span>.<span class="ident">push</span>(<span class="macro">format!</span>(<span class="string">&quot;{}- {}&quot;</span>, <span class="ident">padding</span>, <span class="ident">line</span>));
                 <span class="ident">s</span>.<span class="ident">nested_time</span> <span class="op">+</span><span class="op">=</span> <span class="ident">elapsed</span>;
             }
+            <span class="prelude-val">Some</span>(<span class="ident">StackEntry::Progress</span>(<span class="kw">_</span>)) =&gt; {}
             <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
             <span class="prelude-val">None</span> =&gt; {
                 <span class="self">self</span>.<span class="ident">results</span>.<span class="ident">push</span>(<span class="macro">format!</span>(<span class="string">&quot;{}- {}&quot;</span>, <span class="ident">padding</span>, <span class="ident">line</span>));
