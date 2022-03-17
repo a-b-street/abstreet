@@ -236,12 +236,7 @@ impl<'a> Timer<'a> {
             return;
         }
         let name = raw_name.into();
-        if let Some(StackEntry::Progress(p)) = self.stack.last() {
-            panic!(
-                "Can't start_iter({}) while Progress({}) is top of the stack",
-                name, p.label
-            );
-        }
+        // Note we may have two StackEntry::Progress entries nested
 
         self.stack
             .push(StackEntry::Progress(Progress::new(name, total_items)));
@@ -283,6 +278,7 @@ impl<'a> Timer<'a> {
                 s.nested_results.push(format!("{}- {}", padding, line));
                 s.nested_time += elapsed;
             }
+            Some(StackEntry::Progress(_)) => {}
             Some(_) => unreachable!(),
             None => {
                 self.results.push(format!("{}- {}", padding, line));

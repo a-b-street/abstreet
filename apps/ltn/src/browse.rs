@@ -144,6 +144,10 @@ impl State<App> for BrowseNeighborhoods {
                 }
                 "Automatically place filters" => {
                     ctx.loading_screen("automatically filter all neighborhoods", |ctx, timer| {
+                        timer.start_iter(
+                            "filter neighborhood",
+                            app.session.partitioning.all_neighborhoods().len(),
+                        );
                         for id in app
                             .session
                             .partitioning
@@ -152,6 +156,7 @@ impl State<App> for BrowseNeighborhoods {
                             .cloned()
                             .collect::<Vec<_>>()
                         {
+                            timer.next();
                             let neighborhood = Neighborhood::new(ctx, app, id);
                             app.session.heuristic.apply(ctx, app, &neighborhood, timer);
                         }
@@ -168,15 +173,19 @@ impl State<App> for BrowseNeighborhoods {
                     .unwrap();
                 }
             },
-            Outcome::Changed(_) => {
-                app.session.highlight_boundary_roads =
-                    self.left_panel.is_checked("highlight boundary roads");
-                app.session.draw_neighborhood_style = self.left_panel.dropdown_value("style");
+            Outcome::Changed(x) => {
+                if x == "heuristic" {
+                    app.session.heuristic = self.left_panel.dropdown_value("heuristic");
+                } else {
+                    app.session.highlight_boundary_roads =
+                        self.left_panel.is_checked("highlight boundary roads");
+                    app.session.draw_neighborhood_style = self.left_panel.dropdown_value("style");
 
-                ctx.loading_screen("change style", |ctx, timer| {
-                    self.world = make_world(ctx, app, timer);
-                    self.draw_over_roads = draw_over_roads(ctx, app, timer);
-                });
+                    ctx.loading_screen("change style", |ctx, timer| {
+                        self.world = make_world(ctx, app, timer);
+                        self.draw_over_roads = draw_over_roads(ctx, app, timer);
+                    });
+                }
             }
             _ => {}
         }
