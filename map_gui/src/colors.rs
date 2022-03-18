@@ -362,6 +362,11 @@ impl ColorScheme {
         cs.scheme = ColorSchemeChoice::LTN;
         cs.private_road = None;
 
+        // The colors of cells / neighborhoods will show through these, de-emphasizing them
+        cs.parking_lot = Color::BLACK.alpha(0.2);
+        cs.residential_building = Color::BLACK.alpha(0.3);
+        cs.commercial_building = Color::BLACK.alpha(0.5);
+
         cs.gui_style.panel_bg = Color::WHITE;
         cs.panel_bg = cs.gui_style.panel_bg;
 
