@@ -65,29 +65,38 @@ impl Viewer {
                         )
                         .hotkey(Key::F)
                         .build_def(ctx),
-                    Widget::row(vec![
-                        "Draw traffic cells as".text_widget(ctx).centered_vert(),
-                        Toggle::choice(
-                            ctx,
-                            "draw cells",
-                            "areas",
-                            "streets",
-                            Key::D,
-                            app.session.draw_cells_as_areas,
-                        ),
-                    ]),
                     warning.text_widget(ctx),
-                    ctx.style()
-                        .btn_outline
-                        .text("Automatically stop rat-runs")
-                        .hotkey(Key::A)
-                        .build_def(ctx),
-                    Widget::dropdown(
-                        ctx,
-                        "heuristic",
-                        app.session.heuristic,
-                        Heuristic::choices(),
-                    ),
+                    Toggle::checkbox(ctx, "Expert mode", None, app.opts.dev),
+                    if app.opts.dev {
+                        Widget::col(vec![
+                            Line("Expert mode").small_heading().into_widget(ctx),
+                            Widget::row(vec![
+                                "Draw traffic cells as".text_widget(ctx).centered_vert(),
+                                Toggle::choice(
+                                    ctx,
+                                    "draw cells",
+                                    "areas",
+                                    "streets",
+                                    Key::D,
+                                    app.session.draw_cells_as_areas,
+                                ),
+                            ]),
+                            ctx.style()
+                                .btn_outline
+                                .text("Automatically stop rat-runs")
+                                .hotkey(Key::A)
+                                .build_def(ctx),
+                            Widget::dropdown(
+                                ctx,
+                                "heuristic",
+                                app.session.heuristic,
+                                Heuristic::choices(),
+                            ),
+                        ])
+                        .section(ctx)
+                    } else {
+                        Widget::nothing()
+                    },
                 ]),
             )
             .build(ctx);
@@ -139,6 +148,12 @@ impl State<App> for Viewer {
                 .unwrap();
             }
             Outcome::Changed(x) => {
+                if x == "Expert mode" {
+                    app.opts.dev = self.left_panel.is_checked("Expert mode");
+                    self.update(ctx, app);
+                    return Transition::Keep;
+                }
+
                 app.session.draw_cells_as_areas = self.left_panel.is_checked("draw cells");
                 app.session.heuristic = self.left_panel.dropdown_value("heuristic");
 

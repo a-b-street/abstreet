@@ -58,48 +58,55 @@ impl BrowseNeighborhoods {
                         .build_def(ctx),
                 ])
                 .section(ctx),
-                Line("Advanced").small_heading().into_widget(ctx),
-                Widget::col(vec![
-                    Widget::row(vec![
-                        "Draw neighborhoods:".text_widget(ctx).centered_vert(),
-                        Widget::dropdown(
-                            ctx,
-                            "style",
-                            app.session.draw_neighborhood_style,
-                            vec![
-                                Choice::new("simple", Style::SimpleColoring),
-                                Choice::new("cells", Style::Cells),
-                                Choice::new("quietness", Style::Quietness),
-                                Choice::new("all rat-runs", Style::RatRuns),
-                            ],
-                        ),
-                    ]),
-                    Toggle::checkbox(
-                        ctx,
-                        "highlight boundary roads",
-                        Key::H,
-                        app.session.highlight_boundary_roads,
-                    ),
-                ])
-                .section(ctx),
-                Widget::col(vec![
-                    "Predict proposal impact".text_widget(ctx),
-                    impact_widget(ctx, app),
-                ])
-                .section(ctx),
-                Widget::col(vec![
-                    ctx.style()
-                        .btn_outline
-                        .text("Automatically place filters")
-                        .build_def(ctx),
-                    Widget::dropdown(
-                        ctx,
-                        "heuristic",
-                        app.session.heuristic,
-                        Heuristic::choices(),
-                    ),
-                ])
-                .section(ctx),
+                Toggle::checkbox(ctx, "Expert mode", None, app.opts.dev),
+                if app.opts.dev {
+                    Widget::col(vec![
+                        Line("Expert mode").small_heading().into_widget(ctx),
+                        Widget::col(vec![
+                            Widget::row(vec![
+                                "Draw neighborhoods:".text_widget(ctx).centered_vert(),
+                                Widget::dropdown(
+                                    ctx,
+                                    "style",
+                                    app.session.draw_neighborhood_style,
+                                    vec![
+                                        Choice::new("simple", Style::SimpleColoring),
+                                        Choice::new("cells", Style::Cells),
+                                        Choice::new("quietness", Style::Quietness),
+                                        Choice::new("all rat-runs", Style::RatRuns),
+                                    ],
+                                ),
+                            ]),
+                            Toggle::checkbox(
+                                ctx,
+                                "highlight boundary roads",
+                                Key::H,
+                                app.session.highlight_boundary_roads,
+                            ),
+                        ])
+                        .section(ctx),
+                        Widget::col(vec![
+                            "Predict proposal impact".text_widget(ctx),
+                            impact_widget(ctx, app),
+                        ])
+                        .section(ctx),
+                        Widget::col(vec![
+                            ctx.style()
+                                .btn_outline
+                                .text("Automatically place filters")
+                                .build_def(ctx),
+                            Widget::dropdown(
+                                ctx,
+                                "heuristic",
+                                app.session.heuristic,
+                                Heuristic::choices(),
+                            ),
+                        ])
+                        .section(ctx),
+                    ])
+                } else {
+                    Widget::nothing()
+                },
             ]),
         )
         .build(ctx);
@@ -174,12 +181,20 @@ impl State<App> for BrowseNeighborhoods {
                 }
             },
             Outcome::Changed(x) => {
+                if x == "Expert mode" {
+                    app.opts.dev = self.left_panel.is_checked("Expert mode");
+                    return Transition::Replace(BrowseNeighborhoods::new_state(ctx, app));
+                }
                 if x == "heuristic" {
                     app.session.heuristic = self.left_panel.dropdown_value("heuristic");
                 } else {
-                    app.session.highlight_boundary_roads =
-                        self.left_panel.is_checked("highlight boundary roads");
-                    app.session.draw_neighborhood_style = self.left_panel.dropdown_value("style");
+                    if x == "highlight boundary roads" {
+                        app.session.highlight_boundary_roads =
+                            self.left_panel.is_checked("highlight boundary roads");
+                    } else {
+                        app.session.draw_neighborhood_style =
+                            self.left_panel.dropdown_value("style");
+                    }
 
                     ctx.loading_screen("change style", |ctx, timer| {
                         self.world = make_world(ctx, app, timer);
@@ -207,7 +222,7 @@ impl State<App> for BrowseNeighborhoods {
 
         self.top_panel.draw(g);
         self.left_panel.draw(g);
-        if self.left_panel.is_checked("highlight boundary roads") {
+        if app.session.highlight_boundary_roads {
             self.draw_boundary_roads.draw(g);
         }
         app.session.draw_all_filters.draw(g);

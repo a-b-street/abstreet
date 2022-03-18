@@ -65,7 +65,7 @@ impl Tab {
             ])
             .section(ctx),
             self.make_buttons(ctx),
-            per_tab_contents.section(ctx),
+            per_tab_contents,
         ]);
         crate::common::left_panel_builder(ctx, top_panel, contents)
     }
