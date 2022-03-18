@@ -391,6 +391,21 @@
 <span id="389">389</span>
 <span id="390">390</span>
 <span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Counter</span>, <span class="ident">Timer</span>};
@@ -451,48 +466,55 @@
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                 ])
                 .<span class="ident">section</span>(<span class="ident">ctx</span>),
-                <span class="ident">Line</span>(<span class="string">&quot;Advanced&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                        <span class="string">&quot;Draw neighborhoods:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
-                        <span class="ident">Widget::dropdown</span>(
-                            <span class="ident">ctx</span>,
-                            <span class="string">&quot;style&quot;</span>,
-                            <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_neighborhood_style</span>,
-                            <span class="macro">vec!</span>[
-                                <span class="ident">Choice::new</span>(<span class="string">&quot;simple&quot;</span>, <span class="ident">Style::SimpleColoring</span>),
-                                <span class="ident">Choice::new</span>(<span class="string">&quot;cells&quot;</span>, <span class="ident">Style::Cells</span>),
-                                <span class="ident">Choice::new</span>(<span class="string">&quot;quietness&quot;</span>, <span class="ident">Style::Quietness</span>),
-                                <span class="ident">Choice::new</span>(<span class="string">&quot;all rat-runs&quot;</span>, <span class="ident">Style::RatRuns</span>),
-                            ],
-                        ),
-                    ]),
-                    <span class="ident">Toggle::checkbox</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="string">&quot;highlight boundary roads&quot;</span>,
-                        <span class="ident">Key::H</span>,
-                        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">highlight_boundary_roads</span>,
-                    ),
-                ])
-                .<span class="ident">section</span>(<span class="ident">ctx</span>),
-                <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                    <span class="string">&quot;Predict proposal impact&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-                    <span class="ident">impact_widget</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-                ])
-                .<span class="ident">section</span>(<span class="ident">ctx</span>),
-                <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                    <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_outline</span>
-                        .<span class="ident">text</span>(<span class="string">&quot;Automatically place filters&quot;</span>)
-                        .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Widget::dropdown</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="string">&quot;heuristic&quot;</span>,
-                        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">heuristic</span>,
-                        <span class="ident">Heuristic::choices</span>(),
-                    ),
-                ])
-                .<span class="ident">section</span>(<span class="ident">ctx</span>),
+                <span class="ident">Toggle::checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;Expert mode&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span>),
+                <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
+                    <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+                        <span class="ident">Line</span>(<span class="string">&quot;Expert mode&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+                        <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+                            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+                                <span class="string">&quot;Draw neighborhoods:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
+                                <span class="ident">Widget::dropdown</span>(
+                                    <span class="ident">ctx</span>,
+                                    <span class="string">&quot;style&quot;</span>,
+                                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_neighborhood_style</span>,
+                                    <span class="macro">vec!</span>[
+                                        <span class="ident">Choice::new</span>(<span class="string">&quot;simple&quot;</span>, <span class="ident">Style::SimpleColoring</span>),
+                                        <span class="ident">Choice::new</span>(<span class="string">&quot;cells&quot;</span>, <span class="ident">Style::Cells</span>),
+                                        <span class="ident">Choice::new</span>(<span class="string">&quot;quietness&quot;</span>, <span class="ident">Style::Quietness</span>),
+                                        <span class="ident">Choice::new</span>(<span class="string">&quot;all rat-runs&quot;</span>, <span class="ident">Style::RatRuns</span>),
+                                    ],
+                                ),
+                            ]),
+                            <span class="ident">Toggle::checkbox</span>(
+                                <span class="ident">ctx</span>,
+                                <span class="string">&quot;highlight boundary roads&quot;</span>,
+                                <span class="ident">Key::H</span>,
+                                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">highlight_boundary_roads</span>,
+                            ),
+                        ])
+                        .<span class="ident">section</span>(<span class="ident">ctx</span>),
+                        <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+                            <span class="string">&quot;Predict proposal impact&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
+                            <span class="ident">impact_widget</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+                        ])
+                        .<span class="ident">section</span>(<span class="ident">ctx</span>),
+                        <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+                            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                                .<span class="ident">btn_outline</span>
+                                .<span class="ident">text</span>(<span class="string">&quot;Automatically place filters&quot;</span>)
+                                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                            <span class="ident">Widget::dropdown</span>(
+                                <span class="ident">ctx</span>,
+                                <span class="string">&quot;heuristic&quot;</span>,
+                                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">heuristic</span>,
+                                <span class="ident">Heuristic::choices</span>(),
+                            ),
+                        ])
+                        .<span class="ident">section</span>(<span class="ident">ctx</span>),
+                    ])
+                } <span class="kw">else</span> {
+                    <span class="ident">Widget::nothing</span>()
+                },
             ]),
         )
         .<span class="ident">build</span>(<span class="ident">ctx</span>);
@@ -567,12 +589,20 @@
                 }
             },
             <span class="ident">Outcome::Changed</span>(<span class="ident">x</span>) =&gt; {
+                <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;Expert mode&quot;</span> {
+                    <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;Expert mode&quot;</span>);
+                    <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">BrowseNeighborhoods::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+                }
                 <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;heuristic&quot;</span> {
                     <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">heuristic</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;heuristic&quot;</span>);
                 } <span class="kw">else</span> {
-                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">highlight_boundary_roads</span> <span class="op">=</span>
-                        <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;highlight boundary roads&quot;</span>);
-                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_neighborhood_style</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;style&quot;</span>);
+                    <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;highlight boundary roads&quot;</span> {
+                        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">highlight_boundary_roads</span> <span class="op">=</span>
+                            <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;highlight boundary roads&quot;</span>);
+                    } <span class="kw">else</span> {
+                        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_neighborhood_style</span> <span class="op">=</span>
+                            <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;style&quot;</span>);
+                    }
 
                     <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;change style&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
                         <span class="self">self</span>.<span class="ident">world</span> <span class="op">=</span> <span class="ident">make_world</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">timer</span>);
@@ -600,7 +630,7 @@
 
         <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;highlight boundary roads&quot;</span>) {
+        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">highlight_boundary_roads</span> {
             <span class="self">self</span>.<span class="ident">draw_boundary_roads</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         }
         <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_all_filters</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
