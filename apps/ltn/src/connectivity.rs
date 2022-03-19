@@ -4,7 +4,7 @@ use geom::{Angle, ArrowCap, Distance, PolyLine};
 use map_gui::tools::ColorNetwork;
 use map_model::{IntersectionID, Perimeter};
 use widgetry::mapspace::{ToggleZoomed, World};
-use widgetry::tools::PolyLineLasso;
+use widgetry::tools::{PolyLineLasso, PopupMsg};
 use widgetry::{
     DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, ScreenPt, State, Text, TextExt,
     Toggle, Widget,
@@ -115,14 +115,24 @@ impl State<App> for Viewer {
         match self.left_panel.event(ctx) {
             Outcome::Clicked(x) => {
                 if x == "Automatically stop rat-runs" {
-                    ctx.loading_screen("automatically filter a neighborhood", |ctx, timer| {
+                    match ctx.loading_screen("automatically filter a neighborhood", |ctx, timer| {
                         app.session
                             .heuristic
-                            .apply(ctx, app, &self.neighborhood, timer);
-                    });
-                    self.neighborhood = Neighborhood::new(ctx, app, self.neighborhood.id);
-                    self.update(ctx, app);
-                    return Transition::Keep;
+                            .apply(ctx, app, &self.neighborhood, timer)
+                    }) {
+                        Ok(()) => {
+                            self.neighborhood = Neighborhood::new(ctx, app, self.neighborhood.id);
+                            self.update(ctx, app);
+                            return Transition::Keep;
+                        }
+                        Err(err) => {
+                            return Transition::Push(PopupMsg::new_state(
+                                ctx,
+                                "Error",
+                                vec![err.to_string()],
+                            ));
+                        }
+                    }
                 } else if x == "Create filters along a shape" {
                     return Transition::Push(FreehandFilters::new_state(
                         ctx,

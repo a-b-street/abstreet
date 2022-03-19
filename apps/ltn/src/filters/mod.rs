@@ -57,16 +57,18 @@ impl ModalFilters {
     }
 
     /// If it's possible no edits were made, undo the previous call to `before_edit` and collapse
-    /// the redundant piece of history.
-    pub fn cancel_empty_edit(&mut self) {
+    /// the redundant piece of history. Returns true if the edit was indeed empty.
+    pub fn cancel_empty_edit(&mut self) -> bool {
         if let Some(prev) = self.previous_version.take() {
             if self.roads == prev.roads && self.intersections == prev.intersections {
                 self.previous_version = prev.previous_version;
+                return true;
             } else {
                 // There was a real difference, keep
                 self.previous_version = Box::new(Some(prev));
             }
         }
+        false
     }
 
     /// Modify RoutingParams to respect these modal filters

@@ -1,5 +1,7 @@
 //! Experiments to make a neighborhood be low-traffic by automatically placing filters to prevent all rat runs.
 
+use anyhow::Result;
+
 use abstutil::Timer;
 use map_model::RoadID;
 use widgetry::{Choice, EventCtx};
@@ -41,7 +43,7 @@ impl Heuristic {
         app: &mut App,
         neighborhood: &Neighborhood,
         timer: &mut Timer,
-    ) {
+    ) -> Result<()> {
         if neighborhood
             .cells
             .iter()
@@ -49,10 +51,7 @@ impl Heuristic {
             .count()
             != 0
         {
-            warn!(
-                "Not automatically changing this neighborhood; it already has a disconnected cell"
-            );
-            return;
+            bail!("This neighborhood has a disconnected cell; fix that first");
         }
 
         // TODO If we already have no rat-runs, stop
@@ -66,8 +65,13 @@ impl Heuristic {
             Heuristic::OnlyOneBorder => only_one_border(app, neighborhood),
         }
 
-        app.session.modal_filters.cancel_empty_edit();
+        let empty = app.session.modal_filters.cancel_empty_edit();
         after_edit(ctx, app);
+        if empty {
+            bail!("No new filters created");
+        } else {
+            Ok(())
+        }
     }
 }
 

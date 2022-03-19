@@ -165,7 +165,8 @@ impl State<App> for BrowseNeighborhoods {
                         {
                             timer.next();
                             let neighborhood = Neighborhood::new(ctx, app, id);
-                            app.session.heuristic.apply(ctx, app, &neighborhood, timer);
+                            // Ignore errors
+                            let _ = app.session.heuristic.apply(ctx, app, &neighborhood, timer);
                         }
                     });
                     return Transition::Replace(BrowseNeighborhoods::new_state(ctx, app));
