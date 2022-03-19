@@ -30,10 +30,16 @@ pub enum Heuristic {
 impl Heuristic {
     pub fn choices() -> Vec<Choice<Heuristic>> {
         vec![
-            Choice::new("greedy", Heuristic::Greedy),
-            Choice::new("brute-force", Heuristic::BruteForce),
-            Choice::new("split cells", Heuristic::SplitCells),
-            Choice::new("only one border", Heuristic::OnlyOneBorder),
+            Choice::new(
+                "filter the road with the most rat-runs (greedy)",
+                Heuristic::Greedy,
+            ),
+            Choice::new(
+                "stop the most rat-runs (brute-force)",
+                Heuristic::BruteForce,
+            ),
+            Choice::new("split large cells", Heuristic::SplitCells),
+            Choice::new("only one entrance per cell", Heuristic::OnlyOneBorder),
         ]
     }
 

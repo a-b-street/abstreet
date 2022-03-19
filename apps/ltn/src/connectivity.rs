@@ -83,7 +83,7 @@ impl Viewer {
                             ]),
                             ctx.style()
                                 .btn_outline
-                                .text("Automatically stop rat-runs")
+                                .text("Automatically place filters")
                                 .hotkey(Key::A)
                                 .build_def(ctx),
                             Widget::dropdown(
@@ -114,7 +114,7 @@ impl State<App> for Viewer {
         }
         match self.left_panel.event(ctx) {
             Outcome::Clicked(x) => {
-                if x == "Automatically stop rat-runs" {
+                if x == "Automatically place filters" {
                     match ctx.loading_screen("automatically filter a neighborhood", |ctx, timer| {
                         app.session
                             .heuristic

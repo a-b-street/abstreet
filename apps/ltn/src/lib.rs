@@ -73,7 +73,7 @@ fn run(mut settings: Settings) {
             highlight_boundary_roads: false,
             draw_neighborhood_style: browse::Style::SimpleColoring,
             draw_cells_as_areas: true,
-            heuristic: filters::auto::Heuristic::OnlyOneBorder,
+            heuristic: filters::auto::Heuristic::SplitCells,
             main_road_penalty: 1.0,
 
             current_trip_name: None,
