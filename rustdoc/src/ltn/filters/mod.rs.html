@@ -322,6 +322,8 @@
 <span id="320">320</span>
 <span id="321">321</span>
 <span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
 </pre><pre class="rust"><code><span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">auto</span>;
 <span class="kw">mod</span> <span class="ident">existing</span>;
 
@@ -381,16 +383,18 @@
     }
 
     <span class="doccomment">/// If it&#39;s possible no edits were made, undo the previous call to `before_edit` and collapse</span>
-    <span class="doccomment">/// the redundant piece of history.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cancel_empty_edit</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
+    <span class="doccomment">/// the redundant piece of history. Returns true if the edit was indeed empty.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cancel_empty_edit</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">prev</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">previous_version</span>.<span class="ident">take</span>() {
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">roads</span> <span class="op">==</span> <span class="ident">prev</span>.<span class="ident">roads</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">intersections</span> <span class="op">==</span> <span class="ident">prev</span>.<span class="ident">intersections</span> {
                 <span class="self">self</span>.<span class="ident">previous_version</span> <span class="op">=</span> <span class="ident">prev</span>.<span class="ident">previous_version</span>;
+                <span class="kw">return</span> <span class="bool-val">true</span>;
             } <span class="kw">else</span> {
                 <span class="comment">// There was a real difference, keep</span>
                 <span class="self">self</span>.<span class="ident">previous_version</span> <span class="op">=</span> <span class="ident">Box::new</span>(<span class="prelude-val">Some</span>(<span class="ident">prev</span>));
             }
         }
+        <span class="bool-val">false</span>
     }
 
     <span class="doccomment">/// Modify RoutingParams to respect these modal filters</span>

@@ -398,13 +398,23 @@
 <span id="396">396</span>
 <span id="397">397</span>
 <span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>};
 <span class="kw">use</span> <span class="ident">map_gui::tools::ColorNetwork</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">Perimeter</span>};
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ToggleZoomed</span>, <span class="ident">World</span>};
-<span class="kw">use</span> <span class="ident">widgetry::tools::PolyLineLasso</span>;
+<span class="kw">use</span> <span class="ident">widgetry::tools</span>::{<span class="ident">PolyLineLasso</span>, <span class="ident">PopupMsg</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">DrawBaselayer</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">ScreenPt</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>,
     <span class="ident">Toggle</span>, <span class="ident">Widget</span>,
@@ -515,14 +525,24 @@
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) =&gt; {
                 <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;Automatically stop rat-runs&quot;</span> {
-                    <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;automatically filter a neighborhood&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
+                    <span class="kw">match</span> <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;automatically filter a neighborhood&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
                         <span class="ident">app</span>.<span class="ident">session</span>
                             .<span class="ident">heuristic</span>
-                            .<span class="ident">apply</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">neighborhood</span>, <span class="ident">timer</span>);
-                    });
-                    <span class="self">self</span>.<span class="ident">neighborhood</span> <span class="op">=</span> <span class="ident">Neighborhood::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">neighborhood</span>.<span class="ident">id</span>);
-                    <span class="self">self</span>.<span class="ident">update</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-                    <span class="kw">return</span> <span class="ident">Transition::Keep</span>;
+                            .<span class="ident">apply</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">neighborhood</span>, <span class="ident">timer</span>)
+                    }) {
+                        <span class="prelude-val">Ok</span>(()) =&gt; {
+                            <span class="self">self</span>.<span class="ident">neighborhood</span> <span class="op">=</span> <span class="ident">Neighborhood::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">neighborhood</span>.<span class="ident">id</span>);
+                            <span class="self">self</span>.<span class="ident">update</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                            <span class="kw">return</span> <span class="ident">Transition::Keep</span>;
+                        }
+                        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
+                            <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">PopupMsg::new_state</span>(
+                                <span class="ident">ctx</span>,
+                                <span class="string">&quot;Error&quot;</span>,
+                                <span class="macro">vec!</span>[<span class="ident">err</span>.<span class="ident">to_string</span>()],
+                            ));
+                        }
+                    }
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;Create filters along a shape&quot;</span> {
                     <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">FreehandFilters::new_state</span>(
                         <span class="ident">ctx</span>,
