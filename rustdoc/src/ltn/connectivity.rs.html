@@ -493,7 +493,7 @@
                             ]),
                             <span class="ident">ctx</span>.<span class="ident">style</span>()
                                 .<span class="ident">btn_outline</span>
-                                .<span class="ident">text</span>(<span class="string">&quot;Automatically stop rat-runs&quot;</span>)
+                                .<span class="ident">text</span>(<span class="string">&quot;Automatically place filters&quot;</span>)
                                 .<span class="ident">hotkey</span>(<span class="ident">Key::A</span>)
                                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                             <span class="ident">Widget::dropdown</span>(
@@ -524,7 +524,7 @@
         }
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) =&gt; {
-                <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;Automatically stop rat-runs&quot;</span> {
+                <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;Automatically place filters&quot;</span> {
                     <span class="kw">match</span> <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;automatically filter a neighborhood&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
                         <span class="ident">app</span>.<span class="ident">session</span>
                             .<span class="ident">heuristic</span>

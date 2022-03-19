@@ -226,6 +226,12 @@
 <span id="224">224</span>
 <span id="225">225</span>
 <span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Experiments to make a neighborhood be low-traffic by automatically placing filters to prevent all rat runs.</span>
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
@@ -258,10 +264,16 @@
 <span class="kw">impl</span> <span class="ident">Heuristic</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">choices</span>() -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Choice</span><span class="op">&lt;</span><span class="ident">Heuristic</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="macro">vec!</span>[
-            <span class="ident">Choice::new</span>(<span class="string">&quot;greedy&quot;</span>, <span class="ident">Heuristic::Greedy</span>),
-            <span class="ident">Choice::new</span>(<span class="string">&quot;brute-force&quot;</span>, <span class="ident">Heuristic::BruteForce</span>),
-            <span class="ident">Choice::new</span>(<span class="string">&quot;split cells&quot;</span>, <span class="ident">Heuristic::SplitCells</span>),
-            <span class="ident">Choice::new</span>(<span class="string">&quot;only one border&quot;</span>, <span class="ident">Heuristic::OnlyOneBorder</span>),
+            <span class="ident">Choice::new</span>(
+                <span class="string">&quot;filter the road with the most rat-runs (greedy)&quot;</span>,
+                <span class="ident">Heuristic::Greedy</span>,
+            ),
+            <span class="ident">Choice::new</span>(
+                <span class="string">&quot;stop the most rat-runs (brute-force)&quot;</span>,
+                <span class="ident">Heuristic::BruteForce</span>,
+            ),
+            <span class="ident">Choice::new</span>(<span class="string">&quot;split large cells&quot;</span>, <span class="ident">Heuristic::SplitCells</span>),
+            <span class="ident">Choice::new</span>(<span class="string">&quot;only one entrance per cell&quot;</span>, <span class="ident">Heuristic::OnlyOneBorder</span>),
         ]
     }
 
