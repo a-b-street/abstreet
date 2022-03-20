@@ -1,9 +1,10 @@
+use abstutil::Timer;
 use geom::{Distance, Duration};
 use map_gui::tools::{
     cmp_dist, cmp_duration, DrawRoadLabels, InputWaypoints, TripManagement, TripManagementState,
     WaypointID,
 };
-use map_model::{PathfinderCaching, NORMAL_LANE_THICKNESS};
+use map_model::{PathConstraints, Pathfinder, NORMAL_LANE_THICKNESS};
 use synthpop::{TripEndpoint, TripMode};
 use widgetry::mapspace::{ToggleZoomed, World};
 use widgetry::{
@@ -128,6 +129,12 @@ impl RoutePlanner {
             let mut params = map.routing_params().clone();
             app.session.modal_filters.update_routing_params(&mut params);
             params.main_road_penalty = app.session.main_road_penalty;
+            let pathfinder = Pathfinder::new_dijkstra(
+                map,
+                params,
+                vec![PathConstraints::Car],
+                &mut Timer::throwaway(),
+            );
 
             let mut total_time = Duration::ZERO;
             let mut total_dist = Distance::ZERO;
@@ -135,10 +142,8 @@ impl RoutePlanner {
             for pair in self.waypoints.get_waypoints().windows(2) {
                 if let Some((path, pl)) =
                     TripEndpoint::path_req(pair[0], pair[1], TripMode::Drive, map)
-                        .and_then(|req| {
-                            map.pathfind_with_params(req, &params, PathfinderCaching::CacheDijkstra)
-                                .ok()
-                        })
+                        .and_then(|req| pathfinder.pathfind(req, map))
+                        .and_then(|path| path.into_v1(map).ok())
                         .and_then(|path| path.trace(map).map(|pl| (path, pl)))
                 {
                     let shape = pl.make_polygons(5.0 * NORMAL_LANE_THICKNESS);
@@ -166,19 +171,24 @@ impl RoutePlanner {
 
         // Then the one ignoring filters
         {
+            let mut params = map.routing_params().clone();
+            params.main_road_penalty = app.session.main_road_penalty;
+            let pathfinder = Pathfinder::new_dijkstra(
+                map,
+                params,
+                vec![PathConstraints::Car],
+                &mut Timer::throwaway(),
+            );
+
             let mut draw_old_route = ToggleZoomed::builder();
             let mut total_time = Duration::ZERO;
             let mut total_dist = Distance::ZERO;
             let color = colors::PLAN_ROUTE_BEFORE;
-            let mut params = map.routing_params().clone();
-            params.main_road_penalty = app.session.main_road_penalty;
             for pair in self.waypoints.get_waypoints().windows(2) {
                 if let Some((path, pl)) =
                     TripEndpoint::path_req(pair[0], pair[1], TripMode::Drive, map)
-                        .and_then(|req| {
-                            map.pathfind_with_params(req, &params, PathfinderCaching::CacheDijkstra)
-                                .ok()
-                        })
+                        .and_then(|req| pathfinder.pathfind(req, map))
+                        .and_then(|path| path.into_v1(map).ok())
                         .and_then(|path| path.trace(map).map(|pl| (path, pl)))
                 {
                     let shape = pl.make_polygons(5.0 * NORMAL_LANE_THICKNESS);
@@ -297,11 +307,5 @@ impl State<App> for RoutePlanner {
         if g.canvas.is_unzoomed() {
             self.labels.draw(g, app);
         }
-    }
-
-    fn on_destroy(&mut self, _: &mut EventCtx, app: &mut App) {
-        // We'll cache a custom pathfinder per set of avoided roads. Avoid leaking memory by
-        // clearing this out
-        app.map.clear_custom_pathfinder_cache();
     }
 }

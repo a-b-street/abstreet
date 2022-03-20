@@ -16,8 +16,8 @@ use crate::{
     CompressedMovementID, ControlStopSign, ControlTrafficSignal, DirectedRoadID, Direction,
     Intersection, IntersectionID, Lane, LaneID, LaneType, Map, MapEdits, Movement, MovementID,
     OffstreetParking, ParkingLot, ParkingLotID, Path, PathConstraints, PathRequest, PathV2,
-    Pathfinder, PathfinderCaching, Position, Road, RoadID, RoutingParams, TransitRoute,
-    TransitRouteID, TransitStop, TransitStopID, Turn, TurnID, TurnType, Zone,
+    Pathfinder, Position, Road, RoadID, RoutingParams, TransitRoute, TransitRouteID, TransitStop,
+    TransitStopID, Turn, TurnID, TurnType, Zone,
 };
 
 impl Map {
@@ -543,33 +543,17 @@ impl Map {
         &self.boundary_polygon
     }
 
+    pub fn get_pathfinder(&self) -> &Pathfinder {
+        &self.pathfinder
+    }
+
     pub fn pathfind(&self, req: PathRequest) -> Result<Path> {
         self.pathfind_v2(req)?.into_v1(self)
-    }
-    pub fn pathfind_with_params(
-        &self,
-        req: PathRequest,
-        params: &RoutingParams,
-        cache_custom: PathfinderCaching,
-    ) -> Result<Path> {
-        self.pathfind_v2_with_params(req, params, cache_custom)?
-            .into_v1(self)
     }
     pub fn pathfind_v2(&self, req: PathRequest) -> Result<PathV2> {
         assert!(!self.pathfinder_dirty);
         self.pathfinder
             .pathfind(req.clone(), self)
-            .ok_or_else(|| anyhow!("can't fulfill {}", req))
-    }
-    pub fn pathfind_v2_with_params(
-        &self,
-        req: PathRequest,
-        params: &RoutingParams,
-        cache_custom: PathfinderCaching,
-    ) -> Result<PathV2> {
-        assert!(!self.pathfinder_dirty);
-        self.pathfinder
-            .pathfind_with_params(req.clone(), params, cache_custom, self)
             .ok_or_else(|| anyhow!("can't fulfill {}", req))
     }
     pub fn should_use_transit(
@@ -579,11 +563,6 @@ impl Map {
     ) -> Option<(TransitStopID, Option<TransitStopID>, TransitRouteID)> {
         assert!(!self.pathfinder_dirty);
         self.pathfinder.should_use_transit(self, start, end)
-    }
-
-    /// Clear any pathfinders with custom RoutingParams, created previously with `cache_custom`
-    pub fn clear_custom_pathfinder_cache(&self) {
-        self.pathfinder.clear_custom_pathfinder_cache();
     }
 
     /// Return the cost of a single path, and also a mapping from every directed road to the cost
@@ -677,16 +656,6 @@ impl Map {
             osm_tags,
             osm_id: None,
         });
-    }
-
-    pub fn hack_override_routing_params(
-        &mut self,
-        routing_params: RoutingParams,
-        timer: &mut Timer,
-    ) {
-        self.routing_params = routing_params;
-        self.pathfinder_dirty = true;
-        self.recalculate_pathfinding_after_edits(timer);
     }
 
     /// Normally after applying edits, you must call `recalculate_pathfinding_after_edits`.

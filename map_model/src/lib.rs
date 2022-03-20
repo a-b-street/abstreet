@@ -60,9 +60,8 @@ pub use crate::objects::transit::{TransitRoute, TransitRouteID, TransitStop, Tra
 pub use crate::objects::turn::{Turn, TurnID, TurnPriority, TurnType};
 pub use crate::objects::zone::{AccessRestrictions, Zone};
 pub use crate::pathfind::uber_turns::{IntersectionCluster, UberTurn};
-use crate::pathfind::Pathfinder;
 pub use crate::pathfind::{
-    Path, PathConstraints, PathRequest, PathStep, PathStepV2, PathV2, PathfinderCaching,
+    Path, PathConstraints, PathRequest, PathStep, PathStepV2, PathV2, Pathfinder, PathfinderCache,
     RoutingParams,
 };
 pub use crate::traversable::{Position, Traversable, MAX_BIKE_SPEED, MAX_WALKING_SPEED};

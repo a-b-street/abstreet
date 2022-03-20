@@ -6,7 +6,7 @@ use abstio::MapName;
 use abstutil::Timer;
 use geom::{Duration, Time};
 use map_gui::tools::compare_counts::CompareCounts;
-use map_model::{PathConstraints, PathRequest, PathfinderCaching};
+use map_model::{PathConstraints, PathRequest, Pathfinder};
 use synthpop::{Scenario, TrafficCounts, TripEndpoint, TripMode};
 use widgetry::EventCtx;
 
@@ -107,26 +107,11 @@ impl Impact {
             // Don't bother describing all the trip filtering
             "before filters".to_string(),
             &self.filtered_trips,
-            map.routing_params().clone(),
-            PathfinderCaching::NoCache,
+            map.get_pathfinder(),
             timer,
         );
 
-        let counts_b = {
-            let mut params = map.routing_params().clone();
-            app.session.modal_filters.update_routing_params(&mut params);
-            // Since we're making so many requests, it's worth it to rebuild a contraction
-            // hierarchy. And since we're single-threaded, no complications there.
-            TrafficCounts::from_path_requests(
-                map,
-                // Don't bother describing all the trip filtering
-                "after filters".to_string(),
-                &self.filtered_trips,
-                params,
-                PathfinderCaching::CacheCH,
-                timer,
-            )
-        };
+        let counts_b = self.counts_b(app, timer);
 
         self.compare_counts =
             CompareCounts::new(ctx, app, counts_a, counts_b, self.compare_counts.layer);
@@ -134,24 +119,32 @@ impl Impact {
 
     fn map_edits_changed(&mut self, ctx: &mut EventCtx, app: &App, timer: &mut Timer) {
         self.change_key = app.session.modal_filters.get_change_key();
-        let map = &app.map;
-
-        let counts_b = {
-            let mut params = map.routing_params().clone();
-            app.session.modal_filters.update_routing_params(&mut params);
-            // Since we're making so many requests, it's worth it to rebuild a contraction
-            // hierarchy. And since we're single-threaded, no complications there.
-            TrafficCounts::from_path_requests(
-                map,
-                // Don't bother describing all the trip filtering
-                "after filters".to_string(),
-                &self.filtered_trips,
-                params,
-                PathfinderCaching::CacheCH,
-                timer,
-            )
-        };
+        let counts_b = self.counts_b(app, timer);
         self.compare_counts.recalculate_b(ctx, app, counts_b);
+    }
+
+    fn counts_b(&self, app: &App, timer: &mut Timer) -> TrafficCounts {
+        let constraints: BTreeSet<PathConstraints> = self
+            .filters
+            .modes
+            .iter()
+            .map(|m| m.to_constraints())
+            .collect();
+
+        let map = &app.map;
+        let mut params = map.routing_params().clone();
+        app.session.modal_filters.update_routing_params(&mut params);
+        // Since we're making so many requests, it's worth it to rebuild a contraction hierarchy.
+        // This depends on the current map edits, so no need to cache
+        let pathfinder = Pathfinder::new_ch(map, params, constraints.into_iter().collect(), timer);
+        TrafficCounts::from_path_requests(
+            map,
+            // Don't bother describing all the trip filtering
+            "after filters".to_string(),
+            &self.filtered_trips,
+            &pathfinder,
+            timer,
+        )
     }
 }
 

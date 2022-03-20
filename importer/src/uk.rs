@@ -217,7 +217,7 @@ fn load_study_area(map: &Map) -> Result<Polygon> {
 }
 
 fn check_sensor_data(map: &Map, scenario: &Scenario, sensor_path: &str, timer: &mut Timer) {
-    use map_model::{PathRequest, PathfinderCaching};
+    use map_model::PathRequest;
 
     let requests = scenario
         .all_trips()
@@ -234,8 +234,7 @@ fn check_sensor_data(map: &Map, scenario: &Scenario, sensor_path: &str, timer: &
         map,
         "the generated scenario".to_string(),
         &deduped,
-        map.routing_params().clone(),
-        PathfinderCaching::NoCache,
+        map.get_pathfinder(),
         timer,
     );
 

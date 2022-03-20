@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 use geom::Duration;
 
 pub use self::engine::CreateEngine;
-pub use self::pathfinder::{Pathfinder, PathfinderCaching};
+pub use self::pathfinder::{Pathfinder, PathfinderCache};
 pub use self::v1::{Path, PathRequest, PathStep};
 pub use self::v2::{PathStepV2, PathV2};
 pub use self::vehicles::vehicle_cost;

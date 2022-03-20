@@ -13,8 +13,9 @@ use map_gui::options::Options;
 use map_gui::render::{unzoomed_agent_radius, AgentCache, DrawMap, DrawOptions, Renderable};
 use map_gui::tools::CameraState;
 use map_gui::ID;
-use map_model::AreaType;
-use map_model::{BufferType, IntersectionID, LaneType, Map, Traversable};
+use map_model::{
+    AreaType, BufferType, IntersectionID, LaneType, Map, PathfinderCache, Traversable,
+};
 use sim::{AgentID, Analytics, Sim, SimCallback, SimFlags, VehicleType};
 use synthpop::Scenario;
 use widgetry::mapspace::ToggleZoomed;
@@ -746,6 +747,7 @@ pub struct SessionState {
     // Specific to the ungap tool
     pub elevation_contours: Cached<MapName, (FindClosest<Distance>, ToggleZoomed)>,
     pub routing_preferences: crate::ungap::RoutingPreferences,
+    pub pathfinder_cache: Cached<MapName, PathfinderCache>,
     pub ungap_current_trip_name: Option<String>,
     // Map and edit change key
     pub mode_shift: Cached<(MapName, usize), crate::ungap::ModeShiftData>,
@@ -769,6 +771,7 @@ impl SessionState {
 
             elevation_contours: Cached::new(),
             routing_preferences: crate::ungap::RoutingPreferences::default(),
+            pathfinder_cache: Cached::new(),
             ungap_current_trip_name: None,
             mode_shift: Cached::new(),
         }

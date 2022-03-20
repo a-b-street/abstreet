@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use abstutil::{Counter, Timer};
 use map_model::{
     DirectedRoadID, IntersectionID, LaneID, Map, Path, PathConstraints, PathRequest, PathStep,
-    PathfinderCaching, Position, RoadID,
+    Pathfinder, Position, RoadID,
 };
 
 use crate::{App, Cell, Neighborhood};
@@ -64,12 +64,16 @@ pub fn find_rat_runs(app: &App, neighborhood: &Neighborhood, timer: &mut Timer) 
     // input is bogus anyway; it's all possible entrances and exits to the neighborhood, without
     // regards for the larger path somebody actually wants to take.
     params.avoid_roads.extend(neighborhood.perimeter.clone());
-
+    let pathfinder = Pathfinder::new_dijkstra(map, params, vec![PathConstraints::Car], timer);
     let paths: Vec<Path> = timer
         .parallelize(
             "calculate paths between entrances and exits",
             requests,
-            |req| map.pathfind_with_params(req, &params, PathfinderCaching::CacheDijkstra),
+            |req| {
+                pathfinder
+                    .pathfind(req, map)
+                    .and_then(|path| path.into_v1(map).ok())
+            },
         )
         .into_iter()
         .flatten()

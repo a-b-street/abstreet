@@ -2,7 +2,7 @@ use std::cmp::Ordering;
 
 use geom::{Circle, Distance, Duration, FindClosest, PolyLine, Polygon};
 use map_gui::tools::{cmp_dist, cmp_duration};
-use map_model::{DrivingSide, Path, PathStep, PathfinderCaching, NORMAL_LANE_THICKNESS};
+use map_model::{DrivingSide, Path, PathStep, PathfinderCache, NORMAL_LANE_THICKNESS};
 use synthpop::{TripEndpoint, TripMode};
 use widgetry::mapspace::{ToggleZoomed, ToggleZoomedBuilder};
 use widgetry::tools::PopupMsg;
@@ -54,7 +54,11 @@ pub struct RouteStats {
 
 impl RouteDetails {
     /// "main" is determined by `app.session.routing_preferences`
-    pub fn main_route(ctx: &mut EventCtx, app: &App, waypoints: Vec<TripEndpoint>) -> BuiltRoute {
+    pub fn main_route(
+        ctx: &mut EventCtx,
+        app: &mut App,
+        waypoints: Vec<TripEndpoint>,
+    ) -> BuiltRoute {
         RouteDetails::new_route(
             ctx,
             app,
@@ -67,7 +71,7 @@ impl RouteDetails {
 
     pub fn alt_route(
         ctx: &mut EventCtx,
-        app: &App,
+        app: &mut App,
         waypoints: Vec<TripEndpoint>,
         main: &RouteDetails,
         preferences: RoutingPreferences,
@@ -91,7 +95,7 @@ impl RouteDetails {
 
     fn new_route(
         ctx: &mut EventCtx,
-        app: &App,
+        app: &mut App,
         waypoints: Vec<TripEndpoint>,
         route_color: Color,
         // Only used for alts
@@ -120,12 +124,20 @@ impl RouteDetails {
 
         let routing_params = preferences.routing_params();
 
+        app.session
+            .pathfinder_cache
+            .update(Some(map.get_name().clone()), |_| PathfinderCache::new());
+
         for pair in waypoints.windows(2) {
             if let Some(path) = TripEndpoint::path_req(pair[0], pair[1], TripMode::Bike, map)
                 .and_then(|req| {
-                    map.pathfind_with_params(req, &routing_params, PathfinderCaching::CacheDijkstra)
-                        .ok()
+                    app.session
+                        .pathfinder_cache
+                        .value_mut()
+                        .unwrap()
+                        .pathfind_with_params(map, req, routing_params.clone())
                 })
+                .and_then(|path| path.into_v1(map).ok())
             {
                 total_distance += path.total_length();
                 total_time += path.estimate_duration(map, Some(map_model::MAX_BIKE_SPEED));

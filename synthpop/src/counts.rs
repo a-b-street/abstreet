@@ -3,9 +3,7 @@ use serde::{Deserialize, Serialize};
 use abstio::MapName;
 use abstutil::{prettyprint_usize, Counter, Timer};
 use geom::Distance;
-use map_model::{
-    IntersectionID, Map, PathRequest, PathStepV2, PathfinderCaching, RoadID, RoutingParams,
-};
+use map_model::{IntersectionID, Map, PathRequest, PathStepV2, Pathfinder, RoadID};
 
 /// This represents the number of vehicles (or trips, or something else) crossing roads and
 /// intersections over some span of time. The data could represent real observations or something
@@ -42,8 +40,7 @@ impl TrafficCounts {
         map: &Map,
         description: String,
         requests: &[(PathRequest, usize)],
-        params: RoutingParams,
-        cache_custom: PathfinderCaching,
+        pathfinder: &Pathfinder,
         timer: &mut Timer,
     ) -> Self {
         let mut counts = Self {
@@ -72,7 +69,7 @@ impl TrafficCounts {
         timer.start_iter("calculate routes", requests.len());
         for (req, count) in requests {
             timer.next();
-            if let Ok(path) = map.pathfind_v2_with_params(req.clone(), &params, cache_custom) {
+            if let Some(path) = pathfinder.pathfind(req.clone(), map) {
                 let count = *count;
                 for step in path.get_steps() {
                     match step {
