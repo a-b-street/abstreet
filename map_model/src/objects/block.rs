@@ -117,6 +117,9 @@ impl Perimeter {
                 }
             }
         }
+
+        merge_holes(map, &mut perimeters);
+
         perimeters
     }
 
@@ -662,4 +665,35 @@ impl fmt::Debug for Perimeter {
         }
         Ok(())
     }
+}
+
+fn merge_holes(map: &Map, perimeters: &mut Vec<Perimeter>) {
+    // TODO Do we need to collapse deadends first or not?
+
+    let mut road_side_to_block: HashMap<RoadSideID, usize> = HashMap::new();
+    for (idx, perim) in perimeters.iter().enumerate() {
+        for id in &perim.roads {
+            road_side_to_block.insert(*id, idx);
+        }
+    }
+
+    // Look for holes -- their perimeter is completely surrounded by another block
+    // Indices of (holes, the surrounding block)
+    let mut holes: Vec<(usize, usize)> = Vec::new();
+    for (idx, perim) in perimeters.iter().enumerate() {
+        let neighbors: HashSet<usize> = perim.roads.iter().filter_map(|id| road_side_to_block.get(&id.other_side()).cloned()).collect();
+        if neighbors.len() == 1 {
+            holes.push((idx, neighbors.into_iter().next().unwrap()));
+        }
+    }
+
+    for (inner, outer) in holes {
+        println!("{:?} surrounded by {:?}", perimeters[inner], perimeters[outer]);
+    }
+
+    /*merge_all
+        map: &Map,
+        mut input: Vec<Perimeter>,
+        stepwise_debug: bool,
+        use_expensive_blockfinding: bool,*/
 }
