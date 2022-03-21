@@ -420,6 +420,13 @@
 <span id="418">418</span>
 <span id="419">419</span>
 <span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>};
@@ -479,6 +486,13 @@
                 <span class="ident">app</span>,
                 <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">top_panel</span>,
                 <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+                    <span class="macro">format!</span>(
+                        <span class="string">&quot;Neighborhood area: {}&quot;</span>,
+                        <span class="ident">app</span>.<span class="ident">session</span>
+                            .<span class="ident">partitioning</span>
+                            .<span class="ident">neighborhood_area_km2</span>(<span class="self">self</span>.<span class="ident">neighborhood</span>.<span class="ident">id</span>)
+                    )
+                    .<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
                         .<span class="ident">btn_outline</span>
                         .<span class="ident">icon_text</span>(
