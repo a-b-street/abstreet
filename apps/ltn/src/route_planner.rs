@@ -239,7 +239,7 @@ impl RoutePlanner {
 
 impl State<App> for RoutePlanner {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        if let Some(t) = crate::common::handle_top_panel(ctx, app, &mut self.top_panel) {
+        if let Some(t) = crate::common::handle_top_panel(ctx, app, &mut self.top_panel, help) {
             return t;
         }
 
@@ -304,4 +304,13 @@ impl State<App> for RoutePlanner {
         // clearing this out
         app.map.clear_custom_pathfinder_cache();
     }
+}
+
+fn help() -> Vec<&'static str> {
+    vec![
+        "You can test how different driving routes are affected by proposed LTNs.",
+        "",
+        "The fastest route may not cut through neighborhoods normally,",
+        "but you can adjust the slow-down factor to mimic rush hour conditions",
+    ]
 }

@@ -159,7 +159,7 @@ impl BrowseRatRuns {
 
 impl State<App> for BrowseRatRuns {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        if let Some(t) = crate::common::handle_top_panel(ctx, app, &mut self.top_panel) {
+        if let Some(t) = crate::common::handle_top_panel(ctx, app, &mut self.top_panel, help) {
             return t;
         }
         match self.left_panel.event(ctx) {
@@ -228,4 +228,11 @@ impl State<App> for BrowseRatRuns {
             self.neighborhood.labels.draw(g, app);
         }
     }
+}
+
+fn help() -> Vec<&'static str> {
+    vec![
+        "This shows every possible path a driver could take through the neighborhood.",
+        "Not all paths may be realistic -- small service roads and alleyways are possible, but unlikely.",
+    ]
 }

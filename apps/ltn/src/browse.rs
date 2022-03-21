@@ -123,7 +123,7 @@ impl BrowseNeighborhoods {
 
 impl State<App> for BrowseNeighborhoods {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        if let Some(t) = crate::common::handle_top_panel(ctx, app, &mut self.top_panel) {
+        if let Some(t) = crate::common::handle_top_panel(ctx, app, &mut self.top_panel, help) {
             return t;
         }
         match self.left_panel.event(ctx) {
@@ -404,4 +404,12 @@ fn impact_widget(ctx: &EventCtx, app: &App) -> Widget {
         .into_widget(ctx),
         ctx.style().btn_outline.text("Calculate").build_def(ctx),
     ])
+}
+
+fn help() -> Vec<&'static str> {
+    vec![
+        "Basic map navigation: click and drag to pan, swipe or scroll to zoom",
+        "",
+        "Click a neighborhood to analyze it. You can adjust boundaries there.",
+    ]
 }

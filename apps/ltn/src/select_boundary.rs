@@ -258,7 +258,7 @@ impl State<App> for SelectBoundary {
             return Transition::Keep;
         }
 
-        if let Some(t) = crate::common::handle_top_panel(ctx, app, &mut self.top_panel) {
+        if let Some(t) = crate::common::handle_top_panel(ctx, app, &mut self.top_panel, help) {
             return t;
         }
         if let Outcome::Clicked(x) = self.left_panel.event(ctx) {
@@ -387,4 +387,15 @@ fn make_panel_for_lasso(ctx: &mut EventCtx, top_panel: &Panel) -> Panel {
         ]),
     )
     .build(ctx)
+}
+
+fn help() -> Vec<&'static str> {
+    vec![
+        "You can grow or shrink the blue neighborhood boundary here.",
+        "Due to various known issues, it's not always possible to draw the boundary you want.",
+        "",
+        "The aqua blocks show where you can currently expand the boundary.",
+        "Hint: There may be very small blocks near complex roads.",
+        "Try the freehand tool to select them.",
+    ]
 }

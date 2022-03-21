@@ -1,4 +1,5 @@
 use geom::CornerRadii;
+use widgetry::tools::PopupMsg;
 use widgetry::{
     lctrl, CornerRounding, EventCtx, HorizontalAlignment, Key, Line, Outcome, Panel, PanelBuilder,
     PanelDims, VerticalAlignment, Widget,
@@ -21,6 +22,11 @@ pub fn app_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
                 .hotkey(lctrl(Key::F))
                 .build_widget(ctx, "search")
                 .centered_vert(),
+            ctx.style()
+                .btn_plain
+                .icon("system/assets/tools/help.svg")
+                .build_widget(ctx, "help")
+                .centered_vert(),
         ])
         .corner_rounding(CornerRounding::CornerRadii(CornerRadii {
             top_left: 0.0,
@@ -34,7 +40,12 @@ pub fn app_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
     .build(ctx)
 }
 
-pub fn handle_top_panel(ctx: &mut EventCtx, app: &App, panel: &mut Panel) -> Option<Transition> {
+pub fn handle_top_panel<F: Fn() -> Vec<&'static str>>(
+    ctx: &mut EventCtx,
+    app: &App,
+    panel: &mut Panel,
+    help: F,
+) -> Option<Transition> {
     if let Outcome::Clicked(x) = panel.event(ctx) {
         match x.as_ref() {
             "Home" => Some(Transition::Clear(vec![
@@ -53,6 +64,7 @@ pub fn handle_top_panel(ctx: &mut EventCtx, app: &App, panel: &mut Panel) -> Opt
             "search" => Some(Transition::Push(map_gui::tools::Navigator::new_state(
                 ctx, app,
             ))),
+            "help" => Some(Transition::Push(PopupMsg::new_state(ctx, "Help", help()))),
             _ => unreachable!(),
         }
     } else {

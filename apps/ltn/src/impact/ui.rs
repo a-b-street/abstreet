@@ -75,7 +75,7 @@ impl ShowResults {
 }
 impl State<App> for ShowResults {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        if let Some(t) = crate::common::handle_top_panel(ctx, app, &mut self.top_panel) {
+        if let Some(t) = crate::common::handle_top_panel(ctx, app, &mut self.top_panel, help) {
             return t;
         }
         match self.left_panel.event(ctx) {
@@ -192,4 +192,14 @@ impl Filters {
         ])
         .section(ctx)
     }
+}
+
+fn help() -> Vec<&'static str> {
+    vec![
+        "This tool is still experimental.",
+        "Until better travel demand models are available, we can't predict where most detours will occur,",
+        "because we don't know where trips begin and end.",
+        "",
+        "And note this tool doesn't predict traffic dissipation as people decide to not drive.",
+    ]
 }

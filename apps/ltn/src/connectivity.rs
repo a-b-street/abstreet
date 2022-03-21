@@ -109,7 +109,7 @@ impl Viewer {
 
 impl State<App> for Viewer {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        if let Some(t) = crate::common::handle_top_panel(ctx, app, &mut self.top_panel) {
+        if let Some(t) = crate::common::handle_top_panel(ctx, app, &mut self.top_panel, help) {
             return t;
         }
         match self.left_panel.event(ctx) {
@@ -405,4 +405,16 @@ impl State<App> for FreehandFilters {
     fn draw_baselayer(&self) -> DrawBaselayer {
         DrawBaselayer::PreviousState
     }
+}
+
+fn help() -> Vec<&'static str> {
+    vec![
+        "The colored cells show where it's possible to drive without leaving the neighborhood.",
+        "Green cells don't allow car-traffic.",
+        "",
+        "The darker red roads have more predicted rat-running traffic.",
+        "",
+        "Hint: You can place filters at roads or intersections.",
+        "Use the lasso tool to quickly sketch your idea.",
+    ]
 }
