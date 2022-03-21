@@ -66,7 +66,7 @@ impl Clone for Pathfinder {
 impl Pathfinder {
     /// Quickly create an invalid pathfinder, just to make borrow checking / initialization order
     /// work.
-    pub fn empty() -> Pathfinder {
+    pub(crate) fn empty() -> Pathfinder {
         Pathfinder {
             car_graph: VehiclePathfinder::empty(),
             bike_graph: VehiclePathfinder::empty(),
@@ -79,7 +79,7 @@ impl Pathfinder {
         }
     }
 
-    pub fn new(
+    pub(crate) fn new(
         map: &Map,
         params: RoutingParams,
         engine: &CreateEngine,
@@ -135,8 +135,19 @@ impl Pathfinder {
         }
     }
 
+    /// Create a new Pathfinder with custom routing params that can only serve some modes. Fast to
+    /// create, slow to use.
+    pub fn new_dijkstra(
+        map: &Map,
+        params: RoutingParams,
+        modes: Vec<PathConstraints>,
+        timer: &mut Timer,
+    ) -> Self {
+        Self::new_limited(map, params, CreateEngine::Dijkstra, modes, timer)
+    }
+
     /// Create a new Pathfinder with custom routing params that can only serve some modes.
-    pub fn new_limited(
+    pub(crate) fn new_limited(
         map: &Map,
         params: RoutingParams,
         engine: CreateEngine,
@@ -169,7 +180,7 @@ impl Pathfinder {
         p
     }
 
-    pub fn finalize_transit(&mut self, map: &Map, engine: &CreateEngine) {
+    pub(crate) fn finalize_transit(&mut self, map: &Map, engine: &CreateEngine) {
         self.walking_with_transit_graph =
             SidewalkPathfinder::new(map, Some((&self.bus_graph, &self.train_graph)), engine);
     }
@@ -179,9 +190,22 @@ impl Pathfinder {
         self.pathfind_with_params(req, map.routing_params(), PathfinderCaching::NoCache, map)
     }
 
+    /// Finds a path from a start to an end for a certain type of agent. Uses the RoutingParams
+    /// built into this Pathfinder.
+    pub fn pathfind_v2(&self, req: PathRequest, map: &Map) -> Option<PathV2> {
+        match req.constraints {
+            PathConstraints::Pedestrian => self.walking_graph.pathfind(req, map),
+            PathConstraints::Car => self.car_graph.pathfind(req, map),
+            PathConstraints::Bike => self.bike_graph.pathfind(req, map),
+            PathConstraints::Bus => self.bus_graph.pathfind(req, map),
+            PathConstraints::Train => self.train_graph.pathfind(req, map),
+        }
+    }
+
     /// Finds a path from a start to an end for a certain type of agent. May use custom routing
     /// parameters. If caching is requested and custom routing parameters are used, then the
     /// intermediate graph is saved to speed up future calls with the same routing parameters.
+    // TODO Deprecated
     pub fn pathfind_with_params(
         &self,
         req: PathRequest,
@@ -237,6 +261,7 @@ impl Pathfinder {
         result
     }
 
+    // TODO Deprecated
     pub fn clear_custom_pathfinder_cache(&self) {
         self.cached_alternatives
             .get_or(|| RefCell::new(VecMap::new()))
@@ -270,7 +295,7 @@ impl Pathfinder {
             .should_use_transit(map, start, end)
     }
 
-    pub fn apply_edits(&mut self, map: &Map, timer: &mut Timer) {
+    pub(crate) fn apply_edits(&mut self, map: &Map, timer: &mut Timer) {
         timer.start("apply edits to car pathfinding");
         self.car_graph.apply_edits(map);
         timer.stop("apply edits to car pathfinding");
