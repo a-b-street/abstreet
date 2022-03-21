@@ -117,7 +117,6 @@
 <span id="115">115</span>
 <span id="116">116</span>
 <span id="117">117</span>
-<span id="118">118</span>
 </pre><pre class="rust"><code><span class="doccomment">//! `map_model` describes the world where simulations occur. Importing a map from OSM partly happens</span>
 <span class="doccomment">//! in `convert_osm` and here.</span>
 <span class="doccomment">//!</span>
@@ -180,10 +179,9 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::objects::turn</span>::{<span class="ident">Turn</span>, <span class="ident">TurnID</span>, <span class="ident">TurnPriority</span>, <span class="ident">TurnType</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::objects::zone</span>::{<span class="ident">AccessRestrictions</span>, <span class="ident">Zone</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pathfind::uber_turns</span>::{<span class="ident">IntersectionCluster</span>, <span class="ident">UberTurn</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pathfind::Pathfinder</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pathfind</span>::{
-    <span class="ident">Path</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">PathStep</span>, <span class="ident">PathStepV2</span>, <span class="ident">PathV2</span>, <span class="ident">PathfinderCaching</span>,
-    <span class="ident">RoutingParams</span>,
+    <span class="ident">Path</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">PathStep</span>, <span class="ident">PathStepV2</span>, <span class="ident">PathV2</span>, <span class="ident">Pathfinder</span>,
+    <span class="ident">PathfinderCaching</span>, <span class="ident">RoutingParams</span>,
 };
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::traversable</span>::{<span class="ident">Position</span>, <span class="ident">Traversable</span>, <span class="ident">MAX_BIKE_SPEED</span>, <span class="ident">MAX_WALKING_SPEED</span>};
 
