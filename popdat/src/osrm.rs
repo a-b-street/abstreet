@@ -36,15 +36,15 @@ impl OSRM {
         if resp.routes.len() != 1 {
             bail!("{} didn't return 1 route: {:?}", url, resp);
         }
-        println!("{}", resp.routes[0].geometry);
+        //println!("{}", resp.routes[0].geometry);
+        // Debug with https://developers.google.com/maps/documentation/utilities/polylineutility
         let linestring =
             polyline::decode_polyline(&resp.routes[0].geometry, 5).map_err(|msg| anyhow!(msg))?;
         // Translate back to map-space
         let mut pts = Vec::new();
         for pt in linestring.into_points() {
-            println!("{:?}", pt);
-            // lol
-            pts.push(LonLat::new(pt.y(), pt.x()).to_pt(gps_bounds));
+            pts.push(LonLat::new(pt.x(), pt.y()).to_pt(gps_bounds));
+            //println!("{:?} maps to {}", pt, pts.last().unwrap());
         }
         PolyLine::new(pts)
     }

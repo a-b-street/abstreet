@@ -2923,6 +2923,7 @@ dependencies = [
  "geojson",
  "geom",
  "geozero",
+ "kml",
  "log",
  "map_model",
  "polyline",

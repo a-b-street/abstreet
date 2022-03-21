@@ -123,10 +123,18 @@ pub fn disaggregate(
 
         match osrm.pathfind(map.get_gps_bounds(), home_zone.center, work_zone.center) {
             Ok(pl) => {
-                dump_polylines.push(pl);
+                dump_polylines.push(kml::ExtraShape {
+                    points: pl
+                        .into_points()
+                        .into_iter()
+                        .map(|pt| pt.to_gps(map.get_gps_bounds()))
+                        .collect(),
+                    attributes: std::collections::BTreeMap::new(),
+                });
             }
             Err(_err) => {
                 osrm_errors += 1;
+                println!("boo {:?}", _err);
             }
         }
 
@@ -183,7 +191,12 @@ pub fn disaggregate(
             }
         }
     }
-    abstio::write_json("osrm.json".to_string(), &dump_polylines);
+    abstio::write_binary(
+        "osrm.bin".to_string(),
+        &kml::ExtraShapes {
+            shapes: dump_polylines,
+        },
+    );
     info!("{} OSRM errors", prettyprint_usize(osrm_errors));
     let total = on_map_only + lives_on_map + works_on_map + pass_through;
     for (x, label) in [
