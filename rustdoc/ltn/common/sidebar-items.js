@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["app_top_panel",""],["handle_top_panel",""],["left_panel_builder",""]]});
+initSidebarItems({"fn":[["app_top_panel",""],["handle_top_panel",""],["left_panel_builder",""]],"struct":[["About",""]]});

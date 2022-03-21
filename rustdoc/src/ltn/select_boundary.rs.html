@@ -390,6 +390,17 @@
 <span id="388">388</span>
 <span id="389">389</span>
 <span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
@@ -650,7 +661,7 @@
             <span class="kw">return</span> <span class="ident">Transition::Keep</span>;
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::common::handle_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">top_panel</span>) {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::common::handle_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">top_panel</span>, <span class="ident">help</span>) {
             <span class="kw">return</span> <span class="ident">t</span>;
         }
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
@@ -779,6 +790,17 @@
         ]),
     )
     .<span class="ident">build</span>(<span class="ident">ctx</span>)
+}
+
+<span class="kw">fn</span> <span class="ident">help</span>() -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> {
+    <span class="macro">vec!</span>[
+        <span class="string">&quot;You can grow or shrink the blue neighborhood boundary here.&quot;</span>,
+        <span class="string">&quot;Due to various known issues, it&#39;s not always possible to draw the boundary you want.&quot;</span>,
+        <span class="string">&quot;&quot;</span>,
+        <span class="string">&quot;The aqua blocks show where you can currently expand the boundary.&quot;</span>,
+        <span class="string">&quot;Hint: There may be very small blocks near complex roads.&quot;</span>,
+        <span class="string">&quot;Try the freehand tool to select them.&quot;</span>,
+    ]
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ltn" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.59.0 (9d1b2106e 2022-02-23)" ></div>

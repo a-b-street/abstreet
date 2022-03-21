@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["ShowResults",""]]});
+initSidebarItems({"fn":[["help",""]],"struct":[["ShowResults",""]]});

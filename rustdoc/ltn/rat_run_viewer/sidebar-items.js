@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["BrowseRatRuns",""]]});
+initSidebarItems({"fn":[["help",""]],"struct":[["BrowseRatRuns",""]]});
