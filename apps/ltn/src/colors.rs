@@ -5,7 +5,7 @@ lazy_static::lazy_static! {
     /// theorem to make adjacent things different
     pub static ref ADJACENT_STUFF: [Color; 6] = [
         Color::hex("#CB99CB"),
-        Color::hex("#51ECE3"),
+        Color::hex("#FAACAC"),
         Color::hex("#B2FAAC"),
         Color::hex("#7190FF"),
         Color::hex("#FFCC65"),

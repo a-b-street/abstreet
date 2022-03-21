@@ -360,8 +360,8 @@ impl ColorScheme {
     fn ltn() -> ColorScheme {
         let mut cs = ColorScheme::day_mode();
         cs.scheme = ColorSchemeChoice::LTN;
-        cs.unzoomed_residential = Color::BLACK;
-        cs.unzoomed_arterial = hex("#FFC147");
+        cs.unzoomed_residential = hex("#CCCCCC");
+        cs.unzoomed_arterial = hex("#1A48EE");
         cs.unzoomed_highway = hex("#FD38E9");
         cs.water = hex("#BDE3FF").into();
         cs.grass = hex("#00CC34").into();
