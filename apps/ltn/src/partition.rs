@@ -195,10 +195,7 @@ impl Partitioning {
         if new_neighborhood_blocks.len() != 1 {
             // This happens when a hole would be created by adding this block. There are probably
             // some smaller blocks nearby to add first.
-            bail!(
-                "You must first add intermediate blocks to avoid splitting this neighborhood into {} pieces",
-                new_neighborhood_blocks.len()
-            );
+            bail!("Couldn't add block -- you may need to add an intermediate block first to avoid a hole, or there's a bug you can't workaround yet");
         }
         let new_neighborhood_block = new_neighborhood_blocks.pop().unwrap();
 
