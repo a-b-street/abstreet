@@ -274,8 +274,9 @@ fn color_cells(num_cells: usize, adjacencies: HashSet<(usize, usize)>) -> Vec<Co
     // This is the same greedy logic as Perimeter::calculate_coloring
     let mut assigned_colors = Vec::new();
     for this_idx in 0..num_cells {
-        let mut available_colors: Vec<bool> =
-            std::iter::repeat(true).take(colors::CELLS.len()).collect();
+        let mut available_colors: Vec<bool> = std::iter::repeat(true)
+            .take(colors::ADJACENT_STUFF.len())
+            .collect();
         // Find all neighbors
         for other_idx in 0..num_cells {
             if adjacencies.contains(&(this_idx, other_idx)) {
@@ -295,6 +296,6 @@ fn color_cells(num_cells: usize, adjacencies: HashSet<(usize, usize)>) -> Vec<Co
     }
     assigned_colors
         .into_iter()
-        .map(|idx| colors::CELLS[idx])
+        .map(|idx| colors::ADJACENT_STUFF[idx])
         .collect()
 }

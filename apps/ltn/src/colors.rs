@@ -1,27 +1,18 @@
 use widgetry::Color;
 
 lazy_static::lazy_static! {
-    /// Rotate through these colors for neighborhoods. Use 4-color (ehem, 6-color?) theorem to make
-    /// adjacent things different
-    pub static ref NEIGHBORHOODS: [Color; 6] = [
-        Color::BLUE.alpha(0.3),
-        Color::YELLOW.alpha(0.3),
-        Color::GREEN.alpha(0.3),
-        Color::PURPLE.alpha(0.3),
-        Color::PINK.alpha(0.3),
-        Color::ORANGE.alpha(0.3),
+    /// Rotate through these colors for neighborhoods or cells. Use 4-color (ehem, 6-color?)
+    /// theorem to make adjacent things different
+    pub static ref ADJACENT_STUFF: [Color; 6] = [
+        Color::hex("#CB99CB"),
+        Color::hex("#51ECE3"),
+        Color::hex("#B2FAAC"),
+        Color::hex("#7190FF"),
+        Color::hex("#FFCC65"),
+        Color::hex("#CFCFFA"),
     ];
 
-    pub static ref CELLS: [Color; 6] = [
-        Color::BLUE.alpha(0.5),
-        Color::YELLOW.alpha(0.5),
-        Color::hex("#3CAEA3").alpha(0.5),
-        Color::PURPLE.alpha(0.5),
-        Color::PINK.alpha(0.5),
-        Color::ORANGE.alpha(0.5),
-    ];
-
-    pub static ref FILTER_OUTER: Color = Color::RED;
+    pub static ref FILTER_OUTER: Color = Color::hex("#E85E5E");
     pub static ref FILTER_INNER: Color = Color::WHITE;
 }
 
