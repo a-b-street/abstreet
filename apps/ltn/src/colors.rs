@@ -3,13 +3,11 @@ use widgetry::Color;
 lazy_static::lazy_static! {
     /// Rotate through these colors for neighborhoods or cells. Use 4-color (ehem, 6-color?)
     /// theorem to make adjacent things different
-    pub static ref ADJACENT_STUFF: [Color; 6] = [
-        Color::hex("#CB99CB"),
-        Color::hex("#FAACAC"),
-        Color::hex("#B2FAAC"),
-        Color::hex("#7190FF"),
-        Color::hex("#FFCC65"),
-        Color::hex("#CFCFFA"),
+    pub static ref ADJACENT_STUFF: [Color; 4] = [
+        Color::hex("#D898B3"),
+        Color::hex("#B7A3D7"),
+        Color::hex("#F5D89B"),
+        Color::hex("#90CCD3"),
     ];
 
     pub static ref FILTER_OUTER: Color = Color::hex("#E85E5E");

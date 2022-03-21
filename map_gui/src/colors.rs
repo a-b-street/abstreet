@@ -360,13 +360,9 @@ impl ColorScheme {
     fn ltn() -> ColorScheme {
         let mut cs = ColorScheme::day_mode();
         cs.scheme = ColorSchemeChoice::LTN;
-        cs.unzoomed_residential = hex("#CCCCCC");
+        cs.unzoomed_residential = Color::BLACK;
         cs.unzoomed_arterial = hex("#1A48EE");
         cs.unzoomed_highway = hex("#FD38E9");
-        cs.water = hex("#BDE3FF").into();
-        cs.grass = hex("#00CC34").into();
-        cs.map_background = hex("#CDCC00").into();
-        cs.light_rail_track = hex("#FF3334");
         cs.private_road = None;
 
         // The colors of cells / neighborhoods will show through these, de-emphasizing them
