@@ -309,6 +309,12 @@ impl Partitioning {
         &self.neighborhoods[&id].0
     }
 
+    pub fn neighborhood_area_km2(&self, id: NeighborhoodID) -> String {
+        // Convert from m^2 to km^2
+        let area = self.neighborhood_block(id).polygon.area() / 1_000_000.0;
+        format!("~{:.1} km²", area)
+    }
+
     pub fn neighborhood_color(&self, id: NeighborhoodID) -> Color {
         self.neighborhoods[&id].1
     }

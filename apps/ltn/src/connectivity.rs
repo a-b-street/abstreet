@@ -57,6 +57,13 @@ impl Viewer {
                 app,
                 &self.top_panel,
                 Widget::col(vec![
+                    format!(
+                        "Neighborhood area: {}",
+                        app.session
+                            .partitioning
+                            .neighborhood_area_km2(self.neighborhood.id)
+                    )
+                    .text_widget(ctx),
                     ctx.style()
                         .btn_outline
                         .icon_text(

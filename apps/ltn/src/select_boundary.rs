@@ -37,7 +37,7 @@ pub struct SelectBoundary {
 impl SelectBoundary {
     pub fn new_state(ctx: &mut EventCtx, app: &App, id: NeighborhoodID) -> Box<dyn State<App>> {
         let top_panel = crate::common::app_top_panel(ctx, app);
-        let left_panel = make_panel(ctx, &top_panel);
+        let left_panel = make_panel(ctx, app, id, &top_panel);
         let mut state = SelectBoundary {
             top_panel,
             left_panel,
@@ -147,7 +147,7 @@ impl SelectBoundary {
                 }
 
                 self.draw_boundary_roads = draw_boundary_roads(ctx, app);
-                self.left_panel = make_panel(ctx, &self.top_panel);
+                self.left_panel = make_panel(ctx, app, self.id, &self.top_panel);
             }
             Err(err) => {
                 self.last_failed_change = Some((id, self.currently_have_block(app, id)));
@@ -253,7 +253,7 @@ impl State<App> for SelectBoundary {
             if let Some(polygon) = lasso.event(ctx) {
                 self.lasso = None;
                 self.add_blocks_freehand(ctx, app, polygon);
-                self.left_panel = make_panel(ctx, &self.top_panel);
+                self.left_panel = make_panel(ctx, app, self.id, &self.top_panel);
             }
             return Transition::Keep;
         }
@@ -323,7 +323,7 @@ impl State<App> for SelectBoundary {
     }
 }
 
-fn make_panel(ctx: &mut EventCtx, top_panel: &Panel) -> Panel {
+fn make_panel(ctx: &mut EventCtx, app: &App, id: NeighborhoodID, top_panel: &Panel) -> Panel {
     crate::common::left_panel_builder(
         ctx,
         top_panel,
@@ -348,6 +348,11 @@ fn make_panel(ctx: &mut EventCtx, top_panel: &Panel) -> Panel {
                 Line(" and paint over blocks to remove"),
             ])
             .into_widget(ctx),
+            format!(
+                "Neighborhood area: {}",
+                app.session.partitioning.neighborhood_area_km2(id)
+            )
+            .text_widget(ctx),
             ctx.style()
                 .btn_outline
                 .icon_text("system/assets/tools/select.svg", "Select freehand")
