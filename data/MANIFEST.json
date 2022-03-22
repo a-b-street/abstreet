@@ -855,6 +855,21 @@
       "uncompressed_size_bytes": 14563729,
       "compressed_size_bytes": 3062265
     },
+    "data/input/gb/glenrothes/osm/center.osm": {
+      "checksum": "60893b0f5a0dd7cafa9910b8ec1c4290",
+      "uncompressed_size_bytes": 81347229,
+      "compressed_size_bytes": 8171788
+    },
+    "data/input/gb/glenrothes/osm/scotland-latest.osm.pbf": {
+      "checksum": "0793202a2a7d6c5535da6104bac5ed12",
+      "uncompressed_size_bytes": 219183427,
+      "compressed_size_bytes": 218991119
+    },
+    "data/input/gb/glenrothes/raw_maps/center.bin": {
+      "checksum": "e35d2e2d94be465be2f32841af6ca22d",
+      "uncompressed_size_bytes": 20924174,
+      "compressed_size_bytes": 4472170
+    },
     "data/input/gb/great_kneighton/desire_lines_disag.geojson": {
       "checksum": "1cb0f5fc91626099dca6582c97f49c43",
       "uncompressed_size_bytes": 80600,
@@ -2200,6 +2215,11 @@
       "uncompressed_size_bytes": 3674917,
       "compressed_size_bytes": 3632843
     },
+    "data/input/shared/elevation/srtm/srtm.-3.56.tif": {
+      "checksum": "6d37353c7158407e10b86f3952341f4d",
+      "uncompressed_size_bytes": 1683424,
+      "compressed_size_bytes": 1655158
+    },
     "data/input/shared/elevation/srtm/srtm.-4.50.tif": {
       "checksum": "d0ca63bf4c0e39f6e060f14acb387c2b",
       "uncompressed_size_bytes": 2438784,
@@ -2209,6 +2229,11 @@
       "checksum": "2b90082647dd2b7e40bb5fdf2ea8f27d",
       "uncompressed_size_bytes": 3313212,
       "compressed_size_bytes": 3276824
+    },
+    "data/input/shared/elevation/srtm/srtm.-4.56.tif": {
+      "checksum": "ccf14b1ebd2ba340f161b41a66f1a40c",
+      "uncompressed_size_bytes": 3462371,
+      "compressed_size_bytes": 3425880
     },
     "data/input/shared/elevation/srtm/srtm.-47.-24.tif": {
       "checksum": "613389c88cdc1dd62ba708cdcdc69489",
@@ -3754,6 +3779,16 @@
       "checksum": "95d750460a5c983fbd44d85e8fb3ead5",
       "uncompressed_size_bytes": 6573991,
       "compressed_size_bytes": 1729452
+    },
+    "data/system/gb/glenrothes/maps/center.bin": {
+      "checksum": "9703170ee1eb36f9c01265cc690cca21",
+      "uncompressed_size_bytes": 68764627,
+      "compressed_size_bytes": 26932291
+    },
+    "data/system/gb/glenrothes/scenarios/center/background.bin": {
+      "checksum": "6a3d88fbe3d5d0888cecb3fd3549426b",
+      "uncompressed_size_bytes": 69,
+      "compressed_size_bytes": 66
     },
     "data/system/gb/great_kneighton/maps/center.bin": {
       "checksum": "dd7f99c3bdf000cfbb725338853caafc",

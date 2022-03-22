@@ -172,6 +172,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("dunton_hills", "center") => "Dunton Hills",
             ("ebbsfleet", "center") => "Ebbsfleet (Dartford)",
             ("exeter_red_cow_village", "center") => "Exeter Red Cow Village",
+            ("glenrothes", "center") => "Glenrothes (Scotland)",
             ("great_kneighton", "center") => "Great Kneighton (Cambridge)",
             ("halsnhead", "center") => "Halsnead",
             ("hampton", "center") => "Hampton",
