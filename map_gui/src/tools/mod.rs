@@ -199,6 +199,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("nottingham", "center") => "Nottingham (city center)",
             ("nottingham", "huge") => "Nottingham (entire area)",
             ("northwick_park", "center") => "Northwick Park",
+            ("oxford", "center") => "Oxford",
             ("poundbury", "center") => "Poundbury",
             ("priors_hall", "center") => "Priors Hall",
             ("st_albans", "center") => "St Albans",
@@ -256,6 +257,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
             _ => &name.map,
         },
         "tw" => match (name.city.city.as_ref(), name.map.as_ref()) {
+            ("keelung", "center") => "Keelung",
             ("taipei", "center") => "Taipei (city center)",
             _ => &name.map,
         },

@@ -1555,6 +1555,21 @@
       "uncompressed_size_bytes": 82613279,
       "compressed_size_bytes": 14864453
     },
+    "data/input/gb/oxford/osm/center.osm": {
+      "checksum": "e61bfd4dc7575f409cb9ac00384ec6c3",
+      "uncompressed_size_bytes": 63406811,
+      "compressed_size_bytes": 6543724
+    },
+    "data/input/gb/oxford/osm/oxfordshire-latest.osm.pbf": {
+      "checksum": "5b8b146ec36f7743def6e9051b1dc72e",
+      "uncompressed_size_bytes": 17761063,
+      "compressed_size_bytes": 17747452
+    },
+    "data/input/gb/oxford/raw_maps/center.bin": {
+      "checksum": "4e5bb1d27ed8e9fe86216377aefa0de2",
+      "uncompressed_size_bytes": 16594648,
+      "compressed_size_bytes": 3583046
+    },
     "data/input/gb/poundbury/osm/center.osm": {
       "checksum": "6427a7065d2c4c355337e593682c9932",
       "uncompressed_size_bytes": 8989647,
@@ -2414,6 +2429,21 @@
       "checksum": "4309469097bcc9c8e528914a72d55f75",
       "uncompressed_size_bytes": 12182024,
       "compressed_size_bytes": 2890224
+    },
+    "data/input/tw/keelung/osm/center.osm": {
+      "checksum": "5c5584b7892669998cc10565d2823be4",
+      "uncompressed_size_bytes": 15793273,
+      "compressed_size_bytes": 1757470
+    },
+    "data/input/tw/keelung/osm/taiwan-latest.osm.pbf": {
+      "checksum": "3d8ca5bdf6b43798073d809b7b6e5927",
+      "uncompressed_size_bytes": 105205664,
+      "compressed_size_bytes": 104776839
+    },
+    "data/input/tw/keelung/raw_maps/center.bin": {
+      "checksum": "dbabb3fa1c97648084053aa8e208c0ea",
+      "uncompressed_size_bytes": 4154560,
+      "compressed_size_bytes": 827531
     },
     "data/input/tw/taipei/osm/center.osm": {
       "checksum": "81824933e147997b3b67e6653f0606de",
@@ -4460,6 +4490,16 @@
       "uncompressed_size_bytes": 20805706,
       "compressed_size_bytes": 5768590
     },
+    "data/system/gb/oxford/maps/center.bin": {
+      "checksum": "c13bfcd88bec6c0d7e8ce56f449d218c",
+      "uncompressed_size_bytes": 34080026,
+      "compressed_size_bytes": 13208970
+    },
+    "data/system/gb/oxford/scenarios/center/background.bin": {
+      "checksum": "cdac785e3853874c4b224a8c8956a058",
+      "uncompressed_size_bytes": 8730428,
+      "compressed_size_bytes": 2282442
+    },
     "data/system/gb/poundbury/maps/center.bin": {
       "checksum": "386049d8671a8aadb9dff8d576087182",
       "uncompressed_size_bytes": 8356958,
@@ -4894,6 +4934,11 @@
       "checksum": "5ec2a5f450fd8cd0e4368de2f342d132",
       "uncompressed_size_bytes": 30956951,
       "compressed_size_bytes": 11782490
+    },
+    "data/system/tw/keelung/maps/center.bin": {
+      "checksum": "3817d39cd748fb03406a58e115482421",
+      "uncompressed_size_bytes": 18744786,
+      "compressed_size_bytes": 7158727
     },
     "data/system/tw/taipei/maps/center.bin": {
       "checksum": "08a18903282f163d4cd46893387bf55e",

@@ -63,6 +63,7 @@ data/system/gb/newcastle_great_park
 data/system/gb/newcastle_upon_tyne
 data/system/gb/northwick_park
 data/system/gb/nottingham
+data/system/gb/oxford
 data/system/gb/poundbury
 data/system/gb/priors_hall
 data/system/gb/st_albans
@@ -87,6 +88,7 @@ data/system/pl/krakow
 data/system/pl/warsaw
 data/system/pt/lisbon
 data/system/sg/jurong
+data/system/tw/keelung
 data/system/tw/taipei
 data/system/us/anchorage
 data/system/us/bellevue
