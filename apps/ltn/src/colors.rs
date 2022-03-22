@@ -23,6 +23,10 @@ lazy_static::lazy_static! {
 
     pub static ref FILTER_OUTER: Color = Color::RED;
     pub static ref FILTER_INNER: Color = Color::WHITE;
+
+    pub static ref PLAN_ROUTE_BEFORE: Color = Color::BLUE;
+    pub static ref PLAN_ROUTE_AFTER: Color = Color::RED;
+    pub static ref PLAN_ROUTE_BIKE: Color = Color::GREEN;
 }
 
 pub const CAR_FREE_CELL: Color = Color::GREEN.alpha(0.5);
@@ -37,6 +41,3 @@ pub const RAT_RUN_PATH: Color = Color::RED;
 
 pub const BLOCK_IN_BOUNDARY: Color = Color::BLUE.alpha(0.5);
 pub const BLOCK_IN_FRONTIER: Color = Color::CYAN.alpha(0.2);
-
-pub const PLAN_ROUTE_BEFORE: Color = Color::BLUE;
-pub const PLAN_ROUTE_AFTER: Color = Color::RED;

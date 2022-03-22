@@ -134,7 +134,7 @@ impl RoutePlanner {
 
             let mut total_time = Duration::ZERO;
             let mut total_dist = Distance::ZERO;
-            let color = colors::PLAN_ROUTE_AFTER;
+            let color = *colors::PLAN_ROUTE_AFTER;
             for pair in self.waypoints.get_waypoints().windows(2) {
                 if let Some((path, pl)) =
                     TripEndpoint::path_req(pair[0], pair[1], TripMode::Drive, map)
@@ -173,7 +173,7 @@ impl RoutePlanner {
             let mut draw_old_route = ToggleZoomed::builder();
             let mut total_time = Duration::ZERO;
             let mut total_dist = Distance::ZERO;
-            let color = colors::PLAN_ROUTE_BEFORE;
+            let color = *colors::PLAN_ROUTE_BEFORE;
             let mut params = map.routing_params().clone();
             params.main_road_penalty = app.session.main_road_penalty;
 
@@ -236,6 +236,41 @@ impl RoutePlanner {
                     results.remove_colors_from_last_line();
                 }
             }
+        }
+
+        // What about biking the same route?
+        {
+            // No custom params -- use the map's built-in bike CH
+            let mut total_time = Duration::ZERO;
+            let mut total_dist = Distance::ZERO;
+            let color = *colors::PLAN_ROUTE_BIKE;
+            for pair in self.waypoints.get_waypoints().windows(2) {
+                if let Some((path, pl)) =
+                    TripEndpoint::path_req(pair[0], pair[1], TripMode::Bike, map)
+                        .and_then(|req| map.pathfind(req).ok())
+                        .and_then(|path| path.trace(map).map(|pl| (path, pl)))
+                {
+                    let shape = pl.exact_dashed_polygons(
+                        3.0 * NORMAL_LANE_THICKNESS,
+                        Distance::meters(10.0),
+                        Distance::meters(4.0),
+                    );
+                    draw.unzoomed.extend(color.alpha(0.8), shape.clone());
+                    draw.zoomed.extend(color.alpha(0.5), shape);
+
+                    // We use PathV1 (lane-based) for tracing. It doesn't preserve the cost
+                    // calculated while pathfinding, so just estimate_duration.
+                    total_time += path.estimate_duration(map, Some(map_model::MAX_BIKE_SPEED));
+                    total_dist += path.total_length();
+                }
+            }
+            if total_dist != Distance::ZERO {
+                // TODO Info button to clarify not avoiding hills or stressful roads
+                results.add_line(Line("Cycling route").fg(color));
+                results.add_line(Line(format!("Time: {}", total_time)));
+                results.add_line(Line(format!("Distance: {}", total_dist)));
+            }
+            // TODO Compare to baseline (before filters)
         }
 
         self.draw_routes = draw.build(ctx);
