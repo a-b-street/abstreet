@@ -3,7 +3,7 @@ use map_gui::tools::{
     cmp_dist, cmp_duration, DrawRoadLabels, InputWaypoints, TripManagement, TripManagementState,
     WaypointID,
 };
-use map_model::{PathfinderCaching, NORMAL_LANE_THICKNESS};
+use map_model::{PathfinderCache, NORMAL_LANE_THICKNESS};
 use synthpop::{TripEndpoint, TripMode};
 use widgetry::mapspace::{ToggleZoomed, World};
 use widgetry::{
@@ -21,6 +21,8 @@ pub struct RoutePlanner {
     world: World<WaypointID>,
     draw_routes: ToggleZoomed,
     labels: DrawRoadLabels,
+    // TODO We could save the no-filter variations map-wide
+    pathfinder_cache: PathfinderCache,
 }
 
 impl TripManagementState<App> for RoutePlanner {
@@ -49,6 +51,7 @@ impl RoutePlanner {
             world: World::unbounded(),
             draw_routes: ToggleZoomed::empty(ctx),
             labels: DrawRoadLabels::only_major_roads(),
+            pathfinder_cache: PathfinderCache::new(),
         };
 
         if let Some(current_name) = &app.session.current_trip_name {
@@ -136,9 +139,10 @@ impl RoutePlanner {
                 if let Some((path, pl)) =
                     TripEndpoint::path_req(pair[0], pair[1], TripMode::Drive, map)
                         .and_then(|req| {
-                            map.pathfind_with_params(req, &params, PathfinderCaching::CacheDijkstra)
-                                .ok()
+                            self.pathfinder_cache
+                                .pathfind_with_params(map, req, params.clone())
                         })
+                        .and_then(|path| path.into_v1(map).ok())
                         .and_then(|path| path.trace(map).map(|pl| (path, pl)))
                 {
                     let shape = pl.make_polygons(5.0 * NORMAL_LANE_THICKNESS);
@@ -172,13 +176,15 @@ impl RoutePlanner {
             let color = colors::PLAN_ROUTE_BEFORE;
             let mut params = map.routing_params().clone();
             params.main_road_penalty = app.session.main_road_penalty;
+
             for pair in self.waypoints.get_waypoints().windows(2) {
                 if let Some((path, pl)) =
                     TripEndpoint::path_req(pair[0], pair[1], TripMode::Drive, map)
                         .and_then(|req| {
-                            map.pathfind_with_params(req, &params, PathfinderCaching::CacheDijkstra)
-                                .ok()
+                            self.pathfinder_cache
+                                .pathfind_with_params(map, req, params.clone())
                         })
+                        .and_then(|path| path.into_v1(map).ok())
                         .and_then(|path| path.trace(map).map(|pl| (path, pl)))
                 {
                     let shape = pl.make_polygons(5.0 * NORMAL_LANE_THICKNESS);
@@ -297,12 +303,6 @@ impl State<App> for RoutePlanner {
         if g.canvas.is_unzoomed() {
             self.labels.draw(g, app);
         }
-    }
-
-    fn on_destroy(&mut self, _: &mut EventCtx, app: &mut App) {
-        // We'll cache a custom pathfinder per set of avoided roads. Avoid leaking memory by
-        // clearing this out
-        app.map.clear_custom_pathfinder_cache();
     }
 }
 

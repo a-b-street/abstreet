@@ -35,8 +35,7 @@ pub struct Pathfinder {
 
 /// When pathfinding with different `RoutingParams` is done, a temporary pathfinder must be
 /// created. This specifies what type of pathfinder and whether to cache it.
-///
-/// `clear_custom_pathfinder_cache` can be used to later clean up any cached pathfinders.
+// TODO Deprecated
 #[derive(Clone, Copy, PartialEq)]
 pub enum PathfinderCaching {
     /// Create a fast-to-build but slow-to-use Dijkstra-based pathfinder and don't cache it
@@ -261,14 +260,6 @@ impl Pathfinder {
         result
     }
 
-    // TODO Deprecated
-    pub fn clear_custom_pathfinder_cache(&self) {
-        self.cached_alternatives
-            .get_or(|| RefCell::new(VecMap::new()))
-            .borrow_mut()
-            .clear();
-    }
-
     pub fn all_costs_from(
         &self,
         req: PathRequest,
@@ -320,5 +311,42 @@ impl Pathfinder {
         self.walking_with_transit_graph
             .apply_edits(map, Some((&self.bus_graph, &self.train_graph)));
         timer.stop("apply edits to pedestrian using transit pathfinding");
+    }
+}
+
+/// For callers needing to request paths with a variety of RoutingParams. The caller is in charge
+/// of the lifetime, so they can clear it out when appropriate.
+pub struct PathfinderCache {
+    cache: VecMap<(PathConstraints, RoutingParams), Pathfinder>,
+}
+
+impl PathfinderCache {
+    pub fn new() -> Self {
+        Self {
+            cache: VecMap::new(),
+        }
+    }
+
+    /// New pathfinders will be created as-needed using Dijkstra's, no spammy logging
+    pub fn pathfind_with_params(
+        &mut self,
+        map: &Map,
+        req: PathRequest,
+        params: RoutingParams,
+    ) -> Option<PathV2> {
+        if let Some(pathfinder) = self.cache.get(&(req.constraints, params.clone())) {
+            return pathfinder.pathfind_v2(req, map);
+        }
+
+        let pathfinder = Pathfinder::new_limited(
+            map,
+            params.clone(),
+            CreateEngine::Dijkstra,
+            vec![req.constraints],
+            &mut Timer::throwaway(),
+        );
+        let result = pathfinder.pathfind_v2(req.clone(), map);
+        self.cache.push((req.constraints, params), pathfinder);
+        result
     }
 }

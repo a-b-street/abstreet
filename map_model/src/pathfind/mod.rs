@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 use geom::Duration;
 
 pub use self::engine::CreateEngine;
-pub use self::pathfinder::{Pathfinder, PathfinderCaching};
+pub use self::pathfinder::{Pathfinder, PathfinderCache, PathfinderCaching};
 pub use self::v1::{Path, PathRequest, PathStep};
 pub use self::v2::{PathStepV2, PathV2};
 pub use self::vehicles::vehicle_cost;
@@ -164,7 +164,7 @@ pub(crate) fn zone_cost(mvmnt: MovementID, constraints: PathConstraints, map: &M
 /// Tuneable parameters for all types of routing.
 // These will maybe become part of the PathRequest later, but that's an extremely invasive and
 // space-expensive change right now.
-#[derive(Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
 pub struct RoutingParams {
     // For all vehicles. This is added to the cost of a movement as an additional delay.
     pub unprotected_turn_penalty: Duration,

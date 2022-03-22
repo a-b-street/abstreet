@@ -581,11 +581,6 @@ impl Map {
         self.pathfinder.should_use_transit(self, start, end)
     }
 
-    /// Clear any pathfinders with custom RoutingParams, created previously with `cache_custom`
-    pub fn clear_custom_pathfinder_cache(&self) {
-        self.pathfinder.clear_custom_pathfinder_cache();
-    }
-
     /// Return the cost of a single path, and also a mapping from every directed road to the cost
     /// of getting there from the same start. This can be used to understand why an alternative
     /// route wasn't chosen.
