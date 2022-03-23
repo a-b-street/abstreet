@@ -1,14 +1,13 @@
 use geom::{Distance, Duration};
 use map_gui::tools::{
-    cmp_dist, cmp_duration, DrawRoadLabels, InputWaypoints, TripManagement, TripManagementState,
-    WaypointID,
+    DrawRoadLabels, InputWaypoints, TripManagement, TripManagementState, WaypointID,
 };
 use map_model::{PathfinderCache, NORMAL_LANE_THICKNESS};
 use synthpop::{TripEndpoint, TripMode};
 use widgetry::mapspace::{ToggleZoomed, World};
 use widgetry::{
-    EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, RoundedF64, Spinner, State, Text,
-    Widget,
+    ButtonBuilder, Color, ControlState, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel,
+    RoundedF64, Spinner, State, Text, Widget,
 };
 
 use crate::{colors, App, BrowseNeighborhoods, Transition};
@@ -80,24 +79,28 @@ impl RoutePlanner {
                 self.waypoints.get_panel_widget(ctx),
             ])
             .section(ctx),
-            Widget::row(vec![
-                Line("Slow-down factor for main roads:")
-                    .into_widget(ctx)
-                    .centered_vert(),
-                Spinner::f64_widget(
-                    ctx,
-                    "main road penalty",
-                    (1.0, 10.0),
-                    app.session.main_road_penalty,
-                    0.5,
-                ),
-            ]),
-            Text::from_multiline(vec![
-                Line("1 means free-flow traffic conditions").secondary(),
-                Line("Increase to see how vehicles may try to detour in heavy traffic").secondary(),
+            Widget::col(vec![
+                Widget::row(vec![
+                    Line("Slow-down factor for main roads:")
+                        .into_widget(ctx)
+                        .centered_vert(),
+                    Spinner::f64_widget(
+                        ctx,
+                        "main road penalty",
+                        (1.0, 10.0),
+                        app.session.main_road_penalty,
+                        0.5,
+                    ),
+                ]),
+                Text::from_multiline(vec![
+                    Line("1 means free-flow traffic conditions").secondary(),
+                    Line("Increase to see how drivers may try to detour in heavy traffic")
+                        .secondary(),
+                ])
+                .into_widget(ctx),
             ])
-            .into_widget(ctx),
-            results_widget,
+            .section(ctx),
+            results_widget.section(ctx),
         ]);
         let mut panel = crate::common::left_panel_builder(ctx, &self.top_panel, contents)
             // Hovering on waypoint cards
@@ -123,56 +126,11 @@ impl RoutePlanner {
     // Returns a widget to display
     fn recalculate_paths(&mut self, ctx: &mut EventCtx, app: &App) -> Widget {
         let map = &app.map;
-        let mut results = Text::new();
         let mut draw = ToggleZoomed::builder();
 
-        // First the route respecting the filters
-        let (total_time_after, total_dist_after) = {
-            let mut params = map.routing_params().clone();
-            app.session.modal_filters.update_routing_params(&mut params);
-            params.main_road_penalty = app.session.main_road_penalty;
-
+        // The baseline is the one ignoring ALL filters (pre-existing and new)
+        let baseline_time = {
             let mut total_time = Duration::ZERO;
-            let mut total_dist = Distance::ZERO;
-            let color = *colors::PLAN_ROUTE_AFTER;
-            for pair in self.waypoints.get_waypoints().windows(2) {
-                if let Some((path, pl)) =
-                    TripEndpoint::path_req(pair[0], pair[1], TripMode::Drive, map)
-                        .and_then(|req| {
-                            self.pathfinder_cache
-                                .pathfind_with_params(map, req, params.clone())
-                        })
-                        .and_then(|path| path.into_v1(map).ok())
-                        .and_then(|path| path.trace(map).map(|pl| (path, pl)))
-                {
-                    let shape = pl.make_polygons(5.0 * NORMAL_LANE_THICKNESS);
-                    draw.unzoomed.push(color.alpha(0.8), shape.clone());
-                    draw.zoomed.push(color.alpha(0.5), shape);
-
-                    // We use PathV1 (lane-based) for tracing. It doesn't preserve the cost
-                    // calculated while pathfinding, so just estimate_duration.
-                    //
-                    // The original reason for using estimate_duration here was to exclude the large
-                    // penalty if the route crossed a filter. But now that's impossible at the
-                    // pathfinding layer.
-                    total_time += path.estimate_duration(map, None);
-                    total_dist += path.total_length();
-                }
-            }
-            if total_dist != Distance::ZERO {
-                results.add_line(Line("Route respecting modal filters").fg(color));
-                results.add_line(Line(format!("Time: {}", total_time)));
-                results.add_line(Line(format!("Distance: {}", total_dist)));
-            }
-
-            (total_time, total_dist)
-        };
-
-        // Then the one ignoring filters
-        {
-            let mut draw_old_route = ToggleZoomed::builder();
-            let mut total_time = Duration::ZERO;
-            let mut total_dist = Distance::ZERO;
             let color = *colors::PLAN_ROUTE_BEFORE;
             let mut params = map.routing_params().clone();
             params.main_road_penalty = app.session.main_road_penalty;
@@ -188,61 +146,59 @@ impl RoutePlanner {
                         .and_then(|path| path.trace(map).map(|pl| (path, pl)))
                 {
                     let shape = pl.make_polygons(5.0 * NORMAL_LANE_THICKNESS);
-                    draw_old_route
-                        .unzoomed
-                        .push(color.alpha(0.8), shape.clone());
-                    draw_old_route.zoomed.push(color.alpha(0.5), shape);
+                    draw.unzoomed.push(color.alpha(0.8), shape.clone());
+                    draw.zoomed.push(color.alpha(0.5), shape);
 
                     total_time += path.estimate_duration(map, None);
-                    total_dist += path.total_length();
                 }
             }
-            if total_dist != Distance::ZERO {
-                // If these two stats are the same, assume the two paths are equivalent
-                if total_time == total_time_after && total_dist == total_dist_after {
-                    draw = draw_old_route;
-                    results = Text::new();
-                    results.add_line(Line("The route is the same before/after modal filters"));
-                    results.add_line(Line(format!(
-                        "Time: {}",
-                        total_time.to_string(&app.opts.units)
-                    )));
-                    results.add_line(Line(format!(
-                        "Distance: {}",
-                        total_dist.to_string(&app.opts.units)
-                    )));
-                } else {
-                    draw.append(draw_old_route);
-                    results.add_line(
-                        Line("Route before any modal filters (existing or new)").fg(color),
-                    );
-                    cmp_duration(
-                        &mut results,
-                        app,
-                        total_time - total_time_after,
-                        "shorter",
-                        "longer",
-                    );
-                    // Remove formatting -- red/green gets confusing with the blue/red of the two
-                    // routes
-                    results.remove_colors_from_last_line();
-                    cmp_dist(
-                        &mut results,
-                        app,
-                        total_dist - total_dist_after,
-                        "shorter",
-                        "longer",
-                    );
-                    results.remove_colors_from_last_line();
-                }
-            }
-        }
 
-        // What about biking the same route?
-        {
+            total_time
+        };
+
+        // The route respecting the filters
+        let drive_around_filters_time = {
+            let mut params = map.routing_params().clone();
+            app.session.modal_filters.update_routing_params(&mut params);
+            params.main_road_penalty = app.session.main_road_penalty;
+
+            let mut total_time = Duration::ZERO;
+            let mut draw_after = ToggleZoomed::builder();
+            let color = *colors::PLAN_ROUTE_AFTER;
+            for pair in self.waypoints.get_waypoints().windows(2) {
+                if let Some((path, pl)) =
+                    TripEndpoint::path_req(pair[0], pair[1], TripMode::Drive, map)
+                        .and_then(|req| {
+                            self.pathfinder_cache
+                                .pathfind_with_params(map, req, params.clone())
+                        })
+                        .and_then(|path| path.into_v1(map).ok())
+                        .and_then(|path| path.trace(map).map(|pl| (path, pl)))
+                {
+                    let shape = pl.make_polygons(5.0 * NORMAL_LANE_THICKNESS);
+                    draw_after.unzoomed.push(color.alpha(0.8), shape.clone());
+                    draw_after.zoomed.push(color.alpha(0.5), shape);
+
+                    // We use PathV1 (lane-based) for tracing. It doesn't preserve the cost
+                    // calculated while pathfinding, so just estimate_duration.
+                    //
+                    // The original reason for using estimate_duration here was to exclude the large
+                    // penalty if the route crossed a filter. But now that's impossible at the
+                    // pathfinding layer.
+                    total_time += path.estimate_duration(map, None);
+                }
+            }
+            // To simplify colors, don't draw this path when it's the same as the baseline
+            if total_time != baseline_time {
+                draw.append(draw_after);
+            }
+
+            total_time
+        };
+
+        let biking_time = {
             // No custom params -- use the map's built-in bike CH
             let mut total_time = Duration::ZERO;
-            let mut total_dist = Distance::ZERO;
             let color = *colors::PLAN_ROUTE_BIKE;
             for pair in self.waypoints.get_waypoints().windows(2) {
                 if let Some((path, pl)) =
@@ -251,33 +207,21 @@ impl RoutePlanner {
                         .and_then(|path| path.trace(map).map(|pl| (path, pl)))
                 {
                     let shape = pl.exact_dashed_polygons(
-                        3.0 * NORMAL_LANE_THICKNESS,
+                        2.0 * NORMAL_LANE_THICKNESS,
                         Distance::meters(10.0),
-                        Distance::meters(4.0),
+                        Distance::meters(6.0),
                     );
                     draw.unzoomed.extend(color.alpha(0.8), shape.clone());
                     draw.zoomed.extend(color.alpha(0.5), shape);
-
-                    // We use PathV1 (lane-based) for tracing. It doesn't preserve the cost
-                    // calculated while pathfinding, so just estimate_duration.
                     total_time += path.estimate_duration(map, Some(map_model::MAX_BIKE_SPEED));
-                    total_dist += path.total_length();
                 }
             }
-            if total_dist != Distance::ZERO {
-                // TODO Info button to clarify not avoiding hills or stressful roads
-                results.add_line(Line("Cycling route").fg(color));
-                results.add_line(Line(format!("Time: {}", total_time)));
-                results.add_line(Line(format!("Distance: {}", total_dist)));
-            }
-            // TODO Compare to baseline (before filters)
-        }
+            total_time
+        };
 
-        // And walking?
-        {
+        let walking_time = {
             // No custom params -- use the map's built-in CH
             let mut total_time = Duration::ZERO;
-            let mut total_dist = Distance::ZERO;
             let color = *colors::PLAN_ROUTE_WALK;
             for pair in self.waypoints.get_waypoints().windows(2) {
                 if let Some((path, pl)) =
@@ -292,24 +236,51 @@ impl RoutePlanner {
                     );
                     draw.unzoomed.extend(color.alpha(0.8), shape.clone());
                     draw.zoomed.extend(color.alpha(0.5), shape);
-
-                    // We use PathV1 (lane-based) for tracing. It doesn't preserve the cost
-                    // calculated while pathfinding, so just estimate_duration.
                     total_time += path.estimate_duration(map, Some(map_model::MAX_WALKING_SPEED));
-                    total_dist += path.total_length();
                 }
             }
-            if total_dist != Distance::ZERO {
-                // TODO Info button to clarify not avoiding hills or stressful roads
-                results.add_line(Line("Walking route").fg(color));
-                results.add_line(Line(format!("Time: {}", total_time)));
-                results.add_line(Line(format!("Distance: {}", total_dist)));
-            }
-            // TODO Compare to baseline (before filters)
-        }
+            total_time
+        };
 
         self.draw_routes = draw.build(ctx);
-        results.into_widget(ctx)
+
+        Widget::col(vec![
+            Widget::row(vec![
+                card(
+                    ctx,
+                    "Driving without any filters",
+                    "This route drives through pre-existing and new filters",
+                    baseline_time,
+                    *colors::PLAN_ROUTE_BEFORE,
+                ),
+                if baseline_time == drive_around_filters_time {
+                    Widget::col(vec![
+                        Line("Driving around filters")
+                            .fg(colors::PLAN_ROUTE_BEFORE.invert())
+                            .into_widget(ctx),
+                        Line("No difference")
+                            .fg(colors::PLAN_ROUTE_BEFORE.invert())
+                            .into_widget(ctx),
+                    ])
+                    .bg(*colors::PLAN_ROUTE_BEFORE)
+                    .padding(16)
+                } else {
+                    card(
+                        ctx,
+                        "Driving around filters",
+                        "This route drives around all filters",
+                        drive_around_filters_time,
+                        *colors::PLAN_ROUTE_AFTER,
+                    )
+                },
+            ])
+            .evenly_spaced(),
+            Widget::row(vec![
+                card(ctx, "Biking", "This cycling route doesn't avoid high-stress roads or hills, and assumes an average 10mph pace", biking_time, *colors::PLAN_ROUTE_BIKE),
+                card(ctx, "Walking", "This walking route doesn't avoid high-stress roads or hills, and assumes an average 3 mph pace", walking_time, *colors::PLAN_ROUTE_WALK),
+            ])
+            .evenly_spaced(),
+        ])
     }
 }
 
@@ -383,4 +354,29 @@ fn help() -> Vec<&'static str> {
         "The fastest route may not cut through neighborhoods normally,",
         "but you can adjust the slow-down factor to mimic rush hour conditions",
     ]
+}
+
+fn card(
+    ctx: &EventCtx,
+    label: &'static str,
+    tooltip: &'static str,
+    time: Duration,
+    color: Color,
+) -> Widget {
+    // TODO Convoluted way to add tooltips to text with a background
+    let mut txt = Text::new();
+    txt.add_line(Line(label).fg(color.invert()));
+    txt.add_line(Line(time.to_rounded_string(0)).fg(color.invert()));
+    let (batch, _) = txt
+        .render_autocropped(ctx)
+        .batch()
+        .container()
+        .bg(color)
+        .padding(16)
+        .into_geom(ctx, None);
+    ButtonBuilder::new()
+        .custom_batch(batch, ControlState::Default)
+        .disabled(true)
+        .disabled_tooltip(tooltip)
+        .build_widget(ctx, label)
 }

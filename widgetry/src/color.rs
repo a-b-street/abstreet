@@ -160,6 +160,10 @@ impl Color {
     pub fn dull(self, ratio: f64) -> Color {
         self.lerp(Color::grey(0.5), ratio)
     }
+
+    pub fn invert(self) -> Color {
+        Color::rgba_f(1.0 - self.r, 1.0 - self.g, 1.0 - self.b, self.a)
+    }
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/CSS/linear-gradient is the best reference I've
