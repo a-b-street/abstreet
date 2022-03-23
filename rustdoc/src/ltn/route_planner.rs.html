@@ -374,14 +374,6 @@
 <span id="372">372</span>
 <span id="373">373</span>
 <span id="374">374</span>
-<span id="375">375</span>
-<span id="376">376</span>
-<span id="377">377</span>
-<span id="378">378</span>
-<span id="379">379</span>
-<span id="380">380</span>
-<span id="381">381</span>
-<span id="382">382</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>};
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{
     <span class="ident">DrawRoadLabels</span>, <span class="ident">InputWaypoints</span>, <span class="ident">TripManagement</span>, <span class="ident">TripManagementState</span>, <span class="ident">WaypointID</span>,
@@ -520,20 +512,19 @@
             <span class="ident">params</span>.<span class="ident">main_road_penalty</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">main_road_penalty</span>;
 
             <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>().<span class="ident">windows</span>(<span class="number">2</span>) {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">path</span>, <span class="ident">pl</span>)) <span class="op">=</span>
-                    <span class="ident">TripEndpoint::path_req</span>(<span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>], <span class="ident">TripMode::Drive</span>, <span class="ident">map</span>)
-                        .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> {
-                            <span class="self">self</span>.<span class="ident">pathfinder_cache</span>
-                                .<span class="ident">pathfind_with_params</span>(<span class="ident">map</span>, <span class="ident">req</span>, <span class="ident">params</span>.<span class="ident">clone</span>())
-                        })
-                        .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> <span class="ident">path</span>.<span class="ident">into_v1</span>(<span class="ident">map</span>).<span class="ident">ok</span>())
-                        .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> <span class="ident">path</span>.<span class="ident">trace</span>(<span class="ident">map</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">pl</span><span class="op">|</span> (<span class="ident">path</span>, <span class="ident">pl</span>)))
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">TripEndpoint::path_req</span>(<span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>], <span class="ident">TripMode::Drive</span>, <span class="ident">map</span>)
+                    .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> {
+                        <span class="self">self</span>.<span class="ident">pathfinder_cache</span>
+                            .<span class="ident">pathfind_with_params</span>(<span class="ident">map</span>, <span class="ident">req</span>, <span class="ident">params</span>.<span class="ident">clone</span>())
+                    })
                 {
-                    <span class="kw">let</span> <span class="ident">shape</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">make_polygons</span>(<span class="number">5.0</span> <span class="op">*</span> <span class="ident">NORMAL_LANE_THICKNESS</span>);
-                    <span class="ident">draw</span>.<span class="ident">unzoomed</span>.<span class="ident">push</span>(<span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>), <span class="ident">shape</span>.<span class="ident">clone</span>());
-                    <span class="ident">draw</span>.<span class="ident">zoomed</span>.<span class="ident">push</span>(<span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="ident">shape</span>);
-
-                    <span class="ident">total_time</span> <span class="op">+</span><span class="op">=</span> <span class="ident">path</span>.<span class="ident">estimate_duration</span>(<span class="ident">map</span>, <span class="prelude-val">None</span>);
+                    <span class="kw">let</span> <span class="ident">cost</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">get_cost</span>();
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pl</span>) <span class="op">=</span> <span class="ident">path</span>.<span class="ident">into_v1</span>(<span class="ident">map</span>).<span class="ident">ok</span>().<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> <span class="ident">path</span>.<span class="ident">trace</span>(<span class="ident">map</span>)) {
+                        <span class="kw">let</span> <span class="ident">shape</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">make_polygons</span>(<span class="number">5.0</span> <span class="op">*</span> <span class="ident">NORMAL_LANE_THICKNESS</span>);
+                        <span class="ident">draw</span>.<span class="ident">unzoomed</span>.<span class="ident">push</span>(<span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>), <span class="ident">shape</span>.<span class="ident">clone</span>());
+                        <span class="ident">draw</span>.<span class="ident">zoomed</span>.<span class="ident">push</span>(<span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="ident">shape</span>);
+                        <span class="ident">total_time</span> <span class="op">+</span><span class="op">=</span> <span class="ident">cost</span>;
+                    }
                 }
             }
 
@@ -550,26 +541,19 @@
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw_after</span> <span class="op">=</span> <span class="ident">ToggleZoomed::builder</span>();
             <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">colors::PLAN_ROUTE_AFTER</span>;
             <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>().<span class="ident">windows</span>(<span class="number">2</span>) {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">path</span>, <span class="ident">pl</span>)) <span class="op">=</span>
-                    <span class="ident">TripEndpoint::path_req</span>(<span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>], <span class="ident">TripMode::Drive</span>, <span class="ident">map</span>)
-                        .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> {
-                            <span class="self">self</span>.<span class="ident">pathfinder_cache</span>
-                                .<span class="ident">pathfind_with_params</span>(<span class="ident">map</span>, <span class="ident">req</span>, <span class="ident">params</span>.<span class="ident">clone</span>())
-                        })
-                        .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> <span class="ident">path</span>.<span class="ident">into_v1</span>(<span class="ident">map</span>).<span class="ident">ok</span>())
-                        .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> <span class="ident">path</span>.<span class="ident">trace</span>(<span class="ident">map</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">pl</span><span class="op">|</span> (<span class="ident">path</span>, <span class="ident">pl</span>)))
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">TripEndpoint::path_req</span>(<span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>], <span class="ident">TripMode::Drive</span>, <span class="ident">map</span>)
+                    .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> {
+                        <span class="self">self</span>.<span class="ident">pathfinder_cache</span>
+                            .<span class="ident">pathfind_with_params</span>(<span class="ident">map</span>, <span class="ident">req</span>, <span class="ident">params</span>.<span class="ident">clone</span>())
+                    })
                 {
-                    <span class="kw">let</span> <span class="ident">shape</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">make_polygons</span>(<span class="number">5.0</span> <span class="op">*</span> <span class="ident">NORMAL_LANE_THICKNESS</span>);
-                    <span class="ident">draw_after</span>.<span class="ident">unzoomed</span>.<span class="ident">push</span>(<span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>), <span class="ident">shape</span>.<span class="ident">clone</span>());
-                    <span class="ident">draw_after</span>.<span class="ident">zoomed</span>.<span class="ident">push</span>(<span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="ident">shape</span>);
-
-                    <span class="comment">// We use PathV1 (lane-based) for tracing. It doesn&#39;t preserve the cost</span>
-                    <span class="comment">// calculated while pathfinding, so just estimate_duration.</span>
-                    <span class="comment">//</span>
-                    <span class="comment">// The original reason for using estimate_duration here was to exclude the large</span>
-                    <span class="comment">// penalty if the route crossed a filter. But now that&#39;s impossible at the</span>
-                    <span class="comment">// pathfinding layer.</span>
-                    <span class="ident">total_time</span> <span class="op">+</span><span class="op">=</span> <span class="ident">path</span>.<span class="ident">estimate_duration</span>(<span class="ident">map</span>, <span class="prelude-val">None</span>);
+                    <span class="kw">let</span> <span class="ident">cost</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">get_cost</span>();
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pl</span>) <span class="op">=</span> <span class="ident">path</span>.<span class="ident">into_v1</span>(<span class="ident">map</span>).<span class="ident">ok</span>().<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> <span class="ident">path</span>.<span class="ident">trace</span>(<span class="ident">map</span>)) {
+                        <span class="kw">let</span> <span class="ident">shape</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">make_polygons</span>(<span class="number">5.0</span> <span class="op">*</span> <span class="ident">NORMAL_LANE_THICKNESS</span>);
+                        <span class="ident">draw_after</span>.<span class="ident">unzoomed</span>.<span class="ident">push</span>(<span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>), <span class="ident">shape</span>.<span class="ident">clone</span>());
+                        <span class="ident">draw_after</span>.<span class="ident">zoomed</span>.<span class="ident">push</span>(<span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="ident">shape</span>);
+                        <span class="ident">total_time</span> <span class="op">+</span><span class="op">=</span> <span class="ident">cost</span>;
+                    }
                 }
             }
             <span class="comment">// To simplify colors, don&#39;t draw this path when it&#39;s the same as the baseline</span>
