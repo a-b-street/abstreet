@@ -13,6 +13,7 @@ use crate::AppLike;
 pub struct InputWaypoints {
     waypoints: Vec<Waypoint>,
     snap_to_endpts: FindClosest<TripEndpoint>,
+    max_waypts: Option<usize>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
@@ -26,6 +27,7 @@ struct Waypoint {
 }
 
 impl InputWaypoints {
+    /// Allows any number of waypoints
     pub fn new(app: &dyn AppLike) -> InputWaypoints {
         let map = app.map();
         let mut snap_to_endpts = FindClosest::new(map.get_bounds());
@@ -41,7 +43,16 @@ impl InputWaypoints {
         InputWaypoints {
             waypoints: Vec::new(),
             snap_to_endpts,
+            max_waypts: None,
         }
+    }
+
+    /// Only allow drawing routes with 2 waypoints. If a route is loaded with more than that, it
+    /// can be modified.
+    pub fn new_max_2(app: &dyn AppLike) -> Self {
+        let mut i = Self::new(app);
+        i.max_waypts = Some(2);
+        i
     }
 
     /// The caller should call `rebuild_world` after this
@@ -145,6 +156,9 @@ impl InputWaypoints {
     ) -> bool {
         match world_outcome {
             WorldOutcome::ClickedFreeSpace(pt) => {
+                if Some(self.waypoints.len()) == self.max_waypts {
+                    return false;
+                }
                 if let Some((at, _)) = self.snap_to_endpts.closest_pt(pt, Distance::meters(30.0)) {
                     self.waypoints.push(Waypoint::new(app, at));
                     return true;

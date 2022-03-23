@@ -46,7 +46,7 @@ impl RoutePlanner {
         let mut rp = RoutePlanner {
             top_panel: crate::common::app_top_panel(ctx, app),
             left_panel: Panel::empty(ctx),
-            waypoints: InputWaypoints::new(app),
+            waypoints: InputWaypoints::new_max_2(app),
             files: TripManagement::new(app),
             world: World::unbounded(),
             draw_routes: ToggleZoomed::empty(ctx),
