@@ -136,20 +136,19 @@ impl RoutePlanner {
             params.main_road_penalty = app.session.main_road_penalty;
 
             for pair in self.waypoints.get_waypoints().windows(2) {
-                if let Some((path, pl)) =
-                    TripEndpoint::path_req(pair[0], pair[1], TripMode::Drive, map)
-                        .and_then(|req| {
-                            self.pathfinder_cache
-                                .pathfind_with_params(map, req, params.clone())
-                        })
-                        .and_then(|path| path.into_v1(map).ok())
-                        .and_then(|path| path.trace(map).map(|pl| (path, pl)))
+                if let Some(path) = TripEndpoint::path_req(pair[0], pair[1], TripMode::Drive, map)
+                    .and_then(|req| {
+                        self.pathfinder_cache
+                            .pathfind_with_params(map, req, params.clone())
+                    })
                 {
-                    let shape = pl.make_polygons(5.0 * NORMAL_LANE_THICKNESS);
-                    draw.unzoomed.push(color.alpha(0.8), shape.clone());
-                    draw.zoomed.push(color.alpha(0.5), shape);
-
-                    total_time += path.estimate_duration(map, None);
+                    let cost = path.get_cost();
+                    if let Some(pl) = path.into_v1(map).ok().and_then(|path| path.trace(map)) {
+                        let shape = pl.make_polygons(5.0 * NORMAL_LANE_THICKNESS);
+                        draw.unzoomed.push(color.alpha(0.8), shape.clone());
+                        draw.zoomed.push(color.alpha(0.5), shape);
+                        total_time += cost;
+                    }
                 }
             }
 
@@ -166,26 +165,19 @@ impl RoutePlanner {
             let mut draw_after = ToggleZoomed::builder();
             let color = *colors::PLAN_ROUTE_AFTER;
             for pair in self.waypoints.get_waypoints().windows(2) {
-                if let Some((path, pl)) =
-                    TripEndpoint::path_req(pair[0], pair[1], TripMode::Drive, map)
-                        .and_then(|req| {
-                            self.pathfinder_cache
-                                .pathfind_with_params(map, req, params.clone())
-                        })
-                        .and_then(|path| path.into_v1(map).ok())
-                        .and_then(|path| path.trace(map).map(|pl| (path, pl)))
+                if let Some(path) = TripEndpoint::path_req(pair[0], pair[1], TripMode::Drive, map)
+                    .and_then(|req| {
+                        self.pathfinder_cache
+                            .pathfind_with_params(map, req, params.clone())
+                    })
                 {
-                    let shape = pl.make_polygons(5.0 * NORMAL_LANE_THICKNESS);
-                    draw_after.unzoomed.push(color.alpha(0.8), shape.clone());
-                    draw_after.zoomed.push(color.alpha(0.5), shape);
-
-                    // We use PathV1 (lane-based) for tracing. It doesn't preserve the cost
-                    // calculated while pathfinding, so just estimate_duration.
-                    //
-                    // The original reason for using estimate_duration here was to exclude the large
-                    // penalty if the route crossed a filter. But now that's impossible at the
-                    // pathfinding layer.
-                    total_time += path.estimate_duration(map, None);
+                    let cost = path.get_cost();
+                    if let Some(pl) = path.into_v1(map).ok().and_then(|path| path.trace(map)) {
+                        let shape = pl.make_polygons(5.0 * NORMAL_LANE_THICKNESS);
+                        draw_after.unzoomed.push(color.alpha(0.8), shape.clone());
+                        draw_after.zoomed.push(color.alpha(0.5), shape);
+                        total_time += cost;
+                    }
                 }
             }
             // To simplify colors, don't draw this path when it's the same as the baseline
