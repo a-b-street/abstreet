@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["help",""]],"struct":[["RoutePlanner",""]]});
+initSidebarItems({"fn":[["card",""],["help",""]],"struct":[["RoutePlanner",""]]});

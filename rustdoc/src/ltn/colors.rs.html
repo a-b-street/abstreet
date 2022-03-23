@@ -42,6 +42,8 @@
 <span id="40">40</span>
 <span id="41">41</span>
 <span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">widgetry::Color</span>;
 
 <span class="macro">lazy_static::lazy_static!</span> {
@@ -67,6 +69,11 @@
 
     <span class="kw">pub</span> <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">FILTER_OUTER</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::RED</span>;
     <span class="kw">pub</span> <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">FILTER_INNER</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::WHITE</span>;
+
+    <span class="kw">pub</span> <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">PLAN_ROUTE_BEFORE</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::RED</span>;
+    <span class="kw">pub</span> <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">PLAN_ROUTE_AFTER</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::CYAN</span>;
+    <span class="kw">pub</span> <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">PLAN_ROUTE_BIKE</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::GREEN</span>;
+    <span class="kw">pub</span> <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">PLAN_ROUTE_WALK</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::BLUE</span>;
 }
 
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">CAR_FREE_CELL</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::GREEN</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>);
@@ -81,9 +88,6 @@
 
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">BLOCK_IN_BOUNDARY</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::BLUE</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>);
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">BLOCK_IN_FRONTIER</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::CYAN</span>.<span class="ident">alpha</span>(<span class="number">0.2</span>);
-
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">PLAN_ROUTE_BEFORE</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::BLUE</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">PLAN_ROUTE_AFTER</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::RED</span>;
 </code></pre></div>
 </section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ltn" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.59.0 (9d1b2106e 2022-02-23)" ></div>
 </body></html>

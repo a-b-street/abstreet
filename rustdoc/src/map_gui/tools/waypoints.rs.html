@@ -264,6 +264,20 @@
 <span id="262">262</span>
 <span id="263">263</span>
 <span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">synthpop::TripEndpoint</span>;
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ObjectID</span>, <span class="ident">World</span>, <span class="ident">WorldOutcome</span>};
@@ -279,6 +293,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">InputWaypoints</span> {
     <span class="ident">waypoints</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Waypoint</span><span class="op">&gt;</span>,
     <span class="ident">snap_to_endpts</span>: <span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">TripEndpoint</span><span class="op">&gt;</span>,
+    <span class="ident">max_waypts</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>)]</span>
@@ -292,6 +307,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">InputWaypoints</span> {
+    <span class="doccomment">/// Allows any number of waypoints</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>) -&gt; <span class="ident">InputWaypoints</span> {
         <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">snap_to_endpts</span> <span class="op">=</span> <span class="ident">FindClosest::new</span>(<span class="ident">map</span>.<span class="ident">get_bounds</span>());
@@ -307,7 +323,16 @@
         <span class="ident">InputWaypoints</span> {
             <span class="ident">waypoints</span>: <span class="ident">Vec::new</span>(),
             <span class="ident">snap_to_endpts</span>,
+            <span class="ident">max_waypts</span>: <span class="prelude-val">None</span>,
         }
+    }
+
+    <span class="doccomment">/// Only allow drawing routes with 2 waypoints. If a route is loaded with more than that, it</span>
+    <span class="doccomment">/// can be modified.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_max_2</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>) -&gt; <span class="self">Self</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">app</span>);
+        <span class="ident">i</span>.<span class="ident">max_waypts</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="number">2</span>);
+        <span class="ident">i</span>
     }
 
     <span class="doccomment">/// The caller should call `rebuild_world` after this</span>
@@ -411,6 +436,9 @@
     ) -&gt; <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="ident">world_outcome</span> {
             <span class="ident">WorldOutcome::ClickedFreeSpace</span>(<span class="ident">pt</span>) =&gt; {
+                <span class="kw">if</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">len</span>()) <span class="op">==</span> <span class="self">self</span>.<span class="ident">max_waypts</span> {
+                    <span class="kw">return</span> <span class="bool-val">false</span>;
+                }
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">at</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">snap_to_endpts</span>.<span class="ident">closest_pt</span>(<span class="ident">pt</span>, <span class="ident">Distance::meters</span>(<span class="number">30.0</span>)) {
                     <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">push</span>(<span class="ident">Waypoint::new</span>(<span class="ident">app</span>, <span class="ident">at</span>));
                     <span class="kw">return</span> <span class="bool-val">true</span>;

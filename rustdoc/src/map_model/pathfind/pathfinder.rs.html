@@ -324,6 +324,34 @@
 <span id="322">322</span>
 <span id="323">323</span>
 <span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
@@ -361,8 +389,7 @@
 
 <span class="doccomment">/// When pathfinding with different `RoutingParams` is done, a temporary pathfinder must be</span>
 <span class="doccomment">/// created. This specifies what type of pathfinder and whether to cache it.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// `clear_custom_pathfinder_cache` can be used to later clean up any cached pathfinders.</span>
+<span class="comment">// TODO Deprecated</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">PathfinderCaching</span> {
     <span class="doccomment">/// Create a fast-to-build but slow-to-use Dijkstra-based pathfinder and don&#39;t cache it</span>
@@ -587,14 +614,6 @@
         <span class="ident">result</span>
     }
 
-    <span class="comment">// TODO Deprecated</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_custom_pathfinder_cache</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">cached_alternatives</span>
-            .<span class="ident">get_or</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">RefCell::new</span>(<span class="ident">VecMap::new</span>()))
-            .<span class="ident">borrow_mut</span>()
-            .<span class="ident">clear</span>();
-    }
-
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_costs_from</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">req</span>: <span class="ident">PathRequest</span>,
@@ -646,6 +665,43 @@
         <span class="self">self</span>.<span class="ident">walking_with_transit_graph</span>
             .<span class="ident">apply_edits</span>(<span class="ident">map</span>, <span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bus_graph</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">train_graph</span>)));
         <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;apply edits to pedestrian using transit pathfinding&quot;</span>);
+    }
+}
+
+<span class="doccomment">/// For callers needing to request paths with a variety of RoutingParams. The caller is in charge</span>
+<span class="doccomment">/// of the lifetime, so they can clear it out when appropriate.</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PathfinderCache</span> {
+    <span class="ident">cache</span>: <span class="ident">VecMap</span><span class="op">&lt;</span>(<span class="ident">PathConstraints</span>, <span class="ident">RoutingParams</span>), <span class="ident">Pathfinder</span><span class="op">&gt;</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">PathfinderCache</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
+        <span class="self">Self</span> {
+            <span class="ident">cache</span>: <span class="ident">VecMap::new</span>(),
+        }
+    }
+
+    <span class="doccomment">/// New pathfinders will be created as-needed using Dijkstra&#39;s, no spammy logging</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pathfind_with_params</span>(
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
+        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
+        <span class="ident">req</span>: <span class="ident">PathRequest</span>,
+        <span class="ident">params</span>: <span class="ident">RoutingParams</span>,
+    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathV2</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pathfinder</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">cache</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span>(<span class="ident">req</span>.<span class="ident">constraints</span>, <span class="ident">params</span>.<span class="ident">clone</span>())) {
+            <span class="kw">return</span> <span class="ident">pathfinder</span>.<span class="ident">pathfind_v2</span>(<span class="ident">req</span>, <span class="ident">map</span>);
+        }
+
+        <span class="kw">let</span> <span class="ident">pathfinder</span> <span class="op">=</span> <span class="ident">Pathfinder::new_limited</span>(
+            <span class="ident">map</span>,
+            <span class="ident">params</span>.<span class="ident">clone</span>(),
+            <span class="ident">CreateEngine::Dijkstra</span>,
+            <span class="macro">vec!</span>[<span class="ident">req</span>.<span class="ident">constraints</span>],
+            <span class="kw-2">&amp;mut</span> <span class="ident">Timer::throwaway</span>(),
+        );
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">pathfinder</span>.<span class="ident">pathfind_v2</span>(<span class="ident">req</span>.<span class="ident">clone</span>(), <span class="ident">map</span>);
+        <span class="self">self</span>.<span class="ident">cache</span>.<span class="ident">push</span>((<span class="ident">req</span>.<span class="ident">constraints</span>, <span class="ident">params</span>), <span class="ident">pathfinder</span>);
+        <span class="ident">result</span>
     }
 }
 </code></pre></div>

@@ -241,7 +241,7 @@
 <span class="kw">use</span> <span class="ident">geom::Duration</span>;
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::engine::CreateEngine</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::pathfinder</span>::{<span class="ident">Pathfinder</span>, <span class="ident">PathfinderCaching</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::pathfinder</span>::{<span class="ident">Pathfinder</span>, <span class="ident">PathfinderCache</span>, <span class="ident">PathfinderCaching</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::v1</span>::{<span class="ident">Path</span>, <span class="ident">PathRequest</span>, <span class="ident">PathStep</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::v2</span>::{<span class="ident">PathStepV2</span>, <span class="ident">PathV2</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::vehicles::vehicle_cost</span>;
@@ -397,7 +397,7 @@
 <span class="doccomment">/// Tuneable parameters for all types of routing.</span>
 <span class="comment">// These will maybe become part of the PathRequest later, but that&#39;s an extremely invasive and</span>
 <span class="comment">// space-expensive change right now.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RoutingParams</span> {
     <span class="comment">// For all vehicles. This is added to the cost of a movement as an additional delay.</span>
     <span class="kw">pub</span> <span class="ident">unprotected_turn_penalty</span>: <span class="ident">Duration</span>,
