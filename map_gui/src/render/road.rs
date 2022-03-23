@@ -1,6 +1,6 @@
 use std::cell::RefCell;
 
-use geom::{Distance, Polygon, Pt2D};
+use geom::{Distance, PolyLine, Polygon, Pt2D};
 use map_model::{Building, LaneType, Map, Road, RoadID, NORMAL_LANE_THICKNESS};
 use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 
@@ -91,24 +91,22 @@ impl DrawRoad {
                     app.cs()
                         .zoomed_road_surface(LaneType::Driving, r.get_rank())
                 };
-
-                if false {
-                    // TODO Not ready yet
+                // TODO: find a good way to draw an appropriate background
+                if r.center_pts.quadrant() > 1 && r.center_pts.quadrant() < 4 {
+                    println!("quadrant: {}", r.center_pts.quadrant().to_string());
+                    println!("name: {}", r.get_name(None));
+                    batch.append(Line(name).fg(center_line_color).render_curvey(
+                        prerender,
+                        &r.center_pts.reversed(),
+                        0.1,
+                    ));
+                } else {
                     batch.append(Line(name).fg(center_line_color).render_curvey(
                         prerender,
                         &r.center_pts,
                         0.1,
                     ));
-                } else {
-                    let txt = Text::from(Line(name).fg(center_line_color)).bg(bg);
-                    let (pt, angle) = r.center_pts.must_dist_along(r.length() / 2.0);
-                    batch.append(
-                        txt.render_autocropped(prerender)
-                            .scale(0.1)
-                            .centered_on(pt)
-                            .rotate_around_batch_center(angle.reorient()),
-                    );
-                }
+                };
             }
         }
 
