@@ -92,21 +92,15 @@ impl DrawRoad {
                         .zoomed_road_surface(LaneType::Driving, r.get_rank())
                 };
                 // TODO: find a good way to draw an appropriate background
-                if r.center_pts.quadrant() > 1 && r.center_pts.quadrant() < 4 {
-                    println!("quadrant: {}", r.center_pts.quadrant().to_string());
-                    println!("name: {}", r.get_name(None));
+
+                    let path_reversed = r.center_pts.reversed();
                     batch.append(Line(name).fg(center_line_color).render_curvey(
                         prerender,
-                        &r.center_pts.reversed(),
+                        if r.center_pts.quadrant() > 1 && r.center_pts.quadrant() < 4 { &path_reversed  } else { &r.center_pts },
                         0.1,
                     ));
-                } else {
-                    batch.append(Line(name).fg(center_line_color).render_curvey(
-                        prerender,
-                        &r.center_pts,
-                        0.1,
-                    ));
-                };
+
+
             }
         }
 

@@ -6,7 +6,7 @@ use enumset::EnumSet;
 use serde::{Deserialize, Serialize};
 
 use abstutil::{deserialize_usize, serialize_usize, Tags};
-use geom::{Distance, PolyLine, Polygon, Speed, Pt2D};
+use geom::{Distance, PolyLine, Polygon, Speed};
 use raw_map::Direction;
 
 use crate::raw::{OriginalRoad, RestrictionType};
