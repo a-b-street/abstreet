@@ -619,6 +619,12 @@
 <span id="617">617</span>
 <span id="618">618</span>
 <span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
+<span id="622">622</span>
+<span id="623">623</span>
+<span id="624">624</span>
+<span id="625">625</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 <span class="kw">use</span> <span class="ident">std::fmt::Debug</span>;
 <span class="kw">use</span> <span class="ident">std::hash::Hash</span>;
@@ -854,6 +860,12 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clickable</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="self">Self</span> {
         <span class="macro">assert!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">clickable</span>, <span class="string">&quot;called clickable twice&quot;</span>);
         <span class="self">self</span>.<span class="ident">clickable</span> <span class="op">=</span> <span class="bool-val">true</span>;
+        <span class="self">self</span>
+    }
+
+    <span class="doccomment">/// Mark the object as clickable or not. `WorldOutcome::ClickedObject` will be fired.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_clickable</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">clickable</span>: <span class="ident">bool</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">clickable</span> <span class="op">=</span> <span class="ident">clickable</span>;
         <span class="self">self</span>
     }
 

@@ -77,6 +77,8 @@
 <span id="75">75</span>
 <span id="76">76</span>
 <span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools::compare_counts</span>::{<span class="ident">CompareCounts</span>, <span class="ident">Layer</span>};
 <span class="kw">use</span> <span class="ident">synthpop::TrafficCounts</span>;
@@ -113,7 +115,9 @@
                 <span class="kw">return</span> <span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;Error&quot;</span>, <span class="macro">vec!</span>[<span class="ident">err</span>.<span class="ident">to_string</span>()]);
             }
         };
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">compare</span> <span class="op">=</span> <span class="ident">CompareCounts::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">counts_a</span>, <span class="ident">counts_b</span>, <span class="ident">Layer::A</span>);
+        <span class="kw">let</span> <span class="ident">clickable_roads</span> <span class="op">=</span> <span class="bool-val">false</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">compare</span> <span class="op">=</span>
+            <span class="ident">CompareCounts::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">counts_a</span>, <span class="ident">counts_b</span>, <span class="ident">Layer::A</span>, <span class="ident">clickable_roads</span>);
         <span class="ident">compare</span>.<span class="ident">autoselect_layer</span>();
 
         <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[

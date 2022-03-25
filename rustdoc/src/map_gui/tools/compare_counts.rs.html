@@ -291,11 +291,16 @@
 <span id="289">289</span>
 <span id="290">290</span>
 <span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">abstutil::prettyprint_usize</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Histogram</span>, <span class="ident">Statistic</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">RoadID</span>};
 <span class="kw">use</span> <span class="ident">synthpop::TrafficCounts</span>;
-<span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ObjectID</span>, <span class="ident">ToggleZoomed</span>, <span class="ident">ToggleZoomedBuilder</span>, <span class="ident">World</span>};
+<span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ObjectID</span>, <span class="ident">ToggleZoomed</span>, <span class="ident">ToggleZoomedBuilder</span>, <span class="ident">World</span>, <span class="ident">WorldOutcome</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::tools</span>::{<span class="ident">cmp_count</span>, <span class="ident">ColorNetwork</span>, <span class="ident">DivergingScale</span>};
@@ -332,6 +337,7 @@
         <span class="ident">counts_a</span>: <span class="ident">TrafficCounts</span>,
         <span class="ident">counts_b</span>: <span class="ident">TrafficCounts</span>,
         <span class="ident">layer</span>: <span class="ident">Layer</span>,
+        <span class="ident">clickable_roads</span>: <span class="ident">bool</span>,
     ) -&gt; <span class="ident">CompareCounts</span> {
         <span class="kw">let</span> <span class="ident">heatmap_a</span> <span class="op">=</span> <span class="ident">calculate_heatmap</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">counts_a</span>.<span class="ident">clone</span>());
         <span class="kw">let</span> <span class="ident">heatmap_b</span> <span class="op">=</span> <span class="ident">calculate_heatmap</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">counts_b</span>.<span class="ident">clone</span>());
@@ -339,7 +345,7 @@
 
         <span class="ident">CompareCounts</span> {
             <span class="ident">layer</span>,
-            <span class="ident">world</span>: <span class="ident">make_world</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+            <span class="ident">world</span>: <span class="ident">make_world</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">clickable_roads</span>),
             <span class="ident">counts_a</span>,
             <span class="ident">heatmap_a</span>,
             <span class="ident">counts_b</span>,
@@ -471,9 +477,12 @@
         <span class="ident">txt</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">other_event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) {
-        <span class="comment">// Just trigger hovering</span>
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">event</span>(<span class="ident">ctx</span>);
+    <span class="doccomment">/// If clickable_roads was enabled and a road was clicked, this returns the ID.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">other_event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span> {
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+            <span class="ident">WorldOutcome::ClickedObject</span>(<span class="ident">Obj::Road</span>(<span class="ident">r</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="ident">r</span>),
+            <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+        }
     }
 
     <span class="doccomment">/// If a button owned by this was clicked, returns the new widget to replace</span>
@@ -562,7 +571,7 @@
     <span class="ident">ToggleZoomedBuilder::from</span>(<span class="ident">draw_roads</span>).<span class="ident">build</span>(<span class="ident">ctx</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">make_world</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>) -&gt; <span class="ident">World</span><span class="op">&lt;</span><span class="ident">Obj</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">make_world</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>, <span class="ident">clickable_roads</span>: <span class="ident">bool</span>) -&gt; <span class="ident">World</span><span class="op">&lt;</span><span class="ident">Obj</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">world</span> <span class="op">=</span> <span class="ident">World::bounded</span>(<span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_bounds</span>());
     <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">all_roads</span>() {
         <span class="ident">world</span>
@@ -570,6 +579,7 @@
             .<span class="ident">hitbox</span>(<span class="ident">r</span>.<span class="ident">get_thick_polygon</span>())
             .<span class="ident">drawn_in_master_batch</span>()
             .<span class="ident">invisibly_hoverable</span>()
+            .<span class="ident">set_clickable</span>(<span class="ident">clickable_roads</span>)
             .<span class="ident">build</span>(<span class="ident">ctx</span>);
     }
     <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">all_intersections</span>() {

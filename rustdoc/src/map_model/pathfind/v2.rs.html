@@ -301,6 +301,13 @@
 <span id="299">299</span>
 <span id="300">300</span>
 <span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Structures related to the new road-based pathfinding</span>
 <span class="doccomment">//! (https://github.com/a-b-street/abstreet/issues/555) live here. When the transition is done,</span>
 <span class="doccomment">//! things here will probably move into pathfind/mod.rs.</span>
@@ -557,6 +564,13 @@
             });
         }
         <span class="prelude-val">Ok</span>(<span class="ident">Path::new</span>(<span class="ident">map</span>, <span class="ident">steps</span>, <span class="self">self</span>.<span class="ident">req</span>, <span class="ident">Vec::new</span>(), <span class="ident">Vec::new</span>()))
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">crosses_road</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">r</span>: <span class="ident">RoadID</span>) -&gt; <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">steps</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">step</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">step</span> {
+            <span class="ident">PathStepV2::Along</span>(<span class="ident">dr</span>) =&gt; <span class="ident">dr</span>.<span class="ident">road</span> <span class="op">==</span> <span class="ident">r</span>,
+            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
+        })
     }
 }
 
