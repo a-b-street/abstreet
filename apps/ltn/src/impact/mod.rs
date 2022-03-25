@@ -143,15 +143,39 @@ impl Impact {
         app.session.modal_filters.update_routing_params(&mut params);
         // Since we're making so many requests, it's worth it to rebuild a contraction hierarchy.
         // This depends on the current map edits, so no need to cache
-        let pathfinder = Pathfinder::new_ch(map, params, constraints.into_iter().collect(), timer);
-        TrafficCounts::from_path_requests(
+        let pathfinder_after =
+            Pathfinder::new_ch(map, params, constraints.into_iter().collect(), timer);
+
+        // We can't simply use TrafficCounts::from_path_requests. Due to spurious diffs with paths,
+        // we need to skip cases where the path before and after have the same cost. It's easiest
+        // (code-wise) to just repeat some calculation here.
+        let mut counts = TrafficCounts::from_path_requests(
             map,
             // Don't bother describing all the trip filtering
             "after filters".to_string(),
-            &self.filtered_trips,
-            &pathfinder,
+            &vec![],
+            &pathfinder_after,
             timer,
-        )
+        );
+
+        timer.start_iter("calculate routes", self.filtered_trips.len());
+        for (req, count) in &self.filtered_trips {
+            timer.next();
+            if let (Some(path1), Some(path2)) = (
+                map.get_pathfinder().pathfind_v2(req.clone(), map),
+                pathfinder_after.pathfind_v2(req.clone(), map),
+            ) {
+                if path1.get_cost() == path2.get_cost() {
+                    // When the path maybe changed but the cost is the same, just count it the same
+                    // as the original path
+                    counts.update_with_path(path1, *count, map);
+                } else {
+                    counts.update_with_path(path2, *count, map);
+                }
+            }
+        }
+
+        counts
     }
 
     /// Returns routes that start or stop crossing the given road. Returns paths (before filters,
@@ -185,6 +209,11 @@ impl Impact {
                 map.get_pathfinder().pathfind_v2(req.clone(), map),
                 pathfinder_after.pathfind_v2(req.clone(), map),
             ) {
+                // Skip spurious changes where the cost matches.
+                if path1.get_cost() == path2.get_cost() {
+                    continue;
+                }
+
                 if path1.crosses_road(r) != path2.crosses_road(r) {
                     if let (Ok(path1), Ok(path2)) = (path1.into_v1(map), path2.into_v1(map)) {
                         changed.push((path1, path2));
