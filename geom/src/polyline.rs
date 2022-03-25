@@ -123,8 +123,8 @@ impl PolyLine {
         PolyLine::must_new(pts)
     }
 
-    /// Returns the quadrant where the overall angle of this polyline (pointing from the first to last point) is in. Output between 0 and 3.
-
+    /// Returns the quadrant where the overall angle of this polyline (pointing from the first to
+    /// last point) is in. Output between 0 and 3.
     pub fn quadrant(&self) -> i64 {
         let line_angle: f64 = self.overall_angle().normalized_radians();
         let line_angle = (line_angle / (std::f64::consts::PI / 2.0)) as i64;

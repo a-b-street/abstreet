@@ -176,7 +176,6 @@ pub struct Road {
 
     /// Meaningless order
     pub transit_stops: BTreeSet<TransitStopID>,
-
 }
 
 impl Road {
