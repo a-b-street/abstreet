@@ -186,7 +186,6 @@ pub struct RoutingParams {
 
     /// When crossing an arterial or highway road, multiply the base cost by this penalty. When
     /// greater than 1, this will encourage routes to use local roads more.
-    #[serde(skip_serializing, skip_deserializing)]
     pub main_road_penalty: f64,
 
     /// Don't allow crossing these roads at all. Only affects vehicle routing, not pedestrian.
