@@ -202,6 +202,35 @@
 <span id="200">200</span>
 <span id="201">201</span>
 <span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
 </pre><pre class="rust"><code><span class="kw">mod</span> <span class="ident">ui</span>;
 
 <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
@@ -347,15 +376,39 @@
         <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">update_routing_params</span>(<span class="kw-2">&amp;mut</span> <span class="ident">params</span>);
         <span class="comment">// Since we&#39;re making so many requests, it&#39;s worth it to rebuild a contraction hierarchy.</span>
         <span class="comment">// This depends on the current map edits, so no need to cache</span>
-        <span class="kw">let</span> <span class="ident">pathfinder</span> <span class="op">=</span> <span class="ident">Pathfinder::new_ch</span>(<span class="ident">map</span>, <span class="ident">params</span>, <span class="ident">constraints</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>(), <span class="ident">timer</span>);
-        <span class="ident">TrafficCounts::from_path_requests</span>(
+        <span class="kw">let</span> <span class="ident">pathfinder_after</span> <span class="op">=</span>
+            <span class="ident">Pathfinder::new_ch</span>(<span class="ident">map</span>, <span class="ident">params</span>, <span class="ident">constraints</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>(), <span class="ident">timer</span>);
+
+        <span class="comment">// We can&#39;t simply use TrafficCounts::from_path_requests. Due to spurious diffs with paths,</span>
+        <span class="comment">// we need to skip cases where the path before and after have the same cost. It&#39;s easiest</span>
+        <span class="comment">// (code-wise) to just repeat some calculation here.</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">counts</span> <span class="op">=</span> <span class="ident">TrafficCounts::from_path_requests</span>(
             <span class="ident">map</span>,
             <span class="comment">// Don&#39;t bother describing all the trip filtering</span>
             <span class="string">&quot;after filters&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">filtered_trips</span>,
-            <span class="kw-2">&amp;</span><span class="ident">pathfinder</span>,
+            <span class="kw-2">&amp;</span><span class="macro">vec!</span>[],
+            <span class="kw-2">&amp;</span><span class="ident">pathfinder_after</span>,
             <span class="ident">timer</span>,
-        )
+        );
+
+        <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;calculate routes&quot;</span>, <span class="self">self</span>.<span class="ident">filtered_trips</span>.<span class="ident">len</span>());
+        <span class="kw">for</span> (<span class="ident">req</span>, <span class="ident">count</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">filtered_trips</span> {
+            <span class="ident">timer</span>.<span class="ident">next</span>();
+            <span class="kw">if</span> <span class="kw">let</span> (<span class="prelude-val">Some</span>(<span class="ident">path1</span>), <span class="prelude-val">Some</span>(<span class="ident">path2</span>)) <span class="op">=</span> (
+                <span class="ident">map</span>.<span class="ident">get_pathfinder</span>().<span class="ident">pathfind_v2</span>(<span class="ident">req</span>.<span class="ident">clone</span>(), <span class="ident">map</span>),
+                <span class="ident">pathfinder_after</span>.<span class="ident">pathfind_v2</span>(<span class="ident">req</span>.<span class="ident">clone</span>(), <span class="ident">map</span>),
+            ) {
+                <span class="kw">if</span> <span class="ident">path1</span>.<span class="ident">get_cost</span>() <span class="op">==</span> <span class="ident">path2</span>.<span class="ident">get_cost</span>() {
+                    <span class="comment">// When the path maybe changed but the cost is the same, just count it the same</span>
+                    <span class="comment">// as the original path</span>
+                    <span class="ident">counts</span>.<span class="ident">update_with_path</span>(<span class="ident">path1</span>, <span class="kw-2">*</span><span class="ident">count</span>, <span class="ident">map</span>);
+                } <span class="kw">else</span> {
+                    <span class="ident">counts</span>.<span class="ident">update_with_path</span>(<span class="ident">path2</span>, <span class="kw-2">*</span><span class="ident">count</span>, <span class="ident">map</span>);
+                }
+            }
+        }
+
+        <span class="ident">counts</span>
     }
 
     <span class="doccomment">/// Returns routes that start or stop crossing the given road. Returns paths (before filters,</span>
@@ -389,6 +442,11 @@
                 <span class="ident">map</span>.<span class="ident">get_pathfinder</span>().<span class="ident">pathfind_v2</span>(<span class="ident">req</span>.<span class="ident">clone</span>(), <span class="ident">map</span>),
                 <span class="ident">pathfinder_after</span>.<span class="ident">pathfind_v2</span>(<span class="ident">req</span>.<span class="ident">clone</span>(), <span class="ident">map</span>),
             ) {
+                <span class="comment">// Skip spurious changes where the cost matches.</span>
+                <span class="kw">if</span> <span class="ident">path1</span>.<span class="ident">get_cost</span>() <span class="op">==</span> <span class="ident">path2</span>.<span class="ident">get_cost</span>() {
+                    <span class="kw">continue</span>;
+                }
+
                 <span class="kw">if</span> <span class="ident">path1</span>.<span class="ident">crosses_road</span>(<span class="ident">r</span>) <span class="op">!</span><span class="op">=</span> <span class="ident">path2</span>.<span class="ident">crosses_road</span>(<span class="ident">r</span>) {
                     <span class="kw">if</span> <span class="kw">let</span> (<span class="prelude-val">Ok</span>(<span class="ident">path1</span>), <span class="prelude-val">Ok</span>(<span class="ident">path2</span>)) <span class="op">=</span> (<span class="ident">path1</span>.<span class="ident">into_v1</span>(<span class="ident">map</span>), <span class="ident">path2</span>.<span class="ident">into_v1</span>(<span class="ident">map</span>)) {
                         <span class="ident">changed</span>.<span class="ident">push</span>((<span class="ident">path1</span>, <span class="ident">path2</span>));
