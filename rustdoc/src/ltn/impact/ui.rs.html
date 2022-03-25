@@ -320,6 +320,17 @@
 <span id="318">318</span>
 <span id="319">319</span>
 <span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
 <span class="kw">use</span> <span class="ident">map_gui::tools::checkbox_per_mode</span>;
@@ -564,13 +575,22 @@
                         .<span class="ident">btn_prev</span>()
                         .<span class="ident">hotkey</span>(<span class="ident">Key::LeftArrow</span>)
                         .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;previous&quot;</span>),
-                    <span class="string">&quot;path X/Y&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;pointer&quot;</span>).<span class="ident">centered_vert</span>(),
+                    <span class="string">&quot;route X/Y&quot;</span>
+                        .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
+                        .<span class="ident">named</span>(<span class="string">&quot;pointer&quot;</span>)
+                        .<span class="ident">centered_vert</span>(),
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
                         .<span class="ident">btn_next</span>()
                         .<span class="ident">hotkey</span>(<span class="ident">Key::RightArrow</span>)
                         .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;next&quot;</span>),
                 ])
                 .<span class="ident">evenly_spaced</span>(),
+                <span class="ident">Line</span>(<span class="string">&quot;Route before any modal filters&quot;</span>)
+                    .<span class="ident">fg</span>(<span class="kw-2">*</span><span class="ident">colors::PLAN_ROUTE_BEFORE</span>)
+                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+                <span class="ident">Line</span>(<span class="string">&quot;Route after modal filters&quot;</span>)
+                    .<span class="ident">fg</span>(<span class="kw-2">*</span><span class="ident">colors::PLAN_ROUTE_AFTER</span>)
+                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             ]))
             .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Center</span>, <span class="ident">VerticalAlignment::Top</span>)
             .<span class="ident">build</span>(<span class="ident">ctx</span>),
@@ -586,7 +606,7 @@
         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(
             <span class="ident">ctx</span>,
             <span class="string">&quot;pointer&quot;</span>,
-            <span class="macro">format!</span>(<span class="string">&quot;path {}/{}&quot;</span>, <span class="self">self</span>.<span class="ident">current</span> <span class="op">+</span> <span class="number">1</span>, <span class="self">self</span>.<span class="ident">paths</span>.<span class="ident">len</span>()).<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
+            <span class="macro">format!</span>(<span class="string">&quot;route {}/{}&quot;</span>, <span class="self">self</span>.<span class="ident">current</span> <span class="op">+</span> <span class="number">1</span>, <span class="self">self</span>.<span class="ident">paths</span>.<span class="ident">len</span>()).<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
         );
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
@@ -601,6 +621,8 @@
                 <span class="kw-2">*</span><span class="ident">colors::PLAN_ROUTE_AFTER</span>,
                 <span class="ident">pl</span>.<span class="ident">make_polygons</span>(<span class="number">5.0</span> <span class="op">*</span> <span class="ident">NORMAL_LANE_THICKNESS</span>),
             );
+            <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">map_gui::tools::start_marker</span>(<span class="ident">ctx</span>, <span class="ident">pl</span>.<span class="ident">first_pt</span>(), <span class="number">2.0</span>));
+            <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">map_gui::tools::goal_marker</span>(<span class="ident">ctx</span>, <span class="ident">pl</span>.<span class="ident">last_pt</span>(), <span class="number">2.0</span>));
         }
         <span class="self">self</span>.<span class="ident">draw_paths</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>);
     }
