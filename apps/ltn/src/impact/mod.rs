@@ -6,7 +6,7 @@ use abstio::MapName;
 use abstutil::Timer;
 use geom::{Duration, Time};
 use map_gui::tools::compare_counts::CompareCounts;
-use map_model::{PathConstraints, PathRequest, Pathfinder};
+use map_model::{Path, PathConstraints, PathRequest, Pathfinder, RoadID};
 use synthpop::{Scenario, TrafficCounts, TripEndpoint, TripMode};
 use widgetry::EventCtx;
 
@@ -113,8 +113,15 @@ impl Impact {
 
         let counts_b = self.counts_b(app, timer);
 
-        self.compare_counts =
-            CompareCounts::new(ctx, app, counts_a, counts_b, self.compare_counts.layer);
+        let clickable_roads = true;
+        self.compare_counts = CompareCounts::new(
+            ctx,
+            app,
+            counts_a,
+            counts_b,
+            self.compare_counts.layer,
+            clickable_roads,
+        );
     }
 
     fn map_edits_changed(&mut self, ctx: &mut EventCtx, app: &App, timer: &mut Timer) {
@@ -145,6 +152,47 @@ impl Impact {
             &pathfinder,
             timer,
         )
+    }
+
+    /// Returns routes that start or stop crossing the given road. Returns paths (before filters,
+    /// after)
+    pub fn find_changed_routes(
+        &self,
+        app: &App,
+        r: RoadID,
+        timer: &mut Timer,
+    ) -> Vec<(Path, Path)> {
+        let map = &app.map;
+        // TODO Cache the pathfinder. It depends both on the change_key and modes belonging to
+        // filtered_trips.
+        let pathfinder_after = {
+            let constraints: BTreeSet<PathConstraints> = self
+                .filters
+                .modes
+                .iter()
+                .map(|m| m.to_constraints())
+                .collect();
+            let mut params = map.routing_params().clone();
+            app.session.modal_filters.update_routing_params(&mut params);
+            Pathfinder::new_ch(map, params, constraints.into_iter().collect(), timer)
+        };
+
+        let mut changed = Vec::new();
+        timer.start_iter("find changed routes", self.filtered_trips.len());
+        for (req, _) in &self.filtered_trips {
+            timer.next();
+            if let (Some(path1), Some(path2)) = (
+                map.get_pathfinder().pathfind_v2(req.clone(), map),
+                pathfinder_after.pathfind_v2(req.clone(), map),
+            ) {
+                if path1.crosses_road(r) != path2.crosses_road(r) {
+                    if let (Ok(path1), Ok(path2)) = (path1.into_v1(map), path2.into_v1(map)) {
+                        changed.push((path1, path2));
+                    }
+                }
+            }
+        }
+        changed
     }
 }
 

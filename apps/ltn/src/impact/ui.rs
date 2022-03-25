@@ -1,15 +1,16 @@
 use std::collections::BTreeSet;
 
 use map_gui::tools::checkbox_per_mode;
+use map_model::{Path, NORMAL_LANE_THICKNESS};
 use synthpop::{Scenario, TripMode};
 use widgetry::tools::{FileLoader, PopupMsg};
 use widgetry::{
-    Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, Slider, State, Text, TextExt,
-    Toggle, Widget,
+    Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Slider,
+    State, Text, TextExt, Toggle, VerticalAlignment, Widget,
 };
 
 use crate::impact::{end_of_day, Filters, Impact};
-use crate::{App, BrowseNeighborhoods, Transition};
+use crate::{colors, App, BrowseNeighborhoods, Transition};
 
 // TODO Share structure or pieces with Ungap's predict mode
 // ... can't we just produce data of a certain shape, and have a UI pretty tuned for that?
@@ -134,7 +135,13 @@ impl State<App> for ShowResults {
             _ => {}
         }
 
-        app.session.impact.compare_counts.other_event(ctx);
+        if let Some(r) = app.session.impact.compare_counts.other_event(ctx) {
+            let results = ctx.loading_screen("find changed routes", |_, timer| {
+                app.session.impact.find_changed_routes(app, r, timer)
+            });
+            return Transition::Push(ChangedRoutes::new_state(ctx, app, results));
+        }
+
         Transition::Keep
     }
 
@@ -202,4 +209,112 @@ fn help() -> Vec<&'static str> {
         "",
         "And note this tool doesn't predict traffic dissipation as people decide to not drive.",
     ]
+}
+
+struct ChangedRoutes {
+    panel: Panel,
+    // TODO Not sure what to precompute. Smallest memory would be the PathRequest.
+    paths: Vec<(Path, Path)>,
+    current: usize,
+    draw_paths: Drawable,
+}
+
+impl ChangedRoutes {
+    fn new_state(ctx: &mut EventCtx, app: &App, paths: Vec<(Path, Path)>) -> Box<dyn State<App>> {
+        if paths.is_empty() {
+            return PopupMsg::new_state(
+                ctx,
+                "No changes",
+                vec!["No routes changed near this road"],
+            );
+        }
+
+        let mut state = ChangedRoutes {
+            panel: Panel::new_builder(Widget::col(vec![
+                Widget::row(vec![
+                    Line("Routes that changed near a road")
+                        .small_heading()
+                        .into_widget(ctx),
+                    ctx.style().btn_close_widget(ctx),
+                ]),
+                Widget::row(vec![
+                    ctx.style()
+                        .btn_prev()
+                        .hotkey(Key::LeftArrow)
+                        .build_widget(ctx, "previous"),
+                    "path X/Y".text_widget(ctx).named("pointer").centered_vert(),
+                    ctx.style()
+                        .btn_next()
+                        .hotkey(Key::RightArrow)
+                        .build_widget(ctx, "next"),
+                ])
+                .evenly_spaced(),
+            ]))
+            .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+            .build(ctx),
+            paths,
+            current: 0,
+            draw_paths: Drawable::empty(ctx),
+        };
+        state.recalculate(ctx, app);
+        Box::new(state)
+    }
+
+    fn recalculate(&mut self, ctx: &mut EventCtx, app: &App) {
+        self.panel.replace(
+            ctx,
+            "pointer",
+            format!("path {}/{}", self.current + 1, self.paths.len()).text_widget(ctx),
+        );
+
+        let mut batch = GeomBatch::new();
+        if let Some(pl) = self.paths[self.current].0.trace(&app.map) {
+            batch.push(
+                *colors::PLAN_ROUTE_BEFORE,
+                pl.make_polygons(5.0 * NORMAL_LANE_THICKNESS),
+            );
+        }
+        if let Some(pl) = self.paths[self.current].1.trace(&app.map) {
+            batch.push(
+                *colors::PLAN_ROUTE_AFTER,
+                pl.make_polygons(5.0 * NORMAL_LANE_THICKNESS),
+            );
+        }
+        self.draw_paths = ctx.upload(batch);
+    }
+}
+
+impl State<App> for ChangedRoutes {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        ctx.canvas_movement();
+
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            match x.as_ref() {
+                "close" => {
+                    return Transition::Pop;
+                }
+                "previous" => {
+                    if self.current != 0 {
+                        self.current -= 1;
+                    }
+                    self.recalculate(ctx, app);
+                }
+                "next" => {
+                    if self.current != self.paths.len() - 1 {
+                        self.current += 1;
+                    }
+                    self.recalculate(ctx, app);
+                }
+                _ => unreachable!(),
+            }
+        }
+
+        Transition::Keep
+    }
+
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        self.panel.draw(g);
+        g.redraw(&self.draw_paths);
+        app.session.draw_all_filters.draw(g);
+    }
 }

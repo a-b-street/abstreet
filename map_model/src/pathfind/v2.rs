@@ -255,6 +255,13 @@ impl PathV2 {
         }
         Ok(Path::new(map, steps, self.req, Vec::new(), Vec::new()))
     }
+
+    pub fn crosses_road(&self, r: RoadID) -> bool {
+        self.steps.iter().any(|step| match step {
+            PathStepV2::Along(dr) => dr.road == r,
+            _ => false,
+        })
+    }
 }
 
 fn find_uber_turns(

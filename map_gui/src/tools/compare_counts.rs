@@ -2,7 +2,7 @@ use abstutil::prettyprint_usize;
 use geom::{Distance, Histogram, Statistic};
 use map_model::{IntersectionID, RoadID};
 use synthpop::TrafficCounts;
-use widgetry::mapspace::{ObjectID, ToggleZoomed, ToggleZoomedBuilder, World};
+use widgetry::mapspace::{ObjectID, ToggleZoomed, ToggleZoomedBuilder, World, WorldOutcome};
 use widgetry::{Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Text, TextExt, Widget};
 
 use crate::tools::{cmp_count, ColorNetwork, DivergingScale};
@@ -39,6 +39,7 @@ impl CompareCounts {
         counts_a: TrafficCounts,
         counts_b: TrafficCounts,
         layer: Layer,
+        clickable_roads: bool,
     ) -> CompareCounts {
         let heatmap_a = calculate_heatmap(ctx, app, counts_a.clone());
         let heatmap_b = calculate_heatmap(ctx, app, counts_b.clone());
@@ -46,7 +47,7 @@ impl CompareCounts {
 
         CompareCounts {
             layer,
-            world: make_world(ctx, app),
+            world: make_world(ctx, app, clickable_roads),
             counts_a,
             heatmap_a,
             counts_b,
@@ -178,9 +179,12 @@ impl CompareCounts {
         txt
     }
 
-    pub fn other_event(&mut self, ctx: &mut EventCtx) {
-        // Just trigger hovering
-        let _ = self.world.event(ctx);
+    /// If clickable_roads was enabled and a road was clicked, this returns the ID.
+    pub fn other_event(&mut self, ctx: &mut EventCtx) -> Option<RoadID> {
+        match self.world.event(ctx) {
+            WorldOutcome::ClickedObject(Obj::Road(r)) => Some(r),
+            _ => None,
+        }
     }
 
     /// If a button owned by this was clicked, returns the new widget to replace
@@ -269,7 +273,7 @@ fn calculate_relative_heatmap(
     ToggleZoomedBuilder::from(draw_roads).build(ctx)
 }
 
-fn make_world(ctx: &mut EventCtx, app: &dyn AppLike) -> World<Obj> {
+fn make_world(ctx: &mut EventCtx, app: &dyn AppLike, clickable_roads: bool) -> World<Obj> {
     let mut world = World::bounded(app.map().get_bounds());
     for r in app.map().all_roads() {
         world
@@ -277,6 +281,7 @@ fn make_world(ctx: &mut EventCtx, app: &dyn AppLike) -> World<Obj> {
             .hitbox(r.get_thick_polygon())
             .drawn_in_master_batch()
             .invisibly_hoverable()
+            .set_clickable(clickable_roads)
             .build(ctx);
     }
     for i in app.map().all_intersections() {

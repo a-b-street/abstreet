@@ -236,6 +236,12 @@ impl<'a, ID: ObjectID> ObjectBuilder<'a, ID> {
         self
     }
 
+    /// Mark the object as clickable or not. `WorldOutcome::ClickedObject` will be fired.
+    pub fn set_clickable(mut self, clickable: bool) -> Self {
+        self.clickable = clickable;
+        self
+    }
+
     /// Mark the object as draggable. The user can hover on this object, then click and drag it.
     /// `WorldOutcome::Dragging` events will be fired.
     ///
