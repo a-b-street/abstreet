@@ -242,13 +242,22 @@ impl ChangedRoutes {
                         .btn_prev()
                         .hotkey(Key::LeftArrow)
                         .build_widget(ctx, "previous"),
-                    "path X/Y".text_widget(ctx).named("pointer").centered_vert(),
+                    "route X/Y"
+                        .text_widget(ctx)
+                        .named("pointer")
+                        .centered_vert(),
                     ctx.style()
                         .btn_next()
                         .hotkey(Key::RightArrow)
                         .build_widget(ctx, "next"),
                 ])
                 .evenly_spaced(),
+                Line("Route before any modal filters")
+                    .fg(*colors::PLAN_ROUTE_BEFORE)
+                    .into_widget(ctx),
+                Line("Route after modal filters")
+                    .fg(*colors::PLAN_ROUTE_AFTER)
+                    .into_widget(ctx),
             ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
@@ -264,7 +273,7 @@ impl ChangedRoutes {
         self.panel.replace(
             ctx,
             "pointer",
-            format!("path {}/{}", self.current + 1, self.paths.len()).text_widget(ctx),
+            format!("route {}/{}", self.current + 1, self.paths.len()).text_widget(ctx),
         );
 
         let mut batch = GeomBatch::new();
@@ -279,6 +288,8 @@ impl ChangedRoutes {
                 *colors::PLAN_ROUTE_AFTER,
                 pl.make_polygons(5.0 * NORMAL_LANE_THICKNESS),
             );
+            batch.append(map_gui::tools::start_marker(ctx, pl.first_pt(), 2.0));
+            batch.append(map_gui::tools::goal_marker(ctx, pl.last_pt(), 2.0));
         }
         self.draw_paths = ctx.upload(batch);
     }

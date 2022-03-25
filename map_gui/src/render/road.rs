@@ -1,6 +1,6 @@
 use std::cell::RefCell;
 
-use geom::{Distance, PolyLine, Polygon, Pt2D};
+use geom::{Distance, Polygon, Pt2D};
 use map_model::{Building, LaneType, Map, Road, RoadID, NORMAL_LANE_THICKNESS};
 use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 
