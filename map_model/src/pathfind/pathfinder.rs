@@ -145,6 +145,17 @@ impl Pathfinder {
         Self::new_limited(map, params, CreateEngine::Dijkstra, modes, timer)
     }
 
+    /// Create a new Pathfinder with custom routing params that can only serve some modes. Slow to
+    /// create, fast to use. Doesn't re-use the node ordering when building the CH.
+    pub fn new_ch(
+        map: &Map,
+        params: RoutingParams,
+        modes: Vec<PathConstraints>,
+        timer: &mut Timer,
+    ) -> Self {
+        Self::new_limited(map, params, CreateEngine::CH, modes, timer)
+    }
+
     /// Create a new Pathfinder with custom routing params that can only serve some modes.
     pub(crate) fn new_limited(
         map: &Map,

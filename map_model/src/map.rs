@@ -543,6 +543,10 @@ impl Map {
         &self.boundary_polygon
     }
 
+    pub fn get_pathfinder(&self) -> &Pathfinder {
+        &self.pathfinder
+    }
+
     pub fn pathfind(&self, req: PathRequest) -> Result<Path> {
         self.pathfind_v2(req)?.into_v1(self)
     }
