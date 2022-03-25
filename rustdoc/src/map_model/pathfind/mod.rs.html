@@ -230,7 +230,6 @@
 <span id="228">228</span>
 <span id="229">229</span>
 <span id="230">230</span>
-<span id="231">231</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Everything related to pathfinding through a map for different types of agents.</span>
 
 <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
@@ -419,7 +418,6 @@
 
     <span class="doccomment">/// When crossing an arterial or highway road, multiply the base cost by this penalty. When</span>
     <span class="doccomment">/// greater than 1, this will encourage routes to use local roads more.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>, <span class="ident">skip_deserializing</span>)]</span>
     <span class="kw">pub</span> <span class="ident">main_road_penalty</span>: <span class="ident">f64</span>,
 
     <span class="doccomment">/// Don&#39;t allow crossing these roads at all. Only affects vehicle routing, not pedestrian.</span>
