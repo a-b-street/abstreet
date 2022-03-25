@@ -123,6 +123,14 @@ impl PolyLine {
         PolyLine::must_new(pts)
     }
 
+    /// Returns the quadrant where the overall angle of this polyline (pointing from the first to
+    /// last point) is in. Output between 0 and 3.
+    pub fn quadrant(&self) -> i64 {
+        let line_angle: f64 = self.overall_angle().normalized_radians();
+        let line_angle = (line_angle / (std::f64::consts::PI / 2.0)) as i64;
+        line_angle.rem_euclid(4) + 1
+    }
+
     /// Glue together two polylines in order. The last point of `self` must be the same as the
     /// first point of `other`. This method handles removing unnecessary intermediate points if the
     /// extension happens to be at the same angle as the last line segment of `self`.
