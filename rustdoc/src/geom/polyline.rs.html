@@ -1075,6 +1075,14 @@
 <span id="1073">1073</span>
 <span id="1074">1074</span>
 <span id="1075">1075</span>
+<span id="1076">1076</span>
+<span id="1077">1077</span>
+<span id="1078">1078</span>
+<span id="1079">1079</span>
+<span id="1080">1080</span>
+<span id="1081">1081</span>
+<span id="1082">1082</span>
+<span id="1083">1083</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
@@ -1198,6 +1206,14 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">clone</span>();
         <span class="ident">pts</span>.<span class="ident">reverse</span>();
         <span class="ident">PolyLine::must_new</span>(<span class="ident">pts</span>)
+    }
+
+    <span class="doccomment">/// Returns the quadrant where the overall angle of this polyline (pointing from the first to</span>
+    <span class="doccomment">/// last point) is in. Output between 0 and 3.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">quadrant</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">i64</span> {
+        <span class="kw">let</span> <span class="ident">line_angle</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">overall_angle</span>().<span class="ident">normalized_radians</span>();
+        <span class="kw">let</span> <span class="ident">line_angle</span> <span class="op">=</span> (<span class="ident">line_angle</span> <span class="op">/</span> (<span class="ident">std::f64::consts::PI</span> <span class="op">/</span> <span class="number">2.0</span>)) <span class="kw">as</span> <span class="ident">i64</span>;
+        <span class="ident">line_angle</span>.<span class="ident">rem_euclid</span>(<span class="number">4</span>) <span class="op">+</span> <span class="number">1</span>
     }
 
     <span class="doccomment">/// Glue together two polylines in order. The last point of `self` must be the same as the</span>
