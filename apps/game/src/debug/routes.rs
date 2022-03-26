@@ -6,8 +6,8 @@ use map_gui::colors::ColorSchemeChoice;
 use map_gui::tools::{cmp_count, ColorNetwork};
 use map_gui::{AppLike, ID};
 use map_model::{
-    DirectedRoadID, Direction, PathRequest, PathfinderCaching, RoadID, RoutingParams, Traversable,
-    NORMAL_LANE_THICKNESS,
+    DirectedRoadID, Direction, PathConstraints, PathRequest, PathStepV2, Pathfinder, RoadID,
+    RoutingParams, NORMAL_LANE_THICKNESS,
 };
 use synthpop::{TripEndpoint, TripMode};
 use widgetry::mapspace::ToggleZoomed;
@@ -57,11 +57,15 @@ impl RouteExplorer {
             *preview = Drawable::empty(ctx);
             if let Some(polygon) = TripEndpoint::path_req(self.start, *goal, mode, &app.primary.map)
                 .and_then(|req| {
-                    app.primary
-                        .map
-                        .pathfind_with_params(req, &params, PathfinderCaching::NoCache)
-                        .ok()
+                    Pathfinder::new_dijkstra(
+                        &app.primary.map,
+                        params,
+                        vec![req.constraints],
+                        &mut Timer::throwaway(),
+                    )
+                    .pathfind_v2(req, &app.primary.map)
                 })
+                .and_then(|path| path.into_v1(&app.primary.map).ok())
                 .and_then(|path| path.trace(&app.primary.map))
                 .map(|pl| pl.make_polygons(NORMAL_LANE_THICKNESS))
             {
@@ -324,7 +328,7 @@ impl AllRoutesExplorer {
                     .into_iter()
                     .flatten()
                     .collect::<Vec<_>>();
-                let baseline_counts = calculate_demand(app, &requests, timer);
+                let baseline_counts = calculate_demand(app, map.get_pathfinder(), &requests, timer);
                 (requests, baseline_counts)
             });
         let current_counts = baseline_counts.clone();
@@ -346,10 +350,6 @@ impl AllRoutesExplorer {
                     .btn_outline
                     .text("Calculate differential demand")
                     .build_def(ctx),
-                ctx.style()
-                    .btn_solid_destructive
-                    .text("keep changed params")
-                    .build_def(ctx),
             ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx),
@@ -369,20 +369,6 @@ impl State<App> for AllRoutesExplorer {
         if let Outcome::Clicked(x) = self.panel.event(ctx) {
             match x.as_ref() {
                 "close" => {
-                    ctx.loading_screen("revert routing params to defaults", |_, timer| {
-                        app.primary
-                            .map
-                            .hack_override_routing_params(RoutingParams::default(), timer);
-                    });
-                    return Transition::Pop;
-                }
-                "keep changed params" => {
-                    // This is handy for seeing the effects on a real simulation without rebuilding
-                    // the map.
-                    ctx.loading_screen("update routing params", |_, timer| {
-                        let (_, params) = controls_to_params(&self.panel);
-                        app.primary.map.hack_override_routing_params(params, timer);
-                    });
                     return Transition::Pop;
                 }
                 "bikes" => {
@@ -405,8 +391,14 @@ impl State<App> for AllRoutesExplorer {
                         "calculate differential demand due to routing params",
                         |ctx, timer| {
                             let (_, params) = controls_to_params(&self.panel);
-                            app.primary.map.hack_override_routing_params(params, timer);
-                            self.current_counts = calculate_demand(app, &self.requests, timer);
+                            let pathfinder = Pathfinder::new_ch(
+                                &app.primary.map,
+                                params,
+                                PathConstraints::all(),
+                                timer,
+                            );
+                            self.current_counts =
+                                calculate_demand(app, &pathfinder, &self.requests, timer);
 
                             // Calculate the difference
                             let mut colorer = ColorNetwork::new(app);
@@ -470,10 +462,17 @@ impl State<App> for AllRoutesExplorer {
     }
 }
 
-fn calculate_demand(app: &App, requests: &[PathRequest], timer: &mut Timer) -> Counter<RoadID> {
+fn calculate_demand(
+    app: &App,
+    pathfinder: &Pathfinder,
+    requests: &[PathRequest],
+    timer: &mut Timer,
+) -> Counter<RoadID> {
     let map = &app.primary.map;
     let paths = timer
-        .parallelize("pathfind", requests.to_vec(), |req| map.pathfind(req))
+        .parallelize("pathfind", requests.to_vec(), |req| {
+            pathfinder.pathfind_v2(req, map)
+        })
         .into_iter()
         .flatten()
         .collect::<Vec<_>>();
@@ -482,8 +481,8 @@ fn calculate_demand(app: &App, requests: &[PathRequest], timer: &mut Timer) -> C
     for path in paths {
         timer.next();
         for step in path.get_steps() {
-            if let Traversable::Lane(l) = step.as_traversable() {
-                counter.inc(l.road);
+            if let PathStepV2::Along(dr) | PathStepV2::Contraflow(dr) = step {
+                counter.inc(dr.road);
             }
         }
     }

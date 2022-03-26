@@ -678,16 +678,6 @@ impl Map {
         });
     }
 
-    pub fn hack_override_routing_params(
-        &mut self,
-        routing_params: RoutingParams,
-        timer: &mut Timer,
-    ) {
-        self.routing_params = routing_params;
-        self.pathfinder_dirty = true;
-        self.recalculate_pathfinding_after_edits(timer);
-    }
-
     /// Normally after applying edits, you must call `recalculate_pathfinding_after_edits`.
     /// Alternatively, you can keep the old pathfinder exactly as it is. Use with caution -- the
     /// pathfinder and the map may be out-of-sync in arbitrary ways.
