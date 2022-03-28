@@ -154,8 +154,8 @@
         <span class="ident">Transition::Keep</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="self">self</span>.<span class="ident">compare</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
+        <span class="self">self</span>.<span class="ident">compare</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
     }
 }
 </code></pre></div>

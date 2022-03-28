@@ -416,7 +416,7 @@
         .<span class="ident">section</span>(<span class="ident">ctx</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>) {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">layer</span> {
             <span class="ident">Layer::A</span> =&gt; {
                 <span class="self">self</span>.<span class="ident">heatmap_a</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
@@ -436,7 +436,7 @@
                     <span class="ident">Layer::A</span> =&gt; <span class="self">self</span>.<span class="ident">counts_a</span>.<span class="ident">per_road</span>.<span class="ident">get</span>(<span class="ident">r</span>),
                     <span class="ident">Layer::B</span> =&gt; <span class="self">self</span>.<span class="ident">counts_b</span>.<span class="ident">per_road</span>.<span class="ident">get</span>(<span class="ident">r</span>),
                     <span class="ident">Layer::Compare</span> =&gt; {
-                        <span class="ident">g</span>.<span class="ident">draw_mouse_tooltip</span>(<span class="self">self</span>.<span class="ident">relative_road_tooltip</span>(<span class="ident">r</span>));
+                        <span class="ident">g</span>.<span class="ident">draw_mouse_tooltip</span>(<span class="self">self</span>.<span class="ident">relative_road_tooltip</span>(<span class="ident">app</span>, <span class="ident">r</span>));
                         <span class="kw">return</span>;
                     }
                 },
@@ -452,12 +452,13 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">relative_road_tooltip</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">r</span>: <span class="ident">RoadID</span>) -&gt; <span class="ident">Text</span> {
+    <span class="kw">fn</span> <span class="ident">relative_road_tooltip</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>, <span class="ident">r</span>: <span class="ident">RoadID</span>) -&gt; <span class="ident">Text</span> {
         <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">counts_a</span>.<span class="ident">per_road</span>.<span class="ident">get</span>(<span class="ident">r</span>);
         <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">counts_b</span>.<span class="ident">per_road</span>.<span class="ident">get</span>(<span class="ident">r</span>);
         <span class="kw">let</span> <span class="ident">ratio</span> <span class="op">=</span> (<span class="ident">b</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> (<span class="ident">a</span> <span class="kw">as</span> <span class="ident">f64</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
+            <span class="ident">Line</span>(<span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">get_name</span>(<span class="ident">app</span>.<span class="ident">opts</span>().<span class="ident">language</span>.<span class="ident">as_ref</span>())),
             <span class="ident">Line</span>(<span class="macro">format!</span>(
                 <span class="string">&quot;{}: {}&quot;</span>,
                 <span class="self">self</span>.<span class="ident">counts_a</span>.<span class="ident">description</span>,
@@ -540,8 +541,7 @@
     <span class="macro">info!</span>(<span class="string">&quot;Physical road widths: {}&quot;</span>, <span class="ident">hgram_width</span>.<span class="ident">describe</span>());
 
     <span class="comment">// TODO This is still a bit arbitrary</span>
-    <span class="kw">let</span> <span class="ident">scale</span> <span class="op">=</span> <span class="ident">DivergingScale::new</span>(<span class="ident">Color::hex</span>(<span class="string">&quot;#5D9630&quot;</span>), <span class="ident">Color::WHITE</span>, <span class="ident">Color::hex</span>(<span class="string">&quot;#A32015&quot;</span>))
-        .<span class="ident">range</span>(<span class="number">0.0</span>, <span class="number">2.0</span>);
+    <span class="kw">let</span> <span class="ident">scale</span> <span class="op">=</span> <span class="ident">DivergingScale::new</span>(<span class="ident">Color::GREEN</span>, <span class="ident">Color::grey</span>(<span class="number">0.2</span>), <span class="ident">Color::RED</span>).<span class="ident">range</span>(<span class="number">0.0</span>, <span class="number">2.0</span>);
 
     <span class="comment">// Draw road width based on the count before</span>
     <span class="comment">// TODO unwrap will crash on an empty demand model</span>
@@ -564,7 +564,7 @@
             (<span class="ident">before</span> <span class="op">-</span> <span class="ident">min_count</span>) <span class="kw">as</span> <span class="ident">f64</span> <span class="op">/</span> (<span class="ident">max_count</span> <span class="op">-</span> <span class="ident">min_count</span>) <span class="kw">as</span> <span class="ident">f64</span>
         };
         <span class="comment">// TODO Pretty arbitrary. Ideally we&#39;d hide roads and intersections underneath...</span>
-        <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">2.0</span>) <span class="op">+</span> <span class="ident">pct_count</span> <span class="op">*</span> <span class="ident">Distance::meters</span>(<span class="number">10.0</span>);
+        <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">6.0</span>) <span class="op">+</span> <span class="ident">pct_count</span> <span class="op">*</span> <span class="ident">Distance::meters</span>(<span class="number">15.0</span>);
 
         <span class="ident">draw_roads</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">center_pts</span>.<span class="ident">make_polygons</span>(<span class="ident">width</span>));
     }
