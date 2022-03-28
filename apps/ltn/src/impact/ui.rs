@@ -5,8 +5,8 @@ use map_model::{Path, NORMAL_LANE_THICKNESS};
 use synthpop::{Scenario, TripMode};
 use widgetry::tools::{FileLoader, PopupMsg};
 use widgetry::{
-    Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Slider,
-    State, Text, TextExt, Toggle, VerticalAlignment, Widget,
+    Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
+    Outcome, Panel, Slider, State, Text, TextExt, Toggle, VerticalAlignment, Widget,
 };
 
 use crate::impact::{end_of_day, Filters, Impact};
@@ -18,7 +18,6 @@ use crate::{colors, App, BrowseNeighborhoods, Transition};
 pub struct ShowResults {
     top_panel: Panel,
     left_panel: Panel,
-    draw_all_neighborhoods: Drawable,
 }
 
 impl ShowResults {
@@ -53,7 +52,14 @@ impl ShowResults {
                 .hotkey(Key::Escape)
                 .build_def(ctx),
             Line("Impact prediction").small_heading().into_widget(ctx),
-            Text::from(Line("This tool starts with a travel demand model, calculates the route every trip takes before and after changes, and displays volumes along roads and intersections")).wrap_to_pct(ctx, 20).into_widget(ctx),
+            Text::from(Line("This tool starts with a travel demand model, calculates the route every trip takes before and after changes, and displays volumes along roads")).wrap_to_pct(ctx, 20).into_widget(ctx),
+            Text::from_all(vec![
+                Line("Red").fg(Color::RED),
+                Line(" roads have increased volume, and "),
+                Line("green").fg(Color::GREEN),
+                Line(" roads have less. Width of the road shows how much baseline traffic it has."),
+            ]).wrap_to_pct(ctx, 20).into_widget(ctx),
+            "Click a road to see changed routes through it.".text_widget(ctx),
             // TODO Dropdown for the scenario, and explain its source/limitations
             app.session.impact.filters.to_panel(ctx, app),
             app.session.impact.compare_counts.get_panel_widget(ctx).named("compare counts"),
@@ -62,15 +68,9 @@ impl ShowResults {
         let top_panel = crate::common::app_top_panel(ctx, app);
         let left_panel = crate::common::left_panel_builder(ctx, &top_panel, contents).build(ctx);
 
-        let mut batch = GeomBatch::new();
-        for (_, (block, color)) in app.session.partitioning.all_neighborhoods() {
-            batch.push(color.alpha(0.2), block.polygon.clone());
-        }
-        let draw_all_neighborhoods = batch.upload(ctx);
         Box::new(Self {
             top_panel,
             left_panel,
-            draw_all_neighborhoods,
         })
     }
 }
@@ -145,12 +145,21 @@ impl State<App> for ShowResults {
         Transition::Keep
     }
 
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::Custom
+    }
+
     fn draw(&self, g: &mut GfxCtx, app: &App) {
+        // Just emphasize roads that've changed, so don't draw the baselayer of roads. Even
+        // buildings are a distraction.
+        g.clear(app.cs.void_background);
+        g.redraw(&app.draw_map.boundary_polygon);
+        g.redraw(&app.draw_map.draw_all_areas);
+        app.session.impact.compare_counts.draw(g, app);
+        app.session.draw_all_filters.draw(g);
+
         self.top_panel.draw(g);
         self.left_panel.draw(g);
-        g.redraw(&self.draw_all_neighborhoods);
-        app.session.impact.compare_counts.draw(g);
-        app.session.draw_all_filters.draw(g);
     }
 }
 

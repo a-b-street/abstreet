@@ -73,7 +73,7 @@ impl SimpleState<App> for GenericCompareCounts {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &App) {
-        self.compare.draw(g);
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        self.compare.draw(g, app);
     }
 }

@@ -118,7 +118,7 @@ impl CompareCounts {
         .section(ctx)
     }
 
-    pub fn draw(&self, g: &mut GfxCtx) {
+    pub fn draw(&self, g: &mut GfxCtx, app: &dyn AppLike) {
         match self.layer {
             Layer::A => {
                 self.heatmap_a.draw(g);
@@ -138,7 +138,7 @@ impl CompareCounts {
                     Layer::A => self.counts_a.per_road.get(r),
                     Layer::B => self.counts_b.per_road.get(r),
                     Layer::Compare => {
-                        g.draw_mouse_tooltip(self.relative_road_tooltip(r));
+                        g.draw_mouse_tooltip(self.relative_road_tooltip(app, r));
                         return;
                     }
                 },
@@ -154,12 +154,13 @@ impl CompareCounts {
         }
     }
 
-    fn relative_road_tooltip(&self, r: RoadID) -> Text {
+    fn relative_road_tooltip(&self, app: &dyn AppLike, r: RoadID) -> Text {
         let a = self.counts_a.per_road.get(r);
         let b = self.counts_b.per_road.get(r);
         let ratio = (b as f64) / (a as f64);
 
         let mut txt = Text::from_multiline(vec![
+            Line(app.map().get_r(r).get_name(app.opts().language.as_ref())),
             Line(format!(
                 "{}: {}",
                 self.counts_a.description,
@@ -242,8 +243,7 @@ fn calculate_relative_heatmap(
     info!("Physical road widths: {}", hgram_width.describe());
 
     // TODO This is still a bit arbitrary
-    let scale = DivergingScale::new(Color::hex("#5D9630"), Color::WHITE, Color::hex("#A32015"))
-        .range(0.0, 2.0);
+    let scale = DivergingScale::new(Color::GREEN, Color::grey(0.2), Color::RED).range(0.0, 2.0);
 
     // Draw road width based on the count before
     // TODO unwrap will crash on an empty demand model
@@ -266,7 +266,7 @@ fn calculate_relative_heatmap(
             (before - min_count) as f64 / (max_count - min_count) as f64
         };
         // TODO Pretty arbitrary. Ideally we'd hide roads and intersections underneath...
-        let width = Distance::meters(2.0) + pct_count * Distance::meters(10.0);
+        let width = Distance::meters(6.0) + pct_count * Distance::meters(15.0);
 
         draw_roads.push(color, app.map().get_r(r).center_pts.make_polygons(width));
     }
