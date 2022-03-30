@@ -8,7 +8,8 @@ use map_model::{
     connectivity, AmenityType, BuildingID, BuildingType, IntersectionID, LaneType, Map, Path,
     PathConstraints, PathRequest,
 };
-use widgetry::{Color, Drawable, EventCtx};
+use widgetry::mapspace::{ToggleZoomed, ToggleZoomedBuilder};
+use widgetry::{Color, EventCtx};
 
 use crate::App;
 
@@ -19,7 +20,7 @@ pub struct Isochrone {
     /// The options used to generate this isochrone
     pub options: Options,
     /// Colored polygon contours, uploaded to the GPU and ready for drawing
-    pub draw: Drawable,
+    pub draw: ToggleZoomed,
     /// Thresholds used to draw the isochrone
     pub thresholds: Vec<f64>,
     /// Colors used to draw the isochrone
@@ -35,22 +36,38 @@ pub struct Isochrone {
     pub onstreet_parking_spots: usize,
 }
 
+#[derive(Clone)]
+pub struct Options {
+    pub movement: MovementOptions,
+    pub thresholds: Vec<(Duration, Color)>,
+}
+
+impl Options {
+    pub fn default_thresholds() -> Vec<(Duration, Color)> {
+        vec![
+            (Duration::minutes(5), Color::GREEN.alpha(0.5)),
+            (Duration::minutes(10), Color::ORANGE.alpha(0.5)),
+            (Duration::minutes(15), Color::RED.alpha(0.5)),
+        ]
+    }
+}
+
 /// The constraints on how we're moving.
 #[derive(Clone)]
-pub enum Options {
+pub enum MovementOptions {
     Walking(connectivity::WalkingOptions),
     Biking,
 }
 
-impl Options {
+impl MovementOptions {
     /// Calculate the quickest time to reach buildings across the map from any of the starting
     /// points, subject to the walking/biking settings configured in these Options.
     pub fn times_from(self, map: &Map, starts: Vec<Spot>) -> HashMap<BuildingID, Duration> {
         match self {
-            Options::Walking(opts) => {
+            MovementOptions::Walking(opts) => {
                 connectivity::all_walking_costs_from(map, starts, Duration::minutes(15), opts)
             }
-            Options::Biking => connectivity::all_vehicle_costs_from(
+            MovementOptions::Biking => connectivity::all_vehicle_costs_from(
                 map,
                 starts,
                 Duration::minutes(15),
@@ -68,7 +85,7 @@ impl Isochrone {
         options: Options,
     ) -> Isochrone {
         let spot_starts = start.iter().map(|b_id| Spot::Building(*b_id)).collect();
-        let time_to_reach_building = options.clone().times_from(&app.map, spot_starts);
+        let time_to_reach_building = options.movement.clone().times_from(&app.map, spot_starts);
 
         let mut amenities_reachable = MultiMap::new();
         let mut population = 0;
@@ -102,24 +119,17 @@ impl Isochrone {
 
         // Generate polygons covering the contour line where the cost in the grid crosses these
         // threshold values.
-        let thresholds = vec![
-            0.1,
-            Duration::minutes(5).inner_seconds(),
-            Duration::minutes(10).inner_seconds(),
-            Duration::minutes(15).inner_seconds(),
-        ];
-
-        // And color the polygon for each threshold
-        let colors = vec![
-            Color::GREEN.alpha(0.5),
-            Color::ORANGE.alpha(0.5),
-            Color::RED.alpha(0.5),
-        ];
+        let mut thresholds = vec![0.1];
+        let mut colors = Vec::new();
+        for (threshold, color) in &options.thresholds {
+            thresholds.push(threshold.inner_seconds());
+            colors.push(*color);
+        }
 
         let mut i = Isochrone {
             start,
             options,
-            draw: Drawable::empty(ctx),
+            draw: ToggleZoomed::empty(ctx),
             thresholds,
             colors,
             time_to_reach_building,
@@ -128,13 +138,13 @@ impl Isochrone {
             onstreet_parking_spots,
         };
 
-        i.draw = draw_isochrone(
+        i.draw = ToggleZoomedBuilder::from(draw_isochrone(
             &app.map,
             &i.time_to_reach_building,
             &i.thresholds,
             &i.colors,
-        )
-        .upload(ctx);
+        ))
+        .build(ctx);
         i
     }
 
@@ -144,9 +154,9 @@ impl Isochrone {
             return None;
         }
 
-        let constraints = match self.options {
-            Options::Walking(_) => PathConstraints::Pedestrian,
-            Options::Biking => PathConstraints::Bike,
+        let constraints = match self.options.movement {
+            MovementOptions::Walking(_) => PathConstraints::Pedestrian,
+            MovementOptions::Biking => PathConstraints::Bike,
         };
 
         let all_paths = self.start.iter().filter_map(|b_id| {
@@ -165,7 +175,7 @@ pub struct BorderIsochrone {
     /// The options used to generate this isochrone
     pub options: Options,
     /// Colored polygon contours, uploaded to the GPU and ready for drawing
-    pub draw: Drawable,
+    pub draw: ToggleZoomed,
     /// Thresholds used to draw the isochrone
     pub thresholds: Vec<f64>,
     /// Colors used to draw the isochrone
@@ -182,7 +192,7 @@ impl BorderIsochrone {
         options: Options,
     ) -> BorderIsochrone {
         let spot_starts = start.iter().map(|i_id| Spot::Border(*i_id)).collect();
-        let time_to_reach_building = options.clone().times_from(&app.map, spot_starts);
+        let time_to_reach_building = options.movement.clone().times_from(&app.map, spot_starts);
 
         // Generate a single polygon showing 15 minutes from the border
         let thresholds = vec![0.1, Duration::minutes(15).inner_seconds()];
@@ -193,19 +203,19 @@ impl BorderIsochrone {
         let mut i = BorderIsochrone {
             start,
             options,
-            draw: Drawable::empty(ctx),
+            draw: ToggleZoomed::empty(ctx),
             thresholds,
             colors,
             time_to_reach_building,
         };
 
-        i.draw = draw_isochrone(
+        i.draw = ToggleZoomedBuilder::from(draw_isochrone(
             &app.map,
             &i.time_to_reach_building,
             &i.thresholds,
             &i.colors,
-        )
-        .upload(ctx);
+        ))
+        .build(ctx);
         i
     }
 }

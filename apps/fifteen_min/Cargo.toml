@@ -22,5 +22,6 @@ log = "0.4"
 map_gui = { path = "../../map_gui" }
 map_model = { path = "../../map_model" }
 structopt = "0.3.23"
+synthpop = { path = "../../synthpop" }  # TODO Remove
 wasm-bindgen = { version = "0.2.70", optional = true }
 widgetry = { path = "../../widgetry" }

@@ -210,7 +210,7 @@ impl InputWaypoints {
         false
     }
 
-    fn get_waypoint_color(&self, idx: usize) -> Color {
+    pub fn get_waypoint_color(&self, idx: usize) -> Color {
         let total_waypoints = self.waypoints.len();
         match idx {
             0 => Color::BLACK,

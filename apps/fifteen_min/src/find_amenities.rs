@@ -163,7 +163,7 @@ impl SimpleState<App> for Results {
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &App) {
-        g.redraw(&self.isochrone.draw);
+        self.isochrone.draw.draw(g);
 
         if let Some(hover) = self.hovering_on_bldg.value() {
             g.draw_mouse_tooltip(hover.tooltip.clone());

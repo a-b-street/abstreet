@@ -1032,6 +1032,7 @@ dependencies = [
  "map_gui",
  "map_model",
  "structopt",
+ "synthpop",
  "wasm-bindgen",
  "widgetry",
 ]

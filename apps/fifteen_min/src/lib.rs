@@ -7,6 +7,7 @@ use widgetry::Settings;
 #[macro_use]
 extern crate log;
 
+mod bus;
 mod find_amenities;
 mod find_home;
 mod isochrone;

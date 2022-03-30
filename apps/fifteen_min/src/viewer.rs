@@ -20,7 +20,7 @@ use widgetry::{
 
 use crate::find_amenities::FindAmenity;
 use crate::find_home::FindHome;
-use crate::isochrone::{Isochrone, Options};
+use crate::isochrone::{Isochrone, MovementOptions, Options};
 use crate::App;
 
 /// This is the UI state for exploring the isochrone/walkshed from a single building.
@@ -46,7 +46,10 @@ impl Viewer {
     pub fn new_state(ctx: &mut EventCtx, app: &App, start: BuildingID) -> Box<dyn State<App>> {
         map_gui::tools::update_url_map_name(app);
 
-        let options = Options::Walking(WalkingOptions::default());
+        let options = Options {
+            movement: MovementOptions::Walking(WalkingOptions::default()),
+            thresholds: Options::default_thresholds(),
+        };
         let start = app.map.get_b(start);
         let isochrone = Isochrone::new(ctx, app, vec![start.id], options);
         let highlight_start = draw_star(ctx, start);
@@ -123,6 +126,9 @@ impl State<App> for Viewer {
 
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
+                "Bus sketch" => {
+                    return Transition::Replace(crate::bus::BusExperiment::new_state(ctx, app));
+                }
                 "Home" => {
                     return Transition::Pop;
                 }
@@ -188,7 +194,10 @@ impl State<App> for Viewer {
                 }
             },
             Outcome::Changed(_) => {
-                let options = options_from_controls(&self.panel);
+                let options = Options {
+                    movement: options_from_controls(&self.panel),
+                    thresholds: Options::default_thresholds(),
+                };
                 self.draw_unwalkable_roads = draw_unwalkable_roads(ctx, app, &options);
                 self.isochrone = Isochrone::new(ctx, app, vec![self.isochrone.start[0]], options);
                 self.panel = build_panel(
@@ -205,7 +214,7 @@ impl State<App> for Viewer {
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &App) {
-        g.redraw(&self.isochrone.draw);
+        self.isochrone.draw.draw(g);
         g.redraw(&self.highlight_start);
         g.redraw(&self.draw_unwalkable_roads);
         self.panel.draw(g);
@@ -226,13 +235,13 @@ fn options_to_controls(ctx: &mut EventCtx, opts: &Options) -> Widget {
         "walking",
         "biking",
         None,
-        match opts {
-            Options::Walking(_) => true,
-            Options::Biking => false,
+        match opts.movement {
+            MovementOptions::Walking(_) => true,
+            MovementOptions::Biking => false,
         },
     )];
-    match opts {
-        Options::Walking(ref opts) => {
+    match opts.movement {
+        MovementOptions::Walking(ref opts) => {
             rows.push(Toggle::switch(
                 ctx,
                 "Allow walking on the shoulder of the road without a sidewalk",
@@ -251,14 +260,14 @@ fn options_to_controls(ctx: &mut EventCtx, opts: &Options) -> Widget {
 
             rows.push(ColorLegend::row(ctx, Color::BLUE, "unwalkable roads"));
         }
-        Options::Biking => {}
+        MovementOptions::Biking => {}
     }
     Widget::col(rows)
 }
 
-fn options_from_controls(panel: &Panel) -> Options {
+fn options_from_controls(panel: &Panel) -> MovementOptions {
     if panel.is_checked("walking / biking") {
-        Options::Walking(WalkingOptions {
+        MovementOptions::Walking(WalkingOptions {
             allow_shoulders: panel
                 .maybe_is_checked("Allow walking on the shoulder of the road without a sidewalk")
                 .unwrap_or(true),
@@ -267,7 +276,7 @@ fn options_from_controls(panel: &Panel) -> Options {
                 .unwrap_or_else(WalkingOptions::default_speed),
         })
     } else {
-        Options::Biking
+        MovementOptions::Biking
     }
 }
 
@@ -280,6 +289,11 @@ pub fn draw_star(ctx: &mut EventCtx, b: &Building) -> GeomBatch {
 fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isochrone) -> Panel {
     let mut rows = vec![
         map_gui::tools::app_header(ctx, app, "15-minute neighborhood explorer"),
+        ctx.style()
+            .btn_outline
+            .text("Bus sketch")
+            .hotkey(Key::B)
+            .build_def(ctx),
         Text::from_all(vec![
             Line("Starting from: ").secondary(),
             Line(&start.address),
@@ -533,9 +547,9 @@ impl State<App> for ExploreAmenities {
 }
 
 pub fn draw_unwalkable_roads(ctx: &mut EventCtx, app: &App, opts: &Options) -> Drawable {
-    let allow_shoulders = match opts {
-        Options::Walking(ref opts) => opts.allow_shoulders,
-        Options::Biking => {
+    let allow_shoulders = match opts.movement {
+        MovementOptions::Walking(ref opts) => opts.allow_shoulders,
+        MovementOptions::Biking => {
             return Drawable::empty(ctx);
         }
     };

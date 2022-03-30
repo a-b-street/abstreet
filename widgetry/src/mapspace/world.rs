@@ -416,6 +416,11 @@ impl<ID: ObjectID> World<ID> {
         self.draw_master_batches.push(draw.into().build(ctx));
     }
 
+    /// Like `draw_master_batch`, but for already-built objects.
+    pub fn draw_master_batch_built(&mut self, draw: ToggleZoomed) {
+        self.draw_master_batches.push(draw);
+    }
+
     /// Let objects in the world respond to something happening.
     pub fn event(&mut self, ctx: &mut EventCtx) -> WorldOutcome<ID> {
         if let Some((drag_from, moved)) = self.dragging_from {

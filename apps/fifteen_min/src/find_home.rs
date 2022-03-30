@@ -102,7 +102,7 @@ fn score_houses(
                 stores.push(Spot::Building(b.id));
             }
         }
-        options.clone().times_from(map, stores)
+        options.movement.clone().times_from(map, stores)
     }) {
         for (b, _) in times {
             satisfied_per_bldg.inc(b);
