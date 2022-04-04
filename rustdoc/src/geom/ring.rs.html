@@ -294,6 +294,13 @@
 <span id="292">292</span>
 <span id="293">293</span>
 <span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 <span class="kw">use</span> <span class="ident">std::fmt::Write</span>;
@@ -335,8 +342,15 @@
 
         <span class="prelude-val">Ok</span>(<span class="ident">result</span>)
     }
+
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">must_new</span>(<span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>) -&gt; <span class="ident">Ring</span> {
         <span class="ident">Ring::new</span>(<span class="ident">pts</span>).<span class="ident">unwrap</span>()
+    }
+
+    <span class="doccomment">/// First dedupes adjacent points</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">deduping_new</span>(<span class="kw-2">mut</span> <span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="ident">pts</span>.<span class="ident">dedup</span>();
+        <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">pts</span>)
     }
 
     <span class="doccomment">/// Draws the ring with some thickness, with half of it straddling the interor of the ring, and</span>

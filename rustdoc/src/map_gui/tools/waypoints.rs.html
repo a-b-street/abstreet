@@ -490,7 +490,7 @@
         <span class="bool-val">false</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">get_waypoint_color</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">idx</span>: <span class="ident">usize</span>) -&gt; <span class="ident">Color</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_waypoint_color</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">idx</span>: <span class="ident">usize</span>) -&gt; <span class="ident">Color</span> {
         <span class="kw">let</span> <span class="ident">total_waypoints</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">len</span>();
         <span class="kw">match</span> <span class="ident">idx</span> {
             <span class="number">0</span> =&gt; <span class="ident">Color::BLACK</span>,

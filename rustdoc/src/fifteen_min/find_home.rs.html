@@ -301,7 +301,7 @@
                 <span class="ident">stores</span>.<span class="ident">push</span>(<span class="ident">Spot::Building</span>(<span class="ident">b</span>.<span class="ident">id</span>));
             }
         }
-        <span class="ident">options</span>.<span class="ident">clone</span>().<span class="ident">times_from</span>(<span class="ident">map</span>, <span class="ident">stores</span>)
+        <span class="ident">options</span>.<span class="ident">movement</span>.<span class="ident">clone</span>().<span class="ident">times_from</span>(<span class="ident">map</span>, <span class="ident">stores</span>)
     }) {
         <span class="kw">for</span> (<span class="ident">b</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">times</span> {
             <span class="ident">satisfied_per_bldg</span>.<span class="ident">inc</span>(<span class="ident">b</span>);
