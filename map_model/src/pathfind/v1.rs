@@ -5,7 +5,7 @@ use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
 use abstutil::prettyprint_usize;
-use geom::{Distance, Duration, PolyLine, Speed, EPSILON_DIST};
+use geom::{Distance, Duration, PolyLine, Polygon, Ring, Speed, EPSILON_DIST};
 
 use crate::{
     BuildingID, DirectedRoadID, LaneID, Map, PathConstraints, Position, Traversable, TurnID,
@@ -466,6 +466,38 @@ impl Path {
         }
 
         Some(pts_so_far.unwrap())
+    }
+
+    /// Draws the thickened path, matching entire roads. Ignores the path's exact starting and
+    /// ending distance.
+    pub fn trace_v2(&self, map: &Map) -> Result<Polygon> {
+        let mut left_pts = Vec::new();
+        let mut right_pts = Vec::new();
+        for step in &self.steps {
+            match step {
+                PathStep::Lane(l) => {
+                    let road = map.get_parent(*l);
+                    let width = road.get_half_width();
+                    if map.get_l(*l).dst_i == road.dst_i {
+                        left_pts.extend(road.center_pts.shift_left(width)?.into_points());
+                        right_pts.extend(road.center_pts.shift_right(width)?.into_points());
+                    } else {
+                        left_pts
+                            .extend(road.center_pts.shift_right(width)?.reversed().into_points());
+                        right_pts
+                            .extend(road.center_pts.shift_left(width)?.reversed().into_points());
+                    }
+                }
+                PathStep::ContraflowLane(_) => todo!(),
+                // Just make a straight line across the intersection. It'd be fancier to try and
+                // trace along.
+                PathStep::Turn(_) | PathStep::ContraflowTurn(_) => {}
+            }
+        }
+        right_pts.reverse();
+        left_pts.extend(right_pts);
+        left_pts.push(left_pts[0]);
+        Ok(Ring::deduping_new(left_pts)?.into_polygon())
     }
 
     pub fn get_steps(&self) -> &VecDeque<PathStep> {

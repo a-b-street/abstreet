@@ -2,12 +2,11 @@ use abstutil::prettyprint_usize;
 use geom::Duration;
 use map_gui::tools::{InputWaypoints, WaypointID};
 use map_model::connectivity::WalkingOptions;
-use map_model::NORMAL_LANE_THICKNESS;
 use synthpop::{TripEndpoint, TripMode};
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::{
-    Color, EventCtx, GfxCtx, HorizontalAlignment, Line, Panel, State, Text, Transition,
-    VerticalAlignment, Widget,
+    Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, Text,
+    Transition, VerticalAlignment, Widget,
 };
 
 use crate::isochrone::{Isochrone, MovementOptions, Options};
@@ -50,10 +49,10 @@ impl BusExperiment {
                 .and_then(|req| map.pathfind(req).ok())
             {
                 let duration = path.estimate_duration(map, None);
-                if let Some(pl) = path.trace(map) {
+                if let Ok(hitbox) = path.trace_v2(map) {
                     world
                         .add(ID::BusRoute(idx))
-                        .hitbox(pl.make_polygons(5.0 * NORMAL_LANE_THICKNESS))
+                        .hitbox(hitbox)
                         .zorder(0)
                         .draw_color(self.waypoints.get_waypoint_color(idx))
                         .hover_alpha(0.8)
@@ -78,12 +77,13 @@ impl BusExperiment {
             stops,
             Options {
                 movement: MovementOptions::Walking(WalkingOptions::default()),
+                thresholds: vec![(Duration::minutes(15), Color::grey(0.3).alpha(0.5))],
                 // TODO The inner colors overlap the outer; this doesn't look right yet
-                thresholds: vec![
+                /*thresholds: vec![
                     (Duration::minutes(5), Color::grey(0.3).alpha(0.5)),
                     (Duration::minutes(10), Color::grey(0.3).alpha(0.3)),
                     (Duration::minutes(15), Color::grey(0.3).alpha(0.2)),
-                ],
+                ],*/
             },
         );
         world.draw_master_batch_built(isochrone.draw);
@@ -94,6 +94,10 @@ impl BusExperiment {
 
         self.panel = Panel::new_builder(Widget::col(vec![
             map_gui::tools::app_header(ctx, app, "Bus planner"),
+            ctx.style()
+                .btn_back("15-minute neighborhoods")
+                .hotkey(Key::Escape)
+                .build_def(ctx),
             Text::from_multiline(vec![
                 Line("Within a 15 min walk of all stops:"),
                 Line(format!(
@@ -124,6 +128,12 @@ impl BusExperiment {
 impl State<App> for BusExperiment {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition<App> {
         let panel_outcome = self.panel.event(ctx);
+        if let Outcome::Clicked(ref x) = panel_outcome {
+            if x == "15-minute neighborhoods" {
+                return Transition::Pop;
+            }
+        }
+
         let world_outcome = self.world.event(ctx);
         let world_outcome_for_waypoints = world_outcome
             .maybe_map_id(|id| match id {

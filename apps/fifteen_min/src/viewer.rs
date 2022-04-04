@@ -126,8 +126,8 @@ impl State<App> for Viewer {
 
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
-                "Bus sketch" => {
-                    return Transition::Replace(crate::bus::BusExperiment::new_state(ctx, app));
+                "Sketch bus route (experimental)" => {
+                    return Transition::Push(crate::bus::BusExperiment::new_state(ctx, app));
                 }
                 "Home" => {
                     return Transition::Pop;
@@ -291,7 +291,7 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
         map_gui::tools::app_header(ctx, app, "15-minute neighborhood explorer"),
         ctx.style()
             .btn_outline
-            .text("Bus sketch")
+            .text("Sketch bus route (experimental)")
             .hotkey(Key::B)
             .build_def(ctx),
         Text::from_all(vec![

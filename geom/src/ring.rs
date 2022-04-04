@@ -39,8 +39,15 @@ impl Ring {
 
         Ok(result)
     }
+
     pub fn must_new(pts: Vec<Pt2D>) -> Ring {
         Ring::new(pts).unwrap()
+    }
+
+    /// First dedupes adjacent points
+    pub fn deduping_new(mut pts: Vec<Pt2D>) -> Result<Self> {
+        pts.dedup();
+        Self::new(pts)
     }
 
     /// Draws the ring with some thickness, with half of it straddling the interor of the ring, and
