@@ -531,6 +531,7 @@ mod tests {
                 bikes_can_use_bus_lanes: true,
                 inferred_sidewalks: true,
                 street_parking_spot_length: geom::Distance::meters(8.0),
+                turn_on_red: true,
             };
             let actual = get_lane_specs_ltr(&tags(input.clone()), &cfg);
             let actual_lt: String = actual.iter().map(|s| s.lt.to_char()).collect();

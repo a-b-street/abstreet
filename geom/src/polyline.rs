@@ -6,8 +6,8 @@ use geo::prelude::ClosestPoint;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    Angle, Bounds, Circle, Distance, GPSBounds, HashablePt2D, InfiniteLine, Line, Polygon, Pt2D,
-    Ring, EPSILON_DIST,
+    Angle, Bounds, Circle, Distance, GPSBounds, HashablePt2D, InfiniteLine, Line, LonLat, Polygon,
+    Pt2D, Ring, EPSILON_DIST,
 };
 
 // TODO How to tune this?
@@ -911,6 +911,28 @@ impl PolyLine {
             }
         }
         geojson::Geometry::new(geojson::Value::LineString(pts))
+    }
+
+    pub fn from_geojson(feature: &geojson::Feature, gps: Option<&GPSBounds>) -> Result<PolyLine> {
+        if let Some(geojson::Geometry {
+            value: geojson::Value::LineString(ref pts),
+            ..
+        }) = feature.geometry
+        {
+            let mut points = Vec::new();
+            for pt in pts {
+                let x = pt[0];
+                let y = pt[1];
+                if let Some(ref gps) = gps {
+                    points.push(LonLat::new(x, y).to_pt(gps));
+                } else {
+                    points.push(Pt2D::new(x, y));
+                }
+            }
+            PolyLine::new(points)
+        } else {
+            bail!("Input isn't a LineString")
+        }
     }
 
     /// Returns the point on the polyline closest to the query.

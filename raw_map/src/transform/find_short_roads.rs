@@ -118,11 +118,13 @@ impl RawMap {
     /// A heuristic to find short roads in places that would otherwise be a normal four-way
     /// intersection
     ///
+    /// ```text
     ///       |
     ///       |
     /// ---X~~X----
     ///    |
     ///    |
+    /// ```
     ///
     /// The ~~ is the short road we want to detect
     pub fn find_dog_legs(&mut self) -> Vec<OriginalRoad> {

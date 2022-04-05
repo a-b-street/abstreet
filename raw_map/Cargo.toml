@@ -9,10 +9,12 @@ aabb-quadtree = "0.1.0"
 abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
 anyhow = "1.0.38"
+geojson = { version = "0.22.0", features = ["geo-types"] }
 geom = { path = "../geom" }
 kml = { path = "../kml" }
 log = "0.4.14"
 petgraph = { version = "0.6.0" }
 serde = "1.0.123"
+serde_json = "1.0.61"
 strum = "0.21"
 strum_macros = "0.21"

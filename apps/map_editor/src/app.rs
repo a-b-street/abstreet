@@ -1,7 +1,7 @@
 use geom::{Distance, Line, Polygon, Pt2D};
 use raw_map::osm;
 use widgetry::mapspace::WorldOutcome;
-use widgetry::tools::{open_browser, URLManager};
+use widgetry::tools::{open_browser, PopupMsg, URLManager};
 use widgetry::{
     lctrl, Canvas, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
     SharedAppState, State, Text, Toggle, Transition, VerticalAlignment, Widget,
@@ -107,6 +107,10 @@ impl MainState {
                             .btn_outline
                             .text("simplify RawMap")
                             .build_def(ctx),
+                        ctx.style()
+                            .btn_outline
+                            .text("save osm2polygons input")
+                            .build_def(ctx),
                     ])
                     .section(ctx),
                 ]),
@@ -208,6 +212,29 @@ impl State<App> for MainState {
                     }
                     WorldOutcome::Keypress("debug intersection geometry", ID::Intersection(i)) => {
                         app.model.debug_intersection_geometry(ctx, i);
+                    }
+                    WorldOutcome::Keypress("export to osm2polygon", ID::Intersection(i)) => {
+                        let input = format!("{}_input.json", i.0);
+                        let output = format!("{}_output.json", i.0);
+
+                        return Transition::Push(
+                            match app
+                                .model
+                                .map
+                                .save_osm2polygon_input(input.clone(), i)
+                                .and_then(|_| {
+                                    raw_map::geometry::osm2polygon(input.clone(), output.clone())
+                                }) {
+                                Ok(()) => PopupMsg::new_state(
+                                    ctx,
+                                    "Exported",
+                                    vec![format!("{input} and {output} written")],
+                                ),
+                                Err(err) => {
+                                    PopupMsg::new_state(ctx, "Error", vec![err.to_string()])
+                                }
+                            },
+                        );
                     }
                     WorldOutcome::Keypress("debug in OSM", ID::Intersection(i)) => {
                         open_browser(i.to_string());

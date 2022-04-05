@@ -1,0 +1,145 @@
+{
+  "features": [
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            -122.30379070002733,
+            47.64027179987448
+          ],
+          [
+            -122.30208770055275,
+            47.64026030024936
+          ]
+        ],
+        "type": "LineString"
+      },
+      "properties": {
+        "dst_i": 53219808,
+        "half_width": 5.0052,
+        "osm_tags": {
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "6470476",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "East McGraw Street",
+          "parking:lane:left": "no_parking",
+          "parking:lane:right": "parallel",
+          "sidewalk": "both"
+        },
+        "osm_way_id": 6470476,
+        "src_i": 53128048
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            -122.30553700036239,
+            47.64027949986591
+          ],
+          [
+            -122.30379070002733,
+            47.64027179987448
+          ]
+        ],
+        "type": "LineString"
+      },
+      "properties": {
+        "dst_i": 53128048,
+        "half_width": 6.072,
+        "osm_tags": {
+          "abst:osm_way_id": "6470476",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "East McGraw Street",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both"
+        },
+        "osm_way_id": 6470476,
+        "src_i": 53132239
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            -122.30379070002733,
+            47.64027179987448
+          ],
+          [
+            -122.3037816000006,
+            47.64098820034969
+          ]
+        ],
+        "type": "LineString"
+      },
+      "properties": {
+        "dst_i": 53128049,
+        "half_width": 6.072,
+        "osm_tags": {
+          "abst:osm_way_id": "36952952",
+          "abst:sidewalks_inferred": "true",
+          "cycleway": "shared_lane",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "22nd Avenue East",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both"
+        },
+        "osm_way_id": 36952952,
+        "src_i": 53128048
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            -122.30381599967639,
+            47.63953679963023
+          ],
+          [
+            -122.30379070002733,
+            47.64027179987448
+          ]
+        ],
+        "type": "LineString"
+      },
+      "properties": {
+        "dst_i": 53128048,
+        "half_width": 6.072,
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:osm_way_id": "36952952",
+          "abst:sidewalks_inferred": "true",
+          "cycleway": "shared_lane",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "22nd Avenue East",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both"
+        },
+        "osm_way_id": 36952952,
+        "src_i": 1705063811
+      },
+      "type": "Feature"
+    }
+  ],
+  "intersection_id": 53128048,
+  "max_lat": 47.6475,
+  "max_lon": -122.29823763124188,
+  "min_lat": 47.631503395519445,
+  "min_lon": -122.32188980178574,
+  "type": "FeatureCollection"
+}

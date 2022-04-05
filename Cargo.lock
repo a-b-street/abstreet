@@ -3106,11 +3106,13 @@ dependencies = [
  "abstio",
  "abstutil",
  "anyhow",
+ "geojson",
  "geom",
  "kml",
  "log",
  "petgraph",
  "serde",
+ "serde_json",
  "strum",
  "strum_macros",
 ]
