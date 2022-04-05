@@ -1,0 +1,168 @@
+{
+  "features": [
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            -122.33435550043262,
+            47.62456949994853
+          ],
+          [
+            -122.3336416001769,
+            47.62461460002774
+          ]
+        ],
+        "type": "LineString"
+      },
+      "properties": {
+        "dst_i": 244420071,
+        "half_width": 3.6576,
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "22768205",
+          "abst:sidewalks_inferred": "true",
+          "bicycle": "no",
+          "destination:ref": "I 5 North;I 5 South",
+          "destination:ref:to": "WA 520;I 90",
+          "highway": "motorway_link",
+          "lanes": "3",
+          "oneway": "yes",
+          "sidewalk": "none"
+        },
+        "osm_way_id": 22768205,
+        "src_i": 2706253474
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            -122.3336416001769,
+            47.62461460002774
+          ],
+          [
+            -122.33327549963687,
+            47.62470659972869
+          ],
+          [
+            -122.3328376006815,
+            47.624775700003596
+          ],
+          [
+            -122.33242239997828,
+            47.62487450037453
+          ],
+          [
+            -122.33219600048942,
+            47.624949100001054
+          ],
+          [
+            -122.33180189970145,
+            47.62505780010423
+          ],
+          [
+            -122.33077330051393,
+            47.62527980034059
+          ],
+          [
+            -122.33025129941775,
+            47.625413300136366
+          ],
+          [
+            -122.3300625996004,
+            47.62548210003785
+          ],
+          [
+            -122.32987579964264,
+            47.62558279977602
+          ],
+          [
+            -122.32969610014321,
+            47.625683000390694
+          ],
+          [
+            -122.32942609994427,
+            47.62586320015882
+          ]
+        ],
+        "type": "LineString"
+      },
+      "properties": {
+        "dst_i": 244420243,
+        "half_width": 2.4384,
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "22768213",
+          "abst:sidewalks_inferred": "true",
+          "bicycle": "no",
+          "destination:ref": "I 5 North",
+          "destination:ref:to": "WA 520",
+          "highway": "motorway_link",
+          "lanes": "2",
+          "lit": "yes",
+          "oneway": "yes",
+          "sidewalk": "none"
+        },
+        "osm_way_id": 22768213,
+        "src_i": 244420071
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            -122.3336416001769,
+            47.62461460002774
+          ],
+          [
+            -122.33312739997889,
+            47.624658700061325
+          ],
+          [
+            -122.33202610047641,
+            47.624795199993976
+          ],
+          [
+            -122.33172640029561,
+            47.624838999654145
+          ],
+          [
+            -122.33149019998618,
+            47.624887400243644
+          ]
+        ],
+        "type": "LineString"
+      },
+      "properties": {
+        "dst_i": 1806347875,
+        "half_width": 2.4384,
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:endpt_fwd": "true",
+          "abst:osm_way_id": "402084476",
+          "abst:sidewalks_inferred": "true",
+          "bicycle": "no",
+          "destination:ref": "I 5 South",
+          "destination:ref:to": "I 90",
+          "highway": "motorway_link",
+          "lanes": "2",
+          "oneway": "yes",
+          "sidewalk": "none"
+        },
+        "osm_way_id": 402084476,
+        "src_i": 244420071
+      },
+      "type": "Feature"
+    }
+  ],
+  "intersection_id": 244420071,
+  "max_lat": 47.630150806746016,
+  "max_lon": -122.32873656565454,
+  "min_lat": 47.61820860452586,
+  "min_lon": -122.3434292284645,
+  "type": "FeatureCollection"
+}

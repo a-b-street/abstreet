@@ -1,0 +1,114 @@
+{
+  "features": [
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            -122.30688540039368,
+            47.64175750071926
+          ],
+          [
+            -122.30553090031513,
+            47.641729899640445
+          ]
+        ],
+        "type": "LineString"
+      },
+      "properties": {
+        "dst_i": 53101724,
+        "half_width": 6.072,
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:osm_way_id": "6361203",
+          "abst:sidewalks_inferred": "true",
+          "highway": "residential",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "East Miller Street",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both"
+        },
+        "osm_way_id": 6361203,
+        "src_i": 53101721
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            -122.30688540039368,
+            47.64175750071926
+          ],
+          [
+            -122.3060409995847,
+            47.642475100889456
+          ]
+        ],
+        "type": "LineString"
+      },
+      "properties": {
+        "dst_i": 53206817,
+        "half_width": 6.072,
+        "osm_tags": {
+          "abst:osm_way_id": "6454018",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "highway": "tertiary",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "West Montlake Place East",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both"
+        },
+        "osm_way_id": 6454018,
+        "src_i": 53101721
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            -122.30722609957617,
+            47.64142270037968
+          ],
+          [
+            -122.3071591004792,
+            47.64152059962827
+          ],
+          [
+            -122.30688540039368,
+            47.64175750071926
+          ]
+        ],
+        "type": "LineString"
+      },
+      "properties": {
+        "dst_i": 53101721,
+        "half_width": 6.072,
+        "osm_tags": {
+          "abst:endpt_back": "true",
+          "abst:osm_way_id": "6454018",
+          "abst:parking_inferred": "true",
+          "abst:sidewalks_inferred": "true",
+          "highway": "tertiary",
+          "lanes": "2",
+          "maxspeed": "25 mph",
+          "name": "West Montlake Place East",
+          "parking:lane:both": "parallel",
+          "sidewalk": "both"
+        },
+        "osm_way_id": 6454018,
+        "src_i": 53126103
+      },
+      "type": "Feature"
+    }
+  ],
+  "intersection_id": 53101721,
+  "max_lat": 47.6475,
+  "max_lon": -122.29823763124188,
+  "min_lat": 47.631503395519445,
+  "min_lon": -122.32188980178574,
+  "type": "FeatureCollection"
+}

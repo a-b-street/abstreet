@@ -25,7 +25,7 @@ pub use self::types::{
     LaneType, MapConfig, NamePerLanguage, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS,
 };
 
-mod geometry;
+pub mod geometry;
 pub mod initial;
 mod lane_specs;
 pub mod osm;

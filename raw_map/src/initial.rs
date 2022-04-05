@@ -21,6 +21,7 @@ pub struct InitialMap {
 pub struct Road {
     // Redundant but useful to embed
     pub id: OriginalRoad,
+    // TODO Just do id.i1
     pub src_i: osm::NodeID,
     pub dst_i: osm::NodeID,
     // The true center of the road, including sidewalks

@@ -1,13 +1,3 @@
-//! OSM describes roads as center-lines that intersect. Turn these into road and intersection
-//! polygons roughly by
-//!
-//! 1) treating the road as a PolyLine with a width, so that it has a left and right edge
-//! 2) finding the places where the edges of different roads intersect
-//! 3) "Trimming back" the center lines to avoid the overlap
-//! 4) Producing a polygon for the intersection itsef
-//!
-//! I wrote a novella about this: <https://a-b-street.github.io/docs/tech/map/geometry/index.html>
-
 use std::collections::{BTreeMap, BTreeSet};
 
 use anyhow::Result;
