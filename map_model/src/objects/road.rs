@@ -269,6 +269,12 @@ impl Road {
             .min_by_key(|(idx, _)| (our_idx - (*idx as isize)).abs())
             .map(|(_, l)| l)
     }
+    /// This function returns the lane closest to the center from the left hand side of the street
+    pub fn get_lane_underneath_label(&self) -> LaneType {
+        let size = self.lanes.len() - 1;
+        let lane_type_under_label: LaneType = self.lanes[size / 2].lane_type;
+        return lane_type_under_label;
+    }
 
     /// This is the FIRST yellow line where the direction of the road changes. If multiple direction
     /// changes happen, the result is kind of arbitrary.

@@ -92,28 +92,30 @@ impl DrawRoad {
                         .zoomed_road_surface(LaneType::Driving, r.get_rank())
                 };
                 // TODO: find a good way to draw an appropriate background
-                if false {
-                    if r.center_pts.quadrant() > 1 && r.center_pts.quadrant() < 4 {
-                        batch.append(Line(name).fg(center_line_color).render_curvey(
+
+                if r.center_pts.quadrant() > 1 && r.center_pts.quadrant() < 4 {
+                    batch.append(
+                        Line(name).fg(center_line_color).render_curvey(
                             prerender,
                             &r.center_pts.reversed(),
                             0.1,
-                        ));
-                    } else {
-                        batch.append(Line(name).fg(center_line_color).render_curvey(
+                            app.cs().zoomed_road_surface(
+                                r.get_lane_underneath_label(),
+                                r.get_rank(),
+                            ),
+                        ),
+                    );
+                } else {
+                    batch.append(
+                        Line(name).fg(center_line_color).render_curvey(
                             prerender,
                             &r.center_pts,
                             0.1,
-                        ));
-                    }
-                } else {
-                    let txt = Text::from(Line(name).fg(center_line_color)).bg(bg);
-                    let (pt, angle) = r.center_pts.must_dist_along(r.length() / 2.0);
-                    batch.append(
-                        txt.render_autocropped(prerender)
-                            .scale(0.1)
-                            .centered_on(pt)
-                            .rotate_around_batch_center(angle.reorient()),
+                            app.cs().zoomed_road_surface(
+                                r.get_lane_underneath_label(),
+                                r.get_rank(),
+                            ),
+                        ),
                     );
                 }
             }

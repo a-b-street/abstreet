@@ -540,16 +540,26 @@ impl TextSpan {
         assets: &A,
         path: &PolyLine,
         scale: f64,
+        color: Color,
     ) -> GeomBatch {
         let assets = assets.as_ref();
         let tolerance = svg::HIGH_QUALITY;
 
         // Just set a sufficiently large view box
         let mut svg = r##"<svg width="9999" height="9999" viewBox="0 0 9999 9999" xmlns="http://www.w3.org/2000/svg">"##.to_string();
-
+        let height = (Text::from(&self.text).dims(assets).height * scale);
+        let width = (Text::from(&self.text).dims(assets).width * scale);
         write!(
             &mut svg,
-            r##"<path id="txtpath" fill="none" stroke="none" d=""##
+            r##"<rect x="0" y="0" width="{}" height="{}" fill="{}" />"##,
+            width,
+            height,
+            color.as_hex()
+        )
+        .unwrap();
+        write!(
+            &mut svg,
+            r##"<path id="txtpath" fill="none" stroke="none" d=""##,
         )
         .unwrap();
         write!(
