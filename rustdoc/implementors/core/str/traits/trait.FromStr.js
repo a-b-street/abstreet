@@ -1,3 +1,3 @@
 (function() {var implementors = {};
-implementors["raw_map"] = [{"text":"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.59.0/core/str/traits/trait.FromStr.html\" title=\"trait core::str::traits::FromStr\">FromStr</a> for <a class=\"enum\" href=\"raw_map/types/enum.AmenityType.html\" title=\"enum raw_map::types::AmenityType\">AmenityType</a>","synthetic":false,"types":["raw_map::types::AmenityType"]}];
+implementors["raw_map"] = [{"text":"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.60.0/core/str/traits/trait.FromStr.html\" title=\"trait core::str::traits::FromStr\">FromStr</a> for <a class=\"enum\" href=\"raw_map/types/enum.AmenityType.html\" title=\"enum raw_map::types::AmenityType\">AmenityType</a>","synthetic":false,"types":["raw_map::types::AmenityType"]}];
 if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
