@@ -607,6 +607,7 @@
 <span id="602">602</span>
 <span id="603">603</span>
 <span id="604">604</span>
+<span id="605">605</span>
 </pre><pre class="rust"><code><span class="doccomment">//! The sim crate runs a traffic simulation on top of the map_model. See also</span>
 <span class="doccomment">//! https://a-b-street.github.io/docs/tech/trafficsim/index.html.</span>
 <span class="doccomment">//!</span>
@@ -652,6 +653,7 @@
     <span class="ident">DrivingSimState</span>, <span class="ident">IntersectionSimState</span>, <span class="ident">ParkingSim</span>, <span class="ident">ParkingSimState</span>, <span class="ident">WalkingSimState</span>,
 };
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident"><span class="self">self</span>::pandemic::PandemicModel</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::prebake::PrebakeSummary</span>;
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident"><span class="self">self</span>::recorder::TrafficRecorder</span>;
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident"><span class="self">self</span>::router</span>::{<span class="ident">ActionAtEnd</span>, <span class="ident">Router</span>};
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident"><span class="self">self</span>::scheduler</span>::{<span class="ident">Command</span>, <span class="ident">Scheduler</span>};
