@@ -50,32 +50,38 @@ pub fn prebake(map: &Map, scenario: Scenario, timer: &mut Timer) -> PrebakeSumma
         scenario.scenario_name
     ));
 
-    let mut finished_trips = 0;
-    let mut cancelled_trips = 0;
-    // Use f64 seconds, since a serialized Duration has a low cap.
-    let mut total_trip_duration_seconds = 0.0;
-    for (_, _, _, maybe_duration) in &sim.get_analytics().finished_trips {
-        if let Some(dt) = maybe_duration {
-            finished_trips += 1;
-            total_trip_duration_seconds += dt.inner_seconds();
-        } else {
-            cancelled_trips += 1;
-        }
-    }
-    PrebakeSummary {
-        map: scenario.map_name.describe(),
-        scenario: scenario.scenario_name,
-        finished_trips,
-        cancelled_trips,
-        total_trip_duration_seconds,
-    }
+    PrebakeSummary::new(&sim, &scenario)
 }
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 pub struct PrebakeSummary {
     pub map: String,
     pub scenario: String,
     pub finished_trips: usize,
     pub cancelled_trips: usize,
     pub total_trip_duration_seconds: f64,
+}
+
+impl PrebakeSummary {
+    pub fn new(sim: &Sim, scenario: &Scenario) -> Self {
+        let mut finished_trips = 0;
+        let mut cancelled_trips = 0;
+        // Use f64 seconds, since a serialized Duration has a low cap.
+        let mut total_trip_duration_seconds = 0.0;
+        for (_, _, _, maybe_duration) in &sim.get_analytics().finished_trips {
+            if let Some(dt) = maybe_duration {
+                finished_trips += 1;
+                total_trip_duration_seconds += dt.inner_seconds();
+            } else {
+                cancelled_trips += 1;
+            }
+        }
+        Self {
+            map: scenario.map_name.describe(),
+            scenario: scenario.scenario_name.clone(),
+            finished_trips,
+            cancelled_trips,
+            total_trip_duration_seconds,
+        }
+    }
 }

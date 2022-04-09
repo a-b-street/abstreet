@@ -2,14 +2,15 @@
 
 use std::io::Write;
 
-use anyhow::Result;
+use anyhow::{bail, Result};
 use fs_err::File;
 use rand::seq::SliceRandom;
 
 use abstio::{CityName, MapName};
 use abstutil::Timer;
 use geom::{Distance, Duration, Time};
-use map_model::{IntersectionID, Map, Perimeter};
+use map_model::{IntersectionID, LaneType, Map, Perimeter, RoadID};
+use sim::{AlertHandler, PrebakeSummary, Sim, SimFlags, SimOptions};
 use synthpop::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
 
 fn main() -> Result<()> {
@@ -20,6 +21,7 @@ fn main() -> Result<()> {
     )))?;
     test_map_importer()?;
     check_proposals()?;
+    ab_test_spurious_diff()?;
     smoke_test()?;
     Ok(())
 }
@@ -300,4 +302,68 @@ fn test_blockfinding() -> Result<()> {
         writeln!(f, "    {} single blocks ({} failures to blockify), {} partial merges, {} failures to blockify partitions", num_singles_originally, num_singles_originally - num_singles_blockified, num_partial_merges, num_merged_block_failures)?;
     }
     Ok(())
+}
+
+fn ab_test_spurious_diff() -> Result<()> {
+    let mut timer = Timer::new("A/B test spurious diff");
+    let mut map =
+        map_model::Map::load_synchronously(MapName::seattle("montlake").path(), &mut timer);
+    let scenario: Scenario =
+        abstio::read_binary(abstio::path_scenario(map.get_name(), "weekday"), &mut timer);
+
+    let no_map_edits = run_sim(&map, &scenario, &mut timer);
+
+    // Make some arbitrary map edits
+    let mut edits = map.get_edits().clone();
+    // It doesn't matter much which road, but if the map changes over time, it could eventually be
+    // necessary to fiddle with this
+    edits.commands.push(map.edit_road_cmd(RoadID(565), |new| {
+        assert_eq!(new.lanes_ltr[1].lt, LaneType::Parking);
+        new.lanes_ltr[1].lt = LaneType::Biking;
+    }));
+    map.must_apply_edits(edits, &mut timer);
+    map.recalculate_pathfinding_after_edits(&mut timer);
+
+    let with_map_edits = run_sim(&map, &scenario, &mut timer);
+
+    // Undo the edits
+    let mut edits = map.get_edits().clone();
+    edits.commands.pop();
+    assert!(edits.commands.is_empty());
+    map.must_apply_edits(edits, &mut timer);
+    map.recalculate_pathfinding_after_edits(&mut timer);
+
+    let after_undoing_map_edits = run_sim(&map, &scenario, &mut timer);
+
+    if no_map_edits.total_trip_duration_seconds == with_map_edits.total_trip_duration_seconds {
+        bail!("Changing a parking lane to a bike lane had no effect at all; this is super unlikely; the test is somehow broken");
+    }
+
+    // Ignore tiny floating point errors
+    if no_map_edits.total_trip_duration_seconds.round()
+        != after_undoing_map_edits.total_trip_duration_seconds.round()
+    {
+        bail!("Undoing map edits resulted in a diff relative to running against the original map: {:?} vs {:?}", no_map_edits, after_undoing_map_edits);
+    }
+
+    Ok(())
+}
+
+fn run_sim(map: &Map, scenario: &Scenario, timer: &mut Timer) -> PrebakeSummary {
+    let mut opts = SimOptions::new("prebaked");
+    opts.alerts = AlertHandler::Silence;
+    let mut sim = Sim::new(map, opts);
+    // Bit of an abuse of this, but just need to fix the rng seed.
+    let mut rng = SimFlags::for_test("prebaked").make_rng();
+    sim.instantiate(scenario, map, &mut rng, timer);
+
+    // Run until a few hours after the end of the day
+    sim.timed_step(
+        map,
+        sim.get_end_of_day() - Time::START_OF_DAY + Duration::hours(3),
+        &mut None,
+        timer,
+    );
+
+    PrebakeSummary::new(&sim, scenario)
 }

@@ -43,6 +43,7 @@ pub(crate) use self::mechanics::{
     DrivingSimState, IntersectionSimState, ParkingSim, ParkingSimState, WalkingSimState,
 };
 pub(crate) use self::pandemic::PandemicModel;
+pub use self::prebake::PrebakeSummary;
 pub(crate) use self::recorder::TrafficRecorder;
 pub(crate) use self::router::{ActionAtEnd, Router};
 pub(crate) use self::scheduler::{Command, Scheduler};
