@@ -40,6 +40,7 @@ pub struct Options {
     pub filter_crosswalks: bool,
     /// Configure public transit using this URL to a static GTFS feed in .zip format.
     pub gtfs_url: Option<String>,
+    pub elevation: bool,
 }
 
 /// What roads will have on-street parking lanes? Data from
@@ -105,12 +106,13 @@ pub fn convert(
 
     parking::apply_parking(&mut map, &opts, timer);
 
-    // TODO Make this bail out on failure, after the new dependencies are clearly explained.
-    timer.start("add elevation data");
-    if let Err(err) = elevation::add_data(&mut map) {
-        error!("No elevation data: {}", err);
+    if opts.elevation {
+        timer.start("add elevation data");
+        if let Err(err) = elevation::add_data(&mut map) {
+            error!("No elevation data: {}", err);
+        }
+        timer.stop("add elevation data");
     }
-    timer.stop("add elevation data");
     if let Some(ref path) = opts.extra_buildings {
         add_extra_buildings(&mut map, path).unwrap();
     }

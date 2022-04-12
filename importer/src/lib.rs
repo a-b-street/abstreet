@@ -82,6 +82,7 @@ pub async fn oneshot(
             skip_local_roads: false,
             filter_crosswalks,
             gtfs_url: None,
+            elevation: false,
         },
         &mut timer,
     );

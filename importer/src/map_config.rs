@@ -80,5 +80,6 @@ pub fn config_for_map(name: &MapName) -> convert_osm::Options {
         } else {
             None
         },
+        elevation: true,
     }
 }
