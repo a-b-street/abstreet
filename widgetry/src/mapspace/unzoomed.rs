@@ -9,42 +9,64 @@ use crate::{Color, Drawable, GeomBatch, GfxCtx};
 /// approximated by discretizing into 10 buckets. The scaling only happens when the canvas is
 /// zoomed out less than a value of 1.0.
 pub struct DrawUnzoomedShapes {
-    lines: Vec<UnzoomedLine>,
-    circles: Vec<UnzoomedCircle>,
+    shapes: Vec<Shape>,
     per_zoom: RefCell<[Option<Drawable>; 11]>,
 }
 
-struct UnzoomedLine {
-    polyline: PolyLine,
-    width: Distance,
-    color: Color,
+enum Shape {
+    Line {
+        polyline: PolyLine,
+        width: Distance,
+        color: Color,
+    },
+    Circle {
+        center: Pt2D,
+        radius: Distance,
+        color: Color,
+    },
 }
 
-struct UnzoomedCircle {
-    center: Pt2D,
-    radius: Distance,
-    color: Color,
+impl Shape {
+    fn render(&self, batch: &mut GeomBatch, thickness: f64) {
+        match self {
+            Shape::Line {
+                polyline,
+                width,
+                color,
+            } => {
+                batch.push(*color, polyline.make_polygons(thickness * *width));
+            }
+            Shape::Circle {
+                center,
+                radius,
+                color,
+            } => {
+                // TODO Here especially if we're drawing lots of circles with the same radius,
+                // generating the shape once and translating it is much more efficient.
+                // UnzoomedAgents does this.
+                batch.push(
+                    *color,
+                    Circle::new(*center, thickness * *radius).to_polygon(),
+                );
+            }
+        }
+    }
 }
 
 pub struct DrawUnzoomedShapesBuilder {
-    lines: Vec<UnzoomedLine>,
-    circles: Vec<UnzoomedCircle>,
+    shapes: Vec<Shape>,
 }
 
 impl DrawUnzoomedShapes {
     pub fn empty() -> Self {
         Self {
-            lines: Vec::new(),
-            circles: Vec::new(),
+            shapes: Vec::new(),
             per_zoom: Default::default(),
         }
     }
 
     pub fn builder() -> DrawUnzoomedShapesBuilder {
-        DrawUnzoomedShapesBuilder {
-            lines: Vec::new(),
-            circles: Vec::new(),
-        }
+        DrawUnzoomedShapesBuilder { shapes: Vec::new() }
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
@@ -58,8 +80,9 @@ impl DrawUnzoomedShapes {
             let thickness = 1.0 + (max - 1.0) * (1.0 - zoom);
 
             let mut batch = GeomBatch::new();
-            render_lines(&mut batch, &self.lines, thickness);
-            render_circles(&mut batch, &self.circles, thickness);
+            for shape in &self.shapes {
+                shape.render(&mut batch, thickness);
+            }
             *value = Some(g.upload(batch));
         }
         g.redraw(value.as_ref().unwrap());
@@ -68,7 +91,7 @@ impl DrawUnzoomedShapes {
 
 impl DrawUnzoomedShapesBuilder {
     pub fn add_line(&mut self, polyline: PolyLine, width: Distance, color: Color) {
-        self.lines.push(UnzoomedLine {
+        self.shapes.push(Shape::Line {
             polyline,
             width,
             color,
@@ -76,7 +99,7 @@ impl DrawUnzoomedShapesBuilder {
     }
 
     pub fn add_circle(&mut self, center: Pt2D, radius: Distance, color: Color) {
-        self.circles.push(UnzoomedCircle {
+        self.shapes.push(Shape::Circle {
             center,
             radius,
             color,
@@ -86,8 +109,7 @@ impl DrawUnzoomedShapesBuilder {
     // TODO We might take EventCtx here to upload something to the GPU.
     pub fn build(self) -> DrawUnzoomedShapes {
         DrawUnzoomedShapes {
-            lines: self.lines,
-            circles: self.circles,
+            shapes: self.shapes,
             per_zoom: Default::default(),
         }
     }
@@ -104,24 +126,4 @@ fn discretize_zoom(zoom: f64) -> (f64, usize) {
     let rounded = (zoom * 10.0).round();
     let idx = rounded as usize;
     (rounded / 10.0, idx)
-}
-
-fn render_lines(batch: &mut GeomBatch, lines: &[UnzoomedLine], thickness: f64) {
-    for line in lines {
-        batch.push(
-            line.color,
-            line.polyline.make_polygons(thickness * line.width),
-        );
-    }
-}
-
-fn render_circles(batch: &mut GeomBatch, circles: &[UnzoomedCircle], thickness: f64) {
-    // TODO Here especially if we're drawing lots of circles with the same radius, generating the
-    // shape once and translating it is much more efficient. UnzoomedAgents does this.
-    for circle in circles {
-        batch.push(
-            circle.color,
-            Circle::new(circle.center, thickness * circle.radius).to_polygon(),
-        );
-    }
 }
