@@ -329,9 +329,8 @@ impl State<App> for RoutePlanner {
         self.top_panel.draw(g);
         self.left_panel.draw(g);
 
-        self.world.draw(g);
-
         self.draw_routes.draw(g);
+        self.world.draw(g);
         app.session.draw_all_filters.draw(g);
         if g.canvas.is_unzoomed() {
             self.labels.draw(g, app);
