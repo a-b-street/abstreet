@@ -1,6 +1,6 @@
 use std::collections::{HashSet, VecDeque};
 
-use geom::{Bounds, Distance, Polygon};
+use geom::{Bounds, Distance, PolyLine, Polygon};
 use map_gui::tools::Grid;
 use map_model::Map;
 use widgetry::{Color, GeomBatch};
@@ -38,13 +38,8 @@ impl RenderCells {
         let mut batch = GeomBatch::new();
         for (color, polygons) in self.colors.iter().zip(self.polygons_per_cell.iter()) {
             for poly in polygons {
-                // Drop shadow!
-                if let Ok(p) = poly.to_outline(Distance::meters(5.0)) {
-                    batch.push(Color::BLACK, p);
-                }
-                if let Ok(p) = poly.to_outline(Distance::meters(3.0)) {
-                    batch.push(Color::grey(0.5), p);
-                }
+                // Dashed outline, hacktastic way
+                batch.extend(Color::BLACK, PolyLine::unchecked_new(poly.clone().into_points()).exact_dashed_polygons(Distance::meters(6.0), Distance::meters(15.0), Distance::meters(10.0)));
             }
         }
         batch
