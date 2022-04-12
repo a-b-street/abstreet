@@ -24,6 +24,7 @@ enum Shape {
         radius: Distance,
         color: Color,
     },
+    Custom(Box<dyn Fn(&mut GeomBatch, f64)>),
 }
 
 impl Shape {
@@ -49,6 +50,7 @@ impl Shape {
                     Circle::new(*center, thickness * *radius).to_polygon(),
                 );
             }
+            Shape::Custom(f) => f(batch, thickness),
         }
     }
 }
@@ -104,6 +106,12 @@ impl DrawUnzoomedShapesBuilder {
             radius,
             color,
         });
+    }
+
+    /// Custom drawing code can add anything it wants to a batch, using a specified thickness in
+    /// the [1.0, 5.0] range
+    pub fn add_custom(&mut self, f: Box<dyn Fn(&mut GeomBatch, f64)>) {
+        self.shapes.push(Shape::Custom(f));
     }
 
     // TODO We might take EventCtx here to upload something to the GPU.

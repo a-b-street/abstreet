@@ -98,11 +98,23 @@ impl ModalFilters {
             if let Ok((pt, angle)) = road.center_pts.dist_along(*dist) {
                 let road_width = road.get_width();
 
-                // TODO DrawUnzoomedShapes can do lines, but they don't stretch as the radius does,
-                // so it looks weird
-                low_zoom.add_circle(pt, Distance::meters(8.0), *colors::FILTER_OUTER);
-                low_zoom.add_circle(pt, Distance::meters(6.0), *colors::FILTER_INNER);
+                low_zoom.add_circle(pt, road_width, *colors::FILTER_OUTER);
+                // Unzoomed lines aren't sufficient; they only vary the width. We need to stretch
+                // the line to cover the growing circle.
+                low_zoom.add_custom(Box::new(move |batch, thickness| {
+                    batch.push(
+                        *colors::FILTER_INNER,
+                        Line::must_new(
+                            pt.project_away(0.8 * thickness * road_width, angle.rotate_degs(90.0)),
+                            pt.project_away(0.8 * thickness * road_width, angle.rotate_degs(-90.0)),
+                        )
+                        .to_polyline()
+                        .make_polygons(thickness * Distance::meters(7.0)),
+                    );
+                }));
 
+                // TODO Ideally we get rid of Toggle3Zoomed and make DrawUnzoomedShapes handle this
+                // medium-zoom case.
                 batch.unzoomed.push(
                     *colors::FILTER_OUTER,
                     Circle::new(pt, road_width).to_polygon(),
@@ -130,11 +142,20 @@ impl ModalFilters {
         for (_, filter) in &self.intersections {
             let line = filter.geometry(map);
 
-            // It's really hard to see a tiny squished line thickened, so use the same circle
-            // symbology at really low zooms
+            let length = line.length();
+            let angle = line.angle();
             let pt = line.middle().unwrap();
-            low_zoom.add_circle(pt, Distance::meters(8.0), *colors::FILTER_OUTER);
-            low_zoom.add_circle(pt, Distance::meters(6.0), *colors::FILTER_INNER);
+            low_zoom.add_custom(Box::new(move |batch, thickness| {
+                batch.push(
+                    *colors::FILTER_OUTER,
+                    Line::must_new(
+                        pt.project_away(thickness * length / 2.0, angle),
+                        pt.project_away(thickness * length / 2.0, angle.opposite()),
+                    )
+                    .to_polyline()
+                    .make_polygons(thickness * Distance::meters(3.0)),
+                );
+            }));
 
             batch.unzoomed.push(
                 *colors::FILTER_OUTER,
