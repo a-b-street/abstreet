@@ -1086,314 +1086,314 @@
       "compressed_size_bytes": 38287
     },
     "data/input/gb/london/osm/barking_and_dagenham.osm": {
-      "checksum": "f1ce782e15379d357292a15cf7c7e62e",
-      "uncompressed_size_bytes": 20888948,
-      "compressed_size_bytes": 2099660
+      "checksum": "c4634d0e6da3bc87a08d9c1a1a5d141b",
+      "uncompressed_size_bytes": 22199050,
+      "compressed_size_bytes": 2234162
     },
     "data/input/gb/london/osm/barnet.osm": {
-      "checksum": "6aa5554bfb9bc03aca12fe9bef5f8fec",
-      "uncompressed_size_bytes": 83729034,
-      "compressed_size_bytes": 8138249
+      "checksum": "f7766abea503d3ee68627ca54266fd34",
+      "uncompressed_size_bytes": 88550329,
+      "compressed_size_bytes": 8595228
     },
     "data/input/gb/london/osm/bexley.osm": {
-      "checksum": "39664197fd9d83e735f366f39e061abd",
-      "uncompressed_size_bytes": 43431897,
-      "compressed_size_bytes": 4154369
+      "checksum": "81edcb08aea650e7e9891a11d7ee84a4",
+      "uncompressed_size_bytes": 47376790,
+      "compressed_size_bytes": 4507198
     },
     "data/input/gb/london/osm/brent.osm": {
-      "checksum": "3d89b6ec0bed6b2506676e0901f36f40",
-      "uncompressed_size_bytes": 39532036,
-      "compressed_size_bytes": 3821549
+      "checksum": "745c247dad22f366817de93055a86f7b",
+      "uncompressed_size_bytes": 41035959,
+      "compressed_size_bytes": 3953308
     },
     "data/input/gb/london/osm/bromley.osm": {
-      "checksum": "23e47ce73213b9e0868318f4405f479d",
-      "uncompressed_size_bytes": 51318963,
-      "compressed_size_bytes": 5300860
+      "checksum": "61fed475d6207159c992d193f771aa2b",
+      "uncompressed_size_bytes": 60140756,
+      "compressed_size_bytes": 6059129
     },
     "data/input/gb/london/osm/camden.osm": {
-      "checksum": "fa0727f8aea20a805c7589173994e06d",
-      "uncompressed_size_bytes": 53941469,
-      "compressed_size_bytes": 5796207
+      "checksum": "f78116c53f5c69fbf31513c6b5e52e0e",
+      "uncompressed_size_bytes": 57134946,
+      "compressed_size_bytes": 6102888
     },
     "data/input/gb/london/osm/central.osm": {
-      "checksum": "d048e12cac1d707a992a9639431e6ba4",
-      "uncompressed_size_bytes": 246624113,
-      "compressed_size_bytes": 27005184
+      "checksum": "f7c9ba539b2ae3821e13846228bedfac",
+      "uncompressed_size_bytes": 251850760,
+      "compressed_size_bytes": 27525022
     },
     "data/input/gb/london/osm/city_of_london.osm": {
-      "checksum": "61865a713f56df39b5ed35a3450c1b76",
-      "uncompressed_size_bytes": 17665914,
-      "compressed_size_bytes": 2096804
+      "checksum": "66c8e40fb9c5c4060b2577df8e2ba70c",
+      "uncompressed_size_bytes": 17922098,
+      "compressed_size_bytes": 2119599
     },
     "data/input/gb/london/osm/croydon.osm": {
-      "checksum": "67a8837f5f398a5626cf422c0b1af7e3",
-      "uncompressed_size_bytes": 41731884,
-      "compressed_size_bytes": 4331183
+      "checksum": "a2ed22cb577a8f75f6202a9765cdb667",
+      "uncompressed_size_bytes": 43189528,
+      "compressed_size_bytes": 4467565
     },
     "data/input/gb/london/osm/ealing.osm": {
-      "checksum": "4821db8e3c926a2f3c442bdff40d7eb9",
-      "uncompressed_size_bytes": 45800856,
-      "compressed_size_bytes": 4644646
+      "checksum": "c1b0a2443f5ae7295a7c1ef57dd46754",
+      "uncompressed_size_bytes": 47889389,
+      "compressed_size_bytes": 4809086
     },
     "data/input/gb/london/osm/greater-london-latest.osm.pbf": {
-      "checksum": "550e3f02ae5395d10fd69fa54dd61c61",
-      "uncompressed_size_bytes": 92242713,
-      "compressed_size_bytes": 92217564
+      "checksum": "97d9d04491ec22e754d6189ae944964b",
+      "uncompressed_size_bytes": 81639486,
+      "compressed_size_bytes": 81579088
     },
     "data/input/gb/london/osm/greenwich.osm": {
-      "checksum": "f7be4923ca3364cef9e838ec9d2cf0ae",
-      "uncompressed_size_bytes": 44856685,
-      "compressed_size_bytes": 4550971
+      "checksum": "22c044f686588e19ecba611743723e79",
+      "uncompressed_size_bytes": 51664271,
+      "compressed_size_bytes": 5188632
     },
     "data/input/gb/london/osm/hackney.osm": {
-      "checksum": "0a30e787fcbbc2b89177c0f52aa5f0f6",
-      "uncompressed_size_bytes": 38793482,
-      "compressed_size_bytes": 4309008
+      "checksum": "5f728d29a7da68c05451a51616a86cbd",
+      "uncompressed_size_bytes": 40386030,
+      "compressed_size_bytes": 4470394
     },
     "data/input/gb/london/osm/hammersmith_and_fulham.osm": {
-      "checksum": "e76aed467a3d5410df5e5879ee4bf627",
-      "uncompressed_size_bytes": 44905727,
-      "compressed_size_bytes": 4322150
+      "checksum": "4c12fb824aa567da7155b60ea53dceb1",
+      "uncompressed_size_bytes": 45705202,
+      "compressed_size_bytes": 4389321
     },
     "data/input/gb/london/osm/haringey.osm": {
-      "checksum": "fc99f03285e11a6657f14d1ae3212229",
-      "uncompressed_size_bytes": 37910930,
-      "compressed_size_bytes": 3817105
+      "checksum": "cf03ac4d395e3a2ab41fa785ae57137f",
+      "uncompressed_size_bytes": 44207333,
+      "compressed_size_bytes": 4394422
     },
     "data/input/gb/london/osm/harrow.osm": {
-      "checksum": "3cc67bb2b33c7f8e50438cca37616017",
-      "uncompressed_size_bytes": 22366127,
-      "compressed_size_bytes": 2410010
+      "checksum": "ad4b601d5571bc50e9283eb3f84ddf0d",
+      "uncompressed_size_bytes": 23072736,
+      "compressed_size_bytes": 2477371
     },
     "data/input/gb/london/osm/havering.osm": {
-      "checksum": "777126661bbb190cf3b4588d9a856d71",
-      "uncompressed_size_bytes": 50202111,
-      "compressed_size_bytes": 4778567
+      "checksum": "a20a9067535f7101427e3aea6a758b5a",
+      "uncompressed_size_bytes": 50608590,
+      "compressed_size_bytes": 4820654
     },
     "data/input/gb/london/osm/hillingdon.osm": {
-      "checksum": "33ab41e6a69785c64215618b67d27533",
-      "uncompressed_size_bytes": 46238298,
-      "compressed_size_bytes": 4950577
+      "checksum": "0edd3722947d21c89dab5e4c8519c142",
+      "uncompressed_size_bytes": 47113866,
+      "compressed_size_bytes": 5046360
     },
     "data/input/gb/london/osm/hounslow.osm": {
-      "checksum": "5fe5fe6a3463e1aca73de4e9731bfc84",
-      "uncompressed_size_bytes": 30774933,
-      "compressed_size_bytes": 3390585
+      "checksum": "c5f6bb53618e483afccd4e378c64656a",
+      "uncompressed_size_bytes": 32595528,
+      "compressed_size_bytes": 3574583
     },
     "data/input/gb/london/osm/islington.osm": {
-      "checksum": "de9f9dfc161fb25e73a8e70a423d5f55",
-      "uncompressed_size_bytes": 39798998,
-      "compressed_size_bytes": 4322726
+      "checksum": "b4eb207ddf4c0455073d764d32943a56",
+      "uncompressed_size_bytes": 41260813,
+      "compressed_size_bytes": 4461436
     },
     "data/input/gb/london/osm/kennington.osm": {
-      "checksum": "60e61ad6d93c87c24aca866ad418ca35",
-      "uncompressed_size_bytes": 7997541,
-      "compressed_size_bytes": 847287
+      "checksum": "a6b26ae0d5b77549cc21adab218b094b",
+      "uncompressed_size_bytes": 8588522,
+      "compressed_size_bytes": 899485
     },
     "data/input/gb/london/osm/kensington_and_chelsea.osm": {
-      "checksum": "24587fa077da504e2563fb2d25a4f6e2",
-      "uncompressed_size_bytes": 42378951,
-      "compressed_size_bytes": 4241358
+      "checksum": "fa93ef19ea397d39745a4835b70080c4",
+      "uncompressed_size_bytes": 42572774,
+      "compressed_size_bytes": 4257738
     },
     "data/input/gb/london/osm/kingston_upon_thames.osm": {
-      "checksum": "7b453d18db45647ef1ef1b475066d0ac",
-      "uncompressed_size_bytes": 34752420,
-      "compressed_size_bytes": 3467011
+      "checksum": "675182a126ad5fe644642962a56551c1",
+      "uncompressed_size_bytes": 35512778,
+      "compressed_size_bytes": 3541002
     },
     "data/input/gb/london/osm/lewisham.osm": {
-      "checksum": "07a9d02db6bff3362bbcaefaf53ce2a3",
-      "uncompressed_size_bytes": 41203490,
-      "compressed_size_bytes": 4137872
+      "checksum": "3b9f00f6480d783a7796db65372a708c",
+      "uncompressed_size_bytes": 43953391,
+      "compressed_size_bytes": 4401808
     },
     "data/input/gb/london/osm/newham.osm": {
-      "checksum": "07ecc339628b1e68a615401bb53974de",
-      "uncompressed_size_bytes": 65742830,
-      "compressed_size_bytes": 6593905
+      "checksum": "489bbfe8dee0fa44f7c9316f7ef90953",
+      "uncompressed_size_bytes": 75183633,
+      "compressed_size_bytes": 7398436
     },
     "data/input/gb/london/osm/redbridge.osm": {
-      "checksum": "eae645d9c462d3ace9739b62d1f226d9",
-      "uncompressed_size_bytes": 22283017,
-      "compressed_size_bytes": 2358063
+      "checksum": "c2b6f74b9cd8c1d1a9642decc03e016f",
+      "uncompressed_size_bytes": 23717679,
+      "compressed_size_bytes": 2488607
     },
     "data/input/gb/london/osm/richmond_upon_thames.osm": {
-      "checksum": "923ea055454493d33311df728c7a169d",
-      "uncompressed_size_bytes": 60790190,
-      "compressed_size_bytes": 5990996
+      "checksum": "3aa25759e9c3e90fd991f5b9723fc66f",
+      "uncompressed_size_bytes": 62788528,
+      "compressed_size_bytes": 6180544
     },
     "data/input/gb/london/osm/southwark.osm": {
-      "checksum": "5ea57f54ec65686ace499d729522d97d",
-      "uncompressed_size_bytes": 71428366,
-      "compressed_size_bytes": 6692640
+      "checksum": "ddd1016bb31a60762b72c4c9482351d9",
+      "uncompressed_size_bytes": 72512895,
+      "compressed_size_bytes": 6805880
     },
     "data/input/gb/london/osm/sutton.osm": {
-      "checksum": "f6ecd966906aeb1469337278688ef84e",
-      "uncompressed_size_bytes": 42297962,
-      "compressed_size_bytes": 4155727
+      "checksum": "6cccf2b1133bd05a8f89d3e7a801e7de",
+      "uncompressed_size_bytes": 42605617,
+      "compressed_size_bytes": 4184795
     },
     "data/input/gb/london/osm/tower_hamlets.osm": {
-      "checksum": "181748ecb1772b4e9c8eaa1f061d46cb",
-      "uncompressed_size_bytes": 43524444,
-      "compressed_size_bytes": 4993043
+      "checksum": "07419ac8518b69df16594742ad8ed034",
+      "uncompressed_size_bytes": 46147867,
+      "compressed_size_bytes": 5233948
     },
     "data/input/gb/london/osm/westminster.osm": {
-      "checksum": "8d5a703497ac5548795411aae7ef42aa",
-      "uncompressed_size_bytes": 69590538,
-      "compressed_size_bytes": 7605925
+      "checksum": "29844268c1cab43bc0ad66dee6549602",
+      "uncompressed_size_bytes": 70473993,
+      "compressed_size_bytes": 7688902
     },
     "data/input/gb/london/raw_maps/barking_and_dagenham.bin": {
-      "checksum": "b9938531c0972e97556ece65cd790068",
-      "uncompressed_size_bytes": 6648773,
-      "compressed_size_bytes": 1174142
+      "checksum": "73f05a2dd8451e4ed6432ade06d64340",
+      "uncompressed_size_bytes": 6952810,
+      "compressed_size_bytes": 1243554
     },
     "data/input/gb/london/raw_maps/barnet.bin": {
-      "checksum": "6cfdf22a54b4c884c1e36dd4c510c9ed",
-      "uncompressed_size_bytes": 20872849,
-      "compressed_size_bytes": 4816737
+      "checksum": "a629699df24b00f01b6d2dff68d9636c",
+      "uncompressed_size_bytes": 22291663,
+      "compressed_size_bytes": 5084171
     },
     "data/input/gb/london/raw_maps/bexley.bin": {
-      "checksum": "973295392c876c61af691b1a03378e2c",
-      "uncompressed_size_bytes": 13012979,
-      "compressed_size_bytes": 2483978
+      "checksum": "8b24a94a3699bbc4f0519abc372f1cb6",
+      "uncompressed_size_bytes": 13959318,
+      "compressed_size_bytes": 2685771
     },
     "data/input/gb/london/raw_maps/brent.bin": {
-      "checksum": "3fdae591efae9a2ea59085a977f55b32",
-      "uncompressed_size_bytes": 11711179,
-      "compressed_size_bytes": 2008714
+      "checksum": "3e1df651bcb61e2fd17cee83935d035c",
+      "uncompressed_size_bytes": 12080786,
+      "compressed_size_bytes": 2091943
     },
     "data/input/gb/london/raw_maps/bromley.bin": {
-      "checksum": "a2ee07b90c1a03767c67779b74d8e319",
-      "uncompressed_size_bytes": 13486380,
-      "compressed_size_bytes": 2735013
+      "checksum": "4a6007846edebfb0987accf1935ff4ed",
+      "uncompressed_size_bytes": 15673840,
+      "compressed_size_bytes": 3204919
     },
     "data/input/gb/london/raw_maps/camden.bin": {
-      "checksum": "75a9e4d2aa0b7dcba9c5dee8994496cc",
-      "uncompressed_size_bytes": 13424557,
-      "compressed_size_bytes": 2818395
+      "checksum": "e337a72f20f8e9ce94f42bbbdf784012",
+      "uncompressed_size_bytes": 14442308,
+      "compressed_size_bytes": 3008400
     },
     "data/input/gb/london/raw_maps/central.bin": {
-      "checksum": "ecb8c024cd191b233fd3484ae04aa668",
-      "uncompressed_size_bytes": 68507442,
-      "compressed_size_bytes": 14035838
+      "checksum": "da7ad2c7236f61ca6e096b65c4fecb13",
+      "uncompressed_size_bytes": 69792257,
+      "compressed_size_bytes": 14241504
     },
     "data/input/gb/london/raw_maps/city_of_london.bin": {
-      "checksum": "92003a4831a949fa33c049ae4327c067",
-      "uncompressed_size_bytes": 3497478,
-      "compressed_size_bytes": 727472
+      "checksum": "13560398ff2cc3c014bba69f1dc88ac0",
+      "uncompressed_size_bytes": 3573388,
+      "compressed_size_bytes": 738215
     },
     "data/input/gb/london/raw_maps/croydon.bin": {
-      "checksum": "0907b339860116a5ef08ccdae999b3b2",
-      "uncompressed_size_bytes": 11986018,
-      "compressed_size_bytes": 2280265
+      "checksum": "a04a04c3dbb301cd23d687dc6257b148",
+      "uncompressed_size_bytes": 12296407,
+      "compressed_size_bytes": 2342337
     },
     "data/input/gb/london/raw_maps/ealing.bin": {
-      "checksum": "c1eeb57957350c8e3c9b7b066979c043",
-      "uncompressed_size_bytes": 12812589,
-      "compressed_size_bytes": 2335941
+      "checksum": "f3053a3736d070db120439e12e4a161e",
+      "uncompressed_size_bytes": 13580821,
+      "compressed_size_bytes": 2421238
     },
     "data/input/gb/london/raw_maps/greenwich.bin": {
-      "checksum": "c9b6f462c394822ab33620588caf73fe",
-      "uncompressed_size_bytes": 11829940,
-      "compressed_size_bytes": 2286012
+      "checksum": "e640b7d744ae9a2baf55a7d5beecb6c7",
+      "uncompressed_size_bytes": 13101160,
+      "compressed_size_bytes": 2598955
     },
     "data/input/gb/london/raw_maps/hackney.bin": {
-      "checksum": "20bce3ea3a27998c73e8f1e797753d36",
-      "uncompressed_size_bytes": 10555160,
-      "compressed_size_bytes": 2090449
+      "checksum": "8593e0d4283631d1246dfc36359fd815",
+      "uncompressed_size_bytes": 10969610,
+      "compressed_size_bytes": 2173531
     },
     "data/input/gb/london/raw_maps/hammersmith_and_fulham.bin": {
-      "checksum": "b4322de58aa514cf617d68eef72fb691",
-      "uncompressed_size_bytes": 8485535,
-      "compressed_size_bytes": 1915517
+      "checksum": "9ac241e1ad3b2eeb09522f39d3cf67ff",
+      "uncompressed_size_bytes": 8656834,
+      "compressed_size_bytes": 1938443
     },
     "data/input/gb/london/raw_maps/haringey.bin": {
-      "checksum": "15954971e1d767271c2bca0e86ff749b",
-      "uncompressed_size_bytes": 10546979,
-      "compressed_size_bytes": 2087524
+      "checksum": "521bfcaa457bb78b80bf4fa77531e230",
+      "uncompressed_size_bytes": 12090636,
+      "compressed_size_bytes": 2464213
     },
     "data/input/gb/london/raw_maps/harrow.bin": {
-      "checksum": "7d4c1037e1ea3d3f909dba635ab6e25c",
-      "uncompressed_size_bytes": 6477979,
-      "compressed_size_bytes": 1123876
+      "checksum": "2f6789b739a30a7cb8ed298e81291b0c",
+      "uncompressed_size_bytes": 6621058,
+      "compressed_size_bytes": 1163209
     },
     "data/input/gb/london/raw_maps/havering.bin": {
-      "checksum": "3859f1e1445ebed04863d6e906292b8e",
-      "uncompressed_size_bytes": 13548818,
-      "compressed_size_bytes": 2749890
+      "checksum": "6745df7913811f8009cf118c5aa2e4ac",
+      "uncompressed_size_bytes": 13601319,
+      "compressed_size_bytes": 2761286
     },
     "data/input/gb/london/raw_maps/hillingdon.bin": {
-      "checksum": "9f62d8aae4d6d2aa8444ff5000a81eb3",
-      "uncompressed_size_bytes": 11435622,
-      "compressed_size_bytes": 2318779
+      "checksum": "e1c33c91f0a6baa5164c9270e16e0289",
+      "uncompressed_size_bytes": 11635666,
+      "compressed_size_bytes": 2358796
     },
     "data/input/gb/london/raw_maps/hounslow.bin": {
-      "checksum": "8385de0551cfa02c8111ac92d99119eb",
-      "uncompressed_size_bytes": 8754028,
-      "compressed_size_bytes": 1626468
+      "checksum": "08039341cb58f4ac0ebc330a731a85e5",
+      "uncompressed_size_bytes": 9189454,
+      "compressed_size_bytes": 1726364
     },
     "data/input/gb/london/raw_maps/islington.bin": {
-      "checksum": "140785fbc08aaeffa6e56fa1581fb345",
-      "uncompressed_size_bytes": 11191008,
-      "compressed_size_bytes": 2167019
+      "checksum": "16d6d77c7110d83aff8bd1dc93e540f7",
+      "uncompressed_size_bytes": 11509903,
+      "compressed_size_bytes": 2245107
     },
     "data/input/gb/london/raw_maps/kennington.bin": {
-      "checksum": "dd129b7ef87ffe083b2150e64cfe87e9",
-      "uncompressed_size_bytes": 1599115,
-      "compressed_size_bytes": 287859
+      "checksum": "4eab46ff49f321507a993fe36f640243",
+      "uncompressed_size_bytes": 1655648,
+      "compressed_size_bytes": 294823
     },
     "data/input/gb/london/raw_maps/kensington_and_chelsea.bin": {
-      "checksum": "dc73334997399c3c519daf79cd6e5593",
-      "uncompressed_size_bytes": 9889100,
-      "compressed_size_bytes": 2294906
+      "checksum": "1607ad3d10316cdb66f9a52ccb3b9f53",
+      "uncompressed_size_bytes": 9921432,
+      "compressed_size_bytes": 2300285
     },
     "data/input/gb/london/raw_maps/kingston_upon_thames.bin": {
-      "checksum": "9a0a4e602741ff76f30205b0c1e94ec7",
-      "uncompressed_size_bytes": 9578864,
-      "compressed_size_bytes": 1888900
+      "checksum": "0042f1f04e68c70209d5dc04d3946eaf",
+      "uncompressed_size_bytes": 9718920,
+      "compressed_size_bytes": 1912146
     },
     "data/input/gb/london/raw_maps/lewisham.bin": {
-      "checksum": "087a4d3b3c62786441ec0c51e9830d09",
-      "uncompressed_size_bytes": 12079760,
-      "compressed_size_bytes": 2262364
+      "checksum": "7bd9de9aa5423e13de031a4dd2bb6fc0",
+      "uncompressed_size_bytes": 12554963,
+      "compressed_size_bytes": 2386870
     },
     "data/input/gb/london/raw_maps/newham.bin": {
-      "checksum": "b09bc388dcc96b70e6d166bf68bb9d4a",
-      "uncompressed_size_bytes": 18446734,
-      "compressed_size_bytes": 3809335
+      "checksum": "1994c46aed17e70a6faecda8c02e8843",
+      "uncompressed_size_bytes": 21002421,
+      "compressed_size_bytes": 4288185
     },
     "data/input/gb/london/raw_maps/redbridge.bin": {
-      "checksum": "072fd0cc31b6e2e25b8cdebd015eecb9",
-      "uncompressed_size_bytes": 6495919,
-      "compressed_size_bytes": 1211381
+      "checksum": "48f3e4ce6f1b7917814b2933fcf93570",
+      "uncompressed_size_bytes": 6820178,
+      "compressed_size_bytes": 1303555
     },
     "data/input/gb/london/raw_maps/richmond_upon_thames.bin": {
-      "checksum": "c1d044c22ba0f9c3c743e2ed88878d3d",
-      "uncompressed_size_bytes": 16973473,
-      "compressed_size_bytes": 3148558
+      "checksum": "c64a2615978544ae13068460084cb7c6",
+      "uncompressed_size_bytes": 17586839,
+      "compressed_size_bytes": 3261250
     },
     "data/input/gb/london/raw_maps/southwark.bin": {
-      "checksum": "7435b2b9c833461452d3daf09b5385f8",
-      "uncompressed_size_bytes": 15613732,
-      "compressed_size_bytes": 2975120
+      "checksum": "4cbbeeeaed90bac3bd73457017d3a312",
+      "uncompressed_size_bytes": 15895264,
+      "compressed_size_bytes": 3020601
     },
     "data/input/gb/london/raw_maps/sutton.bin": {
-      "checksum": "030206004a454fe912d0dd376d405cb2",
-      "uncompressed_size_bytes": 10242791,
-      "compressed_size_bytes": 2439241
+      "checksum": "15e47a90b75e627bf353223d46b6799b",
+      "uncompressed_size_bytes": 10320871,
+      "compressed_size_bytes": 2455406
     },
     "data/input/gb/london/raw_maps/tower_hamlets.bin": {
-      "checksum": "d3fa1a2f8eba535595f5168900adec78",
-      "uncompressed_size_bytes": 12201048,
-      "compressed_size_bytes": 2393678
+      "checksum": "1f5f2008edf5f52fb85c0df19ff6e250",
+      "uncompressed_size_bytes": 13102754,
+      "compressed_size_bytes": 2524296
     },
     "data/input/gb/london/raw_maps/westminster.bin": {
-      "checksum": "b1eca2ee718898e8c59a474944d9019e",
-      "uncompressed_size_bytes": 19769414,
-      "compressed_size_bytes": 3845279
+      "checksum": "84b352786ff9a4810c9b81b0702bf7d8",
+      "uncompressed_size_bytes": 19981755,
+      "compressed_size_bytes": 3881309
     },
     "data/input/gb/london/screenshots/kennington.zip": {
-      "checksum": "9091a7b1bf5e29c03f941e7d6265d0c6",
-      "uncompressed_size_bytes": 6638595,
-      "compressed_size_bytes": 6637441
+      "checksum": "6173a38e9476cbe058fff658383e6cbc",
+      "uncompressed_size_bytes": 6673541,
+      "compressed_size_bytes": 6672386
     },
     "data/input/gb/long_marston/osm/center.osm": {
       "checksum": "c7c25ca197870b843ac79c591c1275f3",
@@ -4036,304 +4036,304 @@
       "compressed_size_bytes": 4454227
     },
     "data/system/gb/london/city.bin": {
-      "checksum": "7b617cf3b7df81efe4f5bf4542a429db",
-      "uncompressed_size_bytes": 3184401,
-      "compressed_size_bytes": 1530953
+      "checksum": "ff8a92f8785c265bf6652187068d8b8d",
+      "uncompressed_size_bytes": 3390434,
+      "compressed_size_bytes": 1622074
     },
     "data/system/gb/london/maps/barking_and_dagenham.bin": {
-      "checksum": "edd77b2cccd1b3df1c353e4158dd8511",
-      "uncompressed_size_bytes": 23218809,
-      "compressed_size_bytes": 8747969
+      "checksum": "558f6743a9e672fd62d345fda4334c83",
+      "uncompressed_size_bytes": 23816088,
+      "compressed_size_bytes": 8977247
     },
     "data/system/gb/london/maps/barnet.bin": {
-      "checksum": "ce831d2a6f3ca21266a9067832badad3",
-      "uncompressed_size_bytes": 56463477,
-      "compressed_size_bytes": 21930879
+      "checksum": "a87cdc263296b15fd2308ccfac5faa32",
+      "uncompressed_size_bytes": 57561034,
+      "compressed_size_bytes": 22355359
     },
     "data/system/gb/london/maps/bexley.bin": {
-      "checksum": "043d1b70321777c8e1e98e9d3d296d8d",
-      "uncompressed_size_bytes": 36920914,
-      "compressed_size_bytes": 14189071
+      "checksum": "098400e101438dac37b53fb4d1e4b516",
+      "uncompressed_size_bytes": 38377801,
+      "compressed_size_bytes": 14751738
     },
     "data/system/gb/london/maps/brent.bin": {
-      "checksum": "1abb9f3154377acd137365c6cb9bf8f6",
-      "uncompressed_size_bytes": 31441156,
-      "compressed_size_bytes": 11888157
+      "checksum": "047d935a9da3dd1ee83b64561f2a0ad5",
+      "uncompressed_size_bytes": 31921897,
+      "compressed_size_bytes": 12067764
     },
     "data/system/gb/london/maps/bromley.bin": {
-      "checksum": "45fa46f12bdacdbb3c4cbf23fb93f5ad",
-      "uncompressed_size_bytes": 48987596,
-      "compressed_size_bytes": 19043954
+      "checksum": "9bd26e02054a8aaed7176d2298428771",
+      "uncompressed_size_bytes": 50827139,
+      "compressed_size_bytes": 19728419
     },
     "data/system/gb/london/maps/camden.bin": {
-      "checksum": "2ec1898f0a6547bbb0225e0e6b34e3ee",
-      "uncompressed_size_bytes": 28758952,
-      "compressed_size_bytes": 10826705
+      "checksum": "d2dc7842af81c152028aa2e56feb76c9",
+      "uncompressed_size_bytes": 29890986,
+      "compressed_size_bytes": 11231686
     },
     "data/system/gb/london/maps/central.bin": {
-      "checksum": "79e26b73e750f756f8c782995af35207",
-      "uncompressed_size_bytes": 68336370,
-      "compressed_size_bytes": 26393748
+      "checksum": "3f088eaf1ea447ef6e0016c16995d0cf",
+      "uncompressed_size_bytes": 69517565,
+      "compressed_size_bytes": 26792296
     },
     "data/system/gb/london/maps/city_of_london.bin": {
-      "checksum": "5df37d29a82a2ddd690149af37c2b362",
-      "uncompressed_size_bytes": 7286209,
-      "compressed_size_bytes": 2639945
+      "checksum": "8357b2490f8fb716d63fe2966251f2df",
+      "uncompressed_size_bytes": 7451335,
+      "compressed_size_bytes": 2693923
     },
     "data/system/gb/london/maps/croydon.bin": {
-      "checksum": "6208fae1082926048d0add03946a09dd",
-      "uncompressed_size_bytes": 42730328,
-      "compressed_size_bytes": 16387517
+      "checksum": "4a041a6565d2f2ac918b5bed5eda5bf3",
+      "uncompressed_size_bytes": 43269844,
+      "compressed_size_bytes": 16576996
     },
     "data/system/gb/london/maps/ealing.bin": {
-      "checksum": "ffec36e5770b7692a0f84225d470f4da",
-      "uncompressed_size_bytes": 42202200,
-      "compressed_size_bytes": 16094960
+      "checksum": "b67eb5bdee62a166949292afec89b3bd",
+      "uncompressed_size_bytes": 42699434,
+      "compressed_size_bytes": 16248058
     },
     "data/system/gb/london/maps/greenwich.bin": {
-      "checksum": "00d68347e1857ff4563aada8e53b2965",
-      "uncompressed_size_bytes": 38469667,
-      "compressed_size_bytes": 14632124
+      "checksum": "6b06556a1673b1b698537706c29b10b4",
+      "uncompressed_size_bytes": 40177352,
+      "compressed_size_bytes": 15287057
     },
     "data/system/gb/london/maps/hackney.bin": {
-      "checksum": "3070ced3ae48c1584f038f7c354462e4",
-      "uncompressed_size_bytes": 27189865,
-      "compressed_size_bytes": 10258687
+      "checksum": "aa828f8577a3fea2f3d564fe653d2041",
+      "uncompressed_size_bytes": 27644849,
+      "compressed_size_bytes": 10423686
     },
     "data/system/gb/london/maps/hammersmith_and_fulham.bin": {
-      "checksum": "281dcd67c972c03fd75be616f10c19e2",
-      "uncompressed_size_bytes": 20636349,
-      "compressed_size_bytes": 7882848
+      "checksum": "250e122e2e38851ce0d9f77117584324",
+      "uncompressed_size_bytes": 21039722,
+      "compressed_size_bytes": 8027133
     },
     "data/system/gb/london/maps/haringey.bin": {
-      "checksum": "8448ac9d783a9226fc0db60b98c1a644",
-      "uncompressed_size_bytes": 28731627,
-      "compressed_size_bytes": 10817864
+      "checksum": "3780891f6319617f984cf1f36e758e49",
+      "uncompressed_size_bytes": 30857382,
+      "compressed_size_bytes": 11652787
     },
     "data/system/gb/london/maps/harrow.bin": {
-      "checksum": "5d944f9c95222ec06c7844a8b8ecd4e4",
-      "uncompressed_size_bytes": 27061749,
-      "compressed_size_bytes": 10363828
+      "checksum": "3005ad7b574162e0c4fc35c3da153f07",
+      "uncompressed_size_bytes": 27301770,
+      "compressed_size_bytes": 10449215
     },
     "data/system/gb/london/maps/havering.bin": {
-      "checksum": "17f3174b73a0414b37820bf8b6701e45",
-      "uncompressed_size_bytes": 43078185,
-      "compressed_size_bytes": 16495696
+      "checksum": "d26fc0850eca70cd13ac266f834816ff",
+      "uncompressed_size_bytes": 43196230,
+      "compressed_size_bytes": 16533135
     },
     "data/system/gb/london/maps/hillingdon.bin": {
-      "checksum": "5e8e6b731f942af74286fcd7b9b0f3f3",
-      "uncompressed_size_bytes": 47938868,
-      "compressed_size_bytes": 18539793
+      "checksum": "5ee4d2fd68cbb0b4905260ad0411209c",
+      "uncompressed_size_bytes": 48523175,
+      "compressed_size_bytes": 18759724
     },
     "data/system/gb/london/maps/hounslow.bin": {
-      "checksum": "c41a2ce69dd1d9665c867c9c7de7c498",
-      "uncompressed_size_bytes": 35916757,
-      "compressed_size_bytes": 13692496
+      "checksum": "5ef4ed66fb8c4fc489ad7011da1697ad",
+      "uncompressed_size_bytes": 36546268,
+      "compressed_size_bytes": 13937199
     },
     "data/system/gb/london/maps/islington.bin": {
-      "checksum": "64fd46346d2f7a3eefe32b8c1a9e3306",
-      "uncompressed_size_bytes": 24646224,
-      "compressed_size_bytes": 9130477
+      "checksum": "860fbb3c36daac3617456d16a8c51d4f",
+      "uncompressed_size_bytes": 25057166,
+      "compressed_size_bytes": 9301053
     },
     "data/system/gb/london/maps/kennington.bin": {
-      "checksum": "3271d70f2a80ca6789399656aa8ebe2b",
-      "uncompressed_size_bytes": 4483503,
-      "compressed_size_bytes": 1621284
+      "checksum": "e108a655c5972e0aa5c4afd81e292a9c",
+      "uncompressed_size_bytes": 4556663,
+      "compressed_size_bytes": 1646164
     },
     "data/system/gb/london/maps/kensington_and_chelsea.bin": {
-      "checksum": "7362d3418699d02c93d247e769b28c43",
-      "uncompressed_size_bytes": 18832445,
-      "compressed_size_bytes": 7268312
+      "checksum": "50b4a5a27f78fc5d8bce63886da69e76",
+      "uncompressed_size_bytes": 18860304,
+      "compressed_size_bytes": 7288391
     },
     "data/system/gb/london/maps/kingston_upon_thames.bin": {
-      "checksum": "cbd2421b2737bea0973c2d6986fb2e9e",
-      "uncompressed_size_bytes": 26243136,
-      "compressed_size_bytes": 9927139
+      "checksum": "ef56a9b82fe3d2483d0c205b4d38e876",
+      "uncompressed_size_bytes": 26502089,
+      "compressed_size_bytes": 10024109
     },
     "data/system/gb/london/maps/lewisham.bin": {
-      "checksum": "6328d8b4f85835c05a4545912508720a",
-      "uncompressed_size_bytes": 33205205,
-      "compressed_size_bytes": 12369907
+      "checksum": "edb4ff670af6abbe8fca82284fd0a3d8",
+      "uncompressed_size_bytes": 33757270,
+      "compressed_size_bytes": 12584399
     },
     "data/system/gb/london/maps/newham.bin": {
-      "checksum": "a226e4d47c2c9e35cc103e1afdffa010",
-      "uncompressed_size_bytes": 39851297,
-      "compressed_size_bytes": 15026928
+      "checksum": "821365f922c816bcaf35948526310e8d",
+      "uncompressed_size_bytes": 43084149,
+      "compressed_size_bytes": 16192326
     },
     "data/system/gb/london/maps/redbridge.bin": {
-      "checksum": "56895fd56c6f41121c486fd6c2e810b3",
-      "uncompressed_size_bytes": 28888791,
-      "compressed_size_bytes": 11063027
+      "checksum": "e1903eac94942a00dc5222c4222b65f1",
+      "uncompressed_size_bytes": 29300595,
+      "compressed_size_bytes": 11225675
     },
     "data/system/gb/london/maps/richmond_upon_thames.bin": {
-      "checksum": "e8c1b6749f0152c601eaed1b1f4e6760",
-      "uncompressed_size_bytes": 35098571,
-      "compressed_size_bytes": 13403638
+      "checksum": "4a24aef18e44294cd48119aadc7689c8",
+      "uncompressed_size_bytes": 35663697,
+      "compressed_size_bytes": 13587175
     },
     "data/system/gb/london/maps/southwark.bin": {
-      "checksum": "3eef3353dba60263f222569c24ef9714",
-      "uncompressed_size_bytes": 40069122,
-      "compressed_size_bytes": 15158069
+      "checksum": "ec236a378abd1ca504268406fe969f16",
+      "uncompressed_size_bytes": 40794732,
+      "compressed_size_bytes": 15427950
     },
     "data/system/gb/london/maps/sutton.bin": {
-      "checksum": "a5f5a14bbfe3dcaf1c37e91095ed954b",
-      "uncompressed_size_bytes": 29512472,
-      "compressed_size_bytes": 11485079
+      "checksum": "e3d70493fdc8efcdf82ad9ce16016cc3",
+      "uncompressed_size_bytes": 29638412,
+      "compressed_size_bytes": 11522620
     },
     "data/system/gb/london/maps/tower_hamlets.bin": {
-      "checksum": "e7fc09ffaf59479eeb8769866bd35b2e",
-      "uncompressed_size_bytes": 29888493,
-      "compressed_size_bytes": 11316770
+      "checksum": "4b879ef0b350c41463b101014474d6ef",
+      "uncompressed_size_bytes": 30871696,
+      "compressed_size_bytes": 11675339
     },
     "data/system/gb/london/maps/westminster.bin": {
-      "checksum": "f932490a4a8f5452908b3d3482249ac6",
-      "uncompressed_size_bytes": 34572131,
-      "compressed_size_bytes": 12881664
+      "checksum": "1f2ea2af02608d1fc79017a43ab3cdd8",
+      "uncompressed_size_bytes": 34730174,
+      "compressed_size_bytes": 12932875
     },
     "data/system/gb/london/scenarios/barking_and_dagenham/background.bin": {
-      "checksum": "ffd280590af6e968c14c9ac68ecaf0fa",
-      "uncompressed_size_bytes": 15431722,
-      "compressed_size_bytes": 3907409
+      "checksum": "ffa6eaf6821ec89d5111c264de0ad255",
+      "uncompressed_size_bytes": 15441520,
+      "compressed_size_bytes": 3911657
     },
     "data/system/gb/london/scenarios/barnet/background.bin": {
-      "checksum": "49ce4d69c347fa6f4989bd929d115545",
-      "uncompressed_size_bytes": 27102920,
-      "compressed_size_bytes": 7133609
+      "checksum": "faa17e80eb3f66235d979461e42e2f59",
+      "uncompressed_size_bytes": 27106853,
+      "compressed_size_bytes": 7137781
     },
     "data/system/gb/london/scenarios/bexley/background.bin": {
-      "checksum": "b21646b4fd09ef6d03b51af7c529e676",
-      "uncompressed_size_bytes": 14324672,
-      "compressed_size_bytes": 3725467
+      "checksum": "c4e3bb647122fbfe621f845c8e881821",
+      "uncompressed_size_bytes": 14341853,
+      "compressed_size_bytes": 3735869
     },
     "data/system/gb/london/scenarios/brent/background.bin": {
-      "checksum": "eec18f59e50e39738a0643c58f1f0a88",
-      "uncompressed_size_bytes": 27139972,
-      "compressed_size_bytes": 7140135
+      "checksum": "9f538fddb12c182e1cb45880f4f24859",
+      "uncompressed_size_bytes": 27144802,
+      "compressed_size_bytes": 7146694
     },
     "data/system/gb/london/scenarios/bromley/background.bin": {
-      "checksum": "7771d1edd277093bc271892e9664a160",
-      "uncompressed_size_bytes": 20223414,
-      "compressed_size_bytes": 5228406
+      "checksum": "4b909e8ec98cee9e68fc0d54a59a88f7",
+      "uncompressed_size_bytes": 20214720,
+      "compressed_size_bytes": 5252769
     },
     "data/system/gb/london/scenarios/camden/background.bin": {
-      "checksum": "ae0e380366a690c6aa3c49a707336344",
-      "uncompressed_size_bytes": 80741312,
-      "compressed_size_bytes": 21072380
+      "checksum": "c77e7e065ea7c38e80280525acdaca3d",
+      "uncompressed_size_bytes": 80746487,
+      "compressed_size_bytes": 21089663
     },
     "data/system/gb/london/scenarios/city_of_london/background.bin": {
-      "checksum": "c3985b5f41d4f27c53ae50bbdc4bc3fd",
-      "uncompressed_size_bytes": 44277304,
-      "compressed_size_bytes": 11001931
+      "checksum": "d70651120c2082491bb205c1e46b8bb3",
+      "uncompressed_size_bytes": 44267230,
+      "compressed_size_bytes": 10999038
     },
     "data/system/gb/london/scenarios/croydon/background.bin": {
-      "checksum": "2c93f2cd7ff7d80ceb71713fecb262c9",
-      "uncompressed_size_bytes": 19238439,
-      "compressed_size_bytes": 4920559
+      "checksum": "f25cd1d0ab37c0de0b1cec9b06a689eb",
+      "uncompressed_size_bytes": 19259553,
+      "compressed_size_bytes": 4924427
     },
     "data/system/gb/london/scenarios/ealing/background.bin": {
-      "checksum": "54cc4a65d6d6c78973c5514d886a5f2b",
-      "uncompressed_size_bytes": 28103006,
-      "compressed_size_bytes": 7394377
+      "checksum": "ad697592bfc80b12dfe59f7fe51df640",
+      "uncompressed_size_bytes": 28102799,
+      "compressed_size_bytes": 7395627
     },
     "data/system/gb/london/scenarios/greenwich/background.bin": {
-      "checksum": "1ff6c4704c7c2f27bd25aa03a77d7f9d",
-      "uncompressed_size_bytes": 20824751,
-      "compressed_size_bytes": 5432899
+      "checksum": "5cb2cdcee931f83a1ef7bc5b229170eb",
+      "uncompressed_size_bytes": 20823854,
+      "compressed_size_bytes": 5439856
     },
     "data/system/gb/london/scenarios/hackney/background.bin": {
-      "checksum": "a985f064608147efdc8ed368c1281d26",
-      "uncompressed_size_bytes": 51270102,
-      "compressed_size_bytes": 13084507
+      "checksum": "34546e20c497431b0ba37ab4d8b829a8",
+      "uncompressed_size_bytes": 51268791,
+      "compressed_size_bytes": 13093287
     },
     "data/system/gb/london/scenarios/hammersmith_and_fulham/background.bin": {
-      "checksum": "3e34d3b425f9283d130a595797876396",
-      "uncompressed_size_bytes": 30261687,
-      "compressed_size_bytes": 7820299
+      "checksum": "340bf994c5d65743b55cd1aef4f7ecfd",
+      "uncompressed_size_bytes": 30264999,
+      "compressed_size_bytes": 7823046
     },
     "data/system/gb/london/scenarios/haringey/background.bin": {
-      "checksum": "c8e4c0092f1794539170efb2e3a0715b",
-      "uncompressed_size_bytes": 24042910,
-      "compressed_size_bytes": 6266481
+      "checksum": "180565f6f9c2a2e7ccecdf1152cd1e99",
+      "uncompressed_size_bytes": 24254740,
+      "compressed_size_bytes": 6326630
     },
     "data/system/gb/london/scenarios/harrow/background.bin": {
-      "checksum": "971a57ff7e6b7c36a1bd980e9a3273f0",
-      "uncompressed_size_bytes": 18252497,
-      "compressed_size_bytes": 4707082
+      "checksum": "d0fd004b71a81056b221d8acc5a8063b",
+      "uncompressed_size_bytes": 18252704,
+      "compressed_size_bytes": 4711343
     },
     "data/system/gb/london/scenarios/havering/background.bin": {
-      "checksum": "4dcbc262449643aa97cffdb696503550",
-      "uncompressed_size_bytes": 17910121,
-      "compressed_size_bytes": 4487174
+      "checksum": "3b508cd1cc1221e4276b199be0db25b2",
+      "uncompressed_size_bytes": 17907706,
+      "compressed_size_bytes": 4487378
     },
     "data/system/gb/london/scenarios/hillingdon/background.bin": {
-      "checksum": "d490e967c260d8f0284a745f7370b78e",
-      "uncompressed_size_bytes": 25522203,
-      "compressed_size_bytes": 6643368
+      "checksum": "0f4341a82df4b6bab627f17d44671f1c",
+      "uncompressed_size_bytes": 25911018,
+      "compressed_size_bytes": 6735001
     },
     "data/system/gb/london/scenarios/hounslow/background.bin": {
-      "checksum": "7940ad675121cae49ed206c12934c09d",
-      "uncompressed_size_bytes": 23071390,
-      "compressed_size_bytes": 6003559
+      "checksum": "34dd71f2e15409e07a171764d3b81c08",
+      "uncompressed_size_bytes": 23065387,
+      "compressed_size_bytes": 6020114
     },
     "data/system/gb/london/scenarios/islington/background.bin": {
-      "checksum": "546c7125f41a432cbf625b4f7cef1ded",
-      "uncompressed_size_bytes": 59646635,
-      "compressed_size_bytes": 15560817
+      "checksum": "ee58bb7967152fe8fd98584fcde5c10e",
+      "uncompressed_size_bytes": 59645876,
+      "compressed_size_bytes": 15567892
     },
     "data/system/gb/london/scenarios/kennington/background.bin": {
-      "checksum": "48415ae4ac741c0baa975ce13a1493ed",
-      "uncompressed_size_bytes": 19620357,
-      "compressed_size_bytes": 4712644
+      "checksum": "ded14d367324ed75e6315bb0c6dac5ff",
+      "uncompressed_size_bytes": 19611180,
+      "compressed_size_bytes": 4704288
     },
     "data/system/gb/london/scenarios/kensington_and_chelsea/background.bin": {
-      "checksum": "70e54b06d95c899152bb246846a0ca1e",
-      "uncompressed_size_bytes": 33813945,
-      "compressed_size_bytes": 8843175
+      "checksum": "b9bea5760610621ac0d521e4271a4073",
+      "uncompressed_size_bytes": 33811875,
+      "compressed_size_bytes": 8842336
     },
     "data/system/gb/london/scenarios/kingston_upon_thames/background.bin": {
-      "checksum": "569f8ba71f39055597ce79e696fd6f5f",
-      "uncompressed_size_bytes": 15255427,
-      "compressed_size_bytes": 3917608
+      "checksum": "0acc99955b2751cd58966bc5e503d5c3",
+      "uncompressed_size_bytes": 15255496,
+      "compressed_size_bytes": 3919997
     },
     "data/system/gb/london/scenarios/lewisham/background.bin": {
-      "checksum": "aa687795f4f7de9a2e7d9ca38c31e8c9",
-      "uncompressed_size_bytes": 23898976,
-      "compressed_size_bytes": 6328781
+      "checksum": "4ac10f43d8ee1bebc9d71f01f478abc5",
+      "uncompressed_size_bytes": 23899804,
+      "compressed_size_bytes": 6330814
     },
     "data/system/gb/london/scenarios/newham/background.bin": {
-      "checksum": "98fef2a652394d544dedb1ce96f9d60d",
-      "uncompressed_size_bytes": 23231192,
-      "compressed_size_bytes": 5943987
+      "checksum": "409be792671476cd4e20c95ead064c80",
+      "uncompressed_size_bytes": 23238575,
+      "compressed_size_bytes": 5973664
     },
     "data/system/gb/london/scenarios/redbridge/background.bin": {
-      "checksum": "8ce890a156ff9debd60a9d8b8735a567",
-      "uncompressed_size_bytes": 19215602,
-      "compressed_size_bytes": 4940902
+      "checksum": "482f5cd8b8d27c8e4afc2ff451992515",
+      "uncompressed_size_bytes": 19281497,
+      "compressed_size_bytes": 4957111
     },
     "data/system/gb/london/scenarios/richmond_upon_thames/background.bin": {
-      "checksum": "270c976524901cf37bdb1822938717b8",
-      "uncompressed_size_bytes": 20547727,
-      "compressed_size_bytes": 5461955
+      "checksum": "4164c3c10e152a71b72be1ecf8544690",
+      "uncompressed_size_bytes": 20545864,
+      "compressed_size_bytes": 5466851
     },
     "data/system/gb/london/scenarios/southwark/background.bin": {
-      "checksum": "b171bfcb5e3ce2dd2896b9554efa9e05",
-      "uncompressed_size_bytes": 46006715,
-      "compressed_size_bytes": 12269241
+      "checksum": "148dcf8dbcb80ef83efcd1d17ce5bb54",
+      "uncompressed_size_bytes": 45999539,
+      "compressed_size_bytes": 12273535
     },
     "data/system/gb/london/scenarios/sutton/background.bin": {
-      "checksum": "6cdcecc428c60c9d50ffebacf5a273e1",
-      "uncompressed_size_bytes": 14272163,
-      "compressed_size_bytes": 3649015
+      "checksum": "52dbae2e89c07441c277d4a42610fafe",
+      "uncompressed_size_bytes": 14272094,
+      "compressed_size_bytes": 3650216
     },
     "data/system/gb/london/scenarios/tower_hamlets/background.bin": {
-      "checksum": "ecba9da7f381192fd7d07e185a40aca0",
-      "uncompressed_size_bytes": 40235835,
-      "compressed_size_bytes": 10271780
+      "checksum": "57dfd45185e2edcbe612ee161a9c2128",
+      "uncompressed_size_bytes": 40238250,
+      "compressed_size_bytes": 10293069
     },
     "data/system/gb/london/scenarios/westminster/background.bin": {
-      "checksum": "6cc7839ad5d8541718cd93811287dfc5",
-      "uncompressed_size_bytes": 91581562,
-      "compressed_size_bytes": 24188538
+      "checksum": "77440dc8ddbf43b70854c466c3b92103",
+      "uncompressed_size_bytes": 91575421,
+      "compressed_size_bytes": 24192432
     },
     "data/system/gb/long_marston/maps/center.bin": {
       "checksum": "5a2fbe2fd579124c7d81c74de32d45b3",
