@@ -11,7 +11,6 @@ mod geojson_to_osmosis;
 mod import_grid2demand;
 mod import_scenario;
 mod one_step_import;
-mod osm2lanes;
 
 use std::io::Write;
 
@@ -214,13 +213,6 @@ enum Command {
         #[structopt(flatten)]
         job: Job,
     },
-    /// Generates JSON test cases for osm2lanes.
-    #[structopt(name = "osm2lanes")]
-    OSM2Lanes {
-        /// The path to a map file
-        #[structopt()]
-        map_path: String,
-    },
     /// Simulate a full day of a scenario, and write the "prebaked results," so the UI can later be
     /// used for A/B testing.
     #[structopt(name = "prebake-scenario")]
@@ -337,7 +329,6 @@ async fn main() -> Result<()> {
         } => importer::regenerate_everything(shard_num, num_shards).await,
         Command::RegenerateEverythingExternally => regenerate_everything_externally()?,
         Command::Import { job } => job.run(&mut Timer::new("import one city")).await,
-        Command::OSM2Lanes { map_path } => osm2lanes::run(map_path),
         Command::PrebakeScenario { scenario_path } => prebake_scenario(scenario_path),
     }
     Ok(())
