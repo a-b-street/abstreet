@@ -417,15 +417,6 @@
 <span id="412">412</span>
 <span id="413">413</span>
 <span id="414">414</span>
-<span id="415">415</span>
-<span id="416">416</span>
-<span id="417">417</span>
-<span id="418">418</span>
-<span id="419">419</span>
-<span id="420">420</span>
-<span id="421">421</span>
-<span id="422">422</span>
-<span id="423">423</span>
 </pre><pre class="rust"><code><span class="doccomment">//! A collection of tools, mostly related to importing maps and scenarios. These are bundled as a</span>
 <span class="doccomment">//! single executable to reduce the cost of static linking in the release&#39;s file size.</span>
 
@@ -439,7 +430,6 @@
 <span class="kw">mod</span> <span class="ident">import_grid2demand</span>;
 <span class="kw">mod</span> <span class="ident">import_scenario</span>;
 <span class="kw">mod</span> <span class="ident">one_step_import</span>;
-<span class="kw">mod</span> <span class="ident">osm2lanes</span>;
 
 <span class="kw">use</span> <span class="ident">std::io::Write</span>;
 
@@ -642,13 +632,6 @@
         <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">flatten</span>)]</span>
         <span class="ident">job</span>: <span class="ident">Job</span>,
     },
-    <span class="doccomment">/// Generates JSON test cases for osm2lanes.</span>
-    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">name</span> <span class="op">=</span> <span class="string">&quot;osm2lanes&quot;</span>)]</span>
-    <span class="ident">OSM2Lanes</span> {
-        <span class="doccomment">/// The path to a map file</span>
-        <span class="attribute">#[<span class="ident">structopt</span>()]</span>
-        <span class="ident">map_path</span>: <span class="ident">String</span>,
-    },
     <span class="doccomment">/// Simulate a full day of a scenario, and write the &quot;prebaked results,&quot; so the UI can later be</span>
     <span class="doccomment">/// used for A/B testing.</span>
     <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">name</span> <span class="op">=</span> <span class="string">&quot;prebake-scenario&quot;</span>)]</span>
@@ -765,7 +748,6 @@
         } =&gt; <span class="ident">importer::regenerate_everything</span>(<span class="ident">shard_num</span>, <span class="ident">num_shards</span>).<span class="kw">await</span>,
         <span class="ident">Command::RegenerateEverythingExternally</span> =&gt; <span class="ident">regenerate_everything_externally</span>()<span class="question-mark">?</span>,
         <span class="ident">Command::Import</span> { <span class="ident">job</span> } =&gt; <span class="ident">job</span>.<span class="ident">run</span>(<span class="kw-2">&amp;mut</span> <span class="ident">Timer::new</span>(<span class="string">&quot;import one city&quot;</span>)).<span class="kw">await</span>,
-        <span class="ident">Command::OSM2Lanes</span> { <span class="ident">map_path</span> } =&gt; <span class="ident">osm2lanes::run</span>(<span class="ident">map_path</span>),
         <span class="ident">Command::PrebakeScenario</span> { <span class="ident">scenario_path</span> } =&gt; <span class="ident">prebake_scenario</span>(<span class="ident">scenario_path</span>),
     }
     <span class="prelude-val">Ok</span>(())

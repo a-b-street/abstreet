@@ -1,7 +1,7 @@
 var N = null;var sourcesIndex = {};
 sourcesIndex["abstio"] = {"name":"","files":["abst_data.rs","abst_paths.rs","download.rs","http.rs","io.rs","io_native.rs","lib.rs"]};
 sourcesIndex["abstutil"] = {"name":"","files":["cli.rs","clone.rs","collections.rs","lib.rs","logger.rs","process.rs","serde.rs","time.rs","utils.rs"]};
-sourcesIndex["cli"] = {"name":"","files":["augment_scenario.rs","clip_osm.rs","generate_houses.rs","geojson_to_osmosis.rs","import_grid2demand.rs","import_scenario.rs","main.rs","one_step_import.rs","osm2lanes.rs"]};
+sourcesIndex["cli"] = {"name":"","files":["augment_scenario.rs","clip_osm.rs","generate_houses.rs","geojson_to_osmosis.rs","import_grid2demand.rs","import_scenario.rs","main.rs","one_step_import.rs"]};
 sourcesIndex["collisions"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["convert_osm"] = {"name":"","files":["clip.rs","elevation.rs","extract.rs","gtfs.rs","lib.rs","osm_geom.rs","parking.rs","reader.rs","split_ways.rs"]};
 sourcesIndex["fifteen_min"] = {"name":"","files":["bus.rs","find_amenities.rs","find_home.rs","isochrone.rs","lib.rs","viewer.rs"]};
