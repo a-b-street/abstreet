@@ -311,6 +311,9 @@
 <span id="306">306</span>
 <span id="307">307</span>
 <span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Structures related to the new road-based pathfinding</span>
 <span class="doccomment">//! (https://github.com/a-b-street/abstreet/issues/555) live here. When the transition is done,</span>
 <span class="doccomment">//! things here will probably move into pathfind/mod.rs.</span>
@@ -471,6 +474,9 @@
             <span class="comment">// At the simulation layer, we may need to block intermediate lanes to exit a driveway,</span>
             <span class="comment">// so reflect that cost here. The high cost should only be worth it when the v2 path</span>
             <span class="comment">// requires that up-front turn from certain lanes.</span>
+            <span class="comment">//</span>
+            <span class="comment">// TODO This is only valid if we were leaving from a driveway! This is making some</span>
+            <span class="comment">// buses warp after making a stop.</span>
             <span class="kw">let</span> <span class="ident">idx_dist</span> <span class="op">=</span> (<span class="ident">start_lane_idx</span> <span class="op">-</span> (<span class="ident">l</span>.<span class="ident">offset</span> <span class="kw">as</span> <span class="ident">isize</span>)).<span class="ident">abs</span>();
             <span class="kw">let</span> <span class="ident">cost</span> <span class="op">=</span> <span class="number">100</span> <span class="op">*</span> <span class="ident">idx_dist</span> <span class="kw">as</span> <span class="ident">usize</span>;
             <span class="kw">let</span> <span class="ident">fake_turn</span> <span class="op">=</span> <span class="ident">TurnID</span> {

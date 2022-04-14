@@ -726,7 +726,7 @@
         <span class="ident">modifiers</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ScenarioModifier</span><span class="op">&gt;</span>,
     ) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">GameplayState</span><span class="op">&gt;</span> {
         <span class="ident">URLManager::update_url_free_param</span>(
-            <span class="comment">// For dynamiclly generated scenarios like &quot;random&quot; and &quot;home_to_work&quot;, this winds up</span>
+            <span class="comment">// For dynamically generated scenarios like &quot;random&quot; and &quot;home_to_work&quot;, this winds up</span>
             <span class="comment">// making up a filename that doesn&#39;t actually exist. But if you pass that in, it winds</span>
             <span class="comment">// up working, because we call abstio::parse_scenario_path() on the other side.</span>
             <span class="ident">abstio::path_scenario</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>(), <span class="ident">name</span>)

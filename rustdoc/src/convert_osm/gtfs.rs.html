@@ -259,6 +259,12 @@
 <span id="254">254</span>
 <span id="255">255</span>
 <span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
@@ -311,6 +317,10 @@
     }
 
     <span class="comment">// Scrape all shape data. Map from shape_id to points and the sequence number</span>
+    <span class="comment">//</span>
+    <span class="comment">// If this file is missing, one idea is to just draw straight lines between stops. We only use</span>
+    <span class="comment">// the shape currently to pick an entry/exit border, so this could be a half-reasonable</span>
+    <span class="comment">// workaround.</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">raw_shapes</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">ShapeID</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Pt2D</span>, <span class="ident">usize</span>)<span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
     <span class="kw">for</span> <span class="ident">rec</span> <span class="kw">in</span> <span class="ident">csv::Reader::from_reader</span>(<span class="ident">File::open</span>(<span class="ident">map</span>.<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">input_path</span>(<span class="string">&quot;gtfs/shapes.txt&quot;</span>))<span class="question-mark">?</span>)
         .<span class="ident">deserialize</span>()
@@ -450,6 +460,8 @@
     <span class="ident">route_id</span>: <span class="ident">RouteID</span>,
     <span class="ident">route_short_name</span>: <span class="ident">String</span>,
     <span class="ident">route_long_name</span>: <span class="ident">String</span>,
+    <span class="comment">// Missing from São Paulo</span>
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">default</span>)]</span>
     <span class="ident">route_desc</span>: <span class="ident">String</span>,
     <span class="ident">route_type</span>: <span class="ident">usize</span>,
 }

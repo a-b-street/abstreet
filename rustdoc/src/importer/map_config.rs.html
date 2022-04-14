@@ -88,6 +88,8 @@
 <span id="83">83</span>
 <span id="84">84</span>
 <span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">abstio</span>::{<span class="ident">CityName</span>, <span class="ident">MapName</span>};
 <span class="kw">use</span> <span class="ident">geom::Distance</span>;
 <span class="kw">use</span> <span class="ident">map_model::DrivingSide</span>;
@@ -167,6 +169,8 @@
             <span class="prelude-val">Some</span>(<span class="string">&quot;http://metro.kingcounty.gov/GTFS/google_transit.zip&quot;</span>.<span class="ident">to_string</span>())
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">name</span>.<span class="ident">city</span> <span class="op">==</span> <span class="ident">CityName::new</span>(<span class="string">&quot;us&quot;</span>, <span class="string">&quot;san_francisco&quot;</span>) {
             <span class="prelude-val">Some</span>(<span class="string">&quot;https://gtfs.sfmta.com/transitdata/google_transit.zip&quot;</span>.<span class="ident">to_string</span>())
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">name</span>.<span class="ident">city</span> <span class="op">==</span> <span class="ident">CityName::new</span>(<span class="string">&quot;br&quot;</span>, <span class="string">&quot;sao_paulo&quot;</span>) {
+            <span class="prelude-val">Some</span>(<span class="string">&quot;https://github.com/transitland/gtfs-archives-not-hosted-elsewhere/blob/master/sao-paulo-sptrans.zip?raw=true&quot;</span>.<span class="ident">to_string</span>())
         } <span class="kw">else</span> {
             <span class="prelude-val">None</span>
         },

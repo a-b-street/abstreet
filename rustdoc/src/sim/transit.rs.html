@@ -453,6 +453,17 @@
 <span id="448">448</span>
 <span id="449">449</span>
 <span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
@@ -557,6 +568,8 @@
                     });
                     <span class="kw">continue</span>;
                 }
+                <span class="comment">// TODO Why&#39;re we calculating these again? Use bus_route.all_path_requests(), so</span>
+                <span class="comment">// that all the nice checks in the map_model layer are preserved here</span>
                 <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">PathRequest::vehicle</span>(
                     <span class="ident">stop1</span>.<span class="ident">driving_pos</span>,
                     <span class="ident">map</span>.<span class="ident">get_ts</span>(<span class="ident">bus_route</span>.<span class="ident">stops</span>[<span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>]).<span class="ident">driving_pos</span>,
@@ -567,6 +580,15 @@
                         <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">is_empty</span>() {
                             <span class="macro">panic!</span>(<span class="string">&quot;Empty path between stops?! {}&quot;</span>, <span class="ident">path</span>.<span class="ident">get_req</span>());
                         }
+                        <span class="kw">if</span> <span class="ident">stop1</span>.<span class="ident">driving_pos</span> <span class="op">!</span><span class="op">=</span> <span class="ident">path</span>.<span class="ident">get_req</span>().<span class="ident">start</span> {
+                            <span class="macro">panic!</span>(
+                                <span class="string">&quot;{} will warp from {} to {}&quot;</span>,
+                                <span class="ident">bus_route</span>.<span class="ident">long_name</span>,
+                                <span class="ident">stop1</span>.<span class="ident">driving_pos</span>,
+                                <span class="ident">path</span>.<span class="ident">get_req</span>().<span class="ident">start</span>,
+                            );
+                        }
+
                         <span class="ident">stops</span>.<span class="ident">push</span>(<span class="ident">Stop</span> {
                             <span class="ident">id</span>: <span class="ident">stop1</span>.<span class="ident">id</span>,
                             <span class="ident">driving_pos</span>: <span class="ident">stop1</span>.<span class="ident">driving_pos</span>,
