@@ -200,7 +200,16 @@ fn create_route(
             &snapper.train_outgoing_borders
         };
         match borders.closest_pt(exit_pt, border_snap_threshold) {
-            Some((l, _)) => Some(l),
+            Some((lane, _)) => {
+                // Edge case: the last stop is on the same road as the border. We can't lane-change
+                // suddenly, so match the lane in that case.
+                let last_stop_lane = map.get_ts(*stops.last().unwrap()).driving_pos.lane();
+                Some(if lane.road == last_stop_lane.road {
+                    last_stop_lane
+                } else {
+                    lane
+                })
+            }
             None => bail!(
                 "Couldn't find a {:?} border near end {}",
                 route.route_type,
@@ -238,6 +247,15 @@ fn create_route(
                 req
             );
         }
+        if req.start.lane().road == req.end.lane().road
+            && req.start.dist_along() > req.end.dist_along()
+        {
+            bail!(
+                "Two consecutive stops are on the same road, but they travel backwards: {}",
+                req
+            );
+        }
+
         if let Err(err) = map.pathfind(req) {
             bail!("Created the route, but pathfinding failed: {}", err);
         }

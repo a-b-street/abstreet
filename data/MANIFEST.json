@@ -70,6 +70,56 @@
       "uncompressed_size_bytes": 5608139,
       "compressed_size_bytes": 1056533
     },
+    "data/input/br/sao_paulo/gtfs/agency.txt": {
+      "checksum": "3dd694b14c7bacfa33d8ad774db99100",
+      "uncompressed_size_bytes": 155,
+      "compressed_size_bytes": 139
+    },
+    "data/input/br/sao_paulo/gtfs/calendar.txt": {
+      "checksum": "21622d9185a6a3e5d0775712640f222c",
+      "uncompressed_size_bytes": 451,
+      "compressed_size_bytes": 150
+    },
+    "data/input/br/sao_paulo/gtfs/fare_attributes.txt": {
+      "checksum": "9e8ca239a9545d1b75cf87b7af027efc",
+      "uncompressed_size_bytes": 371,
+      "compressed_size_bytes": 169
+    },
+    "data/input/br/sao_paulo/gtfs/fare_rules.txt": {
+      "checksum": "04104cc98ef5504e37717a7cab49edf4",
+      "uncompressed_size_bytes": 206440,
+      "compressed_size_bytes": 16286
+    },
+    "data/input/br/sao_paulo/gtfs/frequencies.txt": {
+      "checksum": "d92632062fa60f01449c5091fd45398f",
+      "uncompressed_size_bytes": 1651443,
+      "compressed_size_bytes": 140539
+    },
+    "data/input/br/sao_paulo/gtfs/routes.txt": {
+      "checksum": "cb359e55a553bc9a462fbcbb08ae5574",
+      "uncompressed_size_bytes": 111291,
+      "compressed_size_bytes": 18029
+    },
+    "data/input/br/sao_paulo/gtfs/shapes.txt": {
+      "checksum": "a1f5500e7a79f96776589f4f4fbcd38e",
+      "uncompressed_size_bytes": 58972562,
+      "compressed_size_bytes": 15500119
+    },
+    "data/input/br/sao_paulo/gtfs/stop_times.txt": {
+      "checksum": "11ef62b51bb8d23aac88cba96a8def7b",
+      "uncompressed_size_bytes": 4900105,
+      "compressed_size_bytes": 958512
+    },
+    "data/input/br/sao_paulo/gtfs/stops.txt": {
+      "checksum": "5191a36f2d3f8ef45b435b380e890921",
+      "uncompressed_size_bytes": 2133889,
+      "compressed_size_bytes": 594221
+    },
+    "data/input/br/sao_paulo/gtfs/trips.txt": {
+      "checksum": "f2eb999c99e5ae82a4cfc3f7ed6a0121",
+      "uncompressed_size_bytes": 130243,
+      "compressed_size_bytes": 26310
+    },
     "data/input/br/sao_paulo/osm/aricanduva.osm": {
       "checksum": "3708fb4be649c4f16d1de7f7c99369b6",
       "uncompressed_size_bytes": 128106393,
@@ -91,19 +141,19 @@
       "compressed_size_bytes": 649718446
     },
     "data/input/br/sao_paulo/raw_maps/aricanduva.bin": {
-      "checksum": "a7443e903c5ebb8a9ef7eebbf3a625b1",
-      "uncompressed_size_bytes": 34483916,
-      "compressed_size_bytes": 8619214
+      "checksum": "27dff0b36d49f5fed136e794ad9ed258",
+      "uncompressed_size_bytes": 34864623,
+      "compressed_size_bytes": 8850565
     },
     "data/input/br/sao_paulo/raw_maps/center.bin": {
-      "checksum": "accfa249216653e27a47d13e1f1fd7e4",
-      "uncompressed_size_bytes": 9473758,
-      "compressed_size_bytes": 2496742
+      "checksum": "1344afc8a37b52cffc81b79c32e99506",
+      "uncompressed_size_bytes": 10230115,
+      "compressed_size_bytes": 2926542
     },
     "data/input/br/sao_paulo/raw_maps/sao_miguel_paulista.bin": {
-      "checksum": "3fe087174603b33c01b10cca95c516c5",
-      "uncompressed_size_bytes": 591404,
-      "compressed_size_bytes": 145386
+      "checksum": "befa29b3a81ff1e63c2d817044efeff4",
+      "uncompressed_size_bytes": 798773,
+      "compressed_size_bytes": 246669
     },
     "data/input/ca/ca/osm/plateau.osm": {
       "checksum": "d41d8cd98f00b204e9800998ecf8427e",
@@ -3106,24 +3156,24 @@
       "compressed_size_bytes": 9015011
     },
     "data/system/br/sao_paulo/maps/aricanduva.bin": {
-      "checksum": "ddd45366409816df6c0c581d14055559",
-      "uncompressed_size_bytes": 54363220,
-      "compressed_size_bytes": 20757520
+      "checksum": "3cda5656c2d6969d2c9fadd6657038ca",
+      "uncompressed_size_bytes": 54515170,
+      "compressed_size_bytes": 20816515
     },
     "data/system/br/sao_paulo/maps/center.bin": {
-      "checksum": "69b08ea00b97339ddc3d79745dd5cd2d",
-      "uncompressed_size_bytes": 18742932,
-      "compressed_size_bytes": 7122663
+      "checksum": "209300c85a3095771b09647e67f560fa",
+      "uncompressed_size_bytes": 18882279,
+      "compressed_size_bytes": 7158757
     },
     "data/system/br/sao_paulo/maps/sao_miguel_paulista.bin": {
-      "checksum": "9144373938117fe60b0db641bda5ecf2",
-      "uncompressed_size_bytes": 958882,
-      "compressed_size_bytes": 326208
+      "checksum": "441e7c85870d58d54b415d4a0688e727",
+      "uncompressed_size_bytes": 986925,
+      "compressed_size_bytes": 335105
     },
     "data/system/br/sao_paulo/prebaked_results/sao_miguel_paulista/Full.bin": {
-      "checksum": "565cc8549ce2b275cab59ccb2189532e",
-      "uncompressed_size_bytes": 27726150,
-      "compressed_size_bytes": 9401792
+      "checksum": "ccea922412a35fa314392b26eb269337",
+      "uncompressed_size_bytes": 30436191,
+      "compressed_size_bytes": 9398838
     },
     "data/system/br/sao_paulo/scenarios/sao_miguel_paulista/Full.bin": {
       "checksum": "541fdf1f2ba80b4b6cb88f36b186a707",

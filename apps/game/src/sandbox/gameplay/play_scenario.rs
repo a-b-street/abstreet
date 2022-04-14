@@ -34,7 +34,7 @@ impl PlayScenario {
         modifiers: Vec<ScenarioModifier>,
     ) -> Box<dyn GameplayState> {
         URLManager::update_url_free_param(
-            // For dynamiclly generated scenarios like "random" and "home_to_work", this winds up
+            // For dynamically generated scenarios like "random" and "home_to_work", this winds up
             // making up a filename that doesn't actually exist. But if you pass that in, it winds
             // up working, because we call abstio::parse_scenario_path() on the other side.
             abstio::path_scenario(app.primary.map.get_name(), name)
