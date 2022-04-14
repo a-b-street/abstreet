@@ -2106,6 +2106,7 @@ dependencies = [
  "map_gui",
  "map_model",
  "maplit",
+ "raw_map",
  "serde",
  "serde_json",
  "structopt",

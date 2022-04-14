@@ -1,7 +1,7 @@
 use abstutil::{Tags, Timer};
 use geom::Distance;
 use map_gui::render::DrawMap;
-use map_model::{osm, Direction, LaneSpec, LaneType, Map, Road};
+use map_model::{osm, Map, Road};
 use widgetry::EventCtx;
 
 use crate::App;
@@ -14,33 +14,14 @@ pub fn transform_existing_filters(ctx: &EventCtx, app: &mut App, timer: &mut Tim
     let mut filtered_roads = Vec::new();
     for r in detect_filters(&app.map) {
         edits.commands.push(app.map.edit_road_cmd(r.id, |new| {
-            // Use a fixed [sidewalk, driving, driving, sidewalk] configuration
-            let tags = Tags::empty();
-            let fwd = vec![
-                LaneSpec {
-                    lt: LaneType::Driving,
-                    dir: Direction::Fwd,
-                    width: LaneSpec::typical_lane_widths(LaneType::Driving, &tags)[0].0,
-                },
-                LaneSpec {
-                    lt: LaneType::Sidewalk,
-                    dir: Direction::Fwd,
-                    width: LaneSpec::typical_lane_widths(LaneType::Sidewalk, &tags)[0].0,
-                },
-            ];
-            let back = vec![
-                LaneSpec {
-                    lt: LaneType::Driving,
-                    dir: Direction::Back,
-                    width: LaneSpec::typical_lane_widths(LaneType::Driving, &tags)[0].0,
-                },
-                LaneSpec {
-                    lt: LaneType::Sidewalk,
-                    dir: Direction::Back,
-                    width: LaneSpec::typical_lane_widths(LaneType::Sidewalk, &tags)[0].0,
-                },
-            ];
-            new.lanes_ltr = LaneSpec::assemble_ltr(fwd, back, app.map.get_config().driving_side);
+            // Produce a fixed [sidewalk, driving, driving, sidewalk] configuration. We could get
+            // fancier and copy the tags of one of the roads we're connected to, but there might be
+            // turn lanes or something extraneous there.
+            let mut tags = Tags::empty();
+            tags.insert("highway", "residential");
+            tags.insert("lanes", "2");
+            tags.insert("sidewalk", "both");
+            new.lanes_ltr = raw_map::get_lane_specs_ltr(&tags, app.map.get_config());
         }));
         filtered_roads.push(r.id);
     }

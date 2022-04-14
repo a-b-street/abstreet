@@ -538,7 +538,7 @@ impl LaneSpec {
 
     /// Put a list of forward and backward lanes into left-to-right order, depending on the driving
     /// side. Both input lists should be ordered from the center of the road going outwards.
-    pub fn assemble_ltr(
+    pub(crate) fn assemble_ltr(
         mut fwd_side: Vec<LaneSpec>,
         mut back_side: Vec<LaneSpec>,
         driving_side: DrivingSide,
