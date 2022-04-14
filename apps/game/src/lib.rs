@@ -529,13 +529,15 @@ fn finish_app_setup(
                 }
             }
             Mode::SomethingElse => {
+                let start_time = setup.start_time.unwrap_or(Duration::hours(6));
+
                 // Not attempting to keep the primary and secondary simulations synchronized at the
                 // same time yet. Just handle this one startup case, so we can switch maps without
                 // constantly flopping day/night mode.
                 if let Some(ref mut secondary) = app.secondary {
                     secondary.sim.timed_step(
                         &secondary.map,
-                        Duration::hours(6),
+                        start_time,
                         &mut None,
                         &mut Timer::throwaway(),
                     );
@@ -546,7 +548,7 @@ fn finish_app_setup(
                 SandboxMode::async_new(
                     app,
                     GameplayMode::Freeform(app.primary.map.get_name().clone()),
-                    jump_to_time_upon_startup(Duration::hours(6)),
+                    jump_to_time_upon_startup(start_time),
                 )
             }
             Mode::TutorialIntro => sandbox::gameplay::Tutorial::start(ctx, app),

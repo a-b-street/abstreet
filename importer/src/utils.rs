@@ -23,7 +23,7 @@ pub async fn download(config: &ImporterConfiguration, output: String, url: &str)
     println!("- Missing {}, so downloading {}", output, url);
     abstio::download_to_file(url, None, tmp).await.unwrap();
 
-    if url.ends_with(".zip") {
+    if url.contains(".zip") {
         let unzip_to = if output.ends_with('/') {
             output
         } else {
@@ -34,7 +34,7 @@ pub async fn download(config: &ImporterConfiguration, output: String, url: &str)
         println!("- Unzipping into {}", unzip_to);
         must_run_cmd(Command::new(&config.unzip).arg(tmp).arg("-d").arg(unzip_to));
         fs_err::remove_file(tmp).unwrap();
-    } else if url.ends_with(".gz") {
+    } else if url.contains(".gz") {
         println!("- Gunzipping");
         fs_err::rename(tmp, format!("{}.gz", output)).unwrap();
 

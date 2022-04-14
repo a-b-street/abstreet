@@ -158,6 +158,9 @@ impl PathV2 {
             // At the simulation layer, we may need to block intermediate lanes to exit a driveway,
             // so reflect that cost here. The high cost should only be worth it when the v2 path
             // requires that up-front turn from certain lanes.
+            //
+            // TODO This is only valid if we were leaving from a driveway! This is making some
+            // buses warp after making a stop.
             let idx_dist = (start_lane_idx - (l.offset as isize)).abs();
             let cost = 100 * idx_dist as usize;
             let fake_turn = TurnID {

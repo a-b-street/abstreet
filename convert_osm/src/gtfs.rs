@@ -50,6 +50,10 @@ pub fn import(map: &mut RawMap) -> Result<()> {
     }
 
     // Scrape all shape data. Map from shape_id to points and the sequence number
+    //
+    // If this file is missing, one idea is to just draw straight lines between stops. We only use
+    // the shape currently to pick an entry/exit border, so this could be a half-reasonable
+    // workaround.
     let mut raw_shapes: HashMap<ShapeID, Vec<(Pt2D, usize)>> = HashMap::new();
     for rec in csv::Reader::from_reader(File::open(map.name.city.input_path("gtfs/shapes.txt"))?)
         .deserialize()
@@ -189,6 +193,8 @@ struct Route {
     route_id: RouteID,
     route_short_name: String,
     route_long_name: String,
+    // Missing from São Paulo
+    #[serde(default)]
     route_desc: String,
     route_type: usize,
 }

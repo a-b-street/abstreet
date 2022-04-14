@@ -102,6 +102,8 @@ impl TransitSimState {
                     });
                     continue;
                 }
+                // TODO Why're we calculating these again? Use bus_route.all_path_requests(), so
+                // that all the nice checks in the map_model layer are preserved here
                 let req = PathRequest::vehicle(
                     stop1.driving_pos,
                     map.get_ts(bus_route.stops[idx + 1]).driving_pos,
@@ -112,6 +114,15 @@ impl TransitSimState {
                         if path.is_empty() {
                             panic!("Empty path between stops?! {}", path.get_req());
                         }
+                        if stop1.driving_pos != path.get_req().start {
+                            panic!(
+                                "{} will warp from {} to {}",
+                                bus_route.long_name,
+                                stop1.driving_pos,
+                                path.get_req().start,
+                            );
+                        }
+
                         stops.push(Stop {
                             id: stop1.id,
                             driving_pos: stop1.driving_pos,

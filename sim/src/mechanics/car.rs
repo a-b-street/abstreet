@@ -34,14 +34,19 @@ pub(crate) struct Car {
 impl Car {
     /// Assumes the current head of the path is the thing to cross.
     pub fn crossing_state(&self, start_dist: Distance, start_time: Time, map: &Map) -> CarState {
-        let dist_int = DistanceInterval::new_driving(
-            start_dist,
-            if self.router.last_step() {
-                self.router.get_end_dist()
-            } else {
-                self.router.head().get_polyline(map).length()
-            },
-        );
+        let end_dist = if self.router.last_step() {
+            self.router.get_end_dist()
+        } else {
+            self.router.head().get_polyline(map).length()
+        };
+        if end_dist < start_dist {
+            panic!(
+                "{} trying to make a crossing_state from {} to {} at {}. Something's very wrong",
+                self.vehicle.id, start_dist, end_dist, start_time
+            );
+        }
+
+        let dist_int = DistanceInterval::new_driving(start_dist, end_dist);
         self.crossing_state_with_end_dist(dist_int, start_time, map)
     }
 
