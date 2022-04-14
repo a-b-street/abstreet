@@ -93,6 +93,8 @@ impl ModalFilters {
         let mut batch = ToggleZoomed::builder();
         let mut low_zoom = DrawUnzoomedShapes::builder();
 
+        let line_thickness = Distance::meters(7.0);
+
         for (r, dist) in &self.roads {
             let road = map.get_r(*r);
             if let Ok((pt, angle)) = road.center_pts.dist_along(*dist) {
@@ -109,7 +111,7 @@ impl ModalFilters {
                             pt.project_away(0.8 * thickness * road_width, angle.rotate_degs(-90.0)),
                         )
                         .to_polyline()
-                        .make_polygons(thickness * Distance::meters(7.0)),
+                        .make_polygons(thickness * line_thickness),
                     );
                 }));
 
@@ -125,7 +127,7 @@ impl ModalFilters {
                         pt.project_away(0.8 * road_width, angle.rotate_degs(90.0)),
                         pt.project_away(0.8 * road_width, angle.rotate_degs(-90.0)),
                     )
-                    .make_polygons(Distance::meters(7.0)),
+                    .make_polygons(line_thickness),
                 );
 
                 // TODO Only cover the driving/parking lanes (and center appropriately)
@@ -139,28 +141,33 @@ impl ModalFilters {
                 );
             }
         }
+
         for (_, filter) in &self.intersections {
             let line = filter.geometry(map);
 
             let length = line.length();
             let angle = line.angle();
             let pt = line.middle().unwrap();
+            low_zoom.add_circle(pt, 0.7 * length, *colors::FILTER_OUTER);
             low_zoom.add_custom(Box::new(move |batch, thickness| {
                 batch.push(
-                    *colors::FILTER_OUTER,
+                    *colors::FILTER_INNER,
                     Line::must_new(
                         pt.project_away(thickness * length / 2.0, angle),
                         pt.project_away(thickness * length / 2.0, angle.opposite()),
                     )
                     .to_polyline()
-                    .make_polygons(thickness * Distance::meters(3.0)),
+                    .make_polygons(thickness * line_thickness),
                 );
             }));
 
             batch.unzoomed.push(
                 *colors::FILTER_OUTER,
-                line.make_polygons(Distance::meters(3.0)),
+                Circle::new(pt, 0.7 * length).to_polygon(),
             );
+            batch
+                .unzoomed
+                .push(*colors::FILTER_INNER, line.make_polygons(line_thickness));
 
             draw_zoomed_planters(
                 ctx,
