@@ -1102,7 +1102,7 @@
 
     <span class="doccomment">/// Put a list of forward and backward lanes into left-to-right order, depending on the driving</span>
     <span class="doccomment">/// side. Both input lists should be ordered from the center of the road going outwards.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">assemble_ltr</span>(
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">assemble_ltr</span>(
         <span class="kw-2">mut</span> <span class="ident">fwd_side</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneSpec</span><span class="op">&gt;</span>,
         <span class="kw-2">mut</span> <span class="ident">back_side</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneSpec</span><span class="op">&gt;</span>,
         <span class="ident">driving_side</span>: <span class="ident">DrivingSide</span>,
