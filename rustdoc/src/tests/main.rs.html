@@ -373,6 +373,31 @@
 <span id="368">368</span>
 <span id="369">369</span>
 <span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Integration tests</span>
 
 <span class="kw">use</span> <span class="ident">std::io::Write</span>;
@@ -397,6 +422,7 @@
     <span class="ident">test_map_importer</span>()<span class="question-mark">?</span>;
     <span class="ident">check_proposals</span>()<span class="question-mark">?</span>;
     <span class="ident">ab_test_spurious_diff</span>()<span class="question-mark">?</span>;
+    <span class="ident">bus_test</span>()<span class="question-mark">?</span>;
     <span class="ident">smoke_test</span>()<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
 }
@@ -742,6 +768,30 @@
     );
 
     <span class="ident">PrebakeSummary::new</span>(<span class="kw-2">&amp;</span><span class="ident">sim</span>, <span class="ident">scenario</span>)
+}
+
+<span class="doccomment">/// On set maps with bus routes imported, simulate an hour to flush out crashes.</span>
+<span class="kw">fn</span> <span class="ident">bus_test</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer::new</span>(<span class="string">&quot;bus smoke test&quot;</span>);
+    <span class="kw">for</span> <span class="ident">name</span> <span class="kw">in</span> <span class="macro">vec!</span>[
+        <span class="ident">MapName::seattle</span>(<span class="string">&quot;arboretum&quot;</span>),
+        <span class="ident">MapName::new</span>(<span class="string">&quot;us&quot;</span>, <span class="string">&quot;san_francisco&quot;</span>, <span class="string">&quot;downtown&quot;</span>),
+        <span class="ident">MapName::new</span>(<span class="string">&quot;br&quot;</span>, <span class="string">&quot;sao_paulo&quot;</span>, <span class="string">&quot;aricanduva&quot;</span>),
+        <span class="ident">MapName::new</span>(<span class="string">&quot;br&quot;</span>, <span class="string">&quot;sao_paulo&quot;</span>, <span class="string">&quot;center&quot;</span>),
+        <span class="ident">MapName::new</span>(<span class="string">&quot;br&quot;</span>, <span class="string">&quot;sao_paulo&quot;</span>, <span class="string">&quot;sao_miguel_paulista&quot;</span>),
+    ] {
+        <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">map_model::Map::load_synchronously</span>(<span class="ident">name</span>.<span class="ident">path</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="ident">Scenario::empty</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="string">&quot;bus smoke test&quot;</span>);
+        <span class="ident">scenario</span>.<span class="ident">only_seed_buses</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">sim::SimOptions::new</span>(<span class="string">&quot;smoke_test&quot;</span>);
+        <span class="ident">opts</span>.<span class="ident">alerts</span> <span class="op">=</span> <span class="ident">sim::AlertHandler::Silence</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sim</span> <span class="op">=</span> <span class="ident">sim::Sim::new</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">opts</span>);
+        <span class="comment">// Bit of an abuse of this, but just need to fix the rng seed.</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">sim::SimFlags::for_test</span>(<span class="string">&quot;smoke_test&quot;</span>).<span class="ident">make_rng</span>();
+        <span class="ident">sim</span>.<span class="ident">instantiate</span>(<span class="kw-2">&amp;</span><span class="ident">scenario</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>, <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>);
+        <span class="ident">sim</span>.<span class="ident">timed_step</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">Duration::hours</span>(<span class="number">1</span>), <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>, <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>);
+    }
+    <span class="prelude-val">Ok</span>(())
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="tests" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0 (7737e0b5c 2022-04-04)" ></div>
