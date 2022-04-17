@@ -39,6 +39,7 @@ enum BusState {
     AtStop(StopIdx),
     // Or to the end of the lane with the last stop
     DrivingOffMap,
+    Finished,
 }
 
 /// Manages public transit vehicles (buses and trains) that follow a route. The transit model is
@@ -206,10 +207,10 @@ impl TransitSimState {
                     }
                     trips.transit_rider_reached_border(now, person, id, ctx);
                 }
-                self.buses.remove(&id).unwrap();
+                bus.state = BusState::Finished;
                 false
             }
-            BusState::AtStop(_) => unreachable!(),
+            BusState::AtStop(_) | BusState::Finished => unreachable!(),
         }
     }
 
@@ -217,7 +218,6 @@ impl TransitSimState {
         let mut bus = self.buses.get_mut(&id).unwrap();
         let route = self.routes.get_mut(&bus.route).unwrap();
         match bus.state {
-            BusState::DrivingToStop(_) | BusState::DrivingOffMap => unreachable!(),
             BusState::AtStop(stop_idx) => {
                 self.events.push(Event::BusDepartedFromStop(
                     id,
@@ -231,6 +231,9 @@ impl TransitSimState {
                     bus.state = BusState::DrivingToStop(stop_idx + 1);
                 }
                 Router::follow_bus_route(id, route.paths[stop_idx + 1].clone())
+            }
+            BusState::DrivingToStop(_) | BusState::DrivingOffMap | BusState::Finished => {
+                unreachable!()
             }
         }
     }
@@ -310,6 +313,7 @@ impl TransitSimState {
                         }
                         BusState::AtStop(idx) => Some(idx),
                         BusState::DrivingOffMap => Some(r.stops.len() - 1),
+                        BusState::Finished => unreachable!(),
                     };
                     (*bus, stop)
                 })
