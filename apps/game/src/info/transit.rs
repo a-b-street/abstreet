@@ -321,8 +321,8 @@ fn route_body(ctx: &mut EventCtx, app: &App, details: &mut Details, id: TransitR
     // Draw the route, label stops, and show location of buses
     {
         let mut colorer = ColorNetwork::new(app);
-        for req in route.all_path_requests(map) {
-            for step in map.pathfind(req).unwrap().get_steps() {
+        for path in route.all_paths(map).unwrap() {
+            for step in path.get_steps() {
                 if let PathStep::Lane(l) = step {
                     colorer.add_l(*l, app.cs.unzoomed_bus);
                 }

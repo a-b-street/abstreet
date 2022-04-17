@@ -226,17 +226,6 @@ impl Path {
         }
     }
 
-    pub fn one_step(req: PathRequest, map: &Map) -> Path {
-        assert_eq!(req.start.lane(), req.end.lane());
-        Path::new(
-            map,
-            vec![PathStep::Lane(req.start.lane())],
-            req,
-            Vec::new(),
-            Vec::new(),
-        )
-    }
-
     /// The original PathRequest used to produce this path. If the path has been modified since
     /// creation, the start and end of the request won't match up with the current path steps.
     pub fn get_req(&self) -> &PathRequest {

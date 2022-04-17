@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::Time;
-use map_model::{Map, Path, PathRequest, Position, TransitRoute, TransitRouteID, TransitStopID};
+use map_model::{Map, Path, TransitRoute, TransitRouteID, TransitStopID};
 
 use crate::sim::Ctx;
 use crate::{
@@ -16,17 +16,11 @@ use crate::{
 type StopIdx = usize;
 
 #[derive(Serialize, Deserialize, Clone)]
-struct Stop {
-    id: TransitStopID,
-    driving_pos: Position,
-    next_stop: Option<Path>,
-}
-
-#[derive(Serialize, Deserialize, Clone)]
 struct Route {
-    stops: Vec<Stop>,
-    start: Path,
-    end_at_border: Option<Path>,
+    // Entry i is the path to drive to stop i. The very last path is to drive from the last step to
+    // the place where the vehicle vanishes.
+    paths: Vec<Path>,
+    stops: Vec<TransitStopID>,
     active_vehicles: BTreeSet<CarID>,
 }
 
@@ -43,8 +37,8 @@ struct Bus {
 enum BusState {
     DrivingToStop(StopIdx),
     AtStop(StopIdx),
+    // Or to the end of the lane with the last stop
     DrivingOffMap,
-    Done,
 }
 
 /// Manages public transit vehicles (buses and trains) that follow a route. The transit model is
@@ -90,78 +84,24 @@ impl TransitSimState {
 
     /// Returns the path for the first leg.
     pub fn create_empty_route(&mut self, bus_route: &TransitRoute, map: &Map) -> Path {
-        self.routes.entry(bus_route.id).or_insert_with(|| {
-            let mut stops = Vec::new();
-            for (idx, stop1_id) in bus_route.stops.iter().enumerate() {
-                let stop1 = map.get_ts(*stop1_id);
-                if idx == bus_route.stops.len() - 1 {
-                    stops.push(Stop {
-                        id: stop1.id,
-                        driving_pos: stop1.driving_pos,
-                        next_stop: None,
-                    });
-                    continue;
-                }
-                // TODO Why're we calculating these again? Use bus_route.all_path_requests(), so
-                // that all the nice checks in the map_model layer are preserved here
-                let req = PathRequest::vehicle(
-                    stop1.driving_pos,
-                    map.get_ts(bus_route.stops[idx + 1]).driving_pos,
-                    bus_route.route_type,
-                );
-                match map.pathfind(req) {
-                    Ok(path) => {
-                        if path.is_empty() {
-                            panic!("Empty path between stops?! {}", path.get_req());
-                        }
-                        if stop1.driving_pos != path.get_req().start {
-                            panic!(
-                                "{} will warp from {} to {}",
-                                bus_route.long_name,
-                                stop1.driving_pos,
-                                path.get_req().start,
-                            );
-                        }
-
-                        stops.push(Stop {
-                            id: stop1.id,
-                            driving_pos: stop1.driving_pos,
-                            next_stop: Some(path),
-                        });
-                    }
-                    Err(err) => {
-                        panic!("No route between stops: {}", err);
+        self.routes
+            .entry(bus_route.id)
+            .or_insert_with(|| match bus_route.all_paths(map) {
+                Ok(paths) => {
+                    let stops = bus_route.stops.clone();
+                    assert_eq!(paths.len(), stops.len() + 1);
+                    Route {
+                        stops,
+                        paths,
+                        active_vehicles: BTreeSet::new(),
                     }
                 }
-            }
-            let start_req = PathRequest::vehicle(
-                Position::start(bus_route.start),
-                map.get_ts(bus_route.stops[0]).driving_pos,
-                bus_route.route_type,
-            );
-            let start = map.pathfind(start_req).expect("no route to first stop");
-            let end_at_border = if let Some(l) = bus_route.end_border {
-                let req = PathRequest::vehicle(
-                    map.get_ts(*bus_route.stops.last().unwrap()).driving_pos,
-                    Position::end(l, map),
-                    bus_route.route_type,
-                );
-                let path = map
-                    .pathfind(req)
-                    .expect("no route from last stop to border");
-                Some(path)
-            } else {
-                None
-            };
-            Route {
-                active_vehicles: BTreeSet::new(),
-                stops,
-                start,
-                end_at_border,
-            }
-        });
+                Err(err) => {
+                    panic!("{} wound up with bad paths: {}", bus_route.long_name, err);
+                }
+            });
 
-        self.routes[&bus_route.id].start.clone()
+        self.routes[&bus_route.id].paths[0].clone()
     }
 
     pub fn bus_created(&mut self, bus: CarID, r: TransitRouteID) {
@@ -180,6 +120,8 @@ impl TransitSimState {
 
     /// If true, the bus is idling. If false, the bus actually arrived at a border and should now
     /// vanish.
+    ///
+    /// TODO Misnomer -- callback from Router::follow_bus_route
     pub fn bus_arrived_at_stop(
         &mut self,
         now: Time,
@@ -192,7 +134,7 @@ impl TransitSimState {
         match bus.state {
             BusState::DrivingToStop(stop_idx) => {
                 bus.state = BusState::AtStop(stop_idx);
-                let stop1 = self.routes[&bus.route].stops[stop_idx].id;
+                let stop1 = self.routes[&bus.route].stops[stop_idx];
                 self.events
                     .push(Event::BusArrivedAtStop(id, bus.route, stop1));
 
@@ -230,23 +172,14 @@ impl TransitSimState {
                             stop1,
                             now - started_waiting,
                         ));
+                        // TODO Recording the PathRequest for the passenger is actually hard. We
+                        // don't want to route directly between their first and last stop, because
+                        // there might be a much shorter path there. Should we record a leg per leg
+                        // of the transit route being followed?
                         self.events.push(Event::TripPhaseStarting(
                             trip,
                             person,
-                            Some(PathRequest::vehicle(
-                                ctx.map.get_ts(stop1).driving_pos,
-                                if let Some(stop2) = maybe_stop2 {
-                                    ctx.map.get_ts(stop2).driving_pos
-                                } else {
-                                    self.routes[&route]
-                                        .end_at_border
-                                        .as_ref()
-                                        .unwrap()
-                                        .get_req()
-                                        .end
-                                },
-                                bus.car.vehicle_type.to_constraints(),
-                            )),
+                            None,
                             TripPhaseType::RidingBus(route, stop1, bus.car),
                         ));
                         bus.passengers.push((person, maybe_stop2));
@@ -263,7 +196,6 @@ impl TransitSimState {
                     .unwrap()
                     .active_vehicles
                     .remove(&id);
-                bus.state = BusState::Done;
                 for (person, maybe_stop2) in bus.passengers.drain(..) {
                     if let Some(stop2) = maybe_stop2 {
                         panic!(
@@ -274,39 +206,31 @@ impl TransitSimState {
                     }
                     trips.transit_rider_reached_border(now, person, id, ctx);
                 }
+                self.buses.remove(&id).unwrap();
                 false
             }
-            BusState::AtStop(_) | BusState::Done => unreachable!(),
+            BusState::AtStop(_) => unreachable!(),
         }
     }
 
-    pub fn bus_departed_from_stop(&mut self, id: CarID, map: &Map) -> Router {
+    pub fn bus_departed_from_stop(&mut self, id: CarID, _: &Map) -> Router {
         let mut bus = self.buses.get_mut(&id).unwrap();
         let route = self.routes.get_mut(&bus.route).unwrap();
         match bus.state {
-            BusState::DrivingToStop(_) | BusState::DrivingOffMap | BusState::Done => unreachable!(),
+            BusState::DrivingToStop(_) | BusState::DrivingOffMap => unreachable!(),
             BusState::AtStop(stop_idx) => {
-                let stop = &route.stops[stop_idx];
-                self.events
-                    .push(Event::BusDepartedFromStop(id, bus.route, stop.id));
-                if let Some(path) = stop.next_stop.clone() {
-                    bus.state = BusState::DrivingToStop(stop_idx + 1);
-                    Router::follow_bus_route(id, path)
-                } else if let Some(path) = route.end_at_border.clone() {
+                self.events.push(Event::BusDepartedFromStop(
+                    id,
+                    bus.route,
+                    route.stops[stop_idx],
+                ));
+
+                if stop_idx == route.stops.len() - 1 {
                     bus.state = BusState::DrivingOffMap;
-                    Router::follow_bus_route(id, path)
                 } else {
-                    route.active_vehicles.remove(&id);
-                    for (person, stop2) in &bus.passengers {
-                        panic!(
-                            "{} of {} is vanishing at its last stop, but {} is still riding \
-                             until {:?}",
-                            bus.car, bus.route, person, stop2
-                        );
-                    }
-                    bus.state = BusState::Done;
-                    Router::vanish_bus(id, stop.driving_pos, map)
+                    bus.state = BusState::DrivingToStop(stop_idx + 1);
                 }
+                Router::follow_bus_route(id, route.paths[stop_idx + 1].clone())
             }
         }
     }
@@ -321,30 +245,23 @@ impl TransitSimState {
         stop1: TransitStopID,
         route_id: TransitRouteID,
         maybe_stop2: Option<TransitStopID>,
-        map: &Map,
+        _: &Map,
     ) -> Option<CarID> {
         assert!(Some(stop1) != maybe_stop2);
         if let Some(route) = self.routes.get(&route_id) {
             for bus in &route.active_vehicles {
                 if let BusState::AtStop(idx) = self.buses[bus].state {
-                    if route.stops[idx].id == stop1 {
+                    if route.stops[idx] == stop1 {
                         self.buses
                             .get_mut(bus)
                             .unwrap()
                             .passengers
                             .push((person, maybe_stop2));
+                        // TODO Same problem as elsewhere with recording the PathRequest
                         self.events.push(Event::TripPhaseStarting(
                             trip,
                             person,
-                            Some(PathRequest::vehicle(
-                                map.get_ts(stop1).driving_pos,
-                                if let Some(stop2) = maybe_stop2 {
-                                    map.get_ts(stop2).driving_pos
-                                } else {
-                                    route.end_at_border.as_ref().unwrap().get_req().end
-                                },
-                                bus.vehicle_type.to_constraints(),
-                            )),
+                            None,
                             TripPhaseType::RidingBus(route_id, stop1, *bus),
                         ));
                         return Some(*bus);
@@ -393,7 +310,6 @@ impl TransitSimState {
                         }
                         BusState::AtStop(idx) => Some(idx),
                         BusState::DrivingOffMap => Some(r.stops.len() - 1),
-                        BusState::Done => unreachable!(),
                     };
                     (*bus, stop)
                 })

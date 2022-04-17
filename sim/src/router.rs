@@ -70,20 +70,6 @@ impl Router {
             owner,
         }
     }
-    pub fn vanish_bus(owner: CarID, start: Position, map: &Map) -> Router {
-        let lane = map.get_l(start.lane());
-        Router {
-            path: Path::one_step(
-                PathRequest::vehicle(start, Position::end(lane.id, map), PathConstraints::Bus),
-                map,
-            ),
-            goal: Goal::EndAtBorder {
-                end_dist: lane.length(),
-                i: lane.dst_i,
-            },
-            owner,
-        }
-    }
 
     pub fn park_near(owner: CarID, path: Path, bldg: BuildingID) -> Router {
         Router {

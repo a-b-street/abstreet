@@ -240,26 +240,7 @@ fn create_route(
     };
 
     // Check that the paths are valid
-    for req in result.all_path_requests(map) {
-        if req.start == req.end {
-            bail!(
-                "Start/end position and a stop position are on top of each other? {}",
-                req
-            );
-        }
-        if req.start.lane().road == req.end.lane().road
-            && req.start.dist_along() > req.end.dist_along()
-        {
-            bail!(
-                "Two consecutive stops are on the same road, but they travel backwards: {}",
-                req
-            );
-        }
-
-        if let Err(err) = map.pathfind(req) {
-            bail!("Created the route, but pathfinding failed: {}", err);
-        }
-    }
+    result.all_paths(map)?;
 
     map.transit_routes.push(result);
     Ok(())

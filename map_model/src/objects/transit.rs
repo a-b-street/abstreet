@@ -2,12 +2,13 @@
 
 use std::fmt;
 
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
 use abstutil::{deserialize_usize, serialize_usize};
 use geom::Time;
 
-use crate::{LaneID, Map, PathConstraints, PathRequest, Position, RoadID};
+use crate::{LaneID, Map, Path, PathConstraints, PathRequest, Position, RoadID};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct TransitStopID {
@@ -71,7 +72,7 @@ pub struct TransitRoute {
 }
 
 impl TransitRoute {
-    pub fn all_path_requests(&self, map: &Map) -> Vec<PathRequest> {
+    fn all_path_requests(&self, map: &Map) -> Vec<PathRequest> {
         let mut steps = vec![PathRequest::vehicle(
             Position::start(self.start),
             map.get_ts(self.stops[0]).driving_pos,
@@ -84,14 +85,63 @@ impl TransitRoute {
                 self.route_type,
             ));
         }
+
+        let last_stop_pos = map.get_ts(*self.stops.last().unwrap()).driving_pos;
         if let Some(end) = self.end_border {
             steps.push(PathRequest::vehicle(
-                map.get_ts(*self.stops.last().unwrap()).driving_pos,
+                last_stop_pos,
                 Position::end(end, map),
+                self.route_type,
+            ));
+        } else {
+            // Drive to the end of the lane with the last stop
+            steps.push(PathRequest::vehicle(
+                last_stop_pos,
+                Position::end(last_stop_pos.lane(), map),
                 self.route_type,
             ));
         }
         steps
+    }
+
+    /// Entry i is the path to drive to stop i. The very last entry is to drive from the last step
+    /// to the place where the vehicle vanishes.
+    pub fn all_paths(&self, map: &Map) -> Result<Vec<Path>> {
+        let mut paths = Vec::new();
+        for req in self.all_path_requests(map) {
+            if req.start == req.end {
+                bail!(
+                    "Start/end position and a stop position are on top of each other? {}",
+                    req
+                );
+            }
+            if req.start.lane().road == req.end.lane().road
+                && req.start.dist_along() > req.end.dist_along()
+            {
+                bail!(
+                    "Two consecutive stops are on the same road, but they travel backwards: {}",
+                    req
+                );
+            }
+
+            let path = map.pathfind(req)?;
+            if path.is_empty() {
+                bail!("Empty path between stops: {}", path.get_req());
+            }
+            paths.push(path);
+        }
+
+        for pair in paths.windows(2) {
+            if pair[0].get_req().end != pair[1].get_req().start {
+                bail!(
+                    "Transit route will warp from {} to {}",
+                    pair[0].get_req().end,
+                    pair[1].get_req().start
+                );
+            }
+        }
+
+        Ok(paths)
     }
 
     pub fn plural_noun(&self) -> &'static str {
