@@ -132,6 +132,14 @@
 <span id="127">127</span>
 <span id="128">128</span>
 <span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>};
@@ -158,6 +166,7 @@
         <span class="ident">radius</span>: <span class="ident">Distance</span>,
         <span class="ident">color</span>: <span class="ident">Color</span>,
     },
+    <span class="ident">Custom</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;mut</span> <span class="ident">GeomBatch</span>, <span class="ident">f64</span>)<span class="op">&gt;</span>),
 }
 
 <span class="kw">impl</span> <span class="ident">Shape</span> {
@@ -183,6 +192,7 @@
                     <span class="ident">Circle::new</span>(<span class="kw-2">*</span><span class="ident">center</span>, <span class="ident">thickness</span> <span class="op">*</span> <span class="kw-2">*</span><span class="ident">radius</span>).<span class="ident">to_polygon</span>(),
                 );
             }
+            <span class="ident">Shape::Custom</span>(<span class="ident">f</span>) =&gt; <span class="ident">f</span>(<span class="ident">batch</span>, <span class="ident">thickness</span>),
         }
     }
 }
@@ -238,6 +248,12 @@
             <span class="ident">radius</span>,
             <span class="ident">color</span>,
         });
+    }
+
+    <span class="doccomment">/// Custom drawing code can add anything it wants to a batch, using a specified thickness in</span>
+    <span class="doccomment">/// the [1.0, 5.0] range</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_custom</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">f</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;mut</span> <span class="ident">GeomBatch</span>, <span class="ident">f64</span>)<span class="op">&gt;</span>) {
+        <span class="self">self</span>.<span class="ident">shapes</span>.<span class="ident">push</span>(<span class="ident">Shape::Custom</span>(<span class="ident">f</span>));
     }
 
     <span class="comment">// TODO We might take EventCtx here to upload something to the GPU.</span>

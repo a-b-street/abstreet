@@ -327,6 +327,34 @@
 <span id="322">322</span>
 <span id="323">323</span>
 <span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
 </pre><pre class="rust"><code><span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">auto</span>;
 <span class="kw">mod</span> <span class="ident">existing</span>;
 
@@ -422,16 +450,30 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">ToggleZoomed::builder</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">low_zoom</span> <span class="op">=</span> <span class="ident">DrawUnzoomedShapes::builder</span>();
 
+        <span class="kw">let</span> <span class="ident">line_thickness</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">7.0</span>);
+
         <span class="kw">for</span> (<span class="ident">r</span>, <span class="ident">dist</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">roads</span> {
             <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>((<span class="ident">pt</span>, <span class="ident">angle</span>)) <span class="op">=</span> <span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">dist_along</span>(<span class="kw-2">*</span><span class="ident">dist</span>) {
                 <span class="kw">let</span> <span class="ident">road_width</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">get_width</span>();
 
-                <span class="comment">// TODO DrawUnzoomedShapes can do lines, but they don&#39;t stretch as the radius does,</span>
-                <span class="comment">// so it looks weird</span>
-                <span class="ident">low_zoom</span>.<span class="ident">add_circle</span>(<span class="ident">pt</span>, <span class="ident">Distance::meters</span>(<span class="number">8.0</span>), <span class="kw-2">*</span><span class="ident">colors::FILTER_OUTER</span>);
-                <span class="ident">low_zoom</span>.<span class="ident">add_circle</span>(<span class="ident">pt</span>, <span class="ident">Distance::meters</span>(<span class="number">6.0</span>), <span class="kw-2">*</span><span class="ident">colors::FILTER_INNER</span>);
+                <span class="ident">low_zoom</span>.<span class="ident">add_circle</span>(<span class="ident">pt</span>, <span class="ident">road_width</span>, <span class="kw-2">*</span><span class="ident">colors::FILTER_OUTER</span>);
+                <span class="comment">// Unzoomed lines aren&#39;t sufficient; they only vary the width. We need to stretch</span>
+                <span class="comment">// the line to cover the growing circle.</span>
+                <span class="ident">low_zoom</span>.<span class="ident">add_custom</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">batch</span>, <span class="ident">thickness</span><span class="op">|</span> {
+                    <span class="ident">batch</span>.<span class="ident">push</span>(
+                        <span class="kw-2">*</span><span class="ident">colors::FILTER_INNER</span>,
+                        <span class="ident">Line::must_new</span>(
+                            <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="number">0.8</span> <span class="op">*</span> <span class="ident">thickness</span> <span class="op">*</span> <span class="ident">road_width</span>, <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="number">90.0</span>)),
+                            <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="number">0.8</span> <span class="op">*</span> <span class="ident">thickness</span> <span class="op">*</span> <span class="ident">road_width</span>, <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="op">-</span><span class="number">90.0</span>)),
+                        )
+                        .<span class="ident">to_polyline</span>()
+                        .<span class="ident">make_polygons</span>(<span class="ident">thickness</span> <span class="op">*</span> <span class="ident">line_thickness</span>),
+                    );
+                }));
 
+                <span class="comment">// TODO Ideally we get rid of Toggle3Zoomed and make DrawUnzoomedShapes handle this</span>
+                <span class="comment">// medium-zoom case.</span>
                 <span class="ident">batch</span>.<span class="ident">unzoomed</span>.<span class="ident">push</span>(
                     <span class="kw-2">*</span><span class="ident">colors::FILTER_OUTER</span>,
                     <span class="ident">Circle::new</span>(<span class="ident">pt</span>, <span class="ident">road_width</span>).<span class="ident">to_polygon</span>(),
@@ -442,7 +484,7 @@
                         <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="number">0.8</span> <span class="op">*</span> <span class="ident">road_width</span>, <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="number">90.0</span>)),
                         <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="number">0.8</span> <span class="op">*</span> <span class="ident">road_width</span>, <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="op">-</span><span class="number">90.0</span>)),
                     )
-                    .<span class="ident">make_polygons</span>(<span class="ident">Distance::meters</span>(<span class="number">7.0</span>)),
+                    .<span class="ident">make_polygons</span>(<span class="ident">line_thickness</span>),
                 );
 
                 <span class="comment">// TODO Only cover the driving/parking lanes (and center appropriately)</span>
@@ -456,19 +498,33 @@
                 );
             }
         }
+
         <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">filter</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">intersections</span> {
             <span class="kw">let</span> <span class="ident">line</span> <span class="op">=</span> <span class="ident">filter</span>.<span class="ident">geometry</span>(<span class="ident">map</span>);
 
-            <span class="comment">// It&#39;s really hard to see a tiny squished line thickened, so use the same circle</span>
-            <span class="comment">// symbology at really low zooms</span>
+            <span class="kw">let</span> <span class="ident">length</span> <span class="op">=</span> <span class="ident">line</span>.<span class="ident">length</span>();
+            <span class="kw">let</span> <span class="ident">angle</span> <span class="op">=</span> <span class="ident">line</span>.<span class="ident">angle</span>();
             <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">line</span>.<span class="ident">middle</span>().<span class="ident">unwrap</span>();
-            <span class="ident">low_zoom</span>.<span class="ident">add_circle</span>(<span class="ident">pt</span>, <span class="ident">Distance::meters</span>(<span class="number">8.0</span>), <span class="kw-2">*</span><span class="ident">colors::FILTER_OUTER</span>);
-            <span class="ident">low_zoom</span>.<span class="ident">add_circle</span>(<span class="ident">pt</span>, <span class="ident">Distance::meters</span>(<span class="number">6.0</span>), <span class="kw-2">*</span><span class="ident">colors::FILTER_INNER</span>);
+            <span class="ident">low_zoom</span>.<span class="ident">add_circle</span>(<span class="ident">pt</span>, <span class="number">0.7</span> <span class="op">*</span> <span class="ident">length</span>, <span class="kw-2">*</span><span class="ident">colors::FILTER_OUTER</span>);
+            <span class="ident">low_zoom</span>.<span class="ident">add_custom</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">batch</span>, <span class="ident">thickness</span><span class="op">|</span> {
+                <span class="ident">batch</span>.<span class="ident">push</span>(
+                    <span class="kw-2">*</span><span class="ident">colors::FILTER_INNER</span>,
+                    <span class="ident">Line::must_new</span>(
+                        <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="ident">thickness</span> <span class="op">*</span> <span class="ident">length</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">angle</span>),
+                        <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="ident">thickness</span> <span class="op">*</span> <span class="ident">length</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">angle</span>.<span class="ident">opposite</span>()),
+                    )
+                    .<span class="ident">to_polyline</span>()
+                    .<span class="ident">make_polygons</span>(<span class="ident">thickness</span> <span class="op">*</span> <span class="ident">line_thickness</span>),
+                );
+            }));
 
             <span class="ident">batch</span>.<span class="ident">unzoomed</span>.<span class="ident">push</span>(
                 <span class="kw-2">*</span><span class="ident">colors::FILTER_OUTER</span>,
-                <span class="ident">line</span>.<span class="ident">make_polygons</span>(<span class="ident">Distance::meters</span>(<span class="number">3.0</span>)),
+                <span class="ident">Circle::new</span>(<span class="ident">pt</span>, <span class="number">0.7</span> <span class="op">*</span> <span class="ident">length</span>).<span class="ident">to_polygon</span>(),
             );
+            <span class="ident">batch</span>
+                .<span class="ident">unzoomed</span>
+                .<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">colors::FILTER_INNER</span>, <span class="ident">line</span>.<span class="ident">make_polygons</span>(<span class="ident">line_thickness</span>));
 
             <span class="ident">draw_zoomed_planters</span>(
                 <span class="ident">ctx</span>,
