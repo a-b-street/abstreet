@@ -109,12 +109,6 @@ impl TransitRoute {
     pub fn all_paths(&self, map: &Map) -> Result<Vec<Path>> {
         let mut paths = Vec::new();
         for req in self.all_path_requests(map) {
-            if req.start == req.end {
-                bail!(
-                    "Start/end position and a stop position are on top of each other? {}",
-                    req
-                );
-            }
             if req.start.lane().road == req.end.lane().road
                 && req.start.dist_along() > req.end.dist_along()
             {

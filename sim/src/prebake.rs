@@ -34,9 +34,9 @@ pub fn prebake(map: &Map, scenario: Scenario, timer: &mut Timer) -> PrebakeSumma
         abstio::path_prebaked_results(&scenario.map_name, &scenario.scenario_name),
         sim.get_analytics(),
     );
-    // TODO Remove the num_agents check once transit isn't broken. In Green Lake, 3 poor people are
-    // waiting at a bus stop that'll never be served...
-    if !sim.is_done() && sim.num_agents().sum() > 10 {
+    // TODO Remove the num_agents check once transit isn't as broken. In sao_miguel_paulista,
+    // people wait for a bus that stops running at midnight.
+    if !sim.is_done() && sim.num_agents().sum() > 200 {
         panic!(
             "It's {} and there are still {} agents left in {}. Gridlock likely...",
             sim.time(),

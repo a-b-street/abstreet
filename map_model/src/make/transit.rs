@@ -40,7 +40,10 @@ pub fn finalize_transit(map: &mut Map, raw: &RawMap, timer: &mut Timer) {
     let snapper = BorderSnapper::new(map);
     for route in &raw.transit_routes {
         if let Err(err) = create_route(route, map, &gtfs_to_stop_id, &snapper) {
-            warn!("Couldn't snap route {}: {}", route.gtfs_id, err);
+            warn!(
+                "Couldn't snap route {} ({}): {}",
+                route.gtfs_id, route.short_name, err
+            );
         }
     }
 

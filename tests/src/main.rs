@@ -22,6 +22,7 @@ fn main() -> Result<()> {
     test_map_importer()?;
     check_proposals()?;
     ab_test_spurious_diff()?;
+    bus_test()?;
     smoke_test()?;
     Ok(())
 }
@@ -367,4 +368,28 @@ fn run_sim(map: &Map, scenario: &Scenario, timer: &mut Timer) -> PrebakeSummary 
     );
 
     PrebakeSummary::new(&sim, scenario)
+}
+
+/// On set maps with bus routes imported, simulate an hour to flush out crashes.
+fn bus_test() -> Result<()> {
+    let mut timer = Timer::new("bus smoke test");
+    for name in vec![
+        MapName::seattle("arboretum"),
+        MapName::new("us", "san_francisco", "downtown"),
+        MapName::new("br", "sao_paulo", "aricanduva"),
+        MapName::new("br", "sao_paulo", "center"),
+        MapName::new("br", "sao_paulo", "sao_miguel_paulista"),
+    ] {
+        let map = map_model::Map::load_synchronously(name.path(), &mut timer);
+        let mut scenario = Scenario::empty(&map, "bus smoke test");
+        scenario.only_seed_buses = None;
+        let mut opts = sim::SimOptions::new("smoke_test");
+        opts.alerts = sim::AlertHandler::Silence;
+        let mut sim = sim::Sim::new(&map, opts);
+        // Bit of an abuse of this, but just need to fix the rng seed.
+        let mut rng = sim::SimFlags::for_test("smoke_test").make_rng();
+        sim.instantiate(&scenario, &map, &mut rng, &mut timer);
+        sim.timed_step(&map, Duration::hours(1), &mut None, &mut timer);
+    }
+    Ok(())
 }

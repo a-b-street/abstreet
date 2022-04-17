@@ -97,7 +97,7 @@ impl TransitSimState {
                     }
                 }
                 Err(err) => {
-                    panic!("{} wound up with bad paths: {}", bus_route.long_name, err);
+                    panic!("{} wound up with bad paths: {}", bus_route.short_name, err);
                 }
             });
 
