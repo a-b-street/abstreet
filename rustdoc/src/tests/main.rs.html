@@ -396,8 +396,6 @@
 <span id="391">391</span>
 <span id="392">392</span>
 <span id="393">393</span>
-<span id="394">394</span>
-<span id="395">395</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Integration tests</span>
 
 <span class="kw">use</span> <span class="ident">std::io::Write</span>;
@@ -423,6 +421,7 @@
     <span class="ident">check_proposals</span>()<span class="question-mark">?</span>;
     <span class="ident">ab_test_spurious_diff</span>()<span class="question-mark">?</span>;
     <span class="ident">bus_test</span>()<span class="question-mark">?</span>;
+    <span class="ident">bus_route_test</span>()<span class="question-mark">?</span>;
     <span class="ident">smoke_test</span>()<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
 }
@@ -510,37 +509,6 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">sim::SimFlags::for_test</span>(<span class="string">&quot;smoke_test&quot;</span>).<span class="ident">make_rng</span>();
         <span class="ident">sim</span>.<span class="ident">instantiate</span>(<span class="kw-2">&amp;</span><span class="ident">scenario</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>, <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>);
         <span class="ident">sim</span>.<span class="ident">timed_step</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">Duration::hours</span>(<span class="number">1</span>), <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>, <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>);
-
-        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::collapsible_if</span>)]</span>
-        <span class="kw">if</span> (<span class="ident">name</span>.<span class="ident">city</span> <span class="op">==</span> <span class="ident">CityName::seattle</span>()
-            <span class="op">&amp;&amp;</span> <span class="macro">vec!</span>[<span class="string">&quot;downtown&quot;</span>, <span class="string">&quot;lakeslice&quot;</span>, <span class="string">&quot;montlake&quot;</span>].<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">as_str</span>()))
-            <span class="op">|</span><span class="op">|</span> <span class="ident">name</span> <span class="op">==</span> <span class="ident">MapName::new</span>(<span class="string">&quot;pl&quot;</span>, <span class="string">&quot;krakow&quot;</span>, <span class="string">&quot;center&quot;</span>)
-        {
-            <span class="kw">if</span> <span class="bool-val">false</span> {
-                <span class="ident">dump_route_goldenfile</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>)<span class="question-mark">?</span>;
-            }
-        }
-    }
-    <span class="prelude-val">Ok</span>(())
-}
-
-<span class="doccomment">/// Describe all public transit routes and keep under version control to spot diffs easily.</span>
-<span class="kw">fn</span> <span class="ident">dump_route_goldenfile</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">map_model::Map</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">abstio::path</span>(<span class="macro">format!</span>(
-        <span class="string">&quot;route_goldenfiles/{}.txt&quot;</span>,
-        <span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">as_filename</span>()
-    ));
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">File::create</span>(<span class="ident">path</span>)<span class="question-mark">?</span>;
-    <span class="kw">for</span> <span class="ident">tr</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_transit_routes</span>() {
-        <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;{} from {} to {:?}&quot;</span>, <span class="ident">tr</span>.<span class="ident">gtfs_id</span>, <span class="ident">tr</span>.<span class="ident">start</span>, <span class="ident">tr</span>.<span class="ident">end_border</span>)<span class="question-mark">?</span>;
-        <span class="kw">for</span> <span class="ident">ts</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">tr</span>.<span class="ident">stops</span> {
-            <span class="kw">let</span> <span class="ident">ts</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_ts</span>(<span class="kw-2">*</span><span class="ident">ts</span>);
-            <span class="macro">writeln!</span>(
-                <span class="ident">f</span>,
-                <span class="string">&quot;  {}: {} driving, {} sidewalk&quot;</span>,
-                <span class="ident">ts</span>.<span class="ident">name</span>, <span class="ident">ts</span>.<span class="ident">driving_pos</span>, <span class="ident">ts</span>.<span class="ident">sidewalk_pos</span>
-            )<span class="question-mark">?</span>;
-        }
     }
     <span class="prelude-val">Ok</span>(())
 }
@@ -768,6 +736,34 @@
     );
 
     <span class="ident">PrebakeSummary::new</span>(<span class="kw-2">&amp;</span><span class="ident">sim</span>, <span class="ident">scenario</span>)
+}
+
+<span class="doccomment">/// Describe all public transit routes and keep under version control to spot diffs easily.</span>
+<span class="kw">fn</span> <span class="ident">bus_route_test</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer::new</span>(<span class="string">&quot;bus route test&quot;</span>);
+    <span class="kw">for</span> <span class="ident">name</span> <span class="kw">in</span> <span class="macro">vec!</span>[
+        <span class="ident">MapName::seattle</span>(<span class="string">&quot;arboretum&quot;</span>),
+        <span class="ident">MapName::new</span>(<span class="string">&quot;br&quot;</span>, <span class="string">&quot;sao_paulo&quot;</span>, <span class="string">&quot;center&quot;</span>),
+    ] {
+        <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">map_model::Map::load_synchronously</span>(<span class="ident">name</span>.<span class="ident">path</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>);
+        <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">abstio::path</span>(<span class="macro">format!</span>(
+            <span class="string">&quot;../tests/goldenfiles/bus_routes/{}.txt&quot;</span>,
+            <span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">as_filename</span>()
+        ));
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">File::create</span>(<span class="ident">path</span>)<span class="question-mark">?</span>;
+        <span class="kw">for</span> <span class="ident">tr</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_transit_routes</span>() {
+            <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;{} ({}) from {} to {:?}&quot;</span>, <span class="ident">tr</span>.<span class="ident">gtfs_id</span>, <span class="ident">tr</span>.<span class="ident">short_name</span>, <span class="ident">tr</span>.<span class="ident">start</span>, <span class="ident">tr</span>.<span class="ident">end_border</span>)<span class="question-mark">?</span>;
+            <span class="kw">for</span> <span class="ident">ts</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">tr</span>.<span class="ident">stops</span> {
+                <span class="kw">let</span> <span class="ident">ts</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_ts</span>(<span class="kw-2">*</span><span class="ident">ts</span>);
+                <span class="macro">writeln!</span>(
+                    <span class="ident">f</span>,
+                    <span class="string">&quot;  {}: {} driving, {} sidewalk&quot;</span>,
+                    <span class="ident">ts</span>.<span class="ident">name</span>, <span class="ident">ts</span>.<span class="ident">driving_pos</span>, <span class="ident">ts</span>.<span class="ident">sidewalk_pos</span>
+                )<span class="question-mark">?</span>;
+            }
+        }
+    }
+    <span class="prelude-val">Ok</span>(())
 }
 
 <span class="doccomment">/// On set maps with bus routes imported, simulate an hour to flush out crashes.</span>
