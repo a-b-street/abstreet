@@ -23,6 +23,7 @@ fn main() -> Result<()> {
     check_proposals()?;
     ab_test_spurious_diff()?;
     bus_test()?;
+    bus_route_test()?;
     smoke_test()?;
     Ok(())
 }
@@ -110,37 +111,6 @@ fn smoke_test() -> Result<()> {
         let mut rng = sim::SimFlags::for_test("smoke_test").make_rng();
         sim.instantiate(&scenario, &map, &mut rng, &mut timer);
         sim.timed_step(&map, Duration::hours(1), &mut None, &mut timer);
-
-        #[allow(clippy::collapsible_if)]
-        if (name.city == CityName::seattle()
-            && vec!["downtown", "lakeslice", "montlake"].contains(&name.map.as_str()))
-            || name == MapName::new("pl", "krakow", "center")
-        {
-            if false {
-                dump_route_goldenfile(&map)?;
-            }
-        }
-    }
-    Ok(())
-}
-
-/// Describe all public transit routes and keep under version control to spot diffs easily.
-fn dump_route_goldenfile(map: &map_model::Map) -> Result<()> {
-    let path = abstio::path(format!(
-        "route_goldenfiles/{}.txt",
-        map.get_name().as_filename()
-    ));
-    let mut f = File::create(path)?;
-    for tr in map.all_transit_routes() {
-        writeln!(f, "{} from {} to {:?}", tr.gtfs_id, tr.start, tr.end_border)?;
-        for ts in &tr.stops {
-            let ts = map.get_ts(*ts);
-            writeln!(
-                f,
-                "  {}: {} driving, {} sidewalk",
-                ts.name, ts.driving_pos, ts.sidewalk_pos
-            )?;
-        }
     }
     Ok(())
 }
@@ -368,6 +338,34 @@ fn run_sim(map: &Map, scenario: &Scenario, timer: &mut Timer) -> PrebakeSummary 
     );
 
     PrebakeSummary::new(&sim, scenario)
+}
+
+/// Describe all public transit routes and keep under version control to spot diffs easily.
+fn bus_route_test() -> Result<()> {
+    let mut timer = Timer::new("bus route test");
+    for name in vec![
+        MapName::seattle("arboretum"),
+        MapName::new("br", "sao_paulo", "center"),
+    ] {
+        let map = map_model::Map::load_synchronously(name.path(), &mut timer);
+        let path = abstio::path(format!(
+            "../tests/goldenfiles/bus_routes/{}.txt",
+            map.get_name().as_filename()
+        ));
+        let mut f = File::create(path)?;
+        for tr in map.all_transit_routes() {
+            writeln!(f, "{} ({}) from {} to {:?}", tr.gtfs_id, tr.short_name, tr.start, tr.end_border)?;
+            for ts in &tr.stops {
+                let ts = map.get_ts(*ts);
+                writeln!(
+                    f,
+                    "  {}: {} driving, {} sidewalk",
+                    ts.name, ts.driving_pos, ts.sidewalk_pos
+                )?;
+            }
+        }
+    }
+    Ok(())
 }
 
 /// On set maps with bus routes imported, simulate an hour to flush out crashes.

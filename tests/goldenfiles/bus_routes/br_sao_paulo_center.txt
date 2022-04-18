@@ -1,0 +1,460 @@
+106A-10 (106A-10) from Lane #21697 to Some(LaneID { road: RoadID(515), offset: 1 })
+  R. Brig. Tobias, 557: Position(Lane #93441, 76.7159m) driving, Position(Lane #93440, 76.7159m) sidewalk
+  Av. Prestes Maia, 297: Position(Lane #35652, 15.266m) driving, Position(Lane #35653, 15.266m) sidewalk
+  Parada 2: Position(Lane #56642, 24.497m) driving, Position(Lane #56643, 24.497m) sidewalk
+  Parada 14 Bis C/B: Position(Lane #16481, 439.8449m) driving, Position(Lane #16482, 439.0739m) sidewalk
+107T-10 (107T-10) from Lane #21697 to Some(LaneID { road: RoadID(1241), offset: 3 })
+  São João 2: Position(Lane #58817, 79.3772m) driving, Position(Lane #58816, 31.8503m) sidewalk
+  R. Augusta, 304: Position(Lane #123362, 57.9345m) driving, Position(Lane #123363, 57.9345m) sidewalk
+1156-10 (1156-10) from Lane #21697 to None
+  R. Brig. Tobias, 557: Position(Lane #93441, 76.7159m) driving, Position(Lane #93440, 76.7159m) sidewalk
+1177-31 (1177-31) from Lane #53505 to None
+  Av. Alcântara Machado, 351: Position(Lane #40866, 121.4416m) driving, Position(Lane #40867, 121.4416m) sidewalk
+  Av. Mercúrio, 310: Position(Lane #107555, 7.7427m) driving, Position(Lane #107556, 7.7427m) sidewalk
+  R. Washington Luís, 236: Position(Lane #94050, 27.8631m) driving, Position(Lane #94051, 27.8631m) sidewalk
+  R. Plínio Ramos, 140: Position(Lane #35394, 148.7789m) driving, Position(Lane #35395, 148.7789m) sidewalk
+1178-31 (1178-31) from Lane #4129 to Some(LaneID { road: RoadID(2), offset: 1 })
+  R. Riskallah Jorge, 80: Position(Lane #4129, 97.6031m) driving, Position(Lane #4130, 97.6031m) sidewalk
+1178-32 (1178-32) from Lane #21697 to None
+  R. Brig. Tobias, 557: Position(Lane #93441, 76.7159m) driving, Position(Lane #93440, 76.7159m) sidewalk
+1178-33 (1178-33) from Lane #4129 to Some(LaneID { road: RoadID(2), offset: 1 })
+  R. Riskallah Jorge, 80: Position(Lane #4129, 97.6031m) driving, Position(Lane #4130, 97.6031m) sidewalk
+1178-42 (1178-42) from Lane #21697 to None
+  R. Brig. Tobias, 557: Position(Lane #93441, 76.7159m) driving, Position(Lane #93440, 76.7159m) sidewalk
+129F-41 (129F-41) from Lane #45409 to None
+  Ipiranga - B/C: Position(Lane #66307, 76.1823m) driving, Position(Lane #66308, 76.1823m) sidewalk
+172U-10 (172U-10) from Lane #55137 to Some(LaneID { road: RoadID(1535), offset: 1 })
+  R. S. Caetano, 812: Position(Lane #49217, 104.8543m) driving, Position(Lane #49218, 104.8543m) sidewalk
+  R. Mons. Andrade, 871: Position(Lane #49057, 109.5175m) driving, Position(Lane #49058, 109.5174m) sidewalk
+175T-10 (175T-10) from Lane #100450 to Some(LaneID { road: RoadID(2), offset: 1 })
+  Av. Vinte E Três De Maio: Position(Lane #100452, 53.8823m) driving, Position(Lane #100453, 53.8823m) sidewalk
+  Av. Vinte E Três De Maio: Position(Lane #55524, 79.9703m) driving, Position(Lane #55525, 79.9703m) sidewalk
+  Av. Vinte E Três De Maio: Position(Lane #55554, 315.9375m) driving, Position(Lane #55555, 317.0908m) sidewalk
+208V-10 (208V-10) from Lane #22213 to Some(LaneID { road: RoadID(1559), offset: 2 })
+  Parada Vasco Da Gama: Position(Lane #22213, 61.4157m) driving, Position(Lane #22214, 61.4157m) sidewalk
+2100-10 (2100-10) from Lane #82115 to Some(LaneID { road: RoadID(376), offset: 2 })
+  Secretaria Da Fazenda - Poupatempo: Position(Lane #82115, 90.5942m) driving, Position(Lane #82118, 90.5942m) sidewalk
+  R. Piratininga, 128: Position(Lane #11937, 121.7951m) driving, Position(Lane #11936, 88.5073m) sidewalk
+2104-10 (2104-10) from Lane #55137 to None
+  R. Da Cantareira, 897: Position(Lane #49379, 109.2855m) driving, Position(Lane #49380, 109.2855m) sidewalk
+  R. Da Cantareira, 201: Position(Lane #79042, 33.1608m) driving, Position(Lane #79043, 33.1608m) sidewalk
+2123-10 (2123-10) from Lane #10402 to None
+  Pq. D. Pedro II: Position(Lane #47522, 43.6863m) driving, Position(Lane #47523, 44.2151m) sidewalk
+  Pça. Dr. João Mendes: Position(Lane #40769, 8.9254m) driving, Position(Lane #40770, 8.9254m) sidewalk
+  R. Da Glória, 138: Position(Lane #38977, 107.5271m) driving, Position(Lane #38978, 107.5653m) sidewalk
+2127-10 (2127-10) from Lane #10402 to None
+  Pq. D. Pedro II: Position(Lane #47522, 43.6863m) driving, Position(Lane #47523, 44.2151m) sidewalk
+  Pq. D. Pedro II: Position(Lane #54018, 35.2748m) driving, Position(Lane #54019, 35.2748m) sidewalk
+  R. Teixeira Leite, 93: Position(Lane #47809, 64.5034m) driving, Position(Lane #47810, 64.2496m) sidewalk
+  R. Teixeira Leite, 174: Position(Lane #47906, 12.3119m) driving, Position(Lane #47907, 12.3119m) sidewalk
+  Pça. Nina Rodrigues: Position(Lane #27554, 65.5686m) driving, Position(Lane #27555, 65.5686m) sidewalk
+  R. Br. De Iguape, 901: Position(Lane #40098, 78.5254m) driving, Position(Lane #40099, 78.5254m) sidewalk
+  R. Br. De Iguape, 613: Position(Lane #26659, 50.8679m) driving, Position(Lane #26660, 50.8679m) sidewalk
+  R. Br. De Iguape, 339: Position(Lane #97155, 66.2732m) driving, Position(Lane #97156, 66.2732m) sidewalk
+  R. Br. De Iguape, 159: Position(Lane #39137, 38.3736m) driving, Position(Lane #39138, 38.3736m) sidewalk
+  R. Da Glória, 138: Position(Lane #38977, 107.5271m) driving, Position(Lane #38978, 107.5653m) sidewalk
+  R. Da Glória: Position(Lane #1793, 8.7724m) driving, Position(Lane #1794, 8.7724m) sidewalk
+2290-10 (2290-10) from Lane #10402 to None
+  Av. Mercúrio, 316: Position(Lane #107747, 29.5991m) driving, Position(Lane #107748, 30.2966m) sidewalk
+  Rio Branco: Position(Lane #58722, 63.431m) driving, Position(Lane #58723, 63.4311m) sidewalk
+  São João: Position(Lane #58915, 48.2166m) driving, Position(Lane #58916, 48.2166m) sidewalk
+  Vieira De Carvalho: Position(Lane #50468, 39.7494m) driving, Position(Lane #50469, 39.7494m) sidewalk
+  Viad. Nove De Julho, 175: Position(Lane #20802, 0m) driving, Position(Lane #20803, 0m) sidewalk
+  R. Maria Paula, 53: Position(Lane #122530, 77.5921m) driving, Position(Lane #122531, 77.5921m) sidewalk
+  Sé / Bombeiros: Position(Lane #29923, 80.3468m) driving, Position(Lane #29924, 80.3468m) sidewalk
+2363-10 (2363-10) from Lane #22213 to Some(LaneID { road: RoadID(1559), offset: 2 })
+  Parada Vasco Da Gama: Position(Lane #22213, 61.4157m) driving, Position(Lane #22214, 61.4157m) sidewalk
+2590-10 (2590-10) from Lane #10402 to None
+  Pq. D. Pedro II: Position(Lane #97985, 66.1561m) driving, Position(Lane #97984, 5.9175m) sidewalk
+  R. Vinte E Cinco De Março, 348: Position(Lane #109826, 80.0555m) driving, Position(Lane #109827, 80.0555m) sidewalk
+2626-10 (2626-10) from Lane #22213 to Some(LaneID { road: RoadID(1559), offset: 2 })
+  Parada Vasco Da Gama: Position(Lane #22213, 61.4157m) driving, Position(Lane #22214, 61.4157m) sidewalk
+271C-10 (271C-10) from Lane #45409 to None
+  R. Helvetia: Position(Lane #45473, 51.0013m) driving, Position(Lane #45472, 21.2148m) sidewalk
+271P-10 (271P-10) from Lane #55137 to None
+  R. Da Cantareira, 897: Position(Lane #49379, 109.2855m) driving, Position(Lane #49380, 109.2855m) sidewalk
+  R. Mauá, 738: Position(Lane #41377, 89.1955m) driving, Position(Lane #41378, 89.1955m) sidewalk
+3141-10 (3141-10) from Lane #53505 to None
+  Av. Alcântara Machado, 351: Position(Lane #40866, 121.4416m) driving, Position(Lane #40867, 121.4416m) sidewalk
+314J-10 (314J-10) from Lane #59904 to None
+  Lgo. Do Cambuci, 85: Position(Lane #36641, 31.7453m) driving, Position(Lane #36642, 31.6722m) sidewalk
+  R. Silveira Da Mota, 35: Position(Lane #35554, 99.2754m) driving, Position(Lane #35555, 99.2754m) sidewalk
+  R. Otto De Alencar, 230: Position(Lane #72098, 1.1469m) driving, Position(Lane #72099, 1.1469m) sidewalk
+  R. Br. De Iguape, 901: Position(Lane #40098, 78.5254m) driving, Position(Lane #40099, 78.5254m) sidewalk
+  R. Br. De Iguape, 613: Position(Lane #26659, 50.8679m) driving, Position(Lane #26660, 50.8679m) sidewalk
+  R. Br. De Iguape, 339: Position(Lane #97155, 66.2732m) driving, Position(Lane #97156, 66.2732m) sidewalk
+  R. Br. De Iguape, 159: Position(Lane #39137, 38.3736m) driving, Position(Lane #39138, 38.3736m) sidewalk
+  R. Da Glória, 138: Position(Lane #38977, 107.5271m) driving, Position(Lane #38978, 107.5653m) sidewalk
+  Pça. Dr. Almeida Júnior, 72: Position(Lane #103011, 89.8122m) driving, Position(Lane #103012, 89.8122m) sidewalk
+3160-10 (3160-10) from Lane #53504 to None
+  Av. Alcântara Machado, 351: Position(Lane #40866, 121.4416m) driving, Position(Lane #40867, 121.4416m) sidewalk
+3161-10 (3161-10) from Lane #26434 to None
+  R. Da Mooca, 453: Position(Lane #26499, 50.374m) driving, Position(Lane #26500, 50.374m) sidewalk
+3390-10 (3390-10) from Lane #59904 to None
+  Lgo. Do Cambuci, 85: Position(Lane #36641, 31.7453m) driving, Position(Lane #36642, 31.6722m) sidewalk
+  R. Silveira Da Mota, 35: Position(Lane #35554, 99.2754m) driving, Position(Lane #35555, 99.2754m) sidewalk
+  R. Otto De Alencar, 230: Position(Lane #72098, 1.1469m) driving, Position(Lane #72099, 1.1469m) sidewalk
+3414-10 (3414-10) from Lane #53505 to None
+  Av. Alcântara Machado, 351: Position(Lane #40866, 121.4416m) driving, Position(Lane #40867, 121.4416m) sidewalk
+3459-10 (3459-10) from Lane #53505 to None
+  Av. Alcântara Machado, 351: Position(Lane #40866, 121.4416m) driving, Position(Lane #40867, 121.4416m) sidewalk
+3459-21 (3459-21) from Lane #53505 to None
+  Av. Alcântara Machado, 351: Position(Lane #40866, 121.4416m) driving, Position(Lane #40867, 121.4416m) sidewalk
+3459-24 (3459-24) from Lane #53505 to None
+  Av. Alcântara Machado, 351: Position(Lane #40866, 121.4416m) driving, Position(Lane #40867, 121.4416m) sidewalk
+3686-10 (3686-10) from Lane #53505 to None
+  Av. Alcântara Machado, 351: Position(Lane #40866, 121.4416m) driving, Position(Lane #40867, 121.4416m) sidewalk
+408A-10 (408A-10) from Lane #77283 to Some(LaneID { road: RoadID(1565), offset: 3 })
+  R. Mj. Sertório, 517: Position(Lane #76737, 116.6132m) driving, Position(Lane #76738, 116.6132m) sidewalk
+  R. Mj. Sertório, 295: Position(Lane #73890, 68.5924m) driving, Position(Lane #73891, 68.5925m) sidewalk
+  Viad. Nove De Julho, 175: Position(Lane #20802, 0m) driving, Position(Lane #20803, 0m) sidewalk
+  R. Maria Paula, 53: Position(Lane #122530, 77.5921m) driving, Position(Lane #122531, 77.5921m) sidewalk
+  Fórum João Mendes: Position(Lane #19941, 40.7212m) driving, Position(Lane #19942, 40.7213m) sidewalk
+  R. Cons. Furtado, 534: Position(Lane #7170, 70.1138m) driving, Position(Lane #7168, 70.1138m) sidewalk
+4221-10 (4221-10) from Lane #36609 to None
+  Av. Do Estado, 5005: Position(Lane #36546, 73.8311m) driving, Position(Lane #36547, 73.831m) sidewalk
+  Av. Do Estado, 4835: Position(Lane #36418, 24.4176m) driving, Position(Lane #36419, 24.2274m) sidewalk
+  Av. Do Estado, 4755: Position(Lane #36418, 148.9136m) driving, Position(Lane #36419, 148.4015m) sidewalk
+  Av. Do Estado, 4505: Position(Lane #36450, 122.1486m) driving, Position(Lane #36451, 121.7884m) sidewalk
+4288-10 (4288-10) from Lane #26434 to None
+  R. Da Mooca, 453: Position(Lane #26499, 50.374m) driving, Position(Lane #26500, 50.374m) sidewalk
+4310-10 (4310-10) from Lane #53505 to None
+  Av. Alcântara Machado, 351: Position(Lane #40866, 121.4416m) driving, Position(Lane #40867, 121.4416m) sidewalk
+4310-21 (4310-21) from Lane #53505 to None
+  Av. Alcântara Machado, 351: Position(Lane #40866, 121.4416m) driving, Position(Lane #40867, 121.4416m) sidewalk
+4311-10 (4311-10) from Lane #53505 to None
+  Av. Alcântara Machado, 351: Position(Lane #40866, 121.4416m) driving, Position(Lane #40867, 121.4416m) sidewalk
+4313-10 (4313-10) from Lane #53505 to None
+  Av. Alcântara Machado, 351: Position(Lane #40866, 121.4416m) driving, Position(Lane #40867, 121.4416m) sidewalk
+4314-10 (4314-10) from Lane #53505 to None
+  Av. Alcântara Machado, 351: Position(Lane #40866, 121.4416m) driving, Position(Lane #40867, 121.4416m) sidewalk
+4315-10 (4315-10) from Lane #53504 to None
+  Av. Alcântara Machado, 351: Position(Lane #40866, 121.4416m) driving, Position(Lane #40867, 121.4416m) sidewalk
+4491-10 (4491-10) from Lane #36609 to None
+  Av. Do Estado, 5005: Position(Lane #36546, 73.8311m) driving, Position(Lane #36547, 73.831m) sidewalk
+  Av. Do Estado, 4835: Position(Lane #36418, 24.4176m) driving, Position(Lane #36419, 24.2274m) sidewalk
+  Av. Do Estado, 4755: Position(Lane #36418, 148.9136m) driving, Position(Lane #36419, 148.4015m) sidewalk
+  Av. Do Estado, 4505: Position(Lane #36450, 122.1486m) driving, Position(Lane #36451, 121.7884m) sidewalk
+475R-10 (475R-10) from Lane #37700 to None
+  Pedroso: Position(Lane #104324, 63.3136m) driving, Position(Lane #104325, 63.3136m) sidewalk
+  Av. Brig. Luís Antônio, 1289: Position(Lane #86500, 90.9267m) driving, Position(Lane #86501, 90.9267m) sidewalk
+  Humaita: Position(Lane #86467, 70.9947m) driving, Position(Lane #86468, 70.9946m) sidewalk
+  Av. Brig. Luís Antônio, 355: Position(Lane #40613, 97.1657m) driving, Position(Lane #40614, 97.1657m) sidewalk
+5100-10 (5100-10) from Lane #37700 to None
+  Pedroso: Position(Lane #104324, 63.3136m) driving, Position(Lane #104325, 63.3136m) sidewalk
+  Av. Brig. Luís Antônio, 1289: Position(Lane #86500, 90.9267m) driving, Position(Lane #86501, 90.9267m) sidewalk
+  Humaita: Position(Lane #86467, 70.9947m) driving, Position(Lane #86468, 70.9946m) sidewalk
+  Av. Brig. Luís Antônio, 355: Position(Lane #40613, 97.1657m) driving, Position(Lane #40614, 97.1657m) sidewalk
+5106-10 (5106-10) from Lane #37700 to None
+  Pedroso: Position(Lane #104324, 63.3136m) driving, Position(Lane #104325, 63.3136m) sidewalk
+  Av. Brig. Luís Antônio, 1289: Position(Lane #86500, 90.9267m) driving, Position(Lane #86501, 90.9267m) sidewalk
+  Humaita: Position(Lane #86467, 70.9947m) driving, Position(Lane #86468, 70.9946m) sidewalk
+  Av. Brig. Luís Antônio, 355: Position(Lane #40613, 97.1657m) driving, Position(Lane #40614, 97.1657m) sidewalk
+  R. Sen. Feijó, 120: Position(Lane #81633, 25.1957m) driving, Position(Lane #81634, 25.1957m) sidewalk
+5107-10 (5107-10) from Lane #59904 to None
+  Lgo. Do Cambuci, 85: Position(Lane #36641, 31.7453m) driving, Position(Lane #36642, 31.6722m) sidewalk
+  R. Silveira Da Mota, 35: Position(Lane #35554, 99.2754m) driving, Position(Lane #35555, 99.2754m) sidewalk
+  R. Otto De Alencar, 230: Position(Lane #72098, 1.1469m) driving, Position(Lane #72099, 1.1469m) sidewalk
+  Av. Mercúrio, 180: Position(Lane #57091, 170.2468m) driving, Position(Lane #57092, 169.7917m) sidewalk
+  R. Cap. Mor Jerônimo Leitão, 96: Position(Lane #111779, 5.9717m) driving, Position(Lane #111780, 5.9718m) sidewalk
+5111-10 (5111-10) from Lane #37700 to None
+  Pedroso: Position(Lane #104324, 63.3136m) driving, Position(Lane #104325, 63.3136m) sidewalk
+  Av. Brig. Luís Antônio, 1289: Position(Lane #86500, 90.9267m) driving, Position(Lane #86501, 90.9267m) sidewalk
+  Humaita: Position(Lane #86467, 70.9947m) driving, Position(Lane #86468, 70.9946m) sidewalk
+  Av. Brig. Luís Antônio, 355: Position(Lane #40613, 97.1657m) driving, Position(Lane #40614, 97.1657m) sidewalk
+5119-22 (5119-22) from Lane #37700 to None
+  Pedroso: Position(Lane #104324, 63.3136m) driving, Position(Lane #104325, 63.3136m) sidewalk
+  Av. Brig. Luís Antônio, 1289: Position(Lane #86500, 90.9267m) driving, Position(Lane #86501, 90.9267m) sidewalk
+  Humaita: Position(Lane #86467, 70.9947m) driving, Position(Lane #86468, 70.9946m) sidewalk
+  Av. Brig. Luís Antônio, 355: Position(Lane #40613, 97.1657m) driving, Position(Lane #40614, 97.1657m) sidewalk
+  R. Riachuelo, 74: Position(Lane #81601, 53.9955m) driving, Position(Lane #81602, 53.9955m) sidewalk
+  Brigadeiro: Position(Lane #57474, 25.342m) driving, Position(Lane #57475, 25.342m) sidewalk
+5131-10 (5131-10) from Lane #37700 to None
+  Pedroso: Position(Lane #104324, 63.3136m) driving, Position(Lane #104325, 63.3136m) sidewalk
+  Av. Brig. Luís Antônio, 1289: Position(Lane #86500, 90.9267m) driving, Position(Lane #86501, 90.9267m) sidewalk
+  Humaita: Position(Lane #86467, 70.9947m) driving, Position(Lane #86468, 70.9946m) sidewalk
+  Av. Brig. Luís Antônio, 355: Position(Lane #40613, 97.1657m) driving, Position(Lane #40614, 97.1657m) sidewalk
+  R. Vinte E Cinco De Março, 304: Position(Lane #109825, 92.2636m) driving, Position(Lane #109824, 0.6252m) sidewalk
+5142-10 (5142-10) from Lane #47809 to Some(LaneID { road: RoadID(1146), offset: 1 })
+  R. Teixeira Leite, 93: Position(Lane #47809, 64.5034m) driving, Position(Lane #47810, 64.2496m) sidewalk
+  R. Teixeira Leite, 174: Position(Lane #47906, 12.3119m) driving, Position(Lane #47907, 12.3119m) sidewalk
+  Pça. Nina Rodrigues: Position(Lane #27554, 65.5686m) driving, Position(Lane #27555, 65.5686m) sidewalk
+  R. Br. De Iguape, 901: Position(Lane #40098, 78.5254m) driving, Position(Lane #40099, 78.5254m) sidewalk
+  R. Do Lavapés, 238: Position(Lane #60258, 76.6185m) driving, Position(Lane #60259, 74.9428m) sidewalk
+  Parada Scuvero: Position(Lane #60290, 0.4601m) driving, Position(Lane #60291, 0.4601m) sidewalk
+  R. Do Lavapés, 726: Position(Lane #60194, 11.4456m) driving, Position(Lane #60195, 11.4456m) sidewalk
+  R. Do Lavapés, 1095: Position(Lane #13858, 174.7608m) driving, Position(Lane #13859, 173.586m) sidewalk
+5143-10 (5143-10) from Lane #58306 to Some(LaneID { road: RoadID(1530), offset: 1 })
+  Av. Do Estado, 4502: Position(Lane #58306, 19.8724m) driving, Position(Lane #58307, 19.8724m) sidewalk
+  Av. Do Estado, 5018: Position(Lane #58210, 10.2102m) driving, Position(Lane #58211, 10.2101m) sidewalk
+  Av. Do Estado, 5316: Position(Lane #48834, 157.339m) driving, Position(Lane #48835, 157.5634m) sidewalk
+5144-10 (5144-10) from Lane #45409 to None
+  R. Helvetia: Position(Lane #45473, 51.0013m) driving, Position(Lane #45472, 21.2148m) sidewalk
+5154-10 (5154-10) from Lane #37700 to None
+  Pedroso: Position(Lane #104324, 63.3136m) driving, Position(Lane #104325, 63.3136m) sidewalk
+  Av. Brig. Luís Antônio, 1289: Position(Lane #86500, 90.9267m) driving, Position(Lane #86501, 90.9267m) sidewalk
+  Humaita: Position(Lane #86467, 70.9947m) driving, Position(Lane #86468, 70.9946m) sidewalk
+  Av. Brig. Luís Antônio, 355: Position(Lane #40613, 97.1657m) driving, Position(Lane #40614, 97.1657m) sidewalk
+  R. Riachuelo, 74: Position(Lane #81601, 53.9955m) driving, Position(Lane #81602, 53.9955m) sidewalk
+  Rio Branco: Position(Lane #58722, 63.431m) driving, Position(Lane #58723, 63.4311m) sidewalk
+  São João: Position(Lane #58915, 48.2166m) driving, Position(Lane #58916, 48.2166m) sidewalk
+  Pça. Júlio Mesquita, 60: Position(Lane #44930, 35.6308m) driving, Position(Lane #44931, 35.6308m) sidewalk
+  Al. Br. De Limeira, 266: Position(Lane #51426, 88.6305m) driving, Position(Lane #51427, 88.6305m) sidewalk
+  Terminal Princesa Isabel: Position(Lane #115073, 6.898m) driving, Position(Lane #115072, 7.6324m) sidewalk
+5175-10 (5175-10) from Lane #37700 to None
+  Pedroso: Position(Lane #104324, 63.3136m) driving, Position(Lane #104325, 63.3136m) sidewalk
+  Av. Brig. Luís Antônio, 1289: Position(Lane #86500, 90.9267m) driving, Position(Lane #86501, 90.9267m) sidewalk
+  Humaita: Position(Lane #86467, 70.9947m) driving, Position(Lane #86468, 70.9946m) sidewalk
+  Av. Brig. Luís Antônio, 355: Position(Lane #40613, 97.1657m) driving, Position(Lane #40614, 97.1657m) sidewalk
+  R. Quintino Bocaiuva, 219: Position(Lane #21409, 62.8004m) driving, Position(Lane #21410, 62.8004m) sidewalk
+5178-10 (5178-10) from Lane #37700 to None
+  Pedroso: Position(Lane #104324, 63.3136m) driving, Position(Lane #104325, 63.3136m) sidewalk
+  Av. Brig. Luís Antônio, 1289: Position(Lane #86500, 90.9267m) driving, Position(Lane #86501, 90.9267m) sidewalk
+  Humaita: Position(Lane #86467, 70.9947m) driving, Position(Lane #86468, 70.9946m) sidewalk
+  Av. Brig. Luís Antônio, 355: Position(Lane #40613, 97.1657m) driving, Position(Lane #40614, 97.1657m) sidewalk
+  Pça. Dr. João Mendes: Position(Lane #40769, 8.9254m) driving, Position(Lane #40770, 8.9254m) sidewalk
+  Pça. Carlos Gomes, 73: Position(Lane #109633, 66.6587m) driving, Position(Lane #109634, 66.6588m) sidewalk
+5185-10 (5185-10) from Lane #37700 to None
+  Pedroso: Position(Lane #104324, 63.3136m) driving, Position(Lane #104325, 63.3136m) sidewalk
+  Av. Brig. Luís Antônio, 1289: Position(Lane #86500, 90.9267m) driving, Position(Lane #86501, 90.9267m) sidewalk
+  Humaita: Position(Lane #86467, 70.9947m) driving, Position(Lane #86468, 70.9946m) sidewalk
+  Av. Brig. Luís Antônio, 355: Position(Lane #40613, 97.1657m) driving, Position(Lane #40614, 97.1657m) sidewalk
+5290-10 (5290-10) from Lane #124385 to None
+  Av. Da Liberdade, 1033: Position(Lane #322, 26.0537m) driving, Position(Lane #323, 26.0537m) sidewalk
+  Av. Da Liberdade, 655: Position(Lane #37794, 74.9804m) driving, Position(Lane #37795, 74.9803m) sidewalk
+  Sé / Bombeiros: Position(Lane #29923, 80.3468m) driving, Position(Lane #29924, 80.3468m) sidewalk
+  Secretaria Da Fazenda - Poupatempo: Position(Lane #82115, 90.5942m) driving, Position(Lane #82118, 90.5942m) sidewalk
+5300-10 (5300-10) from Lane #100450 to None
+  Av. Vinte E Três De Maio: Position(Lane #100452, 53.8823m) driving, Position(Lane #100453, 53.8823m) sidewalk
+  Av. Vinte E Três De Maio: Position(Lane #55524, 79.9703m) driving, Position(Lane #55525, 79.9703m) sidewalk
+  Ac. Ao Viaduto Dona Paulina: Position(Lane #6977, 25.765m) driving, Position(Lane #6978, 25.765m) sidewalk
+  Sé / Bombeiros: Position(Lane #29923, 80.3468m) driving, Position(Lane #29924, 80.3468m) sidewalk
+5318-10 (5318-10) from Lane #100450 to None
+  Av. Vinte E Três De Maio: Position(Lane #100452, 53.8823m) driving, Position(Lane #100453, 53.8823m) sidewalk
+  Av. Vinte E Três De Maio: Position(Lane #55524, 79.9703m) driving, Position(Lane #55525, 79.9703m) sidewalk
+  Av. Vinte E Três De Maio: Position(Lane #55554, 315.9375m) driving, Position(Lane #55555, 317.0908m) sidewalk
+  R. Quintino Bocaiuva, 201: Position(Lane #21377, 67.0956m) driving, Position(Lane #21376, 2.9095m) sidewalk
+5362-10 (5362-10) from Lane #100450 to None
+  Av. Vinte E Três De Maio: Position(Lane #100452, 53.8823m) driving, Position(Lane #100453, 53.8823m) sidewalk
+  Av. Vinte E Três De Maio: Position(Lane #55524, 79.9703m) driving, Position(Lane #55525, 79.9703m) sidewalk
+  Av. Vinte E Três De Maio: Position(Lane #55554, 315.9375m) driving, Position(Lane #55555, 317.0908m) sidewalk
+5362-22 (5362-22) from Lane #100450 to None
+  Av. Vinte E Três De Maio: Position(Lane #100452, 53.8823m) driving, Position(Lane #100453, 53.8823m) sidewalk
+  Av. Vinte E Três De Maio: Position(Lane #55524, 79.9703m) driving, Position(Lane #55525, 79.9703m) sidewalk
+  Av. Vinte E Três De Maio: Position(Lane #55554, 315.9375m) driving, Position(Lane #55555, 317.0908m) sidewalk
+5391-10 (5391-10) from Lane #100450 to None
+  Av. Vinte E Três De Maio: Position(Lane #100452, 53.8823m) driving, Position(Lane #100453, 53.8823m) sidewalk
+  Av. Vinte E Três De Maio: Position(Lane #55524, 79.9703m) driving, Position(Lane #55525, 79.9703m) sidewalk
+  Av. Vinte E Três De Maio: Position(Lane #55554, 315.9375m) driving, Position(Lane #55555, 317.0908m) sidewalk
+  Brigadeiro: Position(Lane #57474, 25.342m) driving, Position(Lane #57475, 25.342m) sidewalk
+5391-21 (5391-21) from Lane #100450 to None
+  Av. Vinte E Três De Maio: Position(Lane #100452, 53.8823m) driving, Position(Lane #100453, 53.8823m) sidewalk
+  Av. Vinte E Três De Maio: Position(Lane #55524, 79.9703m) driving, Position(Lane #55525, 79.9703m) sidewalk
+  Av. Vinte E Três De Maio: Position(Lane #55554, 315.9375m) driving, Position(Lane #55555, 317.0908m) sidewalk
+5611-10 (5611-10) from Lane #100450 to None
+  Av. Vinte E Três De Maio: Position(Lane #100452, 53.8823m) driving, Position(Lane #100453, 53.8823m) sidewalk
+  Av. Vinte E Três De Maio: Position(Lane #55524, 79.9703m) driving, Position(Lane #55525, 79.9703m) sidewalk
+  Ac. Ao Viaduto Dona Paulina: Position(Lane #6977, 25.765m) driving, Position(Lane #6978, 25.765m) sidewalk
+  Pça. Dr. João Mendes: Position(Lane #40769, 8.9254m) driving, Position(Lane #40770, 8.9254m) sidewalk
+5614-10 (5614-10) from Lane #100450 to None
+  Av. Vinte E Três De Maio: Position(Lane #100452, 53.8823m) driving, Position(Lane #100453, 53.8823m) sidewalk
+  Av. Vinte E Três De Maio: Position(Lane #55524, 79.9703m) driving, Position(Lane #55525, 79.9703m) sidewalk
+  Ac. Ao Viaduto Dona Paulina: Position(Lane #6977, 25.765m) driving, Position(Lane #6978, 25.765m) sidewalk
+  Pça. Dr. João Mendes: Position(Lane #40769, 8.9254m) driving, Position(Lane #40770, 8.9254m) sidewalk
+  R. Dr. Rodrigo Silva, 34: Position(Lane #417, 78.0231m) driving, Position(Lane #418, 77.7752m) sidewalk
+5630-21 (5630-21) from Lane #100450 to None
+  Av. Vinte E Três De Maio: Position(Lane #100452, 53.8823m) driving, Position(Lane #100453, 53.8823m) sidewalk
+  Av. Vinte E Três De Maio: Position(Lane #55524, 79.9703m) driving, Position(Lane #55525, 79.9703m) sidewalk
+  Av. Vinte E Três De Maio: Position(Lane #55554, 315.9375m) driving, Position(Lane #55555, 317.0908m) sidewalk
+  Lgo. S. Francisco, 133: Position(Lane #119877, 4.5707m) driving, Position(Lane #119878, 4.5706m) sidewalk
+5632-51 (5632-51) from Lane #100450 to None
+  Av. Vinte E Três De Maio: Position(Lane #100452, 53.8823m) driving, Position(Lane #100453, 53.8823m) sidewalk
+  Av. Vinte E Três De Maio: Position(Lane #55524, 79.9703m) driving, Position(Lane #55525, 79.9703m) sidewalk
+  Av. Vinte E Três De Maio: Position(Lane #55554, 315.9375m) driving, Position(Lane #55555, 317.0908m) sidewalk
+609F-10 (609F-10) from Lane #55680 to None
+  Rio Branco: Position(Lane #58722, 63.431m) driving, Position(Lane #58723, 63.4311m) sidewalk
+  São João: Position(Lane #58915, 48.2166m) driving, Position(Lane #58916, 48.2166m) sidewalk
+  Pça. Júlio Mesquita, 60: Position(Lane #44930, 35.6308m) driving, Position(Lane #44931, 35.6308m) sidewalk
+  Al. Br. De Limeira, 266: Position(Lane #51426, 88.6305m) driving, Position(Lane #51427, 88.6305m) sidewalk
+6200-10 (6200-10) from Lane #16481 to Some(LaneID { road: RoadID(515), offset: 1 })
+  Parada 14 Bis C/B: Position(Lane #16481, 439.8449m) driving, Position(Lane #16482, 439.0739m) sidewalk
+6403-10 (6403-10) from Lane #57091 to Some(LaneID { road: RoadID(515), offset: 1 })
+  Av. Mercúrio, 180: Position(Lane #57091, 170.2468m) driving, Position(Lane #57092, 169.7917m) sidewalk
+  Av. Prestes Maia, 297: Position(Lane #35652, 15.266m) driving, Position(Lane #35653, 15.266m) sidewalk
+  Parada 1: Position(Lane #20546, 66.9818m) driving, Position(Lane #20547, 66.379m) sidewalk
+  Parada 14 Bis C/B: Position(Lane #16481, 439.8449m) driving, Position(Lane #16482, 439.0739m) sidewalk
+6414-10 (6414-10) from Lane #16481 to Some(LaneID { road: RoadID(515), offset: 1 })
+  Parada 14 Bis C/B: Position(Lane #16481, 439.8449m) driving, Position(Lane #16482, 439.0739m) sidewalk
+6422-10 (6422-10) from Lane #55680 to None
+  Terminal Bandeira: Position(Lane #122722, 9.0993m) driving, Position(Lane #122723, 9.0993m) sidewalk
+6451-10 (6451-10) from Lane #55680 to None
+  Terminal Bandeira: Position(Lane #122722, 9.0993m) driving, Position(Lane #122723, 9.0993m) sidewalk
+6505-10 (6505-10) from Lane #55680 to None
+  Terminal Bandeira: Position(Lane #122722, 9.0993m) driving, Position(Lane #122723, 9.0993m) sidewalk
+6913-10 (6913-10) from Lane #55680 to None
+  Terminal Bandeira: Position(Lane #122722, 9.0993m) driving, Position(Lane #122723, 9.0993m) sidewalk
+  Terminal Bandeira: Position(Lane #55649, 48.0613m) driving, Position(Lane #55650, 47.7974m) sidewalk
+702U-10 (702U-10) from Lane #121538 to None
+  São Luis: Position(Lane #96611, 106.2425m) driving, Position(Lane #96612, 106.2426m) sidewalk
+  Sé / Bombeiros: Position(Lane #29923, 80.3468m) driving, Position(Lane #29924, 80.3468m) sidewalk
+715M-10 (715M-10) from Lane #37700 to None
+  Pedroso: Position(Lane #104324, 63.3136m) driving, Position(Lane #104325, 63.3136m) sidewalk
+  Av. Brig. Luís Antônio, 1289: Position(Lane #86500, 90.9267m) driving, Position(Lane #86501, 90.9267m) sidewalk
+  Humaita: Position(Lane #86467, 70.9947m) driving, Position(Lane #86468, 70.9946m) sidewalk
+  R. Humaitá, 191: Position(Lane #85473, 38.8556m) driving, Position(Lane #85474, 38.8556m) sidewalk
+  Av. Da Liberdade, 655: Position(Lane #37794, 74.9804m) driving, Position(Lane #37795, 74.9803m) sidewalk
+  R. Da Glória, 138: Position(Lane #38977, 107.5271m) driving, Position(Lane #38978, 107.5653m) sidewalk
+  Viad. Mie Ken: Position(Lane #1793, 32.5706m) driving, Position(Lane #1794, 32.5707m) sidewalk
+719P-10 (719P-10) from Lane #44097 to None
+  Al. Barros, 113: Position(Lane #44097, 37.2581m) driving, Position(Lane #44100, 37.2581m) sidewalk
+  R. Sebastião Pereira, 245: Position(Lane #123266, 5.8171m) driving, Position(Lane #123267, 5.8171m) sidewalk
+  Terminal Princesa Isabel: Position(Lane #115104, 14.3405m) driving, Position(Lane #115105, 13.3806m) sidewalk
+7458-10 (7458-10) from Lane #121538 to None
+  São Luis: Position(Lane #96611, 106.2425m) driving, Position(Lane #96612, 106.2426m) sidewalk
+  Parada 1 - Sete De Abril: Position(Lane #83300, 77.2074m) driving, Position(Lane #83301, 77.6966m) sidewalk
+  R. Mauá, 66: Position(Lane #113314, 43.328m) driving, Position(Lane #113315, 43.3281m) sidewalk
+7545-10 (7545-10) from Lane #121538 to None
+  São Luis: Position(Lane #96611, 106.2425m) driving, Position(Lane #96612, 106.2426m) sidewalk
+  R. Cel. Xavier De Toledo, 254: Position(Lane #123780, 63.6593m) driving, Position(Lane #123781, 63.6593m) sidewalk
+7550-10 (7550-10) from Lane #37700 to None
+  Pedroso: Position(Lane #104324, 63.3136m) driving, Position(Lane #104325, 63.3136m) sidewalk
+  Av. Brig. Luís Antônio, 1289: Position(Lane #86500, 90.9267m) driving, Position(Lane #86501, 90.9267m) sidewalk
+  Humaita: Position(Lane #86467, 70.9947m) driving, Position(Lane #86468, 70.9946m) sidewalk
+  Av. Brig. Luís Antônio, 355: Position(Lane #40613, 97.1657m) driving, Position(Lane #40614, 97.1657m) sidewalk
+  R. Riachuelo, 74: Position(Lane #81601, 53.9955m) driving, Position(Lane #81602, 53.9955m) sidewalk
+  Rio Branco: Position(Lane #58722, 63.431m) driving, Position(Lane #58723, 63.4311m) sidewalk
+  São João: Position(Lane #58915, 48.2166m) driving, Position(Lane #58916, 48.2166m) sidewalk
+8000-1 (8000-1) from Lane #121729 to None
+  Parada Joaquim Gustavo: Position(Lane #15938, 45.1459m) driving, Position(Lane #15939, 45.1459m) sidewalk
+  Parada Araujo: Position(Lane #95808, 80.8803m) driving, Position(Lane #95809, 80.1611m) sidewalk
+8000-10 (8000-10) from Lane #121729 to None
+  Parada Joaquim Gustavo: Position(Lane #15938, 45.1459m) driving, Position(Lane #15939, 45.1459m) sidewalk
+  Parada Araujo: Position(Lane #95808, 80.8803m) driving, Position(Lane #95809, 80.1611m) sidewalk
+8400-10 (8400-10) from Lane #121729 to None
+  Parada Joaquim Gustavo: Position(Lane #15938, 45.1459m) driving, Position(Lane #15939, 45.1459m) sidewalk
+  Parada Araujo: Position(Lane #95808, 80.8803m) driving, Position(Lane #95809, 80.1611m) sidewalk
+  R. Cel. Xavier De Toledo, 220: Position(Lane #123777, 141.9676m) driving, Position(Lane #123776, 18.3005m) sidewalk
+8549-10 (8549-10) from Lane #58722 to Some(LaneID { road: RoadID(3337), offset: 1 })
+  Rio Branco: Position(Lane #58722, 63.431m) driving, Position(Lane #58723, 63.4311m) sidewalk
+  São João: Position(Lane #58915, 48.2166m) driving, Position(Lane #58916, 48.2166m) sidewalk
+8594-21 (8594-21) from Lane #121729 to None
+  Parada Araujo: Position(Lane #95808, 80.8803m) driving, Position(Lane #95809, 80.1611m) sidewalk
+8600-22 (8600-22) from Lane #45409 to None
+  Ipiranga - B/C: Position(Lane #66307, 76.1823m) driving, Position(Lane #66308, 76.1823m) sidewalk
+8605-10 (8605-10) from Lane #16481 to Some(LaneID { road: RoadID(515), offset: 1 })
+  Parada 14 Bis C/B: Position(Lane #16481, 439.8449m) driving, Position(Lane #16482, 439.0739m) sidewalk
+8615-10 (8615-10) from Lane #8196 to Some(LaneID { road: RoadID(3337), offset: 1 })
+  Lgo. Pateo Do Colégio: Position(Lane #8196, 23.8994m) driving, Position(Lane #8197, 23.8994m) sidewalk
+  R. Líbero Badaró, 309: Position(Lane #82787, 64.6369m) driving, Position(Lane #82788, 64.6369m) sidewalk
+  Av. S. João, 588: Position(Lane #21731, 76.0303m) driving, Position(Lane #21734, 76.0303m) sidewalk
+8686-10 (8686-10) from Lane #121729 to None
+  Parada Joaquim Gustavo: Position(Lane #15938, 45.1459m) driving, Position(Lane #15939, 45.1459m) sidewalk
+  Parada Araujo: Position(Lane #95808, 80.8803m) driving, Position(Lane #95809, 80.1611m) sidewalk
+8700-1 (8700-1) from Lane #121538 to None
+  São Luis: Position(Lane #96611, 106.2425m) driving, Position(Lane #96612, 106.2426m) sidewalk
+  R. Cel. Xavier De Toledo, 210: Position(Lane #123780, 141.5877m) driving, Position(Lane #123781, 141.5877m) sidewalk
+8700-10 (8700-10) from Lane #121538 to None
+  São Luis: Position(Lane #96611, 106.2425m) driving, Position(Lane #96612, 106.2426m) sidewalk
+  R. Cel. Xavier De Toledo, 210: Position(Lane #123780, 141.5877m) driving, Position(Lane #123781, 141.5877m) sidewalk
+8700-21 (8700-21) from Lane #121538 to None
+  Parada Minhocão: Position(Lane #59042, 56.7226m) driving, Position(Lane #59043, 56.7225m) sidewalk
+8700-24 (8700-24) from Lane #121538 to None
+  Parada Minhocão: Position(Lane #59042, 56.7226m) driving, Position(Lane #59043, 56.7225m) sidewalk
+8705-10 (8705-10) from Lane #121538 to None
+  São Luis: Position(Lane #96611, 106.2425m) driving, Position(Lane #96612, 106.2426m) sidewalk
+909T-1 (909T-1) from Lane #121538 to None
+  São Luis: Position(Lane #96611, 106.2425m) driving, Position(Lane #96612, 106.2426m) sidewalk
+  Sé / Bombeiros: Position(Lane #29923, 80.3468m) driving, Position(Lane #29924, 80.3468m) sidewalk
+909T-10 (909T-10) from Lane #121538 to None
+  São Luis: Position(Lane #96611, 106.2425m) driving, Position(Lane #96612, 106.2426m) sidewalk
+  Sé / Bombeiros: Position(Lane #29923, 80.3468m) driving, Position(Lane #29924, 80.3468m) sidewalk
+9301-10 (9301-10) from Lane #45409 to None
+  Ipiranga - B/C: Position(Lane #66307, 76.1823m) driving, Position(Lane #66308, 76.1823m) sidewalk
+930P-10 (930P-10) from Lane #8196 to Some(LaneID { road: RoadID(1241), offset: 3 })
+  Lgo. Pateo Do Colégio: Position(Lane #8196, 23.8994m) driving, Position(Lane #8197, 23.8994m) sidewalk
+  R. Líbero Badaró, 309: Position(Lane #82787, 64.6369m) driving, Position(Lane #82788, 64.6369m) sidewalk
+  R. Augusta, 304: Position(Lane #123362, 57.9345m) driving, Position(Lane #123363, 57.9345m) sidewalk
+9354-10 (9354-10) from Lane #45409 to None
+  Ipiranga - B/C: Position(Lane #66307, 76.1823m) driving, Position(Lane #66308, 76.1823m) sidewalk
+938C-10 (938C-10) from Lane #121729 to None
+  Terminal Princesa Isabel Ref.: Av Rio Branco/ R Dos Guaianazes: Position(Lane #115104, 73.4237m) driving, Position(Lane #115105, 71.9813m) sidewalk
+9500-10 (9500-10) from Lane #45409 to None
+  Ipiranga - B/C: Position(Lane #66307, 76.1823m) driving, Position(Lane #66308, 76.1823m) sidewalk
+9501-10 (9501-10) from Lane #45409 to None
+  Ipiranga - B/C: Position(Lane #66307, 76.1823m) driving, Position(Lane #66308, 76.1823m) sidewalk
+  Lgo. Paissandu, 407: Position(Lane #75906, 18.065m) driving, Position(Lane #75909, 18.065m) sidewalk
+967A-10 (967A-10) from Lane #37700 to Some(LaneID { road: RoadID(1422), offset: 0 })
+  R. Sta. Madalena, 371: Position(Lane #6561, 61.2929m) driving, Position(Lane #6562, 61.3904m) sidewalk
+  R. Pedroso, 534: Position(Lane #117315, 5.6453m) driving, Position(Lane #117316, 5.6453m) sidewalk
+  R. Rui Barbosa, 611: Position(Lane #86785, 31.4875m) driving, Position(Lane #86786, 31.4875m) sidewalk
+  R. Rui Barbosa, 47: Position(Lane #47170, 155.7386m) driving, Position(Lane #47171, 155.7384m) sidewalk
+  R. Caio Prado, 165: Position(Lane #39971, 147.9418m) driving, Position(Lane #39972, 147.9418m) sidewalk
+  Av. Dq. De Caxias, 626: Position(Lane #115810, 43.1066m) driving, Position(Lane #115811, 43.1066m) sidewalk
+978L-10 (978L-10) from Lane #72801 to None
+  R. Das Palmeiras, 247: Position(Lane #72802, 33.0011m) driving, Position(Lane #72803, 33.0011m) sidewalk
+  R. Sebastião Pereira, 245: Position(Lane #123266, 5.8171m) driving, Position(Lane #123267, 5.8171m) sidewalk
+N101-11 (N101-11) from Lane #45409 to None
+  Ipiranga - B/C: Position(Lane #66307, 76.1823m) driving, Position(Lane #66308, 76.1823m) sidewalk
+  R. Carlos De Sousa Nazaré, 168: Position(Lane #119169, 31.6575m) driving, Position(Lane #119168, 44.7207m) sidewalk
+N102-11 (N102-11) from Lane #8196 to Some(LaneID { road: RoadID(3337), offset: 1 })
+  Lgo. Pateo Do Colégio: Position(Lane #8196, 23.8994m) driving, Position(Lane #8197, 23.8994m) sidewalk
+  R. Líbero Badaró, 309: Position(Lane #82787, 64.6369m) driving, Position(Lane #82788, 64.6369m) sidewalk
+  Av. S. João, 588: Position(Lane #21731, 76.0303m) driving, Position(Lane #21734, 76.0303m) sidewalk
+N106-11 (N106-11) from Lane #8196 to Some(LaneID { road: RoadID(3337), offset: 1 })
+  Lgo. Pateo Do Colégio: Position(Lane #8196, 23.8994m) driving, Position(Lane #8197, 23.8994m) sidewalk
+  R. Líbero Badaró, 309: Position(Lane #82787, 64.6369m) driving, Position(Lane #82788, 64.6369m) sidewalk
+  Vieira De Carvalho: Position(Lane #50468, 39.7494m) driving, Position(Lane #50469, 39.7494m) sidewalk
+  R. Mq. De Itu, 284: Position(Lane #51330, 47.0993m) driving, Position(Lane #51331, 47.0993m) sidewalk
+N207-11 (N207-11) from Lane #45409 to None
+  Ipiranga - B/C: Position(Lane #66307, 76.1823m) driving, Position(Lane #66308, 76.1823m) sidewalk
+  São João 2: Position(Lane #58817, 79.3772m) driving, Position(Lane #58816, 31.8503m) sidewalk
+  Parada 1 - República: Position(Lane #106084, 80.8103m) driving, Position(Lane #106085, 80.8103m) sidewalk
+  Parada 2 - República: Position(Lane #106052, 61.1617m) driving, Position(Lane #106053, 61.1617m) sidewalk
+  Viad. Nove De Julho, 175: Position(Lane #20802, 0m) driving, Position(Lane #20803, 0m) sidewalk
+  R. Maria Paula, 53: Position(Lane #122530, 77.5921m) driving, Position(Lane #122531, 77.5921m) sidewalk
+N301-11 (N301-11) from Lane #22213 to Some(LaneID { road: RoadID(1559), offset: 2 })
+  Parada Vasco Da Gama: Position(Lane #22213, 61.4157m) driving, Position(Lane #22214, 61.4157m) sidewalk
+N307-11 (N307-11) from Lane #57091 to Some(LaneID { road: RoadID(1241), offset: 3 })
+  Av. Mercúrio, 180: Position(Lane #57091, 170.2468m) driving, Position(Lane #57092, 169.7917m) sidewalk
+  São João 2: Position(Lane #58817, 79.3772m) driving, Position(Lane #58816, 31.8503m) sidewalk
+  R. Augusta, 304: Position(Lane #123362, 57.9345m) driving, Position(Lane #123363, 57.9345m) sidewalk
+N308-11 (N308-11) from Lane #53505 to None
+  Av. Alcântara Machado, 351: Position(Lane #40866, 121.4416m) driving, Position(Lane #40867, 121.4416m) sidewalk
+N401-11 (N401-11) from Lane #53505 to None
+  Av. Alcântara Machado, 351: Position(Lane #40866, 121.4416m) driving, Position(Lane #40867, 121.4416m) sidewalk
+N501-11 (N501-11) from Lane #36609 to None
+  Av. Do Estado, 5005: Position(Lane #36546, 73.8311m) driving, Position(Lane #36547, 73.831m) sidewalk
+  Av. Do Estado, 4835: Position(Lane #36418, 24.4176m) driving, Position(Lane #36419, 24.2274m) sidewalk
+  Av. Do Estado, 4755: Position(Lane #36418, 148.9136m) driving, Position(Lane #36419, 148.4015m) sidewalk
+  Av. Do Estado, 4505: Position(Lane #36450, 122.1486m) driving, Position(Lane #36451, 121.7884m) sidewalk
+N502-11 (N502-11) from Lane #36609 to None
+  Av. Do Estado, 5005: Position(Lane #36546, 73.8311m) driving, Position(Lane #36547, 73.831m) sidewalk
+  Av. Do Estado, 4835: Position(Lane #36418, 24.4176m) driving, Position(Lane #36419, 24.2274m) sidewalk
+  Av. Do Estado, 4755: Position(Lane #36418, 148.9136m) driving, Position(Lane #36419, 148.4015m) sidewalk
+  Av. Do Estado, 4505: Position(Lane #36450, 122.1486m) driving, Position(Lane #36451, 121.7884m) sidewalk
+N503-11 (N503-11) from Lane #53505 to None
+  Av. Alcântara Machado, 351: Position(Lane #40866, 121.4416m) driving, Position(Lane #40867, 121.4416m) sidewalk
+N508-11 (N508-11) from Lane #118114 to None
+  R. Bueno De Andrade, 247: Position(Lane #18882, 103.1553m) driving, Position(Lane #18883, 103.1551m) sidewalk
+  R. Bueno De Andrade, 45: Position(Lane #18914, 113.3107m) driving, Position(Lane #18915, 113.3107m) sidewalk
+  R. Cons. Furtado, 637: Position(Lane #123972, 131.9259m) driving, Position(Lane #123974, 131.9259m) sidewalk
+N601-11 (N601-11) from Lane #100450 to None
+  Av. Vinte E Três De Maio: Position(Lane #100452, 53.8823m) driving, Position(Lane #100453, 53.8823m) sidewalk
+  Av. Vinte E Três De Maio: Position(Lane #55524, 79.9703m) driving, Position(Lane #55525, 79.9703m) sidewalk
+  Ac. Ao Viaduto Dona Paulina: Position(Lane #6977, 25.765m) driving, Position(Lane #6978, 25.765m) sidewalk
+N604-11 (N604-11) from Lane #40769 to Some(LaneID { road: RoadID(1439), offset: 1 })
+  Pça. Dr. João Mendes: Position(Lane #40769, 8.9254m) driving, Position(Lane #40770, 8.9254m) sidewalk
+  Av. Da Liberdade, 1046: Position(Lane #37922, 122.1331m) driving, Position(Lane #37923, 122.1747m) sidewalk
+N702-11 (N702-11) from Lane #100450 to None
+  Av. Vinte E Três De Maio: Position(Lane #100452, 53.8823m) driving, Position(Lane #100453, 53.8823m) sidewalk
+  Av. Vinte E Três De Maio: Position(Lane #55524, 79.9703m) driving, Position(Lane #55525, 79.9703m) sidewalk
+  Ac. Ao Viaduto Dona Paulina: Position(Lane #6977, 25.765m) driving, Position(Lane #6978, 25.765m) sidewalk
+N801-11 (N801-11) from Lane #121538 to None
+  São Luis: Position(Lane #96611, 106.2425m) driving, Position(Lane #96612, 106.2426m) sidewalk
+  Parada 1 - Sete De Abril: Position(Lane #83300, 77.2074m) driving, Position(Lane #83301, 77.6966m) sidewalk
+  R. Carlos De Sousa Nazaré, 168: Position(Lane #119169, 31.6575m) driving, Position(Lane #119168, 44.7207m) sidewalk
+N802-11 (N802-11) from Lane #37700 to None
+  Pedroso: Position(Lane #104324, 63.3136m) driving, Position(Lane #104325, 63.3136m) sidewalk
+  Av. Brig. Luís Antônio, 1289: Position(Lane #86500, 90.9267m) driving, Position(Lane #86501, 90.9267m) sidewalk
+  Humaita: Position(Lane #86467, 70.9947m) driving, Position(Lane #86468, 70.9946m) sidewalk
+  Av. Brig. Luís Antônio, 355: Position(Lane #40613, 97.1657m) driving, Position(Lane #40614, 97.1657m) sidewalk
