@@ -176,7 +176,16 @@ fn create_route(
             &snapper.train_incoming_borders
         };
         match borders.closest_pt(entry_pt, border_snap_threshold) {
-            Some((l, _)) => l,
+            Some((lane, _)) => {
+                // Edge case: the first stop is on the same road as the border. We can't
+                // lane-change suddenly, so match the lane in that case.
+                let first_stop_lane = map.get_ts(stops[0]).driving_pos.lane();
+                if lane.road == first_stop_lane.road {
+                    first_stop_lane
+                } else {
+                    lane
+                }
+            }
             None => bail!(
                 "Couldn't find a {:?} border near start {}",
                 route.route_type,
