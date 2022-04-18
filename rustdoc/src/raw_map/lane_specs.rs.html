@@ -561,6 +561,7 @@
 <span id="556">556</span>
 <span id="557">557</span>
 <span id="558">558</span>
+<span id="559">559</span>
 </pre><pre class="rust"><code><span class="doccomment">/// Purely from OSM tags, determine the lanes that a road segment has.</span>
 <span class="kw">use</span> <span class="ident">std::iter</span>;
 
@@ -1094,6 +1095,7 @@
                 <span class="ident">bikes_can_use_bus_lanes</span>: <span class="bool-val">true</span>,
                 <span class="ident">inferred_sidewalks</span>: <span class="bool-val">true</span>,
                 <span class="ident">street_parking_spot_length</span>: <span class="ident">geom::Distance::meters</span>(<span class="number">8.0</span>),
+                <span class="ident">turn_on_red</span>: <span class="bool-val">true</span>,
             };
             <span class="kw">let</span> <span class="ident">actual</span> <span class="op">=</span> <span class="ident">get_lane_specs_ltr</span>(<span class="kw-2">&amp;</span><span class="ident">tags</span>(<span class="ident">input</span>.<span class="ident">clone</span>()), <span class="kw-2">&amp;</span><span class="ident">cfg</span>);
             <span class="kw">let</span> <span class="ident">actual_lt</span>: <span class="ident">String</span> <span class="op">=</span> <span class="ident">actual</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">lt</span>.<span class="ident">to_char</span>()).<span class="ident">collect</span>();

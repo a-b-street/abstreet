@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["read_osm2polygon_input","Returns the (intersection_id, input roads, and GPS bounds) previously written by `save_osm2polygon_input`."]]});

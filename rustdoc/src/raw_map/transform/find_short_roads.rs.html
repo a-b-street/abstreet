@@ -200,6 +200,8 @@
 <span id="195">195</span>
 <span id="196">196</span>
 <span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">abstio::MapName</span>;
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
 <span class="kw">use</span> <span class="ident">geom::Distance</span>;
@@ -320,11 +322,13 @@
     <span class="doccomment">/// A heuristic to find short roads in places that would otherwise be a normal four-way</span>
     <span class="doccomment">/// intersection</span>
     <span class="doccomment">///</span>
+    <span class="doccomment">/// ```text</span>
     <span class="doccomment">///       |</span>
     <span class="doccomment">///       |</span>
     <span class="doccomment">/// ---X~~X----</span>
     <span class="doccomment">///    |</span>
     <span class="doccomment">///    |</span>
+    <span class="doccomment">/// ```</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// The ~~ is the short road we want to detect</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find_dog_legs</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span><span class="op">&gt;</span> {

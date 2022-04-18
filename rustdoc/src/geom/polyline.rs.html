@@ -1086,6 +1086,28 @@
 <span id="1081">1081</span>
 <span id="1082">1082</span>
 <span id="1083">1083</span>
+<span id="1084">1084</span>
+<span id="1085">1085</span>
+<span id="1086">1086</span>
+<span id="1087">1087</span>
+<span id="1088">1088</span>
+<span id="1089">1089</span>
+<span id="1090">1090</span>
+<span id="1091">1091</span>
+<span id="1092">1092</span>
+<span id="1093">1093</span>
+<span id="1094">1094</span>
+<span id="1095">1095</span>
+<span id="1096">1096</span>
+<span id="1097">1097</span>
+<span id="1098">1098</span>
+<span id="1099">1099</span>
+<span id="1100">1100</span>
+<span id="1101">1101</span>
+<span id="1102">1102</span>
+<span id="1103">1103</span>
+<span id="1104">1104</span>
+<span id="1105">1105</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
@@ -1094,8 +1116,8 @@
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">Angle</span>, <span class="ident">Bounds</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">GPSBounds</span>, <span class="ident">HashablePt2D</span>, <span class="ident">InfiniteLine</span>, <span class="ident">Line</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>,
-    <span class="ident">Ring</span>, <span class="ident">EPSILON_DIST</span>,
+    <span class="ident">Angle</span>, <span class="ident">Bounds</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">GPSBounds</span>, <span class="ident">HashablePt2D</span>, <span class="ident">InfiniteLine</span>, <span class="ident">Line</span>, <span class="ident">LonLat</span>, <span class="ident">Polygon</span>,
+    <span class="ident">Pt2D</span>, <span class="ident">Ring</span>, <span class="ident">EPSILON_DIST</span>,
 };
 
 <span class="comment">// TODO How to tune this?</span>
@@ -1999,6 +2021,28 @@
             }
         }
         <span class="ident">geojson::Geometry::new</span>(<span class="ident">geojson::Value::LineString</span>(<span class="ident">pts</span>))
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_geojson</span>(<span class="ident">feature</span>: <span class="kw-2">&amp;</span><span class="ident">geojson::Feature</span>, <span class="ident">gps</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">GPSBounds</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PolyLine</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">geojson::Geometry</span> {
+            <span class="ident">value</span>: <span class="ident">geojson::Value::LineString</span>(<span class="kw-2">ref</span> <span class="ident">pts</span>),
+            ..
+        }) <span class="op">=</span> <span class="ident">feature</span>.<span class="ident">geometry</span>
+        {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">points</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+            <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">pts</span> {
+                <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">pt</span>[<span class="number">0</span>];
+                <span class="kw">let</span> <span class="ident">y</span> <span class="op">=</span> <span class="ident">pt</span>[<span class="number">1</span>];
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">gps</span>) <span class="op">=</span> <span class="ident">gps</span> {
+                    <span class="ident">points</span>.<span class="ident">push</span>(<span class="ident">LonLat::new</span>(<span class="ident">x</span>, <span class="ident">y</span>).<span class="ident">to_pt</span>(<span class="ident">gps</span>));
+                } <span class="kw">else</span> {
+                    <span class="ident">points</span>.<span class="ident">push</span>(<span class="ident">Pt2D::new</span>(<span class="ident">x</span>, <span class="ident">y</span>));
+                }
+            }
+            <span class="ident">PolyLine::new</span>(<span class="ident">points</span>)
+        } <span class="kw">else</span> {
+            <span class="macro">bail!</span>(<span class="string">&quot;Input isn&#39;t a LineString&quot;</span>)
+        }
     }
 
     <span class="doccomment">/// Returns the point on the polyline closest to the query.</span>

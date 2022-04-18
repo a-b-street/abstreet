@@ -641,6 +641,7 @@
 <span id="636">636</span>
 <span id="637">637</span>
 <span id="638">638</span>
+<span id="639">639</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>};
 <span class="kw">use</span> <span class="ident">std::io::Write</span>;
 
@@ -822,6 +823,7 @@
             .<span class="ident">hotkey</span>(<span class="ident">Key::T</span>, <span class="string">&quot;toggle stop sign / traffic signal&quot;</span>)
             .<span class="ident">hotkey</span>(<span class="ident">Key::P</span>, <span class="string">&quot;debug intersection geometry&quot;</span>)
             .<span class="ident">hotkey</span>(<span class="ident">Key::D</span>, <span class="string">&quot;debug in OSM&quot;</span>)
+            .<span class="ident">hotkey</span>(<span class="ident">Key::X</span>, <span class="string">&quot;export to osm2polygon&quot;</span>)
             .<span class="ident">build</span>(<span class="ident">ctx</span>);
     }
 
