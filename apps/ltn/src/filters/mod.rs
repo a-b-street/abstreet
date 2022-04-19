@@ -211,7 +211,7 @@ impl DiagonalFilter {
                     app.session.modal_filters.intersections.insert(i, alt1);
                 }
             }
-        } else if roads.len() > 2 {
+        } else if roads.len() > 1 {
             // Diagonal filters elsewhere don't really make sense. They're equivalent to filtering
             // one road. Just cycle through those.
             let mut add_filter_to = None;
