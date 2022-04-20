@@ -4,10 +4,14 @@
 
 name: Build
 on: [push]
+defaults:
+  run:
+    shell: bash
 jobs:
   build:
     name: Build everything for ${{ matrix.os }}
     if: "contains(github.event.head_commit.message, '[rebuild]')"
+    environment: release
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -35,7 +39,6 @@ jobs:
                 key: build-${{ matrix.os }}
 
       - name: Detect release
-        shell: bash
         run: if [[ `git log -1 --pretty=format:"%s"` == *"[release]"* ]]; then echo 'features=--features=map_gui/release_s3' >> $GITHUB_ENV; else echo 'features=' >> $GITHUB_ENV; fi
 
       - name: Install dependencies
@@ -69,9 +72,32 @@ jobs:
       - name: Download system data
         run: cargo run --release --bin updater -- download --minimal
 
+      - name: import and unlock macos codesigning keychain
+        if: matrix.build == 'macos'
+        run: |
+          echo "${{ secrets.MACOS_DEVELOPER_ID_APPLICATION_P12 }}" | base64 --decode > developerID_application.p12
+
+          # The keychain api requires a password, but we're building a one-off keychain
+          # and immediately unlocking it, so we just use a random throw away password.
+          KEYCHAIN_PASSWORD=$(openssl rand -hex 64)
+
+          security create-keychain -p "${KEYCHAIN_PASSWORD}" build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "${KEYCHAIN_PASSWORD}" build.keychain
+
+          security import developerID_application.p12 -k build.keychain -P "${{ secrets.MACOS_DEVELOPER_ID_APPLICATION_P12_PASSWORD }}" -T /usr/bin/codesign
+
+          # avoid being "prompted" for password when using codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "${KEYCHAIN_PASSWORD}" build.keychain > /dev/null
+
+          rm developerID_application.p12
+
       - name: Package release
+        env:
+          MACOS_DEVELOPER_APPLE_ID: ${{ secrets.MACOS_DEVELOPER_APPLE_ID }}
+          MACOS_DEVELOPER_APP_SPECIFIC_PASSWORD: ${{ secrets.MACOS_DEVELOPER_APP_SPECIFIC_PASSWORD }}
+          MACOS_DEVELOPER_TEAM_ID: ${{ secrets.MACOS_DEVELOPER_TEAM_ID }}
         run: ./release/build.sh ${{ matrix.os }}
-        shell: bash
 
       - name: Upload release for Linux
         if: matrix.os == 'ubuntu-18.04'
