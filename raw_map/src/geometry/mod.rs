@@ -11,16 +11,17 @@
 mod algorithm;
 mod geojson;
 
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeMap;
 
 use anyhow::Result;
 
 use abstutil::Tags;
-use geom::{Distance, PolyLine, Polygon, Pt2D};
+use geom::{Distance, PolyLine, Polygon};
 
-use crate::initial::Road;
 use crate::{osm, OriginalRoad};
+pub use algorithm::intersection_polygon;
 
+#[derive(Clone)]
 pub struct InputRoad {
     pub id: OriginalRoad,
     /// The true center of the road, including sidewalks. The input is untrimmed when called on the
@@ -48,53 +49,6 @@ pub fn osm2polygon(input_path: String, output_path: String) -> Result<()> {
     let debug_output = false;
     results.save_to_geojson(output_path, &gps_bounds, debug_output)?;
     Ok(())
-}
-
-pub fn intersection_polygon(
-    intersection_id: osm::NodeID,
-    input_roads: Vec<InputRoad>,
-    trim_roads_for_merging: &BTreeMap<(osm::WayID, bool), Pt2D>,
-) -> Result<Results> {
-    // TODO After transitioning all callers to this, make the algorithm internally use these types
-    // directly; get rid of the translation layer.
-
-    let mut intersection_roads = BTreeSet::new();
-    let mut roads = BTreeMap::new();
-    for road in input_roads {
-        intersection_roads.insert(road.id);
-        roads.insert(
-            road.id,
-            Road {
-                id: road.id,
-                src_i: road.id.i1,
-                dst_i: road.id.i2,
-                trimmed_center_pts: road.center_pts,
-                half_width: road.half_width,
-                osm_tags: road.osm_tags,
-                // Unused
-                lane_specs_ltr: Vec::new(),
-            },
-        );
-    }
-
-    let (intersection_polygon, debug) = algorithm::intersection_polygon(
-        intersection_id,
-        intersection_roads,
-        &mut roads,
-        trim_roads_for_merging,
-    )?;
-
-    let trimmed_center_pts = roads
-        .into_values()
-        .map(|road| (road.id, road.trimmed_center_pts, road.half_width))
-        .collect();
-    let result = Results {
-        intersection_id,
-        intersection_polygon,
-        trimmed_center_pts,
-        debug,
-    };
-    Ok(result)
 }
 
 #[cfg(test)]
