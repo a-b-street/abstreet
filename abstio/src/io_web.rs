@@ -110,11 +110,19 @@ pub fn maybe_read_binary<T: DeserializeOwned>(path: String, _: &mut Timer) -> Re
 }
 
 pub fn write_json<T: Serialize>(path: String, obj: &T) {
-    write_raw(path, abstutil::to_json(obj)).unwrap();
+    // Only save for data/player, for now
+    if !path.starts_with(&path_player("")) {
+        warn!("Not saving {}", path);
+        return;
+    }
+
+    let window = web_sys::window().unwrap();
+    let storage = window.local_storage().unwrap().unwrap();
+    storage.set_item(&path, &abstutil::to_json(obj)).unwrap();
 }
 
 pub fn write_binary<T: Serialize>(path: String, obj: &T) {
-    write_raw(path, abstutil::to_binary(obj)).unwrap();
+    write_raw(path, &abstutil::to_binary(obj)).unwrap();
 }
 
 pub fn write_raw(path: String, bytes: &[u8]) -> Result<()> {
@@ -127,7 +135,9 @@ pub fn write_raw(path: String, bytes: &[u8]) -> Result<()> {
     let storage = window.local_storage().unwrap().unwrap();
     // Local storage only supports strings, so base64 encoding needed
     let encoded = base64::encode(bytes);
-    storage.set_item(&path, &encoded)?;
+    storage
+        .set_item(&path, &encoded)
+        .map_err(|err| anyhow!(err.as_string().unwrap_or("set_item failed".to_string())))?;
     Ok(())
 }
 
