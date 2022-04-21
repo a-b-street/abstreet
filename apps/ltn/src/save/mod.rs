@@ -1,3 +1,5 @@
+mod perma;
+
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
@@ -51,22 +53,21 @@ impl Proposal {
 
     /// Try to load a proposal. If it fails, returns a popup message state.
     pub fn load(ctx: &mut EventCtx, app: &mut App, name: &str) -> Option<Box<dyn State<App>>> {
-        ctx.loading_screen(
-            "load existing proposal",
-            |ctx, mut timer| match Self::inner_load(ctx, app, name, &mut timer) {
-                Ok(()) => None,
-                Err(err) => Some(PopupMsg::new_state(
-                    ctx,
-                    "Error",
-                    vec![format!("Couldn't load proposal {}", name), err.to_string()],
-                )),
-            },
-        )
+        match Self::inner_load(ctx, app, name) {
+            Ok(()) => None,
+            Err(err) => Some(PopupMsg::new_state(
+                ctx,
+                "Error",
+                vec![format!("Couldn't load proposal {}", name), err.to_string()],
+            )),
+        }
     }
 
-    fn inner_load(ctx: &mut EventCtx, app: &mut App, name: &str, timer: &mut Timer) -> Result<()> {
-        let proposal: Proposal =
-            abstio::maybe_read_binary(abstio::path_ltn_proposals(app.map.get_name(), name), timer)?;
+    fn inner_load(ctx: &mut EventCtx, app: &mut App, name: &str) -> Result<()> {
+        let bytes = abstio::slurp_file(abstio::path_ltn_proposals(app.map.get_name(), name))?;
+        let value = serde_json::from_slice(&bytes)?;
+        let proposal = perma::from_permanent(&app.map, value)?;
+
         // TODO We could try to detect if the file's partitioning (road IDs and such) still matches
         // this version of the map or not
 
@@ -127,7 +128,8 @@ fn save_ui(ctx: &mut EventCtx, app: &App, preserve_state: PreserveState) -> Box<
 
             let path = abstio::path_ltn_proposals(app.map.get_name(), &name);
             let proposal = Proposal::from_app(app);
-            abstio::write_binary(path, &proposal);
+            let json_value = perma::to_permanent(&app.map, &proposal).unwrap();
+            abstio::write_json(path, &json_value);
 
             // If we changed the name, we'll want to recreate the panel
             preserve_state.switch_to_state(ctx, app)
