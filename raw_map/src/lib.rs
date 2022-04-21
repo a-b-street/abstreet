@@ -7,7 +7,7 @@ extern crate anyhow;
 #[macro_use]
 extern crate log;
 
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeMap;
 use std::fmt;
 
 use anyhow::{Context, Result};
@@ -18,7 +18,7 @@ use abstio::{CityName, MapName};
 use abstutil::{deserialize_btreemap, serialize_btreemap, Tags};
 use geom::{Angle, Distance, GPSBounds, PolyLine, Polygon, Pt2D};
 
-pub use self::geometry::intersection_polygon;
+pub use self::geometry::{intersection_polygon, InputRoad};
 pub use self::lane_specs::get_lane_specs_ltr;
 pub use self::types::{
     Amenity, AmenityType, AreaType, BufferType, Direction, DrivingSide, IntersectionType, LaneSpec,
@@ -210,53 +210,72 @@ impl RawMap {
         &self,
         id: osm::NodeID,
     ) -> Result<(Polygon, Vec<Polygon>, Vec<(String, Polygon)>)> {
-        let intersection_roads: BTreeSet<OriginalRoad> =
-            self.roads_per_intersection(id).into_iter().collect();
-        let mut roads = BTreeMap::new();
-        for r in &intersection_roads {
-            roads.insert(*r, initial::Road::new(self, *r)?);
+        let mut input_roads = Vec::new();
+        for r in self.roads_per_intersection(id) {
+            input_roads.push(initial::Road::new(self, r)?.to_input_road());
         }
-
-        // trim_roads_for_merging will be empty unless we've called merge_short_road
-        let (poly, debug) = intersection_polygon(
+        let results = intersection_polygon(
             id,
-            intersection_roads,
-            &mut roads,
+            input_roads,
+            // This'll be empty unless we've called merge_short_road
             &self.intersections[&id].trim_roads_for_merging,
         )?;
         Ok((
-            poly,
-            roads
-                .values()
-                .map(|r| r.trimmed_center_pts.make_polygons(2.0 * r.half_width))
+            results.intersection_polygon,
+            results
+                .trimmed_center_pts
+                .into_iter()
+                .map(|(_, pl, half_width)| pl.make_polygons(2.0 * half_width))
                 .collect(),
-            debug,
+            results.debug,
         ))
     }
 
     /// Generate the trimmed `PolyLine` for a single RawRoad by calculating both intersections
-    pub fn trimmed_road_geometry(&self, road: OriginalRoad) -> Result<PolyLine> {
-        let mut roads = BTreeMap::new();
-        for id in [road.i1, road.i2] {
-            for r in self.roads_per_intersection(id) {
-                roads.insert(
-                    r,
-                    initial::Road::new(self, r).with_context(|| road.to_string())?,
-                );
+    pub fn trimmed_road_geometry(&self, road_id: OriginalRoad) -> Result<PolyLine> {
+        // First trim at one of the endpoints
+        let trimmed_center_pts = {
+            let mut input_roads = Vec::new();
+            for r in self.roads_per_intersection(road_id.i1) {
+                input_roads.push(initial::Road::new(self, r)?.to_input_road());
             }
-        }
-        for id in [road.i1, road.i2] {
-            intersection_polygon(
-                id,
-                self.roads_per_intersection(id).into_iter().collect(),
-                &mut roads,
+            let results = intersection_polygon(
+                road_id.i1,
+                input_roads,
                 // TODO Not sure if we should use this or not
                 &BTreeMap::new(),
-            )
-            .with_context(|| road.to_string())?;
-        }
+            )?;
+            results
+                .trimmed_center_pts
+                .into_iter()
+                .find(|(id, _, _)| *id == road_id)
+                .unwrap()
+                .1
+        };
 
-        Ok(roads.remove(&road).unwrap().trimmed_center_pts)
+        // Now the second
+        {
+            let mut input_roads = Vec::new();
+            for r in self.roads_per_intersection(road_id.i2) {
+                let mut road = initial::Road::new(self, r)?.to_input_road();
+                if r == road_id {
+                    road.center_pts = trimmed_center_pts.clone();
+                }
+                input_roads.push(road);
+            }
+            let results = intersection_polygon(
+                road_id.i2,
+                input_roads,
+                // TODO Not sure if we should use this or not
+                &BTreeMap::new(),
+            )?;
+            Ok(results
+                .trimmed_center_pts
+                .into_iter()
+                .find(|(id, _, _)| *id == road_id)
+                .unwrap()
+                .1)
+        }
     }
 
     /// Returns the corrected (but untrimmed) center and total width for a road

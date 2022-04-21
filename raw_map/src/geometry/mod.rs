@@ -16,11 +16,10 @@ use std::collections::{BTreeMap, BTreeSet};
 use anyhow::Result;
 
 use abstutil::Tags;
-use geom::{Distance, PolyLine, Polygon};
+use geom::{Distance, PolyLine, Polygon, Pt2D};
 
 use crate::initial::Road;
 use crate::{osm, OriginalRoad};
-pub use algorithm::intersection_polygon;
 
 pub struct InputRoad {
     pub id: OriginalRoad,
@@ -45,16 +44,20 @@ pub struct Results {
 /// Process the file produced by `save_osm2polygon_input`, then write the output as GeoJSON.
 pub fn osm2polygon(input_path: String, output_path: String) -> Result<()> {
     let (intersection_id, input_roads, gps_bounds) = geojson::read_osm2polygon_input(input_path)?;
-    let results = intersection_polygon_v2(intersection_id, input_roads)?;
+    let results = intersection_polygon(intersection_id, input_roads, &BTreeMap::new())?;
     let debug_output = false;
     results.save_to_geojson(output_path, &gps_bounds, debug_output)?;
     Ok(())
 }
 
-fn intersection_polygon_v2(
+pub fn intersection_polygon(
     intersection_id: osm::NodeID,
     input_roads: Vec<InputRoad>,
+    trim_roads_for_merging: &BTreeMap<(osm::WayID, bool), Pt2D>,
 ) -> Result<Results> {
+    // TODO After transitioning all callers to this, make the algorithm internally use these types
+    // directly; get rid of the translation layer.
+
     let mut intersection_roads = BTreeSet::new();
     let mut roads = BTreeMap::new();
     for road in input_roads {
@@ -74,12 +77,11 @@ fn intersection_polygon_v2(
         );
     }
 
-    let (intersection_polygon, debug) = intersection_polygon(
+    let (intersection_polygon, debug) = algorithm::intersection_polygon(
         intersection_id,
         intersection_roads,
         &mut roads,
-        // No trim_roads_for_merging
-        &BTreeMap::new(),
+        trim_roads_for_merging,
     )?;
 
     let trimmed_center_pts = roads

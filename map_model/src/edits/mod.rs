@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 
 use abstutil::Timer;
 use geom::{Distance, HashablePt2D, Line, Speed, Time};
-use raw_map::{get_lane_specs_ltr, initial};
+use raw_map::{get_lane_specs_ltr, InputRoad};
 
 pub use self::perma::PermanentMapEdits;
 use crate::make::{match_points_to_lanes, snap_driveway, trim_path};
@@ -598,13 +598,12 @@ fn recalculate_intersection_polygon(
 ) -> Vec<RoadID> {
     let intersection = map.get_i(i);
 
-    let mut intersection_roads = BTreeSet::new();
-    let mut roads = BTreeMap::new();
-    let mut modify_roads = Vec::new();
+    let mut input_roads = Vec::new();
+    let mut id_mapping = BTreeMap::new();
     for r in &intersection.roads {
         let r = map.get_r(*r);
-        modify_roads.push((r.orig_id, r.id));
-        intersection_roads.insert(r.orig_id);
+        id_mapping.insert(r.orig_id, r.id);
+
         let half_width = if r.id == changed_road {
             changed_road_width / 2.0
         } else {
@@ -631,37 +630,29 @@ fn recalculate_intersection_polygon(
             trimmed_center_pts = pl;
         }
 
-        roads.insert(
-            r.orig_id,
-            initial::Road {
-                id: r.orig_id,
-                src_i: r.orig_id.i1,
-                dst_i: r.orig_id.i2,
-                trimmed_center_pts,
-                half_width,
-                // Unused
-                lane_specs_ltr: Vec::new(),
-                osm_tags: r.osm_tags.clone(),
-            },
-        );
+        input_roads.push(InputRoad {
+            id: r.orig_id,
+            center_pts: trimmed_center_pts,
+            half_width,
+            osm_tags: r.osm_tags.clone(),
+        });
     }
 
-    let polygon = raw_map::intersection_polygon(
+    let results = raw_map::intersection_polygon(
         intersection.orig_id,
-        intersection_roads,
-        &mut roads,
+        input_roads,
         // For consolidated intersections, it appears we don't need to pass in
         // trim_roads_for_merging. May revisit this later if needed.
         &BTreeMap::new(),
     )
-    .unwrap()
-    .0;
+    .unwrap();
 
-    map.intersections[i.0].polygon = polygon;
+    map.intersections[i.0].polygon = results.intersection_polygon;
     // Copy over the re-trimmed road centers
     let mut affected = Vec::new();
-    for (orig_id, id) in modify_roads {
-        map.roads[id.0].center_pts = roads.remove(&orig_id).unwrap().trimmed_center_pts;
+    for (orig_id, pl, _) in results.trimmed_center_pts {
+        let id = id_mapping[&orig_id];
+        map.roads[id.0].center_pts = pl;
         if id != changed_road {
             affected.push(id);
         }
