@@ -130,6 +130,8 @@
 <span id="125">125</span>
 <span id="126">126</span>
 <span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
 </pre><pre class="rust"><code><span class="doccomment">//! OSM describes roads as center-lines that intersect. Turn these into road and intersection</span>
 <span class="doccomment">//! polygons roughly by</span>
 <span class="doccomment">//!</span>
@@ -148,11 +150,10 @@
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil::Tags</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::initial::Road</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">osm</span>, <span class="ident">OriginalRoad</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">algorithm::intersection_polygon</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">InputRoad</span> {
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">OriginalRoad</span>,
@@ -177,16 +178,20 @@
 <span class="doccomment">/// Process the file produced by `save_osm2polygon_input`, then write the output as GeoJSON.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">osm2polygon</span>(<span class="ident">input_path</span>: <span class="ident">String</span>, <span class="ident">output_path</span>: <span class="ident">String</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="kw">let</span> (<span class="ident">intersection_id</span>, <span class="ident">input_roads</span>, <span class="ident">gps_bounds</span>) <span class="op">=</span> <span class="ident">geojson::read_osm2polygon_input</span>(<span class="ident">input_path</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">intersection_polygon_v2</span>(<span class="ident">intersection_id</span>, <span class="ident">input_roads</span>)<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">intersection_polygon</span>(<span class="ident">intersection_id</span>, <span class="ident">input_roads</span>, <span class="kw-2">&amp;</span><span class="ident">BTreeMap::new</span>())<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">debug_output</span> <span class="op">=</span> <span class="bool-val">false</span>;
     <span class="ident">results</span>.<span class="ident">save_to_geojson</span>(<span class="ident">output_path</span>, <span class="kw-2">&amp;</span><span class="ident">gps_bounds</span>, <span class="ident">debug_output</span>)<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">fn</span> <span class="ident">intersection_polygon_v2</span>(
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">intersection_polygon</span>(
     <span class="ident">intersection_id</span>: <span class="ident">osm::NodeID</span>,
     <span class="ident">input_roads</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">InputRoad</span><span class="op">&gt;</span>,
+    <span class="ident">trim_roads_for_merging</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span>(<span class="ident">osm::WayID</span>, <span class="ident">bool</span>), <span class="ident">Pt2D</span><span class="op">&gt;</span>,
 ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Results</span><span class="op">&gt;</span> {
+    <span class="comment">// TODO After transitioning all callers to this, make the algorithm internally use these types</span>
+    <span class="comment">// directly; get rid of the translation layer.</span>
+
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">intersection_roads</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
     <span class="kw">for</span> <span class="ident">road</span> <span class="kw">in</span> <span class="ident">input_roads</span> {
@@ -206,12 +211,11 @@
         );
     }
 
-    <span class="kw">let</span> (<span class="ident">intersection_polygon</span>, <span class="ident">debug</span>) <span class="op">=</span> <span class="ident">intersection_polygon</span>(
+    <span class="kw">let</span> (<span class="ident">intersection_polygon</span>, <span class="ident">debug</span>) <span class="op">=</span> <span class="ident">algorithm::intersection_polygon</span>(
         <span class="ident">intersection_id</span>,
         <span class="ident">intersection_roads</span>,
         <span class="kw-2">&amp;mut</span> <span class="ident">roads</span>,
-        <span class="comment">// No trim_roads_for_merging</span>
-        <span class="kw-2">&amp;</span><span class="ident">BTreeMap::new</span>(),
+        <span class="ident">trim_roads_for_merging</span>,
     )<span class="question-mark">?</span>;
 
     <span class="kw">let</span> <span class="ident">trimmed_center_pts</span> <span class="op">=</span> <span class="ident">roads</span>
