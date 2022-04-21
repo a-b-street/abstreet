@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, HashMap};
+use std::collections::HashMap;
 use std::io::Write;
 
 use abstio::{CityName, MapName};
@@ -185,15 +185,9 @@ impl Model {
 
     pub fn create_i(&mut self, ctx: &EventCtx, point: Pt2D) {
         let id = self.map.new_osm_node_id(time_to_id());
-        self.map.intersections.insert(
-            id,
-            RawIntersection {
-                point,
-                intersection_type: IntersectionType::StopSign,
-                elevation: Distance::ZERO,
-                trim_roads_for_merging: BTreeMap::new(),
-            },
-        );
+        self.map
+            .intersections
+            .insert(id, RawIntersection::new(point, IntersectionType::StopSign));
         self.intersection_added(ctx, id);
     }
 
@@ -338,19 +332,13 @@ impl Model {
 
         self.map.roads.insert(
             id,
-            RawRoad {
-                center_points: vec![
+            RawRoad::new(
+                vec![
                     self.map.intersections[&i1].point,
                     self.map.intersections[&i2].point,
                 ],
-                scale_width: 1.0,
                 osm_tags,
-                turn_restrictions: Vec::new(),
-                complicated_turn_restrictions: Vec::new(),
-                percent_incline: 0.0,
-                crosswalk_forward: true,
-                crosswalk_backward: true,
-            },
+            ),
         );
         self.road_added(ctx, id);
 

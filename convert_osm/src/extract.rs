@@ -109,21 +109,8 @@ pub fn extract_osm(
                 way.tags.insert(osm::SIDEWALK, "right");
             }
 
-            out.roads.push((
-                id,
-                RawRoad {
-                    center_points: way.pts.clone(),
-                    scale_width: 1.0,
-                    osm_tags: way.tags.clone(),
-                    turn_restrictions: Vec::new(),
-                    complicated_turn_restrictions: Vec::new(),
-                    percent_incline: 0.0,
-                    // Start assuming there's a crosswalk everywhere, and maybe filter it down
-                    // later
-                    crosswalk_forward: true,
-                    crosswalk_backward: true,
-                },
-            ));
+            out.roads
+                .push((id, RawRoad::new(way.pts.clone(), way.tags.clone())));
             continue;
         } else if way.tags.is(osm::HIGHWAY, "service") {
             // If we got here, is_road didn't interpret it as a normal road

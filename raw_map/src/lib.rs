@@ -381,6 +381,21 @@ pub struct RawRoad {
 }
 
 impl RawRoad {
+    pub fn new(osm_center_points: Vec<Pt2D>, osm_tags: Tags) -> Self {
+        Self {
+            center_points: osm_center_points,
+            scale_width: 1.0,
+            osm_tags,
+            turn_restrictions: Vec::new(),
+            complicated_turn_restrictions: Vec::new(),
+            percent_incline: 0.0,
+            // Start assuming there's a crosswalk everywhere, and maybe filter it down
+            // later
+            crosswalk_forward: true,
+            crosswalk_backward: true,
+        }
+    }
+
     // TODO For the moment, treating all rail things as light rail
     pub fn is_light_rail(&self) -> bool {
         self.osm_tags.is_any("railway", vec!["light_rail", "rail"])
@@ -469,6 +484,16 @@ pub struct RawIntersection {
 }
 
 impl RawIntersection {
+    pub fn new(point: Pt2D, intersection_type: IntersectionType) -> Self {
+        Self {
+            point,
+            intersection_type,
+            // Filled out later
+            elevation: Distance::ZERO,
+            trim_roads_for_merging: BTreeMap::new(),
+        }
+    }
+
     fn is_border(&self) -> bool {
         self.intersection_type == IntersectionType::Border
     }

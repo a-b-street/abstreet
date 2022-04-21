@@ -1,4 +1,4 @@
-use std::collections::{hash_map::Entry, BTreeMap, HashMap, HashSet};
+use std::collections::{hash_map::Entry, HashMap, HashSet};
 
 use abstutil::{Counter, Timer};
 use geom::{Distance, HashablePt2D, Pt2D};
@@ -61,32 +61,21 @@ pub fn split_up_roads(map: &mut RawMap, mut input: OsmExtract, timer: &mut Timer
     for (pt, id) in &pt_to_intersection {
         map.intersections.insert(
             *id,
-            RawIntersection {
-                point: pt.to_pt2d(),
-                intersection_type: if input.traffic_signals.remove(pt).is_some() {
+            RawIntersection::new(
+                pt.to_pt2d(),
+                if input.traffic_signals.remove(pt).is_some() {
                     IntersectionType::TrafficSignal
                 } else {
                     IntersectionType::StopSign
                 },
-                // Filled out later
-                elevation: Distance::ZERO,
-                trim_roads_for_merging: BTreeMap::new(),
-            },
+            ),
         );
     }
 
     // Set roundabouts to their center
     for (id, point) in roundabout_centers {
-        map.intersections.insert(
-            id,
-            RawIntersection {
-                point,
-                intersection_type: IntersectionType::StopSign,
-                // Filled out later
-                elevation: Distance::ZERO,
-                trim_roads_for_merging: BTreeMap::new(),
-            },
-        );
+        map.intersections
+            .insert(id, RawIntersection::new(point, IntersectionType::StopSign));
     }
 
     let mut pt_to_road: HashMap<HashablePt2D, OriginalRoad> = HashMap::new();
