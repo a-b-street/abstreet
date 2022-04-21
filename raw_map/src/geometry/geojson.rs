@@ -11,18 +11,19 @@ impl RawMap {
     pub fn save_osm2polygon_input(&self, output_path: String, i: osm::NodeID) -> Result<()> {
         let mut features = Vec::new();
         for id in self.roads_per_intersection(i) {
-            let road = crate::initial::Road::new(self, id)?;
+            let (untrimmed_center_pts, total_width) = self.untrimmed_road_geometry(id)?;
+
             let mut properties = serde_json::Map::new();
             properties.insert("osm_way_id".to_string(), id.osm_way_id.0.into());
             properties.insert("src_i".to_string(), id.i1.0.into());
             properties.insert("dst_i".to_string(), id.i2.0.into());
             properties.insert(
                 "half_width".to_string(),
-                road.half_width.inner_meters().into(),
+                (total_width / 2.0).inner_meters().into(),
             );
 
             let mut osm_tags = serde_json::Map::new();
-            for (k, v) in road.osm_tags.inner() {
+            for (k, v) in self.roads[&id].osm_tags.inner() {
                 osm_tags.insert(k.to_string(), v.to_string().into());
             }
             properties.insert("osm_tags".to_string(), osm_tags.into());
@@ -30,7 +31,7 @@ impl RawMap {
             // TODO Both for ror reading and writing, we should find a way to pair a serde struct
             // with a geo type
             features.push(Feature {
-                geometry: Some(road.trimmed_center_pts.to_geojson(Some(&self.gps_bounds))),
+                geometry: Some(untrimmed_center_pts.to_geojson(Some(&self.gps_bounds))),
                 properties: Some(properties),
                 bbox: None,
                 id: None,
