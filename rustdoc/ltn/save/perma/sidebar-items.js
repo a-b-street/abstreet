@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["from_permanent",""],["is_intersection_id",""],["is_road_id",""],["to_permanent",""],["walk",""]]});

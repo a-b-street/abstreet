@@ -396,6 +396,10 @@
 <span id="391">391</span>
 <span id="392">392</span>
 <span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Integration tests</span>
 
 <span class="kw">use</span> <span class="ident">std::io::Write</span>;
@@ -752,7 +756,11 @@
         ));
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">File::create</span>(<span class="ident">path</span>)<span class="question-mark">?</span>;
         <span class="kw">for</span> <span class="ident">tr</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_transit_routes</span>() {
-            <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;{} ({}) from {} to {:?}&quot;</span>, <span class="ident">tr</span>.<span class="ident">gtfs_id</span>, <span class="ident">tr</span>.<span class="ident">short_name</span>, <span class="ident">tr</span>.<span class="ident">start</span>, <span class="ident">tr</span>.<span class="ident">end_border</span>)<span class="question-mark">?</span>;
+            <span class="macro">writeln!</span>(
+                <span class="ident">f</span>,
+                <span class="string">&quot;{} ({}) from {} to {:?}&quot;</span>,
+                <span class="ident">tr</span>.<span class="ident">gtfs_id</span>, <span class="ident">tr</span>.<span class="ident">short_name</span>, <span class="ident">tr</span>.<span class="ident">start</span>, <span class="ident">tr</span>.<span class="ident">end_border</span>
+            )<span class="question-mark">?</span>;
             <span class="kw">for</span> <span class="ident">ts</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">tr</span>.<span class="ident">stops</span> {
                 <span class="kw">let</span> <span class="ident">ts</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_ts</span>(<span class="kw-2">*</span><span class="ident">ts</span>);
                 <span class="macro">writeln!</span>(
