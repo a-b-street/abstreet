@@ -189,6 +189,7 @@
 <span id="184">184</span>
 <span id="185">185</span>
 <span id="186">186</span>
+<span id="187">187</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">geojson::Feature</span>;
 
@@ -202,18 +203,19 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">save_osm2polygon_input</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">output_path</span>: <span class="ident">String</span>, <span class="ident">i</span>: <span class="ident">osm::NodeID</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">features</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">roads_per_intersection</span>(<span class="ident">i</span>) {
-            <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::initial::Road::new</span>(<span class="self">self</span>, <span class="ident">id</span>)<span class="question-mark">?</span>;
+            <span class="kw">let</span> (<span class="ident">untrimmed_center_pts</span>, <span class="ident">total_width</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">untrimmed_road_geometry</span>(<span class="ident">id</span>)<span class="question-mark">?</span>;
+
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">properties</span> <span class="op">=</span> <span class="ident">serde_json::Map::new</span>();
             <span class="ident">properties</span>.<span class="ident">insert</span>(<span class="string">&quot;osm_way_id&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">id</span>.<span class="ident">osm_way_id</span>.<span class="number">0</span>.<span class="ident">into</span>());
             <span class="ident">properties</span>.<span class="ident">insert</span>(<span class="string">&quot;src_i&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">id</span>.<span class="ident">i1</span>.<span class="number">0</span>.<span class="ident">into</span>());
             <span class="ident">properties</span>.<span class="ident">insert</span>(<span class="string">&quot;dst_i&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">id</span>.<span class="ident">i2</span>.<span class="number">0</span>.<span class="ident">into</span>());
             <span class="ident">properties</span>.<span class="ident">insert</span>(
                 <span class="string">&quot;half_width&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">road</span>.<span class="ident">half_width</span>.<span class="ident">inner_meters</span>().<span class="ident">into</span>(),
+                (<span class="ident">total_width</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">inner_meters</span>().<span class="ident">into</span>(),
             );
 
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">osm_tags</span> <span class="op">=</span> <span class="ident">serde_json::Map::new</span>();
-            <span class="kw">for</span> (<span class="ident">k</span>, <span class="ident">v</span>) <span class="kw">in</span> <span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">inner</span>() {
+            <span class="kw">for</span> (<span class="ident">k</span>, <span class="ident">v</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">roads</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>].<span class="ident">osm_tags</span>.<span class="ident">inner</span>() {
                 <span class="ident">osm_tags</span>.<span class="ident">insert</span>(<span class="ident">k</span>.<span class="ident">to_string</span>(), <span class="ident">v</span>.<span class="ident">to_string</span>().<span class="ident">into</span>());
             }
             <span class="ident">properties</span>.<span class="ident">insert</span>(<span class="string">&quot;osm_tags&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">osm_tags</span>.<span class="ident">into</span>());
@@ -221,7 +223,7 @@
             <span class="comment">// TODO Both for ror reading and writing, we should find a way to pair a serde struct</span>
             <span class="comment">// with a geo type</span>
             <span class="ident">features</span>.<span class="ident">push</span>(<span class="ident">Feature</span> {
-                <span class="ident">geometry</span>: <span class="prelude-val">Some</span>(<span class="ident">road</span>.<span class="ident">trimmed_center_pts</span>.<span class="ident">to_geojson</span>(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">gps_bounds</span>))),
+                <span class="ident">geometry</span>: <span class="prelude-val">Some</span>(<span class="ident">untrimmed_center_pts</span>.<span class="ident">to_geojson</span>(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">gps_bounds</span>))),
                 <span class="ident">properties</span>: <span class="prelude-val">Some</span>(<span class="ident">properties</span>),
                 <span class="ident">bbox</span>: <span class="prelude-val">None</span>,
                 <span class="ident">id</span>: <span class="prelude-val">None</span>,
