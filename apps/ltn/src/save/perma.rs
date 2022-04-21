@@ -1,3 +1,26 @@
+//! The Proposal struct references IntersectionIDs and RoadIDs, which won't survive OSM updates.
+//! Similar to the MapEdits <-> PermanentMapEdits strategy, transform those IDs before saving.
+//!
+//! Unlike PermanentMapEdits, we don't define a PermanentProposal struct, because to do so for
+//! everything it includes would be a nightmare. In particular, Partitioning includes Blocks, which
+//! nest RoadIDs deep inside. Instead, play a "runtime reflection" trick:
+//!
+//! 1) Serialize the Proposal with RoadIDs to JSON
+//! 2) Dynamically walk the JSON
+//! 3) When the path of a value matches the hardcoded list of patterns in is_road_id and
+//!    is_intersection_id, transform to a permanent ID
+//! 4) Save the proposal as JSON with that ID instead
+//! 5) Do the inverse to later load
+//!
+//! In practice, this attempt to keep proposals compatible with future basemap updates might be
+//! futile. We're embedding loads of details about the partitioning, but not checking that they
+//! remain valid after loading. Even splitting one road in two anywhere in the map would likely
+//! break things kind of silently. Absolute worst case, we also record an abst_version field so we
+//! could manually load the proposal in the correct version, and do something to manually recover
+//! an old proposal.
+//!
+//! Also, the JSON blobs are massive because of the partitioning, so compress everything.
+
 use anyhow::Result;
 use lazy_static::lazy_static;
 use regex::Regex;
@@ -8,9 +31,6 @@ use raw_map::osm::NodeID;
 use raw_map::OriginalRoad;
 
 use super::Proposal;
-
-// Note there's no chance to transform keys in a map. So use serialize_btreemap to force into a
-// list of pairs
 
 pub fn to_permanent(map: &Map, proposal: &Proposal) -> Result<Value> {
     let mut proposal_value = serde_json::to_value(proposal)?;
@@ -42,7 +62,6 @@ pub fn from_permanent(map: &Map, mut proposal_value: Value) -> Result<Proposal> 
         }
         Ok(())
     })?;
-    println!("transformation complete: {}", proposal_value);
     let result = serde_json::from_value(proposal_value)?;
     Ok(result)
 }
@@ -55,13 +74,16 @@ fn is_road_id(path: &str) -> bool {
             Regex::new(r"^/modal_filters/intersections/\d+/1/r2$").unwrap(),
             Regex::new(r"^/modal_filters/intersections/\d+/1/group1/y$").unwrap(),
             Regex::new(r"^/modal_filters/intersections/\d+/1/group2/y$").unwrap(),
-            //Regex::new(r"^$").unwrap(),
+            // First place a Block is stored
+            Regex::new(r"^/partitioning/single_blocks/\d+/perimeter/interior/\d+$").unwrap(),
+            Regex::new(r"^/partitioning/single_blocks/\d+/perimeter/roads/\d+/road$").unwrap(),
+            // The other
+            Regex::new(r"^/partitioning/neighborhoods/\d+/0/perimeter/interior/\d+$").unwrap(),
+            Regex::new(r"^/partitioning/neighborhoods/\d+/0/perimeter/roads/\d+/road$").unwrap(),
         ];
     }
 
     PATTERNS.iter().any(|re| re.is_match(path))
-    // /partitioning/neighborhoods/x/0/ (block)  perimeter/roads/0/road
-    // /partitioning/single_blocks/0/   (block) perimeter
 }
 
 fn is_intersection_id(path: &str) -> bool {
@@ -75,6 +97,8 @@ fn is_intersection_id(path: &str) -> bool {
     PATTERNS.iter().any(|re| re.is_match(path))
 }
 
+// Note there's no chance to transform keys in a map. So use serialize_btreemap elsewhere to force
+// into a list of pairs
 fn walk<F: Fn(&str, &mut Value) -> Result<()>>(
     path: &str,
     value: &mut Value,
