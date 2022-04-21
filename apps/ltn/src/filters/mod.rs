@@ -5,6 +5,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use serde::{Deserialize, Serialize};
 
+use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Circle, Distance, Line};
 use map_model::{IntersectionID, Map, RoadID, RoutingParams, TurnID};
 use widgetry::mapspace::{DrawUnzoomedShapes, ToggleZoomed};
@@ -16,8 +17,17 @@ use crate::{after_edit, colors, App};
 /// Stored in App session state. Before making any changes, call `before_edit`.
 #[derive(Clone, Default, Serialize, Deserialize)]
 pub struct ModalFilters {
+    // We use serialize_btreemap so that save::perma can detect and transform IDs
     /// For filters placed along a road, where is the filter located?
+    #[serde(
+        serialize_with = "serialize_btreemap",
+        deserialize_with = "deserialize_btreemap"
+    )]
     pub roads: BTreeMap<RoadID, Distance>,
+    #[serde(
+        serialize_with = "serialize_btreemap",
+        deserialize_with = "deserialize_btreemap"
+    )]
     pub intersections: BTreeMap<IntersectionID, DiagonalFilter>,
 
     /// Edit history is preserved recursively

@@ -95,6 +95,12 @@ pub fn write_binary<T: Serialize>(path: String, obj: &T) {
     info!("Wrote {}", path);
 }
 
+pub fn write_raw(path: String, bytes: &[u8]) -> Result<()> {
+    let mut file = BufWriter::new(File::create(path)?);
+    file.write_all(bytes)?;
+    Ok(())
+}
+
 /// Idempotent
 pub fn delete_file<I: AsRef<str>>(path: I) {
     let path = path.as_ref();

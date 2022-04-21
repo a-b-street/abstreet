@@ -398,7 +398,7 @@ pub fn path_all_edits(name: &MapName) -> String {
 
 pub fn path_ltn_proposals(name: &MapName, proposal_name: &str) -> String {
     path(format!(
-        "player/ltn_proposals/{}/{}/{}/{}.bin",
+        "player/ltn_proposals/{}/{}/{}/{}.json.gz",
         name.city.country, name.city.city, name.map, proposal_name
     ))
 }

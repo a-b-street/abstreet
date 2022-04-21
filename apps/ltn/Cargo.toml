@@ -16,6 +16,7 @@ abstio = { path = "../../abstio" }
 abstutil = { path = "../../abstutil" }
 anyhow = "1.0.38"
 contour = "0.4.0"
+flate2 = "1.0.20"
 fs-err = "2.6.0"
 geo = "0.19"
 geojson = { version = "0.22.2", features = ["geo-types"] }
@@ -28,6 +29,7 @@ maplit = "1.0.2"
 map_gui = { path = "../../map_gui" }
 map_model = { path = "../../map_model" }
 raw_map = { path = "../../raw_map" }
+regex = "1.5.4"
 serde = "1.0.123"
 serde_json = "1.0.61"
 synthpop = { path = "../../synthpop" }

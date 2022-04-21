@@ -225,8 +225,7 @@ impl MapEdits {
             Err(_) => {
                 // The JSON format may have changed, so attempt backwards compatibility.
                 let bytes = abstio::slurp_file(path)?;
-                let contents = std::str::from_utf8(&bytes)?;
-                let value = serde_json::from_str(contents)?;
+                let value = serde_json::from_slice(&bytes)?;
                 compat::upgrade(value, map)?
             }
         };
