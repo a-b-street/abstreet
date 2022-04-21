@@ -4,7 +4,7 @@ use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
 use abstio::MapName;
-use abstutil::{Counter, Timer};
+use abstutil::Counter;
 use map_gui::tools::{ChooseSomething, PromptInput};
 use map_model::PathRequest;
 use widgetry::tools::PopupMsg;
@@ -13,11 +13,8 @@ use widgetry::{Choice, EventCtx, Key, Line, State, Widget};
 use crate::partition::BlockID;
 use crate::{App, BrowseNeighborhoods, ModalFilters, Partitioning, Transition};
 
-/// Captures all of the edits somebody makes to a map in the LTN tool. Note this separate from
+/// Captures all of the edits somebody makes to a map in the LTN tool. Note this is separate from
 /// `map_model::MapEdits`.
-///
-/// TODO Note this format isn't future-proof at all. Changes to the LTN blockfinding algorithm or
-/// map data (like RoadIDs) will probably break someone's edits.
 #[derive(Serialize, Deserialize)]
 pub struct Proposal {
     pub map: MapName,

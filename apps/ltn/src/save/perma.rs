@@ -42,6 +42,7 @@ pub fn from_permanent(map: &Map, mut proposal_value: Value) -> Result<Proposal> 
         }
         Ok(())
     })?;
+    println!("transformation complete: {}", proposal_value);
     let result = serde_json::from_value(proposal_value)?;
     Ok(result)
 }
@@ -84,11 +85,15 @@ fn walk<F: Fn(&str, &mut Value) -> Result<()>>(
             for (idx, x) in list.into_iter().enumerate() {
                 walk(&format!("{}/{}", path, idx), x, transform)?;
             }
+            transform(path, value)?;
         }
         Value::Object(map) => {
             for (key, val) in map {
                 walk(&format!("{}/{}", path, key), val, transform)?;
             }
+            // After recursing, possibly transform this. We turn a number into an object, so to
+            // reverse that...
+            transform(path, value)?;
         }
         _ => {
             transform(path, value)?;
