@@ -303,25 +303,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "cbindgen"
-version = "0.20.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "51e3973b165dc0f435831a9e426de67e894de532754ff7a3f307c03ee5dec7dc"
-dependencies = [
- "clap",
- "heck 0.3.3",
- "indexmap",
- "log",
- "proc-macro2",
- "quote",
- "serde",
- "serde_json",
- "syn",
- "tempfile",
- "toml",
-]
-
-[[package]]
 name = "cc"
 version = "1.0.68"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1363,9 +1344,9 @@ dependencies = [
 
 [[package]]
 name = "geo"
-version = "0.19.0"
+version = "0.20.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "61faf6a68f9432b5287c393268e86a07e4dfed79e6e0962b0e6e59b2f70c77d8"
+checksum = "d7e2e3be15682a45e9dfe9a04f84bff275390047204ab22f3c6b2312fcfb9e24"
 dependencies = [
  "geo-types",
  "geographiclib-rs",
@@ -1388,9 +1369,9 @@ dependencies = [
 
 [[package]]
 name = "geo-types"
-version = "0.7.3"
+version = "0.7.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "658ffd4025e593f0b64e8fa7a1afc4082e4471ac823034b9d4e338edc9adc6fb"
+checksum = "a9537881a3d2941ff3fe901e744c45f0fa4c142334f499f27d26be1d72299ba8"
 dependencies = [
  "approx",
  "num-traits",
@@ -2895,9 +2876,8 @@ dependencies = [
 [[package]]
 name = "polylabel"
 version = "2.4.0"
-source = "git+https://github.com/urschrei/polylabel-rs#4ac85aaa652825784186ee8344a0d9a6c446be16"
+source = "git+https://github.com/michaelkirk/polylabel-rs?branch=mkirk/optional-cbindgen#b96b417659d82ebe3a409b499d8669ff36d7ffe8"
 dependencies = [
- "cbindgen",
  "geo",
  "libc",
  "num-traits",
@@ -3166,15 +3146,6 @@ name = "regex-syntax"
 version = "0.6.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f497285884f3fcff424ffc933e56d7cbca511def0c9831a7f9b5f6153e3cc89b"
-
-[[package]]
-name = "remove_dir_all"
-version = "0.5.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3acd125665422973a33ac9d3dd2df85edad0f4ae9b00dafb1a05e43a9f5ef8e7"
-dependencies = [
- "winapi",
-]
 
 [[package]]
 name = "reqwest"
@@ -3735,20 +3706,6 @@ dependencies = [
  "pkg-config",
  "toml",
  "version-compare",
-]
-
-[[package]]
-name = "tempfile"
-version = "3.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dac1c663cfc93810f88aed9b8941d48cabf856a1b111c29a40439018d870eb22"
-dependencies = [
- "cfg-if 1.0.0",
- "libc",
- "rand",
- "redox_syscall",
- "remove_dir_all",
- "winapi",
 ]
 
 [[package]]
