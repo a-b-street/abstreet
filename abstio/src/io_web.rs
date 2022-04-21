@@ -110,29 +110,25 @@ pub fn maybe_read_binary<T: DeserializeOwned>(path: String, _: &mut Timer) -> Re
 }
 
 pub fn write_json<T: Serialize>(path: String, obj: &T) {
-    // Only save for data/player, for now
-    if !path.starts_with(&path_player("")) {
-        warn!("Not saving {}", path);
-        return;
-    }
-
-    let window = web_sys::window().unwrap();
-    let storage = window.local_storage().unwrap().unwrap();
-    storage.set_item(&path, &abstutil::to_json(obj)).unwrap();
+    write_raw(path, abstutil::to_json(obj)).unwrap();
 }
 
 pub fn write_binary<T: Serialize>(path: String, obj: &T) {
+    write_raw(path, abstutil::to_binary(obj)).unwrap();
+}
+
+pub fn write_raw(path: String, bytes: &[u8]) -> Result<()> {
     // Only save for data/player, for now
     if !path.starts_with(&path_player("")) {
-        warn!("Not saving {}", path);
-        return;
+        bail!("Not saving {}", path);
     }
 
     let window = web_sys::window().unwrap();
     let storage = window.local_storage().unwrap().unwrap();
     // Local storage only supports strings, so base64 encoding needed
-    let encoded = base64::encode(abstutil::to_binary(obj));
-    storage.set_item(&path, &encoded).unwrap();
+    let encoded = base64::encode(bytes);
+    storage.set_item(&path, &encoded)?;
+    Ok(())
 }
 
 pub fn delete_file<I: AsRef<str>>(path: I) {

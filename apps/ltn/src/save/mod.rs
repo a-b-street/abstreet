@@ -55,14 +55,20 @@ impl Proposal {
             Err(err) => Some(PopupMsg::new_state(
                 ctx,
                 "Error",
-                vec![format!("Couldn't load proposal {}", name), err.to_string()],
+                vec![
+                    format!("Couldn't load proposal {}", name),
+                    err.to_string(),
+                    "The format of saved proposals recently changed.".to_string(),
+                    "Contact dabreegster@gmail.com if you need help restoring a file.".to_string(),
+                ],
             )),
         }
     }
 
     fn inner_load(ctx: &mut EventCtx, app: &mut App, name: &str) -> Result<()> {
         let bytes = abstio::slurp_file(abstio::path_ltn_proposals(app.map.get_name(), name))?;
-        let value = serde_json::from_slice(&bytes)?;
+        let decoder = flate2::read::GzDecoder::new(&bytes[..]);
+        let value = serde_json::from_reader(decoder)?;
         let proposal = perma::from_permanent(&app.map, value)?;
 
         // TODO We could try to detect if the file's partitioning (road IDs and such) still matches
@@ -123,15 +129,33 @@ fn save_ui(ctx: &mut EventCtx, app: &App, preserve_state: PreserveState) -> Box<
             // and file state are not synchronized / auto-saved.
             app.session.proposal_name = Some(name.clone());
 
-            let path = abstio::path_ltn_proposals(app.map.get_name(), &name);
-            let proposal = Proposal::from_app(app);
-            let json_value = perma::to_permanent(&app.map, &proposal).unwrap();
-            abstio::write_json(path, &json_value);
-
-            // If we changed the name, we'll want to recreate the panel
-            preserve_state.switch_to_state(ctx, app)
+            match inner_save(app) {
+                // If we changed the name, we'll want to recreate the panel
+                Ok(()) => preserve_state.switch_to_state(ctx, app),
+                Err(err) => Transition::Multi(vec![
+                    preserve_state.switch_to_state(ctx, app),
+                    Transition::Push(PopupMsg::new_state(
+                        ctx,
+                        "Error",
+                        vec![format!("Couldn't save proposal: {}", err)],
+                    )),
+                ]),
+            }
         }),
     )
+}
+
+fn inner_save(app: &App) -> Result<()> {
+    let proposal = Proposal::from_app(app);
+    let path = abstio::path_ltn_proposals(app.map.get_name(), &proposal.name);
+
+    let json_value = perma::to_permanent(&app.map, &proposal)?;
+    let mut output_buffer = Vec::new();
+    let mut encoder =
+        flate2::write::GzEncoder::new(&mut output_buffer, flate2::Compression::best());
+    serde_json::to_writer(&mut encoder, &json_value)?;
+    encoder.finish()?;
+    abstio::write_raw(path, &output_buffer)
 }
 
 fn load_picker_ui(
@@ -144,9 +168,15 @@ fn load_picker_ui(
     ChooseSomething::new_state(
         ctx,
         "Load which proposal?",
-        Choice::strings(abstio::list_all_objects(abstio::path_all_ltn_proposals(
-            app.map.get_name(),
-        ))),
+        // basename (and thus list_all_objects) turn "foo.json.gz" into "foo.json", so further
+        // strip out the extension.
+        // TODO Fix basename, but make sure nothing downstream breaks
+        Choice::strings(
+            abstio::list_all_objects(abstio::path_all_ltn_proposals(app.map.get_name()))
+                .into_iter()
+                .map(abstutil::basename)
+                .collect(),
+        ),
         Box::new(|name, ctx, app| match Proposal::load(ctx, app, &name) {
             Some(err_state) => Transition::Replace(err_state),
             None => preserve_state.switch_to_state(ctx, app),
