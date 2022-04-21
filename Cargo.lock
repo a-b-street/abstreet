@@ -2875,8 +2875,9 @@ dependencies = [
 
 [[package]]
 name = "polylabel"
-version = "2.4.0"
-source = "git+https://github.com/michaelkirk/polylabel-rs?branch=mkirk/optional-cbindgen#b96b417659d82ebe3a409b499d8669ff36d7ffe8"
+version = "2.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9eacb1d18495675b5b9a56b92ea542e9ff6ebc98de4a166329ca9a1fbf408f88"
 dependencies = [
  "geo",
  "libc",
