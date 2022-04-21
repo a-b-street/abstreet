@@ -82,17 +82,18 @@ pub fn list_dir(dir: String) -> Vec<String> {
 
 pub fn slurp_file<I: AsRef<str>>(path: I) -> Result<Vec<u8>> {
     let path = path.as_ref();
-    debug!(
-        "slurping file: {}, trimmed_path: {}",
-        path,
-        path.trim_start_matches("../data/system/")
-    );
 
     if let Some(raw) = SYSTEM_DATA.get_file(path.trim_start_matches("../data/system/")) {
         Ok(raw.contents().to_vec())
     } else if path.starts_with(&path_player("")) {
         let string = read_local_storage(path)?;
-        Ok(string.into_bytes())
+        // TODO Hack: if it probably wasn't written with write_json, do the base64 decoding. This
+        // may not always be appropriate...
+        if path.ends_with(".json") {
+            Ok(string.into_bytes())
+        } else {
+            base64::decode(string).map_err(|err| err.into())
+        }
     } else {
         bail!("Can't slurp_file {}, it doesn't exist", path)
     }
