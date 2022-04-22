@@ -328,7 +328,7 @@
             });
         }
 
-        <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">pl</span>, <span class="ident">half_width</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">trimmed_center_pts</span> {
+        <span class="kw">for</span> (<span class="ident">id</span>, (<span class="ident">pl</span>, <span class="ident">half_width</span>)) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">trimmed_center_pts</span> {
             <span class="comment">// Add both a line-string and polygon per road</span>
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">properties</span> <span class="op">=</span> <span class="ident">serde_json::Map::new</span>();
             <span class="ident">properties</span>.<span class="ident">insert</span>(<span class="string">&quot;osm_way_id&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">id</span>.<span class="ident">osm_way_id</span>.<span class="number">0</span>.<span class="ident">into</span>());

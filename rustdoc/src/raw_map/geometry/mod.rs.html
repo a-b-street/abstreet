@@ -86,6 +86,7 @@
 <span id="81">81</span>
 <span id="82">82</span>
 <span id="83">83</span>
+<span id="84">84</span>
 </pre><pre class="rust"><code><span class="doccomment">//! OSM describes roads as center-lines that intersect. Turn these into road and intersection</span>
 <span class="doccomment">//! polygons roughly by</span>
 <span class="doccomment">//!</span>
@@ -121,11 +122,12 @@
     <span class="kw">pub</span> <span class="ident">osm_tags</span>: <span class="ident">Tags</span>,
 }
 
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Results</span> {
     <span class="kw">pub</span> <span class="ident">intersection_id</span>: <span class="ident">osm::NodeID</span>,
     <span class="kw">pub</span> <span class="ident">intersection_polygon</span>: <span class="ident">Polygon</span>,
-    <span class="doccomment">/// (Road, trimmed center line, half width)</span>
-    <span class="kw">pub</span> <span class="ident">trimmed_center_pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">OriginalRoad</span>, <span class="ident">PolyLine</span>, <span class="ident">Distance</span>)<span class="op">&gt;</span>,
+    <span class="doccomment">/// Road -&gt; (trimmed center line, half width)</span>
+    <span class="kw">pub</span> <span class="ident">trimmed_center_pts</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span>, (<span class="ident">PolyLine</span>, <span class="ident">Distance</span>)<span class="op">&gt;</span>,
     <span class="doccomment">/// Extra polygons with labels to debug the algorithm</span>
     <span class="kw">pub</span> <span class="ident">debug</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">Polygon</span>)<span class="op">&gt;</span>,
 }
