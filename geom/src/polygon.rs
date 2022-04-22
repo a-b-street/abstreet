@@ -564,6 +564,11 @@ impl Polygon {
     pub fn simplify(&self, epsilon: f64) -> Polygon {
         to_geo(self.points()).simplifyvw_preserve(&epsilon).into()
     }
+
+    /// An arbitrary placeholder value, when Option types aren't worthwhile
+    pub fn dummy() -> Self {
+        Polygon::rectangle(0.1, 0.1)
+    }
 }
 
 impl fmt::Display for Polygon {

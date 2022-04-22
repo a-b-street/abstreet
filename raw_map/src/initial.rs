@@ -123,7 +123,7 @@ impl InitialMap {
             ) {
                 Ok(results) => {
                     i.polygon = results.intersection_polygon;
-                    for (r, pl, _) in results.trimmed_center_pts {
+                    for (r, (pl, _)) in results.trimmed_center_pts {
                         m.roads.get_mut(&r).unwrap().trimmed_center_pts = pl;
                     }
                 }
@@ -180,7 +180,7 @@ impl InitialMap {
             )
             .unwrap();
             i.polygon = results.intersection_polygon;
-            for (r, pl, _) in results.trimmed_center_pts {
+            for (r, (pl, _)) in results.trimmed_center_pts {
                 m.roads.get_mut(&r).unwrap().trimmed_center_pts = pl;
             }
             info!(

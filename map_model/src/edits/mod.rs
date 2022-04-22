@@ -650,7 +650,7 @@ fn recalculate_intersection_polygon(
     map.intersections[i.0].polygon = results.intersection_polygon;
     // Copy over the re-trimmed road centers
     let mut affected = Vec::new();
-    for (orig_id, pl, _) in results.trimmed_center_pts {
+    for (orig_id, (pl, _)) in results.trimmed_center_pts {
         let id = id_mapping[&orig_id];
         map.roads[id.0].center_pts = pl;
         if id != changed_road {

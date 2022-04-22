@@ -136,7 +136,7 @@ impl Results {
             });
         }
 
-        for (id, pl, half_width) in &self.trimmed_center_pts {
+        for (id, (pl, half_width)) in &self.trimmed_center_pts {
             // Add both a line-string and polygon per road
             let mut properties = serde_json::Map::new();
             properties.insert("osm_way_id".to_string(), id.osm_way_id.0.into());

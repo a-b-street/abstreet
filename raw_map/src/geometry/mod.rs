@@ -33,11 +33,12 @@ pub struct InputRoad {
     pub osm_tags: Tags,
 }
 
+#[derive(Clone)]
 pub struct Results {
     pub intersection_id: osm::NodeID,
     pub intersection_polygon: Polygon,
-    /// (Road, trimmed center line, half width)
-    pub trimmed_center_pts: Vec<(OriginalRoad, PolyLine, Distance)>,
+    /// Road -> (trimmed center line, half width)
+    pub trimmed_center_pts: BTreeMap<OriginalRoad, (PolyLine, Distance)>,
     /// Extra polygons with labels to debug the algorithm
     pub debug: Vec<(String, Polygon)>,
 }

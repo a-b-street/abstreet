@@ -224,8 +224,8 @@ impl RawMap {
             results.intersection_polygon,
             results
                 .trimmed_center_pts
-                .into_iter()
-                .map(|(_, pl, half_width)| pl.make_polygons(2.0 * half_width))
+                .into_values()
+                .map(|(pl, half_width)| pl.make_polygons(2.0 * half_width))
                 .collect(),
             results.debug,
         ))
@@ -239,18 +239,13 @@ impl RawMap {
             for r in self.roads_per_intersection(road_id.i1) {
                 input_roads.push(initial::Road::new(self, r)?.to_input_road());
             }
-            let results = intersection_polygon(
+            let mut results = intersection_polygon(
                 road_id.i1,
                 input_roads,
                 // TODO Not sure if we should use this or not
                 &BTreeMap::new(),
             )?;
-            results
-                .trimmed_center_pts
-                .into_iter()
-                .find(|(id, _, _)| *id == road_id)
-                .unwrap()
-                .1
+            results.trimmed_center_pts.remove(&road_id).unwrap().0
         };
 
         // Now the second
@@ -263,18 +258,13 @@ impl RawMap {
                 }
                 input_roads.push(road);
             }
-            let results = intersection_polygon(
+            let mut results = intersection_polygon(
                 road_id.i2,
                 input_roads,
                 // TODO Not sure if we should use this or not
                 &BTreeMap::new(),
             )?;
-            Ok(results
-                .trimmed_center_pts
-                .into_iter()
-                .find(|(id, _, _)| *id == road_id)
-                .unwrap()
-                .1)
+            Ok(results.trimmed_center_pts.remove(&road_id).unwrap().0)
         }
     }
 
