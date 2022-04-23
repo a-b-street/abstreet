@@ -230,12 +230,28 @@
 <span id="225">225</span>
 <span id="226">226</span>
 <span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std::io::Write</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">fs_err::File</span>;
 
+<span class="kw">use</span> <span class="ident">abstutil::prettyprint_usize</span>;
 <span class="kw">use</span> <span class="ident">sim::TripID</span>;
 <span class="kw">use</span> <span class="ident">synthpop::TripMode</span>;
 <span class="kw">use</span> <span class="ident">widgetry::tools::PopupMsg</span>;
@@ -286,7 +302,7 @@
                         .<span class="ident">centered_vert</span>(),
                     <span class="ident">Line</span>(<span class="macro">format!</span>(
                         <span class="string">&quot;Pedestrian Risks - {} Finished Trips&quot;</span>,
-                        <span class="ident">ped_filter</span>.<span class="ident">finished_trip_count</span>(<span class="ident">app</span>)
+                        <span class="ident">prettyprint_usize</span>(<span class="ident">ped_filter</span>.<span class="ident">finished_trip_count</span>(<span class="ident">app</span>))
                     ))
                     .<span class="ident">big_heading_plain</span>()
                     .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
@@ -295,19 +311,33 @@
                 .<span class="ident">margin_above</span>(<span class="number">30</span>),
                 <span class="ident">Widget::evenly_spaced_row</span>(
                     <span class="number">32</span>,
-                    <span class="macro">vec!</span>[<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                        <span class="ident">Line</span>(<span class="string">&quot;Arterial intersection crossings&quot;</span>)
-                            .<span class="ident">small_heading</span>()
-                            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
-                            .<span class="ident">centered_horiz</span>(),
-                        <span class="ident">problem_matrix</span>(
-                            <span class="ident">ctx</span>,
-                            <span class="ident">app</span>,
-                            <span class="ident">ped_filter</span>
-                                .<span class="ident">trip_problems</span>(<span class="ident">app</span>, <span class="ident">ProblemType::ArterialIntersectionCrossing</span>),
-                        ),
-                    ])
-                    .<span class="ident">section</span>(<span class="ident">ctx</span>)],
+                    <span class="macro">vec!</span>[
+                        <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+                            <span class="ident">Line</span>(<span class="string">&quot;Arterial intersection crossings&quot;</span>)
+                                .<span class="ident">small_heading</span>()
+                                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
+                                .<span class="ident">centered_horiz</span>(),
+                            <span class="ident">problem_matrix</span>(
+                                <span class="ident">ctx</span>,
+                                <span class="ident">app</span>,
+                                <span class="ident">ped_filter</span>
+                                    .<span class="ident">trip_problems</span>(<span class="ident">app</span>, <span class="ident">ProblemType::ArterialIntersectionCrossing</span>),
+                            ),
+                        ])
+                        .<span class="ident">section</span>(<span class="ident">ctx</span>),
+                        <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+                            <span class="ident">Line</span>(<span class="string">&quot;Overcrowded sidewalks&quot;</span>)
+                                .<span class="ident">small_heading</span>()
+                                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
+                                .<span class="ident">centered_horiz</span>(),
+                            <span class="ident">problem_matrix</span>(
+                                <span class="ident">ctx</span>,
+                                <span class="ident">app</span>,
+                                <span class="ident">ped_filter</span>.<span class="ident">trip_problems</span>(<span class="ident">app</span>, <span class="ident">ProblemType::PedestrianOvercrowding</span>),
+                            ),
+                        ])
+                        .<span class="ident">section</span>(<span class="ident">ctx</span>),
+                    ],
                 )
                 .<span class="ident">margin_above</span>(<span class="number">30</span>),
                 <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
@@ -317,7 +347,7 @@
                         .<span class="ident">centered_vert</span>(),
                     <span class="ident">Line</span>(<span class="macro">format!</span>(
                         <span class="string">&quot;Cyclist Risks - {} Finished Trips&quot;</span>,
-                        <span class="ident">bike_filter</span>.<span class="ident">finished_trip_count</span>(<span class="ident">app</span>)
+                        <span class="ident">prettyprint_usize</span>(<span class="ident">bike_filter</span>.<span class="ident">finished_trip_count</span>(<span class="ident">app</span>))
                     ))
                     .<span class="ident">big_heading_plain</span>()
                     .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)

@@ -707,6 +707,8 @@
 <span id="702">702</span>
 <span id="703">703</span>
 <span id="704">704</span>
+<span id="705">705</span>
+<span id="706">706</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">VecDeque</span>};
 <span class="kw">use</span> <span class="ident">std::io::Write</span>;
 
@@ -785,6 +787,8 @@
     <span class="ident">ArterialIntersectionCrossing</span>(<span class="ident">TurnID</span>),
     <span class="doccomment">/// Another vehicle wanted to over-take this cyclist somewhere on this lane or turn.</span>
     <span class="ident">OvertakeDesired</span>(<span class="ident">Traversable</span>),
+    <span class="doccomment">/// Too many people are crossing the same sidewalk or crosswalk at the same time.</span>
+    <span class="ident">PedestrianOvercrowding</span>(<span class="ident">Traversable</span>),
 }
 
 <span class="kw">impl</span> <span class="ident">Analytics</span> {

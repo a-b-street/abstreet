@@ -522,6 +522,9 @@
 <span id="517">517</span>
 <span id="518">518</span>
 <span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cmp::Ordering</span>;
 <span class="kw">use</span> <span class="ident">std::fmt::Display</span>;
 
@@ -542,6 +545,7 @@
     <span class="ident">ComplexIntersectionCrossing</span>,
     <span class="ident">OvertakeDesired</span>,
     <span class="ident">ArterialIntersectionCrossing</span>,
+    <span class="ident">PedestrianOvercrowding</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Problem</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ProblemType</span> {
@@ -551,6 +555,7 @@
             <span class="ident">Problem::ComplexIntersectionCrossing</span>(<span class="kw">_</span>) =&gt; <span class="ident"><span class="self">Self</span>::ComplexIntersectionCrossing</span>,
             <span class="ident">Problem::OvertakeDesired</span>(<span class="kw">_</span>) =&gt; <span class="ident"><span class="self">Self</span>::OvertakeDesired</span>,
             <span class="ident">Problem::ArterialIntersectionCrossing</span>(<span class="kw">_</span>) =&gt; <span class="ident"><span class="self">Self</span>::ArterialIntersectionCrossing</span>,
+            <span class="ident">Problem::PedestrianOvercrowding</span>(<span class="kw">_</span>) =&gt; <span class="ident"><span class="self">Self</span>::PedestrianOvercrowding</span>,
         }
     }
 }
@@ -572,6 +577,7 @@
             <span class="ident">ProblemType::ComplexIntersectionCrossing</span>,
             <span class="ident">ProblemType::OvertakeDesired</span>,
             <span class="ident">ProblemType::ArterialIntersectionCrossing</span>,
+            <span class="ident">ProblemType::PedestrianOvercrowding</span>,
         ]
     }
 }

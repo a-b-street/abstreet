@@ -259,6 +259,20 @@
 <span id="254">254</span>
 <span id="255">255</span>
 <span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil::prettyprint_usize</span>;
@@ -328,7 +342,9 @@
                         <span class="op">|</span> <span class="ident">Problem::ComplexIntersectionCrossing</span>(<span class="ident">i</span>) =&gt; {
                             <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">center</span>()
                         }
-                        <span class="ident">Problem::OvertakeDesired</span>(<span class="ident">on</span>) =&gt; <span class="ident">on</span>.<span class="ident">get_polyline</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>).<span class="ident">middle</span>(),
+                        <span class="ident">Problem::OvertakeDesired</span>(<span class="ident">on</span>) <span class="op">|</span> <span class="ident">Problem::PedestrianOvercrowding</span>(<span class="ident">on</span>) =&gt; {
+                            <span class="ident">on</span>.<span class="ident">get_polyline</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>).<span class="ident">middle</span>()
+                        }
                         <span class="ident">Problem::ArterialIntersectionCrossing</span>(<span class="ident">t</span>) =&gt; {
                             <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_t</span>(<span class="kw-2">*</span><span class="ident">t</span>).<span class="ident">geom</span>.<span class="ident">middle</span>()
                         }
@@ -393,6 +409,9 @@
             <span class="ident">show_arterial_crossings</span>: <span class="self">self</span>
                 .<span class="ident">panel</span>
                 .<span class="ident">is_checked</span>(<span class="string">&quot;show where pedestrians cross arterial intersections&quot;</span>),
+            <span class="ident">show_overcrowding</span>: <span class="self">self</span>
+                .<span class="ident">panel</span>
+                .<span class="ident">is_checked</span>(<span class="string">&quot;show where pedestrians are over-crowded&quot;</span>),
         }
     }
 }
@@ -408,6 +427,7 @@
     <span class="ident">show_complex_crossings</span>: <span class="ident">bool</span>,
     <span class="ident">show_overtakes</span>: <span class="ident">bool</span>,
     <span class="ident">show_arterial_crossings</span>: <span class="ident">bool</span>,
+    <span class="ident">show_overcrowding</span>: <span class="ident">bool</span>,
     <span class="comment">// TODO Time range</span>
 }
 
@@ -422,6 +442,7 @@
             <span class="ident">show_complex_crossings</span>: <span class="bool-val">true</span>,
             <span class="ident">show_overtakes</span>: <span class="bool-val">true</span>,
             <span class="ident">show_arterial_crossings</span>: <span class="bool-val">true</span>,
+            <span class="ident">show_overcrowding</span>: <span class="bool-val">true</span>,
         }
     }
 
@@ -434,6 +455,7 @@
             <span class="ident">Problem::ComplexIntersectionCrossing</span>(<span class="kw">_</span>) =&gt; <span class="self">self</span>.<span class="ident">show_complex_crossings</span>,
             <span class="ident">Problem::OvertakeDesired</span>(<span class="kw">_</span>) =&gt; <span class="self">self</span>.<span class="ident">show_overtakes</span>,
             <span class="ident">Problem::ArterialIntersectionCrossing</span>(<span class="kw">_</span>) =&gt; <span class="self">self</span>.<span class="ident">show_arterial_crossings</span>,
+            <span class="ident">Problem::PedestrianOvercrowding</span>(<span class="kw">_</span>) =&gt; <span class="self">self</span>.<span class="ident">show_overcrowding</span>,
         }
     }
 }
@@ -496,6 +518,12 @@
         <span class="string">&quot;show where pedestrians cross arterial intersections&quot;</span>,
         <span class="prelude-val">None</span>,
         <span class="ident">opts</span>.<span class="ident">show_arterial_crossings</span>,
+    ));
+    <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Toggle::checkbox</span>(
+        <span class="ident">ctx</span>,
+        <span class="string">&quot;show where pedestrians are over-crowded&quot;</span>,
+        <span class="prelude-val">None</span>,
+        <span class="ident">opts</span>.<span class="ident">show_overcrowding</span>,
     ));
 
     <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Toggle::choice</span>(
