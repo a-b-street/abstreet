@@ -4,6 +4,7 @@ use std::io::Write;
 use anyhow::Result;
 use fs_err::File;
 
+use abstutil::prettyprint_usize;
 use sim::TripID;
 use synthpop::TripMode;
 use widgetry::tools::PopupMsg;
@@ -54,7 +55,7 @@ impl RiskSummaries {
                         .centered_vert(),
                     Line(format!(
                         "Pedestrian Risks - {} Finished Trips",
-                        ped_filter.finished_trip_count(app)
+                        prettyprint_usize(ped_filter.finished_trip_count(app))
                     ))
                     .big_heading_plain()
                     .into_widget(ctx)
@@ -63,19 +64,33 @@ impl RiskSummaries {
                 .margin_above(30),
                 Widget::evenly_spaced_row(
                     32,
-                    vec![Widget::col(vec![
-                        Line("Arterial intersection crossings")
-                            .small_heading()
-                            .into_widget(ctx)
-                            .centered_horiz(),
-                        problem_matrix(
-                            ctx,
-                            app,
-                            ped_filter
-                                .trip_problems(app, ProblemType::ArterialIntersectionCrossing),
-                        ),
-                    ])
-                    .section(ctx)],
+                    vec![
+                        Widget::col(vec![
+                            Line("Arterial intersection crossings")
+                                .small_heading()
+                                .into_widget(ctx)
+                                .centered_horiz(),
+                            problem_matrix(
+                                ctx,
+                                app,
+                                ped_filter
+                                    .trip_problems(app, ProblemType::ArterialIntersectionCrossing),
+                            ),
+                        ])
+                        .section(ctx),
+                        Widget::col(vec![
+                            Line("Overcrowded sidewalks")
+                                .small_heading()
+                                .into_widget(ctx)
+                                .centered_horiz(),
+                            problem_matrix(
+                                ctx,
+                                app,
+                                ped_filter.trip_problems(app, ProblemType::PedestrianOvercrowding),
+                            ),
+                        ])
+                        .section(ctx),
+                    ],
                 )
                 .margin_above(30),
                 Widget::row(vec![
@@ -85,7 +100,7 @@ impl RiskSummaries {
                         .centered_vert(),
                     Line(format!(
                         "Cyclist Risks - {} Finished Trips",
-                        bike_filter.finished_trip_count(app)
+                        prettyprint_usize(bike_filter.finished_trip_count(app))
                     ))
                     .big_heading_plain()
                     .into_widget(ctx)

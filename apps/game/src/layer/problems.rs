@@ -67,7 +67,9 @@ impl ProblemMap {
                         | Problem::ComplexIntersectionCrossing(i) => {
                             app.primary.map.get_i(*i).polygon.center()
                         }
-                        Problem::OvertakeDesired(on) => on.get_polyline(&app.primary.map).middle(),
+                        Problem::OvertakeDesired(on) | Problem::PedestrianOvercrowding(on) => {
+                            on.get_polyline(&app.primary.map).middle()
+                        }
                         Problem::ArterialIntersectionCrossing(t) => {
                             app.primary.map.get_t(*t).geom.middle()
                         }
@@ -132,6 +134,9 @@ impl ProblemMap {
             show_arterial_crossings: self
                 .panel
                 .is_checked("show where pedestrians cross arterial intersections"),
+            show_overcrowding: self
+                .panel
+                .is_checked("show where pedestrians are over-crowded"),
         }
     }
 }
@@ -147,6 +152,7 @@ pub struct Options {
     show_complex_crossings: bool,
     show_overtakes: bool,
     show_arterial_crossings: bool,
+    show_overcrowding: bool,
     // TODO Time range
 }
 
@@ -161,6 +167,7 @@ impl Options {
             show_complex_crossings: true,
             show_overtakes: true,
             show_arterial_crossings: true,
+            show_overcrowding: true,
         }
     }
 
@@ -173,6 +180,7 @@ impl Options {
             Problem::ComplexIntersectionCrossing(_) => self.show_complex_crossings,
             Problem::OvertakeDesired(_) => self.show_overtakes,
             Problem::ArterialIntersectionCrossing(_) => self.show_arterial_crossings,
+            Problem::PedestrianOvercrowding(_) => self.show_overcrowding,
         }
     }
 }
@@ -235,6 +243,12 @@ fn make_controls(
         "show where pedestrians cross arterial intersections",
         None,
         opts.show_arterial_crossings,
+    ));
+    col.push(Toggle::checkbox(
+        ctx,
+        "show where pedestrians are over-crowded",
+        None,
+        opts.show_overcrowding,
     ));
 
     col.push(Toggle::choice(
