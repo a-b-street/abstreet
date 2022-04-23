@@ -18,6 +18,7 @@ pub enum ProblemType {
     ComplexIntersectionCrossing,
     OvertakeDesired,
     ArterialIntersectionCrossing,
+    PedestrianOvercrowding,
 }
 
 impl From<&Problem> for ProblemType {
@@ -27,6 +28,7 @@ impl From<&Problem> for ProblemType {
             Problem::ComplexIntersectionCrossing(_) => Self::ComplexIntersectionCrossing,
             Problem::OvertakeDesired(_) => Self::OvertakeDesired,
             Problem::ArterialIntersectionCrossing(_) => Self::ArterialIntersectionCrossing,
+            Problem::PedestrianOvercrowding(_) => Self::PedestrianOvercrowding,
         }
     }
 }
@@ -48,6 +50,7 @@ impl ProblemType {
             ProblemType::ComplexIntersectionCrossing,
             ProblemType::OvertakeDesired,
             ProblemType::ArterialIntersectionCrossing,
+            ProblemType::PedestrianOvercrowding,
         ]
     }
 }

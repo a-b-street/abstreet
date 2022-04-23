@@ -400,10 +400,17 @@ fn describe_problems(
     match trip.mode {
         TripMode::Walk => {
             let mut arterial_intersection_crossings = 0;
+            let mut overcrowding = 0;
             let empty = Vec::new();
             for (_, problem) in analytics.problems_per_trip.get(&id).unwrap_or(&empty) {
-                if matches!(problem, Problem::ArterialIntersectionCrossing(_)) {
-                    arterial_intersection_crossings += 1;
+                match problem {
+                    Problem::ArterialIntersectionCrossing(_) => {
+                        arterial_intersection_crossings += 1;
+                    }
+                    Problem::PedestrianOvercrowding(_) => {
+                        overcrowding += 1;
+                    }
+                    _ => {}
                 }
             }
             let mut txt = Text::new();
@@ -416,6 +423,7 @@ fn describe_problems(
                 }
                 .secondary(),
             ]);
+            txt.add_line(Line(format!("{overcrowding} overcrowded sidewalks crossed")).secondary());
 
             Widget::custom_row(vec![
                 Line("Risk Exposure")
@@ -438,8 +446,7 @@ fn describe_problems(
                     Problem::OvertakeDesired(_) => {
                         count_overtakes += 1;
                     }
-                    Problem::ArterialIntersectionCrossing(_) => {}
-                    Problem::IntersectionDelay(_, _) => {}
+                    _ => {}
                 }
             }
             let mut txt = Text::new();
@@ -583,6 +590,27 @@ fn draw_problems(
                         Line("Arterial intersections have an increased risk of crash or injury for pedestrians"),
                         Line("Source: 2020 Seattle DOT Safety Analysis"),
                     ]),
+                ));
+            }
+            Problem::PedestrianOvercrowding(on) => {
+                let pt = on.get_polyline(map).middle();
+                details.draw_extra.unzoomed.append(
+                    GeomBatch::load_svg(ctx, "system/assets/tools/alert.svg")
+                        .centered_on(pt)
+                        .color(RewriteColor::ChangeAlpha(0.8)),
+                );
+                details.draw_extra.zoomed.append(
+                    GeomBatch::load_svg(ctx, "system/assets/tools/alert.svg")
+                        .scale(0.5)
+                        .color(RewriteColor::ChangeAlpha(0.5))
+                        .centered_on(pt),
+                );
+                details.tooltips.push((
+                    match on {
+                        Traversable::Lane(l) => map.get_parent(*l).get_thick_polygon(),
+                        Traversable::Turn(t) => map.get_i(t.parent).polygon.clone(),
+                    },
+                    Text::from("Too many pedestrians are crowded together here."),
                 ));
             }
         }

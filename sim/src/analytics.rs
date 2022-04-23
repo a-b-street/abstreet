@@ -76,6 +76,8 @@ pub enum Problem {
     ArterialIntersectionCrossing(TurnID),
     /// Another vehicle wanted to over-take this cyclist somewhere on this lane or turn.
     OvertakeDesired(Traversable),
+    /// Too many people are crossing the same sidewalk or crosswalk at the same time.
+    PedestrianOvercrowding(Traversable),
 }
 
 impl Analytics {
