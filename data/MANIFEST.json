@@ -5200,6 +5200,11 @@
       "uncompressed_size_bytes": 49839934,
       "compressed_size_bytes": 19580571
     },
+    "data/system/us/seattle/prebaked_results/arboretum/weekday.bin": {
+      "checksum": "e2569e2629949dad887eb75f7184c910",
+      "uncompressed_size_bytes": 16719161,
+      "compressed_size_bytes": 6419906
+    },
     "data/system/us/seattle/prebaked_results/montlake/car vs bike contention.bin": {
       "checksum": "ce3dcac62c670a2260cd9258fd1d29b7",
       "uncompressed_size_bytes": 4288,

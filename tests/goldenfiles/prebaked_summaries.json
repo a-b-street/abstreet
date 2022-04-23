@@ -1,5 +1,12 @@
 [
   {
+    "map": "arboretum (in seattle (us))",
+    "scenario": "weekday",
+    "finished_trips": 76640,
+    "cancelled_trips": 0,
+    "total_trip_duration_seconds": 43692260.45700034
+  },
+  {
     "map": "montlake (in seattle (us))",
     "scenario": "weekday",
     "finished_trips": 36710,

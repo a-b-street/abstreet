@@ -428,13 +428,23 @@ impl DrivingSimState {
                 for lane in blocked_starts {
                     // Calculate the exact positions along this blocked queue (which is ***NOT***
                     // the same queue that the unparking car is in!). Use that to update the
-                    // follower. Note that it's fine that the current car isn't currently in
-                    // self.cars; the static blockage doesn't need it.
+                    // follower.
+                    //
+                    // It SHOULD be fine that the current car isn't currently in self.cars; the
+                    // static blockage doesn't need it. But calculating positions on one queue may
+                    // recurse to the queue where the current car is. So temporarily make the car
+                    // visible in this query.
+                    self.cars.insert(car.vehicle.id, car.clone());
+
                     let dists = self.queues[&Traversable::Lane(*lane)].get_car_positions(
                         now,
                         &self.cars,
                         &self.queues,
                     );
+
+                    // Undo the above hack.
+                    self.cars.remove(&car.vehicle.id);
+
                     let idx = dists.iter().position(|entry| matches!(entry.member, Queued::StaticBlockage { cause, ..} if cause == car.vehicle.id)).unwrap();
                     self.update_follower(idx, &dists, now, ctx);
 
