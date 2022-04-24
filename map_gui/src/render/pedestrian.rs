@@ -1,5 +1,5 @@
 use geom::{ArrowCap, Circle, Distance, PolyLine, Polygon, Pt2D};
-use map_model::{DrivingSide, Map, SIDEWALK_THICKNESS};
+use map_model::{DrivingSide, Map};
 use sim::{DrawPedCrowdInput, DrawPedestrianInput, Intent, PedCrowdLocation, PedestrianID, Sim};
 use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 
@@ -27,7 +27,7 @@ impl DrawPedestrian {
         let mut draw_default = GeomBatch::new();
         DrawPedestrian::geometry(&mut draw_default, sim, cs, &input, step_count);
 
-        let radius = SIDEWALK_THICKNESS / 4.0; // TODO make const after const fn is better
+        let radius = sim::pedestrian_body_radius();
         let body_circle = Circle::new(input.pos, radius);
 
         if let Some(t) = input.waiting_for_turn {
@@ -81,7 +81,7 @@ impl DrawPedestrian {
         // - route visualization is thick
         // - there are little skips when making turns
         // - front paths are too skinny
-        let radius = SIDEWALK_THICKNESS / 4.0; // TODO make const after const fn is better
+        let radius = sim::pedestrian_body_radius();
         let body_circle = Circle::new(input.pos, radius);
 
         let foot_radius = 0.2 * radius;
@@ -232,13 +232,15 @@ impl DrawPedCrowd {
         prerender: &Prerender,
         cs: &ColorScheme,
     ) -> DrawPedCrowd {
+        let radius = sim::pedestrian_body_radius();
+
         let pl_shifted = match input.location {
             PedCrowdLocation::Sidewalk(on, contraflow) => {
                 let pl_slice = on.get_polyline(map).exact_slice(input.low, input.high);
                 if contraflow == (map.get_config().driving_side == DrivingSide::Right) {
-                    pl_slice.shift_left(SIDEWALK_THICKNESS / 4.0)
+                    pl_slice.shift_left(radius)
                 } else {
-                    pl_slice.shift_right(SIDEWALK_THICKNESS / 4.0)
+                    pl_slice.shift_right(radius)
                 }
                 .unwrap_or_else(|_| on.get_polyline(map).exact_slice(input.low, input.high))
             }
@@ -252,7 +254,7 @@ impl DrawPedCrowd {
                 .to_polyline()
                 .exact_slice(input.low, input.high),
         };
-        let blob = pl_shifted.make_polygons(SIDEWALK_THICKNESS / 2.0);
+        let blob = pl_shifted.make_polygons(radius * 2.0);
         let mut batch = GeomBatch::new();
         batch.push(cs.ped_crowd, blob.clone());
         batch.append(
@@ -288,7 +290,7 @@ impl Renderable for DrawPedCrowd {
 
     fn get_outline(&self, _: &Map) -> Polygon {
         self.blob_pl
-            .to_thick_boundary(SIDEWALK_THICKNESS / 2.0, OUTLINE_THICKNESS)
+            .to_thick_boundary(sim::pedestrian_body_radius() * 2.0, OUTLINE_THICKNESS)
             .unwrap_or_else(|| self.blob.clone())
     }
 

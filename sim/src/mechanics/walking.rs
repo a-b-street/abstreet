@@ -6,15 +6,16 @@ use abstutil::{deserialize_multimap, serialize_multimap, FixedMap, IndexableKey,
 use geom::{Distance, Duration, Line, PolyLine, Speed, Time};
 use map_model::{
     BuildingID, DrivingSide, Map, ParkingLotID, Path, PathConstraints, PathStep, TransitRouteID,
-    Traversable, SIDEWALK_THICKNESS,
+    Traversable,
 };
 
 use crate::sim::Ctx;
 use crate::{
-    AgentID, AgentProperties, Command, CommutersVehiclesCounts, CreatePedestrian, DistanceInterval,
-    DrawPedCrowdInput, DrawPedestrianInput, Event, Intent, IntersectionSimState, ParkedCar,
-    ParkingSpot, PedCrowdLocation, PedestrianID, PersonID, Problem, Scheduler, SidewalkPOI,
-    SidewalkSpot, TimeInterval, TransitSimState, TripID, TripManager, UnzoomedAgent,
+    pedestrian_body_radius, AgentID, AgentProperties, Command, CommutersVehiclesCounts,
+    CreatePedestrian, DistanceInterval, DrawPedCrowdInput, DrawPedestrianInput, Event, Intent,
+    IntersectionSimState, ParkedCar, ParkingSpot, PedCrowdLocation, PedestrianID, PersonID,
+    Problem, Scheduler, SidewalkPOI, SidewalkSpot, TimeInterval, TransitSimState, TripID,
+    TripManager, UnzoomedAgent,
 };
 
 const TIME_TO_START_BIKING: Duration = Duration::const_seconds(30.0);
@@ -428,8 +429,7 @@ impl WalkingSimState {
 
     pub fn trace_route(&self, now: Time, id: PedestrianID, map: &Map) -> Option<PolyLine> {
         let p = self.peds.get(&id)?;
-        let body_radius = SIDEWALK_THICKNESS / 4.0;
-        let dist = (p.get_dist_along(now, map) + body_radius).min(
+        let dist = (p.get_dist_along(now, map) + pedestrian_body_radius()).min(
             p.path
                 .current_step()
                 .as_traversable()
@@ -746,7 +746,7 @@ impl Pedestrian {
                     intent = Some(Intent::SteepUphill);
                 }
                 (
-                    pos.project_away(SIDEWALK_THICKNESS / 4.0, facing.rotate_degs(angle_offset)),
+                    pos.project_away(pedestrian_body_radius(), facing.rotate_degs(angle_offset)),
                     facing,
                 )
             }
@@ -758,7 +758,7 @@ impl Pedestrian {
                     orig_angle
                 };
                 (
-                    pos.project_away(SIDEWALK_THICKNESS / 4.0, facing.rotate_degs(angle_offset)),
+                    pos.project_away(pedestrian_body_radius(), facing.rotate_degs(angle_offset)),
                     facing,
                 )
             }
@@ -812,7 +812,7 @@ impl Pedestrian {
                 let (pt, angle) = self.goal.sidewalk_pos.pt_and_angle(map);
                 // Stand on the far side of the sidewalk (by the bus stop), facing the road
                 (
-                    pt.project_away(SIDEWALK_THICKNESS / 4.0, angle.rotate_degs(angle_offset)),
+                    pt.project_away(pedestrian_body_radius(), angle.rotate_degs(angle_offset)),
                     angle.rotate_degs(-angle_offset),
                 )
             }
@@ -934,7 +934,7 @@ fn find_crowds(
 ) -> (Vec<PedestrianID>, Vec<DrawPedCrowdInput>) {
     let mut loners = Vec::new();
     let mut crowds = Vec::new();
-    let radius = SIDEWALK_THICKNESS / 4.0;
+    let radius = pedestrian_body_radius();
 
     let mut current_crowd = DrawPedCrowdInput {
         low: input[0].1 - radius,

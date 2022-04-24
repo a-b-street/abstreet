@@ -265,7 +265,7 @@ pub fn draw_occupants(details: &mut Details, app: &App, id: BuildingID, focus: O
     let mut ppl = app.primary.sim.bldg_to_people(id);
     let num_rows_cols = (ppl.len() as f64).sqrt().ceil() as usize;
 
-    let ped_len = SIDEWALK_THICKNESS.inner_meters() / 2.0;
+    let ped_len = sim::pedestrian_body_radius().inner_meters() * 2.0;
     let separation = ped_len * 1.5;
 
     let total_width_height = (num_rows_cols as f64) * (ped_len + separation);

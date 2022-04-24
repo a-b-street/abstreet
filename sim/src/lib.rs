@@ -603,3 +603,7 @@ impl CreateCar {
         }
     }
 }
+
+pub fn pedestrian_body_radius() -> Distance {
+    map_model::SIDEWALK_THICKNESS / 4.0
+}
