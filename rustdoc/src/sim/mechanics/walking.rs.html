@@ -1017,6 +1017,12 @@
 <span id="1012">1012</span>
 <span id="1013">1013</span>
 <span id="1014">1014</span>
+<span id="1015">1015</span>
+<span id="1016">1016</span>
+<span id="1017">1017</span>
+<span id="1018">1018</span>
+<span id="1019">1019</span>
+<span id="1020">1020</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
@@ -1740,7 +1746,13 @@
         } <span class="kw">else</span> {
             <span class="number">270.0</span>
         };
+        <span class="kw">let</span> <span class="ident">project_away</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">on</span> {
+            <span class="ident">Traversable::Lane</span>(<span class="ident">l</span>) =&gt; <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span> <span class="op">-</span> <span class="ident">pedestrian_body_radius</span>(),
+            <span class="comment">// Width of a crossing is fuzzy, but this could likely be improved</span>
+            <span class="ident">Traversable::Turn</span>(<span class="kw">_</span>) =&gt; <span class="ident">pedestrian_body_radius</span>(),
+        };
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">intent</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+
         <span class="kw">let</span> (<span class="ident">pos</span>, <span class="ident">facing</span>) <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">state</span> {
             <span class="ident">PedState::Crossing</span> {
                 <span class="kw-2">ref</span> <span class="ident">dist_int</span>,
@@ -1765,7 +1777,7 @@
                     <span class="ident">intent</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Intent::SteepUphill</span>);
                 }
                 (
-                    <span class="ident">pos</span>.<span class="ident">project_away</span>(<span class="ident">pedestrian_body_radius</span>(), <span class="ident">facing</span>.<span class="ident">rotate_degs</span>(<span class="ident">angle_offset</span>)),
+                    <span class="ident">pos</span>.<span class="ident">project_away</span>(<span class="ident">project_away</span>, <span class="ident">facing</span>.<span class="ident">rotate_degs</span>(<span class="ident">angle_offset</span>)),
                     <span class="ident">facing</span>,
                 )
             }
@@ -1777,7 +1789,7 @@
                     <span class="ident">orig_angle</span>
                 };
                 (
-                    <span class="ident">pos</span>.<span class="ident">project_away</span>(<span class="ident">pedestrian_body_radius</span>(), <span class="ident">facing</span>.<span class="ident">rotate_degs</span>(<span class="ident">angle_offset</span>)),
+                    <span class="ident">pos</span>.<span class="ident">project_away</span>(<span class="ident">project_away</span>, <span class="ident">facing</span>.<span class="ident">rotate_degs</span>(<span class="ident">angle_offset</span>)),
                     <span class="ident">facing</span>,
                 )
             }
@@ -1831,7 +1843,7 @@
                 <span class="kw">let</span> (<span class="ident">pt</span>, <span class="ident">angle</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">goal</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">pt_and_angle</span>(<span class="ident">map</span>);
                 <span class="comment">// Stand on the far side of the sidewalk (by the bus stop), facing the road</span>
                 (
-                    <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="ident">pedestrian_body_radius</span>(), <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="ident">angle_offset</span>)),
+                    <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="ident">project_away</span>, <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="ident">angle_offset</span>)),
                     <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="op">-</span><span class="ident">angle_offset</span>),
                 )
             }

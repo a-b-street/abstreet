@@ -192,9 +192,6 @@
 <span id="187">187</span>
 <span id="188">188</span>
 <span id="189">189</span>
-<span id="190">190</span>
-<span id="191">191</span>
-<span id="192">192</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::fmt</span>;
 
 <span class="kw">use</span> <span class="ident">geo::algorithm::simplify::Simplify</span>;
@@ -263,11 +260,8 @@
         <span class="self">self</span>.<span class="ident">y</span>
     }
 
-    <span class="comment">// TODO better name</span>
+    <span class="doccomment">/// If distance is negative, this projects a point in theta.opposite()</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">project_away</span>(<span class="self">self</span>, <span class="ident">dist</span>: <span class="ident">Distance</span>, <span class="ident">theta</span>: <span class="ident">Angle</span>) -&gt; <span class="ident">Pt2D</span> {
-        <span class="comment">// If negative, caller should use theta.opposite()</span>
-        <span class="macro">assert!</span>(<span class="ident">dist</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">Distance::ZERO</span>);
-
         <span class="kw">let</span> (<span class="ident">sin</span>, <span class="ident">cos</span>) <span class="op">=</span> <span class="ident">theta</span>.<span class="ident">normalized_radians</span>().<span class="ident">sin_cos</span>();
         <span class="ident">Pt2D::new</span>(
             <span class="self">self</span>.<span class="ident">x</span>() <span class="op">+</span> <span class="ident">dist</span>.<span class="ident">inner_meters</span>() <span class="op">*</span> <span class="ident">cos</span>,
