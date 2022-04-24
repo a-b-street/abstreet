@@ -721,7 +721,13 @@ impl Pedestrian {
         } else {
             270.0
         };
+        let project_away = match on {
+            Traversable::Lane(l) => map.get_l(l).width / 2.0 - pedestrian_body_radius(),
+            // Width of a crossing is fuzzy, but this could likely be improved
+            Traversable::Turn(_) => pedestrian_body_radius(),
+        };
         let mut intent = None;
+
         let (pos, facing) = match self.state {
             PedState::Crossing {
                 ref dist_int,
@@ -746,7 +752,7 @@ impl Pedestrian {
                     intent = Some(Intent::SteepUphill);
                 }
                 (
-                    pos.project_away(pedestrian_body_radius(), facing.rotate_degs(angle_offset)),
+                    pos.project_away(project_away, facing.rotate_degs(angle_offset)),
                     facing,
                 )
             }
@@ -758,7 +764,7 @@ impl Pedestrian {
                     orig_angle
                 };
                 (
-                    pos.project_away(pedestrian_body_radius(), facing.rotate_degs(angle_offset)),
+                    pos.project_away(project_away, facing.rotate_degs(angle_offset)),
                     facing,
                 )
             }
@@ -812,7 +818,7 @@ impl Pedestrian {
                 let (pt, angle) = self.goal.sidewalk_pos.pt_and_angle(map);
                 // Stand on the far side of the sidewalk (by the bus stop), facing the road
                 (
-                    pt.project_away(pedestrian_body_radius(), angle.rotate_degs(angle_offset)),
+                    pt.project_away(project_away, angle.rotate_degs(angle_offset)),
                     angle.rotate_degs(-angle_offset),
                 )
             }

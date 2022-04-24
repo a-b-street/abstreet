@@ -66,11 +66,8 @@ impl Pt2D {
         self.y
     }
 
-    // TODO better name
+    /// If distance is negative, this projects a point in theta.opposite()
     pub fn project_away(self, dist: Distance, theta: Angle) -> Pt2D {
-        // If negative, caller should use theta.opposite()
-        assert!(dist >= Distance::ZERO);
-
         let (sin, cos) = theta.normalized_radians().sin_cos();
         Pt2D::new(
             self.x() + dist.inner_meters() * cos,
