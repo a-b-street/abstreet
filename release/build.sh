@@ -5,27 +5,27 @@ set -e;
 
 os=$1;
 case $os in
-	ubuntu-18.04)
-		output="abst_linux";
-		suffix="";
-		ext="sh";
-		;;
+    ubuntu-18.04)
+        output="abst_linux";
+        suffix="";
+        ext="sh";
+        ;;
 
-	macos-latest)
-		output="abst_mac";
-		suffix="";
-		ext="sh";
-		;;
+    macos-latest)
+        output="abst_mac";
+        suffix="";
+        ext="sh";
+        ;;
 
-	windows-latest)
-		output="abst_windows";
-		suffix=".exe";
-		ext="bat";
-		;;
+    windows-latest)
+        output="abst_windows";
+        suffix=".exe";
+        ext="bat";
+        ;;
 
-	*)
-		echo "Wat? os = $os";
-		exit 1;
+    *)
+        echo "Wat? os = $os";
+        exit 1;
 esac
 
 mkdir $output
@@ -84,4 +84,3 @@ case $os in
         echo "Wat? os = $os";
         exit 1;
 esac
-
