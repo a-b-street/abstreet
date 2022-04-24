@@ -158,9 +158,8 @@
 <span id="153">153</span>
 <span id="154">154</span>
 <span id="155">155</span>
-<span id="156">156</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Map</span>, <span class="ident">SIDEWALK_THICKNESS</span>};
+<span class="kw">use</span> <span class="ident">map_model::Map</span>;
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">CarID</span>, <span class="ident">DrawCarInput</span>, <span class="ident">Intent</span>, <span class="ident">Sim</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Drawable</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Prerender</span>};
 
@@ -187,8 +186,7 @@
     ) -&gt; <span class="ident">DrawBike</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw_default</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
 
-        <span class="comment">// TODO Share constants with DrawPedestrian</span>
-        <span class="kw">let</span> <span class="ident">body_radius</span> <span class="op">=</span> <span class="ident">SIDEWALK_THICKNESS</span> <span class="op">/</span> <span class="number">4.0</span>;
+        <span class="kw">let</span> <span class="ident">body_radius</span> <span class="op">=</span> <span class="ident">sim::pedestrian_body_radius</span>();
         <span class="kw">let</span> <span class="ident">body_color</span> <span class="op">=</span> <span class="ident">grey_out_unhighlighted_people</span>(
             <span class="ident">cs</span>.<span class="ident">rotating_color_agents</span>(<span class="ident">input</span>.<span class="ident">id</span>.<span class="ident">id</span>),
             <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">person</span>,

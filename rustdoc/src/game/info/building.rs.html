@@ -591,7 +591,7 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ppl</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">bldg_to_people</span>(<span class="ident">id</span>);
     <span class="kw">let</span> <span class="ident">num_rows_cols</span> <span class="op">=</span> (<span class="ident">ppl</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">f64</span>).<span class="ident">sqrt</span>().<span class="ident">ceil</span>() <span class="kw">as</span> <span class="ident">usize</span>;
 
-    <span class="kw">let</span> <span class="ident">ped_len</span> <span class="op">=</span> <span class="ident">SIDEWALK_THICKNESS</span>.<span class="ident">inner_meters</span>() <span class="op">/</span> <span class="number">2.0</span>;
+    <span class="kw">let</span> <span class="ident">ped_len</span> <span class="op">=</span> <span class="ident">sim::pedestrian_body_radius</span>().<span class="ident">inner_meters</span>() <span class="op">*</span> <span class="number">2.0</span>;
     <span class="kw">let</span> <span class="ident">separation</span> <span class="op">=</span> <span class="ident">ped_len</span> <span class="op">*</span> <span class="number">1.5</span>;
 
     <span class="kw">let</span> <span class="ident">total_width_height</span> <span class="op">=</span> (<span class="ident">num_rows_cols</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> (<span class="ident">ped_len</span> <span class="op">+</span> <span class="ident">separation</span>);
