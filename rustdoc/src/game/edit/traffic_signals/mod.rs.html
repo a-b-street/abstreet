@@ -972,6 +972,21 @@
 <span id="967">967</span>
 <span id="968">968</span>
 <span id="969">969</span>
+<span id="970">970</span>
+<span id="971">971</span>
+<span id="972">972</span>
+<span id="973">973</span>
+<span id="974">974</span>
+<span id="975">975</span>
+<span id="976">976</span>
+<span id="977">977</span>
+<span id="978">978</span>
+<span id="979">979</span>
+<span id="980">980</span>
+<span id="981">981</span>
+<span id="982">982</span>
+<span id="983">983</span>
+<span id="984">984</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">VecDeque</span>};
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
@@ -1329,6 +1344,14 @@
                         );
                     }
                 }
+                <span class="string">&quot;Change crosswalks&quot;</span> =&gt; {
+                    <span class="comment">// TODO Probably need to follow everything Cancel does</span>
+                    <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident"><span class="kw">super</span>::crosswalks::CrosswalkEditor::new_state</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="ident">app</span>,
+                        <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">members</span>.<span class="ident">iter</span>().<span class="ident">next</span>().<span class="ident">unwrap</span>(),
+                    ));
+                }
                 <span class="string">&quot;Preview&quot;</span> =&gt; {
                     <span class="comment">// Might have to do this first!</span>
                     <span class="ident">app</span>.<span class="ident">primary</span>
@@ -1509,37 +1532,29 @@
 }
 
 <span class="kw">fn</span> <span class="ident">make_top_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">can_undo</span>: <span class="ident">bool</span>, <span class="ident">can_redo</span>: <span class="ident">bool</span>) -&gt; <span class="ident">Panel</span> {
-    <span class="kw">let</span> <span class="ident">row</span> <span class="op">=</span> <span class="macro">vec!</span>[
-        <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_solid_primary</span>
-            .<span class="ident">text</span>(<span class="string">&quot;Finish&quot;</span>)
-            .<span class="ident">hotkey</span>(<span class="ident">Key::Enter</span>)
-            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-        <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_outline</span>
-            .<span class="ident">text</span>(<span class="string">&quot;Preview&quot;</span>)
-            .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::P</span>))
-            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-        <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_plain</span>
-            .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/undo.svg&quot;</span>)
-            .<span class="ident">disabled</span>(<span class="op">!</span><span class="ident">can_undo</span>)
-            .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::Z</span>))
-            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;undo&quot;</span>),
-        <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_plain</span>
-            .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/redo.svg&quot;</span>)
-            .<span class="ident">disabled</span>(<span class="op">!</span><span class="ident">can_redo</span>)
-            <span class="comment">// TODO ctrl+shift+Z!</span>
-            .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::Y</span>))
-            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;redo&quot;</span>),
-        <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_plain_destructive</span>
-            .<span class="ident">text</span>(<span class="string">&quot;Cancel&quot;</span>)
-            .<span class="ident">hotkey</span>(<span class="ident">Key::Escape</span>)
-            .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
-            .<span class="ident">align_right</span>(),
-    ];
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">second_row</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">ctx</span>
+        .<span class="ident">style</span>()
+        .<span class="ident">btn_outline</span>
+        .<span class="ident">text</span>(<span class="string">&quot;Change crosswalks&quot;</span>)
+        .<span class="ident">hotkey</span>(<span class="ident">Key::C</span>)
+        .<span class="ident">build_def</span>(<span class="ident">ctx</span>)];
+    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
+        <span class="ident">second_row</span>.<span class="ident">push</span>(
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_outline</span>
+                .<span class="ident">text</span>(<span class="string">&quot;Export&quot;</span>)
+                .<span class="ident">tooltip</span>(<span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
+                    <span class="ident">Line</span>(<span class="string">&quot;This will create a JSON file in traffic_signal_data/.&quot;</span>).<span class="ident">small</span>(),
+                    <span class="ident">Line</span>(
+                        <span class="string">&quot;Contribute this to map how this traffic signal is currently timed in \
+                     real life.&quot;</span>,
+                    )
+                    .<span class="ident">small</span>(),
+                ]))
+                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+        );
+    }
+
     <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
         <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
             <span class="ident">Line</span>(<span class="string">&quot;Traffic signal editor&quot;</span>)
@@ -1552,23 +1567,38 @@
                 .<span class="ident">hotkey</span>(<span class="ident">Key::M</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;Edit multiple signals&quot;</span>),
         ]),
-        <span class="ident">Widget::row</span>(<span class="ident">row</span>),
-        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
+        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_solid_primary</span>
+                .<span class="ident">text</span>(<span class="string">&quot;Finish&quot;</span>)
+                .<span class="ident">hotkey</span>(<span class="ident">Key::Enter</span>)
+                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_outline</span>
-                .<span class="ident">text</span>(<span class="string">&quot;Export&quot;</span>)
-                .<span class="ident">tooltip</span>(<span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Line</span>(<span class="string">&quot;This will create a JSON file in traffic_signal_data/.&quot;</span>).<span class="ident">small</span>(),
-                    <span class="ident">Line</span>(
-                        <span class="string">&quot;Contribute this to map how this traffic signal is currently timed in \
-                         real life.&quot;</span>,
-                    )
-                    .<span class="ident">small</span>(),
-                ]))
+                .<span class="ident">text</span>(<span class="string">&quot;Preview&quot;</span>)
+                .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::P</span>))
+                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_plain</span>
+                .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/undo.svg&quot;</span>)
+                .<span class="ident">disabled</span>(<span class="op">!</span><span class="ident">can_undo</span>)
+                .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::Z</span>))
+                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;undo&quot;</span>),
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_plain</span>
+                .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/redo.svg&quot;</span>)
+                .<span class="ident">disabled</span>(<span class="op">!</span><span class="ident">can_redo</span>)
+                <span class="comment">// TODO ctrl+shift+Z!</span>
+                .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::Y</span>))
+                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;redo&quot;</span>),
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_plain_destructive</span>
+                .<span class="ident">text</span>(<span class="string">&quot;Cancel&quot;</span>)
+                .<span class="ident">hotkey</span>(<span class="ident">Key::Escape</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
-        } <span class="kw">else</span> {
-            <span class="ident">Widget::nothing</span>()
-        },
+                .<span class="ident">align_right</span>(),
+        ]),
+        <span class="ident">Widget::row</span>(<span class="ident">second_row</span>),
     ]))
     .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Center</span>, <span class="ident">VerticalAlignment::Top</span>)
     .<span class="ident">build</span>(<span class="ident">ctx</span>)

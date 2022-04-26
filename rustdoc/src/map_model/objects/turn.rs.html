@@ -299,11 +299,22 @@
 <span id="294">294</span>
 <span id="295">295</span>
 <span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::fmt</span>;
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">PolyLine</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::raw::RestrictionType</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -582,6 +593,17 @@
                 <span class="ident">Direction::Back</span>
             },
         })
+    }
+
+    <span class="doccomment">/// Only appropriat for pedestrian crossings. The geometry of crosswalks will first cross part</span>
+    <span class="doccomment">/// of a sidewalk corner, then actually enter the road. Extract the piece that&#39;s in the road.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">crosswalk_line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Line</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">pts</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">geom</span>.<span class="ident">points</span>();
+        <span class="kw">if</span> <span class="ident">pts</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">3</span> {
+            <span class="macro">warn!</span>(<span class="string">&quot;Crosswalk {} was squished earlier&quot;</span>, <span class="self">self</span>.<span class="ident">id</span>);
+            <span class="kw">return</span> <span class="prelude-val">None</span>;
+        }
+        <span class="ident">Line::new</span>(<span class="ident">pts</span>[<span class="number">1</span>], <span class="ident">pts</span>[<span class="number">2</span>]).<span class="ident">ok</span>()
     }
 }
 

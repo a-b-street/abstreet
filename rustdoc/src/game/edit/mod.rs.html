@@ -970,6 +970,8 @@
 <span id="965">965</span>
 <span id="966">966</span>
 <span id="967">967</span>
+<span id="968">968</span>
+<span id="969">969</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">maplit::btreeset</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Timer</span>};
@@ -996,6 +998,7 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::debug::DebugMode</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sandbox</span>::{<span class="ident">GameplayMode</span>, <span class="ident">SandboxMode</span>, <span class="ident">TimeWarpScreen</span>};
 
+<span class="kw">mod</span> <span class="ident">crosswalks</span>;
 <span class="kw">mod</span> <span class="ident">heuristics</span>;
 <span class="kw">mod</span> <span class="ident">multiple_roads</span>;
 <span class="kw">mod</span> <span class="ident">roads</span>;
@@ -1876,6 +1879,7 @@
     <span class="kw">match</span> <span class="ident">cmd</span> {
         <span class="ident">EditCmd::ChangeRoad</span> { <span class="ident">r</span>, .. } =&gt; <span class="prelude-val">Some</span>(<span class="ident">ID::Road</span>(<span class="kw-2">*</span><span class="ident">r</span>)),
         <span class="ident">EditCmd::ChangeIntersection</span> { <span class="ident">i</span>, .. } =&gt; <span class="prelude-val">Some</span>(<span class="ident">ID::Intersection</span>(<span class="kw-2">*</span><span class="ident">i</span>)),
+        <span class="ident">EditCmd::ChangeCrosswalks</span> { <span class="ident">i</span>, .. } =&gt; <span class="prelude-val">Some</span>(<span class="ident">ID::Intersection</span>(<span class="kw-2">*</span><span class="ident">i</span>)),
         <span class="ident">EditCmd::ChangeRouteSchedule</span> { .. } =&gt; <span class="prelude-val">None</span>,
     }
 }
