@@ -16,7 +16,8 @@ use crate::make::{match_points_to_lanes, snap_driveway, trim_path};
 use crate::{
     connectivity, AccessRestrictions, BuildingID, ControlStopSign, ControlTrafficSignal, Direction,
     IntersectionID, IntersectionType, LaneID, LaneSpec, LaneType, Map, MapConfig, Movement,
-    ParkingLotID, PathConstraints, Pathfinder, Road, RoadID, TransitRouteID, TurnID, Zone,
+    ParkingLotID, PathConstraints, Pathfinder, Road, RoadID, TransitRouteID, TurnID, TurnType,
+    Zone,
 };
 
 mod compat;
@@ -38,6 +39,7 @@ pub struct MapEdits {
     /// Derived from commands, kept up to date by update_derived
     pub changed_roads: BTreeSet<RoadID>,
     pub original_intersections: BTreeMap<IntersectionID, EditIntersection>,
+    pub original_crosswalks: BTreeMap<IntersectionID, EditCrosswalks>,
     pub changed_routes: BTreeSet<TransitRouteID>,
 
     /// Some edits are included in the game by default, in data/system/proposals, as "community
@@ -61,6 +63,11 @@ pub struct EditRoad {
     pub speed_limit: Speed,
     pub access_restrictions: AccessRestrictions,
 }
+
+/// This must contain all crossing turns at one intersection, each mapped either to Crosswalk or
+/// UnmarkedCrossing
+#[derive(Debug, Clone, PartialEq)]
+pub struct EditCrosswalks(pub BTreeMap<TurnID, TurnType>);
 
 impl EditRoad {
     pub fn get_orig_from_osm(r: &Road, cfg: &MapConfig) -> EditRoad {
@@ -189,12 +196,18 @@ pub enum EditCmd {
         old: Vec<Time>,
         new: Vec<Time>,
     },
+    ChangeCrosswalks {
+        i: IntersectionID,
+        old: EditCrosswalks,
+        new: EditCrosswalks,
+    },
 }
 
 pub struct EditEffects {
     pub changed_roads: BTreeSet<RoadID>,
     pub deleted_lanes: BTreeSet<LaneID>,
     pub changed_intersections: BTreeSet<IntersectionID>,
+    // TODO Will we need modified turns?
     pub added_turns: BTreeSet<TurnID>,
     pub deleted_turns: BTreeSet<TurnID>,
     pub changed_parking_lots: BTreeSet<ParkingLotID>,
@@ -212,6 +225,7 @@ impl MapEdits {
 
             changed_roads: BTreeSet::new(),
             original_intersections: BTreeMap::new(),
+            original_crosswalks: BTreeMap::new(),
             changed_routes: BTreeSet::new(),
         }
     }
@@ -271,6 +285,7 @@ impl MapEdits {
     fn update_derived(&mut self, map: &Map) {
         self.changed_roads.clear();
         self.original_intersections.clear();
+        self.original_crosswalks.clear();
         self.changed_routes.clear();
 
         for cmd in &self.commands {
@@ -281,6 +296,11 @@ impl MapEdits {
                 EditCmd::ChangeIntersection { i, ref old, .. } => {
                     if !self.original_intersections.contains_key(i) {
                         self.original_intersections.insert(*i, old.clone());
+                    }
+                }
+                EditCmd::ChangeCrosswalks { i, ref old, .. } => {
+                    if !self.original_crosswalks.contains_key(i) {
+                        self.original_crosswalks.insert(*i, old.clone());
                     }
                 }
                 EditCmd::ChangeRouteSchedule { id, .. } => {
@@ -294,6 +314,8 @@ impl MapEdits {
         });
         self.original_intersections
             .retain(|i, orig| map.get_i_edit(*i) != orig.clone());
+        self.original_crosswalks
+            .retain(|i, orig| map.get_i_crosswalks_edit(*i) != orig.clone());
         self.changed_routes.retain(|br| {
             let r = map.get_tr(*br);
             r.spawn_times != r.orig_spawn_times
@@ -314,6 +336,13 @@ impl MapEdits {
                 i: *i,
                 old: old.clone(),
                 new: map.get_i_edit(*i),
+            });
+        }
+        for (i, old) in &self.original_crosswalks {
+            self.commands.push(EditCmd::ChangeCrosswalks {
+                i: *i,
+                old: old.clone(),
+                new: map.get_i_crosswalks_edit(*i),
             });
         }
         for r in &self.changed_routes {
@@ -393,6 +422,7 @@ impl EditCmd {
                 EditIntersection::TrafficSignal(_) => format!("traffic signal #{}", i.0),
                 EditIntersection::Closed => format!("close {}", i),
             },
+            EditCmd::ChangeCrosswalks { i, .. } => format!("crosswalks at {}", i),
             EditCmd::ChangeRouteSchedule { id, .. } => {
                 format!("reschedule route {}", map.get_tr(*id).short_name)
             }
@@ -469,6 +499,15 @@ impl EditCmd {
                     recalculate_turns(*i, map, effects);
                 }
             }
+            EditCmd::ChangeCrosswalks { i, ref new, .. } => {
+                if map.get_i_crosswalks_edit(*i) == new.clone() {
+                    return;
+                }
+                effects.changed_intersections.insert(*i);
+                for (turn, turn_type) in &new.0 {
+                    map.mut_turn(*turn).turn_type = *turn_type;
+                }
+            }
             EditCmd::ChangeRouteSchedule { id, new, .. } => {
                 map.transit_routes[id.0].spawn_times = new.clone();
             }
@@ -483,6 +522,11 @@ impl EditCmd {
                 new: old,
             },
             EditCmd::ChangeIntersection { i, old, new } => EditCmd::ChangeIntersection {
+                i,
+                old: new,
+                new: old,
+            },
+            EditCmd::ChangeCrosswalks { i, old, new } => EditCmd::ChangeCrosswalks {
                 i,
                 old: new,
                 new: old,
@@ -792,6 +836,16 @@ impl Map {
             IntersectionType::Construction => EditIntersection::Closed,
             IntersectionType::Border => unreachable!(),
         }
+    }
+
+    pub fn get_i_crosswalks_edit(&self, i: IntersectionID) -> EditCrosswalks {
+        let mut turns = BTreeMap::new();
+        for turn in &self.get_i(i).turns {
+            if turn.turn_type.pedestrian_crossing() {
+                turns.insert(turn.id, turn.turn_type);
+            }
+        }
+        EditCrosswalks(turns)
     }
 
     pub fn save_edits(&self) {

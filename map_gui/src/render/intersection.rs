@@ -502,7 +502,7 @@ pub fn make_crosswalk(batch: &mut GeomBatch, turn: &Turn, map: &Map, cs: &ColorS
     // crosswalk line itself. Center the lines inside these two boundaries.
     let boundary = width;
     let tile_every = width * 0.6;
-    let line = if let Some(l) = crosswalk_line(turn) {
+    let line = if let Some(l) = turn.crosswalk_line() {
         l
     } else {
         return;
@@ -596,7 +596,7 @@ fn make_unmarked_crossing(batch: &mut GeomBatch, turn: &Turn, map: &Map, cs: &Co
     let color = cs.general_road_marking.alpha(0.5);
     let band_width = Distance::meters(0.1);
     let total_width = map.get_l(turn.id.src).width;
-    if let Some(line) = crosswalk_line(turn) {
+    if let Some(line) = turn.crosswalk_line() {
         if let Ok(slice) = line.slice(total_width, line.length() - total_width) {
             batch.push(
                 color,
@@ -612,20 +612,6 @@ fn make_unmarked_crossing(batch: &mut GeomBatch, turn: &Turn, map: &Map, cs: &Co
             );
         }
     }
-}
-
-// The geometry of crosswalks will first cross part of a sidewalk corner, then actually enter the
-// road. Extract the piece that's in the road.
-fn crosswalk_line(turn: &Turn) -> Option<Line> {
-    let pts = turn.geom.points();
-    if pts.len() < 3 {
-        warn!(
-            "Not rendering crosswalk for {}; its geometry was squished earlier",
-            turn.id
-        );
-        return None;
-    }
-    Line::new(pts[1], pts[2]).ok()
 }
 
 // TODO copied from DrawLane

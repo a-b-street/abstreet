@@ -191,6 +191,12 @@ impl GameplayMode {
                     }
                     _ => {}
                 },
+                EditCmd::ChangeCrosswalks { .. } => {
+                    // TODO Another hack to see if we can only edit signal timing
+                    if !self.can_edit_stop_signs() {
+                        return false;
+                    }
+                }
                 EditCmd::ChangeRouteSchedule { .. } => {}
             }
         }

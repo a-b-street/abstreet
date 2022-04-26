@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use abstutil::MultiMap;
 use geom::{Angle, Distance, PolyLine, Pt2D};
+use raw_map::{osm, OriginalRoad};
 
 use crate::{DirectedRoadID, Direction, IntersectionID, Map, TurnID, TurnType};
 
@@ -209,4 +210,51 @@ fn movement_geom(
         ));
     }
     PolyLine::deduping_new(pts)
+}
+
+impl MovementID {
+    pub fn to_permanent(&self, map: &Map) -> traffic_signal_data::Turn {
+        let from = map.get_r(self.from.road).orig_id;
+        let to = map.get_r(self.to.road).orig_id;
+
+        traffic_signal_data::Turn {
+            from: traffic_signal_data::DirectedRoad {
+                osm_way_id: from.osm_way_id.0,
+                osm_node1: from.i1.0,
+                osm_node2: from.i2.0,
+                is_forwards: self.from.dir == Direction::Fwd,
+            },
+            to: traffic_signal_data::DirectedRoad {
+                osm_way_id: to.osm_way_id.0,
+                osm_node1: to.i1.0,
+                osm_node2: to.i2.0,
+                is_forwards: self.to.dir == Direction::Fwd,
+            },
+            intersection_osm_node_id: map.get_i(self.parent).orig_id.0,
+            is_crosswalk: self.crosswalk,
+        }
+    }
+
+    pub fn from_permanent(id: traffic_signal_data::Turn, map: &Map) -> Result<MovementID> {
+        Ok(MovementID {
+            from: find_r(id.from, map)?,
+            to: find_r(id.to, map)?,
+            parent: map.find_i_by_osm_id(osm::NodeID(id.intersection_osm_node_id))?,
+            crosswalk: id.is_crosswalk,
+        })
+    }
+}
+
+fn find_r(id: traffic_signal_data::DirectedRoad, map: &Map) -> Result<DirectedRoadID> {
+    Ok(DirectedRoadID {
+        road: map.find_r_by_osm_id(OriginalRoad::new(
+            id.osm_way_id,
+            (id.osm_node1, id.osm_node2),
+        ))?,
+        dir: if id.is_forwards {
+            Direction::Fwd
+        } else {
+            Direction::Back
+        },
+    })
 }

@@ -2,7 +2,7 @@ use std::fmt;
 
 use serde::{Deserialize, Serialize};
 
-use geom::{Angle, PolyLine};
+use geom::{Angle, Line, PolyLine};
 
 use crate::raw::RestrictionType;
 use crate::{
@@ -281,6 +281,17 @@ impl Turn {
                 Direction::Back
             },
         })
+    }
+
+    /// Only appropriat for pedestrian crossings. The geometry of crosswalks will first cross part
+    /// of a sidewalk corner, then actually enter the road. Extract the piece that's in the road.
+    pub fn crosswalk_line(&self) -> Option<Line> {
+        let pts = self.geom.points();
+        if pts.len() < 3 {
+            warn!("Crosswalk {} was squished earlier", self.id);
+            return None;
+        }
+        Line::new(pts[1], pts[2]).ok()
     }
 }
 

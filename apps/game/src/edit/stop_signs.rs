@@ -50,29 +50,37 @@ impl StopSignEditor {
 
         let panel = Panel::new_builder(Widget::col(vec![
             Line("Stop sign editor").small_heading().into_widget(ctx),
-            ctx.style()
-                .btn_outline
-                .text("reset to default")
-                .hotkey(Key::R)
-                .disabled(
-                    &ControlStopSign::new(&app.primary.map, id)
-                        == app.primary.map.get_stop_sign(id),
-                )
-                .build_def(ctx),
-            ctx.style()
-                .btn_outline
-                .text("close intersection for construction")
-                .hotkey(Key::C)
-                .build_def(ctx),
-            ctx.style()
-                .btn_outline
-                .text("convert to traffic signal")
-                .build_def(ctx),
-            ctx.style()
-                .btn_solid_primary
-                .text("Finish")
-                .hotkey(Key::Escape)
-                .build_def(ctx),
+            Widget::row(vec![
+                ctx.style()
+                    .btn_solid_primary
+                    .text("Finish")
+                    .hotkey(Key::Escape)
+                    .build_def(ctx),
+                ctx.style()
+                    .btn_outline
+                    .text("reset to default")
+                    .hotkey(Key::R)
+                    .disabled(
+                        &ControlStopSign::new(&app.primary.map, id)
+                            == app.primary.map.get_stop_sign(id),
+                    )
+                    .build_def(ctx),
+                ctx.style()
+                    .btn_outline
+                    .text("Change crosswalks")
+                    .hotkey(Key::C)
+                    .build_def(ctx),
+            ]),
+            Widget::row(vec![
+                ctx.style()
+                    .btn_outline
+                    .text("close intersection for construction")
+                    .build_def(ctx),
+                ctx.style()
+                    .btn_outline
+                    .text("convert to traffic signal")
+                    .build_def(ctx),
+            ]),
         ]))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx);
@@ -154,6 +162,9 @@ impl SimpleState<App> for StopSignEditor {
                     self.mode.clone(),
                 ))
             }
+            "Change crosswalks" => Transition::Replace(
+                super::crosswalks::CrosswalkEditor::new_state(ctx, app, self.id),
+            ),
             _ => unreachable!(),
         }
     }
