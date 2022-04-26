@@ -355,6 +355,14 @@ impl State<App> for TrafficSignalEditor {
                         );
                     }
                 }
+                "Change crosswalks" => {
+                    // TODO Probably need to follow everything Cancel does
+                    return Transition::Replace(super::crosswalks::CrosswalkEditor::new_state(
+                        ctx,
+                        app,
+                        *self.members.iter().next().unwrap(),
+                    ));
+                }
                 "Preview" => {
                     // Might have to do this first!
                     app.primary
@@ -535,37 +543,29 @@ impl State<App> for TrafficSignalEditor {
 }
 
 fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool) -> Panel {
-    let row = vec![
-        ctx.style()
-            .btn_solid_primary
-            .text("Finish")
-            .hotkey(Key::Enter)
-            .build_def(ctx),
-        ctx.style()
-            .btn_outline
-            .text("Preview")
-            .hotkey(lctrl(Key::P))
-            .build_def(ctx),
-        ctx.style()
-            .btn_plain
-            .icon("system/assets/tools/undo.svg")
-            .disabled(!can_undo)
-            .hotkey(lctrl(Key::Z))
-            .build_widget(ctx, "undo"),
-        ctx.style()
-            .btn_plain
-            .icon("system/assets/tools/redo.svg")
-            .disabled(!can_redo)
-            // TODO ctrl+shift+Z!
-            .hotkey(lctrl(Key::Y))
-            .build_widget(ctx, "redo"),
-        ctx.style()
-            .btn_plain_destructive
-            .text("Cancel")
-            .hotkey(Key::Escape)
-            .build_def(ctx)
-            .align_right(),
-    ];
+    let mut second_row = vec![ctx
+        .style()
+        .btn_outline
+        .text("Change crosswalks")
+        .hotkey(Key::C)
+        .build_def(ctx)];
+    if app.opts.dev {
+        second_row.push(
+            ctx.style()
+                .btn_outline
+                .text("Export")
+                .tooltip(Text::from_multiline(vec![
+                    Line("This will create a JSON file in traffic_signal_data/.").small(),
+                    Line(
+                        "Contribute this to map how this traffic signal is currently timed in \
+                     real life.",
+                    )
+                    .small(),
+                ]))
+                .build_def(ctx),
+        );
+    }
+
     Panel::new_builder(Widget::col(vec![
         Widget::row(vec![
             Line("Traffic signal editor")
@@ -578,23 +578,38 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool)
                 .hotkey(Key::M)
                 .build_widget(ctx, "Edit multiple signals"),
         ]),
-        Widget::row(row),
-        if app.opts.dev {
+        Widget::row(vec![
+            ctx.style()
+                .btn_solid_primary
+                .text("Finish")
+                .hotkey(Key::Enter)
+                .build_def(ctx),
             ctx.style()
                 .btn_outline
-                .text("Export")
-                .tooltip(Text::from_multiline(vec![
-                    Line("This will create a JSON file in traffic_signal_data/.").small(),
-                    Line(
-                        "Contribute this to map how this traffic signal is currently timed in \
-                         real life.",
-                    )
-                    .small(),
-                ]))
+                .text("Preview")
+                .hotkey(lctrl(Key::P))
+                .build_def(ctx),
+            ctx.style()
+                .btn_plain
+                .icon("system/assets/tools/undo.svg")
+                .disabled(!can_undo)
+                .hotkey(lctrl(Key::Z))
+                .build_widget(ctx, "undo"),
+            ctx.style()
+                .btn_plain
+                .icon("system/assets/tools/redo.svg")
+                .disabled(!can_redo)
+                // TODO ctrl+shift+Z!
+                .hotkey(lctrl(Key::Y))
+                .build_widget(ctx, "redo"),
+            ctx.style()
+                .btn_plain_destructive
+                .text("Cancel")
+                .hotkey(Key::Escape)
                 .build_def(ctx)
-        } else {
-            Widget::nothing()
-        },
+                .align_right(),
+        ]),
+        Widget::row(second_row),
     ]))
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
     .build(ctx)

@@ -24,6 +24,7 @@ use crate::common::{tool_panel, CommonState, Warping};
 use crate::debug::DebugMode;
 use crate::sandbox::{GameplayMode, SandboxMode, TimeWarpScreen};
 
+mod crosswalks;
 mod heuristics;
 mod multiple_roads;
 mod roads;
@@ -904,6 +905,7 @@ fn cmd_to_id(cmd: &EditCmd) -> Option<ID> {
     match cmd {
         EditCmd::ChangeRoad { r, .. } => Some(ID::Road(*r)),
         EditCmd::ChangeIntersection { i, .. } => Some(ID::Intersection(*i)),
+        EditCmd::ChangeCrosswalks { i, .. } => Some(ID::Intersection(*i)),
         EditCmd::ChangeRouteSchedule { .. } => None,
     }
 }

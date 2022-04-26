@@ -6,10 +6,8 @@ use serde::{Deserialize, Serialize};
 use geom::{Distance, Duration, Speed};
 
 use crate::make::traffic_signals::get_possible_policies;
-use crate::raw::OriginalRoad;
 use crate::{
-    osm, DirectedRoadID, Direction, Intersection, IntersectionID, Map, Movement, MovementID,
-    RoadID, TurnID, TurnPriority,
+    Intersection, IntersectionID, Map, Movement, MovementID, RoadID, TurnID, TurnPriority,
 };
 
 // The pace to use for crosswalk pace in m/s
@@ -391,12 +389,12 @@ impl ControlTrafficSignal {
                         protected_turns: s
                             .protected_movements
                             .iter()
-                            .map(|t| export_movement(t, map))
+                            .map(|mvmnt| mvmnt.to_permanent(map))
                             .collect(),
                         permitted_turns: s
                             .yield_movements
                             .iter()
-                            .map(|t| export_movement(t, map))
+                            .map(|mvmnt| mvmnt.to_permanent(map))
                             .collect(),
                         stage_type: match s.stage_type {
                             StageType::Fixed(d) => {
@@ -429,7 +427,7 @@ impl ControlTrafficSignal {
             let mut errors = Vec::new();
             let mut protected_movements = BTreeSet::new();
             for t in s.protected_turns {
-                match import_movement(t, map) {
+                match MovementID::from_permanent(t, map) {
                     Ok(mvmnt) => {
                         protected_movements.insert(mvmnt);
                     }
@@ -440,7 +438,7 @@ impl ControlTrafficSignal {
             }
             let mut permitted_movements = BTreeSet::new();
             for t in s.permitted_turns {
-                match import_movement(t, map) {
+                match MovementID::from_permanent(t, map) {
                     Ok(mvmnt) => {
                         permitted_movements.insert(mvmnt);
                     }
@@ -478,49 +476,4 @@ impl ControlTrafficSignal {
         ts.validate(map.get_i(id))?;
         Ok(ts)
     }
-}
-
-fn export_movement(id: &MovementID, map: &Map) -> traffic_signal_data::Turn {
-    let from = map.get_r(id.from.road).orig_id;
-    let to = map.get_r(id.to.road).orig_id;
-
-    traffic_signal_data::Turn {
-        from: traffic_signal_data::DirectedRoad {
-            osm_way_id: from.osm_way_id.0,
-            osm_node1: from.i1.0,
-            osm_node2: from.i2.0,
-            is_forwards: id.from.dir == Direction::Fwd,
-        },
-        to: traffic_signal_data::DirectedRoad {
-            osm_way_id: to.osm_way_id.0,
-            osm_node1: to.i1.0,
-            osm_node2: to.i2.0,
-            is_forwards: id.to.dir == Direction::Fwd,
-        },
-        intersection_osm_node_id: map.get_i(id.parent).orig_id.0,
-        is_crosswalk: id.crosswalk,
-    }
-}
-
-fn import_movement(id: traffic_signal_data::Turn, map: &Map) -> Result<MovementID> {
-    Ok(MovementID {
-        from: find_r(id.from, map)?,
-        to: find_r(id.to, map)?,
-        parent: map.find_i_by_osm_id(osm::NodeID(id.intersection_osm_node_id))?,
-        crosswalk: id.is_crosswalk,
-    })
-}
-
-fn find_r(id: traffic_signal_data::DirectedRoad, map: &Map) -> Result<DirectedRoadID> {
-    Ok(DirectedRoadID {
-        road: map.find_r_by_osm_id(OriginalRoad::new(
-            id.osm_way_id,
-            (id.osm_node1, id.osm_node2),
-        ))?,
-        dir: if id.is_forwards {
-            Direction::Fwd
-        } else {
-            Direction::Back
-        },
-    })
 }

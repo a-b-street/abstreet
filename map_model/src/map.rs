@@ -260,6 +260,14 @@ impl Map {
     pub(crate) fn mut_road(&mut self, id: RoadID) -> &mut Road {
         &mut self.roads[id.0]
     }
+    pub(crate) fn mut_turn(&mut self, id: TurnID) -> &mut Turn {
+        for turn in &mut self.intersections[id.parent.0].turns {
+            if turn.id == id {
+                return turn;
+            }
+        }
+        panic!("Couldn't find {id}");
+    }
 
     pub fn get_i(&self, id: IntersectionID) -> &Intersection {
         &self.intersections[id.0]
