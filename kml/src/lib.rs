@@ -101,7 +101,7 @@ fn recurse(
         let mut any_ok = false;
         let mut pts: Vec<LonLat> = Vec::new();
         if let Some(txt) = node.text() {
-            for pair in txt.split(' ') {
+            for pair in txt.trim().split(' ') {
                 if let Some(pt) = parse_pt(pair) {
                     pts.push(pt);
                     if gps_bounds.contains(pt) {
