@@ -3166,14 +3166,14 @@
       "compressed_size_bytes": 7159347
     },
     "data/system/br/sao_paulo/maps/sao_miguel_paulista.bin": {
-      "checksum": "441e7c85870d58d54b415d4a0688e727",
-      "uncompressed_size_bytes": 986925,
-      "compressed_size_bytes": 335105
+      "checksum": "65db25e28d8df10ffc0fcf39296a2ed6",
+      "uncompressed_size_bytes": 987929,
+      "compressed_size_bytes": 335250
     },
     "data/system/br/sao_paulo/prebaked_results/sao_miguel_paulista/Full.bin": {
-      "checksum": "0d79bc6fe08948ca4815ad59709153cd",
-      "uncompressed_size_bytes": 34184421,
-      "compressed_size_bytes": 10634003
+      "checksum": "e6277da6ecb298b5ec6f8268f255dc50",
+      "uncompressed_size_bytes": 33903639,
+      "compressed_size_bytes": 10558354
     },
     "data/system/br/sao_paulo/scenarios/sao_miguel_paulista/Full.bin": {
       "checksum": "541fdf1f2ba80b4b6cb88f36b186a707",
@@ -3226,9 +3226,9 @@
       "compressed_size_bytes": 5436729
     },
     "data/system/de/berlin/maps/center.bin": {
-      "checksum": "2067212c6daef0c6dc1c2c01feaf2872",
+      "checksum": "03364121a5b9862e3d97888ad4a93f63",
       "uncompressed_size_bytes": 23256118,
-      "compressed_size_bytes": 8838626
+      "compressed_size_bytes": 8838646
     },
     "data/system/de/berlin/maps/neukolln.bin": {
       "checksum": "272462468a53c905d3186de34e5823fe",

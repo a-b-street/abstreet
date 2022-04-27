@@ -257,7 +257,8 @@ impl Map {
     pub(crate) fn mut_lane(&mut self, id: LaneID) -> &mut Lane {
         &mut self.roads[id.road.0].lanes[id.offset]
     }
-    pub(crate) fn mut_road(&mut self, id: RoadID) -> &mut Road {
+    /// Public for importer. Do not abuse!
+    pub fn mut_road(&mut self, id: RoadID) -> &mut Road {
         &mut self.roads[id.0]
     }
     pub(crate) fn mut_turn(&mut self, id: TurnID) -> &mut Turn {

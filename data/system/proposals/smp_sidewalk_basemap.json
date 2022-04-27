@@ -1,0 +1,870 @@
+{
+  "map_name": {
+    "city": {
+      "country": "br",
+      "city": "sao_paulo"
+    },
+    "map": "sao_miguel_paulista"
+  },
+  "edits_name": "smp_sidewalk_basemap",
+  "version": 11,
+  "commands": [
+    {
+      "ChangeRoad": {
+        "r": {
+          "osm_way_id": 188344490,
+          "i1": 1728328687,
+          "i2": 1732137868
+        },
+        "new": {
+          "lanes_ltr": [
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 19572
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 19572
+            }
+          ],
+          "speed_limit": 178816,
+          "access_restrictions": {
+            "allow_through_traffic": 31
+          }
+        },
+        "old": {
+          "lanes_ltr": [
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 15000
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 15000
+            }
+          ],
+          "speed_limit": 178816,
+          "access_restrictions": {
+            "allow_through_traffic": 31
+          }
+        }
+      }
+    },
+    {
+      "ChangeRoad": {
+        "r": {
+          "osm_way_id": 318931087,
+          "i1": 1733364191,
+          "i2": 7292446317
+        },
+        "new": {
+          "lanes_ltr": [
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 19572
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 19572
+            }
+          ],
+          "speed_limit": 178816,
+          "access_restrictions": {
+            "allow_through_traffic": 31
+          }
+        },
+        "old": {
+          "lanes_ltr": [
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 15000
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 15000
+            }
+          ],
+          "speed_limit": 178816,
+          "access_restrictions": {
+            "allow_through_traffic": 31
+          }
+        }
+      }
+    },
+    {
+      "ChangeRoad": {
+        "r": {
+          "osm_way_id": 318931087,
+          "i1": 7292446317,
+          "i2": 1733509235
+        },
+        "new": {
+          "lanes_ltr": [
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 19572
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 19572
+            }
+          ],
+          "speed_limit": 178816,
+          "access_restrictions": {
+            "allow_through_traffic": 31
+          }
+        },
+        "old": {
+          "lanes_ltr": [
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 15000
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 15000
+            }
+          ],
+          "speed_limit": 178816,
+          "access_restrictions": {
+            "allow_through_traffic": 31
+          }
+        }
+      }
+    },
+    {
+      "ChangeRoad": {
+        "r": {
+          "osm_way_id": 379803912,
+          "i1": 1733509235,
+          "i2": 1989729249
+        },
+        "new": {
+          "lanes_ltr": [
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 19572
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 19572
+            }
+          ],
+          "speed_limit": 178816,
+          "access_restrictions": {
+            "allow_through_traffic": 31
+          }
+        },
+        "old": {
+          "lanes_ltr": [
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 15000
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 15000
+            }
+          ],
+          "speed_limit": 178816,
+          "access_restrictions": {
+            "allow_through_traffic": 31
+          }
+        }
+      }
+    },
+    {
+      "ChangeRoad": {
+        "r": {
+          "osm_way_id": 842455168,
+          "i1": 513931231,
+          "i2": 1733364682
+        },
+        "new": {
+          "lanes_ltr": [
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 19572
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 19572
+            }
+          ],
+          "speed_limit": 178816,
+          "access_restrictions": {
+            "allow_through_traffic": 31
+          }
+        },
+        "old": {
+          "lanes_ltr": [
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 15000
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 15000
+            }
+          ],
+          "speed_limit": 178816,
+          "access_restrictions": {
+            "allow_through_traffic": 31
+          }
+        }
+      }
+    },
+    {
+      "ChangeRoad": {
+        "r": {
+          "osm_way_id": 842455168,
+          "i1": 1732137868,
+          "i2": 1733364737
+        },
+        "new": {
+          "lanes_ltr": [
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 19572
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 19572
+            }
+          ],
+          "speed_limit": 178816,
+          "access_restrictions": {
+            "allow_through_traffic": 31
+          }
+        },
+        "old": {
+          "lanes_ltr": [
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 15000
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 15000
+            }
+          ],
+          "speed_limit": 178816,
+          "access_restrictions": {
+            "allow_through_traffic": 31
+          }
+        }
+      }
+    },
+    {
+      "ChangeRoad": {
+        "r": {
+          "osm_way_id": 842455168,
+          "i1": 1733364682,
+          "i2": 1733509272
+        },
+        "new": {
+          "lanes_ltr": [
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 19572
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 19572
+            }
+          ],
+          "speed_limit": 178816,
+          "access_restrictions": {
+            "allow_through_traffic": 31
+          }
+        },
+        "old": {
+          "lanes_ltr": [
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 15000
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 15000
+            }
+          ],
+          "speed_limit": 178816,
+          "access_restrictions": {
+            "allow_through_traffic": 31
+          }
+        }
+      }
+    },
+    {
+      "ChangeRoad": {
+        "r": {
+          "osm_way_id": 842455168,
+          "i1": 1733364737,
+          "i2": 513931231
+        },
+        "new": {
+          "lanes_ltr": [
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 19572
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 19572
+            }
+          ],
+          "speed_limit": 178816,
+          "access_restrictions": {
+            "allow_through_traffic": 31
+          }
+        },
+        "old": {
+          "lanes_ltr": [
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 15000
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 15000
+            }
+          ],
+          "speed_limit": 178816,
+          "access_restrictions": {
+            "allow_through_traffic": 31
+          }
+        }
+      }
+    },
+    {
+      "ChangeRoad": {
+        "r": {
+          "osm_way_id": 842455168,
+          "i1": 1733509272,
+          "i2": 1733364360
+        },
+        "new": {
+          "lanes_ltr": [
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 19572
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 19572
+            }
+          ],
+          "speed_limit": 178816,
+          "access_restrictions": {
+            "allow_through_traffic": 31
+          }
+        },
+        "old": {
+          "lanes_ltr": [
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 15000
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 15000
+            }
+          ],
+          "speed_limit": 178816,
+          "access_restrictions": {
+            "allow_through_traffic": 31
+          }
+        }
+      }
+    },
+    {
+      "ChangeRoad": {
+        "r": {
+          "osm_way_id": 951203590,
+          "i1": 1733364360,
+          "i2": 1733364191
+        },
+        "new": {
+          "lanes_ltr": [
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 19572
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 19572
+            }
+          ],
+          "speed_limit": 178816,
+          "access_restrictions": {
+            "allow_through_traffic": 31
+          }
+        },
+        "old": {
+          "lanes_ltr": [
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 15000
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            },
+            {
+              "lt": "Sidewalk",
+              "dir": "Fwd",
+              "width": 15000
+            }
+          ],
+          "speed_limit": 178816,
+          "access_restrictions": {
+            "allow_through_traffic": 31
+          }
+        }
+      }
+    }
+  ],
+  "merge_zones": true,
+  "proposal_description": [
+    "Basemap of sidewalk widths in São Miguel Paulista",
+    "Sidewalk width data from Geosampa is CC BY-SA 4.0 and can't be added to OSM. These edits are used to override sidewalk widths in the basemap, with extra attribution.",
+    "This just contains example edits, not real widths from Geosampa, right now"
+  ],
+  "proposal_link": null
+}

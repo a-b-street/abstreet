@@ -866,6 +866,12 @@ impl Map {
         self.apply_edits(new_edits, false, timer);
     }
 
+    /// A hack. Use this to apply edits, then save the map anyway, pretending like the edits came
+    /// from raw data.
+    pub fn clear_edits_before_save(&mut self) {
+        self.edits = self.new_edits();
+    }
+
     // new_edits don't necessarily have to be valid; this could be used for speculatively testing
     // edits. Doesn't update pathfinding yet.
     fn apply_edits(
