@@ -904,6 +904,7 @@
 <span id="899">899</span>
 <span id="900">900</span>
 <span id="901">901</span>
+<span id="902">902</span>
 </pre><pre class="rust"><code><span class="doccomment">//! A bunch of (mostly read-only) queries on a Map.</span>
 
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
@@ -1163,7 +1164,8 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">mut_lane</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">id</span>: <span class="ident">LaneID</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Lane</span> {
         <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">roads</span>[<span class="ident">id</span>.<span class="ident">road</span>.<span class="number">0</span>].<span class="ident">lanes</span>[<span class="ident">id</span>.<span class="ident">offset</span>]
     }
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">mut_road</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">id</span>: <span class="ident">RoadID</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Road</span> {
+    <span class="doccomment">/// Public for importer. Do not abuse!</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mut_road</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">id</span>: <span class="ident">RoadID</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Road</span> {
         <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">roads</span>[<span class="ident">id</span>.<span class="number">0</span>]
     }
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">mut_turn</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">id</span>: <span class="ident">TurnID</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Turn</span> {

@@ -1046,6 +1046,12 @@
 <span id="1041">1041</span>
 <span id="1042">1042</span>
 <span id="1043">1043</span>
+<span id="1044">1044</span>
+<span id="1045">1045</span>
+<span id="1046">1046</span>
+<span id="1047">1047</span>
+<span id="1048">1048</span>
+<span id="1049">1049</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Once a Map exists, the player can edit it in the UI (producing `MapEdits` in-memory), then save</span>
 <span class="doccomment">//! the changes to a file (as `PermanentMapEdits`). See</span>
 <span class="doccomment">//! &lt;https://a-b-street.github.io/docs/tech/map/edits.html&gt;.</span>
@@ -1912,6 +1918,12 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_apply_edits</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">new_edits</span>: <span class="ident">MapEdits</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) {
         <span class="self">self</span>.<span class="ident">apply_edits</span>(<span class="ident">new_edits</span>, <span class="bool-val">false</span>, <span class="ident">timer</span>);
+    }
+
+    <span class="doccomment">/// A hack. Use this to apply edits, then save the map anyway, pretending like the edits came</span>
+    <span class="doccomment">/// from raw data.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_edits_before_save</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">edits</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">new_edits</span>();
     }
 
     <span class="comment">// new_edits don&#39;t necessarily have to be valid; this could be used for speculatively testing</span>
