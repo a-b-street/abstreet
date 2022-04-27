@@ -322,7 +322,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">any_ok</span> <span class="op">=</span> <span class="bool-val">false</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LonLat</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">txt</span>) <span class="op">=</span> <span class="ident">node</span>.<span class="ident">text</span>() {
-            <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">txt</span>.<span class="ident">split</span>(<span class="string">&#39; &#39;</span>) {
+            <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">txt</span>.<span class="ident">trim</span>().<span class="ident">split</span>(<span class="string">&#39; &#39;</span>) {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">parse_pt</span>(<span class="ident">pair</span>) {
                     <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">pt</span>);
                     <span class="kw">if</span> <span class="ident">gps_bounds</span>.<span class="ident">contains</span>(<span class="ident">pt</span>) {
