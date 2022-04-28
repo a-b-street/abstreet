@@ -5,8 +5,8 @@ use serde::{Deserialize, Serialize};
 use abstutil::{deserialize_btreemap, prettyprint_usize, serialize_btreemap, FixedMap};
 use geom::{Duration, Time};
 use map_model::{
-    ControlStopSign, ControlTrafficSignal, Intersection, IntersectionID, LaneID, Map, StageType,
-    Traversable, TurnID, TurnPriority, TurnType, UberTurn,
+    ControlStopSign, ControlTrafficSignal, DrivingSide, Intersection, IntersectionID, LaneID, Map,
+    StageType, Traversable, TurnID, TurnPriority, TurnType, UberTurn,
 };
 
 use crate::mechanics::car::{Car, CarState};
@@ -847,7 +847,7 @@ impl IntersectionSimState {
         req: &Request,
         map: &Map,
         sign: &ControlStopSign,
-        _speed: Speed,
+        speed: Speed,
         now: Time,
         scheduler: &mut Scheduler,
     ) -> bool {
@@ -865,6 +865,8 @@ impl IntersectionSimState {
             return false;
         }
 
+        let turn = map.get_t(req.turn);
+
         // Once upon a time, we'd make sure that this request doesn't conflict with another in
         // self.waiting:
         // 1) Higher-ranking turns get to go first.
@@ -877,9 +879,71 @@ impl IntersectionSimState {
         // that events are processed in time order mean that case #2 is magically handled anyway.
         // If a case #1 could've started by now, then they would have. Since they didn't, they must
         // be blocked.
+        for other_req in self.state[&req.turn.parent].waiting.keys() {
+            if map.get_t(other_req.turn).conflicts_with(turn)
+                && our_priority < sign.get_priority(other_req.turn, map)
+            {
+                info!(
+                    "{} yielding to {} who's waiting",
+                    req.agent, other_req.agent
+                );
+                return false;
+            }
+        }
 
-        // TODO Make sure we can optimistically finish this turn before an approaching
-        // higher-priority vehicle wants to begin.
+        // Can we optimistically finish this turn before an approaching higher-priority vehicle
+        // wants to begin?
+
+        let expected_finish = now + turn.geom.length() / speed;
+        for (_, (other_req, eta)) in &self.state[&req.turn.parent].leader_eta {
+            if expected_finish < *eta {
+                continue;
+            }
+            let other_turn = map.get_t(other_req.turn);
+            if other_turn.conflicts_with(turn) {
+                // Now we need to prioritize between the two. First use the stop sign priority
+                let their_priority = sign.get_priority(other_turn.id, map);
+                let should_yield = if our_priority < their_priority {
+                    true
+                } else if our_priority > their_priority {
+                    false
+                } else {
+                    // Same priority by the stop sign, so check turn types
+                    let turn_type_ranks = if map.get_config().driving_side == DrivingSide::Right {
+                        vec![TurnType::Straight, TurnType::Right, TurnType::Left]
+                    } else {
+                        vec![TurnType::Straight, TurnType::Left, TurnType::Right]
+                    };
+
+                    // Other turn types (U-turns and pedestrian crossings) always lose. That
+                    // should probably be configurable
+                    let our_rank = turn_type_ranks
+                        .iter()
+                        .position(|x| *x == turn.turn_type)
+                        .unwrap_or(3);
+                    let their_rank = turn_type_ranks
+                        .iter()
+                        .position(|x| *x == other_turn.turn_type)
+                        .unwrap_or(3);
+                    // 0 is the highest rank here
+                    // If all the priorities are equal, we should go -- we're ready to start;
+                    // they're still approaching.
+                    our_rank > their_rank
+                };
+                if should_yield {
+                    info!(
+                        "{} is yielding to approaching {}",
+                        req.agent, other_req.agent
+                    );
+                    return false;
+                } else {
+                    /*info!(
+                        "{} is cutting off approaching {}",
+                        req.agent, other_agent
+                    );*/
+                }
+            }
+        }
 
         true
     }
@@ -928,7 +992,7 @@ impl IntersectionSimState {
         // update_intersection.
 
         // TODO Make sure we can optimistically finish this turn before an approaching
-        // higher-priority vehicle wants to begin.
+        // higher-priority vehicle wants to begin. First find a case where this actually happens.
 
         // Optimistically if nobody else is in the way, this is how long it'll take to finish the
         // turn. Don't start the turn if we won't finish by the time the light changes. If we get
