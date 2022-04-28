@@ -52,7 +52,7 @@ impl ObjectDebugger {
                 let i = map.get_i(id);
                 println!("{}", abstutil::to_json(i));
 
-                sim.debug_intersection(id, map);
+                println!("{}", sim.debug_intersection_json(id, map));
 
                 println!("{} connecting:", i.orig_id);
                 for r in &i.roads {
@@ -103,7 +103,11 @@ impl ObjectDebugger {
     pub fn debug_json(id: ID, map: &Map, sim: &Sim) {
         let json_string = match id {
             ID::Lane(id) => abstutil::to_json(map.get_l(id)),
-            ID::Intersection(id) => abstutil::to_json(map.get_i(id)),
+            ID::Intersection(id) => {
+                let json1 = abstutil::to_json(map.get_i(id));
+                let json2 = sim.debug_intersection_json(id, map);
+                format!("[{json1}, {json2}]")
+            }
             ID::Building(id) => abstutil::to_json(map.get_b(id)),
             ID::ParkingLot(id) => abstutil::to_json(map.get_pl(id)),
             ID::Car(id) => sim.debug_agent_json(AgentID::Car(id)),

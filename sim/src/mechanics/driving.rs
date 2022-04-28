@@ -192,6 +192,7 @@ impl DrivingSimState {
                 trip_and_person: params.trip_and_person,
                 wants_to_overtake: BTreeSet::new(),
             };
+            let mut start_crossing = false;
             if let Some(p) = params.maybe_parked_car {
                 let delay = match p.spot {
                     ParkingSpot::Onstreet(_, _) => self.time_to_unpark_onstreet,
@@ -266,6 +267,7 @@ impl DrivingSimState {
                 }
 
                 car.state = car.crossing_state(start_dist, now, ctx.map);
+                start_crossing = true;
             }
             ctx.scheduler
                 .push(car.state.get_end_time(), Command::UpdateCar(car.vehicle.id));
@@ -274,7 +276,15 @@ impl DrivingSimState {
                 .unwrap()
                 .insert_car_at_idx(idx, &car);
             self.waiting_to_spawn.remove(&car.vehicle.id);
+
+            if start_crossing {
+                // Don't call this earlier where we set crossing_state, because we're not in the
+                // queue yet
+                self.new_crossing_state(ctx, &car);
+            }
+
             self.cars.insert(car.vehicle.id, car);
+
             return None;
         }
         Some(params)
@@ -471,6 +481,7 @@ impl DrivingSimState {
                 car.state = car.crossing_state(front, now, ctx.map);
                 ctx.scheduler
                     .push(car.state.get_end_time(), Command::UpdateCar(car.vehicle.id));
+                self.new_crossing_state(ctx, car);
             }
             CarState::WaitingToAdvance { blocked_since } => {
                 // 'car' is the leader.
@@ -686,6 +697,7 @@ impl DrivingSimState {
                         car.state = car.crossing_state(our_dist, now, ctx.map);
                         ctx.scheduler
                             .push(car.state.get_end_time(), Command::UpdateCar(car.vehicle.id));
+                        self.new_crossing_state(ctx, car);
                         true
                     }
                     Some(ActionAtEnd::StopBiking(bike_rack)) => {
@@ -767,6 +779,7 @@ impl DrivingSimState {
                 car.state = car.crossing_state(dist, now, ctx.map);
                 ctx.scheduler
                     .push(car.state.get_end_time(), Command::UpdateCar(car.vehicle.id));
+                self.new_crossing_state(ctx, car);
 
                 self.update_follower(idx, dists, now, ctx);
 
@@ -892,6 +905,8 @@ impl DrivingSimState {
                         follower.state.get_end_time(),
                         Command::UpdateCar(follower_id),
                     );
+                    let follower = &self.cars[&follower_id];
+                    self.new_crossing_state(ctx, follower);
                 }
                 CarState::Crossing { .. } => {
                     // If the follower was still Crossing, they might not've been blocked by the
@@ -902,6 +917,9 @@ impl DrivingSimState {
                         follower.state.get_end_time(),
                         Command::UpdateCar(follower_id),
                     );
+                    // This'll possibly update the ETA
+                    let follower = &self.cars[&follower_id];
+                    self.new_crossing_state(ctx, follower);
                 }
                 CarState::ChangingLanes {
                     from, to, lc_time, ..
@@ -1270,6 +1288,18 @@ impl DrivingSimState {
         // Create any new queues
         for key in new_queues {
             self.queues.insert(key, Queue::new(key, map));
+        }
+    }
+
+    fn new_crossing_state(&self, ctx: &mut Ctx, car: &Car) {
+        if self.queues[&car.router.head()].is_car_at_front(car.vehicle.id) {
+            if let Some(Traversable::Turn(turn)) = car.router.maybe_next() {
+                ctx.intersections.approaching_leader(
+                    AgentID::Car(car.vehicle.id),
+                    turn,
+                    car.state.get_end_time(),
+                );
+            }
         }
     }
 }

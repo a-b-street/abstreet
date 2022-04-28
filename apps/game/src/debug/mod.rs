@@ -595,7 +595,7 @@ impl ContextualActions for Actions {
     fn actions(&self, app: &App, id: ID) -> Vec<(Key, String)> {
         let mut actions = vec![
             (Key::D, "debug".to_string()),
-            (Key::J, "debug with JSON viewer".to_string()),
+            (Key::V, "debug with JSON viewer".to_string()),
         ];
         match id {
             ID::Lane(l) => {

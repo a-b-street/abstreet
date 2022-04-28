@@ -72,8 +72,8 @@ impl Sim {
         }
     }
 
-    pub fn debug_intersection(&self, id: IntersectionID, map: &Map) {
-        self.intersections.debug(id, map);
+    pub fn debug_intersection_json(&self, id: IntersectionID, map: &Map) -> String {
+        self.intersections.debug_json(id, map)
     }
 
     pub fn debug_lane(&self, id: LaneID) {

@@ -67,6 +67,17 @@ struct State {
     // uber-turn at nearby intersections.
     uber_turn_neighbors: Vec<IntersectionID>,
 
+    // This is keyed by the lane the agent is approaching from. Note that:
+    // 1) the turn in the request may change by the time the leader arrives -- they might decide to
+    //    aim for a different destination lane
+    // 2) If another agent pulls out on a driveway before this agent, they become the leader and
+    //    overwrite this one
+    #[serde(
+        serialize_with = "serialize_btreemap",
+        deserialize_with = "deserialize_btreemap"
+    )]
+    leader_eta: BTreeMap<LaneID, (Request, Time)>,
+
     signal: Option<SignalState>,
 }
 
@@ -115,6 +126,7 @@ impl IntersectionSimState {
                 reserved: BTreeSet::new(),
                 uber_turn_neighbors: Vec::new(),
                 signal: None,
+                leader_eta: BTreeMap::new(),
             };
             if i.is_traffic_signal() {
                 state.signal = Some(SignalState::new(i.id, Time::START_OF_DAY, map, scheduler));
@@ -391,6 +403,19 @@ impl IntersectionSimState {
     ) -> bool {
         #![allow(clippy::logic_bug)] // Remove once TODO below is taken care of
         let req = Request { agent, turn };
+
+        if let Some(_eta) = self
+            .state
+            .get_mut(&turn.parent)
+            .unwrap()
+            .leader_eta
+            .remove(&req.turn.src)
+        {
+            // When they're late, it's because of a slow laggy head. Conflicting turns would've
+            // been blocked anyway. Uncomment to debug
+            //info!("{} predicted ETA {}, actually {}", req.agent, eta, now);
+        }
+
         let entry = self
             .state
             .get_mut(&turn.parent)
@@ -451,7 +476,7 @@ impl IntersectionSimState {
         } else if let Some(signal) = map.maybe_get_traffic_signal(turn.parent) {
             self.traffic_signal_policy(&req, map, signal, speed, now, Some(scheduler))
         } else if let Some(sign) = map.maybe_get_stop_sign(turn.parent) {
-            self.stop_sign_policy(&req, map, sign, now, scheduler)
+            self.stop_sign_policy(&req, map, sign, speed, now, scheduler)
         } else {
             unreachable!()
         };
@@ -642,6 +667,19 @@ impl IntersectionSimState {
             panic!("After live map edits, intersection state refers to deleted turns!");
         }
     }
+
+    // Not calling this for pedestrians right now.
+    // This is "best effort". If we get something wrong, somebody might start a turn and cut off an
+    // approaching vehicle.
+    // And it's idempotent -- can call to update an ETA.
+    pub fn approaching_leader(&mut self, agent: AgentID, turn: TurnID, eta: Time) {
+        let state = self.state.get_mut(&turn.parent).unwrap();
+        // If there was a previous entry here for turn.src, then this leader is spawning in front
+        // of the previous leader on a driveway
+        state
+            .leader_eta
+            .insert(turn.src, (Request { agent, turn }, eta));
+    }
 }
 
 // Queries
@@ -655,15 +693,16 @@ impl IntersectionSimState {
             .any(|req| req.turn.dst == lane)
     }
 
-    pub fn debug(&self, id: IntersectionID, map: &Map) {
-        println!("{}", abstutil::to_json(&self.state[&id]));
-        if let Some(ref sign) = map.maybe_get_stop_sign(id) {
-            println!("{}", abstutil::to_json(sign));
+    pub fn debug_json(&self, id: IntersectionID, map: &Map) -> String {
+        let json1 = abstutil::to_json(&self.state[&id]);
+        let json2 = if let Some(ref sign) = map.maybe_get_stop_sign(id) {
+            abstutil::to_json(sign)
         } else if let Some(ref signal) = map.maybe_get_traffic_signal(id) {
-            println!("{}", abstutil::to_json(signal));
+            abstutil::to_json(signal)
         } else {
-            println!("Border");
-        }
+            "\"Border\"".to_string()
+        };
+        format!("[{json1}, {json2}]")
     }
 
     pub fn get_accepted_agents(&self, id: IntersectionID) -> Vec<(AgentID, TurnID)> {
@@ -808,6 +847,7 @@ impl IntersectionSimState {
         req: &Request,
         map: &Map,
         sign: &ControlStopSign,
+        _speed: Speed,
         now: Time,
         scheduler: &mut Scheduler,
     ) -> bool {
