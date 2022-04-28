@@ -143,6 +143,10 @@
 <span id="138">138</span>
 <span id="139">139</span>
 <span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">map_gui::ID</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Map</span>, <span class="ident">Position</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">AgentID</span>, <span class="ident">Sim</span>};
@@ -197,7 +201,7 @@
                 <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">id</span>);
                 <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">abstutil::to_json</span>(<span class="ident">i</span>));
 
-                <span class="ident">sim</span>.<span class="ident">debug_intersection</span>(<span class="ident">id</span>, <span class="ident">map</span>);
+                <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">sim</span>.<span class="ident">debug_intersection_json</span>(<span class="ident">id</span>, <span class="ident">map</span>));
 
                 <span class="macro">println!</span>(<span class="string">&quot;{} connecting:&quot;</span>, <span class="ident">i</span>.<span class="ident">orig_id</span>);
                 <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">roads</span> {
@@ -248,7 +252,11 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">debug_json</span>(<span class="ident">id</span>: <span class="ident">ID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">sim</span>: <span class="kw-2">&amp;</span><span class="ident">Sim</span>) {
         <span class="kw">let</span> <span class="ident">json_string</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">id</span> {
             <span class="ident">ID::Lane</span>(<span class="ident">id</span>) =&gt; <span class="ident">abstutil::to_json</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">id</span>)),
-            <span class="ident">ID::Intersection</span>(<span class="ident">id</span>) =&gt; <span class="ident">abstutil::to_json</span>(<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">id</span>)),
+            <span class="ident">ID::Intersection</span>(<span class="ident">id</span>) =&gt; {
+                <span class="kw">let</span> <span class="ident">json1</span> <span class="op">=</span> <span class="ident">abstutil::to_json</span>(<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">id</span>));
+                <span class="kw">let</span> <span class="ident">json2</span> <span class="op">=</span> <span class="ident">sim</span>.<span class="ident">debug_intersection_json</span>(<span class="ident">id</span>, <span class="ident">map</span>);
+                <span class="macro">format!</span>(<span class="string">&quot;[{json1}, {json2}]&quot;</span>)
+            }
             <span class="ident">ID::Building</span>(<span class="ident">id</span>) =&gt; <span class="ident">abstutil::to_json</span>(<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">id</span>)),
             <span class="ident">ID::ParkingLot</span>(<span class="ident">id</span>) =&gt; <span class="ident">abstutil::to_json</span>(<span class="ident">map</span>.<span class="ident">get_pl</span>(<span class="ident">id</span>)),
             <span class="ident">ID::Car</span>(<span class="ident">id</span>) =&gt; <span class="ident">sim</span>.<span class="ident">debug_agent_json</span>(<span class="ident">AgentID::Car</span>(<span class="ident">id</span>)),

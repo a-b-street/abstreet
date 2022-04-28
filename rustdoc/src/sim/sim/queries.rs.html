@@ -618,8 +618,8 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">debug_intersection</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">IntersectionID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) {
-        <span class="self">self</span>.<span class="ident">intersections</span>.<span class="ident">debug</span>(<span class="ident">id</span>, <span class="ident">map</span>);
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">debug_intersection_json</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">IntersectionID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">String</span> {
+        <span class="self">self</span>.<span class="ident">intersections</span>.<span class="ident">debug_json</span>(<span class="ident">id</span>, <span class="ident">map</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">debug_lane</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">LaneID</span>) {
