@@ -151,9 +151,9 @@
       "compressed_size_bytes": 2926542
     },
     "data/input/br/sao_paulo/raw_maps/sao_miguel_paulista.bin": {
-      "checksum": "befa29b3a81ff1e63c2d817044efeff4",
+      "checksum": "0e0fdc0d80580792f00168b2067dfb0c",
       "uncompressed_size_bytes": 798773,
-      "compressed_size_bytes": 246669
+      "compressed_size_bytes": 245005
     },
     "data/input/ca/ca/osm/plateau.osm": {
       "checksum": "d41d8cd98f00b204e9800998ecf8427e",
@@ -3166,14 +3166,14 @@
       "compressed_size_bytes": 7159347
     },
     "data/system/br/sao_paulo/maps/sao_miguel_paulista.bin": {
-      "checksum": "65db25e28d8df10ffc0fcf39296a2ed6",
-      "uncompressed_size_bytes": 987929,
-      "compressed_size_bytes": 335250
+      "checksum": "829e0c2a0308cb6f201b6381a5c37eb5",
+      "uncompressed_size_bytes": 988429,
+      "compressed_size_bytes": 331401
     },
     "data/system/br/sao_paulo/prebaked_results/sao_miguel_paulista/Full.bin": {
-      "checksum": "e6277da6ecb298b5ec6f8268f255dc50",
-      "uncompressed_size_bytes": 33903639,
-      "compressed_size_bytes": 10558354
+      "checksum": "4e14ae1061326d1c22c1db2a85add627",
+      "uncompressed_size_bytes": 34731445,
+      "compressed_size_bytes": 10788267
     },
     "data/system/br/sao_paulo/scenarios/sao_miguel_paulista/Full.bin": {
       "checksum": "541fdf1f2ba80b4b6cb88f36b186a707",
