@@ -86,6 +86,19 @@ pub enum Outcome {
     Nothing,
 }
 
+impl Outcome {
+    pub(crate) fn describe(&self) -> String {
+        match self {
+            Outcome::Clicked(x) => format!("Outcome::Clicked({x})"),
+            Outcome::ClickCustom(_) => format!("Outcome::ClickCustom(???)"),
+            Outcome::Changed(x) => format!("Outcome::Changed({x})"),
+            Outcome::DragDropReleased(x, _, _) => format!("Outcome::DragDropReleased({x}, ...)"),
+            Outcome::Focused(x) => format!("Outcome::Focused({x})"),
+            Outcome::Nothing => format!("Outcome::Nothing"),
+        }
+    }
+}
+
 /// When an action happens through a button-like widget, what data is plumbed back?
 pub enum ClickOutcome {
     Label(String),

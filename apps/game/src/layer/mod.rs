@@ -15,6 +15,7 @@ mod pandemic;
 mod parking;
 mod population;
 mod problems;
+mod problems_diff;
 pub mod traffic;
 pub mod transit;
 

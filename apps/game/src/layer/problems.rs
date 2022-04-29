@@ -7,11 +7,11 @@ use sim::{Problem, TripInfo};
 use synthpop::TripMode;
 use widgetry::mapspace::ToggleZoomed;
 use widgetry::{
-    Color, EventCtx, GfxCtx, Line, Outcome, Panel, Slider, Text, TextExt, Toggle, Widget,
+    Color, EventCtx, GfxCtx, Line, Outcome, Panel, PanelDims, Slider, Text, TextExt, Toggle, Widget,
 };
 
 use crate::app::App;
-use crate::layer::{header, Layer, LayerOutcome, PANEL_PLACEMENT};
+use crate::layer::{header, problems_diff, Layer, LayerOutcome, PANEL_PLACEMENT};
 
 pub struct ProblemMap {
     time: Time,
@@ -38,12 +38,23 @@ impl Layer for ProblemMap {
                 }
                 _ => unreachable!(),
             },
-            _ => {
+            Outcome::Changed(x) => {
+                if x == "Compare before proposal" {
+                    return Some(LayerOutcome::Replace(Box::new(
+                        problems_diff::RelativeProblemMap::new(
+                            ctx,
+                            app,
+                            problems_diff::Options::new(),
+                        ),
+                    )));
+                }
+
                 let new_opts = self.options(app);
                 if self.opts != new_opts {
                     *self = ProblemMap::new(ctx, app, new_opts);
                 }
             }
+            _ => {}
         }
         None
     }
@@ -62,18 +73,7 @@ impl ProblemMap {
         for (trip, problems) in &app.primary.sim.get_analytics().problems_per_trip {
             for (time, problem) in problems {
                 if opts.show(app.primary.sim.trip_info(*trip), *time, problem) {
-                    pts.push(match problem {
-                        Problem::IntersectionDelay(i, _)
-                        | Problem::ComplexIntersectionCrossing(i) => {
-                            app.primary.map.get_i(*i).polygon.center()
-                        }
-                        Problem::OvertakeDesired(on) | Problem::PedestrianOvercrowding(on) => {
-                            on.get_polyline(&app.primary.map).middle()
-                        }
-                        Problem::ArterialIntersectionCrossing(t) => {
-                            app.primary.map.get_t(*t).geom.middle()
-                        }
-                    });
+                    pts.push(problem.point(&app.primary.map));
                 }
             }
         }
@@ -153,7 +153,6 @@ pub struct Options {
     show_overtakes: bool,
     show_arterial_crossings: bool,
     show_overcrowding: bool,
-    // TODO Time range
 }
 
 impl Options {
@@ -200,6 +199,9 @@ fn make_controls(
         ])
         .into_widget(ctx),
     ];
+    if app.has_prebaked().is_some() {
+        col.push(Toggle::switch(ctx, "Compare before proposal", None, false));
+    }
 
     // TODO You can't drag the sliders, since we don't remember that we're dragging a particular
     // slider when we recreate it here. Use panel.replace?
@@ -266,5 +268,10 @@ fn make_controls(
 
     Panel::new_builder(Widget::col(col))
         .aligned_pair(PANEL_PLACEMENT)
+        // TODO Tune and use more widely
+        .dims_height(PanelDims::MaxPercent(0.6))
+        // TODO Not sure why needed -- if you leave the mouse on the right spot,
+        // Outcome::Changed(time1) happens?
+        .ignore_initial_events()
         .build(ctx)
 }
