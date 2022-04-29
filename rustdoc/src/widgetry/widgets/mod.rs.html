@@ -859,6 +859,19 @@
 <span id="854">854</span>
 <span id="855">855</span>
 <span id="856">856</span>
+<span id="857">857</span>
+<span id="858">858</span>
+<span id="859">859</span>
+<span id="860">860</span>
+<span id="861">861</span>
+<span id="862">862</span>
+<span id="863">863</span>
+<span id="864">864</span>
+<span id="865">865</span>
+<span id="866">866</span>
+<span id="867">867</span>
+<span id="868">868</span>
+<span id="869">869</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
 <span class="kw">use</span> <span class="ident">stretch::geometry</span>::{<span class="ident">Rect</span>, <span class="ident">Size</span>};
@@ -945,6 +958,19 @@
     <span class="ident">Focused</span>(<span class="ident">String</span>),
     <span class="doccomment">/// Nothing happened</span>
     <span class="ident">Nothing</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">Outcome</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">describe</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span> {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) =&gt; <span class="macro">format!</span>(<span class="string">&quot;Outcome::Clicked({x})&quot;</span>),
+            <span class="ident">Outcome::ClickCustom</span>(<span class="kw">_</span>) =&gt; <span class="macro">format!</span>(<span class="string">&quot;Outcome::ClickCustom(???)&quot;</span>),
+            <span class="ident">Outcome::Changed</span>(<span class="ident">x</span>) =&gt; <span class="macro">format!</span>(<span class="string">&quot;Outcome::Changed({x})&quot;</span>),
+            <span class="ident">Outcome::DragDropReleased</span>(<span class="ident">x</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">format!</span>(<span class="string">&quot;Outcome::DragDropReleased({x}, ...)&quot;</span>),
+            <span class="ident">Outcome::Focused</span>(<span class="ident">x</span>) =&gt; <span class="macro">format!</span>(<span class="string">&quot;Outcome::Focused({x})&quot;</span>),
+            <span class="ident">Outcome::Nothing</span> =&gt; <span class="macro">format!</span>(<span class="string">&quot;Outcome::Nothing&quot;</span>),
+        }
+    }
 }
 
 <span class="doccomment">/// When an action happens through a button-like widget, what data is plumbed back?</span>

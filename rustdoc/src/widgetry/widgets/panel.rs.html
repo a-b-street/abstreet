@@ -711,6 +711,12 @@
 <span id="706">706</span>
 <span id="707">707</span>
 <span id="708">708</span>
+<span id="709">709</span>
+<span id="710">710</span>
+<span id="711">711</span>
+<span id="712">712</span>
+<span id="713">713</span>
+<span id="714">714</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 <span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 <span class="kw">use</span> <span class="ident">std::rc::Rc</span>;
@@ -1373,7 +1379,13 @@
             <span class="kw">if</span> <span class="ident">ignore_initial_events</span> {
                 <span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>);
             } <span class="kw">else</span> {
-                <span class="macro">assert!</span>(<span class="macro">matches!</span>(<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>), <span class="ident">Outcome::Nothing</span>))
+                <span class="kw">let</span> <span class="ident">outcome</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>);
+                <span class="kw">if</span> <span class="op">!</span><span class="macro">matches!</span>(<span class="ident">outcome</span>, <span class="ident">Outcome::Nothing</span>) {
+                    <span class="macro">panic!</span>(
+                        <span class="string">&quot;Initial panel outcome is {}. Consider calling ignore_initial_events&quot;</span>,
+                        <span class="ident">outcome</span>.<span class="ident">describe</span>()
+                    );
+                }
             }
         });
         <span class="ident">panel</span>

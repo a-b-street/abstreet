@@ -709,6 +709,22 @@
 <span id="704">704</span>
 <span id="705">705</span>
 <span id="706">706</span>
+<span id="707">707</span>
+<span id="708">708</span>
+<span id="709">709</span>
+<span id="710">710</span>
+<span id="711">711</span>
+<span id="712">712</span>
+<span id="713">713</span>
+<span id="714">714</span>
+<span id="715">715</span>
+<span id="716">716</span>
+<span id="717">717</span>
+<span id="718">718</span>
+<span id="719">719</span>
+<span id="720">720</span>
+<span id="721">721</span>
+<span id="722">722</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">VecDeque</span>};
 <span class="kw">use</span> <span class="ident">std::io::Write</span>;
 
@@ -717,7 +733,7 @@
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="ident">abstutil::Counter</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{
     <span class="ident">CompressedMovementID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">MovementID</span>, <span class="ident">ParkingLotID</span>, <span class="ident">Path</span>, <span class="ident">PathRequest</span>,
     <span class="ident">RoadID</span>, <span class="ident">TransitRouteID</span>, <span class="ident">TransitStopID</span>, <span class="ident">Traversable</span>, <span class="ident">TurnID</span>,
@@ -789,6 +805,22 @@
     <span class="ident">OvertakeDesired</span>(<span class="ident">Traversable</span>),
     <span class="doccomment">/// Too many people are crossing the same sidewalk or crosswalk at the same time.</span>
     <span class="ident">PedestrianOvercrowding</span>(<span class="ident">Traversable</span>),
+}
+
+<span class="kw">impl</span> <span class="ident">Problem</span> {
+    <span class="doccomment">/// Returns the rough location where the problem occurred -- just at the granularity of an</span>
+    <span class="doccomment">/// entire lane, turn, or intersection.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">point</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">Pt2D</span> {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident">Problem::IntersectionDelay</span>(<span class="ident">i</span>, <span class="kw">_</span>) <span class="op">|</span> <span class="ident">Problem::ComplexIntersectionCrossing</span>(<span class="ident">i</span>) =&gt; {
+                <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">center</span>()
+            }
+            <span class="ident">Problem::OvertakeDesired</span>(<span class="ident">on</span>) <span class="op">|</span> <span class="ident">Problem::PedestrianOvercrowding</span>(<span class="ident">on</span>) =&gt; {
+                <span class="ident">on</span>.<span class="ident">get_polyline</span>(<span class="ident">map</span>).<span class="ident">middle</span>()
+            }
+            <span class="ident">Problem::ArterialIntersectionCrossing</span>(<span class="ident">t</span>) =&gt; <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="kw-2">*</span><span class="ident">t</span>).<span class="ident">geom</span>.<span class="ident">middle</span>(),
+        }
+    }
 }
 
 <span class="kw">impl</span> <span class="ident">Analytics</span> {
