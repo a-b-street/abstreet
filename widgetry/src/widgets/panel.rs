@@ -660,7 +660,13 @@ impl PanelBuilder {
             if ignore_initial_events {
                 panel.event(ctx);
             } else {
-                assert!(matches!(panel.event(ctx), Outcome::Nothing))
+                let outcome = panel.event(ctx);
+                if !matches!(outcome, Outcome::Nothing) {
+                    panic!(
+                        "Initial panel outcome is {}. Consider calling ignore_initial_events",
+                        outcome.describe()
+                    );
+                }
             }
         });
         panel

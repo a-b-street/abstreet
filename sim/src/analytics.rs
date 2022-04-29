@@ -6,7 +6,7 @@ use fs_err::File;
 use serde::{Deserialize, Serialize};
 
 use abstutil::Counter;
-use geom::{Duration, Time};
+use geom::{Duration, Pt2D, Time};
 use map_model::{
     CompressedMovementID, IntersectionID, LaneID, Map, MovementID, ParkingLotID, Path, PathRequest,
     RoadID, TransitRouteID, TransitStopID, Traversable, TurnID,
@@ -78,6 +78,22 @@ pub enum Problem {
     OvertakeDesired(Traversable),
     /// Too many people are crossing the same sidewalk or crosswalk at the same time.
     PedestrianOvercrowding(Traversable),
+}
+
+impl Problem {
+    /// Returns the rough location where the problem occurred -- just at the granularity of an
+    /// entire lane, turn, or intersection.
+    pub fn point(&self, map: &Map) -> Pt2D {
+        match self {
+            Problem::IntersectionDelay(i, _) | Problem::ComplexIntersectionCrossing(i) => {
+                map.get_i(*i).polygon.center()
+            }
+            Problem::OvertakeDesired(on) | Problem::PedestrianOvercrowding(on) => {
+                on.get_polyline(map).middle()
+            }
+            Problem::ArterialIntersectionCrossing(t) => map.get_t(*t).geom.middle(),
+        }
+    }
 }
 
 impl Analytics {
