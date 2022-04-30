@@ -450,6 +450,13 @@
 <span id="445">445</span>
 <span id="446">446</span>
 <span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Generate paths for different A/B Street files</span>
 
 <span class="comment">// TODO There&#39;s some repeated code here for listing files locally/from the manifest/merged. Maybe</span>
@@ -635,6 +642,13 @@
             <span class="self">self</span>.<span class="ident">city</span>,
             <span class="ident">file</span>.<span class="ident">as_ref</span>()
         ))
+    }
+
+    <span class="doccomment">/// Should metric units be used by default for this map? (Imperial if false)</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">uses_metric</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="comment">// We don&#39;t need a full locale lookup or anything. Myanmar and Liberia apparently use both</span>
+        <span class="comment">// but are leaning metric.</span>
+        <span class="self">self</span>.<span class="ident">country</span> <span class="op">!</span><span class="op">=</span> <span class="string">&quot;us&quot;</span>
     }
 }
 

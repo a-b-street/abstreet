@@ -390,6 +390,8 @@
 <span id="385">385</span>
 <span id="386">386</span>
 <span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">structopt::StructOpt</span>;
 
 <span class="kw">use</span> <span class="ident">abstio::MapName</span>;
@@ -705,6 +707,8 @@
             <span class="ident">ctx</span>.<span class="ident">canvas</span>
                 .<span class="ident">center_on_map_pt</span>(<span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get_boundary_polygon</span>().<span class="ident">center</span>());
         }
+
+        <span class="self">self</span>.<span class="ident">opts</span>.<span class="ident">units</span>.<span class="ident">metric</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">city</span>.<span class="ident">uses_metric</span>();
     }
 
     <span class="kw">fn</span> <span class="ident">draw_with_opts</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">opts</span>: <span class="ident">DrawOptions</span>) {

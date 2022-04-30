@@ -892,6 +892,10 @@
 <span id="887">887</span>
 <span id="888">888</span>
 <span id="889">889</span>
+<span id="890">890</span>
+<span id="891">891</span>
+<span id="892">892</span>
+<span id="893">893</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 <span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
 
@@ -1429,6 +1433,10 @@
         );
         <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">init_camera_for_loaded_map</span>(<span class="ident">ctx</span>);
         <span class="self">self</span>.<span class="ident">secondary</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+
+        <span class="comment">// This may override user settings unexpectedly, but way more often, I think matching units</span>
+        <span class="comment">// based on the country is intuitive.</span>
+        <span class="self">self</span>.<span class="ident">opts</span>.<span class="ident">units</span>.<span class="ident">metric</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">city</span>.<span class="ident">uses_metric</span>();
     }
 
     <span class="kw">fn</span> <span class="ident">draw_with_opts</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">opts</span>: <span class="ident">DrawOptions</span>) {
