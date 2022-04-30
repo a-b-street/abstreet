@@ -313,6 +313,8 @@ impl<T: 'static> AppLike for SimpleApp<T> {
             ctx.canvas
                 .center_on_map_pt(self.map.get_boundary_polygon().center());
         }
+
+        self.opts.units.metric = self.map.get_name().city.uses_metric();
     }
 
     fn draw_with_opts(&self, g: &mut GfxCtx, opts: DrawOptions) {

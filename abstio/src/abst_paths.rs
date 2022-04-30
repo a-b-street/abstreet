@@ -184,6 +184,13 @@ impl CityName {
             file.as_ref()
         ))
     }
+
+    /// Should metric units be used by default for this map? (Imperial if false)
+    pub fn uses_metric(&self) -> bool {
+        // We don't need a full locale lookup or anything. Myanmar and Liberia apparently use both
+        // but are leaning metric.
+        self.country != "us"
+    }
 }
 
 /// A single map is identified using this.

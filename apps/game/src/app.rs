@@ -535,6 +535,10 @@ impl map_gui::AppLike for App {
         );
         self.primary.init_camera_for_loaded_map(ctx);
         self.secondary = None;
+
+        // This may override user settings unexpectedly, but way more often, I think matching units
+        // based on the country is intuitive.
+        self.opts.units.metric = self.primary.map.get_name().city.uses_metric();
     }
 
     fn draw_with_opts(&self, g: &mut GfxCtx, opts: DrawOptions) {
