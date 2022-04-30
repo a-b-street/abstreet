@@ -181,6 +181,23 @@ impl State<App> for EditMode {
                 "finish editing" => {
                     return self.quit(ctx, app);
                 }
+                "Fix sidewalk direction errors" => {
+                    let new_fixes = validate::fix_sidewalk_direction(&app.primary.map);
+                    let msg = if new_fixes.is_empty() {
+                        format!("No sidewalk direction errors found")
+                    } else {
+                        let count = new_fixes.len();
+                        let mut edits = app.primary.map.get_edits().clone();
+                        edits.commands.extend(new_fixes);
+                        apply_map_edits(ctx, app, edits);
+                        format!("Fixed {count} sidewalk directions")
+                    };
+                    return Transition::Push(PopupMsg::new_state(
+                        ctx,
+                        "Fix sidewalk directions",
+                        vec![msg],
+                    ));
+                }
                 _ => unreachable!(),
             }
         }
@@ -694,6 +711,18 @@ fn make_topcenter(ctx: &mut EventCtx, app: &App) -> Panel {
             ))
             .hotkey(Key::Escape)
             .build_widget(ctx, "finish editing"),
+        if app.opts.dev {
+            ctx.style()
+                .btn_outline
+                .text("Fix sidewalk direction errors")
+                .tooltip(Text::from_multiline(vec![
+                    Line("Sidewalk directions must match the side of the road in a certain way."),
+                    Line("It's easy to get this wrong; this tool will automatically fix things."),
+                ]))
+                .build_def(ctx)
+        } else {
+            Widget::nothing()
+        },
     ]))
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
     .build(ctx)
