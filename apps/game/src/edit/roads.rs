@@ -821,15 +821,15 @@ fn make_main_panel(
                     Spinner::widget_with_custom_rendering(
                         ctx,
                         "width custom",
-                        (Distance::feet(1.0), Distance::feet(20.0)),
+                        (Distance::meters(0.3), Distance::meters(7.0)),
                         lane.width,
-                        Distance::feet(0.5),
-                        // Even if the user's settings are set to meters, our step size is in feet, so
-                        // just render in feet.
+                        Distance::meters(0.1),
+                        // Even if the user's settings are set to feet, our step size is in meters, so
+                        // just render in meters.
                         Box::new(|x| {
                             x.to_string(&UnitFmt {
                                 round_durations: false,
-                                metric: false,
+                                metric: true,
                             })
                         }),
                     ),

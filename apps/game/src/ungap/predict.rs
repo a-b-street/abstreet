@@ -277,15 +277,15 @@ impl Filters {
                 Spinner::widget_with_custom_rendering(
                     ctx,
                     "max_elevation_gain",
-                    (Distance::ZERO, Distance::feet(500.0)),
+                    (Distance::ZERO, Distance::meters(500.0)),
                     self.max_elevation_gain,
-                    Distance::feet(10.0),
-                    // Even if the user's settings are set to meters, our step size is in feet, so
-                    // just render in feet.
+                    Distance::meters(1.0),
+                    // Even if the user's settings are set to feet, our step size is in meters, so
+                    // just render in meters.
                     Box::new(|x| {
                         x.to_string(&UnitFmt {
                             round_durations: false,
-                            metric: false,
+                            metric: true,
                         })
                     }),
                 ),
