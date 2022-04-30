@@ -769,15 +769,15 @@
                 <span class="ident">Spinner::widget_with_custom_rendering</span>(
                     <span class="ident">ctx</span>,
                     <span class="string">&quot;max_elevation_gain&quot;</span>,
-                    (<span class="ident">Distance::ZERO</span>, <span class="ident">Distance::feet</span>(<span class="number">500.0</span>)),
+                    (<span class="ident">Distance::ZERO</span>, <span class="ident">Distance::meters</span>(<span class="number">500.0</span>)),
                     <span class="self">self</span>.<span class="ident">max_elevation_gain</span>,
-                    <span class="ident">Distance::feet</span>(<span class="number">10.0</span>),
-                    <span class="comment">// Even if the user&#39;s settings are set to meters, our step size is in feet, so</span>
-                    <span class="comment">// just render in feet.</span>
+                    <span class="ident">Distance::meters</span>(<span class="number">1.0</span>),
+                    <span class="comment">// Even if the user&#39;s settings are set to feet, our step size is in meters, so</span>
+                    <span class="comment">// just render in meters.</span>
                     <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> {
                         <span class="ident">x</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">UnitFmt</span> {
                             <span class="ident">round_durations</span>: <span class="bool-val">false</span>,
-                            <span class="ident">metric</span>: <span class="bool-val">false</span>,
+                            <span class="ident">metric</span>: <span class="bool-val">true</span>,
                         })
                     }),
                 ),
