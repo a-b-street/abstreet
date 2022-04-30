@@ -972,6 +972,35 @@
 <span id="967">967</span>
 <span id="968">968</span>
 <span id="969">969</span>
+<span id="970">970</span>
+<span id="971">971</span>
+<span id="972">972</span>
+<span id="973">973</span>
+<span id="974">974</span>
+<span id="975">975</span>
+<span id="976">976</span>
+<span id="977">977</span>
+<span id="978">978</span>
+<span id="979">979</span>
+<span id="980">980</span>
+<span id="981">981</span>
+<span id="982">982</span>
+<span id="983">983</span>
+<span id="984">984</span>
+<span id="985">985</span>
+<span id="986">986</span>
+<span id="987">987</span>
+<span id="988">988</span>
+<span id="989">989</span>
+<span id="990">990</span>
+<span id="991">991</span>
+<span id="992">992</span>
+<span id="993">993</span>
+<span id="994">994</span>
+<span id="995">995</span>
+<span id="996">996</span>
+<span id="997">997</span>
+<span id="998">998</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">maplit::btreeset</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Timer</span>};
@@ -1154,6 +1183,23 @@
             <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;finish editing&quot;</span> =&gt; {
                     <span class="kw">return</span> <span class="self">self</span>.<span class="ident">quit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                }
+                <span class="string">&quot;Fix sidewalk direction errors&quot;</span> =&gt; {
+                    <span class="kw">let</span> <span class="ident">new_fixes</span> <span class="op">=</span> <span class="ident">validate::fix_sidewalk_direction</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>);
+                    <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">new_fixes</span>.<span class="ident">is_empty</span>() {
+                        <span class="macro">format!</span>(<span class="string">&quot;No sidewalk direction errors found&quot;</span>)
+                    } <span class="kw">else</span> {
+                        <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">new_fixes</span>.<span class="ident">len</span>();
+                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
+                        <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">extend</span>(<span class="ident">new_fixes</span>);
+                        <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
+                        <span class="macro">format!</span>(<span class="string">&quot;Fixed {count} sidewalk directions&quot;</span>)
+                    };
+                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">PopupMsg::new_state</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="string">&quot;Fix sidewalk directions&quot;</span>,
+                        <span class="macro">vec!</span>[<span class="ident">msg</span>],
+                    ));
                 }
                 <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
             }
@@ -1668,6 +1714,18 @@
             ))
             .<span class="ident">hotkey</span>(<span class="ident">Key::Escape</span>)
             .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;finish editing&quot;</span>),
+        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_outline</span>
+                .<span class="ident">text</span>(<span class="string">&quot;Fix sidewalk direction errors&quot;</span>)
+                .<span class="ident">tooltip</span>(<span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
+                    <span class="ident">Line</span>(<span class="string">&quot;Sidewalk directions must match the side of the road in a certain way.&quot;</span>),
+                    <span class="ident">Line</span>(<span class="string">&quot;It&#39;s easy to get this wrong; this tool will automatically fix things.&quot;</span>),
+                ]))
+                .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
+        } <span class="kw">else</span> {
+            <span class="ident">Widget::nothing</span>()
+        },
     ]))
     .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Center</span>, <span class="ident">VerticalAlignment::Top</span>)
     .<span class="ident">build</span>(<span class="ident">ctx</span>)
