@@ -146,14 +146,14 @@
       "compressed_size_bytes": 8850565
     },
     "data/input/br/sao_paulo/raw_maps/center.bin": {
-      "checksum": "1344afc8a37b52cffc81b79c32e99506",
-      "uncompressed_size_bytes": 10230115,
-      "compressed_size_bytes": 2926542
+      "checksum": "accfa249216653e27a47d13e1f1fd7e4",
+      "uncompressed_size_bytes": 9473758,
+      "compressed_size_bytes": 2496742
     },
     "data/input/br/sao_paulo/raw_maps/sao_miguel_paulista.bin": {
-      "checksum": "0e0fdc0d80580792f00168b2067dfb0c",
-      "uncompressed_size_bytes": 798773,
-      "compressed_size_bytes": 245005
+      "checksum": "8c6fa94c6dae435adec7d1502bbe9b36",
+      "uncompressed_size_bytes": 591404,
+      "compressed_size_bytes": 143655
     },
     "data/input/ca/ca/osm/plateau.osm": {
       "checksum": "d41d8cd98f00b204e9800998ecf8427e",
@@ -3161,19 +3161,19 @@
       "compressed_size_bytes": 20813656
     },
     "data/system/br/sao_paulo/maps/center.bin": {
-      "checksum": "6fc4124b156c97c26d05aec043e42a32",
-      "uncompressed_size_bytes": 18882436,
-      "compressed_size_bytes": 7159347
+      "checksum": "69b08ea00b97339ddc3d79745dd5cd2d",
+      "uncompressed_size_bytes": 18742932,
+      "compressed_size_bytes": 7122663
     },
     "data/system/br/sao_paulo/maps/sao_miguel_paulista.bin": {
-      "checksum": "829e0c2a0308cb6f201b6381a5c37eb5",
-      "uncompressed_size_bytes": 988429,
-      "compressed_size_bytes": 331401
+      "checksum": "fa1a2d4a094b85a86560e4612c363f52",
+      "uncompressed_size_bytes": 960606,
+      "compressed_size_bytes": 320392
     },
     "data/system/br/sao_paulo/prebaked_results/sao_miguel_paulista/Full.bin": {
-      "checksum": "4e14ae1061326d1c22c1db2a85add627",
-      "uncompressed_size_bytes": 34731445,
-      "compressed_size_bytes": 10788267
+      "checksum": "2f18973eba636785754d2fb540565a9e",
+      "uncompressed_size_bytes": 31228750,
+      "compressed_size_bytes": 10332267
     },
     "data/system/br/sao_paulo/scenarios/sao_miguel_paulista/Full.bin": {
       "checksum": "541fdf1f2ba80b4b6cb88f36b186a707",
