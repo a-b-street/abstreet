@@ -20,6 +20,8 @@ pub fn setup(
     // This doesn't seem to work for the shader panics here, but later it does work. Huh.
     std::panic::set_hook(Box::new(|info| {
         error!("Panicked: {}", info);
+        let msg = format!("The app crashed! Nothing will work now; you have to refresh the page.\n\nPlease file an issue with the error message below at https://github.com/a-b-street/abstreet/issues/new\n\n{}", info);
+        web_sys::window().unwrap().alert_with_message(&msg).unwrap();
     }));
 
     let window = web_sys::window().unwrap();
