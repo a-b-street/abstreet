@@ -421,20 +421,20 @@
 
     <span class="comment">// There are 4 cases, easy to understand on paper. Preserve the original direction of r1</span>
     <span class="kw">let</span> (<span class="ident">new_i1</span>, <span class="ident">new_i2</span>) <span class="op">=</span> <span class="kw">if</span> <span class="ident">r1</span>.<span class="ident">i2</span> <span class="op">==</span> <span class="ident">r2</span>.<span class="ident">i1</span> {
-        <span class="ident">new_road</span>.<span class="ident">center_points</span>.<span class="ident">extend</span>(<span class="ident">road2</span>.<span class="ident">center_points</span>);
+        <span class="ident">new_road</span>.<span class="ident">osm_center_points</span>.<span class="ident">extend</span>(<span class="ident">road2</span>.<span class="ident">osm_center_points</span>);
         (<span class="ident">r1</span>.<span class="ident">i1</span>, <span class="ident">r2</span>.<span class="ident">i2</span>)
     } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">r1</span>.<span class="ident">i2</span> <span class="op">==</span> <span class="ident">r2</span>.<span class="ident">i2</span> {
-        <span class="ident">road2</span>.<span class="ident">center_points</span>.<span class="ident">reverse</span>();
-        <span class="ident">new_road</span>.<span class="ident">center_points</span>.<span class="ident">extend</span>(<span class="ident">road2</span>.<span class="ident">center_points</span>);
+        <span class="ident">road2</span>.<span class="ident">osm_center_points</span>.<span class="ident">reverse</span>();
+        <span class="ident">new_road</span>.<span class="ident">osm_center_points</span>.<span class="ident">extend</span>(<span class="ident">road2</span>.<span class="ident">osm_center_points</span>);
         (<span class="ident">r1</span>.<span class="ident">i1</span>, <span class="ident">r2</span>.<span class="ident">i1</span>)
     } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">r1</span>.<span class="ident">i1</span> <span class="op">==</span> <span class="ident">r2</span>.<span class="ident">i1</span> {
-        <span class="ident">road2</span>.<span class="ident">center_points</span>.<span class="ident">reverse</span>();
-        <span class="ident">road2</span>.<span class="ident">center_points</span>.<span class="ident">extend</span>(<span class="ident">new_road</span>.<span class="ident">center_points</span>);
-        <span class="ident">new_road</span>.<span class="ident">center_points</span> <span class="op">=</span> <span class="ident">road2</span>.<span class="ident">center_points</span>;
+        <span class="ident">road2</span>.<span class="ident">osm_center_points</span>.<span class="ident">reverse</span>();
+        <span class="ident">road2</span>.<span class="ident">osm_center_points</span>.<span class="ident">extend</span>(<span class="ident">new_road</span>.<span class="ident">osm_center_points</span>);
+        <span class="ident">new_road</span>.<span class="ident">osm_center_points</span> <span class="op">=</span> <span class="ident">road2</span>.<span class="ident">osm_center_points</span>;
         (<span class="ident">r2</span>.<span class="ident">i2</span>, <span class="ident">r1</span>.<span class="ident">i2</span>)
     } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">r1</span>.<span class="ident">i1</span> <span class="op">==</span> <span class="ident">r2</span>.<span class="ident">i2</span> {
-        <span class="ident">road2</span>.<span class="ident">center_points</span>.<span class="ident">extend</span>(<span class="ident">new_road</span>.<span class="ident">center_points</span>);
-        <span class="ident">new_road</span>.<span class="ident">center_points</span> <span class="op">=</span> <span class="ident">road2</span>.<span class="ident">center_points</span>;
+        <span class="ident">road2</span>.<span class="ident">osm_center_points</span>.<span class="ident">extend</span>(<span class="ident">new_road</span>.<span class="ident">osm_center_points</span>);
+        <span class="ident">new_road</span>.<span class="ident">osm_center_points</span> <span class="op">=</span> <span class="ident">road2</span>.<span class="ident">osm_center_points</span>;
         (<span class="ident">r2</span>.<span class="ident">i1</span>, <span class="ident">r1</span>.<span class="ident">i2</span>)
     } <span class="kw">else</span> {
         <span class="macro">unreachable!</span>()
@@ -444,7 +444,7 @@
     <span class="comment">// Simplify curves and dedupe points. The epsilon was tuned for only one location that was</span>
     <span class="comment">// breaking</span>
     <span class="kw">let</span> <span class="ident">epsilon</span> <span class="op">=</span> <span class="number">1.0</span>;
-    <span class="ident">new_road</span>.<span class="ident">center_points</span> <span class="op">=</span> <span class="ident">Pt2D::simplify_rdp</span>(<span class="ident">new_road</span>.<span class="ident">center_points</span>, <span class="ident">epsilon</span>);
+    <span class="ident">new_road</span>.<span class="ident">osm_center_points</span> <span class="op">=</span> <span class="ident">Pt2D::simplify_rdp</span>(<span class="ident">new_road</span>.<span class="ident">osm_center_points</span>, <span class="ident">epsilon</span>);
 
     <span class="kw">let</span> <span class="ident">new_r1</span> <span class="op">=</span> <span class="ident">OriginalRoad</span> {
         <span class="ident">osm_way_id</span>: <span class="ident">r1</span>.<span class="ident">osm_way_id</span>,

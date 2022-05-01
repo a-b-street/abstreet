@@ -737,7 +737,7 @@
             <span class="ident">i</span>.<span class="ident">point</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">point</span>.<span class="ident">offset</span>(<span class="op">-</span><span class="ident">top_left</span>.<span class="ident">x</span>(), <span class="op">-</span><span class="ident">top_left</span>.<span class="ident">y</span>());
         }
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">roads</span>.<span class="ident">values_mut</span>() {
-            <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">r</span>.<span class="ident">center_points</span> {
+            <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">r</span>.<span class="ident">osm_center_points</span> {
                 <span class="kw-2">*</span><span class="ident">pt</span> <span class="op">=</span> <span class="ident">pt</span>.<span class="ident">offset</span>(<span class="op">-</span><span class="ident">top_left</span>.<span class="ident">x</span>(), <span class="op">-</span><span class="ident">top_left</span>.<span class="ident">y</span>());
             }
         }
@@ -769,7 +769,7 @@
             <span class="ident">bounds</span>.<span class="ident">update</span>(<span class="ident">i</span>.<span class="ident">point</span>);
         }
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">roads</span>.<span class="ident">values</span>() {
-            <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">r</span>.<span class="ident">center_points</span> {
+            <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">r</span>.<span class="ident">osm_center_points</span> {
                 <span class="ident">bounds</span>.<span class="ident">update</span>(<span class="kw-2">*</span><span class="ident">pt</span>);
             }
         }
@@ -1003,9 +1003,9 @@
         <span class="self">self</span>.<span class="ident">showing_pts</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>);
 
         <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">map</span>.<span class="ident">roads</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>];
-        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">pt</span>) <span class="kw">in</span> <span class="ident">r</span>.<span class="ident">center_points</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
+        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">pt</span>) <span class="kw">in</span> <span class="ident">r</span>.<span class="ident">osm_center_points</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
             <span class="comment">// Don&#39;t show handles for the intersections</span>
-            <span class="kw">if</span> <span class="ident">idx</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="ident">idx</span> <span class="op">!</span><span class="op">=</span> <span class="ident">r</span>.<span class="ident">center_points</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {
+            <span class="kw">if</span> <span class="ident">idx</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="ident">idx</span> <span class="op">!</span><span class="op">=</span> <span class="ident">r</span>.<span class="ident">osm_center_points</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {
                 <span class="self">self</span>.<span class="ident">world</span>
                     .<span class="ident">add</span>(<span class="ident">ID::RoadPoint</span>(<span class="ident">id</span>, <span class="ident">idx</span>))
                     .<span class="ident">hitbox</span>(<span class="ident">Circle::new</span>(<span class="kw-2">*</span><span class="ident">pt</span>, <span class="ident">INTERSECTION_RADIUS</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">to_polygon</span>())
@@ -1024,7 +1024,7 @@
             <span class="kw">return</span>;
         }
         <span class="self">self</span>.<span class="ident">showing_pts</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="number">1</span>..<span class="op">=</span><span class="self">self</span>.<span class="ident">map</span>.<span class="ident">roads</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>].<span class="ident">center_points</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">2</span> {
+        <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="number">1</span>..<span class="op">=</span><span class="self">self</span>.<span class="ident">map</span>.<span class="ident">roads</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>].<span class="ident">osm_center_points</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">2</span> {
             <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">delete</span>(<span class="ident">ID::RoadPoint</span>(<span class="ident">id</span>, <span class="ident">idx</span>));
         }
     }
@@ -1033,7 +1033,7 @@
         <span class="macro">assert_eq!</span>(<span class="self">self</span>.<span class="ident">showing_pts</span>, <span class="prelude-val">Some</span>(<span class="ident">id</span>));
         <span class="comment">// stop_showing_pts deletes the points, but we want to use delete_before_replacement</span>
         <span class="self">self</span>.<span class="ident">showing_pts</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="number">1</span>..<span class="op">=</span><span class="self">self</span>.<span class="ident">map</span>.<span class="ident">roads</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>].<span class="ident">center_points</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">2</span> {
+        <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="number">1</span>..<span class="op">=</span><span class="self">self</span>.<span class="ident">map</span>.<span class="ident">roads</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>].<span class="ident">osm_center_points</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">2</span> {
             <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">delete_before_replacement</span>(<span class="ident">ID::RoadPoint</span>(<span class="ident">id</span>, <span class="ident">idx</span>));
         }
 
@@ -1043,7 +1043,7 @@
         <span class="self">self</span>.<span class="ident">world</span>
             .<span class="ident">delete_before_replacement</span>(<span class="ident">ID::Intersection</span>(<span class="ident">id</span>.<span class="ident">i2</span>));
 
-        <span class="kw">let</span> <span class="ident">pts</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">roads</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>).<span class="ident">unwrap</span>().<span class="ident">center_points</span>;
+        <span class="kw">let</span> <span class="ident">pts</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">roads</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>).<span class="ident">unwrap</span>().<span class="ident">osm_center_points</span>;
         <span class="ident">pts</span>[<span class="ident">idx</span>] <span class="op">=</span> <span class="ident">point</span>;
 
         <span class="self">self</span>.<span class="ident">road_added</span>(<span class="ident">ctx</span>, <span class="ident">id</span>);
@@ -1067,7 +1067,7 @@
         <span class="self">self</span>.<span class="ident">world</span>
             .<span class="ident">delete_before_replacement</span>(<span class="ident">ID::Intersection</span>(<span class="ident">id</span>.<span class="ident">i2</span>));
 
-        <span class="kw">let</span> <span class="ident">pts</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">roads</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>).<span class="ident">unwrap</span>().<span class="ident">center_points</span>;
+        <span class="kw">let</span> <span class="ident">pts</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">roads</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>).<span class="ident">unwrap</span>().<span class="ident">osm_center_points</span>;
         <span class="ident">transform</span>(<span class="ident">pts</span>);
 
         <span class="self">self</span>.<span class="ident">road_added</span>(<span class="ident">ctx</span>, <span class="ident">id</span>);
@@ -1241,7 +1241,7 @@
     }
     <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">r</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">roads</span> {
         <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">r#&quot;    &lt;way id=&quot;{}&quot;&gt;&quot;#</span>, <span class="ident">id</span>.<span class="ident">osm_way_id</span>.<span class="number">0</span>)<span class="question-mark">?</span>;
-        <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">r</span>.<span class="ident">center_points</span> {
+        <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">r</span>.<span class="ident">osm_center_points</span> {
             <span class="comment">// TODO Make new IDs if needed</span>
             <span class="macro">writeln!</span>(
                 <span class="ident">f</span>,

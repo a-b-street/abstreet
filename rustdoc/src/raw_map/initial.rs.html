@@ -284,7 +284,7 @@
                 <span class="macro">warn!</span>(<span class="string">&quot;Skipping loop {}&quot;</span>, <span class="ident">id</span>);
                 <span class="kw">continue</span>;
             }
-            <span class="kw">if</span> <span class="ident">PolyLine::new</span>(<span class="ident">road</span>.<span class="ident">center_points</span>.<span class="ident">clone</span>()).<span class="ident">is_err</span>() {
+            <span class="kw">if</span> <span class="ident">PolyLine::new</span>(<span class="ident">road</span>.<span class="ident">osm_center_points</span>.<span class="ident">clone</span>()).<span class="ident">is_err</span>() {
                 <span class="macro">warn!</span>(<span class="string">&quot;Skipping broken geom {}&quot;</span>, <span class="ident">id</span>);
                 <span class="kw">continue</span>;
             }
