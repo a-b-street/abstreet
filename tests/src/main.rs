@@ -345,7 +345,7 @@ fn bus_route_test() -> Result<()> {
     let mut timer = Timer::new("bus route test");
     for name in vec![
         MapName::seattle("arboretum"),
-        MapName::new("br", "sao_paulo", "center"),
+        MapName::new("br", "sao_paulo", "aricanduva"),
     ] {
         let map = map_model::Map::load_synchronously(name.path(), &mut timer);
         let path = abstio::path(format!(
