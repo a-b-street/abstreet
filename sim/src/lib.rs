@@ -169,6 +169,10 @@ impl AgentID {
             _ => false,
         }
     }
+
+    pub(crate) fn is_pedestrian(&self) -> bool {
+        matches!(self, AgentID::Pedestrian(_))
+    }
 }
 
 impl fmt::Display for AgentID {
