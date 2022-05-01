@@ -91,7 +91,7 @@ impl InitialMap {
                 warn!("Skipping loop {}", id);
                 continue;
             }
-            if PolyLine::new(road.center_points.clone()).is_err() {
+            if PolyLine::new(road.osm_center_points.clone()).is_err() {
                 warn!("Skipping broken geom {}", id);
                 continue;
             }

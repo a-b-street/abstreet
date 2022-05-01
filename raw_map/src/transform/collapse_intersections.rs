@@ -164,20 +164,20 @@ pub fn collapse_intersection(raw: &mut RawMap, i: NodeID) {
 
     // There are 4 cases, easy to understand on paper. Preserve the original direction of r1
     let (new_i1, new_i2) = if r1.i2 == r2.i1 {
-        new_road.center_points.extend(road2.center_points);
+        new_road.osm_center_points.extend(road2.osm_center_points);
         (r1.i1, r2.i2)
     } else if r1.i2 == r2.i2 {
-        road2.center_points.reverse();
-        new_road.center_points.extend(road2.center_points);
+        road2.osm_center_points.reverse();
+        new_road.osm_center_points.extend(road2.osm_center_points);
         (r1.i1, r2.i1)
     } else if r1.i1 == r2.i1 {
-        road2.center_points.reverse();
-        road2.center_points.extend(new_road.center_points);
-        new_road.center_points = road2.center_points;
+        road2.osm_center_points.reverse();
+        road2.osm_center_points.extend(new_road.osm_center_points);
+        new_road.osm_center_points = road2.osm_center_points;
         (r2.i2, r1.i2)
     } else if r1.i1 == r2.i2 {
-        road2.center_points.extend(new_road.center_points);
-        new_road.center_points = road2.center_points;
+        road2.osm_center_points.extend(new_road.osm_center_points);
+        new_road.osm_center_points = road2.osm_center_points;
         (r2.i1, r1.i2)
     } else {
         unreachable!()
@@ -187,7 +187,7 @@ pub fn collapse_intersection(raw: &mut RawMap, i: NodeID) {
     // Simplify curves and dedupe points. The epsilon was tuned for only one location that was
     // breaking
     let epsilon = 1.0;
-    new_road.center_points = Pt2D::simplify_rdp(new_road.center_points, epsilon);
+    new_road.osm_center_points = Pt2D::simplify_rdp(new_road.osm_center_points, epsilon);
 
     let new_r1 = OriginalRoad {
         osm_way_id: r1.osm_way_id,

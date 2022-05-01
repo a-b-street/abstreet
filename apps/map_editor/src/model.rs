@@ -104,7 +104,7 @@ impl Model {
             i.point = i.point.offset(-top_left.x(), -top_left.y());
         }
         for r in self.map.roads.values_mut() {
-            for pt in &mut r.center_points {
+            for pt in &mut r.osm_center_points {
                 *pt = pt.offset(-top_left.x(), -top_left.y());
             }
         }
@@ -136,7 +136,7 @@ impl Model {
             bounds.update(i.point);
         }
         for r in self.map.roads.values() {
-            for pt in &r.center_points {
+            for pt in &r.osm_center_points {
                 bounds.update(*pt);
             }
         }
@@ -370,9 +370,9 @@ impl Model {
         self.showing_pts = Some(id);
 
         let r = &self.map.roads[&id];
-        for (idx, pt) in r.center_points.iter().enumerate() {
+        for (idx, pt) in r.osm_center_points.iter().enumerate() {
             // Don't show handles for the intersections
-            if idx != 0 && idx != r.center_points.len() - 1 {
+            if idx != 0 && idx != r.osm_center_points.len() - 1 {
                 self.world
                     .add(ID::RoadPoint(id, idx))
                     .hitbox(Circle::new(*pt, INTERSECTION_RADIUS / 2.0).to_polygon())
@@ -391,7 +391,7 @@ impl Model {
             return;
         }
         self.showing_pts = None;
-        for idx in 1..=self.map.roads[&id].center_points.len() - 2 {
+        for idx in 1..=self.map.roads[&id].osm_center_points.len() - 2 {
             self.world.delete(ID::RoadPoint(id, idx));
         }
     }
@@ -400,7 +400,7 @@ impl Model {
         assert_eq!(self.showing_pts, Some(id));
         // stop_showing_pts deletes the points, but we want to use delete_before_replacement
         self.showing_pts = None;
-        for idx in 1..=self.map.roads[&id].center_points.len() - 2 {
+        for idx in 1..=self.map.roads[&id].osm_center_points.len() - 2 {
             self.world.delete_before_replacement(ID::RoadPoint(id, idx));
         }
 
@@ -410,7 +410,7 @@ impl Model {
         self.world
             .delete_before_replacement(ID::Intersection(id.i2));
 
-        let pts = &mut self.map.roads.get_mut(&id).unwrap().center_points;
+        let pts = &mut self.map.roads.get_mut(&id).unwrap().osm_center_points;
         pts[idx] = point;
 
         self.road_added(ctx, id);
@@ -434,7 +434,7 @@ impl Model {
         self.world
             .delete_before_replacement(ID::Intersection(id.i2));
 
-        let pts = &mut self.map.roads.get_mut(&id).unwrap().center_points;
+        let pts = &mut self.map.roads.get_mut(&id).unwrap().osm_center_points;
         transform(pts);
 
         self.road_added(ctx, id);
@@ -608,7 +608,7 @@ fn dump_to_osm(map: &RawMap) -> Result<(), std::io::Error> {
     }
     for (id, r) in &map.roads {
         writeln!(f, r#"    <way id="{}">"#, id.osm_way_id.0)?;
-        for pt in &r.center_points {
+        for pt in &r.osm_center_points {
             // TODO Make new IDs if needed
             writeln!(
                 f,

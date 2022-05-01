@@ -1,4 +1,4 @@
-use std::collections::{HashSet, HashMap};
+use std::collections::{HashMap, HashSet};
 
 use aabb_quadtree::QuadTree;
 use abstutil::Timer;

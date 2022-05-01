@@ -584,12 +584,15 @@ fn find_parking_aisles(map: &mut RawMap, roads: &mut Vec<(WayID, RawRoad)>) {
 
         // Use the center of all the aisle points to match it to lots
         let candidates: Vec<usize> = closest
-            .all_close_pts(Pt2D::center(&road.center_points), Distance::meters(500.0))
+            .all_close_pts(
+                Pt2D::center(&road.osm_center_points),
+                Distance::meters(500.0),
+            )
             .into_iter()
             .map(|(idx, _, _)| idx)
             .collect();
         if service_road_crosses_parking_lot(map, &road, candidates) {
-            parking_aisles.push((id, road.center_points.clone()));
+            parking_aisles.push((id, road.osm_center_points.clone()));
         } else {
             keep_roads.push((id, road));
         }
@@ -601,7 +604,7 @@ fn find_parking_aisles(map: &mut RawMap, roads: &mut Vec<(WayID, RawRoad)>) {
 }
 
 fn service_road_crosses_parking_lot(map: &RawMap, road: &RawRoad, candidates: Vec<usize>) -> bool {
-    if let Ok((polylines, rings)) = Ring::split_points(&road.center_points) {
+    if let Ok((polylines, rings)) = Ring::split_points(&road.osm_center_points) {
         for pl in polylines {
             for idx in &candidates {
                 if map.parking_lots[*idx].polygon.clip_polyline(&pl).is_some() {

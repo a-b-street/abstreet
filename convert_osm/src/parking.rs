@@ -57,7 +57,7 @@ fn use_parking_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
         if r.is_light_rail() || r.is_footway() || r.is_service() {
             continue;
         }
-        let center = PolyLine::must_new(r.center_points.clone());
+        let center = PolyLine::must_new(r.osm_center_points.clone());
         closest.add(
             (*id, true),
             center.must_shift_right(DIRECTED_ROAD_THICKNESS).points(),

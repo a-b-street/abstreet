@@ -302,10 +302,10 @@ impl RawMap {
             fixed.push(r);
             let road = self.roads.get_mut(&r).unwrap();
             if r.i1 == id {
-                road.center_points[0] = point;
+                road.osm_center_points[0] = point;
             } else {
                 assert_eq!(r.i2, id);
-                *road.center_points.last_mut().unwrap() = point;
+                *road.osm_center_points.last_mut().unwrap() = point;
             }
         }
 
@@ -342,7 +342,7 @@ pub struct RawRoad {
     /// This is effectively a PolyLine, except there's a case where we need to plumb forward
     /// cul-de-sac roads for roundabout handling. No transformation of these points whatsoever has
     /// happened.
-    pub center_points: Vec<Pt2D>,
+    pub osm_center_points: Vec<Pt2D>,
     pub osm_tags: Tags,
     pub turn_restrictions: Vec<(RestrictionType, OriginalRoad)>,
     /// (via, to). For turn restrictions where 'via' is an entire road. Only BanTurns.
@@ -361,7 +361,7 @@ impl RawRoad {
         let lane_specs_ltr = get_lane_specs_ltr(&osm_tags, config);
 
         Self {
-            center_points: osm_center_points,
+            osm_center_points,
             osm_tags,
             turn_restrictions: Vec::new(),
             complicated_turn_restrictions: Vec::new(),
@@ -423,11 +423,11 @@ impl RawRoad {
 
     /// Points from first to last point. Undefined for loops.
     pub fn angle(&self) -> Angle {
-        self.center_points[0].angle_to(*self.center_points.last().unwrap())
+        self.osm_center_points[0].angle_to(*self.osm_center_points.last().unwrap())
     }
 
     pub fn length(&self) -> Distance {
-        PolyLine::unchecked_new(self.center_points.clone()).length()
+        PolyLine::unchecked_new(self.osm_center_points.clone()).length()
     }
 
     pub fn get_zorder(&self) -> isize {
@@ -436,11 +436,7 @@ impl RawRoad {
                 // Just drop .5 for now
                 Ok(l) => l as isize,
                 Err(_) => {
-                    warn!(
-                        "Weird layer={} on {:?}",
-                        layer,
-                        self.osm_tags.get(osm::OSM_WAY_ID)
-                    );
+                    warn!("Weird layer={} on {:?}", layer, self.osm_url());
                     0
                 }
             }
@@ -468,7 +464,7 @@ impl RawRoad {
         // If there's a sidewalk on only one side, adjust the true center of the road.
         // TODO I don't remember the rationale for doing this in the first place. What if there's a
         // shoulder and a sidewalk of different widths? We don't do anything then
-        let mut true_center = PolyLine::new(self.center_points.clone())?;
+        let mut true_center = PolyLine::new(self.osm_center_points.clone())?;
         match (sidewalk_right, sidewalk_left) {
             (Some(w), None) => {
                 true_center = true_center.must_shift_right(w / 2.0);
@@ -480,6 +476,15 @@ impl RawRoad {
         }
 
         Ok((true_center, total_width))
+    }
+
+    pub fn osm_url(&self) -> String {
+        // Since we don't store an OriginalRoad (since we may need to update it during
+        // transformations), this may be convenient
+        format!(
+            "http://openstreetmap.org/way/{}",
+            self.osm_tags.get(osm::OSM_WAY_ID).unwrap()
+        )
     }
 }
 

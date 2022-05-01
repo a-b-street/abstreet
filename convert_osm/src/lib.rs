@@ -199,7 +199,7 @@ fn filter_crosswalks(
         // retained
         if let Some(road) = pt_to_road.get(&pt).and_then(|r| map.roads.get_mut(r)) {
             // TODO Support cul-de-sacs and other loop roads
-            if let Ok(pl) = PolyLine::new(road.center_points.clone()) {
+            if let Ok(pl) = PolyLine::new(road.osm_center_points.clone()) {
                 // Crossings aren't right at an intersection. Where is this point along the center
                 // line?
                 if let Some((dist, _)) = pl.dist_along_of_point(pt.to_pt2d()) {

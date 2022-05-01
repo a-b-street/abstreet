@@ -28,9 +28,9 @@ pub fn split_up_roads(map: &mut RawMap, mut input: OsmExtract, timer: &mut Timer
             if should_collapse_roundabout(r) {
                 info!("Collapsing tiny roundabout {}", id);
                 // Arbitrarily use the first node's ID
-                let id = input.osm_node_ids[&r.center_points[0].to_hashable()];
-                roundabout_centers.insert(id, Pt2D::center(&r.center_points));
-                for pt in &r.center_points {
+                let id = input.osm_node_ids[&r.osm_center_points[0].to_hashable()];
+                roundabout_centers.insert(id, Pt2D::center(&r.osm_center_points));
+                for pt in &r.osm_center_points {
                     pt_to_intersection.insert(pt.to_hashable(), id);
                 }
 
@@ -44,12 +44,12 @@ pub fn split_up_roads(map: &mut RawMap, mut input: OsmExtract, timer: &mut Timer
 
     let mut counts_per_pt = Counter::new();
     for (_, r) in &input.roads {
-        for (idx, raw_pt) in r.center_points.iter().enumerate() {
+        for (idx, raw_pt) in r.osm_center_points.iter().enumerate() {
             let pt = raw_pt.to_hashable();
             let count = counts_per_pt.inc(pt);
 
             // All start and endpoints of ways are also intersections.
-            if count == 2 || idx == 0 || idx == r.center_points.len() - 1 {
+            if count == 2 || idx == 0 || idx == r.osm_center_points.len() - 1 {
                 if let Entry::Vacant(e) = pt_to_intersection.entry(pt) {
                     let id = input.osm_node_ids[&pt];
                     e.insert(id);
@@ -86,11 +86,11 @@ pub fn split_up_roads(map: &mut RawMap, mut input: OsmExtract, timer: &mut Timer
         timer.next();
         let mut r = orig_road.clone();
         let mut pts = Vec::new();
-        let endpt1 = pt_to_intersection[&orig_road.center_points[0].to_hashable()];
-        let endpt2 = pt_to_intersection[&orig_road.center_points.last().unwrap().to_hashable()];
+        let endpt1 = pt_to_intersection[&orig_road.osm_center_points[0].to_hashable()];
+        let endpt2 = pt_to_intersection[&orig_road.osm_center_points.last().unwrap().to_hashable()];
         let mut i1 = endpt1;
 
-        for pt in &orig_road.center_points {
+        for pt in &orig_road.osm_center_points {
             pts.push(*pt);
             if pts.len() == 1 {
                 continue;
@@ -117,7 +117,7 @@ pub fn split_up_roads(map: &mut RawMap, mut input: OsmExtract, timer: &mut Timer
                     }
                 }
 
-                r.center_points = simplify_linestring(std::mem::take(&mut pts));
+                r.osm_center_points = simplify_linestring(std::mem::take(&mut pts));
                 // Start a new road
                 map.roads.insert(id, r.clone());
                 r.osm_tags.remove(osm::ENDPT_FWD);
@@ -246,6 +246,6 @@ fn simplify_linestring(pts: Vec<Pt2D>) -> Vec<Pt2D> {
 /// Possibly the number of connecting roads.
 fn should_collapse_roundabout(r: &RawRoad) -> bool {
     r.osm_tags.is("junction", "roundabout")
-        && r.center_points[0] == *r.center_points.last().unwrap()
+        && r.osm_center_points[0] == *r.osm_center_points.last().unwrap()
         && r.length() < Distance::meters(50.0)
 }

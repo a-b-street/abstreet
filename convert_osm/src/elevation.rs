@@ -73,7 +73,7 @@ fn generate_input(input: &str, map: &RawMap) -> Result<Vec<OriginalRoad>> {
     let mut ids = Vec::new();
     for (id, r) in &map.roads {
         // TODO Handle cul-de-sacs
-        if let Ok(pl) = PolyLine::new(r.center_points.clone()) {
+        if let Ok(pl) = PolyLine::new(r.osm_center_points.clone()) {
             ids.push(*id);
             // Sample points along the road. Smaller step size gives more detail, but is slower.
             let mut pts = Vec::new();
