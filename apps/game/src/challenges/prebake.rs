@@ -53,7 +53,8 @@ pub fn prebake_all() {
         }
     }
 
-    {
+    // Started gridlocking with more realistic pedestrian crossing behavior
+    if false {
         let tehran_map = map_model::Map::load_synchronously(
             MapName::new("ir", "tehran", "parliament").path(),
             &mut timer,

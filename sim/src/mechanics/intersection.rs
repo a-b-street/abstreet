@@ -847,7 +847,7 @@ impl IntersectionSimState {
         req: &Request,
         map: &Map,
         sign: &ControlStopSign,
-        _speed: Speed,
+        speed: Speed,
         now: Time,
         scheduler: &mut Scheduler,
     ) -> bool {
@@ -880,6 +880,37 @@ impl IntersectionSimState {
 
         // TODO Make sure we can optimistically finish this turn before an approaching
         // higher-priority vehicle wants to begin.
+
+        // If a pedestrian is going to cut off a car, check how long the car has been waiting and
+        // maybe yield (regardless of stop sign priority). This is a very rough start to more
+        // realistic "batching" of pedestrians to cross a street. Without this, if there's one
+        // pedestrian almost clear of a crosswalk, cars are totally stopped for them, and so a new
+        // pedestrian arriving will win.
+        if req.agent.is_pedestrian() {
+            let our_turn = map.get_t(req.turn);
+            let time_to_cross = our_turn.geom.length() / speed;
+            for (other_req, (other_time, _)) in &self.state[&req.turn.parent].waiting {
+                if matches!(other_req.agent, AgentID::Car(_)) {
+                    if our_turn.conflicts_with(map.get_t(other_req.turn)) {
+                        let our_waiting = now - our_time;
+                        let other_waiting = now - *other_time;
+                        // We can't tell if a car has been waiting for a while due to pedestrians
+                        // crossing, or due to a blockage in their destination queue. Always let
+                        // pedestrians muscle their way in eventually.
+                        if our_waiting > other_waiting {
+                            continue;
+                        }
+                        // Intuition: another pedestrian trying to enter a crosswalk has a 3s
+                        // buffer to "join" the first pedestrian who started crossing and caused
+                        // cars to stop. We're using the time for _this_ pedestrian to cross _this_
+                        // turn, so it's a very rough definition.
+                        if other_waiting > time_to_cross + Duration::seconds(3.0) {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
 
         true
     }
