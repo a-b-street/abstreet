@@ -262,9 +262,9 @@ impl Model {
 // Roads
 impl Model {
     pub fn road_added(&mut self, ctx: &EventCtx, id: OriginalRoad) {
-        let (center, total_width) = self.map.untrimmed_road_geometry(id).unwrap();
-        let hitbox = center.make_polygons(total_width);
         let road = &self.map.roads[&id];
+        let (center, total_width) = road.untrimmed_road_geometry().unwrap();
+        let hitbox = center.make_polygons(total_width);
         let mut draw = GeomBatch::new();
         draw.push(
             if road.osm_tags.is("junction", "intersection") {
@@ -338,6 +338,7 @@ impl Model {
                     self.map.intersections[&i2].point,
                 ],
                 osm_tags,
+                &self.map.config,
             ),
         );
         self.road_added(ctx, id);

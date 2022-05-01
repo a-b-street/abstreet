@@ -8,7 +8,7 @@ use anyhow::Result;
 use abstutil::{Tags, Timer};
 use geom::{Bounds, Circle, Distance, PolyLine, Polygon, Pt2D};
 
-use crate::{osm, InputRoad, IntersectionType, LaneSpec, OriginalRoad, RawMap};
+use crate::{osm, InputRoad, IntersectionType, OriginalRoad, RawMap};
 
 pub struct InitialMap {
     pub roads: BTreeMap<OriginalRoad, Road>,
@@ -26,18 +26,13 @@ pub struct Road {
     // The true center of the road, including sidewalks
     pub trimmed_center_pts: PolyLine,
     pub half_width: Distance,
-    pub lane_specs_ltr: Vec<LaneSpec>,
     pub osm_tags: Tags,
 }
 
 impl Road {
     pub fn new(map: &RawMap, id: OriginalRoad) -> Result<Road> {
         let road = &map.roads[&id];
-        let mut lane_specs_ltr = crate::lane_specs::get_lane_specs_ltr(&road.osm_tags, &map.config);
-        for l in &mut lane_specs_ltr {
-            l.width *= road.scale_width;
-        }
-        let (trimmed_center_pts, total_width) = map.untrimmed_road_geometry(id)?;
+        let (trimmed_center_pts, total_width) = road.untrimmed_road_geometry()?;
 
         Ok(Road {
             id,
@@ -45,7 +40,6 @@ impl Road {
             dst_i: id.i2,
             trimmed_center_pts,
             half_width: total_width / 2.0,
-            lane_specs_ltr,
             osm_tags: road.osm_tags.clone(),
         })
     }

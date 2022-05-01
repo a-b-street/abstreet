@@ -4,14 +4,14 @@
     "scenario": "weekday",
     "finished_trips": 76640,
     "cancelled_trips": 0,
-    "total_trip_duration_seconds": 43931256.87820016
+    "total_trip_duration_seconds": 43622111.81940041
   },
   {
     "map": "montlake (in seattle (us))",
     "scenario": "weekday",
-    "finished_trips": 36710,
-    "cancelled_trips": 86,
-    "total_trip_duration_seconds": 18533435.094100088
+    "finished_trips": 36706,
+    "cancelled_trips": 90,
+    "total_trip_duration_seconds": 18616755.940000143
   },
   {
     "map": "sao_miguel_paulista (in sao_paulo (br))",

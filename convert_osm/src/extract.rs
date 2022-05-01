@@ -109,8 +109,10 @@ pub fn extract_osm(
                 way.tags.insert(osm::SIDEWALK, "right");
             }
 
-            out.roads
-                .push((id, RawRoad::new(way.pts.clone(), way.tags.clone())));
+            out.roads.push((
+                id,
+                RawRoad::new(way.pts.clone(), way.tags.clone(), &opts.map_config),
+            ));
             continue;
         } else if way.tags.is(osm::HIGHWAY, "service") {
             // If we got here, is_road didn't interpret it as a normal road
