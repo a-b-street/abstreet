@@ -88,6 +88,7 @@
 <span id="83">83</span>
 <span id="84">84</span>
 <span id="85">85</span>
+<span id="86">86</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">abstio::MapName</span>;
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
 <span class="kw">use</span> <span class="ident">sim::prebake::prebake</span>;
@@ -143,7 +144,8 @@
         }
     }
 
-    {
+    <span class="comment">// Started gridlocking with more realistic pedestrian crossing behavior</span>
+    <span class="kw">if</span> <span class="bool-val">false</span> {
         <span class="kw">let</span> <span class="ident">tehran_map</span> <span class="op">=</span> <span class="ident">map_model::Map::load_synchronously</span>(
             <span class="ident">MapName::new</span>(<span class="string">&quot;ir&quot;</span>, <span class="string">&quot;tehran&quot;</span>, <span class="string">&quot;parliament&quot;</span>).<span class="ident">path</span>(),
             <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>,
