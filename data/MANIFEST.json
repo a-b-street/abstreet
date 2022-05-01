@@ -3171,9 +3171,9 @@
       "compressed_size_bytes": 320392
     },
     "data/system/br/sao_paulo/prebaked_results/sao_miguel_paulista/Full.bin": {
-      "checksum": "2f18973eba636785754d2fb540565a9e",
-      "uncompressed_size_bytes": 31228750,
-      "compressed_size_bytes": 10332267
+      "checksum": "a64070e01d9b416d4fddc504f85e5190",
+      "uncompressed_size_bytes": 31238446,
+      "compressed_size_bytes": 10262608
     },
     "data/system/br/sao_paulo/scenarios/sao_miguel_paulista/Full.bin": {
       "checksum": "541fdf1f2ba80b4b6cb88f36b186a707",
@@ -5201,9 +5201,9 @@
       "compressed_size_bytes": 19580571
     },
     "data/system/us/seattle/prebaked_results/arboretum/weekday.bin": {
-      "checksum": "900cd35904002cab9fdbf6215173218b",
-      "uncompressed_size_bytes": 16766726,
-      "compressed_size_bytes": 6437797
+      "checksum": "74400c9b972db39e7c7659559a1e6218",
+      "uncompressed_size_bytes": 16784283,
+      "compressed_size_bytes": 6451381
     },
     "data/system/us/seattle/prebaked_results/montlake/car vs bike contention.bin": {
       "checksum": "ce3dcac62c670a2260cd9258fd1d29b7",
@@ -5211,9 +5211,9 @@
       "compressed_size_bytes": 1363
     },
     "data/system/us/seattle/prebaked_results/montlake/weekday.bin": {
-      "checksum": "7783625d88acf082e6d58f5e751dc5c7",
-      "uncompressed_size_bytes": 8104592,
-      "compressed_size_bytes": 3210672
+      "checksum": "f24af91c470992ca36697f00a42d95d7",
+      "uncompressed_size_bytes": 8104279,
+      "compressed_size_bytes": 3210511
     },
     "data/system/us/seattle/scenarios/arboretum/weekday.bin": {
       "checksum": "da4e3037a5c85a10596d595d46246f8f",
