@@ -28,7 +28,7 @@ impl EditRoad {
         for (k, v) in road.osm_tags.inner() {
             txt.add_line(Line(format!("{} = {}", k, v)).secondary());
         }
-        if let Ok((pl, _)) = app.model.map.untrimmed_road_geometry(r) {
+        if let Ok((pl, _)) = road.untrimmed_road_geometry() {
             txt.add_line(Line(format!("Length before trimming: {}", pl.length())));
         }
         if let Ok(pl) = app.model.map.trimmed_road_geometry(r) {

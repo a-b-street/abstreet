@@ -11,7 +11,7 @@ impl RawMap {
     pub fn save_osm2polygon_input(&self, output_path: String, i: osm::NodeID) -> Result<()> {
         let mut features = Vec::new();
         for id in self.roads_per_intersection(i) {
-            let (untrimmed_center_pts, total_width) = self.untrimmed_road_geometry(id)?;
+            let (untrimmed_center_pts, total_width) = self.roads[&id].untrimmed_road_geometry()?;
 
             let mut properties = serde_json::Map::new();
             properties.insert("osm_way_id".to_string(), id.osm_way_id.0.into());

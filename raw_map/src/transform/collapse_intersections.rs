@@ -4,9 +4,8 @@ use anyhow::Result;
 
 use geom::{Distance, Pt2D};
 
-use crate::lane_specs::get_lane_specs_ltr;
 use crate::osm::NodeID;
-use crate::{osm, IntersectionType, LaneSpec, LaneType, OriginalRoad, RawMap};
+use crate::{osm, IntersectionType, OriginalRoad, RawMap};
 
 /// Collapse degenerate intersections:
 /// - between two cycleways
@@ -54,9 +53,7 @@ fn should_collapse(r1: OriginalRoad, r2: OriginalRoad, raw: &RawMap) -> Result<(
         bail!("oneway roads point at each other");
     }
 
-    let lanes1 = get_lane_specs_ltr(&road1.osm_tags, &raw.config);
-    let lanes2 = get_lane_specs_ltr(&road2.osm_tags, &raw.config);
-    if lanes1 != lanes2 {
+    if road1.lane_specs_ltr != road2.lane_specs_ltr {
         bail!("lane specs don't match");
     }
 
@@ -64,7 +61,7 @@ fn should_collapse(r1: OriginalRoad, r2: OriginalRoad, raw: &RawMap) -> Result<(
         bail!("zorders don't match");
     }
 
-    if is_cycleway(&lanes1) && is_cycleway(&lanes2) {
+    if road1.is_cycleway() && road2.is_cycleway() {
         return Ok(());
     }
 
@@ -133,20 +130,6 @@ fn should_collapse(r1: OriginalRoad, r2: OriginalRoad, raw: &RawMap) -> Result<(
     }
 
     Ok(())
-}
-
-// Rather bruteforce way of figuring this out... is_cycleway logic lifted from Road, unfortunately.
-// Better than repeating the OSM tag log from get_lane_specs_ltr.
-fn is_cycleway(lanes: &[LaneSpec]) -> bool {
-    let mut bike = false;
-    for spec in lanes {
-        if spec.lt == LaneType::Biking {
-            bike = true;
-        } else if spec.lt != LaneType::Shoulder {
-            return false;
-        }
-    }
-    bike
 }
 
 pub fn collapse_intersection(raw: &mut RawMap, i: NodeID) {
@@ -250,8 +233,7 @@ pub fn trim_deadends(raw: &mut RawMap) {
         }
         let road = &raw.roads[&roads[0]];
         if road.length() < SHORT_THRESHOLD
-            && (is_cycleway(&get_lane_specs_ltr(&road.osm_tags, &raw.config))
-                || road.osm_tags.is(osm::HIGHWAY, "service"))
+            && (road.is_cycleway() || road.osm_tags.is(osm::HIGHWAY, "service"))
         {
             remove_roads.insert(roads[0]);
             remove_intersections.insert(*id);

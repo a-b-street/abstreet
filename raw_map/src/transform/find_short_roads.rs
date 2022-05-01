@@ -105,7 +105,7 @@ impl RawMap {
             {
                 continue;
             }
-            if let Ok((pl, _)) = self.untrimmed_road_geometry(*id) {
+            if let Ok((pl, _)) = road.untrimmed_road_geometry() {
                 if pl.length() <= threshold {
                     results.push(*id);
                 }
@@ -149,7 +149,7 @@ impl RawMap {
                 for r in &connections {
                     // Are both intersections 3-ways of driveable roads? (Don't even attempt
                     // cycleways yet...)
-                    if !self.roads[r].is_driveable(&self.config) {
+                    if !self.roads[r].is_driveable() {
                         continue 'ROAD;
                     }
                     // Don't do anything near border intersections

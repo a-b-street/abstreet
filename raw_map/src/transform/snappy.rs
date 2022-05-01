@@ -19,11 +19,11 @@ pub fn snap_cycleways(map: &mut RawMap) {
         // Because there are so many false positives with snapping, only start with cycleways
         // explicitly tagged with
         // https://wiki.openstreetmap.org/wiki/Proposed_features/cycleway:separation
-        if road.is_cycleway(&map.config)
+        if road.is_cycleway()
             && (road.osm_tags.contains_key("separation:left")
                 || road.osm_tags.contains_key("separation:right"))
         {
-            let (center, total_width) = map.untrimmed_road_geometry(*id).unwrap();
+            let (center, total_width) = road.untrimmed_road_geometry().unwrap();
             cycleways.push(Cycleway {
                 id: *id,
                 center,
@@ -35,10 +35,10 @@ pub fn snap_cycleways(map: &mut RawMap) {
 
     let mut road_edges: HashMap<(OriginalRoad, Direction), PolyLine> = HashMap::new();
     for (id, r) in &map.roads {
-        if r.is_light_rail() || r.is_footway() || r.is_service() || r.is_cycleway(&map.config) {
+        if r.is_light_rail() || r.is_footway() || r.is_service() || r.is_cycleway() {
             continue;
         }
-        let (pl, total_width) = map.untrimmed_road_geometry(*id).unwrap();
+        let (pl, total_width) = r.untrimmed_road_geometry().unwrap();
         road_edges.insert(
             (*id, Direction::Fwd),
             pl.must_shift_right(total_width / 2.0),

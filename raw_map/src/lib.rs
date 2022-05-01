@@ -10,7 +10,7 @@ extern crate log;
 use std::collections::BTreeMap;
 use std::fmt;
 
-use anyhow::{Context, Result};
+use anyhow::Result;
 use petgraph::graphmap::DiGraphMap;
 use serde::{Deserialize, Serialize};
 
@@ -268,40 +268,6 @@ impl RawMap {
         }
     }
 
-    /// Returns the corrected (but untrimmed) center and total width for a road
-    pub fn untrimmed_road_geometry(&self, id: OriginalRoad) -> Result<(PolyLine, Distance)> {
-        let road = &self.roads[&id];
-        let lane_specs = get_lane_specs_ltr(&road.osm_tags, &self.config);
-        let mut total_width = Distance::ZERO;
-        let mut sidewalk_right = None;
-        let mut sidewalk_left = None;
-        for l in &lane_specs {
-            total_width += l.width;
-            if l.lt.is_walkable() {
-                if l.dir == Direction::Back {
-                    sidewalk_left = Some(l.width);
-                } else {
-                    sidewalk_right = Some(l.width);
-                }
-            }
-        }
-
-        // If there's a sidewalk on only one side, adjust the true center of the road.
-        let mut true_center =
-            PolyLine::new(road.center_points.clone()).with_context(|| id.to_string())?;
-        match (sidewalk_right, sidewalk_left) {
-            (Some(w), None) => {
-                true_center = true_center.must_shift_right(w / 2.0);
-            }
-            (None, Some(w)) => {
-                true_center = true_center.must_shift_right(w / 2.0);
-            }
-            _ => {}
-        }
-
-        Ok((true_center, road.scale_width * total_width))
-    }
-
     pub fn save(&self) {
         abstio::write_binary(abstio::path_raw_map(&self.name), self)
     }
@@ -377,8 +343,6 @@ pub struct RawRoad {
     /// cul-de-sac roads for roundabout handling. No transformation of these points whatsoever has
     /// happened.
     pub center_points: Vec<Pt2D>,
-    /// Multiply the width of each lane by this ratio, to prevent overlapping roads.
-    pub scale_width: f64,
     pub osm_tags: Tags,
     pub turn_restrictions: Vec<(RestrictionType, OriginalRoad)>,
     /// (via, to). For turn restrictions where 'via' is an entire road. Only BanTurns.
@@ -387,13 +351,17 @@ pub struct RawRoad {
     /// Is there a tagged crosswalk near each end of the road?
     pub crosswalk_forward: bool,
     pub crosswalk_backward: bool,
+
+    /// Derived from osm_tags. Not automatically updated.
+    pub lane_specs_ltr: Vec<LaneSpec>,
 }
 
 impl RawRoad {
-    pub fn new(osm_center_points: Vec<Pt2D>, osm_tags: Tags) -> Self {
+    pub fn new(osm_center_points: Vec<Pt2D>, osm_tags: Tags, config: &MapConfig) -> Self {
+        let lane_specs_ltr = get_lane_specs_ltr(&osm_tags, config);
+
         Self {
             center_points: osm_center_points,
-            scale_width: 1.0,
             osm_tags,
             turn_restrictions: Vec::new(),
             complicated_turn_restrictions: Vec::new(),
@@ -402,6 +370,8 @@ impl RawRoad {
             // later
             crosswalk_forward: true,
             crosswalk_backward: true,
+
+            lane_specs_ltr,
         }
     }
 
@@ -428,10 +398,10 @@ impl RawRoad {
         self.osm_tags.is(osm::HIGHWAY, "service")
     }
 
-    pub fn is_cycleway(&self, cfg: &MapConfig) -> bool {
+    pub fn is_cycleway(&self) -> bool {
         // Don't repeat the logic looking at the tags, just see what lanes we'll create
         let mut bike = false;
-        for spec in get_lane_specs_ltr(&self.osm_tags, cfg) {
+        for spec in &self.lane_specs_ltr {
             if spec.lt == LaneType::Biking {
                 bike = true;
             } else if spec.lt != LaneType::Shoulder {
@@ -441,9 +411,9 @@ impl RawRoad {
         bike
     }
 
-    pub fn is_driveable(&self, cfg: &MapConfig) -> bool {
-        get_lane_specs_ltr(&self.osm_tags, cfg)
-            .into_iter()
+    pub fn is_driveable(&self) -> bool {
+        self.lane_specs_ltr
+            .iter()
             .any(|spec| spec.lt == LaneType::Driving)
     }
 
@@ -477,6 +447,39 @@ impl RawRoad {
         } else {
             0
         }
+    }
+
+    /// Returns the corrected (but untrimmed) center and total width for a road
+    pub fn untrimmed_road_geometry(&self) -> Result<(PolyLine, Distance)> {
+        let mut total_width = Distance::ZERO;
+        let mut sidewalk_right = None;
+        let mut sidewalk_left = None;
+        for l in &self.lane_specs_ltr {
+            total_width += l.width;
+            if l.lt.is_walkable() {
+                if l.dir == Direction::Back {
+                    sidewalk_left = Some(l.width);
+                } else {
+                    sidewalk_right = Some(l.width);
+                }
+            }
+        }
+
+        // If there's a sidewalk on only one side, adjust the true center of the road.
+        // TODO I don't remember the rationale for doing this in the first place. What if there's a
+        // shoulder and a sidewalk of different widths? We don't do anything then
+        let mut true_center = PolyLine::new(self.center_points.clone())?;
+        match (sidewalk_right, sidewalk_left) {
+            (Some(w), None) => {
+                true_center = true_center.must_shift_right(w / 2.0);
+            }
+            (None, Some(w)) => {
+                true_center = true_center.must_shift_right(w / 2.0);
+            }
+            _ => {}
+        }
+
+        Ok((true_center, total_width))
     }
 }
 

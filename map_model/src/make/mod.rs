@@ -142,7 +142,7 @@ impl Map {
                 orig_id: r.id,
                 lanes: Vec::new(),
                 center_pts: r.trimmed_center_pts,
-                untrimmed_center_pts: raw.untrimmed_road_geometry(r.id).unwrap().0,
+                untrimmed_center_pts: raw_road.untrimmed_road_geometry().unwrap().0,
                 src_i: i1,
                 dst_i: i2,
                 speed_limit: Speed::ZERO,
@@ -156,7 +156,7 @@ impl Map {
             road.speed_limit = road.speed_limit_from_osm();
             road.access_restrictions = road.access_restrictions_from_osm();
 
-            road.recreate_lanes(r.lane_specs_ltr);
+            road.recreate_lanes(raw_road.lane_specs_ltr.clone());
             for lane in &road.lanes {
                 map.intersections[lane.src_i.0].outgoing_lanes.push(lane.id);
                 map.intersections[lane.dst_i.0].incoming_lanes.push(lane.id);

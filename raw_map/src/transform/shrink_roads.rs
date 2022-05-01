@@ -1,10 +1,12 @@
-use std::collections::HashMap;
+use std::collections::{HashSet, HashMap};
 
 use aabb_quadtree::QuadTree;
 use abstutil::Timer;
 
 use crate::{osm, RawMap};
 
+/// Look for roads that physically overlap, but aren't connected by an intersection. Shrink their
+/// width.
 pub fn shrink(raw: &mut RawMap, timer: &mut Timer) {
     let mut road_centers = HashMap::new();
     let mut road_polygons = HashMap::new();
@@ -21,7 +23,7 @@ pub fn shrink(raw: &mut RawMap, timer: &mut Timer) {
             continue;
         }
 
-        let (center, total_width) = match raw.untrimmed_road_geometry(*id) {
+        let (center, total_width) = match road.untrimmed_road_geometry() {
             Ok((center, total_width)) => (center, total_width),
             Err(err) => {
                 // Crashing in Lisbon because of https://www.openstreetmap.org/node/5754625281 and
@@ -52,12 +54,24 @@ pub fn shrink(raw: &mut RawMap, timer: &mut Timer) {
     }
 
     timer.start_iter("shrink overlapping roads", overlapping.len());
+    let mut shrunk = HashSet::new();
     for (r1, r2) in overlapping {
         timer.next();
         // TODO It'd be better to gradually shrink each road until they stop touching. I got that
         // working in some maps, but it crashes in others (downstream in intersection polygon code)
         // for unknown reasons. Just do the simple thing for now.
-        raw.roads.get_mut(&r1).unwrap().scale_width = 0.5;
-        raw.roads.get_mut(&r2).unwrap().scale_width = 0.5;
+        for id in [r1, r2] {
+            // Don't shrink any road twice!
+            if shrunk.contains(&id) {
+                continue;
+            }
+            shrunk.insert(id);
+            // Anything derived from lane_specs_ltr will need to be changed. When we store
+            // untrimmed and trimmed center points instead of calculating them dynamically, that'll
+            // have to happen here.
+            for spec in &mut raw.roads.get_mut(&id).unwrap().lane_specs_ltr {
+                spec.width *= 0.5;
+            }
+        }
     }
 }
