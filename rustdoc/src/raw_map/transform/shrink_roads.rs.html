@@ -66,13 +66,29 @@
 <span id="61">61</span>
 <span id="62">62</span>
 <span id="63">63</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">HashSet</span>, <span class="ident">HashMap</span>};
 
 <span class="kw">use</span> <span class="ident">aabb_quadtree::QuadTree</span>;
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">osm</span>, <span class="ident">RawMap</span>};
 
+<span class="doccomment">/// Look for roads that physically overlap, but aren&#39;t connected by an intersection. Shrink their</span>
+<span class="doccomment">/// width.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">shrink</span>(<span class="ident">raw</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RawMap</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">road_centers</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">road_polygons</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
@@ -89,7 +105,7 @@
             <span class="kw">continue</span>;
         }
 
-        <span class="kw">let</span> (<span class="ident">center</span>, <span class="ident">total_width</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">raw</span>.<span class="ident">untrimmed_road_geometry</span>(<span class="kw-2">*</span><span class="ident">id</span>) {
+        <span class="kw">let</span> (<span class="ident">center</span>, <span class="ident">total_width</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">road</span>.<span class="ident">untrimmed_road_geometry</span>() {
             <span class="prelude-val">Ok</span>((<span class="ident">center</span>, <span class="ident">total_width</span>)) =&gt; (<span class="ident">center</span>, <span class="ident">total_width</span>),
             <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
                 <span class="comment">// Crashing in Lisbon because of https://www.openstreetmap.org/node/5754625281 and</span>
@@ -120,13 +136,25 @@
     }
 
     <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;shrink overlapping roads&quot;</span>, <span class="ident">overlapping</span>.<span class="ident">len</span>());
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">shrunk</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
     <span class="kw">for</span> (<span class="ident">r1</span>, <span class="ident">r2</span>) <span class="kw">in</span> <span class="ident">overlapping</span> {
         <span class="ident">timer</span>.<span class="ident">next</span>();
         <span class="comment">// TODO It&#39;d be better to gradually shrink each road until they stop touching. I got that</span>
         <span class="comment">// working in some maps, but it crashes in others (downstream in intersection polygon code)</span>
         <span class="comment">// for unknown reasons. Just do the simple thing for now.</span>
-        <span class="ident">raw</span>.<span class="ident">roads</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">r1</span>).<span class="ident">unwrap</span>().<span class="ident">scale_width</span> <span class="op">=</span> <span class="number">0.5</span>;
-        <span class="ident">raw</span>.<span class="ident">roads</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">r2</span>).<span class="ident">unwrap</span>().<span class="ident">scale_width</span> <span class="op">=</span> <span class="number">0.5</span>;
+        <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> [<span class="ident">r1</span>, <span class="ident">r2</span>] {
+            <span class="comment">// Don&#39;t shrink any road twice!</span>
+            <span class="kw">if</span> <span class="ident">shrunk</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>) {
+                <span class="kw">continue</span>;
+            }
+            <span class="ident">shrunk</span>.<span class="ident">insert</span>(<span class="ident">id</span>);
+            <span class="comment">// Anything derived from lane_specs_ltr will need to be changed. When we store</span>
+            <span class="comment">// untrimmed and trimmed center points instead of calculating them dynamically, that&#39;ll</span>
+            <span class="comment">// have to happen here.</span>
+            <span class="kw">for</span> <span class="ident">spec</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">raw</span>.<span class="ident">roads</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>).<span class="ident">unwrap</span>().<span class="ident">lane_specs_ltr</span> {
+                <span class="ident">spec</span>.<span class="ident">width</span> <span class="kw-2">*</span><span class="op">=</span> <span class="number">0.5</span>;
+            }
+        }
     }
 }
 </code></pre></div>

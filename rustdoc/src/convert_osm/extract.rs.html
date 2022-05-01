@@ -622,6 +622,8 @@
 <span id="617">617</span>
 <span id="618">618</span>
 <span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
 <span class="kw">use</span> <span class="ident">osm</span>::{<span class="ident">NodeID</span>, <span class="ident">OsmID</span>, <span class="ident">RelationID</span>, <span class="ident">WayID</span>};
@@ -733,8 +735,10 @@
                 <span class="ident">way</span>.<span class="ident">tags</span>.<span class="ident">insert</span>(<span class="ident">osm::SIDEWALK</span>, <span class="string">&quot;right&quot;</span>);
             }
 
-            <span class="ident">out</span>.<span class="ident">roads</span>
-                .<span class="ident">push</span>((<span class="ident">id</span>, <span class="ident">RawRoad::new</span>(<span class="ident">way</span>.<span class="ident">pts</span>.<span class="ident">clone</span>(), <span class="ident">way</span>.<span class="ident">tags</span>.<span class="ident">clone</span>())));
+            <span class="ident">out</span>.<span class="ident">roads</span>.<span class="ident">push</span>((
+                <span class="ident">id</span>,
+                <span class="ident">RawRoad::new</span>(<span class="ident">way</span>.<span class="ident">pts</span>.<span class="ident">clone</span>(), <span class="ident">way</span>.<span class="ident">tags</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;</span><span class="ident">opts</span>.<span class="ident">map_config</span>),
+            ));
             <span class="kw">continue</span>;
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">way</span>.<span class="ident">tags</span>.<span class="ident">is</span>(<span class="ident">osm::HIGHWAY</span>, <span class="string">&quot;service&quot;</span>) {
             <span class="comment">// If we got here, is_road didn&#39;t interpret it as a normal road</span>
