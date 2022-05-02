@@ -64,7 +64,7 @@
               "to": {
                 "osm_way_id": 6488417,
                 "osm_node1": 53223864,
-                "osm_node2": 3857576850,
+                "osm_node2": 3857577561,
                 "is_forwards": true
               },
               "intersection_osm_node_id": 53223864,
@@ -82,7 +82,7 @@
               "to": {
                 "osm_way_id": 6488417,
                 "osm_node1": 53223864,
-                "osm_node2": 3857576850,
+                "osm_node2": 3857577561,
                 "is_forwards": true
               },
               "intersection_osm_node_id": 53223864,
@@ -217,7 +217,7 @@
               "to": {
                 "osm_way_id": 6488417,
                 "osm_node1": 53223864,
-                "osm_node2": 3857576850,
+                "osm_node2": 3857577561,
                 "is_forwards": true
               },
               "intersection_osm_node_id": 53223864,
@@ -251,7 +251,7 @@
               "to": {
                 "osm_way_id": 6488417,
                 "osm_node1": 53223864,
-                "osm_node2": 3857576850,
+                "osm_node2": 3857577561,
                 "is_forwards": true
               },
               "intersection_osm_node_id": 53223864,
@@ -283,7 +283,7 @@
               "to": {
                 "osm_way_id": 6488417,
                 "osm_node1": 53223864,
-                "osm_node2": 3857576850,
+                "osm_node2": 3857577561,
                 "is_forwards": true
               },
               "intersection_osm_node_id": 53223864,
@@ -370,7 +370,7 @@
               "to": {
                 "osm_way_id": 6488417,
                 "osm_node1": 53223864,
-                "osm_node2": 3857576850,
+                "osm_node2": 3857577561,
                 "is_forwards": true
               },
               "intersection_osm_node_id": 53223864,

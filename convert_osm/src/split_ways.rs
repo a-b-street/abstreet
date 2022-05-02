@@ -245,7 +245,8 @@ fn simplify_linestring(pts: Vec<Pt2D>) -> Vec<Pt2D> {
 /// modified. The only distinction, currently, is length -- but I'd love a better definition.
 /// Possibly the number of connecting roads.
 fn should_collapse_roundabout(r: &RawRoad) -> bool {
-    r.osm_tags.is("junction", "roundabout")
+    r.osm_tags
+        .is_any("junction", vec!["roundabout", "circular"])
         && r.osm_center_points[0] == *r.osm_center_points.last().unwrap()
         && r.length() < Distance::meters(50.0)
 }
