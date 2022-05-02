@@ -34,5 +34,5 @@ members = [
 opt-level = 3
 
 [patch.crates-io]
-# Waiting for release: https://github.com/21re/rust-geo-booleanop/pull/27
+# Waiting for a release: https://github.com/21re/rust-geo-booleanop/pull/27
 geo-booleanop = { git = "https://github.com/21re/rust-geo-booleanop" }
