@@ -896,6 +896,9 @@
 <span id="891">891</span>
 <span id="892">892</span>
 <span id="893">893</span>
+<span id="894">894</span>
+<span id="895">895</span>
+<span id="896">896</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 <span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
 
@@ -1692,8 +1695,11 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">left_click</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">label</span>: <span class="ident">S</span>) -&gt; <span class="ident">bool</span> {
-        <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">click_action</span>.<span class="ident">is_none</span>());
-        <span class="self">self</span>.<span class="ident">click_action</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">label</span>.<span class="ident">into</span>());
+        <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="ident">label</span>.<span class="ident">into</span>();
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">old</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">click_action</span> {
+            <span class="macro">panic!</span>(<span class="string">&quot;left_click for \&quot;{old}\&quot; already called; can&#39;t also do \&quot;{label}\&quot;&quot;</span>);
+        }
+        <span class="self">self</span>.<span class="ident">click_action</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">label</span>);
         <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>()
     }
 }
