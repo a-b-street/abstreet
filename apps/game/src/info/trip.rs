@@ -488,8 +488,8 @@ fn draw_problems(
     analytics: &Analytics,
     details: &mut Details,
     id: TripID,
+    map: &Map,
 ) {
-    let map = &app.primary.map;
     let empty = Vec::new();
     for (_, problem) in analytics.problems_per_trip.get(&id).unwrap_or(&empty) {
         match problem {
@@ -910,7 +910,7 @@ fn make_trip_details(
     } else {
         app.prebaked()
     };
-    draw_problems(ctx, app, analytics, details, trip_id);
+    draw_problems(ctx, app, analytics, details, trip_id, map_for_pathfinding);
     Widget::col(col)
 }
 
