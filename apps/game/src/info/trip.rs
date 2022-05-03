@@ -491,7 +491,7 @@ fn draw_problems(
     map: &Map,
 ) {
     let empty = Vec::new();
-    for (_, problem) in analytics.problems_per_trip.get(&id).unwrap_or(&empty) {
+    for (time, problem) in analytics.problems_per_trip.get(&id).unwrap_or(&empty) {
         match problem {
             Problem::IntersectionDelay(i, delay) => {
                 let i = map.get_i(*i);
@@ -524,6 +524,8 @@ fn draw_problems(
                 details.tooltips.push((
                     i.polygon.clone(),
                     Text::from(Line(format!("{} delay here", delay))),
+                    // Rewind to just before the agent starts waiting
+                    (id, *time - *delay - Duration::seconds(5.0)),
                 ));
             }
             Problem::ComplexIntersectionCrossing(i) => {
@@ -546,6 +548,7 @@ fn draw_problems(
                         Line("This has an increased risk of crash or injury for cyclists"),
                         Line("Source: 2020 Seattle DOT Safety Analysis"),
                     ]),
+                    (id, *time),
                 ));
             }
             Problem::OvertakeDesired(on) => {
@@ -567,6 +570,7 @@ fn draw_problems(
                         Traversable::Turn(t) => map.get_i(t.parent).polygon.clone(),
                     },
                     Text::from("A vehicle wanted to over-take this cyclist near here."),
+                    (id, *time),
                 ));
             }
             Problem::ArterialIntersectionCrossing(t) => {
@@ -590,6 +594,7 @@ fn draw_problems(
                         Line("Arterial intersections have an increased risk of crash or injury for pedestrians"),
                         Line("Source: 2020 Seattle DOT Safety Analysis"),
                     ]),
+                    (id, *time)
                 ));
             }
             Problem::PedestrianOvercrowding(on) => {
@@ -611,6 +616,7 @@ fn draw_problems(
                         Traversable::Turn(t) => map.get_i(t.parent).polygon.clone(),
                     },
                     Text::from("Too many pedestrians are crowded together here."),
+                    (id, *time),
                 ));
             }
         }

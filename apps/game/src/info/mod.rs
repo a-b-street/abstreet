@@ -41,7 +41,7 @@ pub struct InfoPanel {
     panel: Panel,
 
     draw_extra: ToggleZoomed,
-    tooltips: Vec<(Polygon, Text)>,
+    tooltips: Vec<(Polygon, Text, (TripID, Time))>,
 
     hyperlinks: HashMap<String, Tab>,
     warpers: HashMap<String, ID>,
@@ -290,8 +290,9 @@ impl Tab {
 pub struct Details {
     /// Draw extra things when unzoomed or zoomed.
     pub draw_extra: ToggleZoomedBuilder,
-    /// Show these tooltips over the map.
-    pub tooltips: Vec<(Polygon, Text)>,
+    /// Show these tooltips over the map. If the tooltip is clicked, time-warp and open the info
+    /// panel.
+    pub tooltips: Vec<(Polygon, Text, (TripID, Time))>,
     /// When a button with this label is clicked, open this info panel tab instead.
     pub hyperlinks: HashMap<String, Tab>,
     /// When a button with this label is clicked, warp to this ID.
@@ -476,12 +477,29 @@ impl InfoPanel {
         app: &mut App,
         ctx_actions: &mut dyn ContextualActions,
     ) -> (bool, Option<Transition>) {
-        // Can click on the map to cancel
-        if ctx.canvas.get_cursor_in_map_space().is_some()
-            && app.primary.current_selection.is_none()
-            && app.per_obj.left_click(ctx, "stop showing info")
-        {
-            return (true, None);
+        // Let the user click on the map to cancel out this info panel, or click on a tooltip to
+        // time warp.
+        if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
+            // TODO This'll fire left_click elsewhere and conflict; we can't override here
+            if app.primary.current_selection.is_none() {
+                let mut found_tooltip = false;
+                if let Some((_, _, (trip, time))) = self
+                    .tooltips
+                    .iter()
+                    .find(|(poly, _, _)| poly.contains_pt(pt))
+                {
+                    found_tooltip = true;
+                    if app
+                        .per_obj
+                        .left_click(ctx, &format!("warp here at {}", time))
+                    {
+                        return do_time_warp(ctx_actions, app, *trip, *time);
+                    }
+                }
+                if !found_tooltip && app.per_obj.left_click(ctx, "stop showing info") {
+                    return (true, None);
+                }
+            }
         }
 
         // Live update?
@@ -538,38 +556,7 @@ impl InfoPanel {
                         ))),
                     )
                 } else if let Some((trip, time)) = self.time_warpers.get(&action) {
-                    let trip = *trip;
-                    let time = *time;
-                    let person = app.primary.sim.trip_to_person(trip).unwrap();
-                    // When executed, this assumes the SandboxMode is the top of the stack. It'll
-                    // reopen the info panel, then launch the jump-to-time UI.
-                    let jump_to_time =
-                        Transition::ConsumeState(Box::new(move |state, ctx, app| {
-                            let mut sandbox = state.downcast::<SandboxMode>().ok().unwrap();
-
-                            let mut actions = sandbox.contextual_actions();
-                            sandbox.controls.common.as_mut().unwrap().launch_info_panel(
-                                ctx,
-                                app,
-                                Tab::PersonTrips(person, OpenTrip::single(trip)),
-                                &mut actions,
-                            );
-
-                            vec![sandbox, TimeWarpScreen::new_state(ctx, app, time, None)]
-                        }));
-
-                    if time >= app.primary.sim.time() {
-                        return (false, Some(jump_to_time));
-                    }
-
-                    // We need to first rewind the simulation
-                    let rewind_sim = Transition::Replace(SandboxMode::async_new(
-                        app,
-                        ctx_actions.gameplay_mode(),
-                        Box::new(move |_, _| vec![jump_to_time]),
-                    ));
-
-                    (false, Some(rewind_sim))
+                    do_time_warp(ctx_actions, app, *trip, *time)
                 } else if let Some(url) = action.strip_prefix("open ") {
                     open_browser(url);
                     (false, None)
@@ -638,7 +625,7 @@ impl InfoPanel {
         self.panel.draw(g);
         self.draw_extra.draw(g);
         if let Some(pt) = g.canvas.get_cursor_in_map_space() {
-            for (poly, txt) in &self.tooltips {
+            for (poly, txt, _) in &self.tooltips {
                 if poly.contains_pt(pt) {
                     g.draw_mouse_tooltip(txt.clone());
                     break;
@@ -654,6 +641,44 @@ impl InfoPanel {
     pub fn active_id(&self, app: &App) -> Option<ID> {
         self.tab.to_id(app)
     }
+}
+
+// Internal helper method for InfoPanel::event
+fn do_time_warp(
+    ctx_actions: &mut dyn ContextualActions,
+    app: &mut App,
+    trip: TripID,
+    time: Time,
+) -> (bool, Option<Transition>) {
+    let person = app.primary.sim.trip_to_person(trip).unwrap();
+    // When executed, this assumes the SandboxMode is the top of the stack. It'll
+    // reopen the info panel, then launch the jump-to-time UI.
+    let jump_to_time = Transition::ConsumeState(Box::new(move |state, ctx, app| {
+        let mut sandbox = state.downcast::<SandboxMode>().ok().unwrap();
+
+        let mut actions = sandbox.contextual_actions();
+        sandbox.controls.common.as_mut().unwrap().launch_info_panel(
+            ctx,
+            app,
+            Tab::PersonTrips(person, OpenTrip::single(trip)),
+            &mut actions,
+        );
+
+        vec![sandbox, TimeWarpScreen::new_state(ctx, app, time, None)]
+    }));
+
+    if time >= app.primary.sim.time() {
+        return (false, Some(jump_to_time));
+    }
+
+    // We need to first rewind the simulation
+    let rewind_sim = Transition::Replace(SandboxMode::async_new(
+        app,
+        ctx_actions.gameplay_mode(),
+        Box::new(move |_, _| vec![jump_to_time]),
+    ));
+
+    (false, Some(rewind_sim))
 }
 
 fn make_table<I: Into<String>>(ctx: &EventCtx, rows: Vec<(I, String)>) -> Vec<Widget> {
