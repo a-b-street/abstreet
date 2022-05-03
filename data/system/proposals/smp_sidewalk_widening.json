@@ -1655,13 +1655,8 @@
           "lanes_ltr": [
             {
               "lt": "Sidewalk",
-              "dir": "Back",
-              "width": 31764
-            },
-            {
-              "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 31764
+              "width": 63764
             }
           ],
           "speed_limit": 178816,
@@ -1700,13 +1695,8 @@
           "lanes_ltr": [
             {
               "lt": "Sidewalk",
-              "dir": "Back",
-              "width": 31764
-            },
-            {
-              "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 31764
+              "width": 63764
             }
           ],
           "speed_limit": 178816,
