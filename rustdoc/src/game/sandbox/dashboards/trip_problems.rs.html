@@ -482,105 +482,19 @@
 <span id="477">477</span>
 <span id="478">478</span>
 <span id="479">479</span>
-<span id="480">480</span>
-<span id="481">481</span>
-<span id="482">482</span>
-<span id="483">483</span>
-<span id="484">484</span>
-<span id="485">485</span>
-<span id="486">486</span>
-<span id="487">487</span>
-<span id="488">488</span>
-<span id="489">489</span>
-<span id="490">490</span>
-<span id="491">491</span>
-<span id="492">492</span>
-<span id="493">493</span>
-<span id="494">494</span>
-<span id="495">495</span>
-<span id="496">496</span>
-<span id="497">497</span>
-<span id="498">498</span>
-<span id="499">499</span>
-<span id="500">500</span>
-<span id="501">501</span>
-<span id="502">502</span>
-<span id="503">503</span>
-<span id="504">504</span>
-<span id="505">505</span>
-<span id="506">506</span>
-<span id="507">507</span>
-<span id="508">508</span>
-<span id="509">509</span>
-<span id="510">510</span>
-<span id="511">511</span>
-<span id="512">512</span>
-<span id="513">513</span>
-<span id="514">514</span>
-<span id="515">515</span>
-<span id="516">516</span>
-<span id="517">517</span>
-<span id="518">518</span>
-<span id="519">519</span>
-<span id="520">520</span>
-<span id="521">521</span>
-<span id="522">522</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cmp::Ordering</span>;
 <span class="kw">use</span> <span class="ident">std::fmt::Display</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">abbreviated_format</span>, <span class="ident">prettyprint_usize</span>, <span class="ident">CloneableAny</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Line</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Line</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">map_gui::tools::ColorScale</span>;
-<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">Problem</span>, <span class="ident">TripID</span>};
+<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">ProblemType</span>, <span class="ident">TripID</span>};
 <span class="kw">use</span> <span class="ident">synthpop::TripMode</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">ClickOutcome</span>, <span class="ident">Color</span>, <span class="ident">DrawWithTooltips</span>, <span class="ident">GeomBatch</span>, <span class="ident">GeomBatchStack</span>, <span class="ident">StackAlignment</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">App</span>, <span class="ident">EventCtx</span>};
-
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ProblemType</span> {
-    <span class="ident">IntersectionDelay</span>,
-    <span class="ident">ComplexIntersectionCrossing</span>,
-    <span class="ident">OvertakeDesired</span>,
-    <span class="ident">ArterialIntersectionCrossing</span>,
-    <span class="ident">PedestrianOvercrowding</span>,
-}
-
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Problem</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ProblemType</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">problem</span>: <span class="kw-2">&amp;</span><span class="ident">Problem</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">match</span> <span class="ident">problem</span> {
-            <span class="ident">Problem::IntersectionDelay</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="ident"><span class="self">Self</span>::IntersectionDelay</span>,
-            <span class="ident">Problem::ComplexIntersectionCrossing</span>(<span class="kw">_</span>) =&gt; <span class="ident"><span class="self">Self</span>::ComplexIntersectionCrossing</span>,
-            <span class="ident">Problem::OvertakeDesired</span>(<span class="kw">_</span>) =&gt; <span class="ident"><span class="self">Self</span>::OvertakeDesired</span>,
-            <span class="ident">Problem::ArterialIntersectionCrossing</span>(<span class="kw">_</span>) =&gt; <span class="ident"><span class="self">Self</span>::ArterialIntersectionCrossing</span>,
-            <span class="ident">Problem::PedestrianOvercrowding</span>(<span class="kw">_</span>) =&gt; <span class="ident"><span class="self">Self</span>::PedestrianOvercrowding</span>,
-        }
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">ProblemType</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count</span>(<span class="self">self</span>, <span class="ident">problems</span>: <span class="kw-2">&amp;</span>[(<span class="ident">Time</span>, <span class="ident">Problem</span>)]) -&gt; <span class="ident">usize</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cnt</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">problem</span>) <span class="kw">in</span> <span class="ident">problems</span> {
-            <span class="kw">if</span> <span class="self">self</span> <span class="op">==</span> <span class="ident">ProblemType::from</span>(<span class="ident">problem</span>) {
-                <span class="ident">cnt</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-            }
-        }
-        <span class="ident">cnt</span>
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all</span>() -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ProblemType</span><span class="op">&gt;</span> {
-        <span class="macro">vec!</span>[
-            <span class="ident">ProblemType::IntersectionDelay</span>,
-            <span class="ident">ProblemType::ComplexIntersectionCrossing</span>,
-            <span class="ident">ProblemType::OvertakeDesired</span>,
-            <span class="ident">ProblemType::ArterialIntersectionCrossing</span>,
-            <span class="ident">ProblemType::PedestrianOvercrowding</span>,
-        ]
-    }
-}
 
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">TripProblemFilter</span> {
     <span class="kw">fn</span> <span class="ident">includes_mode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">mode</span>: <span class="kw-2">&amp;</span><span class="ident">TripMode</span>) -&gt; <span class="ident">bool</span>;

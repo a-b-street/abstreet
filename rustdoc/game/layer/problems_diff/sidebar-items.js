@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["make_controls",""]],"struct":[["Options",""],["RelativeProblemMap",""]]});
+initSidebarItems({"fn":[["make_controls",""]],"struct":[["ProblemTypes",""],["RelativeProblemMap",""]],"type":[["Options",""]]});

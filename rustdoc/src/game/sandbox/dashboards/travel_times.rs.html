@@ -678,7 +678,7 @@
 <span class="kw">use</span> <span class="ident">abstutil::prettyprint_usize</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">map_gui::tools::color_for_mode</span>;
-<span class="kw">use</span> <span class="ident">sim::TripID</span>;
+<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">ProblemType</span>, <span class="ident">TripID</span>};
 <span class="kw">use</span> <span class="ident">synthpop::TripMode</span>;
 <span class="kw">use</span> <span class="ident">widgetry::tools::PopupMsg</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
@@ -686,7 +686,7 @@
     <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">Widget</span>,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::trip_problems</span>::{<span class="ident">problem_matrix</span>, <span class="ident">ProblemType</span>, <span class="ident">TripProblemFilter</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::trip_problems</span>::{<span class="ident">problem_matrix</span>, <span class="ident">TripProblemFilter</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sandbox::dashboards::generic_trip_table::open_trip_transition</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sandbox::dashboards::DashTab</span>;
