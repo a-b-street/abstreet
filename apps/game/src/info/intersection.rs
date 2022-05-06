@@ -13,7 +13,9 @@ use widgetry::{
 
 use crate::app::App;
 use crate::common::color_for_agent_type;
-use crate::info::{header_btns, make_tabs, throughput, DataOptions, Details, Tab};
+use crate::info::{
+    header_btns, make_tabs, problem_count, throughput, DataOptions, Details, ProblemOptions, Tab,
+};
 
 pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: IntersectionID) -> Widget {
     Widget::custom_col(vec![
@@ -431,6 +433,51 @@ fn delay_plot(
     .outline(ctx.style().section_outline)
 }
 
+pub fn problems(
+    ctx: &mut EventCtx,
+    app: &App,
+    details: &mut Details,
+    id: IntersectionID,
+    opts: &ProblemOptions,
+) -> Widget {
+    Widget::custom_col(vec![
+        header(
+            ctx,
+            app,
+            details,
+            id,
+            Tab::IntersectionProblems(id, opts.clone()),
+        ),
+        problems_body(ctx, app, id, opts).tab_body(ctx),
+    ])
+}
+
+fn problems_body(
+    ctx: &mut EventCtx,
+    app: &App,
+    id: IntersectionID,
+    opts: &ProblemOptions,
+) -> Widget {
+    let mut rows = vec![];
+
+    rows.push(opts.to_controls(ctx, app));
+
+    let time = if opts.show_end_of_day {
+        app.primary.sim.get_end_of_day()
+    } else {
+        app.primary.sim.time()
+    };
+    rows.push(problem_count(
+        ctx,
+        app,
+        "Number of problems per 15 minutes",
+        move |a| a.problems_per_intersection(time, id),
+        opts,
+    ));
+
+    Widget::col(rows)
+}
+
 fn header(
     ctx: &EventCtx,
     app: &App,
@@ -457,6 +504,10 @@ fn header(
         let mut tabs = vec![
             ("Info", Tab::IntersectionInfo(id)),
             ("Traffic", Tab::IntersectionTraffic(id, DataOptions::new())),
+            (
+                "Problems",
+                Tab::IntersectionProblems(id, ProblemOptions::new()),
+            ),
         ];
         if i.is_traffic_signal() {
             tabs.push((
