@@ -1,9 +1,11 @@
-use std::collections::HashMap;
-
-use geom::{HashablePt2D, Polygon, Time};
+use abstutil::{prettyprint_usize, Counter};
+use geom::Time;
+use map_gui::tools::{ColorNetwork, DivergingScale};
+use map_gui::ID;
+use map_model::{IntersectionID, RoadID, Traversable};
 use sim::Problem;
 use widgetry::mapspace::ToggleZoomed;
-use widgetry::{EventCtx, GfxCtx, Outcome, Panel, Toggle, Widget};
+use widgetry::{Color, EventCtx, GfxCtx, Outcome, Panel, Text, Toggle, Widget};
 
 use crate::app::App;
 use crate::layer::{header, problems, Layer, LayerOutcome, PANEL_PLACEMENT};
@@ -13,6 +15,12 @@ pub struct RelativeProblemMap {
     opts: Options,
     draw: ToggleZoomed,
     panel: Panel,
+
+    before_road: Counter<RoadID>,
+    before_intersection: Counter<IntersectionID>,
+    after_road: Counter<RoadID>,
+    after_intersection: Counter<IntersectionID>,
+    tooltip: Option<Text>,
 }
 
 impl Layer for RelativeProblemMap {
@@ -20,10 +28,41 @@ impl Layer for RelativeProblemMap {
         Some("problem map")
     }
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Option<LayerOutcome> {
+        let mut recalc_tooltip = false;
         if app.primary.sim.time() != self.time {
             let mut new = Self::new(ctx, app, self.opts.clone());
             new.panel.restore(ctx, &self.panel);
             *self = new;
+            recalc_tooltip = true;
+        }
+
+        // TODO Reinventing CompareCounts...
+        if ctx.redo_mouseover() || recalc_tooltip {
+            self.tooltip = None;
+            match app.mouseover_unzoomed_roads_and_intersections(ctx) {
+                Some(ID::Road(r)) => {
+                    let (before, after) = (self.before_road.get(r), self.after_road.get(r));
+                    self.tooltip = Some(Text::from(format!(
+                        "{} before, {} after",
+                        prettyprint_usize(before),
+                        prettyprint_usize(after)
+                    )));
+                }
+                Some(ID::Intersection(i)) => {
+                    let (before, after) = (
+                        self.before_intersection.get(i),
+                        self.after_intersection.get(i),
+                    );
+                    self.tooltip = Some(Text::from(format!(
+                        "{} before, {} after",
+                        prettyprint_usize(before),
+                        prettyprint_usize(after)
+                    )));
+                }
+                _ => {}
+            }
+        } else {
+            self.tooltip = None;
         }
 
         match self.panel.event(ctx) {
@@ -54,6 +93,9 @@ impl Layer for RelativeProblemMap {
     fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.panel.draw(g);
         self.draw.draw(g);
+        if let Some(ref txt) = self.tooltip {
+            g.draw_mouse_tooltip(txt.clone());
+        }
     }
     fn draw_minimap(&self, g: &mut GfxCtx) {
         g.redraw(&self.draw.unzoomed);
@@ -62,68 +104,91 @@ impl Layer for RelativeProblemMap {
 
 impl RelativeProblemMap {
     pub fn new(ctx: &mut EventCtx, app: &App, opts: Options) -> Self {
-        let mut count_per_pt: HashMap<HashablePt2D, isize> = HashMap::new();
-        // Add for every problem occurring in this world
-        for (_, problems) in &app.primary.sim.get_analytics().problems_per_trip {
-            for (_, problem) in problems {
-                if opts.show(problem) {
-                    let pt = problem.point(&app.primary.map);
-                    *count_per_pt.entry(pt.to_hashable()).or_insert(0) += 1;
-                }
-            }
-        }
-        // Subtract for every problem occurring in the baseline.
-        let unedited_map = app
-            .primary
-            .unedited_map
-            .as_ref()
-            .unwrap_or(&app.primary.map);
+        let after = app.primary.sim.get_analytics();
+        let before = app.prebaked();
         let now = app.primary.sim.time();
-        for (_, problems) in &app.prebaked().problems_per_trip {
+
+        let mut after_road = Counter::new();
+        let mut before_road = Counter::new();
+        let mut after_intersection = Counter::new();
+        let mut before_intersection = Counter::new();
+
+        let update_count =
+            |problem: &Problem,
+             roads: &mut Counter<RoadID>,
+             intersections: &mut Counter<IntersectionID>| {
+                match problem {
+                    Problem::IntersectionDelay(i, _) | Problem::ComplexIntersectionCrossing(i) => {
+                        intersections.inc(*i);
+                    }
+                    Problem::OvertakeDesired(on) | Problem::PedestrianOvercrowding(on) => {
+                        match on {
+                            Traversable::Lane(l) => {
+                                roads.inc(l.road);
+                            }
+                            Traversable::Turn(t) => {
+                                intersections.inc(t.parent);
+                            }
+                        }
+                    }
+                    Problem::ArterialIntersectionCrossing(t) => {
+                        intersections.inc(t.parent);
+                    }
+                }
+            };
+
+        for (_, problems) in &before.problems_per_trip {
             for (time, problem) in problems {
                 // Per trip, problems are counted in order, so stop after now.
                 if *time > now {
                     break;
                 }
                 if opts.show(problem) {
-                    let pt = problem.point(unedited_map);
-                    *count_per_pt.entry(pt.to_hashable()).or_insert(0) -= 1;
+                    update_count(problem, &mut before_road, &mut before_intersection);
                 }
             }
         }
 
-        // Assume there aren't outliers, and get the max change in problem count
-        let max_count = count_per_pt
-            .values()
-            .map(|x| x.abs() as usize)
-            .max()
-            .unwrap_or(1) as f64;
-
-        // Just draw colored rectangles (circles look too much like the unzoomed agents, so...
-        let square = Polygon::rectangle(10.0, 10.0);
-        let mut draw = ToggleZoomed::builder();
-
-        for (pt, count) in count_per_pt {
-            let pct = (count.abs() as f64) / max_count;
-            let color = if count > 0 {
-                app.cs.good_to_bad_red.eval(pct)
-            } else if count < 0 {
-                app.cs.good_to_bad_green.eval(pct)
-            } else {
-                continue;
-            };
-            let pt = pt.to_pt2d();
-            let poly = square.translate(pt.x(), pt.y());
-            draw.unzoomed.push(color, poly.clone());
-            draw.zoomed.push(color.alpha(0.5), poly);
+        for (_, problems) in &after.problems_per_trip {
+            for (_, problem) in problems {
+                if opts.show(problem) {
+                    update_count(problem, &mut after_road, &mut after_intersection);
+                }
+            }
         }
 
-        let controls = make_controls(ctx, &opts);
+        let mut colorer = ColorNetwork::new(app);
+
+        let scale = DivergingScale::new(Color::hex("#5D9630"), Color::WHITE, Color::hex("#A32015"))
+            .range(0.0, 2.0)
+            .ignore(0.7, 1.3);
+
+        for (r, before, after) in before_road.clone().compare(after_road.clone()) {
+            if let Some(c) = scale.eval((after as f64) / (before as f64)) {
+                colorer.add_r(r, c);
+            }
+        }
+        for (i, before, after) in before_intersection
+            .clone()
+            .compare(after_intersection.clone())
+        {
+            if let Some(c) = scale.eval((after as f64) / (before as f64)) {
+                colorer.add_i(i, c);
+            }
+        }
+
+        let legend = scale.make_legend(ctx, vec!["less problems", "same", "more"]);
+        let controls = make_controls(ctx, &opts, legend);
         Self {
             time: app.primary.sim.time(),
             opts,
-            draw: draw.build(ctx),
+            draw: colorer.build(ctx),
             panel: controls,
+            tooltip: None,
+            before_road,
+            before_intersection,
+            after_road,
+            after_intersection,
         }
     }
 
@@ -177,39 +242,37 @@ impl Options {
     }
 }
 
-fn make_controls(ctx: &mut EventCtx, opts: &Options) -> Panel {
-    let mut col = vec![
+fn make_controls(ctx: &mut EventCtx, opts: &Options, legend: Widget) -> Panel {
+    Panel::new_builder(Widget::col(vec![
         header(ctx, "Change in Problems encountered"),
         Toggle::switch(ctx, "Compare before proposal", None, true),
-    ];
-
-    col.push(Toggle::checkbox(ctx, "show delays", None, opts.show_delays));
-    col.push(Toggle::checkbox(
-        ctx,
-        "show where cyclists cross complex intersections",
-        None,
-        opts.show_complex_crossings,
-    ));
-    col.push(Toggle::checkbox(
-        ctx,
-        "show where cars want to overtake cyclists",
-        None,
-        opts.show_overtakes,
-    ));
-    col.push(Toggle::checkbox(
-        ctx,
-        "show where pedestrians cross arterial intersections",
-        None,
-        opts.show_arterial_crossings,
-    ));
-    col.push(Toggle::checkbox(
-        ctx,
-        "show where pedestrians are over-crowded",
-        None,
-        opts.show_overcrowding,
-    ));
-
-    Panel::new_builder(Widget::col(col))
-        .aligned_pair(PANEL_PLACEMENT)
-        .build(ctx)
+        Toggle::checkbox(ctx, "show delays", None, opts.show_delays),
+        Toggle::checkbox(
+            ctx,
+            "show where cyclists cross complex intersections",
+            None,
+            opts.show_complex_crossings,
+        ),
+        Toggle::checkbox(
+            ctx,
+            "show where cars want to overtake cyclists",
+            None,
+            opts.show_overtakes,
+        ),
+        Toggle::checkbox(
+            ctx,
+            "show where pedestrians cross arterial intersections",
+            None,
+            opts.show_arterial_crossings,
+        ),
+        Toggle::checkbox(
+            ctx,
+            "show where pedestrians are over-crowded",
+            None,
+            opts.show_overcrowding,
+        ),
+        legend,
+    ]))
+    .aligned_pair(PANEL_PLACEMENT)
+    .build(ctx)
 }
