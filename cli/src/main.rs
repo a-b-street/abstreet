@@ -46,20 +46,23 @@ enum Command {
     AugmentScenario {
         /// The path to a scenario to augment. This will be modified in-place.
         ///
-        /// This tool isn't very smart about detecting if a scenario already has these extra trips added
-        /// in; be careful about running this on the correct input.
+        /// This tool isn't very smart about detecting if a scenario already has these extra trips
+        /// added in; be careful about running this on the correct input.
         #[structopt(long)]
         input_scenario: String,
         /// For people with only a single trip, add a return trip back home sometime 4-12 hours
         /// later
         #[structopt(long)]
         add_return_trips: bool,
-        /// Before a person's final trp home, insert a round-trip to a nearby cafe or restaurant
+        /// Before a person's final trip home, insert a round-trip to a nearby cafe or restaurant
         #[structopt(long)]
         add_lunch_trips: bool,
         /// A JSON list of modifiers to transform the scenario. These can be generated with the GUI.
         #[structopt(long, parse(try_from_str = parse_modifiers), default_value = "[]")]
         scenario_modifiers: ModifierList,
+        /// Delete cancelled trips, and delete people with no remaining trips.
+        #[structopt(long)]
+        delete_cancelled_trips: bool,
         /// A seed for generating random numbers
         #[structopt(long, default_value = "42")]
         rng_seed: u64,
@@ -256,12 +259,14 @@ async fn main() -> Result<()> {
             add_return_trips,
             add_lunch_trips,
             scenario_modifiers,
+            delete_cancelled_trips,
             rng_seed,
         } => augment_scenario::run(
             input_scenario,
             add_return_trips,
             add_lunch_trips,
             scenario_modifiers,
+            delete_cancelled_trips,
             rng_seed,
         ),
         Command::ClipOSM {

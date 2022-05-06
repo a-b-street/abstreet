@@ -3171,14 +3171,14 @@
       "compressed_size_bytes": 320392
     },
     "data/system/br/sao_paulo/prebaked_results/sao_miguel_paulista/Full.bin": {
-      "checksum": "a64070e01d9b416d4fddc504f85e5190",
-      "uncompressed_size_bytes": 31238446,
-      "compressed_size_bytes": 10262608
+      "checksum": "4e1a51318f6f1980e5f099b8059ff5f4",
+      "uncompressed_size_bytes": 29991142,
+      "compressed_size_bytes": 10032171
     },
     "data/system/br/sao_paulo/scenarios/sao_miguel_paulista/Full.bin": {
-      "checksum": "541fdf1f2ba80b4b6cb88f36b186a707",
-      "uncompressed_size_bytes": 6083724,
-      "compressed_size_bytes": 991711
+      "checksum": "14a44cd4d353272656acdc2298920c10",
+      "uncompressed_size_bytes": 4805343,
+      "compressed_size_bytes": 779597
     },
     "data/system/ca/montreal/maps/plateau.bin": {
       "checksum": "6f260d8502da50a6f13785bf68c62d58",
