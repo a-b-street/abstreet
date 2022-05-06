@@ -3551,8 +3551,8 @@
       "compressed_size_bytes": 619893
     },
     "data/system/gb/castlemead/scenarios/center/go_active.bin": {
-      "checksum": "c40e6e181f44a3a891edc35ea6f5d457",
-      "uncompressed_size_bytes": 73673,
+      "checksum": "9c64071391a0efe3f15f6e2a88fe0143",
+      "uncompressed_size_bytes": 73682,
       "compressed_size_bytes": 20935
     },
     "data/system/gb/castlemead/scenarios/center/go_active_with_bg.bin": {
