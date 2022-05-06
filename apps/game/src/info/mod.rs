@@ -8,14 +8,14 @@ use map_model::{
     AreaID, BuildingID, IntersectionID, LaneID, ParkingLotID, TransitRouteID, TransitStopID,
 };
 use sim::{
-    AgentID, AgentType, Analytics, CarID, ParkingSpot, PedestrianID, PersonID, PersonState, TripID,
-    VehicleType,
+    AgentID, AgentType, Analytics, CarID, ParkingSpot, PedestrianID, PersonID, PersonState,
+    ProblemType, TripID, VehicleType,
 };
 use widgetry::mapspace::{ToggleZoomed, ToggleZoomedBuilder};
 use widgetry::tools::open_browser;
 use widgetry::{
-    EventCtx, GfxCtx, Key, Line, LinePlot, Outcome, Panel, PlotOptions, Series, Text, TextExt,
-    Toggle, Widget,
+    Color, EventCtx, GfxCtx, Key, Line, LinePlot, Outcome, Panel, PlotOptions, Series, Text,
+    TextExt, Toggle, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -82,6 +82,7 @@ pub enum Tab {
     IntersectionDemand(IntersectionID),
     IntersectionArrivals(IntersectionID, DataOptions),
     IntersectionTrafficSignal(IntersectionID),
+    IntersectionProblems(IntersectionID, ProblemOptions),
 
     LaneInfo(LaneID),
     LaneDebug(LaneID),
@@ -129,6 +130,7 @@ impl Tab {
                         Tab::IntersectionInfo(i)
                     }
                 }
+                "problems" => Tab::IntersectionProblems(i, ProblemOptions::new()),
                 _ => unreachable!(),
             },
             ID::Building(b) => match app.session.info_panel_tab["bldg"] {
@@ -217,7 +219,8 @@ impl Tab {
             | Tab::IntersectionDelay(i, _, _)
             | Tab::IntersectionDemand(i)
             | Tab::IntersectionArrivals(i, _)
-            | Tab::IntersectionTrafficSignal(i) => Some(ID::Intersection(*i)),
+            | Tab::IntersectionTrafficSignal(i)
+            | Tab::IntersectionProblems(i, _) => Some(ID::Intersection(*i)),
             Tab::LaneInfo(l) | Tab::LaneDebug(l) | Tab::LaneTraffic(l, _) => Some(ID::Lane(*l)),
         }
     }
@@ -228,6 +231,7 @@ impl Tab {
             Tab::IntersectionTraffic(_, _)
             | Tab::IntersectionDelay(_, _, _)
             | Tab::IntersectionArrivals(_, _)
+            | Tab::IntersectionProblems(_, _)
             | Tab::LaneTraffic(_, _) => {}
             _ => {
                 return None;
@@ -254,6 +258,13 @@ impl Tab {
                 *opts = new_opts;
                 *fan_chart = new_fan_chart;
             }
+            Tab::IntersectionProblems(_, ref mut opts) => {
+                let new_opts = ProblemOptions::from_controls(c);
+                if *opts == new_opts {
+                    return None;
+                }
+                *opts = new_opts;
+            }
             _ => unreachable!(),
         }
         Some(new_tab)
@@ -279,6 +290,7 @@ impl Tab {
             Tab::IntersectionDemand(_) => ("intersection", "demand"),
             Tab::IntersectionArrivals(_, _) => ("intersection", "arrivals"),
             Tab::IntersectionTrafficSignal(_) => ("intersection", "traffic signal"),
+            Tab::IntersectionProblems(_, _) => ("intersection", "problems"),
             Tab::LaneInfo(_) => ("lane", "info"),
             Tab::LaneDebug(_) => ("lane", "debug"),
             Tab::LaneTraffic(_, _) => ("lane", "traffic"),
@@ -366,6 +378,10 @@ impl InfoPanel {
             ),
             Tab::IntersectionTrafficSignal(i) => (
                 intersection::traffic_signal(ctx, app, &mut details, i),
+                false,
+            ),
+            Tab::IntersectionProblems(i, ref opts) => (
+                intersection::problems(ctx, app, &mut details, i, opts),
                 false,
             ),
             Tab::LaneInfo(l) => (lane::info(ctx, app, &mut details, l), true),
@@ -730,6 +746,43 @@ fn throughput<F: Fn(&Analytics) -> Vec<(AgentType, Vec<(Time, usize)>)>>(
     .outline(ctx.style().section_outline)
 }
 
+// Like above, but grouped differently...
+fn problem_count<F: Fn(&Analytics) -> Vec<(ProblemType, Vec<(Time, usize)>)>>(
+    ctx: &EventCtx,
+    app: &App,
+    title: &str,
+    get_data: F,
+    opts: &ProblemOptions,
+) -> Widget {
+    let mut series = get_data(app.primary.sim.get_analytics())
+        .into_iter()
+        .map(|(problem_type, pts)| Series {
+            label: problem_type.name().to_string(),
+            color: color_for_problem_type(app, problem_type),
+            pts,
+        })
+        .collect::<Vec<_>>();
+    if opts.show_before {
+        for (problem_type, pts) in get_data(app.prebaked()) {
+            series.push(Series {
+                label: problem_type.name().to_string(),
+                color: color_for_problem_type(app, problem_type).alpha(0.3),
+                pts,
+            });
+        }
+    }
+
+    let mut plot_opts = PlotOptions::filterable();
+    plot_opts.disabled = opts.disabled_series();
+    Widget::col(vec![
+        Line(title).small_heading().into_widget(ctx),
+        LinePlot::new_widget(ctx, title, series, plot_opts, app.opts.units),
+    ])
+    .padding(10)
+    .bg(app.cs.inner_panel_bg)
+    .outline(ctx.style().section_outline)
+}
+
 fn make_tabs(
     ctx: &EventCtx,
     hyperlinks: &mut HashMap<String, Tab>,
@@ -850,4 +903,78 @@ impl DataOptions {
             .map(|a| a.noun().to_string())
             .collect()
     }
+}
+
+#[derive(Clone, PartialEq)]
+pub struct ProblemOptions {
+    pub show_before: bool,
+    pub show_end_of_day: bool,
+    disabled_types: HashSet<ProblemType>,
+}
+
+impl ProblemOptions {
+    pub fn new() -> Self {
+        Self {
+            show_before: false,
+            show_end_of_day: false,
+            disabled_types: HashSet::new(),
+        }
+    }
+
+    pub fn to_controls(&self, ctx: &mut EventCtx, app: &App) -> Widget {
+        if app.has_prebaked().is_none() {
+            return Widget::nothing();
+        }
+        Widget::row(vec![
+            Toggle::custom_checkbox(
+                ctx,
+                "Show before changes",
+                vec![
+                    Line("Show before "),
+                    Line(&app.primary.map.get_edits().edits_name).underlined(),
+                ],
+                None,
+                self.show_before,
+            ),
+            if self.show_before {
+                Toggle::switch(ctx, "Show full day", None, self.show_end_of_day)
+            } else {
+                Widget::nothing()
+            },
+        ])
+        .evenly_spaced()
+    }
+
+    pub fn from_controls(c: &Panel) -> ProblemOptions {
+        let show_before = c.maybe_is_checked("Show before changes").unwrap_or(false);
+        let mut disabled_types = HashSet::new();
+        for pt in ProblemType::all() {
+            if !c.maybe_is_checked(pt.name()).unwrap_or(true) {
+                disabled_types.insert(pt);
+            }
+        }
+        ProblemOptions {
+            show_before,
+            show_end_of_day: show_before && c.maybe_is_checked("Show full day").unwrap_or(false),
+            disabled_types,
+        }
+    }
+
+    pub fn disabled_series(&self) -> HashSet<String> {
+        self.disabled_types
+            .iter()
+            .map(|pt| pt.name().to_string())
+            .collect()
+    }
+}
+
+// TODO Maybe color should be optional, and we'll default to rotating through some options in the
+// Series
+fn color_for_problem_type(app: &App, problem_type: ProblemType) -> Color {
+    for (idx, pt) in ProblemType::all().into_iter().enumerate() {
+        if problem_type == pt {
+            return app.cs.rotating_color_plot(idx);
+        }
+    }
+    unreachable!()
 }
