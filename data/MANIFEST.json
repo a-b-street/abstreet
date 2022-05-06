@@ -5200,20 +5200,15 @@
       "uncompressed_size_bytes": 50305994,
       "compressed_size_bytes": 19781234
     },
-    "data/system/us/seattle/prebaked_results/arboretum/weekday.bin": {
-      "checksum": "85127081eff399941fce3d58c02386dc",
-      "uncompressed_size_bytes": 17064196,
-      "compressed_size_bytes": 6560337
-    },
     "data/system/us/seattle/prebaked_results/montlake/car vs bike contention.bin": {
       "checksum": "3d0746f5a9da530f1306ee7124126b1d",
       "uncompressed_size_bytes": 4186,
       "compressed_size_bytes": 1340
     },
     "data/system/us/seattle/prebaked_results/montlake/weekday.bin": {
-      "checksum": "8a53fc6d4284a207cb3b016662b751e6",
-      "uncompressed_size_bytes": 8176775,
-      "compressed_size_bytes": 3208994
+      "checksum": "51879cb19216dba150b43ebfd55c5edd",
+      "uncompressed_size_bytes": 7490112,
+      "compressed_size_bytes": 2865765
     },
     "data/system/us/seattle/scenarios/arboretum/weekday.bin": {
       "checksum": "167e33a49395d4e5deb07498134873f6",
