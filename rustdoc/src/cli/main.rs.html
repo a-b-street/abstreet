@@ -417,6 +417,11 @@
 <span id="412">412</span>
 <span id="413">413</span>
 <span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
 </pre><pre class="rust"><code><span class="doccomment">//! A collection of tools, mostly related to importing maps and scenarios. These are bundled as a</span>
 <span class="doccomment">//! single executable to reduce the cost of static linking in the release&#39;s file size.</span>
 
@@ -465,20 +470,23 @@
     <span class="ident">AugmentScenario</span> {
         <span class="doccomment">/// The path to a scenario to augment. This will be modified in-place.</span>
         <span class="doccomment">///</span>
-        <span class="doccomment">/// This tool isn&#39;t very smart about detecting if a scenario already has these extra trips added</span>
-        <span class="doccomment">/// in; be careful about running this on the correct input.</span>
+        <span class="doccomment">/// This tool isn&#39;t very smart about detecting if a scenario already has these extra trips</span>
+        <span class="doccomment">/// added in; be careful about running this on the correct input.</span>
         <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
         <span class="ident">input_scenario</span>: <span class="ident">String</span>,
         <span class="doccomment">/// For people with only a single trip, add a return trip back home sometime 4-12 hours</span>
         <span class="doccomment">/// later</span>
         <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
         <span class="ident">add_return_trips</span>: <span class="ident">bool</span>,
-        <span class="doccomment">/// Before a person&#39;s final trp home, insert a round-trip to a nearby cafe or restaurant</span>
+        <span class="doccomment">/// Before a person&#39;s final trip home, insert a round-trip to a nearby cafe or restaurant</span>
         <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
         <span class="ident">add_lunch_trips</span>: <span class="ident">bool</span>,
         <span class="doccomment">/// A JSON list of modifiers to transform the scenario. These can be generated with the GUI.</span>
         <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>, <span class="ident">parse</span>(<span class="ident">try_from_str</span> <span class="op">=</span> <span class="ident">parse_modifiers</span>), <span class="ident">default_value</span> <span class="op">=</span> <span class="string">&quot;[]&quot;</span>)]</span>
         <span class="ident">scenario_modifiers</span>: <span class="ident">ModifierList</span>,
+        <span class="doccomment">/// Delete cancelled trips, and delete people with no remaining trips.</span>
+        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
+        <span class="ident">delete_cancelled_trips</span>: <span class="ident">bool</span>,
         <span class="doccomment">/// A seed for generating random numbers</span>
         <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>, <span class="ident">default_value</span> <span class="op">=</span> <span class="string">&quot;42&quot;</span>)]</span>
         <span class="ident">rng_seed</span>: <span class="ident">u64</span>,
@@ -675,12 +683,14 @@
             <span class="ident">add_return_trips</span>,
             <span class="ident">add_lunch_trips</span>,
             <span class="ident">scenario_modifiers</span>,
+            <span class="ident">delete_cancelled_trips</span>,
             <span class="ident">rng_seed</span>,
         } =&gt; <span class="ident">augment_scenario::run</span>(
             <span class="ident">input_scenario</span>,
             <span class="ident">add_return_trips</span>,
             <span class="ident">add_lunch_trips</span>,
             <span class="ident">scenario_modifiers</span>,
+            <span class="ident">delete_cancelled_trips</span>,
             <span class="ident">rng_seed</span>,
         ),
         <span class="ident">Command::ClipOSM</span> {
