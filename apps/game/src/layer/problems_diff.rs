@@ -1,9 +1,11 @@
+use std::collections::HashSet;
+
 use abstutil::{prettyprint_usize, Counter};
 use geom::Time;
 use map_gui::tools::{ColorNetwork, DivergingScale};
 use map_gui::ID;
 use map_model::{IntersectionID, RoadID, Traversable};
-use sim::Problem;
+use sim::{Problem, ProblemType};
 use widgetry::mapspace::ToggleZoomed;
 use widgetry::{Color, EventCtx, GfxCtx, Outcome, Panel, Text, Toggle, Widget};
 
@@ -193,52 +195,7 @@ impl RelativeProblemMap {
     }
 
     fn options(&self) -> Options {
-        Options {
-            show_delays: self.panel.is_checked("show delays"),
-            show_complex_crossings: self
-                .panel
-                .is_checked("show where cyclists cross complex intersections"),
-            show_overtakes: self
-                .panel
-                .is_checked("show where cars want to overtake cyclists"),
-            show_arterial_crossings: self
-                .panel
-                .is_checked("show where pedestrians cross arterial intersections"),
-            show_overcrowding: self
-                .panel
-                .is_checked("show where pedestrians are over-crowded"),
-        }
-    }
-}
-
-#[derive(Clone, PartialEq)]
-pub struct Options {
-    show_delays: bool,
-    show_complex_crossings: bool,
-    show_overtakes: bool,
-    show_arterial_crossings: bool,
-    show_overcrowding: bool,
-}
-
-impl Options {
-    pub fn new() -> Options {
-        Options {
-            show_delays: true,
-            show_complex_crossings: true,
-            show_overtakes: true,
-            show_arterial_crossings: true,
-            show_overcrowding: true,
-        }
-    }
-
-    fn show(&self, problem: &Problem) -> bool {
-        match problem {
-            Problem::IntersectionDelay(_, _) => self.show_delays,
-            Problem::ComplexIntersectionCrossing(_) => self.show_complex_crossings,
-            Problem::OvertakeDesired(_) => self.show_overtakes,
-            Problem::ArterialIntersectionCrossing(_) => self.show_arterial_crossings,
-            Problem::PedestrianOvercrowding(_) => self.show_overcrowding,
-        }
+        ProblemTypes::from_controls(&self.panel)
     }
 }
 
@@ -246,33 +203,51 @@ fn make_controls(ctx: &mut EventCtx, opts: &Options, legend: Widget) -> Panel {
     Panel::new_builder(Widget::col(vec![
         header(ctx, "Change in Problems encountered"),
         Toggle::switch(ctx, "Compare before proposal", None, true),
-        Toggle::checkbox(ctx, "show delays", None, opts.show_delays),
-        Toggle::checkbox(
-            ctx,
-            "show where cyclists cross complex intersections",
-            None,
-            opts.show_complex_crossings,
-        ),
-        Toggle::checkbox(
-            ctx,
-            "show where cars want to overtake cyclists",
-            None,
-            opts.show_overtakes,
-        ),
-        Toggle::checkbox(
-            ctx,
-            "show where pedestrians cross arterial intersections",
-            None,
-            opts.show_arterial_crossings,
-        ),
-        Toggle::checkbox(
-            ctx,
-            "show where pedestrians are over-crowded",
-            None,
-            opts.show_overcrowding,
-        ),
+        opts.to_controls(ctx),
         legend,
     ]))
     .aligned_pair(PANEL_PLACEMENT)
     .build(ctx)
+}
+
+pub type Options = ProblemTypes;
+
+#[derive(Clone, PartialEq)]
+pub struct ProblemTypes {
+    disabled_types: HashSet<ProblemType>,
+}
+
+impl ProblemTypes {
+    pub fn new() -> Self {
+        Self {
+            disabled_types: HashSet::new(),
+        }
+    }
+
+    pub fn show(&self, problem: &Problem) -> bool {
+        !self.disabled_types.contains(&ProblemType::from(problem))
+    }
+
+    pub fn to_controls(&self, ctx: &mut EventCtx) -> Widget {
+        let mut col = Vec::new();
+        for pt in ProblemType::all() {
+            col.push(Toggle::checkbox(
+                ctx,
+                &format!("show {}", pt.name()),
+                None,
+                !self.disabled_types.contains(&pt),
+            ));
+        }
+        Widget::col(col)
+    }
+
+    pub fn from_controls(panel: &Panel) -> Self {
+        let mut types = Self::new();
+        for pt in ProblemType::all() {
+            if !panel.is_checked(&format!("show {}", pt.name())) {
+                types.disabled_types.insert(pt);
+            }
+        }
+        types
+    }
 }

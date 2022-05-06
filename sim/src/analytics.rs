@@ -96,6 +96,63 @@ impl Problem {
     }
 }
 
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+pub enum ProblemType {
+    IntersectionDelay,
+    ComplexIntersectionCrossing,
+    OvertakeDesired,
+    ArterialIntersectionCrossing,
+    PedestrianOvercrowding,
+}
+
+impl From<&Problem> for ProblemType {
+    fn from(problem: &Problem) -> Self {
+        match problem {
+            Problem::IntersectionDelay(_, _) => Self::IntersectionDelay,
+            Problem::ComplexIntersectionCrossing(_) => Self::ComplexIntersectionCrossing,
+            Problem::OvertakeDesired(_) => Self::OvertakeDesired,
+            Problem::ArterialIntersectionCrossing(_) => Self::ArterialIntersectionCrossing,
+            Problem::PedestrianOvercrowding(_) => Self::PedestrianOvercrowding,
+        }
+    }
+}
+
+impl ProblemType {
+    pub fn count(self, problems: &[(Time, Problem)]) -> usize {
+        let mut cnt = 0;
+        for (_, problem) in problems {
+            if self == ProblemType::from(problem) {
+                cnt += 1;
+            }
+        }
+        cnt
+    }
+
+    pub fn all() -> Vec<ProblemType> {
+        vec![
+            ProblemType::IntersectionDelay,
+            ProblemType::ComplexIntersectionCrossing,
+            ProblemType::OvertakeDesired,
+            ProblemType::ArterialIntersectionCrossing,
+            ProblemType::PedestrianOvercrowding,
+        ]
+    }
+
+    pub fn name(self) -> &'static str {
+        match self {
+            ProblemType::IntersectionDelay => "delays",
+            ProblemType::ComplexIntersectionCrossing => {
+                "where cyclists cross complex intersections"
+            }
+            ProblemType::OvertakeDesired => "where cars want to overtake cyclists",
+            ProblemType::ArterialIntersectionCrossing => {
+                "where pedestrians cross arterial intersections"
+            }
+            ProblemType::PedestrianOvercrowding => "where pedestrians are over-crowded",
+        }
+    }
+}
+
 impl Analytics {
     pub fn new(record_anything: bool) -> Analytics {
         Analytics {

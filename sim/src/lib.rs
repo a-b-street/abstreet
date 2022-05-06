@@ -34,7 +34,7 @@ pub use crate::render::{
     UnzoomedAgent,
 };
 
-pub use self::analytics::{Analytics, Problem, SlidingWindow, TripPhase};
+pub use self::analytics::{Analytics, Problem, ProblemType, SlidingWindow, TripPhase};
 pub(crate) use self::events::Event;
 pub use self::events::{AlertLocation, TripPhaseType};
 pub use self::make::{fork_rng, BorderSpawnOverTime, ScenarioGenerator, SimFlags, SpawnOverTime};

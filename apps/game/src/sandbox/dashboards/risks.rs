@@ -5,12 +5,12 @@ use anyhow::Result;
 use fs_err::File;
 
 use abstutil::prettyprint_usize;
-use sim::TripID;
+use sim::{ProblemType, TripID};
 use synthpop::TripMode;
 use widgetry::tools::PopupMsg;
 use widgetry::{EventCtx, GfxCtx, Image, Line, Outcome, Panel, State, TextExt, Toggle, Widget};
 
-use super::trip_problems::{problem_matrix, ProblemType, TripProblemFilter};
+use super::trip_problems::{problem_matrix, TripProblemFilter};
 use crate::app::{App, Transition};
 use crate::sandbox::dashboards::generic_trip_table::open_trip_transition;
 use crate::sandbox::dashboards::DashTab;

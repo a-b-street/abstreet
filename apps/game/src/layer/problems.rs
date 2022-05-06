@@ -10,6 +10,7 @@ use widgetry::{
     Color, EventCtx, GfxCtx, Line, Outcome, Panel, PanelDims, Slider, Text, TextExt, Toggle, Widget,
 };
 
+use super::problems_diff::ProblemTypes;
 use crate::app::App;
 use crate::layer::{header, problems_diff, Layer, LayerOutcome, PANEL_PLACEMENT};
 
@@ -124,19 +125,7 @@ impl ProblemMap {
             modes,
             time1: end_of_day.percent_of(self.panel.slider("time1").get_percent()),
             time2: end_of_day.percent_of(self.panel.slider("time2").get_percent()),
-            show_delays: self.panel.is_checked("show delays"),
-            show_complex_crossings: self
-                .panel
-                .is_checked("show where cyclists cross complex intersections"),
-            show_overtakes: self
-                .panel
-                .is_checked("show where cars want to overtake cyclists"),
-            show_arterial_crossings: self
-                .panel
-                .is_checked("show where pedestrians cross arterial intersections"),
-            show_overcrowding: self
-                .panel
-                .is_checked("show where pedestrians are over-crowded"),
+            types: ProblemTypes::from_controls(&self.panel),
         }
     }
 }
@@ -148,25 +137,17 @@ pub struct Options {
     modes: BTreeSet<TripMode>,
     time1: Time,
     time2: Time,
-    show_delays: bool,
-    show_complex_crossings: bool,
-    show_overtakes: bool,
-    show_arterial_crossings: bool,
-    show_overcrowding: bool,
+    types: ProblemTypes,
 }
 
 impl Options {
-    pub fn new(app: &App) -> Options {
-        Options {
+    pub fn new(app: &App) -> Self {
+        Self {
             heatmap: Some(HeatmapOptions::new()),
             modes: TripMode::all().into_iter().collect(),
             time1: Time::START_OF_DAY,
             time2: app.primary.sim.get_end_of_day(),
-            show_delays: true,
-            show_complex_crossings: true,
-            show_overtakes: true,
-            show_arterial_crossings: true,
-            show_overcrowding: true,
+            types: ProblemTypes::new(),
         }
     }
 
@@ -174,13 +155,7 @@ impl Options {
         if !self.modes.contains(&trip.mode) || time < self.time1 || time > self.time2 {
             return false;
         }
-        match problem {
-            Problem::IntersectionDelay(_, _) => self.show_delays,
-            Problem::ComplexIntersectionCrossing(_) => self.show_complex_crossings,
-            Problem::OvertakeDesired(_) => self.show_overtakes,
-            Problem::ArterialIntersectionCrossing(_) => self.show_arterial_crossings,
-            Problem::PedestrianOvercrowding(_) => self.show_overcrowding,
-        }
+        self.types.show(problem)
     }
 }
 
@@ -227,31 +202,7 @@ fn make_controls(
         .align_right(),
     ]));
     col.push(checkbox_per_mode(ctx, app, &opts.modes));
-    col.push(Toggle::checkbox(ctx, "show delays", None, opts.show_delays));
-    col.push(Toggle::checkbox(
-        ctx,
-        "show where cyclists cross complex intersections",
-        None,
-        opts.show_complex_crossings,
-    ));
-    col.push(Toggle::checkbox(
-        ctx,
-        "show where cars want to overtake cyclists",
-        None,
-        opts.show_overtakes,
-    ));
-    col.push(Toggle::checkbox(
-        ctx,
-        "show where pedestrians cross arterial intersections",
-        None,
-        opts.show_arterial_crossings,
-    ));
-    col.push(Toggle::checkbox(
-        ctx,
-        "show where pedestrians are over-crowded",
-        None,
-        opts.show_overcrowding,
-    ));
+    col.push(opts.types.to_controls(ctx));
 
     col.push(Toggle::choice(
         ctx,

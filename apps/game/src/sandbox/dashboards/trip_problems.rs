@@ -2,58 +2,15 @@ use std::cmp::Ordering;
 use std::fmt::Display;
 
 use abstutil::{abbreviated_format, prettyprint_usize, CloneableAny};
-use geom::{Angle, Distance, Duration, Line, Polygon, Pt2D, Time};
+use geom::{Angle, Distance, Duration, Line, Polygon, Pt2D};
 use map_gui::tools::ColorScale;
-use sim::{Problem, TripID};
+use sim::{ProblemType, TripID};
 use synthpop::TripMode;
 use widgetry::{
     ClickOutcome, Color, DrawWithTooltips, GeomBatch, GeomBatchStack, StackAlignment, Text, Widget,
 };
 
 use crate::{App, EventCtx};
-
-#[derive(Clone, Copy, PartialEq, Debug)]
-pub enum ProblemType {
-    IntersectionDelay,
-    ComplexIntersectionCrossing,
-    OvertakeDesired,
-    ArterialIntersectionCrossing,
-    PedestrianOvercrowding,
-}
-
-impl From<&Problem> for ProblemType {
-    fn from(problem: &Problem) -> Self {
-        match problem {
-            Problem::IntersectionDelay(_, _) => Self::IntersectionDelay,
-            Problem::ComplexIntersectionCrossing(_) => Self::ComplexIntersectionCrossing,
-            Problem::OvertakeDesired(_) => Self::OvertakeDesired,
-            Problem::ArterialIntersectionCrossing(_) => Self::ArterialIntersectionCrossing,
-            Problem::PedestrianOvercrowding(_) => Self::PedestrianOvercrowding,
-        }
-    }
-}
-
-impl ProblemType {
-    pub fn count(self, problems: &[(Time, Problem)]) -> usize {
-        let mut cnt = 0;
-        for (_, problem) in problems {
-            if self == ProblemType::from(problem) {
-                cnt += 1;
-            }
-        }
-        cnt
-    }
-
-    pub fn all() -> Vec<ProblemType> {
-        vec![
-            ProblemType::IntersectionDelay,
-            ProblemType::ComplexIntersectionCrossing,
-            ProblemType::OvertakeDesired,
-            ProblemType::ArterialIntersectionCrossing,
-            ProblemType::PedestrianOvercrowding,
-        ]
-    }
-}
 
 pub trait TripProblemFilter {
     fn includes_mode(&self, mode: &TripMode) -> bool;
