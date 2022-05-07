@@ -3,7 +3,10 @@ use map_model::{LaneID, PathConstraints};
 use widgetry::{EventCtx, Line, LinePlot, PlotOptions, Series, Text, TextExt, Widget};
 
 use crate::app::App;
-use crate::info::{header_btns, make_table, make_tabs, throughput, DataOptions, Details, Tab};
+use crate::info::{
+    header_btns, make_table, make_tabs, problem_count, throughput, DataOptions, Details,
+    ProblemOptions, Tab,
+};
 
 pub fn info(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID) -> Widget {
     Widget::custom_col(vec![
@@ -252,6 +255,40 @@ fn traffic_body(ctx: &mut EventCtx, app: &App, id: LaneID, opts: &DataOptions) -
     Widget::col(rows)
 }
 
+pub fn problems(
+    ctx: &mut EventCtx,
+    app: &App,
+    details: &mut Details,
+    id: LaneID,
+    opts: &ProblemOptions,
+) -> Widget {
+    Widget::custom_col(vec![
+        header(ctx, app, details, id, Tab::LaneProblems(id, opts.clone())),
+        problems_body(ctx, app, id, opts).tab_body(ctx),
+    ])
+}
+
+fn problems_body(ctx: &mut EventCtx, app: &App, id: LaneID, opts: &ProblemOptions) -> Widget {
+    let mut rows = vec![];
+
+    rows.push(opts.to_controls(ctx, app));
+
+    let time = if opts.show_end_of_day {
+        app.primary.sim.get_end_of_day()
+    } else {
+        app.primary.sim.time()
+    };
+    rows.push(problem_count(
+        ctx,
+        app,
+        "Number of problems per 15 minutes",
+        move |a| a.problems_per_lane(time, id),
+        opts,
+    ));
+
+    Widget::col(rows)
+}
+
 fn header(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID, tab: Tab) -> Widget {
     let mut rows = vec![];
 
@@ -282,6 +319,7 @@ fn header(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID, tab: Tab
     let mut tabs = vec![("Info", Tab::LaneInfo(id))];
     if !l.is_parking() {
         tabs.push(("Traffic", Tab::LaneTraffic(id, DataOptions::new())));
+        tabs.push(("Problems", Tab::LaneProblems(id, ProblemOptions::new())));
     }
     if app.opts.dev {
         tabs.push(("Debug", Tab::LaneDebug(id)));
