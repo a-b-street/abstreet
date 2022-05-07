@@ -1,10 +1,10 @@
-use std::collections::BTreeSet;
+use std::{collections::BTreeSet, iter};
 
 use geom::Time;
-use map_model::{IntersectionID, Map, PathStep, Position, Traversable};
+use map_model::{IntersectionID, LaneID, Map, PathStep, Position, Traversable};
 use synthpop::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
 
-use crate::{AgentID, DrivingSimState, Event, TripID, VehicleType};
+use crate::{AgentID, CarID, DrivingSimState, Event, TripID, VehicleType};
 
 /// Records trips beginning and ending at a specified set of intersections. This can be used to
 /// capture and reproduce behavior in a gridlock-prone chunk of the map, without simulating
@@ -29,34 +29,69 @@ impl TrafficRecorder {
 
     pub fn handle_event(&mut self, time: Time, ev: &Event, map: &Map, driving: &DrivingSimState) {
         if let Event::AgentEntersTraversable(AgentID::Car(car), Some(trip), on, _) = ev {
-            if self.seen_trips.contains(trip) {
-                return;
-            }
-            if let Traversable::Lane(l) = on {
-                if self.capture_points.contains(&map.get_l(*l).src_i) {
-                    // Where do they exit?
-                    for step in driving.get_path(*car).unwrap().get_steps() {
-                        if let PathStep::Turn(t) = step {
-                            if self.capture_points.contains(&t.parent) {
-                                self.trips.push(IndividTrip::new(
-                                    time,
-                                    TripPurpose::Shopping,
-                                    TripEndpoint::SuddenlyAppear(Position::start(*l)),
-                                    TripEndpoint::Border(t.parent),
-                                    if car.vehicle_type == VehicleType::Bike {
-                                        TripMode::Bike
-                                    } else {
-                                        TripMode::Drive
-                                    },
-                                ));
-                                self.seen_trips.insert(*trip);
-                                return;
-                            }
-                        }
+            self.on_car_enters_traversable(time, &car, &trip, &on, map, driving);
+        }
+    }
+
+    fn on_car_enters_traversable(
+        &mut self,
+        time: Time,
+        car: &CarID,
+        trip: &TripID,
+        on: &Traversable,
+        map: &Map,
+        driving: &DrivingSimState,
+    ) {
+        if self.seen_trips.contains(trip) {
+            return;
+        }
+        if let Traversable::Lane(lane) = on {
+            self.on_car_enters_lane(time, &car, &trip, &lane, map, driving);
+        }
+    }
+
+    fn on_car_enters_lane(
+        &mut self,
+        time: Time,
+        car: &CarID,
+        trip: &TripID,
+        lane: &LaneID,
+        map: &Map,
+        driving: &DrivingSimState,
+    ) {
+        if !self.capture_points.contains(&map.get_l(*lane).src_i) {
+            return;
+        }
+        // Where do they exit?
+        let intersections = driving
+            .get_path(*car)
+            .unwrap()
+            .get_steps()
+            .iter()
+            .filter_map(|step| {
+                if let PathStep::Turn(t) = step {
+                    if self.capture_points.contains(&t.parent) {
+                        return Some(t.parent);
                     }
                 }
-            }
-        }
+                None
+            });
+        let previous_trip_count = self.trips.len();
+        self.trips.extend(intersections.map(|intersection| {
+            IndividTrip::new(
+                time,
+                TripPurpose::Shopping,
+                TripEndpoint::SuddenlyAppear(Position::start(*lane)),
+                TripEndpoint::Border(intersection),
+                if car.vehicle_type == VehicleType::Bike {
+                    TripMode::Bike
+                } else {
+                    TripMode::Drive
+                },
+            )
+        }));
+        self.seen_trips
+            .extend(iter::repeat(*trip).take(self.trips.len() - previous_trip_count));
     }
 
     pub fn num_recorded_trips(&self) -> usize {
@@ -64,17 +99,17 @@ impl TrafficRecorder {
     }
 
     pub fn save(mut self, map: &Map) {
-        let mut people = Vec::new();
-        for trip in self.trips.drain(..) {
-            people.push(PersonSpec {
-                orig_id: None,
-                trips: vec![trip],
-            });
-        }
         Scenario {
             scenario_name: "recorded".to_string(),
             map_name: map.get_name().clone(),
-            people,
+            people: self
+                .trips
+                .drain(..)
+                .map(|trip| PersonSpec {
+                    orig_id: None,
+                    trips: vec![trip],
+                })
+                .collect::<Vec<_>>(),
             only_seed_buses: None,
         }
         .save();
