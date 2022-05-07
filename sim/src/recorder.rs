@@ -1,4 +1,4 @@
-use std::{collections::BTreeSet, iter};
+use std::{collections::BTreeSet};
 
 use geom::Time;
 use map_model::{IntersectionID, LaneID, Map, PathStep, Position, Traversable};
@@ -29,69 +29,68 @@ impl TrafficRecorder {
 
     pub fn handle_event(&mut self, time: Time, ev: &Event, map: &Map, driving: &DrivingSimState) {
         if let Event::AgentEntersTraversable(AgentID::Car(car), Some(trip), on, _) = ev {
-            self.on_car_enters_traversable(time, &car, &trip, &on, map, driving);
+            self.on_car_enters_traversable(time, *car, *trip, *on, map, driving);
         }
     }
 
     fn on_car_enters_traversable(
         &mut self,
         time: Time,
-        car: &CarID,
-        trip: &TripID,
-        on: &Traversable,
+        car: CarID,
+        trip: TripID,
+        on: Traversable,
         map: &Map,
         driving: &DrivingSimState,
     ) {
-        if self.seen_trips.contains(trip) {
+        if self.seen_trips.contains(&trip) {
             return;
         }
         if let Traversable::Lane(lane) = on {
-            self.on_car_enters_lane(time, &car, &trip, &lane, map, driving);
+            self.on_car_enters_lane(time, car, trip, lane, map, driving);
         }
     }
 
     fn on_car_enters_lane(
         &mut self,
         time: Time,
-        car: &CarID,
-        trip: &TripID,
-        lane: &LaneID,
+        car: CarID,
+        trip: TripID,
+        lane: LaneID,
         map: &Map,
         driving: &DrivingSimState,
     ) {
-        if !self.capture_points.contains(&map.get_l(*lane).src_i) {
+        if !self.capture_points.contains(&map.get_l(lane).src_i) {
             return;
         }
         // Where do they exit?
-        let intersections = driving
-            .get_path(*car)
-            .unwrap()
-            .get_steps()
-            .iter()
-            .filter_map(|step| {
-                if let PathStep::Turn(t) = step {
-                    if self.capture_points.contains(&t.parent) {
-                        return Some(t.parent);
+        let exit_intersection =
+            driving
+                .get_path(car)
+                .unwrap()
+                .get_steps()
+                .iter()
+                .find_map(|step| {
+                    if let PathStep::Turn(t) = step {
+                        if self.capture_points.contains(&t.parent) {
+                            return Some(t.parent);
+                        }
                     }
-                }
-                None
-            });
-        let previous_trip_count = self.trips.len();
-        self.trips.extend(intersections.map(|intersection| {
-            IndividTrip::new(
+                    None
+                });
+        if let Some(exit_intersection) = exit_intersection {
+            self.trips.push(IndividTrip::new(
                 time,
                 TripPurpose::Shopping,
-                TripEndpoint::SuddenlyAppear(Position::start(*lane)),
-                TripEndpoint::Border(intersection),
+                TripEndpoint::SuddenlyAppear(Position::start(lane)),
+                TripEndpoint::Border(exit_intersection),
                 if car.vehicle_type == VehicleType::Bike {
                     TripMode::Bike
                 } else {
                     TripMode::Drive
                 },
-            )
-        }));
-        self.seen_trips
-            .extend(iter::repeat(*trip).take(self.trips.len() - previous_trip_count));
+            ));
+            self.seen_trips.insert(trip);
+        };
     }
 
     pub fn num_recorded_trips(&self) -> usize {
