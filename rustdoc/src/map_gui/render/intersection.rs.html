@@ -625,12 +625,30 @@
 <span id="620">620</span>
 <span id="621">621</span>
 <span id="622">622</span>
+<span id="623">623</span>
+<span id="624">624</span>
+<span id="625">625</span>
+<span id="626">626</span>
+<span id="627">627</span>
+<span id="628">628</span>
+<span id="629">629</span>
+<span id="630">630</span>
+<span id="631">631</span>
+<span id="632">632</span>
+<span id="633">633</span>
+<span id="634">634</span>
+<span id="635">635</span>
+<span id="636">636</span>
+<span id="637">637</span>
+<span id="638">638</span>
+<span id="639">639</span>
+<span id="640">640</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>, <span class="ident">Time</span>, <span class="ident">EPSILON_DIST</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{
-    <span class="ident">Direction</span>, <span class="ident">DrivingSide</span>, <span class="ident">Intersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">IntersectionType</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">Road</span>,
-    <span class="ident">RoadWithStopSign</span>, <span class="ident">Turn</span>, <span class="ident">TurnType</span>, <span class="ident">SIDEWALK_THICKNESS</span>,
+    <span class="ident">ControlTrafficSignal</span>, <span class="ident">Direction</span>, <span class="ident">DrivingSide</span>, <span class="ident">Intersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">IntersectionType</span>,
+    <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">Road</span>, <span class="ident">RoadWithStopSign</span>, <span class="ident">Turn</span>, <span class="ident">TurnType</span>, <span class="ident">SIDEWALK_THICKNESS</span>,
 };
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Prerender</span>, <span class="ident">RewriteColor</span>, <span class="ident">Text</span>};
 
@@ -784,11 +802,10 @@
     <span class="doccomment">/// Find sections along the intersection polygon that aren&#39;t connected to a road. These should</span>
     <span class="doccomment">/// contribute an outline.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_unzoomed_outline</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PolyLine</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">segments</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ring</span>) <span class="op">=</span> <span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">get_outer_ring</span>() {
             <span class="comment">// Turn each road into the left and right point that should be on the ring, so we can</span>
             <span class="comment">// &quot;subtract&quot; them out.</span>
-            <span class="kw">let</span> <span class="ident">road_pairs</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Pt2D</span>, <span class="ident">Pt2D</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">i</span>
+            <span class="kw">let</span> <span class="ident">road_pairs</span> <span class="op">=</span> <span class="ident">i</span>
                 .<span class="ident">roads</span>
                 .<span class="ident">iter</span>()
                 .<span class="ident">map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> {
@@ -802,19 +819,68 @@
                         (<span class="ident">left</span>.<span class="ident">last_pt</span>(), <span class="ident">right</span>.<span class="ident">last_pt</span>())
                     }
                 })
-                .<span class="ident">collect</span>();
+                .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
 
             <span class="comment">// Walk along each line segment on the ring. If it&#39;s not one of our road pairs, add it</span>
             <span class="comment">// as a potential segment.</span>
-            <span class="kw">for</span> <span class="ident">pair1</span> <span class="kw">in</span> <span class="ident">ring</span>.<span class="ident">into_points</span>().<span class="ident">windows</span>(<span class="number">2</span>) {
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">road_pairs</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">pair2</span><span class="op">|</span> <span class="ident">approx_eq</span>(<span class="ident">pair1</span>, <span class="ident">pair2</span>)) {
-                    <span class="ident">segments</span>.<span class="ident">push</span>(<span class="ident">PolyLine::must_new</span>(<span class="macro">vec!</span>[<span class="ident">pair1</span>[<span class="number">0</span>], <span class="ident">pair1</span>[<span class="number">1</span>]]));
-                }
-            }
+            <span class="ident">ring</span>.<span class="ident">into_points</span>()
+                .<span class="ident">windows</span>(<span class="number">2</span>)
+                .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">window</span><span class="op">|</span> {
+                    <span class="op">!</span><span class="ident">road_pairs</span>
+                        .<span class="ident">iter</span>()
+                        .<span class="ident">any</span>(<span class="op">|</span><span class="ident">road_pair</span><span class="op">|</span> <span class="ident">approx_eq</span>(<span class="ident">window</span>, <span class="kw-2">&amp;</span><span class="ident">road_pair</span>))
+                })
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="ident">PolyLine::must_new</span>(<span class="macro">vec!</span>[<span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>]]))
+                .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()
 
             <span class="comment">// TODO We could merge adjacent segments, to get nicer corners</span>
+        } <span class="kw">else</span> {
+            <span class="macro">vec!</span>[]
         }
-        <span class="ident">segments</span>
+    }
+
+    <span class="kw">fn</span> <span class="ident">redraw_default</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>) {
+        <span class="comment">// Lazily calculate, because these are expensive to all do up-front, and most players won&#39;t</span>
+        <span class="comment">// exhaustively see every intersection during a single session</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">draw_default</span>.<span class="ident">borrow_mut</span>();
+        <span class="kw">if</span> <span class="ident">draw</span>.<span class="ident">is_none</span>() {
+            <span class="kw-2">*</span><span class="ident">draw</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">g</span>.<span class="ident">upload</span>(<span class="self">self</span>.<span class="ident">render</span>(<span class="ident">g</span>, <span class="ident">app</span>)));
+        }
+        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="ident">draw</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>());
+    }
+
+    <span class="kw">fn</span> <span class="ident">draw_traffic_signal</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>,
+        <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>,
+        <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">DrawOptions</span>,
+        <span class="ident">signal</span>: <span class="kw-2">&amp;</span><span class="ident">ControlTrafficSignal</span>,
+    ) {
+        <span class="kw">if</span> <span class="ident">opts</span>.<span class="ident">suppress_traffic_signal_details</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">id</span>) {
+            <span class="kw">return</span>;
+        }
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">maybe_redraw</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">draw_traffic_signal</span>.<span class="ident">borrow_mut</span>();
+        <span class="kw">let</span> <span class="ident">recalc</span> <span class="op">=</span> <span class="ident">maybe_redraw</span>
+            .<span class="ident">as_ref</span>()
+            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">t</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">t</span> <span class="op">!</span><span class="op">=</span> <span class="ident">app</span>.<span class="ident">sim_time</span>())
+            .<span class="ident">unwrap_or</span>(<span class="bool-val">true</span>);
+        <span class="kw">if</span> <span class="ident">recalc</span> {
+            <span class="kw">let</span> (<span class="ident">idx</span>, <span class="ident">remaining</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">current_stage_and_remaining_time</span>(<span class="self">self</span>.<span class="ident">id</span>);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
+            <span class="ident">traffic_signal::draw_signal_stage</span>(
+                <span class="ident">g</span>.<span class="ident">prerender</span>,
+                <span class="kw-2">&amp;</span><span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">idx</span>],
+                <span class="ident">idx</span>,
+                <span class="self">self</span>.<span class="ident">id</span>,
+                <span class="prelude-val">Some</span>(<span class="ident">remaining</span>),
+                <span class="kw-2">&amp;mut</span> <span class="ident">batch</span>,
+                <span class="ident">app</span>,
+                <span class="ident">app</span>.<span class="ident">opts</span>().<span class="ident">traffic_signal_style</span>.<span class="ident">clone</span>(),
+            );
+            <span class="kw-2">*</span><span class="ident">maybe_redraw</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">app</span>.<span class="ident">sim_time</span>(), <span class="ident">g</span>.<span class="ident">prerender</span>.<span class="ident">upload</span>(<span class="ident">batch</span>)));
+        }
+        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">batch</span>) <span class="op">=</span> <span class="ident">maybe_redraw</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>();
+        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="ident">batch</span>);
     }
 }
 
@@ -830,39 +896,9 @@
     }
 
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>, <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">DrawOptions</span>) {
-        <span class="comment">// Lazily calculate, because these are expensive to all do up-front, and most players won&#39;t</span>
-        <span class="comment">// exhaustively see every intersection during a single session</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">draw_default</span>.<span class="ident">borrow_mut</span>();
-        <span class="kw">if</span> <span class="ident">draw</span>.<span class="ident">is_none</span>() {
-            <span class="kw-2">*</span><span class="ident">draw</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">g</span>.<span class="ident">upload</span>(<span class="self">self</span>.<span class="ident">render</span>(<span class="ident">g</span>, <span class="ident">app</span>)));
-        }
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="ident">draw</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>());
-
+        <span class="self">self</span>.<span class="ident">redraw_default</span>(<span class="ident">g</span>, <span class="ident">app</span>);
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">signal</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">maybe_get_traffic_signal</span>(<span class="self">self</span>.<span class="ident">id</span>) {
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">opts</span>.<span class="ident">suppress_traffic_signal_details</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">id</span>) {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">maybe_redraw</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">draw_traffic_signal</span>.<span class="ident">borrow_mut</span>();
-                <span class="kw">let</span> <span class="ident">recalc</span> <span class="op">=</span> <span class="ident">maybe_redraw</span>
-                    .<span class="ident">as_ref</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">t</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">t</span> <span class="op">!</span><span class="op">=</span> <span class="ident">app</span>.<span class="ident">sim_time</span>())
-                    .<span class="ident">unwrap_or</span>(<span class="bool-val">true</span>);
-                <span class="kw">if</span> <span class="ident">recalc</span> {
-                    <span class="kw">let</span> (<span class="ident">idx</span>, <span class="ident">remaining</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">current_stage_and_remaining_time</span>(<span class="self">self</span>.<span class="ident">id</span>);
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-                    <span class="ident">traffic_signal::draw_signal_stage</span>(
-                        <span class="ident">g</span>.<span class="ident">prerender</span>,
-                        <span class="kw-2">&amp;</span><span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">idx</span>],
-                        <span class="ident">idx</span>,
-                        <span class="self">self</span>.<span class="ident">id</span>,
-                        <span class="prelude-val">Some</span>(<span class="ident">remaining</span>),
-                        <span class="kw-2">&amp;mut</span> <span class="ident">batch</span>,
-                        <span class="ident">app</span>,
-                        <span class="ident">app</span>.<span class="ident">opts</span>().<span class="ident">traffic_signal_style</span>.<span class="ident">clone</span>(),
-                    );
-                    <span class="kw-2">*</span><span class="ident">maybe_redraw</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">app</span>.<span class="ident">sim_time</span>(), <span class="ident">g</span>.<span class="ident">prerender</span>.<span class="ident">upload</span>(<span class="ident">batch</span>)));
-                }
-                <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">batch</span>) <span class="op">=</span> <span class="ident">maybe_redraw</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>();
-                <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="ident">batch</span>);
-            }
+            <span class="self">self</span>.<span class="ident">draw_traffic_signal</span>(<span class="ident">g</span>, <span class="ident">app</span>, <span class="ident">opts</span>, <span class="ident">signal</span>);
         }
     }
 
