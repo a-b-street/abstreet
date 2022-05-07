@@ -87,6 +87,7 @@ pub enum Tab {
     LaneInfo(LaneID),
     LaneDebug(LaneID),
     LaneTraffic(LaneID, DataOptions),
+    LaneProblems(LaneID, ProblemOptions),
 }
 
 impl Tab {
@@ -97,6 +98,7 @@ impl Tab {
                 "info" => Tab::LaneInfo(l),
                 "debug" => Tab::LaneDebug(l),
                 "traffic" => Tab::LaneTraffic(l, DataOptions::new()),
+                "problems" => Tab::LaneProblems(l, ProblemOptions::new()),
                 _ => unreachable!(),
             },
             ID::Intersection(i) => match app.session.info_panel_tab["intersection"] {
@@ -221,7 +223,10 @@ impl Tab {
             | Tab::IntersectionArrivals(i, _)
             | Tab::IntersectionTrafficSignal(i)
             | Tab::IntersectionProblems(i, _) => Some(ID::Intersection(*i)),
-            Tab::LaneInfo(l) | Tab::LaneDebug(l) | Tab::LaneTraffic(l, _) => Some(ID::Lane(*l)),
+            Tab::LaneInfo(l)
+            | Tab::LaneDebug(l)
+            | Tab::LaneTraffic(l, _)
+            | Tab::LaneProblems(l, _) => Some(ID::Lane(*l)),
         }
     }
 
@@ -233,6 +238,7 @@ impl Tab {
             | Tab::IntersectionArrivals(_, _)
             | Tab::IntersectionProblems(_, _)
             | Tab::LaneTraffic(_, _) => {}
+            Tab::LaneProblems(_, _) => {}
             _ => {
                 return None;
             }
@@ -258,7 +264,7 @@ impl Tab {
                 *opts = new_opts;
                 *fan_chart = new_fan_chart;
             }
-            Tab::IntersectionProblems(_, ref mut opts) => {
+            Tab::IntersectionProblems(_, ref mut opts) | Tab::LaneProblems(_, ref mut opts) => {
                 let new_opts = ProblemOptions::from_controls(c);
                 if *opts == new_opts {
                     return None;
@@ -294,6 +300,7 @@ impl Tab {
             Tab::LaneInfo(_) => ("lane", "info"),
             Tab::LaneDebug(_) => ("lane", "debug"),
             Tab::LaneTraffic(_, _) => ("lane", "traffic"),
+            Tab::LaneProblems(_, _) => ("lane", "problems"),
         }
     }
 }
@@ -388,6 +395,9 @@ impl InfoPanel {
             Tab::LaneDebug(l) => (lane::debug(ctx, app, &mut details, l), false),
             Tab::LaneTraffic(l, ref opts) => {
                 (lane::traffic(ctx, app, &mut details, l, opts), false)
+            }
+            Tab::LaneProblems(l, ref opts) => {
+                (lane::problems(ctx, app, &mut details, l, opts), false)
             }
         };
 

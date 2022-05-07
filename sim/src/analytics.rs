@@ -635,6 +635,60 @@ impl Analytics {
         }
         result
     }
+
+    pub fn problems_per_lane(
+        &self,
+        now: Time,
+        id: LaneID,
+    ) -> Vec<(ProblemType, Vec<(Time, usize)>)> {
+        let window_size = Duration::minutes(15);
+
+        let mut raw_per_type: BTreeMap<ProblemType, Vec<Time>> = BTreeMap::new();
+        for problem_type in ProblemType::all() {
+            raw_per_type.insert(problem_type, Vec::new());
+        }
+
+        for (_, problems) in &self.problems_per_trip {
+            for (time, problem) in problems {
+                if *time > now {
+                    break;
+                }
+                let l = match problem {
+                    Problem::OvertakeDesired(on) | Problem::PedestrianOvercrowding(on) => {
+                        match on {
+                            Traversable::Lane(l) => *l,
+                            _ => {
+                                continue;
+                            }
+                        }
+                    }
+                    _ => {
+                        continue;
+                    }
+                };
+                if id == l {
+                    raw_per_type
+                        .get_mut(&ProblemType::from(problem))
+                        .unwrap()
+                        .push(*time);
+                }
+            }
+        }
+
+        let mut result = Vec::new();
+        for (problem_type, mut raw) in raw_per_type {
+            raw.sort();
+            let mut pts = vec![(Time::START_OF_DAY, 0)];
+            let mut window = SlidingWindow::new(window_size);
+            for t in raw {
+                let count = window.add(t);
+                pts.push((t, count));
+            }
+            window.close_off_pts(&mut pts, now);
+            result.push((problem_type, pts));
+        }
+        result
+    }
 }
 
 impl Default for Analytics {
