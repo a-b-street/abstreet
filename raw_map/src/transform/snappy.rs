@@ -23,7 +23,7 @@ pub fn snap_cycleways(map: &mut RawMap) {
             && (road.osm_tags.contains_key("separation:left")
                 || road.osm_tags.contains_key("separation:right"))
         {
-            let (center, total_width) = road.untrimmed_road_geometry().unwrap();
+            let (center, total_width) = road.untrimmed_road_geometry();
             cycleways.push(Cycleway {
                 id: *id,
                 center,
@@ -38,7 +38,7 @@ pub fn snap_cycleways(map: &mut RawMap) {
         if r.is_light_rail() || r.is_footway() || r.is_service() || r.is_cycleway() {
             continue;
         }
-        let (pl, total_width) = r.untrimmed_road_geometry().unwrap();
+        let (pl, total_width) = r.untrimmed_road_geometry();
         road_edges.insert(
             (*id, Direction::Fwd),
             pl.must_shift_right(total_width / 2.0),

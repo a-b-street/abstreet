@@ -2131,9 +2131,9 @@
       "compressed_size_bytes": 2618513
     },
     "data/input/pt/lisbon/raw_maps/huge.bin": {
-      "checksum": "b334c2db12b834d8eadc389de4128bb9",
-      "uncompressed_size_bytes": 32523580,
-      "compressed_size_bytes": 6411738
+      "checksum": "e0bc619e78ab67782b483962ee131392",
+      "uncompressed_size_bytes": 32522818,
+      "compressed_size_bytes": 6411685
     },
     "data/input/sg/jurong/osm/center.osm": {
       "checksum": "d91b6aba774bea844f07f90d33cb9307",

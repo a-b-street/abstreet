@@ -212,7 +212,7 @@ impl RawMap {
     ) -> Result<(Polygon, Vec<Polygon>, Vec<(String, Polygon)>)> {
         let mut input_roads = Vec::new();
         for r in self.roads_per_intersection(id) {
-            input_roads.push(initial::Road::new(self, r)?.to_input_road());
+            input_roads.push(initial::Road::new(self, r).to_input_road());
         }
         let results = intersection_polygon(
             id,
@@ -237,7 +237,7 @@ impl RawMap {
         let trimmed_center_pts = {
             let mut input_roads = Vec::new();
             for r in self.roads_per_intersection(road_id.i1) {
-                input_roads.push(initial::Road::new(self, r)?.to_input_road());
+                input_roads.push(initial::Road::new(self, r).to_input_road());
             }
             let mut results = intersection_polygon(
                 road_id.i1,
@@ -252,7 +252,7 @@ impl RawMap {
         {
             let mut input_roads = Vec::new();
             for r in self.roads_per_intersection(road_id.i2) {
-                let mut road = initial::Road::new(self, r)?.to_input_road();
+                let mut road = initial::Road::new(self, r).to_input_road();
                 if r == road_id {
                     road.center_pts = trimmed_center_pts.clone();
                 }
@@ -357,10 +357,14 @@ pub struct RawRoad {
 }
 
 impl RawRoad {
-    pub fn new(osm_center_points: Vec<Pt2D>, osm_tags: Tags, config: &MapConfig) -> Self {
+    pub fn new(osm_center_points: Vec<Pt2D>, osm_tags: Tags, config: &MapConfig) -> Result<Self> {
+        // Just flush out errors immediately.
+        // TODO Store the PolyLine, not a Vec<Pt2D>
+        let _ = PolyLine::new(osm_center_points.clone())?;
+
         let lane_specs_ltr = get_lane_specs_ltr(&osm_tags, config);
 
-        Self {
+        Ok(Self {
             osm_center_points,
             osm_tags,
             turn_restrictions: Vec::new(),
@@ -372,7 +376,7 @@ impl RawRoad {
             crosswalk_backward: true,
 
             lane_specs_ltr,
-        }
+        })
     }
 
     // TODO For the moment, treating all rail things as light rail
@@ -436,7 +440,7 @@ impl RawRoad {
                 // Just drop .5 for now
                 Ok(l) => l as isize,
                 Err(_) => {
-                    warn!("Weird layer={} on {:?}", layer, self.osm_url());
+                    warn!("Weird layer={} on {}", layer, self.osm_url());
                     0
                 }
             }
@@ -446,7 +450,7 @@ impl RawRoad {
     }
 
     /// Returns the corrected (but untrimmed) center and total width for a road
-    pub fn untrimmed_road_geometry(&self) -> Result<(PolyLine, Distance)> {
+    pub fn untrimmed_road_geometry(&self) -> (PolyLine, Distance) {
         let mut total_width = Distance::ZERO;
         let mut sidewalk_right = None;
         let mut sidewalk_left = None;
@@ -464,7 +468,14 @@ impl RawRoad {
         // If there's a sidewalk on only one side, adjust the true center of the road.
         // TODO I don't remember the rationale for doing this in the first place. What if there's a
         // shoulder and a sidewalk of different widths? We don't do anything then
-        let mut true_center = PolyLine::new(self.osm_center_points.clone())?;
+        let mut true_center = match PolyLine::new(self.osm_center_points.clone()) {
+            Ok(pl) => pl,
+            Err(err) => panic!(
+                "untrimmed_road_geometry of {} failed: {}",
+                self.osm_url(),
+                err
+            ),
+        };
         match (sidewalk_right, sidewalk_left) {
             (Some(w), None) => {
                 true_center = true_center.must_shift_right(w / 2.0);
@@ -475,7 +486,7 @@ impl RawRoad {
             _ => {}
         }
 
-        Ok((true_center, total_width))
+        (true_center, total_width)
     }
 
     pub fn osm_url(&self) -> String {

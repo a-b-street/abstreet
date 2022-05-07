@@ -3,8 +3,6 @@
 
 use std::collections::{BTreeMap, BTreeSet};
 
-use anyhow::Result;
-
 use abstutil::{Tags, Timer};
 use geom::{Bounds, Circle, Distance, PolyLine, Polygon, Pt2D};
 
@@ -30,18 +28,18 @@ pub struct Road {
 }
 
 impl Road {
-    pub fn new(map: &RawMap, id: OriginalRoad) -> Result<Road> {
+    pub fn new(map: &RawMap, id: OriginalRoad) -> Road {
         let road = &map.roads[&id];
-        let (trimmed_center_pts, total_width) = road.untrimmed_road_geometry()?;
+        let (trimmed_center_pts, total_width) = road.untrimmed_road_geometry();
 
-        Ok(Road {
+        Road {
             id,
             src_i: id.i1,
             dst_i: id.i2,
             trimmed_center_pts,
             half_width: total_width / 2.0,
             osm_tags: road.osm_tags.clone(),
-        })
+        }
     }
 
     pub(crate) fn to_input_road(&self) -> InputRoad {
@@ -87,19 +85,18 @@ impl InitialMap {
 
         for (id, road) in &raw.roads {
             let id = *id;
+            // TODO Neither of these should still be happening. If they are, flush out the problem
             if id.i1 == id.i2 {
-                warn!("Skipping loop {}", id);
-                continue;
+                panic!("There's a loop {}", id);
             }
             if PolyLine::new(road.osm_center_points.clone()).is_err() {
-                warn!("Skipping broken geom {}", id);
-                continue;
+                panic!("There's broken geom {}", id);
             }
 
             m.intersections.get_mut(&id.i1).unwrap().roads.insert(id);
             m.intersections.get_mut(&id.i2).unwrap().roads.insert(id);
 
-            m.roads.insert(id, Road::new(raw, id).unwrap());
+            m.roads.insert(id, Road::new(raw, id));
         }
 
         timer.start_iter("find each intersection polygon", m.intersections.len());

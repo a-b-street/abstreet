@@ -52,6 +52,7 @@ impl RawMap {
         // [X] road we're deleting is the 'via' of a complicated restriction
         // [ ] road we're deleting has turn lanes that wind up orphaning something
 
+        // TODO This has maybe become impossible
         let (i1, i2) = (short.i1, short.i2);
         if i1 == i2 {
             bail!("Can't merge {} -- it's a loop on {}", short, i1);
@@ -125,6 +126,13 @@ impl RawMap {
                 assert_eq!(r.i2, i2);
                 new_id.i2 = i1;
             }
+
+            if new_id.i1 == new_id.i2 {
+                // When merging many roads around some junction, we wind up with loops. We can
+                // immediately discard those.
+                continue;
+            }
+
             old_to_new.insert(r, new_id);
             new_to_old.insert(new_id, r);
 

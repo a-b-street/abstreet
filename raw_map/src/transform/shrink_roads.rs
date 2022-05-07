@@ -23,15 +23,7 @@ pub fn shrink(raw: &mut RawMap, timer: &mut Timer) {
             continue;
         }
 
-        let (center, total_width) = match road.untrimmed_road_geometry() {
-            Ok((center, total_width)) => (center, total_width),
-            Err(err) => {
-                // Crashing in Lisbon because of https://www.openstreetmap.org/node/5754625281 and
-                // https://www.openstreetmap.org/node/5754625989
-                error!("Not trying to shrink roads near {}", err);
-                continue;
-            }
-        };
+        let (center, total_width) = road.untrimmed_road_geometry();
         let polygon = center.make_polygons(total_width);
 
         // Any conflicts with existing?

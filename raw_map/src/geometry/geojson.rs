@@ -8,10 +8,10 @@ use crate::geometry::{InputRoad, Results};
 use crate::{osm, OriginalRoad, RawMap};
 
 impl RawMap {
-    pub fn save_osm2polygon_input(&self, output_path: String, i: osm::NodeID) -> Result<()> {
+    pub fn save_osm2polygon_input(&self, output_path: String, i: osm::NodeID) {
         let mut features = Vec::new();
         for id in self.roads_per_intersection(i) {
-            let (untrimmed_center_pts, total_width) = self.roads[&id].untrimmed_road_geometry()?;
+            let (untrimmed_center_pts, total_width) = self.roads[&id].untrimmed_road_geometry();
 
             let mut properties = serde_json::Map::new();
             properties.insert("osm_way_id".to_string(), id.osm_way_id.0.into());
@@ -54,7 +54,6 @@ impl RawMap {
         };
         let gj = geojson::GeoJson::from(fc);
         abstio::write_json(output_path, &gj);
-        Ok(())
     }
 }
 

@@ -105,10 +105,8 @@ impl RawMap {
             {
                 continue;
             }
-            if let Ok((pl, _)) = road.untrimmed_road_geometry() {
-                if pl.length() <= threshold {
-                    results.push(*id);
-                }
+            if road.untrimmed_road_geometry().0.length() <= threshold {
+                results.push(*id);
             }
         }
 
