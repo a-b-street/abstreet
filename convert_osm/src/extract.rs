@@ -8,15 +8,15 @@ use geom::{Distance, FindClosest, HashablePt2D, Polygon, Pt2D, Ring};
 use kml::{ExtraShape, ExtraShapes};
 use raw_map::{
     osm, Amenity, AreaType, Direction, DrivingSide, NamePerLanguage, RawArea, RawBuilding, RawMap,
-    RawParkingLot, RawRoad, RestrictionType,
+    RawParkingLot, RestrictionType,
 };
 
 use crate::osm_geom::{get_multipolygon_members, glue_multipolygon, multipoly_geometry};
 use crate::Options;
 
 pub struct OsmExtract {
-    /// Unsplit roads
-    pub roads: Vec<(WayID, RawRoad)>,
+    /// Unsplit roads. These aren't RawRoads yet, because they may not obey those invariants.
+    pub roads: Vec<(WayID, Vec<Pt2D>, Tags)>,
     /// Traffic signals to the direction they apply
     pub traffic_signals: HashMap<HashablePt2D, Direction>,
     pub osm_node_ids: HashMap<HashablePt2D, NodeID>,
@@ -109,10 +109,7 @@ pub fn extract_osm(
                 way.tags.insert(osm::SIDEWALK, "right");
             }
 
-            out.roads.push((
-                id,
-                RawRoad::new(way.pts.clone(), way.tags.clone(), &opts.map_config),
-            ));
+            out.roads.push((id, way.pts.clone(), way.tags.clone()));
             continue;
         } else if way.tags.is(osm::HIGHWAY, "service") {
             // If we got here, is_road didn't interpret it as a normal road
@@ -568,33 +565,30 @@ fn get_area_type(tags: &Tags) -> Option<AreaType> {
 
 // Look for any service roads that collide with parking lots, and treat them as parking aisles
 // instead.
-fn find_parking_aisles(map: &mut RawMap, roads: &mut Vec<(WayID, RawRoad)>) {
+fn find_parking_aisles(map: &mut RawMap, roads: &mut Vec<(WayID, Vec<Pt2D>, Tags)>) {
     let mut closest: FindClosest<usize> = FindClosest::new(&map.gps_bounds.to_bounds());
     for (idx, lot) in map.parking_lots.iter().enumerate() {
         closest.add(idx, lot.polygon.points());
     }
     let mut keep_roads = Vec::new();
     let mut parking_aisles = Vec::new();
-    for (id, road) in roads.drain(..) {
-        if !road.osm_tags.is(osm::HIGHWAY, "service") {
-            keep_roads.push((id, road));
+    for (id, pts, osm_tags) in roads.drain(..) {
+        if !osm_tags.is(osm::HIGHWAY, "service") {
+            keep_roads.push((id, pts, osm_tags));
             continue;
         }
         // TODO This code is repeated later in make/parking_lots.rs, but oh well.
 
         // Use the center of all the aisle points to match it to lots
         let candidates: Vec<usize> = closest
-            .all_close_pts(
-                Pt2D::center(&road.osm_center_points),
-                Distance::meters(500.0),
-            )
+            .all_close_pts(Pt2D::center(&pts), Distance::meters(500.0))
             .into_iter()
             .map(|(idx, _, _)| idx)
             .collect();
-        if service_road_crosses_parking_lot(map, &road, candidates) {
-            parking_aisles.push((id, road.osm_center_points.clone()));
+        if service_road_crosses_parking_lot(map, &pts, candidates) {
+            parking_aisles.push((id, pts));
         } else {
-            keep_roads.push((id, road));
+            keep_roads.push((id, pts, osm_tags));
         }
     }
     roads.extend(keep_roads);
@@ -603,8 +597,8 @@ fn find_parking_aisles(map: &mut RawMap, roads: &mut Vec<(WayID, RawRoad)>) {
     }
 }
 
-fn service_road_crosses_parking_lot(map: &RawMap, road: &RawRoad, candidates: Vec<usize>) -> bool {
-    if let Ok((polylines, rings)) = Ring::split_points(&road.osm_center_points) {
+fn service_road_crosses_parking_lot(map: &RawMap, pts: &[Pt2D], candidates: Vec<usize>) -> bool {
+    if let Ok((polylines, rings)) = Ring::split_points(pts) {
         for pl in polylines {
             for idx in &candidates {
                 if map.parking_lots[*idx].polygon.clip_polyline(&pl).is_some() {
