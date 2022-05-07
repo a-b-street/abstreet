@@ -28,8 +28,10 @@ impl DrawRoad {
         }
     }
 
-    pub fn render_center_line(&self, app: &dyn AppLike) -> GeomBatch {
+    pub fn render_center_line<P: AsRef<Prerender>>(&self, app: &dyn AppLike, prerender: &P) -> GeomBatch {
         let r = app.map().get_r(self.id);
+        let name = r.get_name(app.opts().language.as_ref());
+        let prerender = prerender.as_ref();
         let center_line_color = if r.is_private() && app.cs().private_road.is_some() {
             app.cs()
                 .road_center_line
@@ -50,14 +52,31 @@ impl DrawRoad {
                 && pair[1].lane_type.is_for_moving_vehicles()
             {
                 let pl = r.shift_from_left_side(width).unwrap();
+                let first_segment_distance = ( pl.length().inner_meters() - (Text::from(&name).rendered_width(prerender)*0.1) ) / 2.0;
+                let last_segment_distance = first_segment_distance + (Text::from(&name).rendered_width(prerender)*0.1);
                 batch.extend(
                     center_line_color,
-                    pl.dashed_lines(
+                    pl.dashed_lines_segment(
                         Distance::meters(0.25),
                         Distance::meters(2.0),
                         Distance::meters(1.0),
+                        Distance::meters(0.0),
+                        Distance::meters((first_segment_distance)),
                     ),
                 );
+
+
+                batch.extend(
+                    center_line_color,
+                    pl.dashed_lines_segment(
+                        Distance::meters(0.25),
+                        Distance::meters(2.0),
+                        Distance::meters(1.0),
+                        Distance::meters((last_segment_distance)),
+                        Distance::meters( pl.length().inner_meters() ),
+                    ),
+                );
+
             }
         }
 
@@ -75,11 +94,12 @@ impl DrawRoad {
             app.cs().road_center_line
         };
 
-        let mut batch = self.render_center_line(app);
+        let mut batch = self.render_center_line(app, prerender);
 
         // Draw the label
         if !r.is_light_rail() {
             let name = r.get_name(app.opts().language.as_ref());
+            let fg = Color::WHITE;
             if r.length() >= Distance::meters(30.0) && name != "???" {
                 // TODO If it's definitely straddling bus/bike lanes, change the color? Or
                 // even easier, just skip the center lines?
@@ -92,15 +112,15 @@ impl DrawRoad {
                         .zoomed_road_surface(LaneType::Driving, r.get_rank())
                 };
                 // TODO: find a good way to draw an appropriate background
-                if false {
+                if true {
                     if r.center_pts.quadrant() > 1 && r.center_pts.quadrant() < 4 {
-                        batch.append(Line(name).fg(center_line_color).render_curvey(
+                        batch.append(Line(name).fg(fg).render_curvey(
                             prerender,
                             &r.center_pts.reversed(),
                             0.1,
                         ));
                     } else {
-                        batch.append(Line(name).fg(center_line_color).render_curvey(
+                        batch.append(Line(name).fg(fg).render_curvey(
                             prerender,
                             &r.center_pts,
                             0.1,

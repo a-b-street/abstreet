@@ -589,6 +589,24 @@ impl PolyLine {
         self.exact_slice(dash_separation, self.length() - dash_separation)
             .exact_dashed_polygons(width, dash_len, dash_separation)
     }
+    /// Creates a dashed line segments
+
+    // I'm not sure how this should be refactored
+    pub fn dashed_lines_segment(
+        &self,
+        width: Distance,
+        dash_len: Distance,
+        dash_separation: Distance,
+        start: Distance,
+        length: Distance,
+    ) -> Vec<Polygon> {
+        if self.length() <= dash_separation * 2.0 + EPSILON_DIST {
+            return vec![self.make_polygons(width)];
+        }
+
+            self.exact_slice(if start.inner_meters() > 0.0 { start } else { dash_separation }, if length.inner_meters() > 0.0  { length } else { self.length })
+                .exact_dashed_polygons(width, dash_len, dash_separation)
+    }
 
     /// Fail if the length is too short.
     pub fn maybe_make_arrow(&self, thickness: Distance, cap: ArrowCap) -> Option<Polygon> {
