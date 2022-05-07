@@ -2,8 +2,8 @@ use std::cell::RefCell;
 
 use geom::{Angle, ArrowCap, Distance, Line, PolyLine, Polygon, Pt2D, Ring, Time, EPSILON_DIST};
 use map_model::{
-    Direction, DrivingSide, Intersection, IntersectionID, IntersectionType, LaneType, Map, Road,
-    RoadWithStopSign, Turn, TurnType, SIDEWALK_THICKNESS,
+    ControlTrafficSignal, Direction, DrivingSide, Intersection, IntersectionID, IntersectionType,
+    LaneType, Map, Road, RoadWithStopSign, Turn, TurnType, SIDEWALK_THICKNESS,
 };
 use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Prerender, RewriteColor, Text};
 
@@ -157,37 +157,81 @@ impl DrawIntersection {
     /// Find sections along the intersection polygon that aren't connected to a road. These should
     /// contribute an outline.
     pub fn get_unzoomed_outline(i: &Intersection, map: &Map) -> Vec<PolyLine> {
-        let mut segments = Vec::new();
         if let Some(ring) = i.polygon.get_outer_ring() {
             // Turn each road into the left and right point that should be on the ring, so we can
             // "subtract" them out.
-            let road_pairs: Vec<(Pt2D, Pt2D)> = i
-                .roads
-                .iter()
-                .map(|r| {
-                    let road = map.get_r(*r);
-                    let half_width = road.get_half_width();
-                    let left = road.center_pts.must_shift_left(half_width);
-                    let right = road.center_pts.must_shift_right(half_width);
-                    if road.src_i == i.id {
-                        (left.first_pt(), right.first_pt())
-                    } else {
-                        (left.last_pt(), right.last_pt())
-                    }
-                })
-                .collect();
+            let road_pairs = i.roads.iter().map(|r| {
+                let road = map.get_r(*r);
+                let half_width = road.get_half_width();
+                let left = road.center_pts.must_shift_left(half_width);
+                let right = road.center_pts.must_shift_right(half_width);
+                if road.src_i == i.id {
+                    (left.first_pt(), right.first_pt())
+                } else {
+                    (left.last_pt(), right.last_pt())
+                }
+            }).collect::<Vec<_>>();
 
             // Walk along each line segment on the ring. If it's not one of our road pairs, add it
             // as a potential segment.
-            for pair1 in ring.into_points().windows(2) {
-                if !road_pairs.iter().any(|pair2| approx_eq(pair1, pair2)) {
-                    segments.push(PolyLine::must_new(vec![pair1[0], pair1[1]]));
-                }
-            }
+            ring.into_points()
+                .windows(2)
+                .filter(|window| {
+                    !road_pairs
+                        .iter()
+                        .any(|road_pair| approx_eq(window, &road_pair))
+                })
+                .map(|pair1| PolyLine::must_new(vec![pair1[0], pair1[1]]))
+                .collect::<Vec<_>>()
 
             // TODO We could merge adjacent segments, to get nicer corners
+        } else {
+            vec![]
         }
-        segments
+    }
+
+    fn redraw_default(&self, g: &mut GfxCtx, app: &dyn AppLike) {
+        // Lazily calculate, because these are expensive to all do up-front, and most players won't
+        // exhaustively see every intersection during a single session
+        let mut draw = self.draw_default.borrow_mut();
+        if draw.is_none() {
+            *draw = Some(g.upload(self.render(g, app)));
+        }
+        g.redraw(draw.as_ref().unwrap());
+    }
+
+    fn draw_traffic_signal(
+        &self,
+        g: &mut GfxCtx,
+        app: &dyn AppLike,
+        opts: &DrawOptions,
+        signal: &ControlTrafficSignal,
+    ) {
+        if opts.suppress_traffic_signal_details.contains(&self.id) {
+            return;
+        }
+        let mut maybe_redraw = self.draw_traffic_signal.borrow_mut();
+        let recalc = maybe_redraw
+            .as_ref()
+            .map(|(t, _)| *t != app.sim_time())
+            .unwrap_or(true);
+        if recalc {
+            let (idx, remaining) = app.current_stage_and_remaining_time(self.id);
+            let mut batch = GeomBatch::new();
+            traffic_signal::draw_signal_stage(
+                g.prerender,
+                &signal.stages[idx],
+                idx,
+                self.id,
+                Some(remaining),
+                &mut batch,
+                app,
+                app.opts().traffic_signal_style.clone(),
+            );
+            *maybe_redraw = Some((app.sim_time(), g.prerender.upload(batch)));
+        }
+        let (_, batch) = maybe_redraw.as_ref().unwrap();
+        g.redraw(batch);
     }
 }
 
@@ -203,39 +247,9 @@ impl Renderable for DrawIntersection {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &dyn AppLike, opts: &DrawOptions) {
-        // Lazily calculate, because these are expensive to all do up-front, and most players won't
-        // exhaustively see every intersection during a single session
-        let mut draw = self.draw_default.borrow_mut();
-        if draw.is_none() {
-            *draw = Some(g.upload(self.render(g, app)));
-        }
-        g.redraw(draw.as_ref().unwrap());
-
+        self.redraw_default(g, app);
         if let Some(signal) = app.map().maybe_get_traffic_signal(self.id) {
-            if !opts.suppress_traffic_signal_details.contains(&self.id) {
-                let mut maybe_redraw = self.draw_traffic_signal.borrow_mut();
-                let recalc = maybe_redraw
-                    .as_ref()
-                    .map(|(t, _)| *t != app.sim_time())
-                    .unwrap_or(true);
-                if recalc {
-                    let (idx, remaining) = app.current_stage_and_remaining_time(self.id);
-                    let mut batch = GeomBatch::new();
-                    traffic_signal::draw_signal_stage(
-                        g.prerender,
-                        &signal.stages[idx],
-                        idx,
-                        self.id,
-                        Some(remaining),
-                        &mut batch,
-                        app,
-                        app.opts().traffic_signal_style.clone(),
-                    );
-                    *maybe_redraw = Some((app.sim_time(), g.prerender.upload(batch)));
-                }
-                let (_, batch) = maybe_redraw.as_ref().unwrap();
-                g.redraw(batch);
-            }
+            self.draw_traffic_signal(g, app, opts, signal);
         }
     }
 
