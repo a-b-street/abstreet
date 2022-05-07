@@ -263,7 +263,7 @@ impl Model {
 impl Model {
     pub fn road_added(&mut self, ctx: &EventCtx, id: OriginalRoad) {
         let road = &self.map.roads[&id];
-        let (center, total_width) = road.untrimmed_road_geometry().unwrap();
+        let (center, total_width) = road.untrimmed_road_geometry();
         let hitbox = center.make_polygons(total_width);
         let mut draw = GeomBatch::new();
         draw.push(
@@ -327,20 +327,25 @@ impl Model {
         osm_tags.insert(osm::NAME, "Streety McStreetFace");
         osm_tags.insert(osm::MAXSPEED, "25 mph");
 
+        let road = match RawRoad::new(
+            vec![
+                self.map.intersections[&i1].point,
+                self.map.intersections[&i2].point,
+            ],
+            osm_tags,
+            &self.map.config,
+        ) {
+            Ok(road) => road,
+            Err(err) => {
+                error!("Can't create road: {err}");
+                return;
+            }
+        };
+
         self.world.delete_before_replacement(ID::Intersection(i1));
         self.world.delete_before_replacement(ID::Intersection(i2));
 
-        self.map.roads.insert(
-            id,
-            RawRoad::new(
-                vec![
-                    self.map.intersections[&i1].point,
-                    self.map.intersections[&i2].point,
-                ],
-                osm_tags,
-                &self.map.config,
-            ),
-        );
+        self.map.roads.insert(id, road);
         self.road_added(ctx, id);
 
         self.intersection_added(ctx, i1);

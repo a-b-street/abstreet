@@ -112,8 +112,16 @@ pub fn split_up_roads(map: &mut RawMap, mut input: OsmExtract, timer: &mut Timer
                 }
 
                 let osm_center_pts = simplify_linestring(std::mem::take(&mut pts));
-                map.roads
-                    .insert(id, RawRoad::new(osm_center_pts, tags, &map.config));
+                match RawRoad::new(osm_center_pts, tags, &map.config) {
+                    Ok(road) => {
+                        map.roads.insert(id, road);
+                    }
+                    Err(err) => {
+                        error!("Skipping {id}: {err}");
+                        // There may be an orphaned intersection left around; a later
+                        // transformation should clean it up
+                    }
+                }
 
                 // Start a new road
                 tags = orig_tags.clone();

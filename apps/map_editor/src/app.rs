@@ -217,14 +217,9 @@ impl State<App> for MainState {
                         let input = format!("{}_input.json", i.0);
                         let output = format!("{}_output.json", i.0);
 
+                        app.model.map.save_osm2polygon_input(input.clone(), i);
                         return Transition::Push(
-                            match app
-                                .model
-                                .map
-                                .save_osm2polygon_input(input.clone(), i)
-                                .and_then(|_| {
-                                    raw_map::geometry::osm2polygon(input.clone(), output.clone())
-                                }) {
+                            match raw_map::geometry::osm2polygon(input.clone(), output.clone()) {
                                 Ok(()) => PopupMsg::new_state(
                                     ctx,
                                     "Exported",
