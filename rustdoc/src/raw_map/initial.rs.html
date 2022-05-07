@@ -188,15 +188,10 @@
 <span id="183">183</span>
 <span id="184">184</span>
 <span id="185">185</span>
-<span id="186">186</span>
-<span id="187">187</span>
-<span id="188">188</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Naming is confusing, but RawMap -&gt; InitialMap -&gt; Map. InitialMap is separate pretty much just</span>
 <span class="doccomment">//! for the step of producing &lt;https://a-b-street.github.io/docs/tech/map/importing/geometry.html&gt;.</span>
 
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
-
-<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Tags</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
@@ -223,18 +218,18 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Road</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">RawMap</span>, <span class="ident">id</span>: <span class="ident">OriginalRoad</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Road</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">RawMap</span>, <span class="ident">id</span>: <span class="ident">OriginalRoad</span>) -&gt; <span class="ident">Road</span> {
         <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">roads</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>];
-        <span class="kw">let</span> (<span class="ident">trimmed_center_pts</span>, <span class="ident">total_width</span>) <span class="op">=</span> <span class="ident">road</span>.<span class="ident">untrimmed_road_geometry</span>()<span class="question-mark">?</span>;
+        <span class="kw">let</span> (<span class="ident">trimmed_center_pts</span>, <span class="ident">total_width</span>) <span class="op">=</span> <span class="ident">road</span>.<span class="ident">untrimmed_road_geometry</span>();
 
-        <span class="prelude-val">Ok</span>(<span class="ident">Road</span> {
+        <span class="ident">Road</span> {
             <span class="ident">id</span>,
             <span class="ident">src_i</span>: <span class="ident">id</span>.<span class="ident">i1</span>,
             <span class="ident">dst_i</span>: <span class="ident">id</span>.<span class="ident">i2</span>,
             <span class="ident">trimmed_center_pts</span>,
             <span class="ident">half_width</span>: <span class="ident">total_width</span> <span class="op">/</span> <span class="number">2.0</span>,
             <span class="ident">osm_tags</span>: <span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">clone</span>(),
-        })
+        }
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">to_input_road</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">InputRoad</span> {
@@ -280,19 +275,18 @@
 
         <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">road</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">raw</span>.<span class="ident">roads</span> {
             <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">id</span>;
+            <span class="comment">// TODO Neither of these should still be happening. If they are, flush out the problem</span>
             <span class="kw">if</span> <span class="ident">id</span>.<span class="ident">i1</span> <span class="op">==</span> <span class="ident">id</span>.<span class="ident">i2</span> {
-                <span class="macro">warn!</span>(<span class="string">&quot;Skipping loop {}&quot;</span>, <span class="ident">id</span>);
-                <span class="kw">continue</span>;
+                <span class="macro">panic!</span>(<span class="string">&quot;There&#39;s a loop {}&quot;</span>, <span class="ident">id</span>);
             }
             <span class="kw">if</span> <span class="ident">PolyLine::new</span>(<span class="ident">road</span>.<span class="ident">osm_center_points</span>.<span class="ident">clone</span>()).<span class="ident">is_err</span>() {
-                <span class="macro">warn!</span>(<span class="string">&quot;Skipping broken geom {}&quot;</span>, <span class="ident">id</span>);
-                <span class="kw">continue</span>;
+                <span class="macro">panic!</span>(<span class="string">&quot;There&#39;s broken geom {}&quot;</span>, <span class="ident">id</span>);
             }
 
             <span class="ident">m</span>.<span class="ident">intersections</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>.<span class="ident">i1</span>).<span class="ident">unwrap</span>().<span class="ident">roads</span>.<span class="ident">insert</span>(<span class="ident">id</span>);
             <span class="ident">m</span>.<span class="ident">intersections</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>.<span class="ident">i2</span>).<span class="ident">unwrap</span>().<span class="ident">roads</span>.<span class="ident">insert</span>(<span class="ident">id</span>);
 
-            <span class="ident">m</span>.<span class="ident">roads</span>.<span class="ident">insert</span>(<span class="ident">id</span>, <span class="ident">Road::new</span>(<span class="ident">raw</span>, <span class="ident">id</span>).<span class="ident">unwrap</span>());
+            <span class="ident">m</span>.<span class="ident">roads</span>.<span class="ident">insert</span>(<span class="ident">id</span>, <span class="ident">Road::new</span>(<span class="ident">raw</span>, <span class="ident">id</span>));
         }
 
         <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;find each intersection polygon&quot;</span>, <span class="ident">m</span>.<span class="ident">intersections</span>.<span class="ident">len</span>());

@@ -255,10 +255,12 @@
 <span id="250">250</span>
 <span id="251">251</span>
 <span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">hash_map::Entry</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Counter</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">HashablePt2D</span>, <span class="ident">Pt2D</span>};
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Counter</span>, <span class="ident">Tags</span>, <span class="ident">Timer</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">HashablePt2D</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">raw_map</span>::{
     <span class="ident">osm</span>, <span class="ident">Amenity</span>, <span class="ident">Direction</span>, <span class="ident">IntersectionType</span>, <span class="ident">OriginalRoad</span>, <span class="ident">RawIntersection</span>, <span class="ident">RawMap</span>, <span class="ident">RawRoad</span>,
 };
@@ -279,34 +281,30 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">roundabout_centers</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">osm::NodeID</span>, <span class="ident">Pt2D</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pt_to_intersection</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">HashablePt2D</span>, <span class="ident">osm::NodeID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
 
-    {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">std::mem::take</span>(<span class="kw-2">&amp;mut</span> <span class="ident">input</span>.<span class="ident">roads</span>);
-        <span class="ident">roads</span>.<span class="ident">retain</span>(<span class="op">|</span>(<span class="ident">id</span>, <span class="ident">r</span>)<span class="op">|</span> {
-            <span class="kw">if</span> <span class="ident">should_collapse_roundabout</span>(<span class="ident">r</span>) {
-                <span class="macro">info!</span>(<span class="string">&quot;Collapsing tiny roundabout {}&quot;</span>, <span class="ident">id</span>);
-                <span class="comment">// Arbitrarily use the first node&#39;s ID</span>
-                <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">osm_node_ids</span>[<span class="kw-2">&amp;</span><span class="ident">r</span>.<span class="ident">osm_center_points</span>[<span class="number">0</span>].<span class="ident">to_hashable</span>()];
-                <span class="ident">roundabout_centers</span>.<span class="ident">insert</span>(<span class="ident">id</span>, <span class="ident">Pt2D::center</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>.<span class="ident">osm_center_points</span>));
-                <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">r</span>.<span class="ident">osm_center_points</span> {
-                    <span class="ident">pt_to_intersection</span>.<span class="ident">insert</span>(<span class="ident">pt</span>.<span class="ident">to_hashable</span>(), <span class="ident">id</span>);
-                }
-
-                <span class="bool-val">false</span>
-            } <span class="kw">else</span> {
-                <span class="bool-val">true</span>
+    <span class="ident">input</span>.<span class="ident">roads</span>.<span class="ident">retain</span>(<span class="op">|</span>(<span class="ident">id</span>, <span class="ident">pts</span>, <span class="ident">tags</span>)<span class="op">|</span> {
+        <span class="kw">if</span> <span class="ident">should_collapse_roundabout</span>(<span class="ident">pts</span>, <span class="ident">tags</span>) {
+            <span class="macro">info!</span>(<span class="string">&quot;Collapsing tiny roundabout {}&quot;</span>, <span class="ident">id</span>);
+            <span class="comment">// Arbitrarily use the first node&#39;s ID</span>
+            <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">osm_node_ids</span>[<span class="kw-2">&amp;</span><span class="ident">pts</span>[<span class="number">0</span>].<span class="ident">to_hashable</span>()];
+            <span class="ident">roundabout_centers</span>.<span class="ident">insert</span>(<span class="ident">id</span>, <span class="ident">Pt2D::center</span>(<span class="ident">pts</span>));
+            <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">pts</span> {
+                <span class="ident">pt_to_intersection</span>.<span class="ident">insert</span>(<span class="ident">pt</span>.<span class="ident">to_hashable</span>(), <span class="ident">id</span>);
             }
-        });
-        <span class="ident">input</span>.<span class="ident">roads</span> <span class="op">=</span> <span class="ident">roads</span>;
-    }
+
+            <span class="bool-val">false</span>
+        } <span class="kw">else</span> {
+            <span class="bool-val">true</span>
+        }
+    });
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">counts_per_pt</span> <span class="op">=</span> <span class="ident">Counter::new</span>();
-    <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">r</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">roads</span> {
-        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">raw_pt</span>) <span class="kw">in</span> <span class="ident">r</span>.<span class="ident">osm_center_points</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
+    <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">pts</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">roads</span> {
+        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">raw_pt</span>) <span class="kw">in</span> <span class="ident">pts</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
             <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">raw_pt</span>.<span class="ident">to_hashable</span>();
             <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">counts_per_pt</span>.<span class="ident">inc</span>(<span class="ident">pt</span>);
 
             <span class="comment">// All start and endpoints of ways are also intersections.</span>
-            <span class="kw">if</span> <span class="ident">count</span> <span class="op">==</span> <span class="number">2</span> <span class="op">|</span><span class="op">|</span> <span class="ident">idx</span> <span class="op">==</span> <span class="number">0</span> <span class="op">|</span><span class="op">|</span> <span class="ident">idx</span> <span class="op">==</span> <span class="ident">r</span>.<span class="ident">osm_center_points</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {
+            <span class="kw">if</span> <span class="ident">count</span> <span class="op">==</span> <span class="number">2</span> <span class="op">|</span><span class="op">|</span> <span class="ident">idx</span> <span class="op">==</span> <span class="number">0</span> <span class="op">|</span><span class="op">|</span> <span class="ident">idx</span> <span class="op">==</span> <span class="ident">pts</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Entry::Vacant</span>(<span class="ident">e</span>) <span class="op">=</span> <span class="ident">pt_to_intersection</span>.<span class="ident">entry</span>(<span class="ident">pt</span>) {
                     <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">osm_node_ids</span>[<span class="kw-2">&amp;</span><span class="ident">pt</span>];
                     <span class="ident">e</span>.<span class="ident">insert</span>(<span class="ident">id</span>);
@@ -339,27 +337,25 @@
 
     <span class="comment">// Now actually split up the roads based on the intersections</span>
     <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;split roads&quot;</span>, <span class="ident">input</span>.<span class="ident">roads</span>.<span class="ident">len</span>());
-    <span class="kw">for</span> (<span class="ident">osm_way_id</span>, <span class="ident">orig_road</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">roads</span> {
+    <span class="kw">for</span> (<span class="ident">osm_way_id</span>, <span class="ident">orig_pts</span>, <span class="ident">orig_tags</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">roads</span> {
         <span class="ident">timer</span>.<span class="ident">next</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">orig_road</span>.<span class="ident">clone</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tags</span> <span class="op">=</span> <span class="ident">orig_tags</span>.<span class="ident">clone</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> <span class="ident">endpt1</span> <span class="op">=</span> <span class="ident">pt_to_intersection</span>[<span class="kw-2">&amp;</span><span class="ident">orig_road</span>.<span class="ident">osm_center_points</span>[<span class="number">0</span>].<span class="ident">to_hashable</span>()];
-        <span class="kw">let</span> <span class="ident">endpt2</span> <span class="op">=</span> <span class="ident">pt_to_intersection</span>[<span class="kw-2">&amp;</span><span class="ident">orig_road</span>.<span class="ident">osm_center_points</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="ident">to_hashable</span>()];
+        <span class="kw">let</span> <span class="ident">endpt1</span> <span class="op">=</span> <span class="ident">pt_to_intersection</span>[<span class="kw-2">&amp;</span><span class="ident">orig_pts</span>[<span class="number">0</span>].<span class="ident">to_hashable</span>()];
+        <span class="kw">let</span> <span class="ident">endpt2</span> <span class="op">=</span> <span class="ident">pt_to_intersection</span>[<span class="kw-2">&amp;</span><span class="ident">orig_pts</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="ident">to_hashable</span>()];
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i1</span> <span class="op">=</span> <span class="ident">endpt1</span>;
 
-        <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">orig_road</span>.<span class="ident">osm_center_points</span> {
+        <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">orig_pts</span> {
             <span class="ident">pts</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">pt</span>);
             <span class="kw">if</span> <span class="ident">pts</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
                 <span class="kw">continue</span>;
             }
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">i2</span>) <span class="op">=</span> <span class="ident">pt_to_intersection</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">pt</span>.<span class="ident">to_hashable</span>()) {
                 <span class="kw">if</span> <span class="ident">i1</span> <span class="op">==</span> <span class="ident">endpt1</span> {
-                    <span class="ident">r</span>.<span class="ident">osm_tags</span>
-                        .<span class="ident">insert</span>(<span class="ident">osm::ENDPT_BACK</span>.<span class="ident">to_string</span>(), <span class="string">&quot;true&quot;</span>.<span class="ident">to_string</span>());
+                    <span class="ident">tags</span>.<span class="ident">insert</span>(<span class="ident">osm::ENDPT_BACK</span>.<span class="ident">to_string</span>(), <span class="string">&quot;true&quot;</span>.<span class="ident">to_string</span>());
                 }
                 <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">i2</span> <span class="op">==</span> <span class="ident">endpt2</span> {
-                    <span class="ident">r</span>.<span class="ident">osm_tags</span>
-                        .<span class="ident">insert</span>(<span class="ident">osm::ENDPT_FWD</span>.<span class="ident">to_string</span>(), <span class="string">&quot;true&quot;</span>.<span class="ident">to_string</span>());
+                    <span class="ident">tags</span>.<span class="ident">insert</span>(<span class="ident">osm::ENDPT_FWD</span>.<span class="ident">to_string</span>(), <span class="string">&quot;true&quot;</span>.<span class="ident">to_string</span>());
                 }
                 <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">OriginalRoad</span> {
                     <span class="ident">osm_way_id</span>: <span class="kw-2">*</span><span class="ident">osm_way_id</span>,
@@ -374,11 +370,20 @@
                     }
                 }
 
-                <span class="ident">r</span>.<span class="ident">osm_center_points</span> <span class="op">=</span> <span class="ident">simplify_linestring</span>(<span class="ident">std::mem::take</span>(<span class="kw-2">&amp;mut</span> <span class="ident">pts</span>));
+                <span class="kw">let</span> <span class="ident">osm_center_pts</span> <span class="op">=</span> <span class="ident">simplify_linestring</span>(<span class="ident">std::mem::take</span>(<span class="kw-2">&amp;mut</span> <span class="ident">pts</span>));
+                <span class="kw">match</span> <span class="ident">RawRoad::new</span>(<span class="ident">osm_center_pts</span>, <span class="ident">tags</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">config</span>) {
+                    <span class="prelude-val">Ok</span>(<span class="ident">road</span>) =&gt; {
+                        <span class="ident">map</span>.<span class="ident">roads</span>.<span class="ident">insert</span>(<span class="ident">id</span>, <span class="ident">road</span>);
+                    }
+                    <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
+                        <span class="macro">error!</span>(<span class="string">&quot;Skipping {id}: {err}&quot;</span>);
+                        <span class="comment">// There may be an orphaned intersection left around; a later</span>
+                        <span class="comment">// transformation should clean it up</span>
+                    }
+                }
+
                 <span class="comment">// Start a new road</span>
-                <span class="ident">map</span>.<span class="ident">roads</span>.<span class="ident">insert</span>(<span class="ident">id</span>, <span class="ident">r</span>.<span class="ident">clone</span>());
-                <span class="ident">r</span>.<span class="ident">osm_tags</span>.<span class="ident">remove</span>(<span class="ident">osm::ENDPT_FWD</span>);
-                <span class="ident">r</span>.<span class="ident">osm_tags</span>.<span class="ident">remove</span>(<span class="ident">osm::ENDPT_BACK</span>);
+                <span class="ident">tags</span> <span class="op">=</span> <span class="ident">orig_tags</span>.<span class="ident">clone</span>();
                 <span class="ident">i1</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">i2</span>;
                 <span class="ident">pts</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">pt</span>);
             }
@@ -501,11 +506,10 @@
 <span class="doccomment">/// Note https://www.openstreetmap.org/way/394991047 is an example of something that shouldn&#39;t get</span>
 <span class="doccomment">/// modified. The only distinction, currently, is length -- but I&#39;d love a better definition.</span>
 <span class="doccomment">/// Possibly the number of connecting roads.</span>
-<span class="kw">fn</span> <span class="ident">should_collapse_roundabout</span>(<span class="ident">r</span>: <span class="kw-2">&amp;</span><span class="ident">RawRoad</span>) -&gt; <span class="ident">bool</span> {
-    <span class="ident">r</span>.<span class="ident">osm_tags</span>
-        .<span class="ident">is_any</span>(<span class="string">&quot;junction&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;roundabout&quot;</span>, <span class="string">&quot;circular&quot;</span>])
-        <span class="op">&amp;&amp;</span> <span class="ident">r</span>.<span class="ident">osm_center_points</span>[<span class="number">0</span>] <span class="op">==</span> <span class="kw-2">*</span><span class="ident">r</span>.<span class="ident">osm_center_points</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>()
-        <span class="op">&amp;&amp;</span> <span class="ident">r</span>.<span class="ident">length</span>() <span class="op">&lt;</span> <span class="ident">Distance::meters</span>(<span class="number">50.0</span>)
+<span class="kw">fn</span> <span class="ident">should_collapse_roundabout</span>(<span class="ident">pts</span>: <span class="kw-2">&amp;</span>[<span class="ident">Pt2D</span>], <span class="ident">tags</span>: <span class="kw-2">&amp;</span><span class="ident">Tags</span>) -&gt; <span class="ident">bool</span> {
+    <span class="ident">tags</span>.<span class="ident">is_any</span>(<span class="string">&quot;junction&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;roundabout&quot;</span>, <span class="string">&quot;circular&quot;</span>])
+        <span class="op">&amp;&amp;</span> <span class="ident">pts</span>[<span class="number">0</span>] <span class="op">==</span> <span class="kw-2">*</span><span class="ident">pts</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>()
+        <span class="op">&amp;&amp;</span> <span class="ident">PolyLine::unchecked_new</span>(<span class="ident">pts</span>.<span class="ident">to_vec</span>()).<span class="ident">length</span>() <span class="op">&lt;</span> <span class="ident">Distance::meters</span>(<span class="number">50.0</span>)
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="convert_osm" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0 (7737e0b5c 2022-04-04)" ></div>

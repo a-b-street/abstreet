@@ -621,12 +621,6 @@
 <span id="616">616</span>
 <span id="617">617</span>
 <span id="618">618</span>
-<span id="619">619</span>
-<span id="620">620</span>
-<span id="621">621</span>
-<span id="622">622</span>
-<span id="623">623</span>
-<span id="624">624</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
 <span class="kw">use</span> <span class="ident">osm</span>::{<span class="ident">NodeID</span>, <span class="ident">OsmID</span>, <span class="ident">RelationID</span>, <span class="ident">WayID</span>};
@@ -637,15 +631,15 @@
 <span class="kw">use</span> <span class="ident">kml</span>::{<span class="ident">ExtraShape</span>, <span class="ident">ExtraShapes</span>};
 <span class="kw">use</span> <span class="ident">raw_map</span>::{
     <span class="ident">osm</span>, <span class="ident">Amenity</span>, <span class="ident">AreaType</span>, <span class="ident">Direction</span>, <span class="ident">DrivingSide</span>, <span class="ident">NamePerLanguage</span>, <span class="ident">RawArea</span>, <span class="ident">RawBuilding</span>, <span class="ident">RawMap</span>,
-    <span class="ident">RawParkingLot</span>, <span class="ident">RawRoad</span>, <span class="ident">RestrictionType</span>,
+    <span class="ident">RawParkingLot</span>, <span class="ident">RestrictionType</span>,
 };
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::osm_geom</span>::{<span class="ident">get_multipolygon_members</span>, <span class="ident">glue_multipolygon</span>, <span class="ident">multipoly_geometry</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Options</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">OsmExtract</span> {
-    <span class="doccomment">/// Unsplit roads</span>
-    <span class="kw">pub</span> <span class="ident">roads</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">WayID</span>, <span class="ident">RawRoad</span>)<span class="op">&gt;</span>,
+    <span class="doccomment">/// Unsplit roads. These aren&#39;t RawRoads yet, because they may not obey those invariants.</span>
+    <span class="kw">pub</span> <span class="ident">roads</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">WayID</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>, <span class="ident">Tags</span>)<span class="op">&gt;</span>,
     <span class="doccomment">/// Traffic signals to the direction they apply</span>
     <span class="kw">pub</span> <span class="ident">traffic_signals</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">HashablePt2D</span>, <span class="ident">Direction</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">osm_node_ids</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">HashablePt2D</span>, <span class="ident">NodeID</span><span class="op">&gt;</span>,
@@ -738,10 +732,7 @@
                 <span class="ident">way</span>.<span class="ident">tags</span>.<span class="ident">insert</span>(<span class="ident">osm::SIDEWALK</span>, <span class="string">&quot;right&quot;</span>);
             }
 
-            <span class="ident">out</span>.<span class="ident">roads</span>.<span class="ident">push</span>((
-                <span class="ident">id</span>,
-                <span class="ident">RawRoad::new</span>(<span class="ident">way</span>.<span class="ident">pts</span>.<span class="ident">clone</span>(), <span class="ident">way</span>.<span class="ident">tags</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;</span><span class="ident">opts</span>.<span class="ident">map_config</span>),
-            ));
+            <span class="ident">out</span>.<span class="ident">roads</span>.<span class="ident">push</span>((<span class="ident">id</span>, <span class="ident">way</span>.<span class="ident">pts</span>.<span class="ident">clone</span>(), <span class="ident">way</span>.<span class="ident">tags</span>.<span class="ident">clone</span>()));
             <span class="kw">continue</span>;
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">way</span>.<span class="ident">tags</span>.<span class="ident">is</span>(<span class="ident">osm::HIGHWAY</span>, <span class="string">&quot;service&quot;</span>) {
             <span class="comment">// If we got here, is_road didn&#39;t interpret it as a normal road</span>
@@ -1197,33 +1188,30 @@
 
 <span class="comment">// Look for any service roads that collide with parking lots, and treat them as parking aisles</span>
 <span class="comment">// instead.</span>
-<span class="kw">fn</span> <span class="ident">find_parking_aisles</span>(<span class="ident">map</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RawMap</span>, <span class="ident">roads</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">WayID</span>, <span class="ident">RawRoad</span>)<span class="op">&gt;</span>) {
+<span class="kw">fn</span> <span class="ident">find_parking_aisles</span>(<span class="ident">map</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RawMap</span>, <span class="ident">roads</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">WayID</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>, <span class="ident">Tags</span>)<span class="op">&gt;</span>) {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">closest</span>: <span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">FindClosest::new</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">gps_bounds</span>.<span class="ident">to_bounds</span>());
     <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">lot</span>) <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">parking_lots</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
         <span class="ident">closest</span>.<span class="ident">add</span>(<span class="ident">idx</span>, <span class="ident">lot</span>.<span class="ident">polygon</span>.<span class="ident">points</span>());
     }
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">keep_roads</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parking_aisles</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">road</span>) <span class="kw">in</span> <span class="ident">roads</span>.<span class="ident">drain</span>(..) {
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="ident">osm::HIGHWAY</span>, <span class="string">&quot;service&quot;</span>) {
-            <span class="ident">keep_roads</span>.<span class="ident">push</span>((<span class="ident">id</span>, <span class="ident">road</span>));
+    <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">pts</span>, <span class="ident">osm_tags</span>) <span class="kw">in</span> <span class="ident">roads</span>.<span class="ident">drain</span>(..) {
+        <span class="kw">if</span> <span class="op">!</span><span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="ident">osm::HIGHWAY</span>, <span class="string">&quot;service&quot;</span>) {
+            <span class="ident">keep_roads</span>.<span class="ident">push</span>((<span class="ident">id</span>, <span class="ident">pts</span>, <span class="ident">osm_tags</span>));
             <span class="kw">continue</span>;
         }
         <span class="comment">// TODO This code is repeated later in make/parking_lots.rs, but oh well.</span>
 
         <span class="comment">// Use the center of all the aisle points to match it to lots</span>
         <span class="kw">let</span> <span class="ident">candidates</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">closest</span>
-            .<span class="ident">all_close_pts</span>(
-                <span class="ident">Pt2D::center</span>(<span class="kw-2">&amp;</span><span class="ident">road</span>.<span class="ident">osm_center_points</span>),
-                <span class="ident">Distance::meters</span>(<span class="number">500.0</span>),
-            )
+            .<span class="ident">all_close_pts</span>(<span class="ident">Pt2D::center</span>(<span class="kw-2">&amp;</span><span class="ident">pts</span>), <span class="ident">Distance::meters</span>(<span class="number">500.0</span>))
             .<span class="ident">into_iter</span>()
             .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">idx</span>, <span class="kw">_</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">idx</span>)
             .<span class="ident">collect</span>();
-        <span class="kw">if</span> <span class="ident">service_road_crosses_parking_lot</span>(<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">road</span>, <span class="ident">candidates</span>) {
-            <span class="ident">parking_aisles</span>.<span class="ident">push</span>((<span class="ident">id</span>, <span class="ident">road</span>.<span class="ident">osm_center_points</span>.<span class="ident">clone</span>()));
+        <span class="kw">if</span> <span class="ident">service_road_crosses_parking_lot</span>(<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">pts</span>, <span class="ident">candidates</span>) {
+            <span class="ident">parking_aisles</span>.<span class="ident">push</span>((<span class="ident">id</span>, <span class="ident">pts</span>));
         } <span class="kw">else</span> {
-            <span class="ident">keep_roads</span>.<span class="ident">push</span>((<span class="ident">id</span>, <span class="ident">road</span>));
+            <span class="ident">keep_roads</span>.<span class="ident">push</span>((<span class="ident">id</span>, <span class="ident">pts</span>, <span class="ident">osm_tags</span>));
         }
     }
     <span class="ident">roads</span>.<span class="ident">extend</span>(<span class="ident">keep_roads</span>);
@@ -1232,8 +1220,8 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">service_road_crosses_parking_lot</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">RawMap</span>, <span class="ident">road</span>: <span class="kw-2">&amp;</span><span class="ident">RawRoad</span>, <span class="ident">candidates</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span> {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>((<span class="ident">polylines</span>, <span class="ident">rings</span>)) <span class="op">=</span> <span class="ident">Ring::split_points</span>(<span class="kw-2">&amp;</span><span class="ident">road</span>.<span class="ident">osm_center_points</span>) {
+<span class="kw">fn</span> <span class="ident">service_road_crosses_parking_lot</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">RawMap</span>, <span class="ident">pts</span>: <span class="kw-2">&amp;</span>[<span class="ident">Pt2D</span>], <span class="ident">candidates</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span> {
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>((<span class="ident">polylines</span>, <span class="ident">rings</span>)) <span class="op">=</span> <span class="ident">Ring::split_points</span>(<span class="ident">pts</span>) {
         <span class="kw">for</span> <span class="ident">pl</span> <span class="kw">in</span> <span class="ident">polylines</span> {
             <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">candidates</span> {
                 <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">parking_lots</span>[<span class="kw-2">*</span><span class="ident">idx</span>].<span class="ident">polygon</span>.<span class="ident">clip_polyline</span>(<span class="kw-2">&amp;</span><span class="ident">pl</span>).<span class="ident">is_some</span>() {

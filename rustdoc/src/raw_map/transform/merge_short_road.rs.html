@@ -221,6 +221,14 @@
 <span id="216">216</span>
 <span id="217">217</span>
 <span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">VecDeque</span>};
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
@@ -275,6 +283,7 @@
         <span class="comment">// [X] road we&#39;re deleting is the &#39;via&#39; of a complicated restriction</span>
         <span class="comment">// [ ] road we&#39;re deleting has turn lanes that wind up orphaning something</span>
 
+        <span class="comment">// TODO This has maybe become impossible</span>
         <span class="kw">let</span> (<span class="ident">i1</span>, <span class="ident">i2</span>) <span class="op">=</span> (<span class="ident">short</span>.<span class="ident">i1</span>, <span class="ident">short</span>.<span class="ident">i2</span>);
         <span class="kw">if</span> <span class="ident">i1</span> <span class="op">==</span> <span class="ident">i2</span> {
             <span class="macro">bail!</span>(<span class="string">&quot;Can&#39;t merge {} -- it&#39;s a loop on {}&quot;</span>, <span class="ident">short</span>, <span class="ident">i1</span>);
@@ -348,6 +357,13 @@
                 <span class="macro">assert_eq!</span>(<span class="ident">r</span>.<span class="ident">i2</span>, <span class="ident">i2</span>);
                 <span class="ident">new_id</span>.<span class="ident">i2</span> <span class="op">=</span> <span class="ident">i1</span>;
             }
+
+            <span class="kw">if</span> <span class="ident">new_id</span>.<span class="ident">i1</span> <span class="op">==</span> <span class="ident">new_id</span>.<span class="ident">i2</span> {
+                <span class="comment">// When merging many roads around some junction, we wind up with loops. We can</span>
+                <span class="comment">// immediately discard those.</span>
+                <span class="kw">continue</span>;
+            }
+
             <span class="ident">old_to_new</span>.<span class="ident">insert</span>(<span class="ident">r</span>, <span class="ident">new_id</span>);
             <span class="ident">new_to_old</span>.<span class="ident">insert</span>(<span class="ident">new_id</span>, <span class="ident">r</span>);
 

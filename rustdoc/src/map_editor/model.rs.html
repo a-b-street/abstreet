@@ -631,6 +631,11 @@
 <span id="626">626</span>
 <span id="627">627</span>
 <span id="628">628</span>
+<span id="629">629</span>
+<span id="630">630</span>
+<span id="631">631</span>
+<span id="632">632</span>
+<span id="633">633</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 <span class="kw">use</span> <span class="ident">std::io::Write</span>;
 
@@ -896,7 +901,7 @@
 <span class="kw">impl</span> <span class="ident">Model</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">road_added</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">id</span>: <span class="ident">OriginalRoad</span>) {
         <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">map</span>.<span class="ident">roads</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>];
-        <span class="kw">let</span> (<span class="ident">center</span>, <span class="ident">total_width</span>) <span class="op">=</span> <span class="ident">road</span>.<span class="ident">untrimmed_road_geometry</span>().<span class="ident">unwrap</span>();
+        <span class="kw">let</span> (<span class="ident">center</span>, <span class="ident">total_width</span>) <span class="op">=</span> <span class="ident">road</span>.<span class="ident">untrimmed_road_geometry</span>();
         <span class="kw">let</span> <span class="ident">hitbox</span> <span class="op">=</span> <span class="ident">center</span>.<span class="ident">make_polygons</span>(<span class="ident">total_width</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
         <span class="ident">draw</span>.<span class="ident">push</span>(
@@ -960,20 +965,25 @@
         <span class="ident">osm_tags</span>.<span class="ident">insert</span>(<span class="ident">osm::NAME</span>, <span class="string">&quot;Streety McStreetFace&quot;</span>);
         <span class="ident">osm_tags</span>.<span class="ident">insert</span>(<span class="ident">osm::MAXSPEED</span>, <span class="string">&quot;25 mph&quot;</span>);
 
+        <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">RawRoad::new</span>(
+            <span class="macro">vec!</span>[
+                <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">intersections</span>[<span class="kw-2">&amp;</span><span class="ident">i1</span>].<span class="ident">point</span>,
+                <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">intersections</span>[<span class="kw-2">&amp;</span><span class="ident">i2</span>].<span class="ident">point</span>,
+            ],
+            <span class="ident">osm_tags</span>,
+            <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">map</span>.<span class="ident">config</span>,
+        ) {
+            <span class="prelude-val">Ok</span>(<span class="ident">road</span>) =&gt; <span class="ident">road</span>,
+            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
+                <span class="macro">error!</span>(<span class="string">&quot;Can&#39;t create road: {err}&quot;</span>);
+                <span class="kw">return</span>;
+            }
+        };
+
         <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">delete_before_replacement</span>(<span class="ident">ID::Intersection</span>(<span class="ident">i1</span>));
         <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">delete_before_replacement</span>(<span class="ident">ID::Intersection</span>(<span class="ident">i2</span>));
 
-        <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">roads</span>.<span class="ident">insert</span>(
-            <span class="ident">id</span>,
-            <span class="ident">RawRoad::new</span>(
-                <span class="macro">vec!</span>[
-                    <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">intersections</span>[<span class="kw-2">&amp;</span><span class="ident">i1</span>].<span class="ident">point</span>,
-                    <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">intersections</span>[<span class="kw-2">&amp;</span><span class="ident">i2</span>].<span class="ident">point</span>,
-                ],
-                <span class="ident">osm_tags</span>,
-                <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">map</span>.<span class="ident">config</span>,
-            ),
-        );
+        <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">roads</span>.<span class="ident">insert</span>(<span class="ident">id</span>, <span class="ident">road</span>);
         <span class="self">self</span>.<span class="ident">road_added</span>(<span class="ident">ctx</span>, <span class="ident">id</span>);
 
         <span class="self">self</span>.<span class="ident">intersection_added</span>(<span class="ident">ctx</span>, <span class="ident">i1</span>);

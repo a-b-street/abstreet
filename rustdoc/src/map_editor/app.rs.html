@@ -424,11 +424,6 @@
 <span id="419">419</span>
 <span id="420">420</span>
 <span id="421">421</span>
-<span id="422">422</span>
-<span id="423">423</span>
-<span id="424">424</span>
-<span id="425">425</span>
-<span id="426">426</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Line</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">raw_map::osm</span>;
 <span class="kw">use</span> <span class="ident">widgetry::mapspace::WorldOutcome</span>;
@@ -648,14 +643,9 @@
                         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}_input.json&quot;</span>, <span class="ident">i</span>.<span class="number">0</span>);
                         <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}_output.json&quot;</span>, <span class="ident">i</span>.<span class="number">0</span>);
 
+                        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">save_osm2polygon_input</span>(<span class="ident">input</span>.<span class="ident">clone</span>(), <span class="ident">i</span>);
                         <span class="kw">return</span> <span class="ident">Transition::Push</span>(
-                            <span class="kw">match</span> <span class="ident">app</span>
-                                .<span class="ident">model</span>
-                                .<span class="ident">map</span>
-                                .<span class="ident">save_osm2polygon_input</span>(<span class="ident">input</span>.<span class="ident">clone</span>(), <span class="ident">i</span>)
-                                .<span class="ident">and_then</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
-                                    <span class="ident">raw_map::geometry::osm2polygon</span>(<span class="ident">input</span>.<span class="ident">clone</span>(), <span class="ident">output</span>.<span class="ident">clone</span>())
-                                }) {
+                            <span class="kw">match</span> <span class="ident">raw_map::geometry::osm2polygon</span>(<span class="ident">input</span>.<span class="ident">clone</span>(), <span class="ident">output</span>.<span class="ident">clone</span>()) {
                                 <span class="prelude-val">Ok</span>(()) =&gt; <span class="ident">PopupMsg::new_state</span>(
                                     <span class="ident">ctx</span>,
                                     <span class="string">&quot;Exported&quot;</span>,

@@ -72,14 +72,6 @@
 <span id="67">67</span>
 <span id="68">68</span>
 <span id="69">69</span>
-<span id="70">70</span>
-<span id="71">71</span>
-<span id="72">72</span>
-<span id="73">73</span>
-<span id="74">74</span>
-<span id="75">75</span>
-<span id="76">76</span>
-<span id="77">77</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
 <span class="kw">use</span> <span class="ident">aabb_quadtree::QuadTree</span>;
@@ -105,15 +97,7 @@
             <span class="kw">continue</span>;
         }
 
-        <span class="kw">let</span> (<span class="ident">center</span>, <span class="ident">total_width</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">road</span>.<span class="ident">untrimmed_road_geometry</span>() {
-            <span class="prelude-val">Ok</span>((<span class="ident">center</span>, <span class="ident">total_width</span>)) =&gt; (<span class="ident">center</span>, <span class="ident">total_width</span>),
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-                <span class="comment">// Crashing in Lisbon because of https://www.openstreetmap.org/node/5754625281 and</span>
-                <span class="comment">// https://www.openstreetmap.org/node/5754625989</span>
-                <span class="macro">error!</span>(<span class="string">&quot;Not trying to shrink roads near {}&quot;</span>, <span class="ident">err</span>);
-                <span class="kw">continue</span>;
-            }
-        };
+        <span class="kw">let</span> (<span class="ident">center</span>, <span class="ident">total_width</span>) <span class="op">=</span> <span class="ident">road</span>.<span class="ident">untrimmed_road_geometry</span>();
         <span class="kw">let</span> <span class="ident">polygon</span> <span class="op">=</span> <span class="ident">center</span>.<span class="ident">make_polygons</span>(<span class="ident">total_width</span>);
 
         <span class="comment">// Any conflicts with existing?</span>
