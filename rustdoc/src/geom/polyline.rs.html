@@ -1108,6 +1108,12 @@
 <span id="1103">1103</span>
 <span id="1104">1104</span>
 <span id="1105">1105</span>
+<span id="1106">1106</span>
+<span id="1107">1107</span>
+<span id="1108">1108</span>
+<span id="1109">1109</span>
+<span id="1110">1110</span>
+<span id="1111">1111</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
@@ -1298,9 +1304,15 @@
     <span class="doccomment">/// Extends `self` by a single point. If the new point is close enough to the last, dedupes.</span>
     <span class="doccomment">/// Doesn&#39;t clean up any intermediate points.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">optionally_push</span>(<span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>) -&gt; <span class="ident">PolyLine</span> {
+        <span class="kw">let</span> <span class="ident">orig</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">clone</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into_points</span>();
         <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">pt</span>);
-        <span class="ident">PolyLine::deduping_new</span>(<span class="ident">pts</span>).<span class="ident">unwrap</span>()
+        <span class="kw">match</span> <span class="ident">PolyLine::deduping_new</span>(<span class="ident">pts</span>) {
+            <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) =&gt; <span class="ident">pl</span>,
+            <span class="comment">// If the polyline loops back on itself and someone manages to exactly repeat an</span>
+            <span class="comment">// earlier point, just don&#39;t add this point</span>
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="ident">orig</span>,
+        }
     }
 
     <span class="doccomment">/// Like `extend`, but handles the last and first point not matching by inserting that point.</span>
