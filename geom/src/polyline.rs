@@ -188,9 +188,15 @@ impl PolyLine {
     /// Extends `self` by a single point. If the new point is close enough to the last, dedupes.
     /// Doesn't clean up any intermediate points.
     pub fn optionally_push(self, pt: Pt2D) -> PolyLine {
+        let orig = self.clone();
         let mut pts = self.into_points();
         pts.push(pt);
-        PolyLine::deduping_new(pts).unwrap()
+        match PolyLine::deduping_new(pts) {
+            Ok(pl) => pl,
+            // If the polyline loops back on itself and someone manages to exactly repeat an
+            // earlier point, just don't add this point
+            Err(_) => orig,
+        }
     }
 
     /// Like `extend`, but handles the last and first point not matching by inserting that point.
