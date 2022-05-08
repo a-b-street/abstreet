@@ -1,7 +1,7 @@
 use map_gui::tools::percentage_bar;
 use map_model::{PathRequest, NORMAL_LANE_THICKNESS};
 use widgetry::mapspace::{ToggleZoomed, World};
-use widgetry::{EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text, Widget};
+use widgetry::{EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text, TextExt, Widget};
 
 use crate::per_neighborhood::{FilterableObj, Tab};
 use crate::shortcuts::{find_shortcuts, Shortcuts};
@@ -27,7 +27,7 @@ impl BrowseShortcuts {
     ) -> Box<dyn State<App>> {
         let neighborhood = Neighborhood::new(ctx, app, id);
 
-        let shortcuts = ctx.loading_screen("find rat runs", |_, timer| {
+        let shortcuts = ctx.loading_screen("find shortcuts", |_, timer| {
             find_shortcuts(app, &neighborhood, timer)
         });
         let world = crate::per_neighborhood::make_world(ctx, app, &neighborhood, &shortcuts);
@@ -71,7 +71,7 @@ impl BrowseShortcuts {
                     percentage_bar(
                         ctx,
                         Text::from(Line(format!(
-                            "{} / {} streets have no through-traffic",
+                            "{} / {} streets have no shortcuts",
                             quiet_streets, total_streets
                         ))),
                         1.0,
@@ -95,11 +95,12 @@ impl BrowseShortcuts {
                         percentage_bar(
                             ctx,
                             Text::from(Line(format!(
-                                "{} / {} streets have no through-traffic",
+                                "{} / {} streets have no shortcuts",
                                 quiet_streets, total_streets
                             ))),
                             (quiet_streets as f64) / (total_streets as f64),
                         ),
+                        "Browse individual shortcuts through the neighborhood.".text_widget(ctx),
                         self.prev_next_controls(ctx),
                     ]),
                 )
@@ -136,7 +137,7 @@ impl BrowseShortcuts {
                 .btn_prev()
                 .disabled(self.current_idx == 0)
                 .hotkey(Key::LeftArrow)
-                .build_widget(ctx, "previous rat run"),
+                .build_widget(ctx, "previous shortcut"),
             Text::from(
                 Line(format!(
                     "{}/{}",
@@ -151,7 +152,7 @@ impl BrowseShortcuts {
                 .btn_next()
                 .disabled(self.current_idx == self.shortcuts.paths.len() - 1)
                 .hotkey(Key::RightArrow)
-                .build_widget(ctx, "next rat run"),
+                .build_widget(ctx, "next shortcut"),
         ])
         .named("prev/next controls")
     }
@@ -164,11 +165,11 @@ impl State<App> for BrowseShortcuts {
         }
         match self.left_panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
-                "previous rat run" => {
+                "previous shortcut" => {
                     self.current_idx -= 1;
                     self.recalculate(ctx, app);
                 }
-                "next rat run" => {
+                "next shortcut" => {
                     self.current_idx += 1;
                     self.recalculate(ctx, app);
                 }

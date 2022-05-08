@@ -90,7 +90,7 @@ impl Tab {
             "Connectivity" => Some(Transition::Replace(crate::connectivity::Viewer::new_state(
                 ctx, app, id,
             ))),
-            "Rat runs" => Some(Transition::Replace(
+            "Shortcuts" => Some(Transition::Replace(
                 crate::shortcut_viewer::BrowseShortcuts::new_state(ctx, app, id, None),
             )),
             "undo" => {
@@ -115,7 +115,7 @@ impl Tab {
         let mut row = Vec::new();
         for (tab, label, key) in [
             (Tab::Connectivity, "Connectivity", Key::F1),
-            (Tab::Shortcuts, "Rat runs", Key::F2),
+            (Tab::Shortcuts, "Shortcuts", Key::F2),
         ] {
             // TODO Match the TabController styling
             row.push(
@@ -179,7 +179,7 @@ pub fn make_world(
             .drawn_in_master_batch()
             .hover_outline(colors::OUTLINE, Distance::meters(5.0))
             .tooltip(Text::from(format!(
-                "{} rat-runs cross {}",
+                "{} shortcuts cross {}",
                 shortcuts.count_per_road.get(*r),
                 road.get_name(app.opts.language.as_ref()),
             )))
@@ -195,7 +195,7 @@ pub fn make_world(
             .drawn_in_master_batch()
             .hover_outline(colors::OUTLINE, Distance::meters(5.0))
             .tooltip(Text::from(format!(
-                "{} rat-runs cross this intersection",
+                "{} shortcuts cross this intersection",
                 shortcuts.count_per_intersection.get(*i)
             )))
             .clickable()

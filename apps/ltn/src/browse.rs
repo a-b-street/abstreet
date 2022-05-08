@@ -73,7 +73,7 @@ impl BrowseNeighborhoods {
                                         Choice::new("simple", Style::SimpleColoring),
                                         Choice::new("cells", Style::Cells),
                                         Choice::new("quietness", Style::Quietness),
-                                        Choice::new("all rat-runs", Style::Shortcuts),
+                                        Choice::new("all shortcuts", Style::Shortcuts),
                                     ],
                                 ),
                             ]),

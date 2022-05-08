@@ -218,7 +218,7 @@ fn make_world(
     app: &App,
     neighborhood: &Neighborhood,
 ) -> (World<FilterableObj>, ToggleZoomed) {
-    let shortcuts = ctx.loading_screen("find rat runs", |_, timer| {
+    let shortcuts = ctx.loading_screen("find shortcuts", |_, timer| {
         find_shortcuts(app, neighborhood, timer)
     });
 
@@ -419,7 +419,7 @@ fn help() -> Vec<&'static str> {
         "The colored cells show where it's possible to drive without leaving the neighborhood.",
         "Green cells don't allow car-traffic.",
         "",
-        "The darker red roads have more predicted rat-running traffic.",
+        "The darker red roads have more predicted shortcutting traffic.",
         "",
         "Hint: You can place filters at roads or intersections.",
         "Use the lasso tool to quickly sketch your idea.",

@@ -32,11 +32,11 @@ impl Heuristic {
     pub fn choices() -> Vec<Choice<Heuristic>> {
         vec![
             Choice::new(
-                "filter the road with the most rat-runs (greedy)",
+                "filter the road with the most shortcuts (greedy)",
                 Heuristic::Greedy,
             ),
             Choice::new(
-                "stop the most rat-runs (brute-force)",
+                "stop the most shortcuts (brute-force)",
                 Heuristic::BruteForce,
             ),
             Choice::new("split large cells", Heuristic::SplitCells),
