@@ -655,7 +655,7 @@
     <span class="ident">BrowseNeighborhoods</span>,
     <span class="ident">Route</span>,
     <span class="ident">Connectivity</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BlockID</span><span class="op">&gt;</span>),
-    <span class="ident">RatRuns</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathRequest</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BlockID</span><span class="op">&gt;</span>),
+    <span class="ident">Shortcuts</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathRequest</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BlockID</span><span class="op">&gt;</span>),
 }
 
 <span class="kw">impl</span> <span class="ident">PreserveState</span> {
@@ -680,12 +680,12 @@
                     <span class="ident">count</span>.<span class="ident">max_key</span>(),
                 ))
             }
-            <span class="ident">PreserveState::RatRuns</span>(<span class="ident">req</span>, <span class="ident">blocks</span>) =&gt; {
+            <span class="ident">PreserveState::Shortcuts</span>(<span class="ident">req</span>, <span class="ident">blocks</span>) =&gt; {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">Counter::new</span>();
                 <span class="kw">for</span> <span class="ident">block</span> <span class="kw">in</span> <span class="ident">blocks</span> {
                     <span class="ident">count</span>.<span class="ident">inc</span>(<span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">block_to_neighborhood</span>(<span class="ident">block</span>));
                 }
-                <span class="ident">Transition::Replace</span>(<span class="ident"><span class="kw">crate</span>::rat_run_viewer::BrowseRatRuns::new_state</span>(
+                <span class="ident">Transition::Replace</span>(<span class="ident"><span class="kw">crate</span>::shortcut_viewer::BrowseShortcuts::new_state</span>(
                     <span class="ident">ctx</span>,
                     <span class="ident">app</span>,
                     <span class="ident">count</span>.<span class="ident">max_key</span>(),

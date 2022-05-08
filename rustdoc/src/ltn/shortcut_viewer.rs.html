@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/rat_run_viewer.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>rat_run_viewer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/shortcut_viewer.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>shortcut_viewer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -241,19 +241,20 @@
 <span id="236">236</span>
 <span id="237">237</span>
 <span id="238">238</span>
+<span id="239">239</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">map_gui::tools::percentage_bar</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">PathRequest</span>, <span class="ident">NORMAL_LANE_THICKNESS</span>};
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ToggleZoomed</span>, <span class="ident">World</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::per_neighborhood</span>::{<span class="ident">FilterableObj</span>, <span class="ident">Tab</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::rat_runs</span>::{<span class="ident">find_rat_runs</span>, <span class="ident">RatRuns</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::shortcuts</span>::{<span class="ident">find_shortcuts</span>, <span class="ident">Shortcuts</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">colors</span>, <span class="ident">App</span>, <span class="ident">Neighborhood</span>, <span class="ident">NeighborhoodID</span>, <span class="ident">Transition</span>};
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BrowseRatRuns</span> {
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BrowseShortcuts</span> {
     <span class="ident">top_panel</span>: <span class="ident">Panel</span>,
     <span class="ident">left_panel</span>: <span class="ident">Panel</span>,
-    <span class="ident">rat_runs</span>: <span class="ident">RatRuns</span>,
+    <span class="ident">shortcuts</span>: <span class="ident">Shortcuts</span>,
     <span class="ident">current_idx</span>: <span class="ident">usize</span>,
 
     <span class="ident">draw_path</span>: <span class="ident">ToggleZoomed</span>,
@@ -261,7 +262,7 @@
     <span class="ident">neighborhood</span>: <span class="ident">Neighborhood</span>,
 }
 
-<span class="kw">impl</span> <span class="ident">BrowseRatRuns</span> {
+<span class="kw">impl</span> <span class="ident">BrowseShortcuts</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(
         <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
         <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
@@ -270,15 +271,15 @@
     ) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">neighborhood</span> <span class="op">=</span> <span class="ident">Neighborhood::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>);
 
-        <span class="kw">let</span> <span class="ident">rat_runs</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;find rat runs&quot;</span>, <span class="op">|</span><span class="kw">_</span>, <span class="ident">timer</span><span class="op">|</span> {
-            <span class="ident">find_rat_runs</span>(<span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">neighborhood</span>, <span class="ident">timer</span>)
+        <span class="kw">let</span> <span class="ident">shortcuts</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;find rat runs&quot;</span>, <span class="op">|</span><span class="kw">_</span>, <span class="ident">timer</span><span class="op">|</span> {
+            <span class="ident">find_shortcuts</span>(<span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">neighborhood</span>, <span class="ident">timer</span>)
         });
-        <span class="kw">let</span> <span class="ident">world</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::per_neighborhood::make_world</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">neighborhood</span>, <span class="kw-2">&amp;</span><span class="ident">rat_runs</span>);
+        <span class="kw">let</span> <span class="ident">world</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::per_neighborhood::make_world</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">neighborhood</span>, <span class="kw-2">&amp;</span><span class="ident">shortcuts</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">BrowseRatRuns</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">BrowseShortcuts</span> {
             <span class="ident">top_panel</span>: <span class="ident"><span class="kw">crate</span>::common::app_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
             <span class="ident">left_panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
-            <span class="ident">rat_runs</span>,
+            <span class="ident">shortcuts</span>,
             <span class="ident">current_idx</span>: <span class="number">0</span>,
             <span class="ident">draw_path</span>: <span class="ident">ToggleZoomed::empty</span>(<span class="ident">ctx</span>),
             <span class="ident">neighborhood</span>,
@@ -287,7 +288,7 @@
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">req</span>) <span class="op">=</span> <span class="ident">start_with_request</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="ident">state</span>
-                .<span class="ident">rat_runs</span>
+                .<span class="ident">shortcuts</span>
                 .<span class="ident">paths</span>
                 .<span class="ident">iter</span>()
                 .<span class="ident">position</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> <span class="ident">path</span>.<span class="ident">get_req</span>() <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident">req</span>)
@@ -303,10 +304,10 @@
 
     <span class="kw">fn</span> <span class="ident">recalculate</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
         <span class="kw">let</span> (<span class="ident">quiet_streets</span>, <span class="ident">total_streets</span>) <span class="op">=</span>
-            <span class="self">self</span>.<span class="ident">rat_runs</span>.<span class="ident">quiet_and_total_streets</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">neighborhood</span>);
+            <span class="self">self</span>.<span class="ident">shortcuts</span>.<span class="ident">quiet_and_total_streets</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">neighborhood</span>);
 
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">rat_runs</span>.<span class="ident">paths</span>.<span class="ident">is_empty</span>() {
-            <span class="self">self</span>.<span class="ident">left_panel</span> <span class="op">=</span> <span class="ident">Tab::RatRuns</span>
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">shortcuts</span>.<span class="ident">paths</span>.<span class="ident">is_empty</span>() {
+            <span class="self">self</span>.<span class="ident">left_panel</span> <span class="op">=</span> <span class="ident">Tab::Shortcuts</span>
                 .<span class="ident">panel_builder</span>(
                     <span class="ident">ctx</span>,
                     <span class="ident">app</span>,
@@ -329,7 +330,7 @@
             <span class="kw">let</span> <span class="ident">controls</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">prev_next_controls</span>(<span class="ident">ctx</span>);
             <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;prev/next controls&quot;</span>, <span class="ident">controls</span>);
         } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">left_panel</span> <span class="op">=</span> <span class="ident">Tab::RatRuns</span>
+            <span class="self">self</span>.<span class="ident">left_panel</span> <span class="op">=</span> <span class="ident">Tab::Shortcuts</span>
                 .<span class="ident">panel_builder</span>(
                     <span class="ident">ctx</span>,
                     <span class="ident">app</span>,
@@ -350,8 +351,8 @@
         }
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw_path</span> <span class="op">=</span> <span class="ident">ToggleZoomed::builder</span>();
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pl</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">rat_runs</span>.<span class="ident">paths</span>[<span class="self">self</span>.<span class="ident">current_idx</span>].<span class="ident">trace</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>) {
-            <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident">colors::RAT_RUN_PATH</span>;
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pl</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">shortcuts</span>.<span class="ident">paths</span>[<span class="self">self</span>.<span class="ident">current_idx</span>].<span class="ident">trace</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>) {
+            <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident">colors::SHORTCUT_PATH</span>;
             <span class="kw">let</span> <span class="ident">shape</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">make_polygons</span>(<span class="number">3.0</span> <span class="op">*</span> <span class="ident">NORMAL_LANE_THICKNESS</span>);
             <span class="ident">draw_path</span>.<span class="ident">unzoomed</span>.<span class="ident">push</span>(<span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>), <span class="ident">shape</span>.<span class="ident">clone</span>());
             <span class="ident">draw_path</span>.<span class="ident">zoomed</span>.<span class="ident">push</span>(<span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="ident">shape</span>);
@@ -384,7 +385,7 @@
                 <span class="ident">Line</span>(<span class="macro">format!</span>(
                     <span class="string">&quot;{}/{}&quot;</span>,
                     <span class="self">self</span>.<span class="ident">current_idx</span> <span class="op">+</span> <span class="number">1</span>,
-                    <span class="self">self</span>.<span class="ident">rat_runs</span>.<span class="ident">paths</span>.<span class="ident">len</span>()
+                    <span class="self">self</span>.<span class="ident">shortcuts</span>.<span class="ident">paths</span>.<span class="ident">len</span>()
                 ))
                 .<span class="ident">secondary</span>(),
             )
@@ -392,7 +393,7 @@
             .<span class="ident">centered_vert</span>(),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_next</span>()
-                .<span class="ident">disabled</span>(<span class="self">self</span>.<span class="ident">current_idx</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">rat_runs</span>.<span class="ident">paths</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>)
+                .<span class="ident">disabled</span>(<span class="self">self</span>.<span class="ident">current_idx</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">shortcuts</span>.<span class="ident">paths</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>)
                 .<span class="ident">hotkey</span>(<span class="ident">Key::RightArrow</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;next rat run&quot;</span>),
         ])
@@ -400,7 +401,7 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">BrowseRatRuns</span> {
+<span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">BrowseShortcuts</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::common::handle_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">top_panel</span>, <span class="ident">help</span>) {
             <span class="kw">return</span> <span class="ident">t</span>;
@@ -416,18 +417,19 @@
                     <span class="self">self</span>.<span class="ident">recalculate</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 }
                 <span class="ident">x</span> =&gt; {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">Tab::RatRuns</span>.<span class="ident">handle_action</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">x</span>, <span class="self">self</span>.<span class="ident">neighborhood</span>.<span class="ident">id</span>) {
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">Tab::Shortcuts</span>.<span class="ident">handle_action</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">x</span>, <span class="self">self</span>.<span class="ident">neighborhood</span>.<span class="ident">id</span>)
+                    {
                         <span class="kw">return</span> <span class="ident">t</span>;
                     }
-                    <span class="kw">let</span> <span class="ident">current_request</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">rat_runs</span>.<span class="ident">paths</span>.<span class="ident">is_empty</span>() {
+                    <span class="kw">let</span> <span class="ident">current_request</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">shortcuts</span>.<span class="ident">paths</span>.<span class="ident">is_empty</span>() {
                         <span class="prelude-val">None</span>
                     } <span class="kw">else</span> {
-                        <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">rat_runs</span>.<span class="ident">paths</span>[<span class="self">self</span>.<span class="ident">current_idx</span>].<span class="ident">get_req</span>().<span class="ident">clone</span>())
+                        <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">shortcuts</span>.<span class="ident">paths</span>[<span class="self">self</span>.<span class="ident">current_idx</span>].<span class="ident">get_req</span>().<span class="ident">clone</span>())
                     };
                     <span class="kw">return</span> <span class="ident"><span class="kw">crate</span>::save::AltProposals::handle_action</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">app</span>,
-                        <span class="ident"><span class="kw">crate</span>::save::PreserveState::RatRuns</span>(
+                        <span class="ident"><span class="kw">crate</span>::save::PreserveState::Shortcuts</span>(
                             <span class="ident">current_request</span>,
                             <span class="ident">app</span>.<span class="ident">session</span>
                                 .<span class="ident">partitioning</span>
@@ -445,9 +447,9 @@
         <span class="comment">// world</span>
         <span class="kw">let</span> <span class="ident">world_outcome</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">event</span>(<span class="ident">ctx</span>);
         <span class="kw">if</span> <span class="ident"><span class="kw">crate</span>::per_neighborhood::handle_world_outcome</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">world_outcome</span>) {
-            <span class="comment">// Reset state, but if possible, preserve the current individual rat run.</span>
-            <span class="kw">let</span> <span class="ident">current_request</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">rat_runs</span>.<span class="ident">paths</span>[<span class="self">self</span>.<span class="ident">current_idx</span>].<span class="ident">get_req</span>().<span class="ident">clone</span>();
-            <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">BrowseRatRuns::new_state</span>(
+            <span class="comment">// Reset state, but if possible, preserve the current individual shortcut.</span>
+            <span class="kw">let</span> <span class="ident">current_request</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">shortcuts</span>.<span class="ident">paths</span>[<span class="self">self</span>.<span class="ident">current_idx</span>].<span class="ident">get_req</span>().<span class="ident">clone</span>();
+            <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">BrowseShortcuts::new_state</span>(
                 <span class="ident">ctx</span>,
                 <span class="ident">app</span>,
                 <span class="self">self</span>.<span class="ident">neighborhood</span>.<span class="ident">id</span>,
