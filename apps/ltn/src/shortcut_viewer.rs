@@ -100,7 +100,7 @@ impl BrowseShortcuts {
                             ))),
                             (quiet_streets as f64) / (total_streets as f64),
                         ),
-                        "Browse individual shortcuts through the neighborhood.".text_widget(ctx),
+                        "Browse possible shortcuts through the neighborhood.".text_widget(ctx),
                         self.prev_next_controls(ctx),
                     ]),
                 )
