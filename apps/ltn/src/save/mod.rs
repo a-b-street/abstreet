@@ -304,7 +304,7 @@ pub enum PreserveState {
     BrowseNeighborhoods,
     Route,
     Connectivity(Vec<BlockID>),
-    RatRuns(Option<PathRequest>, Vec<BlockID>),
+    Shortcuts(Option<PathRequest>, Vec<BlockID>),
 }
 
 impl PreserveState {
@@ -329,12 +329,12 @@ impl PreserveState {
                     count.max_key(),
                 ))
             }
-            PreserveState::RatRuns(req, blocks) => {
+            PreserveState::Shortcuts(req, blocks) => {
                 let mut count = Counter::new();
                 for block in blocks {
                     count.inc(app.session.partitioning.block_to_neighborhood(block));
                 }
-                Transition::Replace(crate::rat_run_viewer::BrowseRatRuns::new_state(
+                Transition::Replace(crate::shortcut_viewer::BrowseShortcuts::new_state(
                     ctx,
                     app,
                     count.max_key(),

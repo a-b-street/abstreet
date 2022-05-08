@@ -1,4 +1,5 @@
-//! Experiments to make a neighborhood be low-traffic by automatically placing filters to prevent all rat runs.
+//! Experiments to make a neighborhood be low-traffic by automatically placing filters to prevent
+//! all shortcuts.
 
 use anyhow::Result;
 
@@ -6,24 +7,24 @@ use abstutil::Timer;
 use map_model::RoadID;
 use widgetry::{Choice, EventCtx};
 
-use crate::rat_runs::find_rat_runs;
+use crate::shortcuts::find_shortcuts;
 use crate::{after_edit, App, Neighborhood};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Heuristic {
-    /// Find the road with the most rat-runs that can be closed without creating a disconnected
+    /// Find the road with the most shortcuts that can be closed without creating a disconnected
     /// cell, and filter it.
     ///
-    /// There's a vague intuition or observation that the "bottleneck" will have the most rat-runs
+    /// There's a vague intuition or observation that the "bottleneck" will have the most shortcuts
     /// going through it, so tackle the worst problem first.
     Greedy,
-    /// Try adding one filter to every possible road, counting the rat-runs after. Choose the next
-    /// step by the least resulting rat runs.
+    /// Try adding one filter to every possible road, counting the shortcuts after. Choose the next
+    /// step by the least resulting shortcuts.
     BruteForce,
     /// Find one filter that splits a cell, maximizing the number of streets in each new cell.
     SplitCells,
     /// Per cell, close all borders except for one. This doesn't affect connectivity, but prevents
-    /// all rat-runs.
+    /// all shortcuts.
     OnlyOneBorder,
 }
 
@@ -60,7 +61,7 @@ impl Heuristic {
             bail!("This neighborhood has a disconnected cell; fix that first");
         }
 
-        // TODO If we already have no rat-runs, stop
+        // TODO If we already have no shortcuts, stop
 
         app.session.modal_filters.before_edit();
 
@@ -82,11 +83,11 @@ impl Heuristic {
 }
 
 fn greedy(ctx: &EventCtx, app: &mut App, neighborhood: &Neighborhood, timer: &mut Timer) {
-    let rat_runs = find_rat_runs(app, &neighborhood, timer);
-    // TODO How should we break ties? Some rat-runs are worse than others; use that weight?
+    let shortcuts = find_shortcuts(app, &neighborhood, timer);
+    // TODO How should we break ties? Some shortcuts are worse than others; use that weight?
     // TODO Should this operation be per cell instead? We could hover on a road belonging to that
     // cell to select it
-    if let Some((r, _)) = rat_runs
+    if let Some((r, _)) = shortcuts
         .count_per_road
         .borrow()
         .iter()
@@ -100,7 +101,7 @@ fn greedy(ctx: &EventCtx, app: &mut App, neighborhood: &Neighborhood, timer: &mu
 }
 
 fn brute_force(ctx: &EventCtx, app: &mut App, neighborhood: &Neighborhood, timer: &mut Timer) {
-    // Which road leads to the fewest rat-runs?
+    // Which road leads to the fewest shortcuts?
     let mut best: Option<(RoadID, usize)> = None;
 
     let orig_filters = app.session.modal_filters.roads.len();
@@ -114,14 +115,14 @@ fn brute_force(ctx: &EventCtx, app: &mut App, neighborhood: &Neighborhood, timer
             continue;
         }
         if let Some(new) = try_to_filter_road(ctx, app, neighborhood, *r) {
-            let num_rat_runs =
+            let num_shortcuts =
                 // This spams too many logs, and can't be used within a start_iter anyway
-                find_rat_runs(app, &new, &mut Timer::throwaway())
+                find_shortcuts(app, &new, &mut Timer::throwaway())
                     .paths
                     .len();
             // TODO Again, break ties. Just the number of paths is kind of a weak metric.
-            if best.map(|(_, score)| num_rat_runs < score).unwrap_or(true) {
-                best = Some((*r, num_rat_runs));
+            if best.map(|(_, score)| num_shortcuts < score).unwrap_or(true) {
+                best = Some((*r, num_shortcuts));
             }
             // Always undo the new filter between each test
             app.session.modal_filters.roads.remove(r).unwrap();

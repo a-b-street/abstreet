@@ -12,7 +12,7 @@ use widgetry::{
 
 use crate::filters::auto::Heuristic;
 use crate::per_neighborhood::{FilterableObj, Tab};
-use crate::rat_runs::find_rat_runs;
+use crate::shortcuts::find_shortcuts;
 use crate::{after_edit, colors, App, DiagonalFilter, Neighborhood, NeighborhoodID, Transition};
 
 pub struct Viewer {
@@ -218,11 +218,11 @@ fn make_world(
     app: &App,
     neighborhood: &Neighborhood,
 ) -> (World<FilterableObj>, ToggleZoomed) {
-    let rat_runs = ctx.loading_screen("find rat runs", |_, timer| {
-        find_rat_runs(app, neighborhood, timer)
+    let shortcuts = ctx.loading_screen("find rat runs", |_, timer| {
+        find_shortcuts(app, neighborhood, timer)
     });
 
-    let mut world = crate::per_neighborhood::make_world(ctx, app, neighborhood, &rat_runs);
+    let mut world = crate::per_neighborhood::make_world(ctx, app, neighborhood, &shortcuts);
     let map = &app.map;
 
     // The world is drawn in between areas and roads, but some things need to be drawn on top of
@@ -234,10 +234,10 @@ fn make_world(
         world.draw_master_batch(ctx, render_cells.draw());
 
         let mut colorer = ColorNetwork::no_fading(app);
-        colorer.ranked_roads(rat_runs.count_per_road.clone(), &app.cs.good_to_bad_red);
+        colorer.ranked_roads(shortcuts.count_per_road.clone(), &app.cs.good_to_bad_red);
         // TODO These two will be on different scales, which'll look really weird!
         colorer.ranked_intersections(
-            rat_runs.count_per_intersection.clone(),
+            shortcuts.count_per_intersection.clone(),
             &app.cs.good_to_bad_red,
         );
 

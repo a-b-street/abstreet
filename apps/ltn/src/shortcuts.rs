@@ -8,13 +8,13 @@ use map_model::{
 
 use crate::{App, Cell, Neighborhood};
 
-pub struct RatRuns {
+pub struct Shortcuts {
     pub paths: Vec<Path>,
     pub count_per_road: Counter<RoadID>,
     pub count_per_intersection: Counter<IntersectionID>,
 }
 
-impl RatRuns {
+impl Shortcuts {
     pub fn quiet_and_total_streets(&self, neighborhood: &Neighborhood) -> (usize, usize) {
         let quiet_streets = neighborhood
             .orig_perimeter
@@ -27,7 +27,7 @@ impl RatRuns {
     }
 }
 
-pub fn find_rat_runs(app: &App, neighborhood: &Neighborhood, timer: &mut Timer) -> RatRuns {
+pub fn find_shortcuts(app: &App, neighborhood: &Neighborhood, timer: &mut Timer) -> Shortcuts {
     let map = &app.map;
     let modal_filters = &app.session.modal_filters;
     // The overall approach: look for all possible paths from an entrance to an exit, only if they
@@ -80,13 +80,13 @@ pub fn find_rat_runs(app: &App, neighborhood: &Neighborhood, timer: &mut Timer) 
         .flatten()
         .collect();
 
-    // TODO Rank the likeliness of each rat run by
+    // TODO Rank the likeliness of each shortcut by
     // 1) Calculating a path between similar start/endpoints -- travelling along the perimeter,
     //    starting and ending on a specific road that makes sense. (We have to pick the 'direction'
     //    along the perimeter roads that's sensible.)
     // 2) Comparing that time to the time for cutting through
 
-    // How many rat-runs pass through each street?
+    // How many shortcuts pass through each street?
     let mut count_per_road = Counter::new();
     let mut count_per_intersection = Counter::new();
     for path in &paths {
@@ -108,7 +108,7 @@ pub fn find_rat_runs(app: &App, neighborhood: &Neighborhood, timer: &mut Timer) 
         }
     }
 
-    RatRuns {
+    Shortcuts {
         paths,
         count_per_road,
         count_per_intersection,

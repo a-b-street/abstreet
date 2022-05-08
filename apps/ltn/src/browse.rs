@@ -73,7 +73,7 @@ impl BrowseNeighborhoods {
                                         Choice::new("simple", Style::SimpleColoring),
                                         Choice::new("cells", Style::Cells),
                                         Choice::new("quietness", Style::Quietness),
-                                        Choice::new("all rat-runs", Style::RatRuns),
+                                        Choice::new("all rat-runs", Style::Shortcuts),
                                     ],
                                 ),
                             ]),
@@ -263,9 +263,9 @@ fn make_world(ctx: &mut EventCtx, app: &App, timer: &mut Timer) -> World<Neighbo
             }
             Style::Quietness => {
                 let neighborhood = Neighborhood::new(ctx, app, *id);
-                let rat_runs = crate::rat_runs::find_rat_runs(app, &neighborhood, timer);
+                let shortcuts = crate::shortcuts::find_shortcuts(app, &neighborhood, timer);
                 let (quiet_streets, total_streets) =
-                    rat_runs.quiet_and_total_streets(&neighborhood);
+                    shortcuts.quiet_and_total_streets(&neighborhood);
                 let pct = if total_streets == 0 {
                     0.0
                 } else {
@@ -280,7 +280,7 @@ fn make_world(ctx: &mut EventCtx, app: &App, timer: &mut Timer) -> World<Neighbo
                     .clickable()
                     .build(ctx);
             }
-            Style::RatRuns => {
+            Style::Shortcuts => {
                 world
                     .add(*id)
                     .hitbox(block.polygon.clone())
@@ -296,7 +296,7 @@ fn make_world(ctx: &mut EventCtx, app: &App, timer: &mut Timer) -> World<Neighbo
 }
 
 fn draw_over_roads(ctx: &mut EventCtx, app: &App, timer: &mut Timer) -> ToggleZoomed {
-    if app.session.draw_neighborhood_style != Style::RatRuns {
+    if app.session.draw_neighborhood_style != Style::Shortcuts {
         return ToggleZoomed::empty(ctx);
     }
 
@@ -305,13 +305,13 @@ fn draw_over_roads(ctx: &mut EventCtx, app: &App, timer: &mut Timer) -> ToggleZo
 
     for id in app.session.partitioning.all_neighborhoods().keys() {
         let neighborhood = Neighborhood::new(ctx, app, *id);
-        let rat_runs = crate::rat_runs::find_rat_runs(app, &neighborhood, timer);
-        count_per_road.extend(rat_runs.count_per_road);
-        count_per_intersection.extend(rat_runs.count_per_intersection);
+        let shortcuts = crate::shortcuts::find_shortcuts(app, &neighborhood, timer);
+        count_per_road.extend(shortcuts.count_per_road);
+        count_per_intersection.extend(shortcuts.count_per_intersection);
     }
 
     // TODO It's a bit weird to draw one heatmap covering streets in every neighborhood. The
-    // rat-runs are calculated per neighborhood, but now we're showing them all together, as if
+    // shortcuts are calculated per neighborhood, but now we're showing them all together, as if
     // it's the impact prediction mode using a demand model.
     let mut colorer = ColorNetwork::no_fading(app);
     colorer.ranked_roads(count_per_road, &app.cs.good_to_bad_red);
@@ -363,7 +363,7 @@ pub enum Style {
     SimpleColoring,
     Cells,
     Quietness,
-    RatRuns,
+    Shortcuts,
 }
 
 fn impact_widget(ctx: &EventCtx, app: &App) -> Widget {

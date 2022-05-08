@@ -1,4 +1,4 @@
-use std::{collections::BTreeSet};
+use std::collections::BTreeSet;
 
 use geom::Time;
 use map_model::{IntersectionID, LaneID, Map, PathStep, Position, Traversable};

@@ -7,7 +7,7 @@ use widgetry::{
     DEFAULT_CORNER_RADIUS,
 };
 
-use crate::rat_runs::RatRuns;
+use crate::shortcuts::Shortcuts;
 use crate::{
     after_edit, colors, App, BrowseNeighborhoods, DiagonalFilter, Neighborhood, NeighborhoodID,
     Transition,
@@ -16,7 +16,7 @@ use crate::{
 #[derive(PartialEq)]
 pub enum Tab {
     Connectivity,
-    RatRuns,
+    Shortcuts,
 }
 
 impl Tab {
@@ -91,7 +91,7 @@ impl Tab {
                 ctx, app, id,
             ))),
             "Rat runs" => Some(Transition::Replace(
-                crate::rat_run_viewer::BrowseRatRuns::new_state(ctx, app, id, None),
+                crate::shortcut_viewer::BrowseShortcuts::new_state(ctx, app, id, None),
             )),
             "undo" => {
                 let prev = app.session.modal_filters.previous_version.take().unwrap();
@@ -101,9 +101,9 @@ impl Tab {
                 // dropdowns)
                 Some(Transition::Replace(match self {
                     Tab::Connectivity => crate::connectivity::Viewer::new_state(ctx, app, id),
-                    // TODO Preserve the current rat run
-                    Tab::RatRuns => {
-                        crate::rat_run_viewer::BrowseRatRuns::new_state(ctx, app, id, None)
+                    // TODO Preserve the current shortcut
+                    Tab::Shortcuts => {
+                        crate::shortcut_viewer::BrowseShortcuts::new_state(ctx, app, id, None)
                     }
                 }))
             }
@@ -115,7 +115,7 @@ impl Tab {
         let mut row = Vec::new();
         for (tab, label, key) in [
             (Tab::Connectivity, "Connectivity", Key::F1),
-            (Tab::RatRuns, "Rat runs", Key::F2),
+            (Tab::Shortcuts, "Rat runs", Key::F2),
         ] {
             // TODO Match the TabController styling
             row.push(
@@ -166,7 +166,7 @@ pub fn make_world(
     ctx: &mut EventCtx,
     app: &App,
     neighborhood: &Neighborhood,
-    rat_runs: &RatRuns,
+    shortcuts: &Shortcuts,
 ) -> World<FilterableObj> {
     let map = &app.map;
     let mut world = World::bounded(map.get_bounds());
@@ -180,7 +180,7 @@ pub fn make_world(
             .hover_outline(colors::OUTLINE, Distance::meters(5.0))
             .tooltip(Text::from(format!(
                 "{} rat-runs cross {}",
-                rat_runs.count_per_road.get(*r),
+                shortcuts.count_per_road.get(*r),
                 road.get_name(app.opts.language.as_ref()),
             )))
             .hotkey(lctrl(Key::D), "debug")
@@ -196,7 +196,7 @@ pub fn make_world(
             .hover_outline(colors::OUTLINE, Distance::meters(5.0))
             .tooltip(Text::from(format!(
                 "{} rat-runs cross this intersection",
-                rat_runs.count_per_intersection.get(*i)
+                shortcuts.count_per_intersection.get(*i)
             )))
             .clickable()
             .hotkey(lctrl(Key::D), "debug")

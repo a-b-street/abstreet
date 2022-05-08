@@ -4,13 +4,13 @@ use widgetry::mapspace::{ToggleZoomed, World};
 use widgetry::{EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text, Widget};
 
 use crate::per_neighborhood::{FilterableObj, Tab};
-use crate::rat_runs::{find_rat_runs, RatRuns};
+use crate::shortcuts::{find_shortcuts, Shortcuts};
 use crate::{colors, App, Neighborhood, NeighborhoodID, Transition};
 
-pub struct BrowseRatRuns {
+pub struct BrowseShortcuts {
     top_panel: Panel,
     left_panel: Panel,
-    rat_runs: RatRuns,
+    shortcuts: Shortcuts,
     current_idx: usize,
 
     draw_path: ToggleZoomed,
@@ -18,7 +18,7 @@ pub struct BrowseRatRuns {
     neighborhood: Neighborhood,
 }
 
-impl BrowseRatRuns {
+impl BrowseShortcuts {
     pub fn new_state(
         ctx: &mut EventCtx,
         app: &App,
@@ -27,15 +27,15 @@ impl BrowseRatRuns {
     ) -> Box<dyn State<App>> {
         let neighborhood = Neighborhood::new(ctx, app, id);
 
-        let rat_runs = ctx.loading_screen("find rat runs", |_, timer| {
-            find_rat_runs(app, &neighborhood, timer)
+        let shortcuts = ctx.loading_screen("find rat runs", |_, timer| {
+            find_shortcuts(app, &neighborhood, timer)
         });
-        let world = crate::per_neighborhood::make_world(ctx, app, &neighborhood, &rat_runs);
+        let world = crate::per_neighborhood::make_world(ctx, app, &neighborhood, &shortcuts);
 
-        let mut state = BrowseRatRuns {
+        let mut state = BrowseShortcuts {
             top_panel: crate::common::app_top_panel(ctx, app),
             left_panel: Panel::empty(ctx),
-            rat_runs,
+            shortcuts,
             current_idx: 0,
             draw_path: ToggleZoomed::empty(ctx),
             neighborhood,
@@ -44,7 +44,7 @@ impl BrowseRatRuns {
 
         if let Some(req) = start_with_request {
             if let Some(idx) = state
-                .rat_runs
+                .shortcuts
                 .paths
                 .iter()
                 .position(|path| path.get_req() == &req)
@@ -60,10 +60,10 @@ impl BrowseRatRuns {
 
     fn recalculate(&mut self, ctx: &mut EventCtx, app: &App) {
         let (quiet_streets, total_streets) =
-            self.rat_runs.quiet_and_total_streets(&self.neighborhood);
+            self.shortcuts.quiet_and_total_streets(&self.neighborhood);
 
-        if self.rat_runs.paths.is_empty() {
-            self.left_panel = Tab::RatRuns
+        if self.shortcuts.paths.is_empty() {
+            self.left_panel = Tab::Shortcuts
                 .panel_builder(
                     ctx,
                     app,
@@ -86,7 +86,7 @@ impl BrowseRatRuns {
             let controls = self.prev_next_controls(ctx);
             self.left_panel.replace(ctx, "prev/next controls", controls);
         } else {
-            self.left_panel = Tab::RatRuns
+            self.left_panel = Tab::Shortcuts
                 .panel_builder(
                     ctx,
                     app,
@@ -107,8 +107,8 @@ impl BrowseRatRuns {
         }
 
         let mut draw_path = ToggleZoomed::builder();
-        if let Some(pl) = self.rat_runs.paths[self.current_idx].trace(&app.map) {
-            let color = colors::RAT_RUN_PATH;
+        if let Some(pl) = self.shortcuts.paths[self.current_idx].trace(&app.map) {
+            let color = colors::SHORTCUT_PATH;
             let shape = pl.make_polygons(3.0 * NORMAL_LANE_THICKNESS);
             draw_path.unzoomed.push(color.alpha(0.8), shape.clone());
             draw_path.zoomed.push(color.alpha(0.5), shape);
@@ -141,7 +141,7 @@ impl BrowseRatRuns {
                 Line(format!(
                     "{}/{}",
                     self.current_idx + 1,
-                    self.rat_runs.paths.len()
+                    self.shortcuts.paths.len()
                 ))
                 .secondary(),
             )
@@ -149,7 +149,7 @@ impl BrowseRatRuns {
             .centered_vert(),
             ctx.style()
                 .btn_next()
-                .disabled(self.current_idx == self.rat_runs.paths.len() - 1)
+                .disabled(self.current_idx == self.shortcuts.paths.len() - 1)
                 .hotkey(Key::RightArrow)
                 .build_widget(ctx, "next rat run"),
         ])
@@ -157,7 +157,7 @@ impl BrowseRatRuns {
     }
 }
 
-impl State<App> for BrowseRatRuns {
+impl State<App> for BrowseShortcuts {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         if let Some(t) = crate::common::handle_top_panel(ctx, app, &mut self.top_panel, help) {
             return t;
@@ -173,18 +173,19 @@ impl State<App> for BrowseRatRuns {
                     self.recalculate(ctx, app);
                 }
                 x => {
-                    if let Some(t) = Tab::RatRuns.handle_action(ctx, app, x, self.neighborhood.id) {
+                    if let Some(t) = Tab::Shortcuts.handle_action(ctx, app, x, self.neighborhood.id)
+                    {
                         return t;
                     }
-                    let current_request = if self.rat_runs.paths.is_empty() {
+                    let current_request = if self.shortcuts.paths.is_empty() {
                         None
                     } else {
-                        Some(self.rat_runs.paths[self.current_idx].get_req().clone())
+                        Some(self.shortcuts.paths[self.current_idx].get_req().clone())
                     };
                     return crate::save::AltProposals::handle_action(
                         ctx,
                         app,
-                        crate::save::PreserveState::RatRuns(
+                        crate::save::PreserveState::Shortcuts(
                             current_request,
                             app.session
                                 .partitioning
@@ -202,9 +203,9 @@ impl State<App> for BrowseRatRuns {
         // world
         let world_outcome = self.world.event(ctx);
         if crate::per_neighborhood::handle_world_outcome(ctx, app, world_outcome) {
-            // Reset state, but if possible, preserve the current individual rat run.
-            let current_request = self.rat_runs.paths[self.current_idx].get_req().clone();
-            return Transition::Replace(BrowseRatRuns::new_state(
+            // Reset state, but if possible, preserve the current individual shortcut.
+            let current_request = self.shortcuts.paths[self.current_idx].get_req().clone();
+            return Transition::Replace(BrowseShortcuts::new_state(
                 ctx,
                 app,
                 self.neighborhood.id,

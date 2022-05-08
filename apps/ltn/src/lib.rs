@@ -27,11 +27,11 @@ mod impact;
 mod neighborhood;
 mod partition;
 mod per_neighborhood;
-mod rat_run_viewer;
-mod rat_runs;
 mod route_planner;
 mod save;
 mod select_boundary;
+mod shortcut_viewer;
+mod shortcuts;
 
 type App = map_gui::SimpleApp<Session>;
 type Transition = widgetry::Transition<App>;

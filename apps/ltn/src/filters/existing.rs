@@ -47,7 +47,7 @@ pub fn transform_existing_filters(ctx: &EventCtx, app: &mut App, timer: &mut Tim
     //
     // 1) In the pathfinding UI tool, both the 'before' and 'after' explicitly override
     //    RoutingParams, so we weren't using the built-in pathfinder anyway.
-    // 2) The rat run detector also overrides RoutingParams with the current set of filters
+    // 2) The shortcut detector also overrides RoutingParams with the current set of filters
     // 3) The impact tool does use the contraction hierarchy for the "before" count. This should be
     //    fine -- the situation represented before the roads are transformed is what we want.
     app.map.keep_pathfinder_despite_edits();
