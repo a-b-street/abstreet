@@ -350,7 +350,7 @@
             <span class="string">&quot;Connectivity&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Transition::Replace</span>(<span class="ident"><span class="kw">crate</span>::connectivity::Viewer::new_state</span>(
                 <span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>,
             ))),
-            <span class="string">&quot;Rat runs&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Transition::Replace</span>(
+            <span class="string">&quot;Shortcuts&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Transition::Replace</span>(
                 <span class="ident"><span class="kw">crate</span>::shortcut_viewer::BrowseShortcuts::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>, <span class="prelude-val">None</span>),
             )),
             <span class="string">&quot;undo&quot;</span> =&gt; {
@@ -375,7 +375,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">for</span> (<span class="ident">tab</span>, <span class="ident">label</span>, <span class="ident">key</span>) <span class="kw">in</span> [
             (<span class="ident">Tab::Connectivity</span>, <span class="string">&quot;Connectivity&quot;</span>, <span class="ident">Key::F1</span>),
-            (<span class="ident">Tab::Shortcuts</span>, <span class="string">&quot;Rat runs&quot;</span>, <span class="ident">Key::F2</span>),
+            (<span class="ident">Tab::Shortcuts</span>, <span class="string">&quot;Shortcuts&quot;</span>, <span class="ident">Key::F2</span>),
         ] {
             <span class="comment">// TODO Match the TabController styling</span>
             <span class="ident">row</span>.<span class="ident">push</span>(
@@ -439,7 +439,7 @@
             .<span class="ident">drawn_in_master_batch</span>()
             .<span class="ident">hover_outline</span>(<span class="ident">colors::OUTLINE</span>, <span class="ident">Distance::meters</span>(<span class="number">5.0</span>))
             .<span class="ident">tooltip</span>(<span class="ident">Text::from</span>(<span class="macro">format!</span>(
-                <span class="string">&quot;{} rat-runs cross {}&quot;</span>,
+                <span class="string">&quot;{} shortcuts cross {}&quot;</span>,
                 <span class="ident">shortcuts</span>.<span class="ident">count_per_road</span>.<span class="ident">get</span>(<span class="kw-2">*</span><span class="ident">r</span>),
                 <span class="ident">road</span>.<span class="ident">get_name</span>(<span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">language</span>.<span class="ident">as_ref</span>()),
             )))
@@ -455,7 +455,7 @@
             .<span class="ident">drawn_in_master_batch</span>()
             .<span class="ident">hover_outline</span>(<span class="ident">colors::OUTLINE</span>, <span class="ident">Distance::meters</span>(<span class="number">5.0</span>))
             .<span class="ident">tooltip</span>(<span class="ident">Text::from</span>(<span class="macro">format!</span>(
-                <span class="string">&quot;{} rat-runs cross this intersection&quot;</span>,
+                <span class="string">&quot;{} shortcuts cross this intersection&quot;</span>,
                 <span class="ident">shortcuts</span>.<span class="ident">count_per_intersection</span>.<span class="ident">get</span>(<span class="kw-2">*</span><span class="ident">i</span>)
             )))
             .<span class="ident">clickable</span>()

@@ -270,11 +270,11 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">choices</span>() -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Choice</span><span class="op">&lt;</span><span class="ident">Heuristic</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="macro">vec!</span>[
             <span class="ident">Choice::new</span>(
-                <span class="string">&quot;filter the road with the most rat-runs (greedy)&quot;</span>,
+                <span class="string">&quot;filter the road with the most shortcuts (greedy)&quot;</span>,
                 <span class="ident">Heuristic::Greedy</span>,
             ),
             <span class="ident">Choice::new</span>(
-                <span class="string">&quot;stop the most rat-runs (brute-force)&quot;</span>,
+                <span class="string">&quot;stop the most shortcuts (brute-force)&quot;</span>,
                 <span class="ident">Heuristic::BruteForce</span>,
             ),
             <span class="ident">Choice::new</span>(<span class="string">&quot;split large cells&quot;</span>, <span class="ident">Heuristic::SplitCells</span>),
