@@ -1,8 +1,13 @@
 use abstutil::Tags;
-use map_model::{Direction, EditRoad, LaneSpec, LaneType};
+use map_model::{Direction, DrivingSide, EditRoad, LaneSpec, LaneType};
 
 /// Returns the index where the new lane was inserted
-pub fn add_new_lane(road: &mut EditRoad, lt: LaneType, osm_tags: &Tags) -> usize {
+pub fn add_new_lane(
+    road: &mut EditRoad,
+    lt: LaneType,
+    osm_tags: &Tags,
+    driving_side: DrivingSide,
+) -> usize {
     let mut dir = Direction::Fwd;
     let mut idx = 0;
 
@@ -36,11 +41,19 @@ pub fn add_new_lane(road: &mut EditRoad, lt: LaneType, osm_tags: &Tags) -> usize
         LaneType::Sidewalk => {
             // Place where it's missing
             if !road.lanes_ltr[0].lt.is_walkable() {
-                dir = road.lanes_ltr[0].dir;
                 idx = 0;
+                dir = if driving_side == DrivingSide::Right {
+                    Direction::Back
+                } else {
+                    Direction::Fwd
+                };
             } else {
-                dir = road.lanes_ltr.last().unwrap().dir;
                 idx = road.lanes_ltr.len();
+                dir = if driving_side == DrivingSide::Right {
+                    Direction::Fwd
+                } else {
+                    Direction::Back
+                };
             }
         }
         LaneType::Buffer(_) => {
@@ -207,7 +220,12 @@ mod tests {
         ] {
             let input = EditRoad::create_for_test(input_lt, input_dir);
             let mut actual_output = input.clone();
-            add_new_lane(&mut actual_output, new_lt, &Tags::empty());
+            add_new_lane(
+                &mut actual_output,
+                new_lt,
+                &Tags::empty(),
+                DrivingSide::Right,
+            );
             actual_output.check_lanes_ltr(
                 description.to_string(),
                 input_lt,

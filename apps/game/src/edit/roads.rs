@@ -322,7 +322,12 @@ impl State<App> for RoadEditor {
                     let mut edits = app.primary.map.get_edits().clone();
                     let old = app.primary.map.get_r_edit(self.r);
                     let mut new = old.clone();
-                    let idx = add_new_lane(&mut new, lt, &app.primary.map.get_r(self.r).osm_tags);
+                    let idx = add_new_lane(
+                        &mut new,
+                        lt,
+                        &app.primary.map.get_r(self.r).osm_tags,
+                        app.primary.map.get_config().driving_side,
+                    );
                     edits.commands.push(EditCmd::ChangeRoad {
                         r: self.r,
                         old,
