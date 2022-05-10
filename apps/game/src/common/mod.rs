@@ -308,6 +308,9 @@ impl CommonState {
         if app.secondary.is_some() && ctx.input.pressed(lctrl(Key::Tab)) {
             app.swap_map();
         }
+        if app.secondary.is_some() && ctx.input.pressed(lctrl(Key::A)) {
+            sync_abtest(ctx, app);
+        }
         None
     }
 }
@@ -412,4 +415,18 @@ pub fn jump_to_time_upon_startup(
             }
         })
     })
+}
+
+fn sync_abtest(ctx: &mut EventCtx, app: &mut App) {
+    // If the other simulation is at a later time, catch up to it
+    let other_time = app.secondary.as_ref().unwrap().sim.time();
+    let our_time = app.primary.sim.time();
+    if our_time >= other_time {
+        return;
+    }
+    ctx.loading_screen("catch up", |_, timer| {
+        app.primary
+            .sim
+            .timed_step(&app.primary.map, other_time - our_time, &mut None, timer);
+    });
 }

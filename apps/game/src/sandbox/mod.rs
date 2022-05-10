@@ -70,6 +70,9 @@ impl SandboxMode {
         finalize: Box<dyn FnOnce(&mut EventCtx, &mut App) -> Vec<Transition>>,
     ) -> Box<dyn State<App>> {
         app.primary.clear_sim();
+        if let Some(ref mut secondary) = app.secondary {
+            secondary.clear_sim();
+        }
         Box::new(SandboxLoader {
             stage: Some(LoadStage::LoadingMap),
             mode,
@@ -561,6 +564,21 @@ impl State<App> for SandboxLoader {
                         app.primary
                             .sim
                             .tiny_step(&app.primary.map, &mut app.primary.sim_cb);
+
+                        if let Some(ref mut secondary) = app.secondary {
+                            // TODO Modifiers already applied
+                            secondary.scenario = Some(scenario.clone());
+
+                            secondary.sim.instantiate(
+                                &scenario,
+                                &secondary.map,
+                                &mut secondary.current_flags.sim_flags.make_rng(),
+                                timer,
+                            );
+                            secondary
+                                .sim
+                                .tiny_step(&secondary.map, &mut secondary.sim_cb);
+                        }
                     });
 
                     self.stage = Some(LoadStage::LoadingPrebaked(scenario_name));
