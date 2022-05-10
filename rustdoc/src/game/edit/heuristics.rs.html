@@ -225,11 +225,34 @@
 <span id="220">220</span>
 <span id="221">221</span>
 <span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">abstutil::Tags</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Direction</span>, <span class="ident">EditRoad</span>, <span class="ident">LaneSpec</span>, <span class="ident">LaneType</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Direction</span>, <span class="ident">DrivingSide</span>, <span class="ident">EditRoad</span>, <span class="ident">LaneSpec</span>, <span class="ident">LaneType</span>};
 
 <span class="doccomment">/// Returns the index where the new lane was inserted</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_new_lane</span>(<span class="ident">road</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EditRoad</span>, <span class="ident">lt</span>: <span class="ident">LaneType</span>, <span class="ident">osm_tags</span>: <span class="kw-2">&amp;</span><span class="ident">Tags</span>) -&gt; <span class="ident">usize</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_new_lane</span>(
+    <span class="ident">road</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EditRoad</span>,
+    <span class="ident">lt</span>: <span class="ident">LaneType</span>,
+    <span class="ident">osm_tags</span>: <span class="kw-2">&amp;</span><span class="ident">Tags</span>,
+    <span class="ident">driving_side</span>: <span class="ident">DrivingSide</span>,
+) -&gt; <span class="ident">usize</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dir</span> <span class="op">=</span> <span class="ident">Direction::Fwd</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">idx</span> <span class="op">=</span> <span class="number">0</span>;
 
@@ -263,11 +286,19 @@
         <span class="ident">LaneType::Sidewalk</span> =&gt; {
             <span class="comment">// Place where it&#39;s missing</span>
             <span class="kw">if</span> <span class="op">!</span><span class="ident">road</span>.<span class="ident">lanes_ltr</span>[<span class="number">0</span>].<span class="ident">lt</span>.<span class="ident">is_walkable</span>() {
-                <span class="ident">dir</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">lanes_ltr</span>[<span class="number">0</span>].<span class="ident">dir</span>;
                 <span class="ident">idx</span> <span class="op">=</span> <span class="number">0</span>;
+                <span class="ident">dir</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">driving_side</span> <span class="op">==</span> <span class="ident">DrivingSide::Right</span> {
+                    <span class="ident">Direction::Back</span>
+                } <span class="kw">else</span> {
+                    <span class="ident">Direction::Fwd</span>
+                };
             } <span class="kw">else</span> {
-                <span class="ident">dir</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">lanes_ltr</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="ident">dir</span>;
                 <span class="ident">idx</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">lanes_ltr</span>.<span class="ident">len</span>();
+                <span class="ident">dir</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">driving_side</span> <span class="op">==</span> <span class="ident">DrivingSide::Right</span> {
+                    <span class="ident">Direction::Fwd</span>
+                } <span class="kw">else</span> {
+                    <span class="ident">Direction::Back</span>
+                };
             }
         }
         <span class="ident">LaneType::Buffer</span>(<span class="kw">_</span>) =&gt; {
@@ -434,7 +465,12 @@
         ] {
             <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">EditRoad::create_for_test</span>(<span class="ident">input_lt</span>, <span class="ident">input_dir</span>);
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">actual_output</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">clone</span>();
-            <span class="ident">add_new_lane</span>(<span class="kw-2">&amp;mut</span> <span class="ident">actual_output</span>, <span class="ident">new_lt</span>, <span class="kw-2">&amp;</span><span class="ident">Tags::empty</span>());
+            <span class="ident">add_new_lane</span>(
+                <span class="kw-2">&amp;mut</span> <span class="ident">actual_output</span>,
+                <span class="ident">new_lt</span>,
+                <span class="kw-2">&amp;</span><span class="ident">Tags::empty</span>(),
+                <span class="ident">DrivingSide::Right</span>,
+            );
             <span class="ident">actual_output</span>.<span class="ident">check_lanes_ltr</span>(
                 <span class="ident">description</span>.<span class="ident">to_string</span>(),
                 <span class="ident">input_lt</span>,
