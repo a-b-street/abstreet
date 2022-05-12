@@ -6,7 +6,7 @@ use maplit::btreeset;
 use abstutil::{prettyprint_usize, Counter};
 use geom::{Circle, Distance, Duration, Percent, Polygon, Pt2D, Time};
 use map_gui::render::unzoomed_agent_radius;
-use map_gui::tools::{ColorLegend, ColorNetwork, DivergingScale};
+use map_gui::tools::{ColorDiscrete, ColorLegend, ColorNetwork, DivergingScale};
 use map_gui::ID;
 use map_model::{IntersectionID, Map, Traversable};
 use sim::{AgentType, VehicleType};
@@ -615,6 +615,86 @@ impl Delay {
             panel: Panel::new_builder(Widget::col(vec![
                 header(ctx, "Delay per agent (minutes)"),
                 ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["0", "5", "10", "15+"]),
+            ]))
+            .aligned_pair(PANEL_PLACEMENT)
+            .build(ctx),
+        }
+    }
+}
+
+pub struct PedestrianCrowding {
+    time: Time,
+    draw: ToggleZoomed,
+    panel: Panel,
+}
+
+impl Layer for PedestrianCrowding {
+    fn name(&self) -> Option<&'static str> {
+        Some("pedestrian crowding")
+    }
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Option<LayerOutcome> {
+        if app.primary.sim.time() != self.time {
+            *self = Self::new(ctx, app);
+        }
+
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            match x.as_ref() {
+                "close" => {
+                    return Some(LayerOutcome::Close);
+                }
+                _ => unreachable!(),
+            }
+        }
+        None
+    }
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
+        self.panel.draw(g);
+        self.draw.draw(g);
+    }
+    fn draw_minimap(&self, g: &mut GfxCtx) {
+        g.redraw(&self.draw.unzoomed);
+    }
+}
+
+impl PedestrianCrowding {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> Self {
+        let categories = vec![
+            ("< 1", app.cs.good_to_bad_red.eval(0.0)),
+            ("1 - 1.5", app.cs.good_to_bad_red.eval(0.3)),
+            ("1.5 - 2.0", app.cs.good_to_bad_red.eval(0.6)),
+            ("> 2", app.cs.good_to_bad_red.eval(1.0)),
+        ];
+        let mut colorer = ColorDiscrete::new(app, categories);
+
+        fn bucket(x: f64) -> &'static str {
+            if x < 1.0 {
+                "< 1"
+            } else if x <= 1.5 {
+                "1 - 1.5"
+            } else if x <= 2.0 {
+                "1.5 - 2.0"
+            } else {
+                "> 2"
+            }
+        }
+
+        let (roads, intersections) = app.primary.sim.get_pedestrian_density(&app.primary.map);
+        for (r, density) in roads {
+            colorer.add_r(r, bucket(density));
+        }
+        for (i, density) in intersections {
+            colorer.add_i(i, bucket(density));
+        }
+
+        let (draw, legend) = colorer.build(ctx);
+
+        Self {
+            time: app.primary.sim.time(),
+            draw,
+            panel: Panel::new_builder(Widget::col(vec![
+                header(ctx, "Pedestrian crowding"),
+                "(people / m^2)".text_widget(ctx),
+                legend,
             ]))
             .aligned_pair(PANEL_PLACEMENT)
             .build(ctx),

@@ -7,8 +7,8 @@ use std::collections::{BTreeMap, BTreeSet};
 use abstutil::Counter;
 use geom::{Distance, Duration, PolyLine, Pt2D, Time};
 use map_model::{
-    BuildingID, IntersectionID, Lane, LaneID, Map, Path, Position, TransitRouteID, TransitStopID,
-    Traversable, TurnID,
+    BuildingID, IntersectionID, Lane, LaneID, Map, Path, Position, RoadID, TransitRouteID,
+    TransitStopID, Traversable, TurnID,
 };
 use synthpop::{OrigPersonID, Scenario, TripMode};
 
@@ -451,6 +451,15 @@ impl Sim {
 
     pub fn get_highlighted_people(&self) -> &Option<BTreeSet<PersonID>> {
         &self.highlighted_people
+    }
+
+    /// Returns people / m^2. Roads have up to two sidewalks and intersections have many crossings
+    /// -- take the max density along any one.
+    pub fn get_pedestrian_density(
+        &self,
+        map: &Map,
+    ) -> (BTreeMap<RoadID, f64>, BTreeMap<IntersectionID, f64>) {
+        self.walking.get_pedestrian_density(map)
     }
 }
 

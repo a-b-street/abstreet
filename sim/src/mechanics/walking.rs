@@ -5,8 +5,8 @@ use serde::{Deserialize, Serialize};
 use abstutil::{deserialize_multimap, serialize_multimap, FixedMap, IndexableKey, MultiMap};
 use geom::{Distance, Duration, Line, PolyLine, Speed, Time};
 use map_model::{
-    BuildingID, DrivingSide, Map, ParkingLotID, Path, PathConstraints, PathStep, TransitRouteID,
-    Traversable,
+    BuildingID, DrivingSide, IntersectionID, Map, ParkingLotID, Path, PathConstraints, PathStep,
+    RoadID, TransitRouteID, Traversable,
 };
 
 use crate::sim::Ctx;
@@ -625,6 +625,35 @@ impl WalkingSimState {
             }
         }
     }
+
+    pub fn get_pedestrian_density(
+        &self,
+        map: &Map,
+    ) -> (BTreeMap<RoadID, f64>, BTreeMap<IntersectionID, f64>) {
+        let mut roads = BTreeMap::new();
+        let mut intersections = BTreeMap::new();
+        for (traversable, peds) in self.peds_per_traversable.borrow() {
+            if peds.is_empty() {
+                continue;
+            }
+            let density = (peds.len() as f64) / area(map, *traversable);
+            match traversable {
+                Traversable::Lane(l) => {
+                    let entry = roads.entry(l.road).or_insert(0.0);
+                    if *entry < density {
+                        *entry = density;
+                    }
+                }
+                Traversable::Turn(t) => {
+                    let entry = intersections.entry(t.parent).or_insert(0.0);
+                    if *entry < density {
+                        *entry = density;
+                    }
+                }
+            }
+        }
+        (roads, intersections)
+    }
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -995,20 +1024,9 @@ fn crowdedness_penalty(
     traversable: Traversable,
     peds_per_traversable: &MultiMap<Traversable, PedestrianID>,
 ) -> f64 {
-    // 1) How many people are in the space
     let num_people = peds_per_traversable.get(traversable).len();
-    // 2) The length of the sidewalk or crosswalk
-    let len = traversable.get_polyline(map).length();
-    // 3) The width of the space
-    let width = match traversable {
-        // Sidewalk
-        Traversable::Lane(l) => map.get_l(l).width,
-        // For crosswalks, the thinner of the two sidewalks being connected
-        Traversable::Turn(t) => map.get_l(t.src).width.min(map.get_l(t.dst).width),
-    };
-
-    // Person per area, assuming everyone's equally spread out
-    let people_per_sq_m = (num_people as f64) / (width.inner_meters() * len.inner_meters());
+    // Assume everyone's equally spread out
+    let people_per_sq_m = (num_people as f64) / area(map, traversable);
     // Based on eyeballing images from
     // https://www.gkstill.com/Support/crowd-density/CrowdDensity-1.html, let's use a fixed
     // threshold of 1.5 people per square meter as "crowded" and slow them down by half.
@@ -1017,4 +1035,18 @@ fn crowdedness_penalty(
         return 1.0;
     }
     0.5
+}
+
+// In m^2
+fn area(map: &Map, traversable: Traversable) -> f64 {
+    // The length of the sidewalk or crosswalk
+    let len = traversable.get_polyline(map).length();
+    // The width of the space
+    let width = match traversable {
+        // Sidewalk
+        Traversable::Lane(l) => map.get_l(l).width,
+        // For crosswalks, the thinner of the two sidewalks being connected
+        Traversable::Turn(t) => map.get_l(t.src).width.min(map.get_l(t.dst).width),
+    };
+    width.inner_meters() * len.inner_meters()
 }

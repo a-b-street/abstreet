@@ -109,6 +109,7 @@ impl PickLayer {
                     btn("throughput", Key::T),
                     btn("traffic jams", Key::J),
                     btn("cycling activity", Key::B),
+                    btn("pedestrian crowding", Key::C),
                 ]),
                 Widget::col(vec![
                     "Map".text_widget(ctx),
@@ -177,6 +178,9 @@ impl State<App> for PickLayer {
                 }
                 "delay" => {
                     app.primary.layer = Some(Box::new(traffic::Delay::new(ctx, app)));
+                }
+                "pedestrian crowding" => {
+                    app.primary.layer = Some(Box::new(traffic::PedestrianCrowding::new(ctx, app)));
                 }
                 "steep streets" => {
                     app.primary.layer = Some(Box::new(elevation::SteepStreets::new(ctx, app)));

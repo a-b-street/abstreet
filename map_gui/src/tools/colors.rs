@@ -8,6 +8,7 @@ use widgetry::{Color, EventCtx, Fill, GeomBatch, Line, LinearGradient, Text, Wid
 
 use crate::AppLike;
 
+// TODO Tooltips would almost be nice, for cases like pedestrian crowding
 pub struct ColorDiscrete<'a> {
     map: &'a Map,
     // pub so callers can add stuff in before building
