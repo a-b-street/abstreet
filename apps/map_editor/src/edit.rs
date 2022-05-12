@@ -66,7 +66,13 @@ impl EditRoad {
                     road.osm_tags
                         .get("lanes:backward")
                         .and_then(|x| x.parse::<usize>().ok())
-                        .unwrap_or(1),
+                        .unwrap_or_else(|| {
+                            if road.osm_tags.is("oneway", "yes") {
+                                0
+                            } else {
+                                1
+                            }
+                        }),
                     1,
                 ),
             ]),
@@ -192,6 +198,9 @@ impl SimpleState<App> for EditRoad {
                     }
                     _ => unreachable!(),
                 }
+
+                road.lane_specs_ltr =
+                    raw_map::get_lane_specs_ltr(&road.osm_tags, &app.model.map.config);
 
                 app.model.road_added(ctx, self.r);
                 Transition::Pop
