@@ -298,6 +298,10 @@
 <span id="293">293</span>
 <span id="294">294</span>
 <span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">grey_out_map</span>, <span class="ident">HeatmapOptions</span>};
 <span class="kw">use</span> <span class="ident">sim::AgentType</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
@@ -409,6 +413,7 @@
                     <span class="ident">btn</span>(<span class="string">&quot;throughput&quot;</span>, <span class="ident">Key::T</span>),
                     <span class="ident">btn</span>(<span class="string">&quot;traffic jams&quot;</span>, <span class="ident">Key::J</span>),
                     <span class="ident">btn</span>(<span class="string">&quot;cycling activity&quot;</span>, <span class="ident">Key::B</span>),
+                    <span class="ident">btn</span>(<span class="string">&quot;pedestrian crowding&quot;</span>, <span class="ident">Key::C</span>),
                 ]),
                 <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
                     <span class="string">&quot;Map&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
@@ -477,6 +482,9 @@
                 }
                 <span class="string">&quot;delay&quot;</span> =&gt; {
                     <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">traffic::Delay::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
+                }
+                <span class="string">&quot;pedestrian crowding&quot;</span> =&gt; {
+                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">traffic::PedestrianCrowding::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
                 }
                 <span class="string">&quot;steep streets&quot;</span> =&gt; {
                     <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">elevation::SteepStreets::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));

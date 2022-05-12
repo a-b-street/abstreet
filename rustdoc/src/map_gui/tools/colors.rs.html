@@ -441,6 +441,7 @@
 <span id="436">436</span>
 <span id="437">437</span>
 <span id="438">438</span>
+<span id="439">439</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil::Counter</span>;
@@ -451,6 +452,7 @@
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::AppLike</span>;
 
+<span class="comment">// TODO Tooltips would almost be nice, for cases like pedestrian crowding</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ColorDiscrete</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Map</span>,
     <span class="comment">// pub so callers can add stuff in before building</span>

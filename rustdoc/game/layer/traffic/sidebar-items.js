@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["cluster_jams",""],["export_throughput",""]],"struct":[["Backpressure",""],["CompareThroughput",""],["Delay",""],["Jam",""],["Throughput",""],["TrafficJams",""]]});
+initSidebarItems({"fn":[["cluster_jams",""],["export_throughput",""]],"struct":[["Backpressure",""],["CompareThroughput",""],["Delay",""],["Jam",""],["PedestrianCrowding",""],["Throughput",""],["TrafficJams",""]]});

@@ -633,6 +633,15 @@
 <span id="628">628</span>
 <span id="629">629</span>
 <span id="630">630</span>
+<span id="631">631</span>
+<span id="632">632</span>
+<span id="633">633</span>
+<span id="634">634</span>
+<span id="635">635</span>
+<span id="636">636</span>
+<span id="637">637</span>
+<span id="638">638</span>
+<span id="639">639</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 <span class="kw">use</span> <span class="ident">std::fmt::Debug</span>;
 <span class="kw">use</span> <span class="ident">std::hash::Hash</span>;
@@ -781,7 +790,16 @@
         <span class="self">self</span>.<span class="ident">draw</span>(<span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(<span class="ident">color</span>, <span class="ident">hitbox</span>)]))
     }
 
-    <span class="doccomment">/// Indicate that an object doesn&#39;t need to be drawn individually. A call to `draw_master_batch` covers it.</span>
+    <span class="doccomment">/// Draw the object by coloring its hitbox, only when unzoomed. Show nothing when zoomed.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw_color_unzoomed</span>(<span class="self">self</span>, <span class="ident">color</span>: <span class="ident">Color</span>) -&gt; <span class="self">Self</span> {
+        <span class="kw">let</span> <span class="ident">hitbox</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">hitbox</span>.<span class="ident">clone</span>().<span class="ident">expect</span>(<span class="string">&quot;call hitbox first&quot;</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw</span> <span class="op">=</span> <span class="ident">ToggleZoomed::builder</span>();
+        <span class="ident">draw</span>.<span class="ident">unzoomed</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">hitbox</span>);
+        <span class="self">self</span>.<span class="ident">draw</span>(<span class="ident">draw</span>)
+    }
+
+    <span class="doccomment">/// Indicate that an object doesn&#39;t need to be drawn individually. A call to</span>
+    <span class="doccomment">/// `draw_master_batch` covers it.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">drawn_in_master_batch</span>(<span class="self">self</span>) -&gt; <span class="self">Self</span> {
         <span class="macro">assert!</span>(
             <span class="self">self</span>.<span class="ident">draw_normal</span>.<span class="ident">is_none</span>(),
