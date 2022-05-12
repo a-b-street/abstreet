@@ -146,7 +146,16 @@ impl<'a, ID: ObjectID> ObjectBuilder<'a, ID> {
         self.draw(GeomBatch::from(vec![(color, hitbox)]))
     }
 
-    /// Indicate that an object doesn't need to be drawn individually. A call to `draw_master_batch` covers it.
+    /// Draw the object by coloring its hitbox, only when unzoomed. Show nothing when zoomed.
+    pub fn draw_color_unzoomed(self, color: Color) -> Self {
+        let hitbox = self.hitbox.clone().expect("call hitbox first");
+        let mut draw = ToggleZoomed::builder();
+        draw.unzoomed.push(color, hitbox);
+        self.draw(draw)
+    }
+
+    /// Indicate that an object doesn't need to be drawn individually. A call to
+    /// `draw_master_batch` covers it.
     pub fn drawn_in_master_batch(self) -> Self {
         assert!(
             self.draw_normal.is_none(),

@@ -6,11 +6,12 @@ use maplit::btreeset;
 use abstutil::{prettyprint_usize, Counter};
 use geom::{Circle, Distance, Duration, Percent, Polygon, Pt2D, Time};
 use map_gui::render::unzoomed_agent_radius;
-use map_gui::tools::{ColorDiscrete, ColorLegend, ColorNetwork, DivergingScale};
+use map_gui::tools::{ColorLegend, ColorNetwork, DivergingScale};
 use map_gui::ID;
 use map_model::{IntersectionID, Map, Traversable};
 use sim::{AgentType, VehicleType};
 use widgetry::mapspace::ToggleZoomed;
+use widgetry::mapspace::{DummyID, World};
 use widgetry::tools::PopupMsg;
 use widgetry::{Color, EventCtx, GfxCtx, Line, Outcome, Panel, Text, TextExt, Toggle, Widget};
 
@@ -624,8 +625,8 @@ impl Delay {
 
 pub struct PedestrianCrowding {
     time: Time,
-    draw: ToggleZoomed,
     panel: Panel,
+    world: World<DummyID>,
 }
 
 impl Layer for PedestrianCrowding {
@@ -645,56 +646,105 @@ impl Layer for PedestrianCrowding {
                 _ => unreachable!(),
             }
         }
+
+        // Just update tooltips
+        self.world.event(ctx);
+
         None
     }
     fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.panel.draw(g);
-        self.draw.draw(g);
+        self.world.draw(g);
     }
-    fn draw_minimap(&self, g: &mut GfxCtx) {
-        g.redraw(&self.draw.unzoomed);
-    }
+    // TODO This doesn't seem to be showing up
+    fn draw_minimap(&self, _: &mut GfxCtx) {}
 }
 
 impl PedestrianCrowding {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Self {
+        let map = &app.primary.map;
         let categories = vec![
-            ("< 1", app.cs.good_to_bad_red.eval(0.0)),
-            ("1 - 1.5", app.cs.good_to_bad_red.eval(0.3)),
-            ("1.5 - 2.0", app.cs.good_to_bad_red.eval(0.6)),
-            ("> 2", app.cs.good_to_bad_red.eval(1.0)),
+            ("1 - 1.5", app.cs.good_to_bad_red.eval(0.2)),
+            ("1.5 - 2", app.cs.good_to_bad_red.eval(0.4)),
+            ("2 - 5", app.cs.good_to_bad_red.eval(0.6)),
+            ("> 5", app.cs.good_to_bad_red.eval(1.0)),
         ];
-        let mut colorer = ColorDiscrete::new(app, categories);
+        let mut world = World::bounded(map.get_bounds());
+        let mut draw = ToggleZoomed::builder();
+        draw.unzoomed
+            .push(app.cs.fade_map_dark, map.get_boundary_polygon().clone());
+        world.draw_master_batch(ctx, draw);
 
         fn bucket(x: f64) -> &'static str {
             if x < 1.0 {
-                "< 1"
+                unreachable!()
             } else if x <= 1.5 {
                 "1 - 1.5"
             } else if x <= 2.0 {
-                "1.5 - 2.0"
+                "1.5 - 2"
+            } else if x <= 5.0 {
+                "2 - 5"
             } else {
-                "> 2"
+                "> 5"
             }
         }
+        fn round(x: f64) -> f64 {
+            // Round up, so we don't show 0 density
+            (x * 10.0).ceil() / 10.0
+        }
 
-        let (roads, intersections) = app.primary.sim.get_pedestrian_density(&app.primary.map);
+        let (roads, intersections) = app.primary.sim.get_pedestrian_density(map);
+        let mut max_density: f64 = 0.0;
         for (r, density) in roads {
-            colorer.add_r(r, bucket(density));
+            if density < 1.0 {
+                continue;
+            }
+            let density = round(density);
+            max_density = max_density.max(density);
+            let (_, color) = categories
+                .iter()
+                .find(|pair| pair.0 == bucket(density))
+                .unwrap();
+            world
+                .add_unnamed()
+                .hitbox(map.get_r(r).get_thick_polygon())
+                .draw_color_unzoomed(*color)
+                .invisibly_hoverable()
+                .tooltip(Text::from(format!("{density} people / m²")))
+                .build(ctx);
         }
         for (i, density) in intersections {
-            colorer.add_i(i, bucket(density));
+            if density < 1.0 {
+                continue;
+            }
+            let density = round(density);
+            let (_, color) = categories
+                .iter()
+                .find(|pair| pair.0 == bucket(density))
+                .unwrap();
+            world
+                .add_unnamed()
+                .hitbox(map.get_i(i).polygon.clone())
+                .draw_color_unzoomed(*color)
+                .invisibly_hoverable()
+                .tooltip(Text::from(format!("{density} people / m²")))
+                .build(ctx);
         }
-
-        let (draw, legend) = colorer.build(ctx);
+        world.initialize_hover(ctx);
 
         Self {
             time: app.primary.sim.time(),
-            draw,
+            world,
             panel: Panel::new_builder(Widget::col(vec![
                 header(ctx, "Pedestrian crowding"),
-                "(people / m^2)".text_widget(ctx),
-                legend,
+                "(people / m²)".text_widget(ctx),
+                format!("Max density: {max_density} m²").text_widget(ctx),
+                Widget::col(
+                    categories
+                        .into_iter()
+                        .map(|(name, color)| ColorLegend::row(ctx, color, name))
+                        .collect(),
+                ),
             ]))
             .aligned_pair(PANEL_PLACEMENT)
             .build(ctx),
