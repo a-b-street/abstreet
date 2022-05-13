@@ -370,7 +370,7 @@ fn make_panel(ctx: &mut EventCtx, app: &App, id: NeighborhoodID, top_panel: &Pan
                     .hotkey(Key::Escape)
                     .build_def(ctx),
             ]),
-            Text::new().into_widget(ctx).named("warning"),
+            Widget::placeholder(ctx, "warning"),
         ]),
     )
     .build(ctx)

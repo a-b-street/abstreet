@@ -14,7 +14,7 @@ use crate::widgets::containers::{Container, Nothing};
 pub use crate::widgets::panel::{Panel, PanelBuilder, PanelDims};
 use crate::{
     Button, Choice, Color, DeferDraw, Drawable, Dropdown, EventCtx, GeomBatch, GfxCtx, JustDraw,
-    OutlineStyle, ScreenDims, ScreenPt, ScreenRectangle, Toggle,
+    OutlineStyle, ScreenDims, ScreenPt, ScreenRectangle, Text, Toggle,
 };
 
 pub mod autocomplete;
@@ -556,6 +556,10 @@ impl Widget {
             Polygon::rectangle(2.0, height_px),
         )])
         .into_widget(ctx)
+    }
+
+    pub fn placeholder(ctx: &EventCtx, label: &str) -> Widget {
+        Text::new().into_widget(ctx).named(label)
     }
 }
 

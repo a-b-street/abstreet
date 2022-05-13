@@ -430,7 +430,7 @@ impl SaveEdits {
                 ]),
                 // TODO Want this to always consistently be one line high, but it isn't for a blank
                 // line
-                Text::new().into_widget(ctx).named("warning"),
+                Widget::placeholder(ctx, "warning"),
                 Widget::row(vec![
                     if discard {
                         ctx.style()

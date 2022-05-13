@@ -60,7 +60,7 @@ impl DebugMode {
                     Line("Debug Mode").small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
-                Text::new().into_widget(ctx).named("current info"),
+                Widget::placeholder(ctx, "current info"),
                 Toggle::switch(ctx, "show buildings", Key::Num1, true),
                 Toggle::switch(ctx, "show intersections", Key::Num2, true),
                 Toggle::switch(ctx, "show lanes", Key::Num3, true),

@@ -277,7 +277,7 @@ impl<A: AppLike + 'static, S: TripManagementState<A>> RenameTrip<A, S> {
                 "Name:".text_widget(ctx).centered_vert(),
                 TextBox::default_widget(ctx, "name", current.name.clone()),
             ]),
-            Text::new().into_widget(ctx).named("warning"),
+            Widget::placeholder(ctx, "warning"),
             ctx.style()
                 .btn_solid_primary
                 .text("Rename")

@@ -244,7 +244,7 @@ impl TimeWarpScreen {
             halt_upon_delay,
             panel: Panel::new_builder(
                 Widget::col(vec![
-                    Text::new().into_widget(ctx).named("text"),
+                    Widget::placeholder(ctx, "text"),
                     Toggle::checkbox(
                         ctx,
                         "skip drawing (for faster simulations)",

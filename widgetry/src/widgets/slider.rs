@@ -229,7 +229,7 @@ impl Slider {
         (self.current_percent * (num_items as f64 - 1.0)) as usize
     }
 
-    pub(crate) fn set_percent(&mut self, ctx: &EventCtx, percent: f64) {
+    pub fn set_percent(&mut self, ctx: &EventCtx, percent: f64) {
         assert!((0.0..=1.0).contains(&percent));
         self.current_percent = percent;
         self.recalc(ctx);

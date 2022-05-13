@@ -114,7 +114,7 @@ impl MainState {
                     ])
                     .section(ctx),
                 ]),
-                Text::new().into_widget(ctx).named("instructions"),
+                Widget::placeholder(ctx, "instructions"),
             ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx),
