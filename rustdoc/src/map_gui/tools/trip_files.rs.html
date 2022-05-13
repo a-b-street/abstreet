@@ -648,7 +648,7 @@
                 <span class="string">&quot;Name:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
                 <span class="ident">TextBox::default_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;name&quot;</span>, <span class="ident">current</span>.<span class="ident">name</span>.<span class="ident">clone</span>()),
             ]),
-            <span class="ident">Text::new</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;warning&quot;</span>),
+            <span class="ident">Widget::placeholder</span>(<span class="ident">ctx</span>, <span class="string">&quot;warning&quot;</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_solid_primary</span>
                 .<span class="ident">text</span>(<span class="string">&quot;Rename&quot;</span>)

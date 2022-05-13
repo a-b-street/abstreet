@@ -707,7 +707,7 @@
             <span class="ident">halt_upon_delay</span>,
             <span class="ident">panel</span>: <span class="ident">Panel::new_builder</span>(
                 <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Text::new</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;text&quot;</span>),
+                    <span class="ident">Widget::placeholder</span>(<span class="ident">ctx</span>, <span class="string">&quot;text&quot;</span>),
                     <span class="ident">Toggle::checkbox</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;skip drawing (for faster simulations)&quot;</span>,

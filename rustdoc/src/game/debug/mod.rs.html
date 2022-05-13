@@ -1157,7 +1157,7 @@
                     <span class="ident">Line</span>(<span class="string">&quot;Debug Mode&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
                 ]),
-                <span class="ident">Text::new</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;current info&quot;</span>),
+                <span class="ident">Widget::placeholder</span>(<span class="ident">ctx</span>, <span class="string">&quot;current info&quot;</span>),
                 <span class="ident">Toggle::switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;show buildings&quot;</span>, <span class="ident">Key::Num1</span>, <span class="bool-val">true</span>),
                 <span class="ident">Toggle::switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;show intersections&quot;</span>, <span class="ident">Key::Num2</span>, <span class="bool-val">true</span>),
                 <span class="ident">Toggle::switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;show lanes&quot;</span>, <span class="ident">Key::Num3</span>, <span class="bool-val">true</span>),
