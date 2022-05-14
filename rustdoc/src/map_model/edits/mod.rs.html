@@ -1052,6 +1052,18 @@
 <span id="1047">1047</span>
 <span id="1048">1048</span>
 <span id="1049">1049</span>
+<span id="1050">1050</span>
+<span id="1051">1051</span>
+<span id="1052">1052</span>
+<span id="1053">1053</span>
+<span id="1054">1054</span>
+<span id="1055">1055</span>
+<span id="1056">1056</span>
+<span id="1057">1057</span>
+<span id="1058">1058</span>
+<span id="1059">1059</span>
+<span id="1060">1060</span>
+<span id="1061">1061</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Once a Map exists, the player can edit it in the UI (producing `MapEdits` in-memory), then save</span>
 <span class="doccomment">//! the changes to a file (as `PermanentMapEdits`). See</span>
 <span class="doccomment">//! &lt;https://a-b-street.github.io/docs/tech/map/edits.html&gt;.</span>
@@ -1297,6 +1309,18 @@
                 <span class="ident">compat::upgrade</span>(<span class="ident">value</span>, <span class="ident">map</span>)<span class="question-mark">?</span>
             }
         };
+
+        <span class="comment">// Don&#39;t compare the full MapName; edits in one part of a city could apply to another. But</span>
+        <span class="comment">// make sure at least the city matches. Otherwise, we spend time trying to match up edits,</span>
+        <span class="comment">// and produce noisy logs along the way.</span>
+        <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">city</span> <span class="op">!</span><span class="op">=</span> <span class="ident">perma</span>.<span class="ident">map_name</span>.<span class="ident">city</span> {
+            <span class="macro">bail!</span>(
+                <span class="string">&quot;Edits are for {:?}, but this map is {:?}&quot;</span>,
+                <span class="ident">perma</span>.<span class="ident">map_name</span>.<span class="ident">city</span>,
+                <span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">city</span>
+            );
+        }
+
         <span class="kw">let</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">perma</span>.<span class="ident">into_edits_permissive</span>(<span class="ident">map</span>);
         <span class="kw">if</span> <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">is_empty</span>() {
             <span class="macro">bail!</span>(<span class="string">&quot;None of the edits apply to this map&quot;</span>);
