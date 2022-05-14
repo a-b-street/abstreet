@@ -243,6 +243,18 @@ impl MapEdits {
                 compat::upgrade(value, map)?
             }
         };
+
+        // Don't compare the full MapName; edits in one part of a city could apply to another. But
+        // make sure at least the city matches. Otherwise, we spend time trying to match up edits,
+        // and produce noisy logs along the way.
+        if map.get_name().city != perma.map_name.city {
+            bail!(
+                "Edits are for {:?}, but this map is {:?}",
+                perma.map_name.city,
+                map.get_name().city
+            );
+        }
+
         let edits = perma.into_edits_permissive(map);
         if edits.commands.is_empty() {
             bail!("None of the edits apply to this map");

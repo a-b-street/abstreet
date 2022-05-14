@@ -11,6 +11,9 @@ use crate::edits::{EditCmd, EditCrosswalks, EditIntersection, EditRoad, MapEdits
 use crate::raw::OriginalRoad;
 use crate::{osm, ControlStopSign, IntersectionID, Map, MovementID, TurnType};
 
+// Manually change this to attempt to preserve edits after major OSM updates.
+const IGNORE_OLD_LANES: bool = false;
+
 /// MapEdits are converted to this before serializing. Referencing things like LaneID in a Map won't
 /// work if the basemap is rebuilt from new OSM data, so instead we use stabler OSM IDs that're less
 /// likely to change.
@@ -116,12 +119,21 @@ impl PermanentEditCmd {
                 // The basemap changed -- it'd be pretty hard to understand the original
                 // intent of the edit.
                 if num_current != old.lanes_ltr.len() {
-                    bail!(
-                        "number of lanes in {} is {} now, but {} in the edits",
-                        r,
-                        num_current,
-                        old.lanes_ltr.len()
-                    );
+                    if IGNORE_OLD_LANES {
+                        warn!("Lanes in {r} have changed since the edits, but keeping the edits anyway");
+                        return Ok(EditCmd::ChangeRoad {
+                            r: id,
+                            new,
+                            old: EditRoad::get_orig_from_osm(map.get_r(id), map.get_config()),
+                        });
+                    } else {
+                        bail!(
+                            "number of lanes in {} is {} now, but {} in the edits",
+                            r,
+                            num_current,
+                            old.lanes_ltr.len()
+                        );
+                    }
                 }
                 Ok(EditCmd::ChangeRoad { r: id, new, old })
             }
