@@ -227,10 +227,6 @@
 <span id="222">222</span>
 <span id="223">223</span>
 <span id="224">224</span>
-<span id="225">225</span>
-<span id="226">226</span>
-<span id="227">227</span>
-<span id="228">228</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil::prettyprint_usize</span>;
@@ -275,11 +271,7 @@
             <span class="ident">Outcome::Changed</span>(<span class="ident">x</span>) =&gt; {
                 <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;Compare before proposal&quot;</span> {
                     <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">LayerOutcome::Replace</span>(<span class="ident">Box::new</span>(
-                        <span class="ident">problems_diff::RelativeProblemMap::new</span>(
-                            <span class="ident">ctx</span>,
-                            <span class="ident">app</span>,
-                            <span class="ident">problems_diff::Options::new</span>(),
-                        ),
+                        <span class="ident">problems_diff::RelativeProblemMap::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">opts</span>.<span class="ident">types</span>.<span class="ident">clone</span>()),
                     )));
                 }
 
@@ -370,7 +362,7 @@
     <span class="ident">modes</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">TripMode</span><span class="op">&gt;</span>,
     <span class="ident">time1</span>: <span class="ident">Time</span>,
     <span class="ident">time2</span>: <span class="ident">Time</span>,
-    <span class="ident">types</span>: <span class="ident">ProblemTypes</span>,
+    <span class="kw">pub</span> <span class="ident">types</span>: <span class="ident">ProblemTypes</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Options</span> {

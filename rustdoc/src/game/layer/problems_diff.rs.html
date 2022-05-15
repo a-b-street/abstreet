@@ -250,12 +250,6 @@
 <span id="245">245</span>
 <span id="246">246</span>
 <span id="247">247</span>
-<span id="248">248</span>
-<span id="249">249</span>
-<span id="250">250</span>
-<span id="251">251</span>
-<span id="252">252</span>
-<span id="253">253</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Counter</span>};
@@ -299,27 +293,25 @@
         <span class="comment">// TODO Reinventing CompareCounts...</span>
         <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">recalc_tooltip</span> {
             <span class="self">self</span>.<span class="ident">tooltip</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-            <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">mouseover_unzoomed_roads_and_intersections</span>(<span class="ident">ctx</span>) {
-                <span class="prelude-val">Some</span>(<span class="ident">ID::Road</span>(<span class="ident">r</span>)) =&gt; {
-                    <span class="kw">let</span> (<span class="ident">before</span>, <span class="ident">after</span>) <span class="op">=</span> (<span class="self">self</span>.<span class="ident">before_road</span>.<span class="ident">get</span>(<span class="ident">r</span>), <span class="self">self</span>.<span class="ident">after_road</span>.<span class="ident">get</span>(<span class="ident">r</span>));
-                    <span class="self">self</span>.<span class="ident">tooltip</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Text::from</span>(<span class="macro">format!</span>(
-                        <span class="string">&quot;{} before, {} after&quot;</span>,
-                        <span class="ident">prettyprint_usize</span>(<span class="ident">before</span>),
-                        <span class="ident">prettyprint_usize</span>(<span class="ident">after</span>)
-                    )));
-                }
-                <span class="prelude-val">Some</span>(<span class="ident">ID::Intersection</span>(<span class="ident">i</span>)) =&gt; {
-                    <span class="kw">let</span> (<span class="ident">before</span>, <span class="ident">after</span>) <span class="op">=</span> (
-                        <span class="self">self</span>.<span class="ident">before_intersection</span>.<span class="ident">get</span>(<span class="ident">i</span>),
-                        <span class="self">self</span>.<span class="ident">after_intersection</span>.<span class="ident">get</span>(<span class="ident">i</span>),
-                    );
-                    <span class="self">self</span>.<span class="ident">tooltip</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Text::from</span>(<span class="macro">format!</span>(
-                        <span class="string">&quot;{} before, {} after&quot;</span>,
-                        <span class="ident">prettyprint_usize</span>(<span class="ident">before</span>),
-                        <span class="ident">prettyprint_usize</span>(<span class="ident">after</span>)
-                    )));
-                }
-                <span class="kw">_</span> =&gt; {}
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">before</span>, <span class="ident">after</span>)) <span class="op">=</span> <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">mouseover_unzoomed_roads_and_intersections</span>(<span class="ident">ctx</span>)
+            {
+                <span class="prelude-val">Some</span>(<span class="ident">ID::Road</span>(<span class="ident">r</span>)) =&gt; <span class="prelude-val">Some</span>((<span class="self">self</span>.<span class="ident">before_road</span>.<span class="ident">get</span>(<span class="ident">r</span>), <span class="self">self</span>.<span class="ident">after_road</span>.<span class="ident">get</span>(<span class="ident">r</span>))),
+                <span class="prelude-val">Some</span>(<span class="ident">ID::Intersection</span>(<span class="ident">i</span>)) =&gt; <span class="prelude-val">Some</span>((
+                    <span class="self">self</span>.<span class="ident">before_intersection</span>.<span class="ident">get</span>(<span class="ident">i</span>),
+                    <span class="self">self</span>.<span class="ident">after_intersection</span>.<span class="ident">get</span>(<span class="ident">i</span>),
+                )),
+                <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+            } {
+                <span class="self">self</span>.<span class="ident">tooltip</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Text::from</span>(<span class="macro">format!</span>(
+                    <span class="string">&quot;{} before, {} after{}&quot;</span>,
+                    <span class="ident">prettyprint_usize</span>(<span class="ident">before</span>),
+                    <span class="ident">prettyprint_usize</span>(<span class="ident">after</span>),
+                    <span class="kw">if</span> <span class="ident">before</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
+                        <span class="macro">format!</span>(<span class="string">&quot; ({:.1}x)&quot;</span>, (<span class="ident">after</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> (<span class="ident">before</span> <span class="kw">as</span> <span class="ident">f64</span>))
+                    } <span class="kw">else</span> {
+                        <span class="ident">String::new</span>()
+                    },
+                )));
             }
         } <span class="kw">else</span> {
             <span class="self">self</span>.<span class="ident">tooltip</span> <span class="op">=</span> <span class="prelude-val">None</span>;
@@ -334,14 +326,14 @@
             },
             <span class="ident">Outcome::Changed</span>(<span class="ident">x</span>) =&gt; {
                 <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;Compare before proposal&quot;</span> {
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">problems::Options::new</span>(<span class="ident">app</span>);
+                    <span class="ident">opts</span>.<span class="ident">types</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">opts</span>.<span class="ident">clone</span>();
                     <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">LayerOutcome::Replace</span>(<span class="ident">Box::new</span>(<span class="ident">problems::ProblemMap::new</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">app</span>,
-                        <span class="ident">problems::Options::new</span>(<span class="ident">app</span>),
+                        <span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">opts</span>,
                     ))));
                 }
 
-                <span class="kw">let</span> <span class="ident">new_opts</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">options</span>();
+                <span class="kw">let</span> <span class="ident">new_opts</span> <span class="op">=</span> <span class="ident">ProblemTypes::from_controls</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>);
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">opts</span> <span class="op">!</span><span class="op">=</span> <span class="ident">new_opts</span> {
                     <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">new_opts</span>);
                 }
@@ -450,10 +442,6 @@
             <span class="ident">after_road</span>,
             <span class="ident">after_intersection</span>,
         }
-    }
-
-    <span class="kw">fn</span> <span class="ident">options</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Options</span> {
-        <span class="ident">ProblemTypes::from_controls</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>)
     }
 }
 
