@@ -547,7 +547,11 @@ impl TextSpan {
     ) -> GeomBatch {
         let assets = assets.as_ref();
         let tolerance = svg::HIGH_QUALITY;
-        let stroke_color = if let Some(c) = self.outline_color { c.as_hex() } else { "#000000".to_string() };
+        let stroke_color = if let Some(c) = self.outline_color {
+            c.as_hex()
+        } else {
+            "#000000".to_string()
+        };
         // Just set a sufficiently large view box
         let mut svg = r##"<svg width="9999" height="9999" viewBox="0 0 9999 9999" xmlns="http://www.w3.org/2000/svg">"##.to_string();
 
@@ -568,7 +572,8 @@ impl TextSpan {
         }
         write!(&mut svg, "\" />").unwrap();
         // We need to subtract and account for the length of the text
-        let start_offset = (path.length().inner_meters() - Text::from(&self.text).dims(&assets).width * 0.1) / 2.0;
+        let start_offset =
+            (path.length().inner_meters() - Text::from(&self.text).dims(&assets).width * 0.1) / 2.0;
 
         let fg_color = self.fg_color_for_style(&assets.style.borrow());
         write!(

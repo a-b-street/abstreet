@@ -28,7 +28,11 @@ impl DrawRoad {
         }
     }
 
-    pub fn render_center_line<P: AsRef<Prerender>>(&self, app: &dyn AppLike, prerender: &P) -> GeomBatch {
+    pub fn render_center_line<P: AsRef<Prerender>>(
+        &self,
+        app: &dyn AppLike,
+        prerender: &P,
+    ) -> GeomBatch {
         let r = app.map().get_r(self.id);
         let name = r.get_name(app.opts().language.as_ref());
         let prerender = prerender.as_ref();
@@ -52,8 +56,11 @@ impl DrawRoad {
                 && pair[1].lane_type.is_for_moving_vehicles()
             {
                 let pl = r.shift_from_left_side(width).unwrap();
-                let first_segment_distance = ( pl.length().inner_meters() - (Text::from(&name).rendered_width(prerender)*0.1) ) / 2.0;
-                let last_segment_distance = first_segment_distance + (Text::from(&name).rendered_width(prerender)*0.1);
+                let first_segment_distance = (pl.length().inner_meters()
+                    - (Text::from(&name).rendered_width(prerender) * 0.1))
+                    / 2.0;
+                let last_segment_distance =
+                    first_segment_distance + (Text::from(&name).rendered_width(prerender) * 0.1);
                 batch.extend(
                     center_line_color,
                     pl.dashed_lines_segment(
@@ -61,10 +68,9 @@ impl DrawRoad {
                         Distance::meters(2.0),
                         Distance::meters(1.0),
                         Distance::meters(0.0),
-                        Distance::meters((first_segment_distance)),
+                        Distance::meters(first_segment_distance),
                     ),
                 );
-
 
                 batch.extend(
                     center_line_color,
@@ -72,11 +78,10 @@ impl DrawRoad {
                         Distance::meters(0.25),
                         Distance::meters(2.0),
                         Distance::meters(1.0),
-                        Distance::meters((last_segment_distance)),
-                        Distance::meters( pl.length().inner_meters() ),
+                        Distance::meters(last_segment_distance),
+                        Distance::meters(pl.length().inner_meters()),
                     ),
                 );
-
             }
         }
 

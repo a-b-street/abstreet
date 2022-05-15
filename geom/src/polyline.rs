@@ -604,8 +604,19 @@ impl PolyLine {
             return vec![self.make_polygons(width)];
         }
 
-            self.exact_slice(if start.inner_meters() > 0.0 { start } else { dash_separation }, if length.inner_meters() > 0.0  { length } else { self.length })
-                .exact_dashed_polygons(width, dash_len, dash_separation)
+        self.exact_slice(
+            if start.inner_meters() > 0.0 {
+                start
+            } else {
+                dash_separation
+            },
+            if length.inner_meters() > 0.0 {
+                length
+            } else {
+                self.length
+            },
+        )
+        .exact_dashed_polygons(width, dash_len, dash_separation)
     }
 
     /// Fail if the length is too short.
