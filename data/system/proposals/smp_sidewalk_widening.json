@@ -102,6 +102,11 @@
         "old": {
           "lanes_ltr": [
             {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 15000
+            },
+            {
               "lt": "Driving",
               "dir": "Fwd",
               "width": 24384
@@ -166,6 +171,11 @@
         },
         "old": {
           "lanes_ltr": [
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 15000
+            },
             {
               "lt": "Driving",
               "dir": "Fwd",
@@ -302,6 +312,11 @@
         "old": {
           "lanes_ltr": [
             {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 15000
+            },
+            {
               "lt": "Driving",
               "dir": "Fwd",
               "width": 24384
@@ -372,6 +387,11 @@
         "old": {
           "lanes_ltr": [
             {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 15000
+            },
+            {
               "lt": "Driving",
               "dir": "Fwd",
               "width": 24384
@@ -437,6 +457,11 @@
         "old": {
           "lanes_ltr": [
             {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 15000
+            },
+            {
               "lt": "Driving",
               "dir": "Fwd",
               "width": 24384
@@ -491,6 +516,11 @@
         },
         "old": {
           "lanes_ltr": [
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 15000
+            },
             {
               "lt": "Driving",
               "dir": "Fwd",
@@ -772,14 +802,19 @@
         "old": {
           "lanes_ltr": [
             {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 15000
+            },
+            {
               "lt": "Driving",
               "dir": "Fwd",
               "width": 24384
             },
             {
-              "lt": "Sidewalk",
+              "lt": "Shoulder",
               "dir": "Fwd",
-              "width": 15000
+              "width": 5000
             }
           ],
           "speed_limit": 178816,
@@ -821,6 +856,11 @@
         },
         "old": {
           "lanes_ltr": [
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 15000
+            },
             {
               "lt": "Driving",
               "dir": "Fwd",
@@ -872,6 +912,11 @@
         "old": {
           "lanes_ltr": [
             {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 15000
+            },
+            {
               "lt": "Driving",
               "dir": "Fwd",
               "width": 24384
@@ -922,6 +967,11 @@
         "old": {
           "lanes_ltr": [
             {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 15000
+            },
+            {
               "lt": "Driving",
               "dir": "Fwd",
               "width": 24384
@@ -971,6 +1021,11 @@
         },
         "old": {
           "lanes_ltr": [
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 15000
+            },
             {
               "lt": "Driving",
               "dir": "Fwd",
@@ -1077,6 +1132,11 @@
         "old": {
           "lanes_ltr": [
             {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 15000
+            },
+            {
               "lt": "Driving",
               "dir": "Fwd",
               "width": 24384
@@ -1131,6 +1191,11 @@
         },
         "old": {
           "lanes_ltr": [
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 15000
+            },
             {
               "lt": "Driving",
               "dir": "Fwd",
@@ -1187,6 +1252,11 @@
         "old": {
           "lanes_ltr": [
             {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 15000
+            },
+            {
               "lt": "Driving",
               "dir": "Fwd",
               "width": 24384
@@ -1241,6 +1311,11 @@
         },
         "old": {
           "lanes_ltr": [
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 15000
+            },
             {
               "lt": "Driving",
               "dir": "Fwd",
@@ -1297,6 +1372,11 @@
         "old": {
           "lanes_ltr": [
             {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 15000
+            },
+            {
               "lt": "Driving",
               "dir": "Fwd",
               "width": 24384
@@ -1351,6 +1431,11 @@
         },
         "old": {
           "lanes_ltr": [
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 15000
+            },
             {
               "lt": "Driving",
               "dir": "Fwd",
@@ -1407,6 +1492,11 @@
         "old": {
           "lanes_ltr": [
             {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 15000
+            },
+            {
               "lt": "Driving",
               "dir": "Fwd",
               "width": 24384
@@ -1456,6 +1546,11 @@
         },
         "old": {
           "lanes_ltr": [
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 15000
+            },
             {
               "lt": "Driving",
               "dir": "Fwd",
@@ -1511,6 +1606,11 @@
         },
         "old": {
           "lanes_ltr": [
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 15000
+            },
             {
               "lt": "Driving",
               "dir": "Fwd",
@@ -1571,6 +1671,11 @@
         },
         "old": {
           "lanes_ltr": [
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 15000
+            },
             {
               "lt": "Driving",
               "dir": "Fwd",
@@ -1761,6 +1866,11 @@
         },
         "old": {
           "lanes_ltr": [
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 15000
+            },
             {
               "lt": "Driving",
               "dir": "Fwd",
@@ -2312,6 +2422,11 @@
         "old": {
           "lanes_ltr": [
             {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 15000
+            },
+            {
               "lt": "Driving",
               "dir": "Fwd",
               "width": 24384
@@ -2371,6 +2486,11 @@
         },
         "old": {
           "lanes_ltr": [
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 15000
+            },
             {
               "lt": "Driving",
               "dir": "Fwd",
@@ -2737,6 +2857,11 @@
         "old": {
           "lanes_ltr": [
             {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 15000
+            },
+            {
               "lt": "Driving",
               "dir": "Fwd",
               "width": 24384
@@ -2791,6 +2916,11 @@
         },
         "old": {
           "lanes_ltr": [
+            {
+              "lt": "Sidewalk",
+              "dir": "Back",
+              "width": 15000
+            },
             {
               "lt": "Driving",
               "dir": "Fwd",

@@ -121,39 +121,39 @@
       "compressed_size_bytes": 26310
     },
     "data/input/br/sao_paulo/osm/aricanduva.osm": {
-      "checksum": "3708fb4be649c4f16d1de7f7c99369b6",
-      "uncompressed_size_bytes": 128106393,
-      "compressed_size_bytes": 10689416
+      "checksum": "9c235a467989fdd8ac43d01cafac95dd",
+      "uncompressed_size_bytes": 129145698,
+      "compressed_size_bytes": 10810510
     },
     "data/input/br/sao_paulo/osm/center.osm": {
-      "checksum": "32432f4c9aafa00d581c86f843be77ca",
-      "uncompressed_size_bytes": 38981120,
-      "compressed_size_bytes": 3574260
+      "checksum": "6cbd7ec2b834a3c2dcd852bc426e87b4",
+      "uncompressed_size_bytes": 41150194,
+      "compressed_size_bytes": 3805879
     },
     "data/input/br/sao_paulo/osm/sao_miguel_paulista.osm": {
-      "checksum": "8f81ab38d035f4f4aad7e5389e2de87f",
-      "uncompressed_size_bytes": 2544929,
-      "compressed_size_bytes": 219003
+      "checksum": "e790d4e60999111c1d213bf777c9a075",
+      "uncompressed_size_bytes": 2725873,
+      "compressed_size_bytes": 235938
     },
     "data/input/br/sao_paulo/osm/sudeste-latest.osm.pbf": {
-      "checksum": "ab4882c15e07742079ddb78d4ef76741",
-      "uncompressed_size_bytes": 650931502,
-      "compressed_size_bytes": 649718446
+      "checksum": "ee5eca4dfbc0f7e73928ecd35c31d8a6",
+      "uncompressed_size_bytes": 700922927,
+      "compressed_size_bytes": 699447938
     },
     "data/input/br/sao_paulo/raw_maps/aricanduva.bin": {
-      "checksum": "b953a96651f3b006cf5056e0260a9ec4",
-      "uncompressed_size_bytes": 35202891,
-      "compressed_size_bytes": 8857730
+      "checksum": "093885e76f94aefabc431c5218bfc7ba",
+      "uncompressed_size_bytes": 35448196,
+      "compressed_size_bytes": 8896349
     },
     "data/input/br/sao_paulo/raw_maps/center.bin": {
-      "checksum": "cd404881c97bd0e29e6da911a5c57b45",
-      "uncompressed_size_bytes": 9665134,
-      "compressed_size_bytes": 2503262
+      "checksum": "db76cc0d95c174f8448f6a101f429dfb",
+      "uncompressed_size_bytes": 9942029,
+      "compressed_size_bytes": 2550343
     },
     "data/input/br/sao_paulo/raw_maps/sao_miguel_paulista.bin": {
-      "checksum": "922050ec0f8e690c2ff9f228c02c9c39",
-      "uncompressed_size_bytes": 599804,
-      "compressed_size_bytes": 143906
+      "checksum": "c7032ba50acae5047b8c9a60f3249b63",
+      "uncompressed_size_bytes": 598262,
+      "compressed_size_bytes": 144274
     },
     "data/input/ca/ca/osm/plateau.osm": {
       "checksum": "d41d8cd98f00b204e9800998ecf8427e",
@@ -3156,29 +3156,29 @@
       "compressed_size_bytes": 9016497
     },
     "data/system/br/sao_paulo/maps/aricanduva.bin": {
-      "checksum": "a138519cd2819a19b651f8245920ae2e",
-      "uncompressed_size_bytes": 54516138,
-      "compressed_size_bytes": 20815630
+      "checksum": "8224a329e41212f893423c245103d5b5",
+      "uncompressed_size_bytes": 55526787,
+      "compressed_size_bytes": 21218558
     },
     "data/system/br/sao_paulo/maps/center.bin": {
-      "checksum": "9bc877ac2ddc5b62e0d5dfbe86b4b1a4",
-      "uncompressed_size_bytes": 18744862,
-      "compressed_size_bytes": 7122839
+      "checksum": "0553bdef2f021fa51623661f7506d591",
+      "uncompressed_size_bytes": 19282095,
+      "compressed_size_bytes": 7325095
     },
     "data/system/br/sao_paulo/maps/sao_miguel_paulista.bin": {
-      "checksum": "fa1a2d4a094b85a86560e4612c363f52",
-      "uncompressed_size_bytes": 960606,
-      "compressed_size_bytes": 320392
+      "checksum": "0361b686acaad8887b170638658bde64",
+      "uncompressed_size_bytes": 983784,
+      "compressed_size_bytes": 343573
     },
     "data/system/br/sao_paulo/prebaked_results/sao_miguel_paulista/Full.bin": {
-      "checksum": "4e1a51318f6f1980e5f099b8059ff5f4",
-      "uncompressed_size_bytes": 29991142,
-      "compressed_size_bytes": 10032171
+      "checksum": "9a1742b4ca0f572d982aeae7b4cbe172",
+      "uncompressed_size_bytes": 27407322,
+      "compressed_size_bytes": 9199937
     },
     "data/system/br/sao_paulo/scenarios/sao_miguel_paulista/Full.bin": {
-      "checksum": "14a44cd4d353272656acdc2298920c10",
-      "uncompressed_size_bytes": 4805343,
-      "compressed_size_bytes": 779597
+      "checksum": "f464d2228d1686c06c45c79ac1e6b405",
+      "uncompressed_size_bytes": 4732491,
+      "compressed_size_bytes": 773206
     },
     "data/system/ca/montreal/maps/plateau.bin": {
       "checksum": "6f260d8502da50a6f13785bf68c62d58",
