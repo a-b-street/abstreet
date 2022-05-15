@@ -42,11 +42,7 @@ impl Layer for ProblemMap {
             Outcome::Changed(x) => {
                 if x == "Compare before proposal" {
                     return Some(LayerOutcome::Replace(Box::new(
-                        problems_diff::RelativeProblemMap::new(
-                            ctx,
-                            app,
-                            problems_diff::Options::new(),
-                        ),
+                        problems_diff::RelativeProblemMap::new(ctx, app, self.opts.types.clone()),
                     )));
                 }
 
@@ -137,7 +133,7 @@ pub struct Options {
     modes: BTreeSet<TripMode>,
     time1: Time,
     time2: Time,
-    types: ProblemTypes,
+    pub types: ProblemTypes,
 }
 
 impl Options {

@@ -41,27 +41,25 @@ impl Layer for RelativeProblemMap {
         // TODO Reinventing CompareCounts...
         if ctx.redo_mouseover() || recalc_tooltip {
             self.tooltip = None;
-            match app.mouseover_unzoomed_roads_and_intersections(ctx) {
-                Some(ID::Road(r)) => {
-                    let (before, after) = (self.before_road.get(r), self.after_road.get(r));
-                    self.tooltip = Some(Text::from(format!(
-                        "{} before, {} after",
-                        prettyprint_usize(before),
-                        prettyprint_usize(after)
-                    )));
-                }
-                Some(ID::Intersection(i)) => {
-                    let (before, after) = (
-                        self.before_intersection.get(i),
-                        self.after_intersection.get(i),
-                    );
-                    self.tooltip = Some(Text::from(format!(
-                        "{} before, {} after",
-                        prettyprint_usize(before),
-                        prettyprint_usize(after)
-                    )));
-                }
-                _ => {}
+            if let Some((before, after)) = match app.mouseover_unzoomed_roads_and_intersections(ctx)
+            {
+                Some(ID::Road(r)) => Some((self.before_road.get(r), self.after_road.get(r))),
+                Some(ID::Intersection(i)) => Some((
+                    self.before_intersection.get(i),
+                    self.after_intersection.get(i),
+                )),
+                _ => None,
+            } {
+                self.tooltip = Some(Text::from(format!(
+                    "{} before, {} after{}",
+                    prettyprint_usize(before),
+                    prettyprint_usize(after),
+                    if before != 0 {
+                        format!(" ({:.1}x)", (after as f64) / (before as f64))
+                    } else {
+                        String::new()
+                    },
+                )));
             }
         } else {
             self.tooltip = None;
@@ -76,14 +74,14 @@ impl Layer for RelativeProblemMap {
             },
             Outcome::Changed(x) => {
                 if x == "Compare before proposal" {
+                    let mut opts = problems::Options::new(app);
+                    opts.types = self.opts.clone();
                     return Some(LayerOutcome::Replace(Box::new(problems::ProblemMap::new(
-                        ctx,
-                        app,
-                        problems::Options::new(app),
+                        ctx, app, opts,
                     ))));
                 }
 
-                let new_opts = self.options();
+                let new_opts = ProblemTypes::from_controls(&self.panel);
                 if self.opts != new_opts {
                     *self = Self::new(ctx, app, new_opts);
                 }
@@ -192,10 +190,6 @@ impl RelativeProblemMap {
             after_road,
             after_intersection,
         }
-    }
-
-    fn options(&self) -> Options {
-        ProblemTypes::from_controls(&self.panel)
     }
 }
 
