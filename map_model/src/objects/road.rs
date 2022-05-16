@@ -598,6 +598,11 @@ impl Road {
         }
         self.get_rank() != osm::RoadRank::Local
     }
+
+    // TODO Oversimplified -- should look at lanes, and be clear this is for driving
+    pub fn is_oneway(&self) -> bool {
+        self.osm_tags.is("oneway", "yes")
+    }
 }
 
 // TODO All of this is kind of deprecated? Some callers seem to really need to still handle lanes

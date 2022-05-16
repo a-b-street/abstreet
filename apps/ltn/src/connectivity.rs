@@ -1,6 +1,6 @@
 use std::collections::BTreeSet;
 
-use geom::{Angle, ArrowCap, Distance, PolyLine};
+use geom::{ArrowCap, Distance, PolyLine};
 use map_gui::tools::ColorNetwork;
 use map_model::{IntersectionID, Perimeter};
 use widgetry::mapspace::{ToggleZoomed, World};
@@ -266,43 +266,50 @@ fn make_world(
     for (idx, cell) in neighborhood.cells.iter().enumerate() {
         let color = render_cells.colors[idx];
         for i in &cell.borders {
-            let angles: Vec<Angle> = cell
-                .roads
-                .keys()
-                .filter_map(|r| {
-                    let road = map.get_r(*r);
-                    // Design choice: when we have a filter right at the entrance of a
-                    // neighborhood, it creates its own little cell allowing access to just the
-                    // very beginning of the road. Let's not draw anything for that.
-                    if app.session.modal_filters.roads.contains_key(r) {
-                        None
-                    } else if road.src_i == *i {
-                        Some(road.center_pts.first_line().angle())
-                    } else if road.dst_i == *i {
-                        Some(road.center_pts.last_line().angle().opposite())
+            // Most borders only have one road in the interior of the neighborhood. Draw an arrow
+            // for each of those. If there happen to be multiple interior roads for one border, the
+            // arrows will overlap each other -- but that happens anyway with borders close
+            // together at certain angles.
+            for r in cell.roads.keys() {
+                let road = map.get_r(*r);
+                // Design choice: when we have a filter right at the entrance of a neighborhood, it
+                // creates its own little cell allowing access to just the very beginning of the
+                // road. Let's not draw anything for that.
+                if app.session.modal_filters.roads.contains_key(r) {
+                    continue;
+                }
+
+                // Find the angle pointing into the neighborhood
+                let angle_in = if road.src_i == *i {
+                    road.center_pts.first_line().angle()
+                } else if road.dst_i == *i {
+                    road.center_pts.last_line().angle().opposite()
+                } else {
+                    // This interior road isn't connected to this border
+                    continue;
+                };
+
+                let center = map.get_i(*i).polygon.center();
+                let pt_farther = center.project_away(Distance::meters(40.0), angle_in.opposite());
+                let pt_closer = center.project_away(Distance::meters(10.0), angle_in.opposite());
+
+                // The arrow direction depends on if the road is one-way
+                let thickness = Distance::meters(6.0);
+                let arrow = if road.is_oneway() {
+                    if road.src_i == *i {
+                        PolyLine::must_new(vec![pt_farther, pt_closer])
+                            .make_arrow(thickness, ArrowCap::Triangle)
                     } else {
-                        None
+                        PolyLine::must_new(vec![pt_closer, pt_farther])
+                            .make_arrow(thickness, ArrowCap::Triangle)
                     }
-                })
-                .collect();
-            // Tiny cell with a filter right at the border
-            if angles.is_empty() {
-                continue;
+                } else {
+                    // Order doesn't matter
+                    PolyLine::must_new(vec![pt_closer, pt_farther])
+                        .make_double_arrow(thickness, ArrowCap::Triangle)
+                };
+                draw_top_layer = draw_top_layer.push(color.alpha(1.0), arrow);
             }
-
-            let center = map.get_i(*i).polygon.center();
-            let angle = Angle::average(angles);
-
-            // TODO Consider showing borders with one-way roads. For now, always point the
-            // arrow into the neighborhood
-            draw_top_layer = draw_top_layer.push(
-                color.alpha(0.8),
-                PolyLine::must_new(vec![
-                    center.project_away(Distance::meters(30.0), angle.opposite()),
-                    center.project_away(Distance::meters(10.0), angle.opposite()),
-                ])
-                .make_arrow(Distance::meters(6.0), ArrowCap::Triangle),
-            );
         }
     }
 
