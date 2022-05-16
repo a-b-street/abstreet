@@ -547,11 +547,13 @@ impl TextSpan {
     ) -> GeomBatch {
         let assets = assets.as_ref();
         let tolerance = svg::HIGH_QUALITY;
-        let stroke_color = if let Some(c) = self.outline_color {
-            c.as_hex()
-        } else {
-            "#000000".to_string()
+        let mut stroke_parameters = String::new();
+
+        if let Some(c) = self.outline_color {
+            stroke_parameters
+                .push_str(format!("stroke=\"{}\" stroke-width=\".1\"", c.as_hex()).as_str());
         };
+
         // Just set a sufficiently large view box
         let mut svg = r##"<svg width="9999" height="9999" viewBox="0 0 9999 9999" xmlns="http://www.w3.org/2000/svg">"##.to_string();
 
@@ -573,12 +575,13 @@ impl TextSpan {
         write!(&mut svg, "\" />").unwrap();
         // We need to subtract and account for the length of the text
         let start_offset =
-            (path.length().inner_meters() - Text::from(&self.text).dims(&assets).width * 0.1) / 2.0;
+            (path.length().inner_meters() - Text::from(&self.text).dims(&assets).width * scale) / 2.0;
 
         let fg_color = self.fg_color_for_style(&assets.style.borrow());
+
         write!(
             &mut svg,
-            r##"<text xml:space="preserve" font-size="{}" font-family="{}" {} fill="{}" fill-opacity="{}" startOffset="{}" stroke="{}" stroke-width=".1">"##,
+            r##"<text xml:space="preserve" font-size="{}" font-family="{}" {} fill="{}" fill-opacity="{}" startOffset="{}" {}>"##,
             // This is seemingly the easiest way to do this. We could .scale() the whole batch
             // after, but then we have to re-translate it to the proper spot
             (self.size as f64) * scale,
@@ -591,7 +594,7 @@ impl TextSpan {
             fg_color.as_hex(),
             fg_color.a,
             start_offset,
-            stroke_color,
+            stroke_parameters,
         )
             .unwrap();
 

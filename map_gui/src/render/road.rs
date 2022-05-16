@@ -55,33 +55,35 @@ impl DrawRoad {
                 && pair[0].lane_type.is_for_moving_vehicles()
                 && pair[1].lane_type.is_for_moving_vehicles()
             {
+                let text_width = Text::from(&name).rendered_width(prerender) * 0.1;
                 let pl = r.shift_from_left_side(width).unwrap();
-                let first_segment_distance = (pl.length().inner_meters()
-                    - (Text::from(&name).rendered_width(prerender) * 0.1))
-                    / 2.0;
-                let last_segment_distance =
-                    first_segment_distance + (Text::from(&name).rendered_width(prerender) * 0.1);
-                batch.extend(
-                    center_line_color,
-                    pl.dashed_lines_segment(
-                        Distance::meters(0.25),
-                        Distance::meters(2.0),
-                        Distance::meters(1.0),
-                        Distance::meters(0.0),
-                        Distance::meters(first_segment_distance),
-                    ),
-                );
+                let first_segment_distance = (pl.length().inner_meters() - text_width) / 2.0;
+                let last_segment_distance = first_segment_distance + text_width;
+                let pl_to_label =
+                    pl.slice(Distance::ZERO, Distance::meters(first_segment_distance));
+                let pl_after_label = pl.slice(Distance::meters(last_segment_distance), pl.length());
 
-                batch.extend(
-                    center_line_color,
-                    pl.dashed_lines_segment(
-                        Distance::meters(0.25),
-                        Distance::meters(2.0),
-                        Distance::meters(1.0),
-                        Distance::meters(last_segment_distance),
-                        Distance::meters(pl.length().inner_meters()),
-                    ),
-                );
+                if let Ok(line) = pl_to_label {
+                    batch.extend(
+                        center_line_color,
+                        line.0.dashed_lines(
+                            Distance::meters(0.25),
+                            Distance::meters(2.0),
+                            Distance::meters(1.0),
+                        ),
+                    );
+                }
+
+                if let Ok(line) = pl_after_label {
+                    batch.extend(
+                        center_line_color,
+                        line.0.dashed_lines(
+                            Distance::meters(0.25),
+                            Distance::meters(2.0),
+                            Distance::meters(1.0),
+                        ),
+                    );
+                }
             }
         }
 
@@ -119,13 +121,13 @@ impl DrawRoad {
                 // TODO: find a good way to draw an appropriate background
                 if true {
                     if r.center_pts.quadrant() > 1 && r.center_pts.quadrant() < 4 {
-                        batch.append(Line(name).fg(fg).render_curvey(
+                        batch.append(Line(name).fg(fg).outlined(Color::BLACK).render_curvey(
                             prerender,
                             &r.center_pts.reversed(),
                             0.1,
                         ));
                     } else {
-                        batch.append(Line(name).fg(fg).render_curvey(
+                        batch.append(Line(name).fg(fg).outlined(Color::BLACK).render_curvey(
                             prerender,
                             &r.center_pts,
                             0.1,
