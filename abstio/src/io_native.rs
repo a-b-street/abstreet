@@ -96,6 +96,8 @@ pub fn write_binary<T: Serialize>(path: String, obj: &T) {
 }
 
 pub fn write_raw(path: String, bytes: &[u8]) -> Result<()> {
+    fs_err::create_dir_all(std::path::Path::new(&path).parent().unwrap())?;
+
     let mut file = BufWriter::new(File::create(path)?);
     file.write_all(bytes)?;
     Ok(())
