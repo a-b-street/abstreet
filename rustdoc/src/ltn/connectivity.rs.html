@@ -409,10 +409,10 @@
                     )
                     .<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">warning</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Toggle::checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;Expert mode&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span>),
+                    <span class="ident">Toggle::checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;Advanced features&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span>),
                     <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
                         <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                            <span class="ident">Line</span>(<span class="string">&quot;Expert mode&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+                            <span class="ident">Line</span>(<span class="string">&quot;Advanced features&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                             <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                                 <span class="string">&quot;Draw traffic cells as&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
                                 <span class="ident">Toggle::choice</span>(
@@ -499,8 +499,8 @@
                 .<span class="ident">unwrap</span>();
             }
             <span class="ident">Outcome::Changed</span>(<span class="ident">x</span>) =&gt; {
-                <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;Expert mode&quot;</span> {
-                    <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;Expert mode&quot;</span>);
+                <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;Advanced features&quot;</span> {
+                    <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;Advanced features&quot;</span>);
                     <span class="self">self</span>.<span class="ident">update</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                     <span class="kw">return</span> <span class="ident">Transition::Keep</span>;
                 }

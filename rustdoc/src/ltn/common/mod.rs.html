@@ -142,6 +142,22 @@
 <span id="137">137</span>
 <span id="138">138</span>
 <span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom::CornerRadii</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools::grey_out_map</span>;
 <span class="kw">use</span> <span class="ident">widgetry::tools</span>::{<span class="ident">open_browser</span>, <span class="ident">PopupMsg</span>};
@@ -167,6 +183,11 @@
                 .<span class="ident">centered_vert</span>(),
             <span class="ident">map_gui::tools::change_map_btn</span>(<span class="ident">ctx</span>, <span class="ident">app</span>).<span class="ident">centered_vert</span>(),
             <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
+                    .<span class="ident">btn_plain</span>
+                    .<span class="ident">text</span>(<span class="string">&quot;Export to GeoJSON&quot;</span>)
+                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
+                    .<span class="ident">centered_vert</span>(),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_plain</span>
                     .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/search.svg&quot;</span>)
@@ -219,6 +240,17 @@
             ))),
             <span class="string">&quot;help&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;Help&quot;</span>, <span class="ident">help</span>()))),
             <span class="string">&quot;about this tool&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">About::new_state</span>(<span class="ident">ctx</span>))),
+            <span class="string">&quot;Export to GeoJSON&quot;</span> =&gt; {
+                <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::export::write_geojson_file</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="kw">match</span> <span class="ident">result</span> {
+                    <span class="prelude-val">Ok</span>(<span class="ident">path</span>) =&gt; <span class="ident">PopupMsg::new_state</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="string">&quot;LTNs exported&quot;</span>,
+                        <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">&quot;Data exported to {}&quot;</span>, <span class="ident">path</span>)],
+                    ),
+                    <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;Export failed&quot;</span>, <span class="macro">vec!</span>[<span class="ident">err</span>.<span class="ident">to_string</span>()]),
+                }))
+            }
             <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
         }
     } <span class="kw">else</span> {
