@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["help",""],["make_world",""]],"struct":[["FreehandFilters",""],["Viewer",""]]});
+initSidebarItems({"fn":[["help",""],["make_world",""]],"struct":[["Viewer",""]]});
