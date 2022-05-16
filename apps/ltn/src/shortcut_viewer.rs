@@ -174,8 +174,13 @@ impl State<App> for BrowseShortcuts {
                     self.recalculate(ctx, app);
                 }
                 x => {
-                    if let Some(t) = Tab::Shortcuts.handle_action(ctx, app, x, self.neighborhood.id)
-                    {
+                    if let Some(t) = Tab::Shortcuts.handle_action(
+                        ctx,
+                        app,
+                        x,
+                        &self.neighborhood,
+                        &self.left_panel,
+                    ) {
                         return t;
                     }
                     let current_request = if self.shortcuts.paths.is_empty() {

@@ -1,19 +1,15 @@
-use std::collections::BTreeSet;
-
 use geom::{ArrowCap, Distance, PolyLine};
 use map_gui::tools::ColorNetwork;
-use map_model::{IntersectionID, Perimeter};
 use widgetry::mapspace::{ToggleZoomed, World};
-use widgetry::tools::{PolyLineLasso, PopupMsg};
+use widgetry::tools::PopupMsg;
 use widgetry::{
-    DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, ScreenPt, State, Text, TextExt,
-    Toggle, Widget,
+    DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, TextExt, Toggle, Widget,
 };
 
 use crate::filters::auto::Heuristic;
 use crate::per_neighborhood::{FilterableObj, Tab};
 use crate::shortcuts::find_shortcuts;
-use crate::{after_edit, colors, App, DiagonalFilter, Neighborhood, NeighborhoodID, Transition};
+use crate::{colors, App, Neighborhood, NeighborhoodID, Transition};
 
 pub struct Viewer {
     top_panel: Panel,
@@ -64,14 +60,6 @@ impl Viewer {
                             .neighborhood_area_km2(self.neighborhood.id)
                     )
                     .text_widget(ctx),
-                    ctx.style()
-                        .btn_outline
-                        .icon_text(
-                            "system/assets/tools/select.svg",
-                            "Create filters along a shape",
-                        )
-                        .hotkey(Key::F)
-                        .build_def(ctx),
                     warning.text_widget(ctx),
                     Toggle::checkbox(ctx, "Expert mode", None, app.opts.dev),
                     if app.opts.dev {
@@ -140,15 +128,13 @@ impl State<App> for Viewer {
                             ));
                         }
                     }
-                } else if x == "Create filters along a shape" {
-                    return Transition::Push(FreehandFilters::new_state(
-                        ctx,
-                        &self.neighborhood,
-                        self.left_panel.center_of("Create filters along a shape"),
-                    ));
-                } else if let Some(t) =
-                    Tab::Connectivity.handle_action(ctx, app, x.as_ref(), self.neighborhood.id)
-                {
+                } else if let Some(t) = Tab::Connectivity.handle_action(
+                    ctx,
+                    app,
+                    x.as_ref(),
+                    &self.neighborhood,
+                    &self.left_panel,
+                ) {
                     return t;
                 }
 
@@ -342,83 +328,6 @@ fn make_world(
     }
 
     (world, draw_top_layer.build(ctx))
-}
-
-struct FreehandFilters {
-    lasso: PolyLineLasso,
-    id: NeighborhoodID,
-    perimeter: Perimeter,
-    interior_intersections: BTreeSet<IntersectionID>,
-    instructions: Text,
-    instructions_at: ScreenPt,
-}
-
-impl FreehandFilters {
-    fn new_state(
-        ctx: &EventCtx,
-        neighborhood: &Neighborhood,
-        instructions_at: ScreenPt,
-    ) -> Box<dyn State<App>> {
-        Box::new(Self {
-            lasso: PolyLineLasso::new(),
-            id: neighborhood.id,
-            perimeter: neighborhood.orig_perimeter.clone(),
-            interior_intersections: neighborhood.interior_intersections.clone(),
-            instructions_at,
-            instructions: Text::from_all(vec![
-                Line("Click and drag").fg(ctx.style().text_hotkey_color),
-                Line(" across the roads you want to filter"),
-            ]),
-        })
-    }
-
-    fn make_filters_along_path(&self, ctx: &mut EventCtx, app: &mut App, path: PolyLine) {
-        app.session.modal_filters.before_edit();
-        for r in &self.perimeter.interior {
-            if app.session.modal_filters.roads.contains_key(r) {
-                continue;
-            }
-            let road = app.map.get_r(*r);
-            if let Some((pt, _)) = road.center_pts.intersection(&path) {
-                let dist = road
-                    .center_pts
-                    .dist_along_of_point(pt)
-                    .map(|pair| pair.0)
-                    .unwrap_or(road.center_pts.length() / 2.0);
-                app.session.modal_filters.roads.insert(*r, dist);
-            }
-        }
-        for i in &self.interior_intersections {
-            if app.map.get_i(*i).polygon.intersects_polyline(&path) {
-                // We probably won't guess the right one, but make an attempt
-                DiagonalFilter::cycle_through_alternatives(ctx, app, *i);
-            }
-        }
-        after_edit(ctx, app);
-    }
-}
-
-impl State<App> for FreehandFilters {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        if let Some(pl) = self.lasso.event(ctx) {
-            self.make_filters_along_path(ctx, app, pl);
-            return Transition::Multi(vec![
-                Transition::Pop,
-                Transition::Replace(Viewer::new_state(ctx, app, self.id)),
-            ]);
-        }
-        Transition::Keep
-    }
-
-    fn draw(&self, g: &mut GfxCtx, _: &App) {
-        self.lasso.draw(g);
-        // Hacky, but just draw instructions over the other panel
-        g.draw_tooltip_at(self.instructions.clone(), self.instructions_at);
-    }
-
-    fn draw_baselayer(&self) -> DrawBaselayer {
-        DrawBaselayer::PreviousState
-    }
 }
 
 fn help() -> Vec<&'static str> {
