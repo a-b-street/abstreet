@@ -61,10 +61,10 @@ impl Viewer {
                     )
                     .text_widget(ctx),
                     warning.text_widget(ctx),
-                    Toggle::checkbox(ctx, "Expert mode", None, app.opts.dev),
+                    Toggle::checkbox(ctx, "Advanced features", None, app.opts.dev),
                     if app.opts.dev {
                         Widget::col(vec![
-                            Line("Expert mode").small_heading().into_widget(ctx),
+                            Line("Advanced features").small_heading().into_widget(ctx),
                             Widget::row(vec![
                                 "Draw traffic cells as".text_widget(ctx).centered_vert(),
                                 Toggle::choice(
@@ -151,8 +151,8 @@ impl State<App> for Viewer {
                 .unwrap();
             }
             Outcome::Changed(x) => {
-                if x == "Expert mode" {
-                    app.opts.dev = self.left_panel.is_checked("Expert mode");
+                if x == "Advanced features" {
+                    app.opts.dev = self.left_panel.is_checked("Advanced features");
                     self.update(ctx, app);
                     return Transition::Keep;
                 }

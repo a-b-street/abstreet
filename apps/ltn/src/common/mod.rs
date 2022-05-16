@@ -25,6 +25,11 @@ pub fn app_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
             Widget::row(vec![
                 ctx.style()
                     .btn_plain
+                    .text("Export to GeoJSON")
+                    .build_def(ctx)
+                    .centered_vert(),
+                ctx.style()
+                    .btn_plain
                     .icon("system/assets/tools/search.svg")
                     .hotkey(lctrl(Key::F))
                     .build_widget(ctx, "search")
@@ -75,6 +80,17 @@ pub fn handle_top_panel<F: Fn() -> Vec<&'static str>>(
             ))),
             "help" => Some(Transition::Push(PopupMsg::new_state(ctx, "Help", help()))),
             "about this tool" => Some(Transition::Push(About::new_state(ctx))),
+            "Export to GeoJSON" => {
+                let result = crate::export::write_geojson_file(ctx, app);
+                Some(Transition::Push(match result {
+                    Ok(path) => PopupMsg::new_state(
+                        ctx,
+                        "LTNs exported",
+                        vec![format!("Data exported to {}", path)],
+                    ),
+                    Err(err) => PopupMsg::new_state(ctx, "Export failed", vec![err.to_string()]),
+                }))
+            }
             _ => unreachable!(),
         }
     } else {

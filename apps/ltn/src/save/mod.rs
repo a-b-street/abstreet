@@ -33,7 +33,7 @@ impl Proposal {
                 .session
                 .proposal_name
                 .clone()
-                .unwrap_or(String::from("untitled")),
+                .unwrap_or(String::from("existing LTNs")),
             abst_version: map_gui::tools::version().to_string(),
 
             partitioning: app.session.partitioning.clone(),
@@ -199,12 +199,16 @@ impl AltProposals {
     }
 
     pub fn to_widget(&self, ctx: &EventCtx, app: &App) -> Widget {
-        let mut col = vec![Widget::row(vec![
-            Line("Proposals").small_heading().into_widget(ctx),
-            ctx.style().btn_outline.text("New").build_def(ctx),
-            ctx.style().btn_outline.text("Load").build_def(ctx),
-            ctx.style().btn_outline.text("Save").build_def(ctx),
-        ])];
+        let mut col = vec![
+            Line("LTN Policy Proposals")
+                .small_heading()
+                .into_widget(ctx),
+            Widget::row(vec![
+                ctx.style().btn_outline.text("New").build_def(ctx),
+                ctx.style().btn_outline.text("Load").build_def(ctx),
+                ctx.style().btn_outline.text("Save").build_def(ctx),
+            ]),
+        ];
         for (idx, proposal) in self.list.iter().enumerate() {
             let button = if let Some(proposal) = proposal {
                 ctx.style()
@@ -221,7 +225,7 @@ impl AltProposals {
                         app.session
                             .proposal_name
                             .as_ref()
-                            .unwrap_or(&String::from("untitled")),
+                            .unwrap_or(&String::from("existing LTNs")),
                     ))
                     .disabled(true)
                     .build_def(ctx)

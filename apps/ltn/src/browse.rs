@@ -5,7 +5,6 @@ use geom::Distance;
 use map_gui::tools::{ColorNetwork, DrawRoadLabels};
 use synthpop::Scenario;
 use widgetry::mapspace::{ToggleZoomed, World, WorldOutcome};
-use widgetry::tools::PopupMsg;
 use widgetry::{
     Choice, DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text, TextExt,
     Toggle, Widget,
@@ -45,23 +44,15 @@ impl BrowseNeighborhoods {
             &top_panel,
             Widget::col(vec![
                 app.session.alt_proposals.to_widget(ctx, app),
-                "Click a neighborhood to edit filters".text_widget(ctx),
-                Widget::row(vec![
-                    ctx.style()
-                        .btn_outline
-                        .text("Plan a route")
-                        .hotkey(Key::R)
-                        .build_def(ctx),
-                    ctx.style()
-                        .btn_outline
-                        .text("Export to GeoJSON")
-                        .build_def(ctx),
-                ])
-                .section(ctx),
-                Toggle::checkbox(ctx, "Expert mode", None, app.opts.dev),
+                ctx.style()
+                    .btn_outline
+                    .text("Plan a route")
+                    .hotkey(Key::R)
+                    .build_def(ctx),
+                Toggle::checkbox(ctx, "Advanced features", None, app.opts.dev),
                 if app.opts.dev {
                     Widget::col(vec![
-                        Line("Expert mode").small_heading().into_widget(ctx),
+                        Line("Advanced features").small_heading().into_widget(ctx),
                         Widget::col(vec![
                             Widget::row(vec![
                                 "Draw neighborhoods:".text_widget(ctx).centered_vert(),
@@ -128,19 +119,6 @@ impl State<App> for BrowseNeighborhoods {
         }
         match self.left_panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
-                "Export to GeoJSON" => {
-                    let result = crate::export::write_geojson_file(ctx, app);
-                    return Transition::Push(match result {
-                        Ok(path) => PopupMsg::new_state(
-                            ctx,
-                            "LTNs exported",
-                            vec![format!("Data exported to {}", path)],
-                        ),
-                        Err(err) => {
-                            PopupMsg::new_state(ctx, "Export failed", vec![err.to_string()])
-                        }
-                    });
-                }
                 "Calculate" | "Show impact" => {
                     return Transition::Push(crate::impact::ShowResults::new_state(ctx, app));
                 }
@@ -182,8 +160,8 @@ impl State<App> for BrowseNeighborhoods {
                 }
             },
             Outcome::Changed(x) => {
-                if x == "Expert mode" {
-                    app.opts.dev = self.left_panel.is_checked("Expert mode");
+                if x == "Advanced features" {
+                    app.opts.dev = self.left_panel.is_checked("Advanced features");
                     return Transition::Replace(BrowseNeighborhoods::new_state(ctx, app));
                 }
                 if x == "heuristic" {
