@@ -28,10 +28,7 @@ impl Tab {
     ) -> PanelBuilder {
         let contents = Widget::col(vec![
             app.session.alt_proposals.to_widget(ctx, app),
-            ctx.style()
-                .btn_back("Browse neighborhoods")
-                .hotkey(Key::Escape)
-                .build_def(ctx),
+            BrowseNeighborhoods::button(ctx, app),
             Line("Editing neighborhood")
                 .small_heading()
                 .into_widget(ctx),
@@ -64,8 +61,9 @@ impl Tab {
                 ]),
             ])
             .section(ctx),
-            self.make_buttons(ctx),
+            self.make_buttons(ctx, app),
             per_tab_contents,
+            crate::route_planner::RoutePlanner::button(ctx),
         ]);
         crate::components::LeftPanel::builder(ctx, top_panel, contents)
     }
@@ -117,11 +115,14 @@ impl Tab {
                     }
                 }))
             }
+            "Plan a route" => Some(Transition::Push(
+                crate::route_planner::RoutePlanner::new_state(ctx, app),
+            )),
             _ => None,
         }
     }
 
-    fn make_buttons(self, ctx: &mut EventCtx) -> Widget {
+    fn make_buttons(self, ctx: &mut EventCtx, app: &App) -> Widget {
         let mut row = Vec::new();
         for (tab, label, key) in [
             (Tab::Connectivity, "Connectivity", Key::F1),
@@ -144,20 +145,22 @@ impl Tab {
                     .build_def(ctx),
             );
         }
-        // TODO The 3rd doesn't really act like a tab
-        row.push(
-            ctx.style()
-                .btn_tab
-                .text("Adjust boundary")
-                .corner_rounding(geom::CornerRadii {
-                    top_left: DEFAULT_CORNER_RADIUS,
-                    top_right: DEFAULT_CORNER_RADIUS,
-                    bottom_left: 0.0,
-                    bottom_right: 0.0,
-                })
-                .hotkey(Key::B)
-                .build_def(ctx),
-        );
+        if app.session.consultation.is_none() {
+            // TODO The 3rd doesn't really act like a tab
+            row.push(
+                ctx.style()
+                    .btn_tab
+                    .text("Adjust boundary")
+                    .corner_rounding(geom::CornerRadii {
+                        top_left: DEFAULT_CORNER_RADIUS,
+                        top_right: DEFAULT_CORNER_RADIUS,
+                        bottom_left: 0.0,
+                        bottom_right: 0.0,
+                    })
+                    .hotkey(Key::B)
+                    .build_def(ctx),
+            );
+        }
 
         Widget::row(row)
     }

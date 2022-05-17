@@ -61,6 +61,14 @@ impl RoutePlanner {
         Box::new(rp)
     }
 
+    pub fn button(ctx: &EventCtx) -> Widget {
+        ctx.style()
+            .btn_outline
+            .text("Plan a route")
+            .hotkey(Key::R)
+            .build_def(ctx)
+    }
+
     // Updates the panel and draw_routes
     fn update_everything(&mut self, ctx: &mut EventCtx, app: &mut App) {
         self.files.autosave(app);
@@ -68,10 +76,12 @@ impl RoutePlanner {
 
         let contents = Widget::col(vec![
             app.session.alt_proposals.to_widget(ctx, app),
+            BrowseNeighborhoods::button(ctx, app),
             ctx.style()
-                .btn_back("Browse neighborhoods")
+                .btn_back("Analyze neighbourhood")
                 .hotkey(Key::Escape)
-                .build_def(ctx),
+                .build_def(ctx)
+                .hide(app.session.consultation.is_none()),
             Line("Plan a route").small_heading().into_widget(ctx),
             Widget::col(vec![
                 self.files.get_panel_widget(ctx),
@@ -286,6 +296,9 @@ impl State<App> for RoutePlanner {
         if let Outcome::Clicked(ref x) = panel_outcome {
             if x == "Browse neighborhoods" {
                 return Transition::Replace(BrowseNeighborhoods::new_state(ctx, app));
+            }
+            if x == "Analyze neighbourhood" {
+                return Transition::Pop;
             }
             if let Some(t) = self.files.on_click(ctx, app, x) {
                 // Bit hacky...

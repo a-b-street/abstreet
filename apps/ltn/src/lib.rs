@@ -2,6 +2,7 @@
 
 use structopt::StructOpt;
 
+use abstio::MapName;
 use abstutil::Timer;
 use widgetry::{EventCtx, GfxCtx, Settings};
 
@@ -46,6 +47,9 @@ struct Args {
     /// Load a previously saved proposal with this name. Note this takes a name, not a full path.
     #[structopt(long)]
     proposal: Option<String>,
+    /// Lock the user into one fixed neighborhood, and remove many controls
+    #[structopt(long)]
+    consultation: bool,
     #[structopt(flatten)]
     app_args: map_gui::SimpleAppArgs,
 }
@@ -77,6 +81,8 @@ fn run(mut settings: Settings) {
             main_road_penalty: 1.0,
 
             current_trip_name: None,
+
+            consultation: None,
         };
         map_gui::SimpleApp::new(
             ctx,
@@ -91,15 +97,32 @@ fn run(mut settings: Settings) {
                     .as_ref()
                     .and_then(|name| crate::save::Proposal::load(ctx, app, name));
 
-                let mut states = vec![
-                    map_gui::tools::TitleScreen::new_state(
+                let mut states = Vec::new();
+                if args.consultation {
+                    if app.map.get_name() != &MapName::new("gb", "bristol", "east") {
+                        panic!("Consultation mode not supported on this map");
+                    }
+                    // TODO Don't hardcode
+                    app.session.consultation = Some(NeighborhoodID(33));
+
+                    app.session.alt_proposals = crate::save::AltProposals::new();
+                    ctx.loading_screen("initialize", |ctx, timer| {
+                        crate::clear_current_proposal(ctx, app, timer);
+                    });
+                    states.push(connectivity::Viewer::new_state(
+                        ctx,
+                        app,
+                        app.session.consultation.unwrap(),
+                    ));
+                } else {
+                    states.push(map_gui::tools::TitleScreen::new_state(
                         ctx,
                         app,
                         map_gui::tools::Executable::LTN,
                         Box::new(|ctx, app, _| BrowseNeighborhoods::new_state(ctx, app)),
-                    ),
-                    BrowseNeighborhoods::new_state(ctx, app),
-                ];
+                    ));
+                    states.push(BrowseNeighborhoods::new_state(ctx, app));
+                }
                 if let Some(state) = popup_state {
                     states.push(state);
                 }
@@ -146,6 +169,8 @@ pub struct Session {
     pub main_road_penalty: f64,
 
     current_trip_name: Option<String>,
+
+    consultation: Option<NeighborhoodID>,
 }
 
 /// Do the equivalent of `SimpleApp::draw_unzoomed` or `draw_zoomed`, but after the water/park
