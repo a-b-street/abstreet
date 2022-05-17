@@ -346,6 +346,9 @@
 <span id="341">341</span>
 <span id="342">342</span>
 <span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>};
 <span class="kw">use</span> <span class="ident">map_gui::tools::ColorNetwork</span>;
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ToggleZoomed</span>, <span class="ident">World</span>};
@@ -372,7 +375,7 @@
         <span class="kw">let</span> <span class="ident">neighborhood</span> <span class="op">=</span> <span class="ident">Neighborhood::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">viewer</span> <span class="op">=</span> <span class="ident">Viewer</span> {
-            <span class="ident">top_panel</span>: <span class="ident"><span class="kw">crate</span>::common::app_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+            <span class="ident">top_panel</span>: <span class="ident"><span class="kw">crate</span>::components::TopPanel::panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
             <span class="ident">left_panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
             <span class="ident">neighborhood</span>,
             <span class="ident">world</span>: <span class="ident">World::unbounded</span>(),
@@ -410,36 +413,7 @@
                     .<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">warning</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">Toggle::checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;Advanced features&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span>),
-                    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
-                        <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                            <span class="ident">Line</span>(<span class="string">&quot;Advanced features&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                                <span class="string">&quot;Draw traffic cells as&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
-                                <span class="ident">Toggle::choice</span>(
-                                    <span class="ident">ctx</span>,
-                                    <span class="string">&quot;draw cells&quot;</span>,
-                                    <span class="string">&quot;areas&quot;</span>,
-                                    <span class="string">&quot;streets&quot;</span>,
-                                    <span class="ident">Key::D</span>,
-                                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_cells_as_areas</span>,
-                                ),
-                            ]),
-                            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                                .<span class="ident">btn_outline</span>
-                                .<span class="ident">text</span>(<span class="string">&quot;Automatically place filters&quot;</span>)
-                                .<span class="ident">hotkey</span>(<span class="ident">Key::A</span>)
-                                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-                            <span class="ident">Widget::dropdown</span>(
-                                <span class="ident">ctx</span>,
-                                <span class="string">&quot;heuristic&quot;</span>,
-                                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">heuristic</span>,
-                                <span class="ident">Heuristic::choices</span>(),
-                            ),
-                        ])
-                        .<span class="ident">section</span>(<span class="ident">ctx</span>)
-                    } <span class="kw">else</span> {
-                        <span class="ident">Widget::nothing</span>()
-                    },
+                    <span class="ident">advanced_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
                 ]),
             )
             .<span class="ident">build</span>(<span class="ident">ctx</span>);
@@ -452,7 +426,7 @@
 
 <span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Viewer</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::common::handle_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">top_panel</span>, <span class="ident">help</span>) {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::components::TopPanel::event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">top_panel</span>, <span class="ident">help</span>) {
             <span class="kw">return</span> <span class="ident">t</span>;
         }
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
@@ -688,6 +662,38 @@
         <span class="string">&quot;Hint: You can place filters at roads or intersections.&quot;</span>,
         <span class="string">&quot;Use the lasso tool to quickly sketch your idea.&quot;</span>,
     ]
+}
+
+<span class="kw">fn</span> <span class="ident">advanced_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Widget</span> {
+    <span class="kw">if</span> <span class="op">!</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
+        <span class="kw">return</span> <span class="ident">Widget::nothing</span>();
+    }
+    <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+        <span class="ident">Line</span>(<span class="string">&quot;Advanced features&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+            <span class="string">&quot;Draw traffic cells as&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
+            <span class="ident">Toggle::choice</span>(
+                <span class="ident">ctx</span>,
+                <span class="string">&quot;draw cells&quot;</span>,
+                <span class="string">&quot;areas&quot;</span>,
+                <span class="string">&quot;streets&quot;</span>,
+                <span class="ident">Key::D</span>,
+                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_cells_as_areas</span>,
+            ),
+        ]),
+        <span class="ident">ctx</span>.<span class="ident">style</span>()
+            .<span class="ident">btn_outline</span>
+            .<span class="ident">text</span>(<span class="string">&quot;Automatically place filters&quot;</span>)
+            .<span class="ident">hotkey</span>(<span class="ident">Key::A</span>)
+            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+        <span class="ident">Widget::dropdown</span>(
+            <span class="ident">ctx</span>,
+            <span class="string">&quot;heuristic&quot;</span>,
+            <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">heuristic</span>,
+            <span class="ident">Heuristic::choices</span>(),
+        ),
+    ])
+    .<span class="ident">section</span>(<span class="ident">ctx</span>)
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ltn" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0 (7737e0b5c 2022-04-04)" ></div>

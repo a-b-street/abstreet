@@ -447,7 +447,7 @@
 
 <span class="kw">impl</span> <span class="ident">SelectBoundary</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">NeighborhoodID</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">top_panel</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::common::app_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+        <span class="kw">let</span> <span class="ident">top_panel</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::components::TopPanel::panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
         <span class="kw">let</span> <span class="ident">left_panel</span> <span class="op">=</span> <span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">top_panel</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">SelectBoundary</span> {
             <span class="ident">top_panel</span>,
@@ -669,7 +669,7 @@
             <span class="kw">return</span> <span class="ident">Transition::Keep</span>;
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::common::handle_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">top_panel</span>, <span class="ident">help</span>) {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::components::TopPanel::event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">top_panel</span>, <span class="ident">help</span>) {
             <span class="kw">return</span> <span class="ident">t</span>;
         }
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
@@ -735,7 +735,7 @@
 }
 
 <span class="kw">fn</span> <span class="ident">make_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">NeighborhoodID</span>, <span class="ident">top_panel</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) -&gt; <span class="ident">Panel</span> {
-    <span class="ident"><span class="kw">crate</span>::common::left_panel_builder</span>(
+    <span class="ident"><span class="kw">crate</span>::components::LeftPanel::builder</span>(
         <span class="ident">ctx</span>,
         <span class="ident">top_panel</span>,
         <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
@@ -788,7 +788,7 @@
 }
 
 <span class="kw">fn</span> <span class="ident">make_panel_for_lasso</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">top_panel</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) -&gt; <span class="ident">Panel</span> {
-    <span class="ident"><span class="kw">crate</span>::common::left_panel_builder</span>(
+    <span class="ident"><span class="kw">crate</span>::components::LeftPanel::builder</span>(
         <span class="ident">ctx</span>,
         <span class="ident">top_panel</span>,
         <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[

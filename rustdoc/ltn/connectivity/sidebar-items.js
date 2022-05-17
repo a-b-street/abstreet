@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["help",""],["make_world",""]],"struct":[["Viewer",""]]});
+initSidebarItems({"fn":[["advanced_panel",""],["help",""],["make_world",""]],"struct":[["Viewer",""]]});
