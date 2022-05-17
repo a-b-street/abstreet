@@ -341,9 +341,6 @@
 <span id="336">336</span>
 <span id="337">337</span>
 <span id="338">338</span>
-<span id="339">339</span>
-<span id="340">340</span>
-<span id="341">341</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
 <span class="kw">use</span> <span class="ident">map_gui::tools::checkbox_per_mode</span>;
@@ -393,10 +390,7 @@
         }
 
         <span class="kw">let</span> <span class="ident">contents</span> <span class="op">=</span> <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_back</span>(<span class="string">&quot;Browse neighborhoods&quot;</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">Key::Escape</span>)
-                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+            <span class="ident">BrowseNeighborhoods::button</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
             <span class="ident">Line</span>(<span class="string">&quot;Impact prediction&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="string">&quot;This tool starts with a travel demand model, calculates the route every trip takes before and after changes, and displays volumes along roads&quot;</span>)).<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">20</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[

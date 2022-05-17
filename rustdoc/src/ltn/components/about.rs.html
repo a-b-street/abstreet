@@ -45,9 +45,13 @@
 <span id="40">40</span>
 <span id="41">41</span>
 <span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">map_gui::tools::grey_out_map</span>;
 <span class="kw">use</span> <span class="ident">widgetry::tools::open_browser</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">SimpleState</span>, <span class="ident">State</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>};
+<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">SimpleState</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
 
@@ -60,9 +64,13 @@
                 <span class="ident">Line</span>(<span class="string">&quot;About the LTN tool&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
             ]),
-            <span class="string">&quot;Created by Dustin Carlino &amp; Cindy Huang&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-            <span class="string">&quot;Data from OpenStreetMap&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-            <span class="string">&quot;See below for full credits and more info&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
+            <span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
+                <span class="ident">Line</span>(<span class="string">&quot;Created by Dustin Carlino, Cindy Huang, and Jennifer Ding&quot;</span>),
+                <span class="ident">Line</span>(<span class="string">&quot;Developed at the Alan Turing Institute&quot;</span>),
+                <span class="ident">Line</span>(<span class="string">&quot;Data from OpenStreetMap&quot;</span>),
+                <span class="ident">Line</span>(<span class="string">&quot;See below for full credits and more info&quot;</span>),
+            ])
+            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_outline</span>
                 .<span class="ident">text</span>(<span class="string">&quot;ltn.abstreet.org&quot;</span>)

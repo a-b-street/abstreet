@@ -876,6 +876,16 @@
 <span id="871">871</span>
 <span id="872">872</span>
 <span id="873">873</span>
+<span id="874">874</span>
+<span id="875">875</span>
+<span id="876">876</span>
+<span id="877">877</span>
+<span id="878">878</span>
+<span id="879">879</span>
+<span id="880">880</span>
+<span id="881">881</span>
+<span id="882">882</span>
+<span id="883">883</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
 <span class="kw">use</span> <span class="ident">stretch::geometry</span>::{<span class="ident">Rect</span>, <span class="ident">Size</span>};
@@ -1275,6 +1285,16 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">named</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">id</span>: <span class="ident">I</span>) -&gt; <span class="ident">Widget</span> {
         <span class="self">self</span>.<span class="ident">id</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>.<span class="ident">into</span>());
         <span class="self">self</span>
+    }
+
+    <span class="doccomment">/// If the argument is true, don&#39;t actually create this widget. May be more readable than an</span>
+    <span class="doccomment">/// if/else block.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hide</span>(<span class="self">self</span>, <span class="ident">x</span>: <span class="ident">bool</span>) -&gt; <span class="ident">Widget</span> {
+        <span class="kw">if</span> <span class="ident">x</span> {
+            <span class="ident">Widget::nothing</span>()
+        } <span class="kw">else</span> {
+            <span class="self">self</span>
+        }
     }
 }
 
