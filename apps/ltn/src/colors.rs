@@ -30,7 +30,6 @@ lazy_static::lazy_static! {
     pub static ref PLAN_ROUTE_WALK: Color = Color::BLUE;
 }
 
-pub const CAR_FREE_CELL: Color = Color::GREEN.alpha(0.5);
 pub const DISCONNECTED_CELL: Color = Color::RED.alpha(0.5);
 
 pub const OUTLINE: Color = Color::BLACK;

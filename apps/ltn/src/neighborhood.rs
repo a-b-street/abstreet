@@ -34,15 +34,12 @@ pub struct Cell {
     pub roads: BTreeMap<RoadID, DistanceInterval>,
     /// Intersections where this cell touches the boundary of the neighborhood.
     pub borders: BTreeSet<IntersectionID>,
-    /// This cell only contains roads that ban cars.
-    pub car_free: bool,
 }
 
 impl Cell {
-    /// A cell is disconnected if it's not connected to a perimeter road. (The exception is cells
-    /// containing roads that by their OSM classification already ban cars.)
+    /// A cell is disconnected if it's not connected to a perimeter road.
     pub fn is_disconnected(&self) -> bool {
-        self.borders.is_empty() && !self.car_free
+        self.borders.is_empty()
     }
 }
 
@@ -141,14 +138,13 @@ fn find_cells(
     let mut cells = Vec::new();
     let mut visited = BTreeSet::new();
 
-    let mut no_car_roads = Vec::new();
     for start in &perimeter.interior {
         if visited.contains(start) || modal_filters.roads.contains_key(start) {
             continue;
         }
         let start = *start;
+        // Just skip entirely; they're invisible for the purpose of dividing into cells
         if !PathConstraints::Car.can_use_road(map.get_r(start), map) {
-            no_car_roads.push(start);
             continue;
         }
         let cell = floodfill(map, start, borders, &modal_filters);
@@ -163,7 +159,6 @@ fn find_cells(
             let mut cell = Cell {
                 roads: BTreeMap::new(),
                 borders: btreeset! { road.src_i },
-                car_free: false,
             };
             cell.roads.insert(
                 road.id,
@@ -178,7 +173,6 @@ fn find_cells(
             let mut cell = Cell {
                 roads: BTreeMap::new(),
                 borders: btreeset! { road.dst_i },
-                car_free: false,
             };
             cell.roads.insert(
                 road.id,
@@ -189,34 +183,6 @@ fn find_cells(
             );
             cells.push(cell);
         }
-    }
-
-    // Roads already banning cars should still contribute a cell, so the cell coloring can still
-    // account for them
-    //
-    // TODO Should we attempt to merge adjacent cells like this? If we have lots of tiny pieces of
-    // bike-only roads, they'll each get their own cell
-    for r in no_car_roads {
-        let mut cell = Cell {
-            roads: BTreeMap::new(),
-            borders: BTreeSet::new(),
-            car_free: true,
-        };
-        let road = map.get_r(r);
-        if borders.contains(&road.src_i) {
-            cell.borders.insert(road.src_i);
-        }
-        if borders.contains(&road.dst_i) {
-            cell.borders.insert(road.dst_i);
-        }
-        cell.roads.insert(
-            road.id,
-            DistanceInterval {
-                start: Distance::ZERO,
-                end: road.length(),
-            },
-        );
-        cells.push(cell);
     }
 
     cells
@@ -310,6 +276,5 @@ fn floodfill(
     Cell {
         roads: visited_roads,
         borders: cell_borders,
-        car_free: false,
     }
 }

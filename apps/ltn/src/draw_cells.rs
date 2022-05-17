@@ -138,11 +138,9 @@ impl RenderCellsBuilder {
         let adjacencies = diffusion(&mut grid, boundary_marker);
         let mut cell_colors = color_cells(neighborhood.cells.len(), adjacencies);
 
-        // Color car-free cells in a special way
+        // Color some special cells
         for (idx, cell) in neighborhood.cells.iter().enumerate() {
-            if cell.car_free {
-                cell_colors[idx] = colors::CAR_FREE_CELL;
-            } else if cell.is_disconnected() {
+            if cell.is_disconnected() {
                 cell_colors[idx] = colors::DISCONNECTED_CELL;
             }
         }
