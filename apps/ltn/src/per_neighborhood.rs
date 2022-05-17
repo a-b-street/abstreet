@@ -231,8 +231,9 @@ pub fn handle_world_outcome(
     match outcome {
         WorldOutcome::ClickedObject(FilterableObj::InteriorRoad(r)) => {
             let road = map.get_r(r);
-            // Filtering on a road that's already marked bike-only doesn't make sense
-            if !PathConstraints::Car.can_use_road(road, map) {
+            // Filtering a road that's already marked bike-only doesn't make sense. Likewise for
+            // one-ways.
+            if !PathConstraints::Car.can_use_road(road, map) || road.is_oneway() {
                 return true;
             }
 
