@@ -7,7 +7,9 @@ use serde::{Deserialize, Serialize};
 use abstutil::wraparound_get;
 use geom::{Polygon, Pt2D, Ring};
 
-use crate::{CommonEndpoint, Direction, LaneID, Map, RoadID, RoadSideID, SideOfRoad};
+use crate::{
+    CommonEndpoint, Direction, LaneID, Map, PathConstraints, RoadID, RoadSideID, SideOfRoad,
+};
 
 /// A block is defined by a perimeter that traces along the sides of roads. Inside the perimeter,
 /// the block may contain buildings and interior roads. In the simple case, a block represents a
@@ -120,15 +122,16 @@ impl Perimeter {
         perimeters
     }
 
-    /// Trying to form blocks near railways or cycleways that involve bridges/tunnels often causes
-    /// overlapping geometry or blocks that're way too large. These are extremely imperfect
-    /// heuristics to avoid the worst problems.
+    /// Blockfinding is specialized for the LTN tool, so non-driveable roads (cycleways and light
+    /// rail) are considered invisible and can't be on a perimeter. Previously, there were also
+    /// some heuristics here to try to skip certain bridges/tunnels that break the planarity of
+    /// blocks.
     pub fn find_roads_to_skip_tracing(map: &Map) -> HashSet<RoadID> {
         let mut skip = HashSet::new();
         for r in map.all_roads() {
             if r.is_light_rail() {
                 skip.insert(r.id);
-            } else if r.is_cycleway() && r.zorder != 0 {
+            } else if !PathConstraints::Car.can_use_road(r, map) {
                 skip.insert(r.id);
             }
         }
