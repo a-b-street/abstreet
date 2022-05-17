@@ -24,7 +24,7 @@ impl Viewer {
         let neighborhood = Neighborhood::new(ctx, app, id);
 
         let mut viewer = Viewer {
-            top_panel: crate::common::app_top_panel(ctx, app),
+            top_panel: crate::components::TopPanel::panel(ctx, app),
             left_panel: Panel::empty(ctx),
             neighborhood,
             world: World::unbounded(),
@@ -62,36 +62,7 @@ impl Viewer {
                     .text_widget(ctx),
                     warning.text_widget(ctx),
                     Toggle::checkbox(ctx, "Advanced features", None, app.opts.dev),
-                    if app.opts.dev {
-                        Widget::col(vec![
-                            Line("Advanced features").small_heading().into_widget(ctx),
-                            Widget::row(vec![
-                                "Draw traffic cells as".text_widget(ctx).centered_vert(),
-                                Toggle::choice(
-                                    ctx,
-                                    "draw cells",
-                                    "areas",
-                                    "streets",
-                                    Key::D,
-                                    app.session.draw_cells_as_areas,
-                                ),
-                            ]),
-                            ctx.style()
-                                .btn_outline
-                                .text("Automatically place filters")
-                                .hotkey(Key::A)
-                                .build_def(ctx),
-                            Widget::dropdown(
-                                ctx,
-                                "heuristic",
-                                app.session.heuristic,
-                                Heuristic::choices(),
-                            ),
-                        ])
-                        .section(ctx)
-                    } else {
-                        Widget::nothing()
-                    },
+                    advanced_panel(ctx, app),
                 ]),
             )
             .build(ctx);
@@ -104,7 +75,7 @@ impl Viewer {
 
 impl State<App> for Viewer {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        if let Some(t) = crate::common::handle_top_panel(ctx, app, &mut self.top_panel, help) {
+        if let Some(t) = crate::components::TopPanel::event(ctx, app, &mut self.top_panel, help) {
             return t;
         }
         match self.left_panel.event(ctx) {
@@ -340,4 +311,36 @@ fn help() -> Vec<&'static str> {
         "Hint: You can place filters at roads or intersections.",
         "Use the lasso tool to quickly sketch your idea.",
     ]
+}
+
+fn advanced_panel(ctx: &EventCtx, app: &App) -> Widget {
+    if !app.opts.dev {
+        return Widget::nothing();
+    }
+    Widget::col(vec![
+        Line("Advanced features").small_heading().into_widget(ctx),
+        Widget::row(vec![
+            "Draw traffic cells as".text_widget(ctx).centered_vert(),
+            Toggle::choice(
+                ctx,
+                "draw cells",
+                "areas",
+                "streets",
+                Key::D,
+                app.session.draw_cells_as_areas,
+            ),
+        ]),
+        ctx.style()
+            .btn_outline
+            .text("Automatically place filters")
+            .hotkey(Key::A)
+            .build_def(ctx),
+        Widget::dropdown(
+            ctx,
+            "heuristic",
+            app.session.heuristic,
+            Heuristic::choices(),
+        ),
+    ])
+    .section(ctx)
 }

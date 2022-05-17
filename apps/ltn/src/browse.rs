@@ -38,8 +38,8 @@ impl BrowseNeighborhoods {
                 )
             });
 
-        let top_panel = crate::common::app_top_panel(ctx, app);
-        let left_panel = crate::common::left_panel_builder(
+        let top_panel = crate::components::TopPanel::panel(ctx, app);
+        let left_panel = crate::components::LeftPanel::builder(
             ctx,
             &top_panel,
             Widget::col(vec![
@@ -50,54 +50,7 @@ impl BrowseNeighborhoods {
                     .hotkey(Key::R)
                     .build_def(ctx),
                 Toggle::checkbox(ctx, "Advanced features", None, app.opts.dev),
-                if app.opts.dev {
-                    Widget::col(vec![
-                        Line("Advanced features").small_heading().into_widget(ctx),
-                        Widget::col(vec![
-                            Widget::row(vec![
-                                "Draw neighborhoods:".text_widget(ctx).centered_vert(),
-                                Widget::dropdown(
-                                    ctx,
-                                    "style",
-                                    app.session.draw_neighborhood_style,
-                                    vec![
-                                        Choice::new("simple", Style::SimpleColoring),
-                                        Choice::new("cells", Style::Cells),
-                                        Choice::new("quietness", Style::Quietness),
-                                        Choice::new("all shortcuts", Style::Shortcuts),
-                                    ],
-                                ),
-                            ]),
-                            Toggle::checkbox(
-                                ctx,
-                                "highlight boundary roads",
-                                Key::H,
-                                app.session.highlight_boundary_roads,
-                            ),
-                        ])
-                        .section(ctx),
-                        Widget::col(vec![
-                            "Predict proposal impact".text_widget(ctx),
-                            impact_widget(ctx, app),
-                        ])
-                        .section(ctx),
-                        Widget::col(vec![
-                            ctx.style()
-                                .btn_outline
-                                .text("Automatically place filters")
-                                .build_def(ctx),
-                            Widget::dropdown(
-                                ctx,
-                                "heuristic",
-                                app.session.heuristic,
-                                Heuristic::choices(),
-                            ),
-                        ])
-                        .section(ctx),
-                    ])
-                } else {
-                    Widget::nothing()
-                },
+                advanced_panel(ctx, app),
             ]),
         )
         .build(ctx);
@@ -114,7 +67,7 @@ impl BrowseNeighborhoods {
 
 impl State<App> for BrowseNeighborhoods {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        if let Some(t) = crate::common::handle_top_panel(ctx, app, &mut self.top_panel, help) {
+        if let Some(t) = crate::components::TopPanel::event(ctx, app, &mut self.top_panel, help) {
             return t;
         }
         match self.left_panel.event(ctx) {
@@ -390,4 +343,54 @@ fn help() -> Vec<&'static str> {
         "",
         "Click a neighborhood to analyze it. You can adjust boundaries there.",
     ]
+}
+
+fn advanced_panel(ctx: &EventCtx, app: &App) -> Widget {
+    if !app.opts.dev {
+        return Widget::nothing();
+    }
+    Widget::col(vec![
+        Line("Advanced features").small_heading().into_widget(ctx),
+        Widget::col(vec![
+            Widget::row(vec![
+                "Draw neighborhoods:".text_widget(ctx).centered_vert(),
+                Widget::dropdown(
+                    ctx,
+                    "style",
+                    app.session.draw_neighborhood_style,
+                    vec![
+                        Choice::new("simple", Style::SimpleColoring),
+                        Choice::new("cells", Style::Cells),
+                        Choice::new("quietness", Style::Quietness),
+                        Choice::new("all shortcuts", Style::Shortcuts),
+                    ],
+                ),
+            ]),
+            Toggle::checkbox(
+                ctx,
+                "highlight boundary roads",
+                Key::H,
+                app.session.highlight_boundary_roads,
+            ),
+        ])
+        .section(ctx),
+        Widget::col(vec![
+            "Predict proposal impact".text_widget(ctx),
+            impact_widget(ctx, app),
+        ])
+        .section(ctx),
+        Widget::col(vec![
+            ctx.style()
+                .btn_outline
+                .text("Automatically place filters")
+                .build_def(ctx),
+            Widget::dropdown(
+                ctx,
+                "heuristic",
+                app.session.heuristic,
+                Heuristic::choices(),
+            ),
+        ])
+        .section(ctx),
+    ])
 }

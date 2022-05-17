@@ -43,7 +43,7 @@ impl TripManagementState<App> for RoutePlanner {
 impl RoutePlanner {
     pub fn new_state(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
         let mut rp = RoutePlanner {
-            top_panel: crate::common::app_top_panel(ctx, app),
+            top_panel: crate::components::TopPanel::panel(ctx, app),
             left_panel: Panel::empty(ctx),
             waypoints: InputWaypoints::new_max_2(app),
             files: TripManagement::new(app),
@@ -102,7 +102,7 @@ impl RoutePlanner {
             .section(ctx),
             results_widget.section(ctx),
         ]);
-        let mut panel = crate::common::left_panel_builder(ctx, &self.top_panel, contents)
+        let mut panel = crate::components::LeftPanel::builder(ctx, &self.top_panel, contents)
             // Hovering on waypoint cards
             .ignore_initial_events()
             .build(ctx);
@@ -278,7 +278,7 @@ impl RoutePlanner {
 
 impl State<App> for RoutePlanner {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        if let Some(t) = crate::common::handle_top_panel(ctx, app, &mut self.top_panel, help) {
+        if let Some(t) = crate::components::TopPanel::event(ctx, app, &mut self.top_panel, help) {
             return t;
         }
 

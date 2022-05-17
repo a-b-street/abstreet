@@ -33,7 +33,7 @@ impl BrowseShortcuts {
         let world = crate::per_neighborhood::make_world(ctx, app, &neighborhood, &shortcuts);
 
         let mut state = BrowseShortcuts {
-            top_panel: crate::common::app_top_panel(ctx, app),
+            top_panel: crate::components::TopPanel::panel(ctx, app),
             left_panel: Panel::empty(ctx),
             shortcuts,
             current_idx: 0,
@@ -160,7 +160,7 @@ impl BrowseShortcuts {
 
 impl State<App> for BrowseShortcuts {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        if let Some(t) = crate::common::handle_top_panel(ctx, app, &mut self.top_panel, help) {
+        if let Some(t) = crate::components::TopPanel::event(ctx, app, &mut self.top_panel, help) {
             return t;
         }
         match self.left_panel.event(ctx) {

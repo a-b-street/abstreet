@@ -65,8 +65,9 @@ impl ShowResults {
             app.session.impact.compare_counts.get_panel_widget(ctx).named("compare counts"),
             ctx.style().btn_outline.text("Save before/after counts to files").build_def(ctx),
         ]);
-        let top_panel = crate::common::app_top_panel(ctx, app);
-        let left_panel = crate::common::left_panel_builder(ctx, &top_panel, contents).build(ctx);
+        let top_panel = crate::components::TopPanel::panel(ctx, app);
+        let left_panel =
+            crate::components::LeftPanel::builder(ctx, &top_panel, contents).build(ctx);
 
         Box::new(Self {
             top_panel,
@@ -76,7 +77,7 @@ impl ShowResults {
 }
 impl State<App> for ShowResults {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        if let Some(t) = crate::common::handle_top_panel(ctx, app, &mut self.top_panel, help) {
+        if let Some(t) = crate::components::TopPanel::event(ctx, app, &mut self.top_panel, help) {
             return t;
         }
         match self.left_panel.event(ctx) {

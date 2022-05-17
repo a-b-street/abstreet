@@ -36,7 +36,7 @@ pub struct SelectBoundary {
 
 impl SelectBoundary {
     pub fn new_state(ctx: &mut EventCtx, app: &App, id: NeighborhoodID) -> Box<dyn State<App>> {
-        let top_panel = crate::common::app_top_panel(ctx, app);
+        let top_panel = crate::components::TopPanel::panel(ctx, app);
         let left_panel = make_panel(ctx, app, id, &top_panel);
         let mut state = SelectBoundary {
             top_panel,
@@ -258,7 +258,7 @@ impl State<App> for SelectBoundary {
             return Transition::Keep;
         }
 
-        if let Some(t) = crate::common::handle_top_panel(ctx, app, &mut self.top_panel, help) {
+        if let Some(t) = crate::components::TopPanel::event(ctx, app, &mut self.top_panel, help) {
             return t;
         }
         if let Outcome::Clicked(x) = self.left_panel.event(ctx) {
@@ -324,7 +324,7 @@ impl State<App> for SelectBoundary {
 }
 
 fn make_panel(ctx: &mut EventCtx, app: &App, id: NeighborhoodID, top_panel: &Panel) -> Panel {
-    crate::common::left_panel_builder(
+    crate::components::LeftPanel::builder(
         ctx,
         top_panel,
         Widget::col(vec![
@@ -377,7 +377,7 @@ fn make_panel(ctx: &mut EventCtx, app: &App, id: NeighborhoodID, top_panel: &Pan
 }
 
 fn make_panel_for_lasso(ctx: &mut EventCtx, top_panel: &Panel) -> Panel {
-    crate::common::left_panel_builder(
+    crate::components::LeftPanel::builder(
         ctx,
         top_panel,
         Widget::col(vec![
