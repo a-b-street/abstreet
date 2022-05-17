@@ -1,6 +1,6 @@
 use map_gui::tools::grey_out_map;
 use widgetry::tools::open_browser;
-use widgetry::{EventCtx, GfxCtx, Line, Panel, SimpleState, State, TextExt, Widget};
+use widgetry::{EventCtx, GfxCtx, Line, Panel, SimpleState, State, Text, Widget};
 
 use crate::{App, Transition};
 
@@ -13,9 +13,13 @@ impl About {
                 Line("About the LTN tool").small_heading().into_widget(ctx),
                 ctx.style().btn_close_widget(ctx),
             ]),
-            "Created by Dustin Carlino & Cindy Huang".text_widget(ctx),
-            "Data from OpenStreetMap".text_widget(ctx),
-            "See below for full credits and more info".text_widget(ctx),
+            Text::from_multiline(vec![
+                Line("Created by Dustin Carlino, Cindy Huang, and Jennifer Ding"),
+                Line("Developed at the Alan Turing Institute"),
+                Line("Data from OpenStreetMap"),
+                Line("See below for full credits and more info"),
+            ])
+            .into_widget(ctx),
             ctx.style()
                 .btn_outline
                 .text("ltn.abstreet.org")

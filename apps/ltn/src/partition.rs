@@ -13,7 +13,7 @@ use crate::{colors, App};
 
 /// An opaque ID, won't be contiguous as we adjust boundaries
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
-pub struct NeighborhoodID(usize);
+pub struct NeighborhoodID(pub usize);
 
 /// Identifies a single / unmerged block, which never changes
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]

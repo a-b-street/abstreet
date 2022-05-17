@@ -11,25 +11,35 @@ pub struct TopPanel;
 
 impl TopPanel {
     pub fn panel(ctx: &mut EventCtx, app: &App) -> Panel {
+        let consultation = app.session.consultation.is_some();
+
         Panel::new_builder(
             Widget::row(vec![
                 map_gui::tools::home_btn(ctx),
-                Line("Low traffic neighborhoods")
-                    .small_heading()
-                    .into_widget(ctx)
-                    .centered_vert(),
+                Line(if consultation {
+                    "East Bristol Liveable Neighbourhood"
+                } else {
+                    "Low traffic neighborhoods"
+                })
+                .small_heading()
+                .into_widget(ctx)
+                .centered_vert(),
                 ctx.style()
                     .btn_plain
                     .icon("system/assets/tools/info.svg")
                     .build_widget(ctx, "about this tool")
-                    .centered_vert(),
-                map_gui::tools::change_map_btn(ctx, app).centered_vert(),
+                    .centered_vert()
+                    .hide(consultation),
+                map_gui::tools::change_map_btn(ctx, app)
+                    .centered_vert()
+                    .hide(consultation),
                 Widget::row(vec![
                     ctx.style()
                         .btn_plain
                         .text("Export to GeoJSON")
                         .build_def(ctx)
-                        .centered_vert(),
+                        .centered_vert()
+                        .hide(consultation),
                     ctx.style()
                         .btn_plain
                         .icon("system/assets/tools/search.svg")
@@ -64,14 +74,20 @@ impl TopPanel {
     ) -> Option<Transition> {
         if let Outcome::Clicked(x) = panel.event(ctx) {
             match x.as_ref() {
-                "Home" => Some(Transition::Clear(vec![
-                    map_gui::tools::TitleScreen::new_state(
-                        ctx,
-                        app,
-                        map_gui::tools::Executable::LTN,
-                        Box::new(|ctx, app, _| BrowseNeighborhoods::new_state(ctx, app)),
-                    ),
-                ])),
+                "Home" => {
+                    if app.session.consultation.is_none() {
+                        Some(Transition::Clear(vec![
+                            map_gui::tools::TitleScreen::new_state(
+                                ctx,
+                                app,
+                                map_gui::tools::Executable::LTN,
+                                Box::new(|ctx, app, _| BrowseNeighborhoods::new_state(ctx, app)),
+                            ),
+                        ]))
+                    } else {
+                        Some(Transition::Push(super::about::About::new_state(ctx)))
+                    }
+                }
                 "change map" => Some(Transition::Push(map_gui::tools::CityPicker::new_state(
                     ctx,
                     app,

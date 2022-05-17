@@ -398,6 +398,16 @@ impl Widget {
         self.id = Some(id.into());
         self
     }
+
+    /// If the argument is true, don't actually create this widget. May be more readable than an
+    /// if/else block.
+    pub fn hide(self, x: bool) -> Widget {
+        if x {
+            Widget::nothing()
+        } else {
+            self
+        }
+    }
 }
 
 // Convenient?? constructors

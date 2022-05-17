@@ -47,10 +47,7 @@ impl ShowResults {
         }
 
         let contents = Widget::col(vec![
-            ctx.style()
-                .btn_back("Browse neighborhoods")
-                .hotkey(Key::Escape)
-                .build_def(ctx),
+            BrowseNeighborhoods::button(ctx, app),
             Line("Impact prediction").small_heading().into_widget(ctx),
             Text::from(Line("This tool starts with a travel demand model, calculates the route every trip takes before and after changes, and displays volumes along roads")).wrap_to_pct(ctx, 20).into_widget(ctx),
             Text::from_all(vec![

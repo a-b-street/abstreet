@@ -44,11 +44,7 @@ impl BrowseNeighborhoods {
             &top_panel,
             Widget::col(vec![
                 app.session.alt_proposals.to_widget(ctx, app),
-                ctx.style()
-                    .btn_outline
-                    .text("Plan a route")
-                    .hotkey(Key::R)
-                    .build_def(ctx),
+                crate::route_planner::RoutePlanner::button(ctx),
                 Toggle::checkbox(ctx, "Advanced features", None, app.opts.dev),
                 advanced_panel(ctx, app),
             ]),
@@ -62,6 +58,14 @@ impl BrowseNeighborhoods {
             labels: DrawRoadLabels::only_major_roads().light_background(),
             draw_boundary_roads: draw_boundary_roads(ctx, app),
         })
+    }
+
+    pub fn button(ctx: &EventCtx, app: &App) -> Widget {
+        ctx.style()
+            .btn_back("Browse neighborhoods")
+            .hotkey(Key::Escape)
+            .build_def(ctx)
+            .hide(app.session.consultation.is_some())
     }
 }
 

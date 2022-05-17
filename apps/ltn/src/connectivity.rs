@@ -61,7 +61,6 @@ impl Viewer {
                     )
                     .text_widget(ctx),
                     warning.text_widget(ctx),
-                    Toggle::checkbox(ctx, "Advanced features", None, app.opts.dev),
                     advanced_panel(ctx, app),
                 ]),
             )
@@ -304,7 +303,6 @@ fn make_world(
 fn help() -> Vec<&'static str> {
     vec![
         "The colored cells show where it's possible to drive without leaving the neighborhood.",
-        "Green cells don't allow car-traffic.",
         "",
         "The darker red roads have more predicted shortcutting traffic.",
         "",
@@ -314,10 +312,14 @@ fn help() -> Vec<&'static str> {
 }
 
 fn advanced_panel(ctx: &EventCtx, app: &App) -> Widget {
-    if !app.opts.dev {
+    if app.session.consultation.is_some() {
         return Widget::nothing();
     }
+    if !app.opts.dev {
+        return Toggle::checkbox(ctx, "Advanced features", None, app.opts.dev);
+    }
     Widget::col(vec![
+        Toggle::checkbox(ctx, "Advanced features", None, app.opts.dev),
         Line("Advanced features").small_heading().into_widget(ctx),
         Widget::row(vec![
             "Draw traffic cells as".text_widget(ctx).centered_vert(),
