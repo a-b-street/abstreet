@@ -271,6 +271,7 @@
 <span id="266">266</span>
 <span id="267">267</span>
 <span id="268">268</span>
+<span id="269">269</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom::Distance</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">PathConstraints</span>, <span class="ident">RoadID</span>};
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ObjectID</span>, <span class="ident">World</span>, <span class="ident">WorldOutcome</span>};
@@ -504,8 +505,9 @@
     <span class="kw">match</span> <span class="ident">outcome</span> {
         <span class="ident">WorldOutcome::ClickedObject</span>(<span class="ident">FilterableObj::InteriorRoad</span>(<span class="ident">r</span>)) =&gt; {
             <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>);
-            <span class="comment">// Filtering on a road that&#39;s already marked bike-only doesn&#39;t make sense</span>
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">PathConstraints::Car</span>.<span class="ident">can_use_road</span>(<span class="ident">road</span>, <span class="ident">map</span>) {
+            <span class="comment">// Filtering a road that&#39;s already marked bike-only doesn&#39;t make sense. Likewise for</span>
+            <span class="comment">// one-ways.</span>
+            <span class="kw">if</span> <span class="op">!</span><span class="ident">PathConstraints::Car</span>.<span class="ident">can_use_road</span>(<span class="ident">road</span>, <span class="ident">map</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">road</span>.<span class="ident">is_oneway</span>() {
                 <span class="kw">return</span> <span class="bool-val">true</span>;
             }
 
