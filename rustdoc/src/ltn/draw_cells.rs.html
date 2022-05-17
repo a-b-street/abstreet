@@ -301,8 +301,6 @@
 <span id="296">296</span>
 <span id="297">297</span>
 <span id="298">298</span>
-<span id="299">299</span>
-<span id="300">300</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">Polygon</span>};
@@ -443,11 +441,9 @@
         <span class="kw">let</span> <span class="ident">adjacencies</span> <span class="op">=</span> <span class="ident">diffusion</span>(<span class="kw-2">&amp;mut</span> <span class="ident">grid</span>, <span class="ident">boundary_marker</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cell_colors</span> <span class="op">=</span> <span class="ident">color_cells</span>(<span class="ident">neighborhood</span>.<span class="ident">cells</span>.<span class="ident">len</span>(), <span class="ident">adjacencies</span>);
 
-        <span class="comment">// Color car-free cells in a special way</span>
+        <span class="comment">// Color some special cells</span>
         <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">cell</span>) <span class="kw">in</span> <span class="ident">neighborhood</span>.<span class="ident">cells</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-            <span class="kw">if</span> <span class="ident">cell</span>.<span class="ident">car_free</span> {
-                <span class="ident">cell_colors</span>[<span class="ident">idx</span>] <span class="op">=</span> <span class="ident">colors::CAR_FREE_CELL</span>;
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">cell</span>.<span class="ident">is_disconnected</span>() {
+            <span class="kw">if</span> <span class="ident">cell</span>.<span class="ident">is_disconnected</span>() {
                 <span class="ident">cell_colors</span>[<span class="ident">idx</span>] <span class="op">=</span> <span class="ident">colors::DISCONNECTED_CELL</span>;
             }
         }
