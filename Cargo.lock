@@ -23,12 +23,14 @@ dependencies = [
  "futures-channel",
  "include_dir",
  "instant",
+ "js-sys",
  "lazy_static",
  "log",
  "reqwest",
  "serde",
  "serde_json",
  "tokio",
+ "wasm-bindgen",
  "web-sys",
 ]
 
@@ -2101,12 +2103,10 @@ dependencies = [
  "anyhow",
  "contour",
  "flate2",
- "fs-err",
  "geo",
  "geojson",
  "geom",
  "getrandom",
- "js-sys",
  "lazy_static",
  "log",
  "map_gui",
@@ -2119,7 +2119,6 @@ dependencies = [
  "structopt",
  "synthpop",
  "wasm-bindgen",
- "web-sys",
  "widgetry",
 ]
 
@@ -3508,7 +3507,6 @@ dependencies = [
  "ctrlc",
  "downcast-rs",
  "enum_dispatch",
- "fs-err",
  "geom",
  "instant",
  "libm 0.2.1",

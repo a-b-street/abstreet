@@ -234,11 +234,7 @@ impl Throughput {
             )
             .flex_wrap(ctx, Percent::int(20)),
             ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["0", "highest"]),
-            if cfg!(not(target_arch = "wasm32")) {
-                ctx.style().btn_plain.text("Export to CSV").build_def(ctx)
-            } else {
-                Widget::nothing()
-            },
+            ctx.style().btn_plain.text("Export to CSV").build_def(ctx),
         ]))
         .aligned_pair(PANEL_PLACEMENT)
         .build(ctx);
@@ -758,22 +754,28 @@ fn export_throughput(app: &App) -> Result<(String, String)> {
         app.primary.map.get_name().as_filename(),
         app.primary.sim.time().as_filename()
     );
-    app.primary
-        .sim
-        .get_analytics()
-        .road_thruput
-        .export_csv(&path1, |id| id.0)?;
+    let path1 = abstio::write_file(
+        path1,
+        app.primary
+            .sim
+            .get_analytics()
+            .road_thruput
+            .export_csv(|id| id.0),
+    )?;
 
     let path2 = format!(
         "intersection_throughput_{}_{}.csv",
         app.primary.map.get_name().as_filename(),
         app.primary.sim.time().as_filename()
     );
-    app.primary
-        .sim
-        .get_analytics()
-        .intersection_thruput
-        .export_csv(&path2, |id| id.0)?;
+    let path2 = abstio::write_file(
+        path2,
+        app.primary
+            .sim
+            .get_analytics()
+            .intersection_thruput
+            .export_csv(|id| id.0),
+    )?;
 
     Ok((path1, path2))
 }

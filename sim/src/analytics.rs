@@ -1,8 +1,6 @@
 use std::collections::{BTreeMap, BTreeSet, VecDeque};
-use std::io::Write;
+use std::fmt::Write;
 
-use anyhow::Result;
-use fs_err::File;
 use serde::{Deserialize, Serialize};
 
 use abstutil::Counter;
@@ -834,13 +832,22 @@ impl<X: Ord + Clone> TimeSeriesCount<X> {
         pts_per_type.into_iter().collect()
     }
 
-    pub fn export_csv<F: Fn(&X) -> usize>(&self, path: &str, extract_id: F) -> Result<()> {
-        let mut f = File::create(path)?;
-        writeln!(f, "id,agent_type,hour,count")?;
+    /// Returns the contents of a CSV file
+    pub fn export_csv<F: Fn(&X) -> usize>(&self, extract_id: F) -> String {
+        let mut out = String::new();
+        writeln!(out, "id,agent_type,hour,count").unwrap();
         for ((id, agent_type, hour), count) in &self.counts {
-            writeln!(f, "{},{:?},{},{}", extract_id(id), agent_type, hour, count)?;
+            writeln!(
+                out,
+                "{},{:?},{},{}",
+                extract_id(id),
+                agent_type,
+                hour,
+                count
+            )
+            .unwrap();
         }
-        Ok(())
+        out
     }
 }
 

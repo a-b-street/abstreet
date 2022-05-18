@@ -9,39 +9,7 @@ use crate::{App, Neighborhood};
 pub fn write_geojson_file(ctx: &EventCtx, app: &App) -> Result<String> {
     let contents = geojson_string(ctx, app)?;
     let path = format!("ltn_{}.geojson", app.map.get_name().map);
-
-    // TODO Refactor into map_gui or abstio and handle errors better
-    #[cfg(target_arch = "wasm32")]
-    {
-        use wasm_bindgen::JsCast;
-
-        let data: String = js_sys::JsString::from("data:text/json;charset=utf-8,")
-            .concat(&js_sys::encode_uri_component(&contents))
-            .into();
-
-        let window = web_sys::window().unwrap();
-        let document = window.document().unwrap();
-        let node = document
-            .create_element("a")
-            .unwrap()
-            .dyn_into::<web_sys::HtmlElement>()
-            .unwrap();
-        node.set_attribute("href", &data).unwrap();
-        node.set_attribute("download", &path).unwrap();
-        document.body().unwrap().append_child(&node).unwrap();
-        node.click();
-        node.remove();
-    }
-
-    #[cfg(not(target_arch = "wasm32"))]
-    {
-        use std::io::Write;
-
-        let mut file = fs_err::File::create(&path)?;
-        write!(file, "{}", contents)?;
-    }
-
-    Ok(path)
+    abstio::write_file(path, contents)
 }
 
 fn geojson_string(ctx: &EventCtx, app: &App) -> Result<String> {

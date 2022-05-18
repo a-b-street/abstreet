@@ -1,8 +1,7 @@
 use std::collections::BTreeSet;
-use std::io::Write;
+use std::fmt::Write;
 
 use anyhow::Result;
-use fs_err::File;
 
 use abstutil::prettyprint_usize;
 use geom::{Distance, Duration, Polygon, Pt2D};
@@ -42,16 +41,13 @@ impl TravelTimes {
             ));
         }
 
-        // TODO We can make file downloads of dynamically generated data work on the browser too...
-        if cfg!(not(target_arch = "wasm32")) {
-            filters.push(
-                ctx.style()
-                    .btn_plain
-                    .text("Export to CSV")
-                    .build_def(ctx)
-                    .align_bottom(),
-            );
-        }
+        filters.push(
+            ctx.style()
+                .btn_plain
+                .text("Export to CSV")
+                .build_def(ctx)
+                .align_bottom(),
+        );
 
         Panel::new_builder(Widget::col(vec![
             DashTab::TravelTimes.picker(ctx, app),
@@ -645,8 +641,8 @@ fn export_times(app: &App) -> Result<String> {
         app.primary.map.get_name().as_filename(),
         app.primary.sim.time().as_filename()
     );
-    let mut f = File::create(&path)?;
-    writeln!(f, "id,mode,seconds_before,seconds_after")?;
+    let mut out = String::new();
+    writeln!(out, "id,mode,seconds_before,seconds_after")?;
     for (id, b, a, mode) in app
         .primary
         .sim
@@ -654,7 +650,7 @@ fn export_times(app: &App) -> Result<String> {
         .both_finished_trips(app.primary.sim.time(), app.prebaked())
     {
         writeln!(
-            f,
+            out,
             "{},{:?},{},{}",
             id.0,
             mode,
@@ -662,5 +658,5 @@ fn export_times(app: &App) -> Result<String> {
             a.inner_seconds()
         )?;
     }
-    Ok(path)
+    abstio::write_file(path, out)
 }

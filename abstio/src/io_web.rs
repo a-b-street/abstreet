@@ -179,3 +179,29 @@ fn list_local_storage_keys() -> Vec<String> {
     }
     keys
 }
+
+/// Returns path on success
+pub fn write_file(path: String, contents: String) -> Result<String> {
+    // Make the browser prompt the user to save a local file with arbitrary contents.
+    use wasm_bindgen::JsCast;
+
+    let data: String = js_sys::JsString::from("data:text/json;charset=utf-8,")
+        .concat(&js_sys::encode_uri_component(&contents))
+        .into();
+
+    // TODO Proper error handling
+    let window = web_sys::window().unwrap();
+    let document = window.document().unwrap();
+    let node = document
+        .create_element("a")
+        .unwrap()
+        .dyn_into::<web_sys::HtmlElement>()
+        .unwrap();
+    node.set_attribute("href", &data).unwrap();
+    node.set_attribute("download", &path).unwrap();
+    document.body().unwrap().append_child(&node).unwrap();
+    node.click();
+    node.remove();
+
+    Ok(path)
+}

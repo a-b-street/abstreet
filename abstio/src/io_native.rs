@@ -198,3 +198,10 @@ impl Read for FileWithProgress {
         Ok(bytes)
     }
 }
+
+/// Returns path on success
+pub fn write_file(path: String, contents: String) -> Result<String> {
+    let mut file = File::create(&path)?;
+    write!(file, "{}", contents)?;
+    Ok(path)
+}

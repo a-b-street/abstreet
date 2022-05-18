@@ -1,8 +1,7 @@
 use std::collections::BTreeSet;
-use std::io::Write;
+use std::fmt::Write;
 
 use anyhow::Result;
-use fs_err::File;
 
 use abstutil::prettyprint_usize;
 use sim::{ProblemType, TripID};
@@ -207,9 +206,9 @@ fn export_problems(app: &App) -> Result<String> {
         app.primary.map.get_name().as_filename(),
         app.primary.sim.time().as_filename()
     );
-    let mut f = File::create(&path)?;
+    let mut out = String::new();
     writeln!(
-        f,
+        out,
         "id,mode,seconds_after,problem_type,problems_before,problems_after"
     )?;
 
@@ -225,7 +224,7 @@ fn export_problems(app: &App) -> Result<String> {
                 problem_type.count(after.problems_per_trip.get(&id).unwrap_or(&empty));
             if count_before != 0 || count_after != 0 {
                 writeln!(
-                    f,
+                    out,
                     "{},{:?},{},{:?},{},{}",
                     id.0,
                     mode,
@@ -238,5 +237,5 @@ fn export_problems(app: &App) -> Result<String> {
         }
     }
 
-    Ok(path)
+    abstio::write_file(path, out)
 }
