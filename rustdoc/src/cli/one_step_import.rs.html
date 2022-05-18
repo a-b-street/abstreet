@@ -110,7 +110,7 @@
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">run</span>(
     <span class="ident">geojson_path</span>: <span class="ident">String</span>,
     <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="ident">drive_on_left</span>: <span class="ident">bool</span>,
+    <span class="ident">driving_side</span>: <span class="ident">map_model::DrivingSide</span>,
     <span class="ident">use_geofabrik</span>: <span class="ident">bool</span>,
     <span class="ident">filter_crosswalks</span>: <span class="ident">bool</span>,
     <span class="ident">create_uk_travel_demand_model</span>: <span class="ident">bool</span>,
@@ -184,7 +184,7 @@
     <span class="ident">importer::oneshot</span>(
         <span class="ident">osm</span>,
         <span class="prelude-val">Some</span>(<span class="string">&quot;boundary0.poly&quot;</span>.<span class="ident">to_string</span>()),
-        <span class="op">!</span><span class="ident">drive_on_left</span>,
+        <span class="ident">driving_side</span>,
         <span class="ident">filter_crosswalks</span>,
         <span class="ident">create_uk_travel_demand_model</span>,
         <span class="ident">map_model::RawToMapOptions::default</span>(),

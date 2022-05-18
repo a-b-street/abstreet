@@ -372,10 +372,6 @@
 <span id="367">367</span>
 <span id="368">368</span>
 <span id="369">369</span>
-<span id="370">370</span>
-<span id="371">371</span>
-<span id="372">372</span>
-<span id="373">373</span>
 </pre><pre class="rust"><code><span class="doccomment">//! It&#39;s assumed that the importer is run with the current directory as the project repository; aka</span>
 <span class="doccomment">//! `./data/` and `./importer/config` must exist.</span>
 
@@ -428,7 +424,7 @@
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">oneshot</span>(
     <span class="ident">osm_path</span>: <span class="ident">String</span>,
     <span class="ident">clip</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="ident">drive_on_right</span>: <span class="ident">bool</span>,
+    <span class="ident">driving_side</span>: <span class="ident">map_model::DrivingSide</span>,
     <span class="ident">filter_crosswalks</span>: <span class="ident">bool</span>,
     <span class="ident">create_uk_travel_demand_model</span>: <span class="ident">bool</span>,
     <span class="ident">opts</span>: <span class="ident">RawToMapOptions</span>,
@@ -442,11 +438,7 @@
         <span class="ident">clip</span>,
         <span class="ident">convert_osm::Options</span> {
             <span class="ident">map_config</span>: <span class="ident">map_model::MapConfig</span> {
-                <span class="ident">driving_side</span>: <span class="kw">if</span> <span class="ident">drive_on_right</span> {
-                    <span class="ident">map_model::DrivingSide::Right</span>
-                } <span class="kw">else</span> {
-                    <span class="ident">map_model::DrivingSide::Left</span>
-                },
+                <span class="ident">driving_side</span>,
                 <span class="ident">bikes_can_use_bus_lanes</span>: <span class="bool-val">true</span>,
                 <span class="ident">inferred_sidewalks</span>: <span class="bool-val">true</span>,
                 <span class="ident">street_parking_spot_length</span>: <span class="ident">Distance::meters</span>(<span class="number">8.0</span>),
