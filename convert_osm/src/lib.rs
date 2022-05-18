@@ -87,6 +87,9 @@ pub fn convert(
     timer: &mut Timer,
 ) -> RawMap {
     let mut map = RawMap::blank(name);
+    // Do this early. Calculating RawRoads uses DrivingSide, for example!
+    map.config = opts.map_config.clone();
+
     if let Some(ref path) = clip_path {
         let pts = LonLat::read_osmosis_polygon(path).unwrap();
         let gps_bounds = GPSBounds::from(pts.clone());
@@ -130,7 +133,6 @@ pub fn convert(
         gtfs::import(&mut map).unwrap();
     }
 
-    map.config = opts.map_config;
     map
 }
 
