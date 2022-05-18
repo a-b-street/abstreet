@@ -631,19 +631,19 @@
       "compressed_size_bytes": 729363
     },
     "data/input/gb/bristol/osm/bristol-latest.osm.pbf": {
-      "checksum": "2e9bdac709c4013a9caee88bb43cba76",
-      "uncompressed_size_bytes": 32184754,
-      "compressed_size_bytes": 32164722
+      "checksum": "7d5fa6d50e0500272e2cd700a3efef86",
+      "uncompressed_size_bytes": 15305931,
+      "compressed_size_bytes": 15292865
     },
     "data/input/gb/bristol/osm/east.osm": {
-      "checksum": "ae4b32b96157d9c5dc30402aaa8c6c6c",
-      "uncompressed_size_bytes": 49287905,
-      "compressed_size_bytes": 4417389
+      "checksum": "988da2f8ec305f8ad00fca0611c49b9e",
+      "uncompressed_size_bytes": 50791320,
+      "compressed_size_bytes": 4518353
     },
     "data/input/gb/bristol/raw_maps/east.bin": {
-      "checksum": "db7ea7af0957486fa7ce50e68acf703b",
-      "uncompressed_size_bytes": 16091420,
-      "compressed_size_bytes": 2798980
+      "checksum": "e9f59db8c9032d3e27923b7faa9fa4e2",
+      "uncompressed_size_bytes": 16796721,
+      "compressed_size_bytes": 2868359
     },
     "data/input/gb/cambridge/osm/cambridgeshire-latest.osm.pbf": {
       "checksum": "fc78b2ebc96bfcd24d5117926c7b9e87",
@@ -3516,14 +3516,14 @@
       "compressed_size_bytes": 2279623
     },
     "data/system/gb/bristol/maps/east.bin": {
-      "checksum": "5207c49732c2befbccfd03b76082568a",
-      "uncompressed_size_bytes": 27907829,
-      "compressed_size_bytes": 10404900
+      "checksum": "a090b9d67cc8fba7c21469cfa98a493b",
+      "uncompressed_size_bytes": 28227496,
+      "compressed_size_bytes": 10509198
     },
     "data/system/gb/bristol/scenarios/east/background.bin": {
-      "checksum": "4ddbfea1f3411ee56beaf191e7708f66",
-      "uncompressed_size_bytes": 8043532,
-      "compressed_size_bytes": 2082337
+      "checksum": "b64e6ae882c611f3237eb843ce068413",
+      "uncompressed_size_bytes": 8044774,
+      "compressed_size_bytes": 2083554
     },
     "data/system/gb/cambridge/maps/north.bin": {
       "checksum": "84ffaeec884c2e93340a4992ae9d155c",
