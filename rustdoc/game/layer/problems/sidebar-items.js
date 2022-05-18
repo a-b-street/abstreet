@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["make_controls",""]],"struct":[["Options",""],["ProblemMap",""]]});
+initSidebarItems({"fn":[["export_raw_problems",""],["make_controls",""]],"struct":[["Options",""],["ProblemMap",""]]});
