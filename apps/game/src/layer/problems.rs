@@ -1,13 +1,19 @@
 use std::collections::BTreeSet;
+use std::fmt::Write;
+
+use anyhow::Result;
 
 use abstutil::prettyprint_usize;
 use geom::{Circle, Distance, Pt2D, Time};
 use map_gui::tools::{checkbox_per_mode, make_heatmap, HeatmapOptions};
-use sim::{Problem, TripInfo};
+use map_model::Traversable;
+use sim::{Problem, ProblemType, TripInfo};
 use synthpop::TripMode;
 use widgetry::mapspace::ToggleZoomed;
+use widgetry::tools::PopupMsg;
 use widgetry::{
-    Color, EventCtx, GfxCtx, Line, Outcome, Panel, PanelDims, Slider, Text, TextExt, Toggle, Widget,
+    Color, EventCtx, GfxCtx, Line, Outcome, Panel, PanelDims, Slider, Text, TextExt, Toggle,
+    Transition, Widget,
 };
 
 use super::problems_diff::ProblemTypes;
@@ -36,6 +42,20 @@ impl Layer for ProblemMap {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Some(LayerOutcome::Close);
+                }
+                "Export to CSV" => {
+                    return Some(LayerOutcome::Transition(Transition::Push(
+                        match export_raw_problems(app) {
+                            Ok(path) => PopupMsg::new_state(
+                                ctx,
+                                "Data exported",
+                                vec![format!("Data exported to {path}")],
+                            ),
+                            Err(err) => {
+                                PopupMsg::new_state(ctx, "Export failed", vec![err.to_string()])
+                            }
+                        },
+                    )));
                 }
                 _ => unreachable!(),
             },
@@ -212,6 +232,7 @@ fn make_controls(
         col.push(Line("Heatmap Options").small_heading().into_widget(ctx));
         col.extend(o.to_controls(ctx, legend.unwrap()));
     }
+    col.push(ctx.style().btn_plain.text("Export to CSV").build_def(ctx));
 
     Panel::new_builder(Widget::col(col))
         .aligned_pair(PANEL_PLACEMENT)
@@ -221,4 +242,42 @@ fn make_controls(
         // Outcome::Changed(time1) happens?
         .ignore_initial_events()
         .build(ctx)
+}
+
+fn export_raw_problems(app: &App) -> Result<String> {
+    let map = &app.primary.map;
+    let path = format!(
+        "problems_{}_{}.csv",
+        map.get_name().as_filename(),
+        app.primary.sim.time().as_filename()
+    );
+    let mut out = String::new();
+    writeln!(out, "trip_id,time,problem_type,longitude,latitude,osm_url")?;
+    for (trip, problems) in &app.primary.sim.get_analytics().problems_per_trip {
+        for (time, problem) in problems {
+            let pt = problem.point(map).to_gps(map.get_gps_bounds());
+            let osm_url = match problem {
+                Problem::IntersectionDelay(i, _) | Problem::ComplexIntersectionCrossing(i) => {
+                    map.get_i(*i).orig_id.to_string()
+                }
+                Problem::OvertakeDesired(on) | Problem::PedestrianOvercrowding(on) => match on {
+                    Traversable::Lane(l) => map.get_r(l.road).orig_id.to_string(),
+                    Traversable::Turn(t) => map.get_i(t.parent).orig_id.to_string(),
+                },
+                Problem::ArterialIntersectionCrossing(t) => map.get_i(t.parent).orig_id.to_string(),
+            };
+            writeln!(
+                out,
+                "{},{},{:?},{},{},{}",
+                trip.0,
+                time.inner_seconds(),
+                ProblemType::from(problem),
+                pt.x(),
+                pt.y(),
+                osm_url,
+            )?;
+        }
+    }
+
+    abstio::write_file(path, out)
 }
