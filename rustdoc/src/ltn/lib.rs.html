@@ -328,7 +328,7 @@
                         <span class="macro">panic!</span>(<span class="string">&quot;Consultation mode not supported on this map&quot;</span>);
                     }
                     <span class="comment">// TODO Don&#39;t hardcode</span>
-                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">consultation</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">NeighborhoodID</span>(<span class="number">33</span>));
+                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">consultation</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">NeighborhoodID</span>(<span class="number">0</span>));
 
                     <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">alt_proposals</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::save::AltProposals::new</span>();
                     <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;initialize&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
