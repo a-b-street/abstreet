@@ -303,7 +303,7 @@ async fn main() -> Result<()> {
             one_step_import::run(
                 geojson_path,
                 map_name,
-                drive_on_left,
+                driving_side(drive_on_left),
                 use_geofabrik,
                 filter_crosswalks,
                 create_uk_travel_demand_model,
@@ -321,7 +321,7 @@ async fn main() -> Result<()> {
             importer::oneshot(
                 osm_input,
                 clip_path,
-                drive_on_left,
+                driving_side(drive_on_left),
                 filter_crosswalks,
                 create_uk_travel_demand_model,
                 opts,
@@ -416,4 +416,12 @@ fn prebake_scenario(path: String) {
     let scenario: synthpop::Scenario = abstio::must_read_object(path, &mut timer);
     let map = map_model::Map::load_synchronously(scenario.map_name.path(), &mut timer);
     sim::prebake::prebake(&map, scenario, &mut timer);
+}
+
+fn driving_side(drive_on_left: bool) -> map_model::DrivingSide {
+    if drive_on_left {
+        map_model::DrivingSide::Left
+    } else {
+        map_model::DrivingSide::Right
+    }
 }
