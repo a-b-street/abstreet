@@ -103,7 +103,7 @@ fn run(mut settings: Settings) {
                         panic!("Consultation mode not supported on this map");
                     }
                     // TODO Don't hardcode
-                    app.session.consultation = Some(NeighborhoodID(33));
+                    app.session.consultation = Some(NeighborhoodID(0));
 
                     app.session.alt_proposals = crate::save::AltProposals::new();
                     ctx.loading_screen("initialize", |ctx, timer| {

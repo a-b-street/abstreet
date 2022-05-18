@@ -11,7 +11,7 @@ use serde::{Deserialize, Serialize};
 use abstio::MapName;
 use abstutil::{Tags, Timer};
 use geom::{Distance, FindClosest, GPSBounds, HashablePt2D, LonLat, PolyLine, Polygon, Pt2D, Ring};
-use raw_map::{osm, Amenity, MapConfig, OriginalRoad, RawMap};
+use raw_map::{osm, Amenity, MapConfig, OriginalRoad, RawMap, RawRoad};
 
 mod clip;
 mod elevation;
@@ -133,6 +133,9 @@ pub fn convert(
         gtfs::import(&mut map).unwrap();
     }
 
+    if map.name == MapName::new("gb", "bristol", "east") {
+        bristol_hack(&mut map);
+    }
     map
 }
 
@@ -223,4 +226,34 @@ fn filter_crosswalks(
             }
         }
     }
+}
+
+// We're using Bristol for a project that requires an unusual LTN neighborhood boundary. Insert a
+// fake road where a bridge crosses another road, to force blockfinding to trace along there.
+fn bristol_hack(map: &mut RawMap) {
+    let osm_way_id = map.new_osm_way_id(-1);
+    let i1 = osm::NodeID(364061012);
+    let i2 = osm::NodeID(1215755208);
+    let id = OriginalRoad { osm_way_id, i1, i2 };
+    let mut tags = Tags::empty();
+    tags.insert("highway", "service");
+    tags.insert("name", "Fake road");
+    tags.insert("oneway", "yes");
+    tags.insert("sidewalk", "none");
+    tags.insert("lanes", "1");
+    // TODO The LTN pathfinding tool will try to use this road. Discourage that heavily. It'd be
+    // safer to mark this as under construction, but then blockfinding wouldn't treat it as a
+    // boundary.
+    tags.insert("maxspeed", "1 mph");
+    tags.insert("bicycle", "no");
+
+    map.roads.insert(
+        id,
+        RawRoad::new(
+            vec![map.intersections[&i1].point, map.intersections[&i2].point],
+            tags,
+            &map.config,
+        )
+        .unwrap(),
+    );
 }
