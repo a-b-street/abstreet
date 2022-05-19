@@ -12,6 +12,7 @@ use widgetry::{
 };
 
 use crate::browse::draw_boundary_roads;
+use crate::components::{LeftPanel, TopPanel};
 use crate::partition::BlockID;
 use crate::{colors, App, NeighborhoodID, Partitioning, Transition};
 
@@ -36,7 +37,7 @@ pub struct SelectBoundary {
 
 impl SelectBoundary {
     pub fn new_state(ctx: &mut EventCtx, app: &App, id: NeighborhoodID) -> Box<dyn State<App>> {
-        let top_panel = crate::components::TopPanel::panel(ctx, app);
+        let top_panel = TopPanel::panel(ctx, app);
         let left_panel = make_panel(ctx, app, id, &top_panel);
         let mut state = SelectBoundary {
             top_panel,
@@ -151,10 +152,14 @@ impl SelectBoundary {
             }
             Err(err) => {
                 self.last_failed_change = Some((id, self.currently_have_block(app, id)));
-                let label = Text::from(Line(err.to_string()))
-                    .wrap_to_pct(ctx, 15)
-                    .into_widget(ctx);
-                self.left_panel.replace(ctx, "warning", label);
+                // TODO This is some unfortunate complexity spread; we should almost have an
+                // invisible but functional panel
+                if !app.session.minimize_left_panel {
+                    let label = Text::from(Line(err.to_string()))
+                        .wrap_to_pct(ctx, 15)
+                        .into_widget(ctx);
+                    self.left_panel.replace(ctx, "warning", label);
+                }
             }
         }
 
@@ -258,7 +263,7 @@ impl State<App> for SelectBoundary {
             return Transition::Keep;
         }
 
-        if let Some(t) = crate::components::TopPanel::event(ctx, app, &mut self.top_panel, help) {
+        if let Some(t) = TopPanel::event(ctx, app, &mut self.top_panel, help) {
             return t;
         }
         if let Outcome::Clicked(x) = self.left_panel.event(ctx) {
@@ -279,7 +284,10 @@ impl State<App> for SelectBoundary {
                 }
                 "Select freehand" => {
                     self.lasso = Some(Lasso::new());
-                    self.left_panel = make_panel_for_lasso(ctx, &self.top_panel);
+                    self.left_panel = make_panel_for_lasso(ctx, app, &self.top_panel);
+                }
+                "hide panel" | "show panel" => {
+                    return LeftPanel::handle_action(app, &x);
                 }
                 _ => unreachable!(),
             }
@@ -321,11 +329,16 @@ impl State<App> for SelectBoundary {
             lasso.draw(g);
         }
     }
+
+    fn recreate(&mut self, ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
+        Self::new_state(ctx, app, self.id)
+    }
 }
 
 fn make_panel(ctx: &mut EventCtx, app: &App, id: NeighborhoodID, top_panel: &Panel) -> Panel {
-    crate::components::LeftPanel::builder(
+    LeftPanel::builder(
         ctx,
+        app,
         top_panel,
         Widget::col(vec![
             Line("Adjusting neighborhood boundary")
@@ -376,9 +389,10 @@ fn make_panel(ctx: &mut EventCtx, app: &App, id: NeighborhoodID, top_panel: &Pan
     .build(ctx)
 }
 
-fn make_panel_for_lasso(ctx: &mut EventCtx, top_panel: &Panel) -> Panel {
-    crate::components::LeftPanel::builder(
+fn make_panel_for_lasso(ctx: &mut EventCtx, app: &App, top_panel: &Panel) -> Panel {
+    LeftPanel::builder(
         ctx,
+        app,
         top_panel,
         Widget::col(vec![
             "Draw a custom boundary for a neighborhood"

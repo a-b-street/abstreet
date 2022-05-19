@@ -9,6 +9,7 @@ use widgetry::{
     Outcome, Panel, Slider, State, Text, TextExt, Toggle, VerticalAlignment, Widget,
 };
 
+use crate::components::{LeftPanel, TopPanel};
 use crate::impact::{end_of_day, Filters, Impact};
 use crate::{colors, App, BrowseNeighborhoods, Transition};
 
@@ -62,9 +63,8 @@ impl ShowResults {
             app.session.impact.compare_counts.get_panel_widget(ctx).named("compare counts"),
             ctx.style().btn_outline.text("Save before/after counts to files").build_def(ctx),
         ]);
-        let top_panel = crate::components::TopPanel::panel(ctx, app);
-        let left_panel =
-            crate::components::LeftPanel::builder(ctx, &top_panel, contents).build(ctx);
+        let top_panel = TopPanel::panel(ctx, app);
+        let left_panel = LeftPanel::builder(ctx, app, &top_panel, contents).build(ctx);
 
         Box::new(Self {
             top_panel,
@@ -74,7 +74,7 @@ impl ShowResults {
 }
 impl State<App> for ShowResults {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        if let Some(t) = crate::components::TopPanel::event(ctx, app, &mut self.top_panel, help) {
+        if let Some(t) = TopPanel::event(ctx, app, &mut self.top_panel, help) {
             return t;
         }
         match self.left_panel.event(ctx) {
@@ -100,6 +100,9 @@ impl State<App> for ShowResults {
                         "Saved",
                         vec![format!("Saved {} and {}", path1, path2)],
                     ));
+                }
+                "hide panel" | "show panel" => {
+                    return LeftPanel::handle_action(app, &x);
                 }
                 x => {
                     // Avoid a double borrow
@@ -158,6 +161,10 @@ impl State<App> for ShowResults {
 
         self.top_panel.draw(g);
         self.left_panel.draw(g);
+    }
+
+    fn recreate(&mut self, ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
+        Self::new_state(ctx, app)
     }
 }
 

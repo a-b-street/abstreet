@@ -74,6 +74,8 @@ fn run(mut settings: Settings) {
             draw_all_filters: Toggle3Zoomed::empty(ctx),
             impact: impact::Impact::empty(ctx),
 
+            minimize_left_panel: false,
+
             highlight_boundary_roads: false,
             draw_neighborhood_style: browse::Style::SimpleColoring,
             draw_cells_as_areas: true,
@@ -173,6 +175,8 @@ pub struct Session {
     pub alt_proposals: save::AltProposals,
     pub draw_all_filters: Toggle3Zoomed,
     pub impact: impact::Impact,
+
+    pub minimize_left_panel: bool,
 
     // Remember form settings in different tabs.
     // Browse neighborhoods:

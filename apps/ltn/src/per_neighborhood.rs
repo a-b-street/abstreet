@@ -7,6 +7,7 @@ use widgetry::{
     DEFAULT_CORNER_RADIUS,
 };
 
+use crate::components::{FreehandFilters, LeftPanel};
 use crate::shortcuts::Shortcuts;
 use crate::{
     after_edit, colors, App, BrowseNeighborhoods, DiagonalFilter, Neighborhood, Transition,
@@ -44,7 +45,7 @@ impl Tab {
                     .wrap_to_pct(ctx, 15)
                     .into_widget(ctx),
                 ]),
-                crate::components::FreehandFilters::button(ctx),
+                FreehandFilters::button(ctx),
                 Widget::row(vec![
                     format!(
                         "{} filters added",
@@ -66,7 +67,7 @@ impl Tab {
             per_tab_contents,
             crate::route_planner::RoutePlanner::button(ctx),
         ]);
-        crate::components::LeftPanel::builder(ctx, top_panel, contents)
+        LeftPanel::builder(ctx, app, top_panel, contents)
     }
 
     fn make_buttons(self, ctx: &mut EventCtx, app: &App) -> Widget {
@@ -137,13 +138,11 @@ pub fn handle_action(
         "Shortcuts" => Some(Transition::Replace(
             crate::shortcut_viewer::BrowseShortcuts::new_state(ctx, app, id, None),
         )),
-        "Create filters along a shape" => Some(Transition::Push(
-            crate::components::FreehandFilters::new_state(
-                ctx,
-                neighborhood,
-                panel.center_of("Create filters along a shape"),
-            ),
-        )),
+        "Create filters along a shape" => Some(Transition::Push(FreehandFilters::new_state(
+            ctx,
+            neighborhood,
+            panel.center_of("Create filters along a shape"),
+        ))),
         "undo" => {
             let prev = app.session.modal_filters.previous_version.take().unwrap();
             app.session.modal_filters = prev;
@@ -154,6 +153,7 @@ pub fn handle_action(
         "Plan a route" => Some(Transition::Push(
             crate::route_planner::RoutePlanner::new_state(ctx, app),
         )),
+        "hide panel" | "show panel" => Some(LeftPanel::handle_action(app, action)),
         _ => None,
     }
 }

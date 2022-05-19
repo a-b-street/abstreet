@@ -205,8 +205,6 @@ impl State<App> for BrowseShortcuts {
             _ => {}
         }
 
-        // TODO Bit weird to allow this while showing individual paths, since we don't draw the
-        // world
         let world_outcome = self.world.event(ctx);
         if crate::per_neighborhood::handle_world_outcome(ctx, app, world_outcome) {
             // Reset state, but if possible, preserve the current individual shortcut.

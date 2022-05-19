@@ -10,6 +10,7 @@ use widgetry::{
     Toggle, Widget,
 };
 
+use crate::components::{LeftPanel, TopPanel};
 use crate::filters::auto::Heuristic;
 use crate::{colors, App, Neighborhood, NeighborhoodID, Transition};
 
@@ -38,9 +39,10 @@ impl BrowseNeighborhoods {
                 )
             });
 
-        let top_panel = crate::components::TopPanel::panel(ctx, app);
-        let left_panel = crate::components::LeftPanel::builder(
+        let top_panel = TopPanel::panel(ctx, app);
+        let left_panel = LeftPanel::builder(
             ctx,
+            app,
             &top_panel,
             Widget::col(vec![
                 app.session.alt_proposals.to_widget(ctx, app),
@@ -71,7 +73,7 @@ impl BrowseNeighborhoods {
 
 impl State<App> for BrowseNeighborhoods {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        if let Some(t) = crate::components::TopPanel::event(ctx, app, &mut self.top_panel, help) {
+        if let Some(t) = TopPanel::event(ctx, app, &mut self.top_panel, help) {
             return t;
         }
         match self.left_panel.event(ctx) {
@@ -105,6 +107,9 @@ impl State<App> for BrowseNeighborhoods {
                         }
                     });
                     return Transition::Replace(BrowseNeighborhoods::new_state(ctx, app));
+                }
+                "hide panel" | "show panel" => {
+                    return LeftPanel::handle_action(app, &x);
                 }
                 x => {
                     return crate::save::AltProposals::handle_action(
@@ -165,6 +170,10 @@ impl State<App> for BrowseNeighborhoods {
         if g.canvas.is_unzoomed() {
             self.labels.draw(g, app);
         }
+    }
+
+    fn recreate(&mut self, ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
+        Self::new_state(ctx, app)
     }
 }
 

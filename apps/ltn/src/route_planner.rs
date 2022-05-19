@@ -10,6 +10,7 @@ use widgetry::{
     RoundedF64, Spinner, State, Text, Widget,
 };
 
+use crate::components::{LeftPanel, TopPanel};
 use crate::{colors, App, BrowseNeighborhoods, Transition};
 
 pub struct RoutePlanner {
@@ -43,7 +44,7 @@ impl TripManagementState<App> for RoutePlanner {
 impl RoutePlanner {
     pub fn new_state(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
         let mut rp = RoutePlanner {
-            top_panel: crate::components::TopPanel::panel(ctx, app),
+            top_panel: TopPanel::panel(ctx, app),
             left_panel: Panel::empty(ctx),
             waypoints: InputWaypoints::new_max_2(app),
             files: TripManagement::new(app),
@@ -112,7 +113,7 @@ impl RoutePlanner {
             .section(ctx),
             results_widget.section(ctx),
         ]);
-        let mut panel = crate::components::LeftPanel::builder(ctx, &self.top_panel, contents)
+        let mut panel = LeftPanel::builder(ctx, app, &self.top_panel, contents)
             // Hovering on waypoint cards
             .ignore_initial_events()
             .build(ctx);
@@ -288,17 +289,23 @@ impl RoutePlanner {
 
 impl State<App> for RoutePlanner {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        if let Some(t) = crate::components::TopPanel::event(ctx, app, &mut self.top_panel, help) {
+        if let Some(t) = TopPanel::event(ctx, app, &mut self.top_panel, help) {
             return t;
         }
 
         let panel_outcome = self.left_panel.event(ctx);
         if let Outcome::Clicked(ref x) = panel_outcome {
-            if x == "Browse neighborhoods" {
-                return Transition::Replace(BrowseNeighborhoods::new_state(ctx, app));
-            }
-            if x == "Analyze neighbourhood" {
-                return Transition::Pop;
+            match x.as_ref() {
+                "Browse neighborhoods" => {
+                    return Transition::Replace(BrowseNeighborhoods::new_state(ctx, app));
+                }
+                "Analyze neighbourhood" => {
+                    return Transition::Pop;
+                }
+                "hide panel" | "show panel" => {
+                    return LeftPanel::handle_action(app, &x);
+                }
+                _ => {}
             }
             if let Some(t) = self.files.on_click(ctx, app, x) {
                 // Bit hacky...
@@ -348,6 +355,10 @@ impl State<App> for RoutePlanner {
         if g.canvas.is_unzoomed() {
             self.labels.draw(g, app);
         }
+    }
+
+    fn recreate(&mut self, ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
+        Self::new_state(ctx, app)
     }
 }
 
