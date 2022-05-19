@@ -102,13 +102,29 @@ fn run(mut settings: Settings) {
                     if app.map.get_name() != &MapName::new("gb", "bristol", "east") {
                         panic!("Consultation mode not supported on this map");
                     }
-                    // TODO Don't hardcode
-                    app.session.consultation = Some(NeighborhoodID(0));
 
                     app.session.alt_proposals = crate::save::AltProposals::new();
                     ctx.loading_screen("initialize", |ctx, timer| {
                         crate::clear_current_proposal(ctx, app, timer);
                     });
+
+                    // Look for the neighborhood containing one small street
+                    let r = app
+                        .map
+                        .all_roads()
+                        .iter()
+                        .find(|r| r.get_name(None) == "Gregory Street")
+                        .expect("Can't find Gregory Street")
+                        .id;
+                    let (neighborhood, _) = app
+                        .session
+                        .partitioning
+                        .all_neighborhoods()
+                        .iter()
+                        .find(|(_, (block, _))| block.perimeter.interior.contains(&r))
+                        .expect("Can't find neighborhood containing Gregory Street");
+                    app.session.consultation = Some(*neighborhood);
+
                     states.push(connectivity::Viewer::new_state(
                         ctx,
                         app,
