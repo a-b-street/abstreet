@@ -304,6 +304,21 @@
 <span id="299">299</span>
 <span id="300">300</span>
 <span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
 </pre><pre class="rust"><code><span class="doccomment">//! A widgetry application splits its state into two pieces: global shared state that lasts for the</span>
 <span class="doccomment">//! entire lifetime of the application, and a stack of smaller states, only one of which is active</span>
 <span class="doccomment">//! at a time. For example, imagine an application to view a map. The shared state would include</span>
@@ -450,6 +465,13 @@
                 <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">extend</span>(<span class="ident">states</span>);
                 <span class="bool-val">true</span>
             }
+            <span class="ident">Transition::Recreate</span> =&gt; {
+                <span class="comment">// TODO Don&#39;t call on_destroy?</span>
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">last</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
+                <span class="kw">let</span> <span class="ident">replacement</span> <span class="op">=</span> <span class="ident">last</span>.<span class="ident">recreate</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">shared_app_state</span>);
+                <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">push</span>(<span class="ident">replacement</span>);
+                <span class="bool-val">true</span>
+            }
             <span class="ident">Transition::Multi</span>(<span class="ident">list</span>) =&gt; {
                 <span class="comment">// Always wake-up just the last state remaining after the sequence</span>
                 <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="ident">list</span> {
@@ -488,6 +510,12 @@
     <span class="doccomment">/// Before this state is popped or replaced, call this.</span>
     <span class="kw">fn</span> <span class="ident">on_destroy</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">A</span>) {}
     <span class="comment">// We don&#39;t need an on_enter -- the constructor for the state can just do it.</span>
+
+    <span class="doccomment">/// Respond to `Transition::Recreate` by assuming state in the app has changed, but preserving</span>
+    <span class="doccomment">/// the `State`-specific state appropriately.</span>
+    <span class="kw">fn</span> <span class="ident">recreate</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">A</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="macro">panic!</span>(<span class="string">&quot;This state hasn&#39;t implemented support for Transition::Recreate&quot;</span>);
+    }
 }
 
 <span class="macro">downcast_rs::impl_downcast!</span>(<span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>);
@@ -516,6 +544,8 @@
     <span class="ident">Replace</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>),
     <span class="doccomment">/// Replace the entire stack of states with this stack.</span>
     <span class="ident">Clear</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>),
+    <span class="doccomment">/// Call `State::recreate` on the current top of the stack</span>
+    <span class="ident">Recreate</span>,
     <span class="doccomment">/// Execute a sequence of transitions in order.</span>
     <span class="ident">Multi</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>),
 }

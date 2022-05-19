@@ -248,6 +248,15 @@
 <span id="243">243</span>
 <span id="244">244</span>
 <span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">map_gui::tools::percentage_bar</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">PathRequest</span>, <span class="ident">NORMAL_LANE_THICKNESS</span>};
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ToggleZoomed</span>, <span class="ident">World</span>};
@@ -424,7 +433,7 @@
                     <span class="self">self</span>.<span class="ident">recalculate</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 }
                 <span class="ident">x</span> =&gt; {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">Tab::Shortcuts</span>.<span class="ident">handle_action</span>(
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::per_neighborhood::handle_action</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">app</span>,
                         <span class="ident">x</span>,
@@ -484,6 +493,15 @@
         <span class="kw">if</span> <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">is_unzoomed</span>() {
             <span class="self">self</span>.<span class="ident">neighborhood</span>.<span class="ident">labels</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
         }
+    }
+
+    <span class="kw">fn</span> <span class="ident">recreate</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">current_request</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">shortcuts</span>.<span class="ident">paths</span>.<span class="ident">is_empty</span>() {
+            <span class="prelude-val">None</span>
+        } <span class="kw">else</span> {
+            <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">shortcuts</span>.<span class="ident">paths</span>[<span class="self">self</span>.<span class="ident">current_idx</span>].<span class="ident">get_req</span>().<span class="ident">clone</span>())
+        };
+        <span class="ident"><span class="self">Self</span>::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">neighborhood</span>.<span class="ident">id</span>, <span class="ident">current_request</span>)
     }
 }
 
