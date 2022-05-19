@@ -98,7 +98,7 @@ impl State<App> for Viewer {
                             ));
                         }
                     }
-                } else if let Some(t) = Tab::Connectivity.handle_action(
+                } else if let Some(t) = crate::per_neighborhood::handle_action(
                     ctx,
                     app,
                     x.as_ref(),
@@ -166,6 +166,10 @@ impl State<App> for Viewer {
         if g.canvas.is_unzoomed() {
             self.neighborhood.labels.draw(g, app);
         }
+    }
+
+    fn recreate(&mut self, ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
+        Self::new_state(ctx, app, self.neighborhood.id)
     }
 }
 

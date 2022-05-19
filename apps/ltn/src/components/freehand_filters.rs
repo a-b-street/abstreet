@@ -5,17 +5,14 @@ use map_model::{IntersectionID, Perimeter};
 use widgetry::tools::PolyLineLasso;
 use widgetry::{DrawBaselayer, EventCtx, GfxCtx, Key, Line, ScreenPt, State, Text, Widget};
 
-use crate::per_neighborhood::Tab;
-use crate::{after_edit, App, DiagonalFilter, Neighborhood, NeighborhoodID, Transition};
+use crate::{after_edit, App, DiagonalFilter, Neighborhood, Transition};
 
 pub struct FreehandFilters {
     lasso: PolyLineLasso,
-    id: NeighborhoodID,
     perimeter: Perimeter,
     interior_intersections: BTreeSet<IntersectionID>,
     instructions: Text,
     instructions_at: ScreenPt,
-    tab: Tab,
 }
 
 impl FreehandFilters {
@@ -23,11 +20,9 @@ impl FreehandFilters {
         ctx: &EventCtx,
         neighborhood: &Neighborhood,
         instructions_at: ScreenPt,
-        tab: Tab,
     ) -> Box<dyn State<App>> {
         Box::new(Self {
             lasso: PolyLineLasso::new(),
-            id: neighborhood.id,
             perimeter: neighborhood.orig_perimeter.clone(),
             interior_intersections: neighborhood.interior_intersections.clone(),
             instructions_at,
@@ -35,7 +30,6 @@ impl FreehandFilters {
                 Line("Click and drag").fg(ctx.style().text_hotkey_color),
                 Line(" across the roads you want to filter"),
             ]),
-            tab,
         })
     }
 
@@ -80,16 +74,7 @@ impl State<App> for FreehandFilters {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         if let Some(pl) = self.lasso.event(ctx) {
             self.make_filters_along_path(ctx, app, pl);
-            return Transition::Multi(vec![
-                Transition::Pop,
-                Transition::Replace(match self.tab {
-                    Tab::Connectivity => crate::connectivity::Viewer::new_state(ctx, app, self.id),
-                    // TODO Preserve the current shortcut
-                    Tab::Shortcuts => {
-                        crate::shortcut_viewer::BrowseShortcuts::new_state(ctx, app, self.id, None)
-                    }
-                }),
-            ]);
+            return Transition::Multi(vec![Transition::Pop, Transition::Recreate]);
         }
         Transition::Keep
     }

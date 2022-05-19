@@ -12,6 +12,7 @@ use crate::{
     after_edit, colors, App, BrowseNeighborhoods, DiagonalFilter, Neighborhood, Transition,
 };
 
+// TODO This is only used for styling now
 #[derive(PartialEq)]
 pub enum Tab {
     Connectivity,
@@ -68,60 +69,6 @@ impl Tab {
         crate::components::LeftPanel::builder(ctx, top_panel, contents)
     }
 
-    pub fn handle_action(
-        self,
-        ctx: &mut EventCtx,
-        app: &mut App,
-        action: &str,
-        neighborhood: &Neighborhood,
-        panel: &Panel,
-    ) -> Option<Transition> {
-        let id = neighborhood.id;
-        match action {
-            "Browse neighborhoods" => {
-                // Recalculate the state to redraw any changed filters
-                Some(Transition::Replace(BrowseNeighborhoods::new_state(
-                    ctx, app,
-                )))
-            }
-            "Adjust boundary" => Some(Transition::Replace(
-                crate::select_boundary::SelectBoundary::new_state(ctx, app, id),
-            )),
-            "Connectivity" => Some(Transition::Replace(crate::connectivity::Viewer::new_state(
-                ctx, app, id,
-            ))),
-            "Shortcuts" => Some(Transition::Replace(
-                crate::shortcut_viewer::BrowseShortcuts::new_state(ctx, app, id, None),
-            )),
-            "Create filters along a shape" => Some(Transition::Push(
-                crate::components::FreehandFilters::new_state(
-                    ctx,
-                    neighborhood,
-                    panel.center_of("Create filters along a shape"),
-                    self,
-                ),
-            )),
-            "undo" => {
-                let prev = app.session.modal_filters.previous_version.take().unwrap();
-                app.session.modal_filters = prev;
-                after_edit(ctx, app);
-                // Recreate the current state. This will reset any panel state (checkboxes and
-                // dropdowns)
-                Some(Transition::Replace(match self {
-                    Tab::Connectivity => crate::connectivity::Viewer::new_state(ctx, app, id),
-                    // TODO Preserve the current shortcut
-                    Tab::Shortcuts => {
-                        crate::shortcut_viewer::BrowseShortcuts::new_state(ctx, app, id, None)
-                    }
-                }))
-            }
-            "Plan a route" => Some(Transition::Push(
-                crate::route_planner::RoutePlanner::new_state(ctx, app),
-            )),
-            _ => None,
-        }
-    }
-
     fn make_buttons(self, ctx: &mut EventCtx, app: &App) -> Widget {
         let mut row = Vec::new();
         for (tab, label, key) in [
@@ -163,6 +110,51 @@ impl Tab {
         }
 
         Widget::row(row)
+    }
+}
+
+pub fn handle_action(
+    ctx: &mut EventCtx,
+    app: &mut App,
+    action: &str,
+    neighborhood: &Neighborhood,
+    panel: &Panel,
+) -> Option<Transition> {
+    let id = neighborhood.id;
+    match action {
+        "Browse neighborhoods" => {
+            // Recalculate the state to redraw any changed filters
+            Some(Transition::Replace(BrowseNeighborhoods::new_state(
+                ctx, app,
+            )))
+        }
+        "Adjust boundary" => Some(Transition::Replace(
+            crate::select_boundary::SelectBoundary::new_state(ctx, app, id),
+        )),
+        "Connectivity" => Some(Transition::Replace(crate::connectivity::Viewer::new_state(
+            ctx, app, id,
+        ))),
+        "Shortcuts" => Some(Transition::Replace(
+            crate::shortcut_viewer::BrowseShortcuts::new_state(ctx, app, id, None),
+        )),
+        "Create filters along a shape" => Some(Transition::Push(
+            crate::components::FreehandFilters::new_state(
+                ctx,
+                neighborhood,
+                panel.center_of("Create filters along a shape"),
+            ),
+        )),
+        "undo" => {
+            let prev = app.session.modal_filters.previous_version.take().unwrap();
+            app.session.modal_filters = prev;
+            after_edit(ctx, app);
+            // TODO Ideally, preserve panel state (checkboxes and dropdowns)
+            Some(Transition::Recreate)
+        }
+        "Plan a route" => Some(Transition::Push(
+            crate::route_planner::RoutePlanner::new_state(ctx, app),
+        )),
+        _ => None,
     }
 }
 

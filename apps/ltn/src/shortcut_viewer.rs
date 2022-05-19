@@ -174,7 +174,7 @@ impl State<App> for BrowseShortcuts {
                     self.recalculate(ctx, app);
                 }
                 x => {
-                    if let Some(t) = Tab::Shortcuts.handle_action(
+                    if let Some(t) = crate::per_neighborhood::handle_action(
                         ctx,
                         app,
                         x,
@@ -234,6 +234,15 @@ impl State<App> for BrowseShortcuts {
         if g.canvas.is_unzoomed() {
             self.neighborhood.labels.draw(g, app);
         }
+    }
+
+    fn recreate(&mut self, ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
+        let current_request = if self.shortcuts.paths.is_empty() {
+            None
+        } else {
+            Some(self.shortcuts.paths[self.current_idx].get_req().clone())
+        };
+        Self::new_state(ctx, app, self.neighborhood.id, current_request)
     }
 }
 

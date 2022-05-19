@@ -144,6 +144,13 @@ impl<A: SharedAppState> App<A> {
                 self.states.extend(states);
                 true
             }
+            Transition::Recreate => {
+                // TODO Don't call on_destroy?
+                let mut last = self.states.pop().unwrap();
+                let replacement = last.recreate(ctx, &mut self.shared_app_state);
+                self.states.push(replacement);
+                true
+            }
             Transition::Multi(list) => {
                 // Always wake-up just the last state remaining after the sequence
                 for t in list {
@@ -182,6 +189,12 @@ pub trait State<A>: downcast_rs::Downcast {
     /// Before this state is popped or replaced, call this.
     fn on_destroy(&mut self, _: &mut EventCtx, _: &mut A) {}
     // We don't need an on_enter -- the constructor for the state can just do it.
+
+    /// Respond to `Transition::Recreate` by assuming state in the app has changed, but preserving
+    /// the `State`-specific state appropriately.
+    fn recreate(&mut self, _: &mut EventCtx, _: &mut A) -> Box<dyn State<A>> {
+        panic!("This state hasn't implemented support for Transition::Recreate");
+    }
 }
 
 downcast_rs::impl_downcast!(State<A>);
@@ -210,6 +223,8 @@ pub enum Transition<A> {
     Replace(Box<dyn State<A>>),
     /// Replace the entire stack of states with this stack.
     Clear(Vec<Box<dyn State<A>>>),
+    /// Call `State::recreate` on the current top of the stack
+    Recreate,
     /// Execute a sequence of transitions in order.
     Multi(Vec<Transition<A>>),
 }
