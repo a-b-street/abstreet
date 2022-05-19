@@ -185,7 +185,15 @@ pub fn write_file(path: String, contents: String) -> Result<String> {
     // Make the browser prompt the user to save a local file with arbitrary contents.
     use wasm_bindgen::JsCast;
 
-    let data: String = js_sys::JsString::from("data:text/json;charset=utf-8,")
+    let mimetype = if path.ends_with("csv") {
+        "text/csv"
+    } else if path.ends_with("json") {
+        "application/json"
+    } else {
+        bail!("Don't know MIME type for {path}");
+    };
+
+    let data: String = js_sys::JsString::from(format!("data:{mimetype};charset=utf-8,"))
         .concat(&js_sys::encode_uri_component(&contents))
         .into();
 
