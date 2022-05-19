@@ -245,7 +245,9 @@ pub fn handle_world_outcome(
             true
         }
         WorldOutcome::ClickedObject(FilterableObj::InteriorIntersection(i)) => {
-            DiagonalFilter::cycle_through_alternatives(ctx, app, i);
+            app.session.modal_filters.before_edit();
+            DiagonalFilter::cycle_through_alternatives(app, i);
+            after_edit(ctx, app);
             true
         }
         WorldOutcome::Keypress("debug", FilterableObj::InteriorIntersection(i)) => {

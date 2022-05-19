@@ -12,7 +12,7 @@ use widgetry::mapspace::{DrawUnzoomedShapes, ToggleZoomed};
 use widgetry::{EventCtx, GeomBatch, GfxCtx};
 
 pub use self::existing::transform_existing_filters;
-use crate::{after_edit, colors, App};
+use crate::{colors, App};
 
 /// Stored in App session state. Before making any changes, call `before_edit`.
 #[derive(Clone, Default, Serialize, Deserialize)]
@@ -197,8 +197,8 @@ impl ModalFilters {
 }
 
 impl DiagonalFilter {
-    pub fn cycle_through_alternatives(ctx: &EventCtx, app: &mut App, i: IntersectionID) {
-        app.session.modal_filters.before_edit();
+    /// The caller must call this in a `before_edit` / `after_edit` "transaction."
+    pub fn cycle_through_alternatives(app: &mut App, i: IntersectionID) {
         let map = &app.map;
         let roads = map.get_i(i).get_roads_sorted_by_incoming_angle(map);
 
@@ -246,8 +246,6 @@ impl DiagonalFilter {
                 app.session.modal_filters.roads.insert(r, dist);
             }
         }
-
-        after_edit(ctx, app);
     }
 
     fn new(map: &Map, i: IntersectionID, r1: RoadID, r2: RoadID) -> DiagonalFilter {

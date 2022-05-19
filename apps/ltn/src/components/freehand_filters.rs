@@ -63,7 +63,7 @@ impl FreehandFilters {
         for i in &self.interior_intersections {
             if app.map.get_i(*i).polygon.intersects_polyline(&path) {
                 // We probably won't guess the right one, but make an attempt
-                DiagonalFilter::cycle_through_alternatives(ctx, app, *i);
+                DiagonalFilter::cycle_through_alternatives(app, *i);
             }
         }
         after_edit(ctx, app);
