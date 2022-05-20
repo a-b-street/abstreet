@@ -1,7 +1,7 @@
 use std::collections::BTreeSet;
 
 use geom::PolyLine;
-use map_model::{IntersectionID, Perimeter};
+use map_model::{IntersectionID, PathConstraints, Perimeter};
 use widgetry::tools::PolyLineLasso;
 use widgetry::{DrawBaselayer, EventCtx, GfxCtx, Key, Line, ScreenPt, State, Text, Widget};
 
@@ -51,6 +51,9 @@ impl FreehandFilters {
                 continue;
             }
             let road = app.map.get_r(*r);
+            if !PathConstraints::Car.can_use_road(road, &app.map) || road.is_oneway() {
+                continue;
+            }
             if let Some((pt, _)) = road.center_pts.intersection(&path) {
                 let dist = road
                     .center_pts
