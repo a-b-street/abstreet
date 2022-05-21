@@ -3,15 +3,15 @@
         </a><h2 class="location"></h2>
     </nav>
     <nav class="sidebar"><a class="sidebar-logo" href="../../../raw_map/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../raw_map/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1"> 1</span>
-<span id="2"> 2</span>
-<span id="3"> 3</span>
-<span id="4"> 4</span>
-<span id="5"> 5</span>
-<span id="6"> 6</span>
-<span id="7"> 7</span>
-<span id="8"> 8</span>
-<span id="9"> 9</span>
+        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../raw_map/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<span id="2">2</span>
+<span id="3">3</span>
+<span id="4">4</span>
+<span id="5">5</span>
+<span id="6">6</span>
+<span id="7">7</span>
+<span id="8">8</span>
+<span id="9">9</span>
 <span id="10">10</span>
 <span id="11">11</span>
 <span id="12">12</span>
@@ -59,6 +59,11 @@
 <span id="54">54</span>
 <span id="55">55</span>
 <span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::RawMap</span>;
@@ -72,6 +77,8 @@
 <span class="kw">mod</span> <span class="ident">snappy</span>;
 
 <span class="kw">impl</span> <span class="ident">RawMap</span> {
+    <span class="comment">// TODO I suspect we&#39;ll soon take a full struct of options, maybe even a list of transformation</span>
+    <span class="comment">// enums to run in order</span>
     <span class="doccomment">/// Run a sequence of transformations to the RawMap before converting it to a full Map.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// We don&#39;t want to run these during the OSM-&gt;RawMap import stage, because we want to use the</span>
@@ -79,6 +86,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run_all_simplifications</span>(
         <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">consolidate_all_intersections</span>: <span class="ident">bool</span>,
+        <span class="ident">remove_disconnected</span>: <span class="ident">bool</span>,
         <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>,
     ) {
         <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;simplify RawMap&quot;</span>);
@@ -97,7 +105,9 @@
         <span class="ident">collapse_intersections::trim_deadends</span>(<span class="self">self</span>);
         <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;trimming dead-end cycleways (round 2)&quot;</span>);
 
-        <span class="ident">remove_disconnected::remove_disconnected_roads</span>(<span class="self">self</span>, <span class="ident">timer</span>);
+        <span class="kw">if</span> <span class="ident">remove_disconnected</span> {
+            <span class="ident">remove_disconnected::remove_disconnected_roads</span>(<span class="self">self</span>, <span class="ident">timer</span>);
+        }
 
         <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;merging short roads&quot;</span>);
         <span class="ident">find_short_roads::find_short_roads</span>(<span class="self">self</span>, <span class="ident">consolidate_all_intersections</span>);
@@ -116,5 +126,5 @@
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="raw_map" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0 (7737e0b5c 2022-04-04)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="raw_map" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0 (fe5b13d68 2022-05-18)" ></div>
 </body></html>
