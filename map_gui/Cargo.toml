@@ -27,7 +27,7 @@ geom = { path = "../geom" }
 instant = "0.1.7"
 lazy_static = "1.4.0"
 log = "0.4.14"
-lyon_geom = ">=0.16.2"
+lyon_geom = "0.16.2"
 map_model = { path = "../map_model" }
 regex = "1.5.4"
 rfd = "0.8.0"
