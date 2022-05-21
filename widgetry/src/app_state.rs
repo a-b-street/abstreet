@@ -33,7 +33,7 @@ pub(crate) struct App<A: SharedAppState> {
     pub(crate) shared_app_state: A,
 }
 
-impl<A: SharedAppState> App<A> {
+impl<A: 'static + SharedAppState> App<A> {
     pub(crate) fn event(&mut self, ctx: &mut EventCtx) {
         self.shared_app_state.before_event();
 

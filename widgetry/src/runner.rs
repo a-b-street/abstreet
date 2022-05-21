@@ -29,7 +29,7 @@ pub(crate) struct State<A: SharedAppState> {
     focus_owned_by: Option<String>,
 }
 
-impl<A: SharedAppState> State<A> {
+impl<A: 'static + SharedAppState> State<A> {
     // The bool indicates if the input was actually used.
     fn event(&mut self, mut ev: Event, prerender: &Prerender) -> (Vec<UpdateType>, bool) {
         if let Event::MouseWheelScroll(dx, dy) = ev {

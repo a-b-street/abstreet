@@ -4,7 +4,7 @@ use crate::runner::State;
 use crate::{Prerender, ScreenDims, SharedAppState};
 
 /// Take a screenshot of the entire canvas, tiling it based on the window's width and height.
-pub(crate) fn screenshot_everything<A: SharedAppState>(
+pub(crate) fn screenshot_everything<A: 'static + SharedAppState>(
     state: &mut State<A>,
     dir_path: &str,
     prerender: &Prerender,
