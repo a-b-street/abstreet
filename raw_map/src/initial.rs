@@ -99,6 +99,7 @@ impl InitialMap {
             m.roads.insert(id, Road::new(raw, id));
         }
 
+        let mut remove_dangling_nodes = Vec::new();
         timer.start_iter("find each intersection polygon", m.intersections.len());
         for i in m.intersections.values_mut() {
             timer.next();
@@ -121,19 +122,27 @@ impl InitialMap {
                 Err(err) => {
                     error!("Can't make intersection geometry for {}: {}", i.id, err);
 
-                    // Don't trim lines back at all
-                    let r = &m.roads[i.roads.iter().next().unwrap()];
-                    let pt = if r.src_i == i.id {
-                        r.trimmed_center_pts.first_pt()
-                    } else {
-                        r.trimmed_center_pts.last_pt()
-                    };
-                    i.polygon = Circle::new(pt, Distance::meters(3.0)).to_polygon();
+                    // If we haven't removed disconnected roads, we may have dangling nodes around.
+                    if let Some(r) = i.roads.iter().next() {
+                        // Don't trim lines back at all
+                        let road = &m.roads[r];
+                        let pt = if road.src_i == i.id {
+                            road.trimmed_center_pts.first_pt()
+                        } else {
+                            road.trimmed_center_pts.last_pt()
+                        };
+                        i.polygon = Circle::new(pt, Distance::meters(3.0)).to_polygon();
 
-                    // Also don't attempt to make Movements later!
-                    i.intersection_type = IntersectionType::StopSign;
+                        // Also don't attempt to make Movements later!
+                        i.intersection_type = IntersectionType::StopSign;
+                    } else {
+                        remove_dangling_nodes.push(i.id);
+                    }
                 }
             }
+        }
+        for i in remove_dangling_nodes {
+            m.intersections.remove(&i).unwrap();
         }
 
         // Some roads near borders get completely squished. Stretch them out here. Attempting to do
