@@ -179,7 +179,6 @@ impl Model {
             .hotkey(Key::T, "toggle stop sign / traffic signal")
             .hotkey(Key::P, "debug intersection geometry")
             .hotkey(Key::D, "debug in OSM")
-            .hotkey(Key::X, "export to osm2polygon")
             .build(ctx);
     }
 

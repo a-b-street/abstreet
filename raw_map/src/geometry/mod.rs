@@ -9,11 +9,8 @@
 //! I wrote a novella about this: <https://a-b-street.github.io/docs/tech/map/geometry/index.html>
 
 mod algorithm;
-mod geojson;
 
 use std::collections::BTreeMap;
-
-use anyhow::Result;
 
 use abstutil::Tags;
 use geom::{Distance, PolyLine, Polygon};
@@ -41,44 +38,4 @@ pub struct Results {
     pub trimmed_center_pts: BTreeMap<OriginalRoad, (PolyLine, Distance)>,
     /// Extra polygons with labels to debug the algorithm
     pub debug: Vec<(String, Polygon)>,
-}
-
-/// Process the file produced by `save_osm2polygon_input`, then write the output as GeoJSON.
-pub fn osm2polygon(input_path: String, output_path: String) -> Result<()> {
-    let (intersection_id, input_roads, gps_bounds) = geojson::read_osm2polygon_input(input_path)?;
-    let results = intersection_polygon(intersection_id, input_roads, &BTreeMap::new())?;
-    let debug_output = false;
-    results.save_to_geojson(output_path, &gps_bounds, debug_output)?;
-    Ok(())
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_osm2polygon() {
-        let mut any = false;
-        for entry in std::fs::read_dir("src/geometry/tests").unwrap() {
-            let input = entry.unwrap().path().display().to_string();
-            println!("Working on {input}");
-            if input.ends_with("output.json") {
-                continue;
-            }
-            any = true;
-
-            let expected_output_path = input.replace("input", "output");
-            let actual_output_path = "actual_osm2polygon_output.json";
-            osm2polygon(input.clone(), actual_output_path.to_string()).unwrap();
-            let expected_output = std::fs::read_to_string(expected_output_path.clone()).unwrap();
-            let actual_output = std::fs::read_to_string(actual_output_path).unwrap();
-
-            if expected_output != actual_output {
-                panic!("osm2polygon output changed. Manually compare {actual_output_path} and {expected_output_path}");
-            }
-
-            std::fs::remove_file(actual_output_path).unwrap();
-        }
-        assert!(any, "Didn't find any tests");
-    }
 }
