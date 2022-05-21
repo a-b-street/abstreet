@@ -11,6 +11,8 @@ mod shrink_roads;
 mod snappy;
 
 impl RawMap {
+    // TODO I suspect we'll soon take a full struct of options, maybe even a list of transformation
+    // enums to run in order
     /// Run a sequence of transformations to the RawMap before converting it to a full Map.
     ///
     /// We don't want to run these during the OSM->RawMap import stage, because we want to use the
@@ -18,6 +20,7 @@ impl RawMap {
     pub fn run_all_simplifications(
         &mut self,
         consolidate_all_intersections: bool,
+        remove_disconnected: bool,
         timer: &mut Timer,
     ) {
         timer.start("simplify RawMap");
@@ -36,7 +39,9 @@ impl RawMap {
         collapse_intersections::trim_deadends(self);
         timer.stop("trimming dead-end cycleways (round 2)");
 
-        remove_disconnected::remove_disconnected_roads(self, timer);
+        if remove_disconnected {
+            remove_disconnected::remove_disconnected_roads(self, timer);
+        }
 
         timer.start("merging short roads");
         find_short_roads::find_short_roads(self, consolidate_all_intersections);

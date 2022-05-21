@@ -43,7 +43,7 @@ pub struct RawToMapOptions {
 
 impl Map {
     pub fn create_from_raw(mut raw: RawMap, opts: RawToMapOptions, timer: &mut Timer) -> Map {
-        raw.run_all_simplifications(opts.consolidate_all_intersections, timer);
+        raw.run_all_simplifications(opts.consolidate_all_intersections, true, timer);
 
         timer.start("raw_map to InitialMap");
         let gps_bounds = raw.gps_bounds.clone();

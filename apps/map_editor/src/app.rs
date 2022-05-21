@@ -270,7 +270,7 @@ impl State<App> for MainState {
                         }
                         "simplify RawMap" => {
                             ctx.loading_screen("simplify", |ctx, timer| {
-                                app.model.map.run_all_simplifications(false, timer);
+                                app.model.map.run_all_simplifications(false, true, timer);
                                 app.model.recreate_world(ctx, timer);
                             });
                         }
