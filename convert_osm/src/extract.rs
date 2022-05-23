@@ -353,10 +353,6 @@ fn is_road(tags: &mut Tags, opts: &Options, name: &MapName) -> bool {
     if tags.is("railway", "rail") && opts.include_railroads {
         return true;
     }
-    // Explicitly need this to avoid overlapping geometry in Berlin.
-    if tags.is("railway", "tram") {
-        return false;
-    }
 
     let highway = if let Some(x) = tags.get(osm::HIGHWAY) {
         if x == "construction" {
