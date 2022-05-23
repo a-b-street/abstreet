@@ -655,6 +655,14 @@ impl Perimeter {
             .iter()
             .all(|id| self.interior.contains(&id.road) || self.roads.contains(id))
     }
+
+    /// Shrinks or expands the perimeter by tracing the opposite side of the road.
+    pub fn flip_side_of_road(mut self) -> Self {
+        for road_side in &mut self.roads {
+            *road_side = road_side.other_side();
+        }
+        self
+    }
 }
 
 impl fmt::Debug for Perimeter {
