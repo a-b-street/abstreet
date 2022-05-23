@@ -10,6 +10,12 @@ use crate::render::lane::DrawLane;
 use crate::render::{DrawOptions, Renderable};
 use crate::{AppLike, ID};
 
+// The default font size is too large; shrink it down to fit on roads better.
+const LABEL_SCALE_FACTOR: f64 = 0.1;
+// Making the label follow the road's curvature usually looks better, but sometimes the letters
+// squish together, so keep this experiment disabled for now.
+const DRAW_CURVEY_LABEL: bool = true;
+
 pub struct DrawRoad {
     pub id: RoadID,
     zorder: isize,
@@ -28,7 +34,7 @@ impl DrawRoad {
         }
     }
 
-    pub fn render_center_line<P: AsRef<Prerender>>(
+    fn render_center_line<P: AsRef<Prerender>>(
         &self,
         app: &dyn AppLike,
         prerender: &P,
@@ -36,6 +42,9 @@ impl DrawRoad {
         let r = app.map().get_r(self.id);
         let name = r.get_name(app.opts().language.as_ref());
         let prerender = prerender.as_ref();
+        let text_width =
+            Distance::meters(Text::from(&name).rendered_width(prerender) * LABEL_SCALE_FACTOR);
+
         let center_line_color = if r.is_private() && app.cs().private_road.is_some() {
             app.cs()
                 .road_center_line
@@ -55,18 +64,17 @@ impl DrawRoad {
                 && pair[0].lane_type.is_for_moving_vehicles()
                 && pair[1].lane_type.is_for_moving_vehicles()
             {
-                let text_width = Text::from(&name).rendered_width(prerender) * 0.1;
                 let pl = r.shift_from_left_side(width).unwrap();
-                let first_segment_distance = (pl.length().inner_meters() - text_width) / 2.0;
+                // Draw dashed lines from the start of the road to where the text label begins,
+                // then another set of dashes from where the text label ends to the end of the
+                // road
+                let first_segment_distance = (pl.length() - text_width) / 2.0;
                 let last_segment_distance = first_segment_distance + text_width;
-                let pl_to_label =
-                    pl.slice(Distance::ZERO, Distance::meters(first_segment_distance));
-                let pl_after_label = pl.slice(Distance::meters(last_segment_distance), pl.length());
 
-                if let Ok(line) = pl_to_label {
+                if let Ok((line, _)) = pl.slice(Distance::ZERO, first_segment_distance) {
                     batch.extend(
                         center_line_color,
-                        line.0.dashed_lines(
+                        line.dashed_lines(
                             Distance::meters(0.25),
                             Distance::meters(2.0),
                             Distance::meters(1.0),
@@ -74,10 +82,10 @@ impl DrawRoad {
                     );
                 }
 
-                if let Ok(line) = pl_after_label {
+                if let Ok((line, _)) = pl.slice(last_segment_distance, pl.length()) {
                     batch.extend(
                         center_line_color,
-                        line.0.dashed_lines(
+                        line.dashed_lines(
                             Distance::meters(0.25),
                             Distance::meters(2.0),
                             Distance::meters(1.0),
@@ -106,39 +114,39 @@ impl DrawRoad {
         // Draw the label
         if !r.is_light_rail() {
             let name = r.get_name(app.opts().language.as_ref());
-            let fg = Color::WHITE;
             if r.length() >= Distance::meters(30.0) && name != "???" {
-                // TODO If it's definitely straddling bus/bike lanes, change the color? Or
-                // even easier, just skip the center lines?
-                let bg = if r.is_private() && app.cs().private_road.is_some() {
-                    app.cs()
-                        .zoomed_road_surface(LaneType::Driving, r.get_rank())
-                        .lerp(app.cs().private_road.unwrap(), 0.5)
-                } else {
-                    app.cs()
-                        .zoomed_road_surface(LaneType::Driving, r.get_rank())
-                };
-                // TODO: find a good way to draw an appropriate background
-                if true {
+                if DRAW_CURVEY_LABEL {
+                    let fg = Color::WHITE;
                     if r.center_pts.quadrant() > 1 && r.center_pts.quadrant() < 4 {
                         batch.append(Line(name).fg(fg).outlined(Color::BLACK).render_curvey(
                             prerender,
                             &r.center_pts.reversed(),
-                            0.1,
+                            LABEL_SCALE_FACTOR,
                         ));
                     } else {
                         batch.append(Line(name).fg(fg).outlined(Color::BLACK).render_curvey(
                             prerender,
                             &r.center_pts,
-                            0.1,
+                            LABEL_SCALE_FACTOR,
                         ));
                     }
                 } else {
+                    // TODO If it's definitely straddling bus/bike lanes, change the color? Or
+                    // even easier, just skip the center lines?
+                    let bg = if r.is_private() && app.cs().private_road.is_some() {
+                        app.cs()
+                            .zoomed_road_surface(LaneType::Driving, r.get_rank())
+                            .lerp(app.cs().private_road.unwrap(), 0.5)
+                    } else {
+                        app.cs()
+                            .zoomed_road_surface(LaneType::Driving, r.get_rank())
+                    };
+
                     let txt = Text::from(Line(name).fg(center_line_color)).bg(bg);
                     let (pt, angle) = r.center_pts.must_dist_along(r.length() / 2.0);
                     batch.append(
                         txt.render_autocropped(prerender)
-                            .scale(0.1)
+                            .scale(LABEL_SCALE_FACTOR)
                             .centered_on(pt)
                             .rotate_around_batch_center(angle.reorient()),
                     );

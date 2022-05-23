@@ -550,8 +550,7 @@ impl TextSpan {
         let mut stroke_parameters = String::new();
 
         if let Some(c) = self.outline_color {
-            stroke_parameters
-                .push_str(format!("stroke=\"{}\" stroke-width=\".1\"", c.as_hex()).as_str());
+            stroke_parameters = format!("stroke=\"{}\" stroke-width=\".1\"", c.as_hex());
         };
 
         // Just set a sufficiently large view box
@@ -575,7 +574,7 @@ impl TextSpan {
         write!(&mut svg, "\" />").unwrap();
         // We need to subtract and account for the length of the text
         let start_offset = (path.length().inner_meters()
-            - Text::from(&self.text).dims(&assets).width * scale)
+            - scale * Text::from(&self.text).rendered_width(&assets))
             / 2.0;
 
         let fg_color = self.fg_color_for_style(&assets.style.borrow());
@@ -610,9 +609,7 @@ impl TextSpan {
             Ok(t) => t,
             Err(err) => panic!("curvey({}): {}", self.text, err),
         };
-
         let mut batch = GeomBatch::new();
-
         match crate::svg::add_svg_inner(&mut batch, svg_tree, tolerance) {
             Ok(_) => batch,
             Err(err) => panic!("curvey({}): {}", self.text, err),
