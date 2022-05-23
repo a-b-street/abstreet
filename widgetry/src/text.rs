@@ -574,8 +574,9 @@ impl TextSpan {
         }
         write!(&mut svg, "\" />").unwrap();
         // We need to subtract and account for the length of the text
-        let start_offset =
-            (path.length().inner_meters() - Text::from(&self.text).dims(&assets).width * scale) / 2.0;
+        let start_offset = (path.length().inner_meters()
+            - Text::from(&self.text).dims(&assets).width * scale)
+            / 2.0;
 
         let fg_color = self.fg_color_for_style(&assets.style.borrow());
 
