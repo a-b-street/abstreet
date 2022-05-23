@@ -73,32 +73,25 @@ impl Neighborhood {
             labels: DrawRoadLabels::only_major_roads(),
         };
 
-        let mut holes = Vec::new();
         for id in &n.orig_perimeter.roads {
             n.perimeter.insert(id.road);
             let road = map.get_r(id.road);
             n.borders.insert(road.src_i);
             n.borders.insert(road.dst_i);
-            holes.push(road.get_thick_polygon());
         }
-        for i in &n.borders {
-            holes.push(map.get_i(*i).polygon.clone());
-        }
-        // TODO The original block's polygon is nice, but we want to include the perimeter. Adding
-        // more holes seems to break. But the convex hull of a bunch of holes looks really messy.
+        // The neighborhood's perimeter hugs the "interior" of the neighborhood. If we just use the
+        // other side of the perimeter road, the highlighted area nicely shows the boundary road
+        // too.
         let fade_area = Polygon::with_holes(
             map.get_boundary_polygon().clone().into_ring(),
-            if true {
-                vec![n
-                    .orig_perimeter
-                    .clone()
-                    .to_block(map)
-                    .unwrap()
-                    .polygon
-                    .into_ring()]
-            } else {
-                vec![Polygon::convex_hull(holes).into_ring()]
-            },
+            vec![n
+                .orig_perimeter
+                .clone()
+                .flip_side_of_road()
+                .to_block(map)
+                .unwrap()
+                .polygon
+                .into_ring()],
         );
         n.fade_irrelevant = GeomBatch::from(vec![(app.cs.fade_map_dark, fade_area)]).upload(ctx);
 
