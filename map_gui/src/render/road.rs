@@ -14,7 +14,7 @@ use crate::{AppLike, ID};
 const LABEL_SCALE_FACTOR: f64 = 0.1;
 // Making the label follow the road's curvature usually looks better, but sometimes the letters
 // squish together, so keep this experiment disabled for now.
-const DRAW_CURVEY_LABEL: bool = true;
+const DRAW_CURVEY_LABEL: bool = false;
 
 pub struct DrawRoad {
     pub id: RoadID,
@@ -101,13 +101,6 @@ impl DrawRoad {
     pub fn render<P: AsRef<Prerender>>(&self, prerender: &P, app: &dyn AppLike) -> GeomBatch {
         let prerender = prerender.as_ref();
         let r = app.map().get_r(self.id);
-        let center_line_color = if r.is_private() && app.cs().private_road.is_some() {
-            app.cs()
-                .road_center_line
-                .lerp(app.cs().private_road.unwrap(), 0.5)
-        } else {
-            app.cs().road_center_line
-        };
 
         let mut batch = self.render_center_line(app, prerender);
 
@@ -131,18 +124,14 @@ impl DrawRoad {
                         ));
                     }
                 } else {
-                    // TODO If it's definitely straddling bus/bike lanes, change the color? Or
-                    // even easier, just skip the center lines?
-                    let bg = if r.is_private() && app.cs().private_road.is_some() {
+                    let center_line_color = if r.is_private() && app.cs().private_road.is_some() {
                         app.cs()
-                            .zoomed_road_surface(LaneType::Driving, r.get_rank())
+                            .road_center_line
                             .lerp(app.cs().private_road.unwrap(), 0.5)
                     } else {
-                        app.cs()
-                            .zoomed_road_surface(LaneType::Driving, r.get_rank())
+                        app.cs().road_center_line
                     };
-
-                    let txt = Text::from(Line(name).fg(center_line_color)).bg(bg);
+                    let txt = Text::from(Line(name).fg(center_line_color));
                     let (pt, angle) = r.center_pts.must_dist_along(r.length() / 2.0);
                     batch.append(
                         txt.render_autocropped(prerender)
