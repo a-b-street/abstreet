@@ -1,5 +1,8 @@
+extern crate rand;
+
 use std::collections::BTreeSet;
 
+use rand::{thread_rng, Rng};
 use serde::{Deserialize, Serialize};
 
 use abstutil::Timer;
@@ -12,6 +15,7 @@ use crate::{Scenario, TripMode};
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Serialize, Deserialize)]
 pub enum ScenarioModifier {
     RepeatDays(usize),
+    RepeatDaysNoise(usize),
     ChangeMode {
         pct_ppl: usize,
         departure_filter: (Time, Time),
@@ -29,6 +33,7 @@ impl ScenarioModifier {
     pub fn apply(&self, map: &Map, mut s: Scenario) -> Scenario {
         match self {
             ScenarioModifier::RepeatDays(n) => repeat_days(s, *n),
+            ScenarioModifier::RepeatDaysNoise(n) => repeat_days_noise(s, *n),
             ScenarioModifier::ChangeMode {
                 pct_ppl,
                 departure_filter,
@@ -90,6 +95,7 @@ impl ScenarioModifier {
     pub fn describe(&self) -> String {
         match self {
             ScenarioModifier::RepeatDays(n) => format!("repeat the entire day {} times", n),
+            ScenarioModifier::RepeatDaysNoise(n) => format!("repeat the entire day {} times with +/- 10 minutes noise on each departure/arrival", n),
             ScenarioModifier::ChangeMode {
                 pct_ppl,
                 to_mode,
@@ -126,6 +132,27 @@ fn repeat_days(mut s: Scenario, days: usize) -> Scenario {
             for trip in &person.trips {
                 let mut new = trip.clone();
                 new.depart += offset;
+                new.modified = true;
+                trips.push(new);
+            }
+            offset += Duration::hours(24);
+        }
+        person.trips = trips;
+    }
+    s
+}
+
+fn repeat_days_noise(mut s: Scenario, days: usize) -> Scenario {
+    s.scenario_name = format!("{} (repeated {} days)", s.scenario_name, days);
+    let mut rng = thread_rng();
+    for person in &mut s.people {
+        let mut trips = Vec::new();
+        let mut offset = Duration::ZERO;
+        for _ in 0..days {
+            for trip in &person.trips {
+                let mut new = trip.clone();
+                let noise = Duration::minutes(rng.gen_range(0..=20)) - Duration::minutes(10);
+                new.depart += offset + noise;
                 new.modified = true;
                 trips.push(new);
             }

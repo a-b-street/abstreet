@@ -11,3 +11,4 @@ geom = { path = "../geom" }
 log = "0.4.14"
 map_model = { path = "../map_model" }
 serde = "1.0.123"
+rand = "0.8.5"
