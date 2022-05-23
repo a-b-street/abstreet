@@ -95,7 +95,10 @@ impl ScenarioModifier {
     pub fn describe(&self) -> String {
         match self {
             ScenarioModifier::RepeatDays(n) => format!("repeat the entire day {} times", n),
-            ScenarioModifier::RepeatDaysNoise(n) => format!("repeat the entire day {} times with +/- 10 minutes noise on each departure/arrival", n),
+            ScenarioModifier::RepeatDaysNoise(n) => format!(
+                "repeat the entire day {} times with +/- 10 minutes noise on each departure",
+                n
+            ),
             ScenarioModifier::ChangeMode {
                 pct_ppl,
                 to_mode,
