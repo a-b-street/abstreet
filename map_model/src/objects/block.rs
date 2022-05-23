@@ -129,6 +129,7 @@ impl Perimeter {
     pub fn find_roads_to_skip_tracing(map: &Map) -> HashSet<RoadID> {
         let mut skip = HashSet::new();
         for r in map.all_roads() {
+            // TODO Redundant
             if r.is_light_rail() {
                 skip.insert(r.id);
             } else if !PathConstraints::Car.can_use_road(r, map) {

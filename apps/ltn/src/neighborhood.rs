@@ -93,6 +93,11 @@ impl Neighborhood {
                 .polygon
                 .into_ring()],
         );
+        /*let mut wat = GeomBatch::from(vec![(app.cs.fade_map_dark, fade_area)]);
+        for r in app.session.partitioning.neighborhood_cul_de_sacs(id) {
+            wat.push(widgetry::Color::RED.alpha(0.9), map.get_r(*r).get_thick_polygon());
+        }
+        n.fade_irrelevant = wat.upload(ctx);*/
         n.fade_irrelevant = GeomBatch::from(vec![(app.cs.fade_map_dark, fade_area)]).upload(ctx);
 
         for r in &n.orig_perimeter.interior {
@@ -109,6 +114,7 @@ impl Neighborhood {
             &n.orig_perimeter,
             &n.borders,
             &app.session.modal_filters,
+            app.session.partitioning.neighborhood_cul_de_sacs(id),
         );
 
         let mut label_roads = n.perimeter.clone();
@@ -127,6 +133,7 @@ fn find_cells(
     perimeter: &Perimeter,
     borders: &BTreeSet<IntersectionID>,
     modal_filters: &ModalFilters,
+    cul_de_sacs: &BTreeSet<RoadID>,
 ) -> Vec<Cell> {
     let mut cells = Vec::new();
     let mut visited = BTreeSet::new();
@@ -176,6 +183,10 @@ fn find_cells(
             );
             cells.push(cell);
         }
+    }
+
+    for r in cul_de_sacs {
+        cells.push(floodfill(map, *r, borders, &modal_filters));
     }
 
     cells

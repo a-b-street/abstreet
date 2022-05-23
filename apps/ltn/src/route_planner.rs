@@ -121,8 +121,8 @@ impl RoutePlanner {
 
         // Fade all neighborhood interiors, so it's very clear when a route cuts through
         let mut batch = GeomBatch::new();
-        for (block, _) in app.session.partitioning.all_neighborhoods().values() {
-            batch.push(app.cs.fade_map_dark, block.polygon.clone());
+        for info in app.session.partitioning.all_neighborhoods().values() {
+            batch.push(app.cs.fade_map_dark, info.block.polygon.clone());
         }
 
         let mut world = World::bounded(app.map.get_bounds());

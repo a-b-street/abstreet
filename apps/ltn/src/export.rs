@@ -20,16 +20,16 @@ fn geojson_string(ctx: &EventCtx, app: &App) -> Result<String> {
     let mut features = Vec::new();
 
     // All neighborhood boundaries
-    for (id, (block, color)) in app.session.partitioning.all_neighborhoods() {
+    for (id, info) in app.session.partitioning.all_neighborhoods() {
         let mut feature = Feature {
             bbox: None,
-            geometry: Some(block.polygon.to_geojson(None)),
+            geometry: Some(info.block.polygon.to_geojson(None)),
             id: None,
             properties: None,
             foreign_members: None,
         };
         feature.set_property("type", "neighborhood");
-        feature.set_property("fill", color.as_hex());
+        feature.set_property("fill", info.color.as_hex());
         // Cells should cover these up
         feature.set_property("fill-opacity", 0.0);
         features.push(feature);

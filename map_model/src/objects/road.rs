@@ -43,6 +43,19 @@ impl RoadID {
             },
         ]
     }
+
+    pub fn both_sides(self) -> [RoadSideID; 2] {
+        [
+            RoadSideID {
+                road: self,
+                side: SideOfRoad::Right,
+            },
+            RoadSideID{
+                road: self,
+                side: SideOfRoad::Left,
+            },
+        ]
+    }
 }
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
