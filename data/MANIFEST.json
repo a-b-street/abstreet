@@ -1441,9 +1441,9 @@
       "compressed_size_bytes": 3896689
     },
     "data/input/gb/london/screenshots/kennington.zip": {
-      "checksum": "1f023c54a925f4d54afb2a9a3a74ecea",
-      "uncompressed_size_bytes": 6674339,
-      "compressed_size_bytes": 6673167
+      "checksum": "19abb1d8c10ca063901ab9c876e5eca6",
+      "uncompressed_size_bytes": 6600386,
+      "compressed_size_bytes": 6599250
     },
     "data/input/gb/long_marston/osm/center.osm": {
       "checksum": "c7c25ca197870b843ac79c591c1275f3",
@@ -2091,9 +2091,9 @@
       "compressed_size_bytes": 3215418
     },
     "data/input/pl/krakow/screenshots/center.zip": {
-      "checksum": "ff5f39a48d7f6ea1943e2abd5569937f",
-      "uncompressed_size_bytes": 37103479,
-      "compressed_size_bytes": 37099988
+      "checksum": "c5927c5639d035c02f9f075fdcc2fa54",
+      "uncompressed_size_bytes": 36713667,
+      "compressed_size_bytes": 36710148
     },
     "data/input/pl/warsaw/osm/center.osm": {
       "checksum": "b41830dd375674ffc9f7ec15d6cf9c0c",
@@ -2731,9 +2731,9 @@
       "compressed_size_bytes": 384258
     },
     "data/input/us/phoenix/screenshots/tempe.zip": {
-      "checksum": "32665a738ab6e43098feae621a4873b8",
-      "uncompressed_size_bytes": 10152381,
-      "compressed_size_bytes": 10150625
+      "checksum": "cbf1aae43c64bb83a630a7ea16e54127",
+      "uncompressed_size_bytes": 10088176,
+      "compressed_size_bytes": 10086412
     },
     "data/input/us/providence/osm/downtown.osm": {
       "checksum": "463b986adc83ae4d1174496a4ce744d1",
@@ -3081,14 +3081,14 @@
       "compressed_size_bytes": 4992247
     },
     "data/input/us/seattle/screenshots/downtown.zip": {
-      "checksum": "1713164bc2544478f58a9e0dcc799481",
-      "uncompressed_size_bytes": 28777110,
-      "compressed_size_bytes": 28769092
+      "checksum": "45bd51e7ac9c59e73ff65acbd0dfcf18",
+      "uncompressed_size_bytes": 28343657,
+      "compressed_size_bytes": 28336193
     },
     "data/input/us/seattle/screenshots/montlake.zip": {
-      "checksum": "486a02377c86064a584c60cc8939c47f",
-      "uncompressed_size_bytes": 5455080,
-      "compressed_size_bytes": 5455031
+      "checksum": "d0c79530e0ad648bf83f13549448015e",
+      "uncompressed_size_bytes": 5402505,
+      "compressed_size_bytes": 5402436
     },
     "data/input/us/seattle/trips_2014.csv": {
       "checksum": "d4a8e733045b28c0385fb81359d6df03",
