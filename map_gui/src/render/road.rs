@@ -10,6 +10,12 @@ use crate::render::lane::DrawLane;
 use crate::render::{DrawOptions, Renderable};
 use crate::{AppLike, ID};
 
+// The default font size is too large; shrink it down to fit on roads better.
+const LABEL_SCALE_FACTOR: f64 = 0.1;
+// Making the label follow the road's curvature usually looks better, but sometimes the letters
+// squish together, so keep this experiment disabled for now.
+const DRAW_CURVEY_LABEL: bool = false;
+
 pub struct DrawRoad {
     pub id: RoadID,
     zorder: isize,
@@ -28,95 +34,57 @@ impl DrawRoad {
         }
     }
 
-    pub fn render_center_line(&self, app: &dyn AppLike) -> GeomBatch {
-        let r = app.map().get_r(self.id);
-        let center_line_color = if r.is_private() && app.cs().private_road.is_some() {
-            app.cs()
-                .road_center_line
-                .lerp(app.cs().private_road.unwrap(), 0.5)
-        } else {
-            app.cs().road_center_line
-        };
-
-        let mut batch = GeomBatch::new();
-
-        // Draw a center line every time two driving/bike/bus lanes of opposite direction are
-        // adjacent.
-        let mut width = Distance::ZERO;
-        for pair in r.lanes.windows(2) {
-            width += pair[0].width;
-            if pair[0].dir != pair[1].dir
-                && pair[0].lane_type.is_for_moving_vehicles()
-                && pair[1].lane_type.is_for_moving_vehicles()
-            {
-                let pl = r.shift_from_left_side(width).unwrap();
-                batch.extend(
-                    center_line_color,
-                    pl.dashed_lines(
-                        Distance::meters(0.25),
-                        Distance::meters(2.0),
-                        Distance::meters(1.0),
-                    ),
-                );
-            }
-        }
-
-        batch
-    }
-
     pub fn render<P: AsRef<Prerender>>(&self, prerender: &P, app: &dyn AppLike) -> GeomBatch {
         let prerender = prerender.as_ref();
         let r = app.map().get_r(self.id);
-        let center_line_color = if r.is_private() && app.cs().private_road.is_some() {
-            app.cs()
-                .road_center_line
-                .lerp(app.cs().private_road.unwrap(), 0.5)
-        } else {
-            app.cs().road_center_line
-        };
 
-        let mut batch = self.render_center_line(app);
+        if r.is_light_rail() {
+            // No label or center-line
+            return GeomBatch::new();
+        }
+        let name = r.get_name(app.opts().language.as_ref());
+        let mut batch;
+        if r.length() >= Distance::meters(30.0) && name != "???" {
+            // Render a label, so split the center-line into two pieces
+            let text_width =
+                Distance::meters(Text::from(&name).rendered_width(prerender) * LABEL_SCALE_FACTOR);
+            batch = render_center_line(app, r, Some(text_width));
 
-        // Draw the label
-        if !r.is_light_rail() {
-            let name = r.get_name(app.opts().language.as_ref());
-            if r.length() >= Distance::meters(30.0) && name != "???" {
-                // TODO If it's definitely straddling bus/bike lanes, change the color? Or
-                // even easier, just skip the center lines?
-                let bg = if r.is_private() && app.cs().private_road.is_some() {
+            if DRAW_CURVEY_LABEL {
+                let fg = Color::WHITE;
+                if r.center_pts.quadrant() > 1 && r.center_pts.quadrant() < 4 {
+                    batch.append(Line(name).fg(fg).outlined(Color::BLACK).render_curvey(
+                        prerender,
+                        &r.center_pts.reversed(),
+                        LABEL_SCALE_FACTOR,
+                    ));
+                } else {
+                    batch.append(Line(name).fg(fg).outlined(Color::BLACK).render_curvey(
+                        prerender,
+                        &r.center_pts,
+                        LABEL_SCALE_FACTOR,
+                    ));
+                }
+            } else {
+                let center_line_color = if r.is_private() && app.cs().private_road.is_some() {
                     app.cs()
-                        .zoomed_road_surface(LaneType::Driving, r.get_rank())
+                        .road_center_line
                         .lerp(app.cs().private_road.unwrap(), 0.5)
                 } else {
-                    app.cs()
-                        .zoomed_road_surface(LaneType::Driving, r.get_rank())
+                    app.cs().road_center_line
                 };
-                // TODO: find a good way to draw an appropriate background
-                if false {
-                    if r.center_pts.quadrant() > 1 && r.center_pts.quadrant() < 4 {
-                        batch.append(Line(name).fg(center_line_color).render_curvey(
-                            prerender,
-                            &r.center_pts.reversed(),
-                            0.1,
-                        ));
-                    } else {
-                        batch.append(Line(name).fg(center_line_color).render_curvey(
-                            prerender,
-                            &r.center_pts,
-                            0.1,
-                        ));
-                    }
-                } else {
-                    let txt = Text::from(Line(name).fg(center_line_color)).bg(bg);
-                    let (pt, angle) = r.center_pts.must_dist_along(r.length() / 2.0);
-                    batch.append(
-                        txt.render_autocropped(prerender)
-                            .scale(0.1)
-                            .centered_on(pt)
-                            .rotate_around_batch_center(angle.reorient()),
-                    );
-                }
+                let txt = Text::from(Line(name).fg(center_line_color));
+                let (pt, angle) = r.center_pts.must_dist_along(r.length() / 2.0);
+                batch.append(
+                    txt.render_autocropped(prerender)
+                        .scale(LABEL_SCALE_FACTOR)
+                        .centered_on(pt)
+                        .rotate_around_batch_center(angle.reorient()),
+                );
             }
+        } else {
+            // No label
+            batch = render_center_line(app, r, None);
         }
 
         // Driveways of connected buildings. These are grouped by road to limit what has to be
@@ -161,6 +129,65 @@ impl Renderable for DrawRoad {
     fn get_zorder(&self) -> isize {
         self.zorder
     }
+}
+
+/// If `text_width` is defined, don't draw the center line in the middle of the road for this
+/// amount of space
+fn render_center_line(app: &dyn AppLike, r: &Road, text_width: Option<Distance>) -> GeomBatch {
+    let center_line_color = if r.is_private() && app.cs().private_road.is_some() {
+        app.cs()
+            .road_center_line
+            .lerp(app.cs().private_road.unwrap(), 0.5)
+    } else {
+        app.cs().road_center_line
+    };
+
+    let mut batch = GeomBatch::new();
+
+    // Draw a center line every time two driving/bike/bus lanes of opposite direction are adjacent.
+    let mut width = Distance::ZERO;
+    for pair in r.lanes.windows(2) {
+        width += pair[0].width;
+        if pair[0].dir != pair[1].dir
+            && pair[0].lane_type.is_for_moving_vehicles()
+            && pair[1].lane_type.is_for_moving_vehicles()
+        {
+            let pl = r.shift_from_left_side(width).unwrap();
+            if let Some(text_width) = text_width {
+                // Draw dashed lines from the start of the road to where the text label begins,
+                // then another set of dashes from where the text label ends to the end of the road
+                let first_segment_distance = (pl.length() - text_width) / 2.0;
+                let last_segment_distance = first_segment_distance + text_width;
+                for slice in [
+                    pl.slice(Distance::ZERO, first_segment_distance),
+                    pl.slice(last_segment_distance, pl.length()),
+                ] {
+                    if let Ok((line, _)) = slice {
+                        batch.extend(
+                            center_line_color,
+                            line.dashed_lines(
+                                Distance::meters(0.25),
+                                Distance::meters(2.0),
+                                Distance::meters(1.0),
+                            ),
+                        );
+                    }
+                }
+            } else {
+                // Uninterrupted center line covering the entire road
+                batch.extend(
+                    center_line_color,
+                    pl.dashed_lines(
+                        Distance::meters(0.25),
+                        Distance::meters(2.0),
+                        Distance::meters(1.0),
+                    ),
+                );
+            }
+        }
+    }
+
+    batch
 }
 
 fn draw_building_driveway(app: &dyn AppLike, bldg: &Building, batch: &mut GeomBatch) {

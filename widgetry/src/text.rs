@@ -311,6 +311,10 @@ impl Text {
         self.render(assets).get_dims()
     }
 
+    pub fn rendered_width<A: AsRef<Assets>>(self, assets: &A) -> f64 {
+        self.dims(assets.as_ref()).width
+    }
+
     /// Render the text, without any autocropping. You can pass in an `EventCtx` or `GfxCtx`.
     pub fn render<A: AsRef<Assets>>(self, assets: &A) -> GeomBatch {
         let assets: &Assets = assets.as_ref();
@@ -543,6 +547,11 @@ impl TextSpan {
     ) -> GeomBatch {
         let assets = assets.as_ref();
         let tolerance = svg::HIGH_QUALITY;
+        let mut stroke_parameters = String::new();
+
+        if let Some(c) = self.outline_color {
+            stroke_parameters = format!("stroke=\"{}\" stroke-width=\".1\"", c.as_hex());
+        };
 
         // Just set a sufficiently large view box
         let mut svg = r##"<svg width="9999" height="9999" viewBox="0 0 9999 9999" xmlns="http://www.w3.org/2000/svg">"##.to_string();
@@ -564,13 +573,15 @@ impl TextSpan {
         }
         write!(&mut svg, "\" />").unwrap();
         // We need to subtract and account for the length of the text
-        let start_offset = (path.length() / 2.0).inner_meters()
-            - (Text::from(&self.text).dims(assets).width * scale) / 2.0;
+        let start_offset = (path.length().inner_meters()
+            - scale * Text::from(&self.text).rendered_width(&assets))
+            / 2.0;
 
         let fg_color = self.fg_color_for_style(&assets.style.borrow());
+
         write!(
             &mut svg,
-            r##"<text xml:space="preserve" font-size="{}" font-family="{}" {} fill="{}" fill-opacity="{}" startOffset="{}">"##,
+            r##"<text xml:space="preserve" font-size="{}" font-family="{}" {} fill="{}" fill-opacity="{}" startOffset="{}" {}>"##,
             // This is seemingly the easiest way to do this. We could .scale() the whole batch
             // after, but then we have to re-translate it to the proper spot
             (self.size as f64) * scale,
@@ -583,6 +594,7 @@ impl TextSpan {
             fg_color.as_hex(),
             fg_color.a,
             start_offset,
+            stroke_parameters,
         )
             .unwrap();
 
