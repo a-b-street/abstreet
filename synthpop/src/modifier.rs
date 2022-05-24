@@ -32,8 +32,8 @@ impl ScenarioModifier {
     /// shouldn't be used.
     pub fn apply(&self, map: &Map, mut s: Scenario) -> Scenario {
         match self {
-            ScenarioModifier::RepeatDays(n) => repeat_days(s, *n),
-            ScenarioModifier::RepeatDaysNoise(n) => repeat_days_noise(s, *n),
+            ScenarioModifier::RepeatDays(n) => repeat_days(s, *n, None),
+            ScenarioModifier::RepeatDaysNoise(n) => repeat_days(s, *n, Some(10)),
             ScenarioModifier::ChangeMode {
                 pct_ppl,
                 departure_filter,
@@ -126,26 +126,7 @@ impl ScenarioModifier {
 //
 // The bigger problem is that any people that seem to require multiple cars... will wind up
 // needing LOTS of cars.
-fn repeat_days(mut s: Scenario, days: usize) -> Scenario {
-    s.scenario_name = format!("{} (repeated {} days)", s.scenario_name, days);
-    for person in &mut s.people {
-        let mut trips = Vec::new();
-        let mut offset = Duration::ZERO;
-        for _ in 0..days {
-            for trip in &person.trips {
-                let mut new = trip.clone();
-                new.depart += offset;
-                new.modified = true;
-                trips.push(new);
-            }
-            offset += Duration::hours(24);
-        }
-        person.trips = trips;
-    }
-    s
-}
-
-fn repeat_days_noise(mut s: Scenario, days: usize) -> Scenario {
+fn repeat_days(mut s: Scenario, days: usize, noise: Option<usize>) -> Scenario {
     s.scenario_name = format!("{} (repeated {} days)", s.scenario_name, days);
     let mut rng = thread_rng();
     for person in &mut s.people {
@@ -154,8 +135,12 @@ fn repeat_days_noise(mut s: Scenario, days: usize) -> Scenario {
         for _ in 0..days {
             for trip in &person.trips {
                 let mut new = trip.clone();
-                let noise = Duration::minutes(rng.gen_range(0..=20)) - Duration::minutes(10);
-                new.depart += offset + noise;
+                new.depart += offset;
+                if let Some(noise_v) = noise {
+                    let noise_rnd = Duration::minutes(rng.gen_range(0..=(noise_v * 2)))
+                        - Duration::minutes(noise_v);
+                    new.depart += noise_rnd;
+                }
                 new.modified = true;
                 trips.push(new);
             }
