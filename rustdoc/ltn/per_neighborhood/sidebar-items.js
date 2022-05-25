@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["FilterableObj",""],["Tab",""]],"fn":[["handle_action",""],["handle_world_outcome","If true, the neighborhood has changed and the caller should recalculate stuff, including the panel"],["make_world","Creates clickable objects for managing filters on roads and intersections. Everything is invisible; the caller is responsible for drawing things."]]});
