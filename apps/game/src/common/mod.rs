@@ -307,8 +307,6 @@ impl CommonState {
         }
         if app.secondary.is_some() && ctx.input.pressed(lctrl(Key::Tab)) {
             app.swap_map();
-        }
-        if app.secondary.is_some() && ctx.input.pressed(lctrl(Key::A)) {
             sync_abtest(ctx, app);
         }
         None
