@@ -433,8 +433,6 @@
 <span id="428">428</span>
 <span id="429">429</span>
 <span id="430">430</span>
-<span id="431">431</span>
-<span id="432">432</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Polygon</span>, <span class="ident">Time</span>};
@@ -744,8 +742,6 @@
         }
         <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">secondary</span>.<span class="ident">is_some</span>() <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">lctrl</span>(<span class="ident">Key::Tab</span>)) {
             <span class="ident">app</span>.<span class="ident">swap_map</span>();
-        }
-        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">secondary</span>.<span class="ident">is_some</span>() <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">lctrl</span>(<span class="ident">Key::A</span>)) {
             <span class="ident">sync_abtest</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
         }
         <span class="prelude-val">None</span>
