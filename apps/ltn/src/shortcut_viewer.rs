@@ -1,9 +1,9 @@
 use map_gui::tools::percentage_bar;
 use map_model::{PathRequest, NORMAL_LANE_THICKNESS};
-use widgetry::mapspace::{ToggleZoomed, World};
+use widgetry::mapspace::ToggleZoomed;
 use widgetry::{EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text, TextExt, Widget};
 
-use crate::per_neighborhood::{FilterableObj, Tab};
+use crate::edit::{EditNeighborhood, Tab};
 use crate::shortcuts::{find_shortcuts, Shortcuts};
 use crate::{colors, App, Neighborhood, NeighborhoodID, Transition};
 
@@ -14,7 +14,7 @@ pub struct BrowseShortcuts {
     current_idx: usize,
 
     draw_path: ToggleZoomed,
-    world: World<FilterableObj>,
+    edit: EditNeighborhood,
     neighborhood: Neighborhood,
 }
 
@@ -30,7 +30,7 @@ impl BrowseShortcuts {
         let shortcuts = ctx.loading_screen("find shortcuts", |_, timer| {
             find_shortcuts(app, &neighborhood, timer)
         });
-        let world = crate::per_neighborhood::make_world(ctx, app, &neighborhood, &shortcuts);
+        let edit = EditNeighborhood::new(ctx, app, &neighborhood, &shortcuts);
 
         let mut state = BrowseShortcuts {
             top_panel: crate::components::TopPanel::panel(ctx, app),
@@ -39,7 +39,7 @@ impl BrowseShortcuts {
             current_idx: 0,
             draw_path: ToggleZoomed::empty(ctx),
             neighborhood,
-            world,
+            edit,
         };
 
         if let Some(req) = start_with_request {
@@ -63,10 +63,12 @@ impl BrowseShortcuts {
             self.shortcuts.quiet_and_total_streets(&self.neighborhood);
 
         if self.shortcuts.paths.is_empty() {
-            self.left_panel = Tab::Shortcuts
+            self.left_panel = self
+                .edit
                 .panel_builder(
                     ctx,
                     app,
+                    Tab::Shortcuts,
                     &self.top_panel,
                     percentage_bar(
                         ctx,
@@ -86,10 +88,12 @@ impl BrowseShortcuts {
             let controls = self.prev_next_controls(ctx);
             self.left_panel.replace(ctx, "prev/next controls", controls);
         } else {
-            self.left_panel = Tab::Shortcuts
+            self.left_panel = self
+                .edit
                 .panel_builder(
                     ctx,
                     app,
+                    Tab::Shortcuts,
                     &self.top_panel,
                     Widget::col(vec![
                         percentage_bar(
@@ -174,7 +178,7 @@ impl State<App> for BrowseShortcuts {
                     self.recalculate(ctx, app);
                 }
                 x => {
-                    if let Some(t) = crate::per_neighborhood::handle_action(
+                    if let Some(t) = self.edit.handle_panel_action(
                         ctx,
                         app,
                         x,
@@ -205,10 +209,7 @@ impl State<App> for BrowseShortcuts {
             _ => {}
         }
 
-        // TODO Bit weird to allow this while showing individual paths, since we don't draw the
-        // world
-        let world_outcome = self.world.event(ctx);
-        if crate::per_neighborhood::handle_world_outcome(ctx, app, world_outcome) {
+        if self.edit.event(ctx, app) {
             // Reset state, but if possible, preserve the current individual shortcut.
             let current_request = self.shortcuts.paths[self.current_idx].get_req().clone();
             return Transition::Replace(BrowseShortcuts::new_state(
@@ -226,7 +227,7 @@ impl State<App> for BrowseShortcuts {
         self.top_panel.draw(g);
         self.left_panel.draw(g);
 
-        self.world.draw(g);
+        self.edit.world.draw(g);
         self.draw_path.draw(g);
 
         g.redraw(&self.neighborhood.fade_irrelevant);

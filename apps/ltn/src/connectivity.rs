@@ -1,13 +1,13 @@
 use geom::{ArrowCap, Distance, PolyLine};
 use map_gui::tools::ColorNetwork;
-use widgetry::mapspace::{ToggleZoomed, World};
+use widgetry::mapspace::ToggleZoomed;
 use widgetry::tools::PopupMsg;
 use widgetry::{
     DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, TextExt, Toggle, Widget,
 };
 
+use crate::edit::{EditNeighborhood, Tab};
 use crate::filters::auto::Heuristic;
-use crate::per_neighborhood::{FilterableObj, Tab};
 use crate::shortcuts::find_shortcuts;
 use crate::{colors, App, Neighborhood, NeighborhoodID, Transition};
 
@@ -15,8 +15,8 @@ pub struct Viewer {
     top_panel: Panel,
     left_panel: Panel,
     neighborhood: Neighborhood,
-    world: World<FilterableObj>,
     draw_top_layer: ToggleZoomed,
+    edit: EditNeighborhood,
 }
 
 impl Viewer {
@@ -27,8 +27,8 @@ impl Viewer {
             top_panel: crate::components::TopPanel::panel(ctx, app),
             left_panel: Panel::empty(ctx),
             neighborhood,
-            world: World::unbounded(),
             draw_top_layer: ToggleZoomed::empty(ctx),
+            edit: EditNeighborhood::temporary(),
         };
         viewer.update(ctx, app);
         Box::new(viewer)
@@ -47,10 +47,12 @@ impl Viewer {
             format!("{} cells are totally disconnected", disconnected_cells)
         };
 
-        self.left_panel = Tab::Connectivity
+        self.left_panel = self
+            .edit
             .panel_builder(
                 ctx,
                 app,
+                Tab::Connectivity,
                 &self.top_panel,
                 Widget::col(vec![
                     format!(
@@ -66,8 +68,8 @@ impl Viewer {
             )
             .build(ctx);
 
-        let (world, draw_top_layer) = make_world(ctx, app, &self.neighborhood);
-        self.world = world;
+        let (edit, draw_top_layer) = setup_editing(ctx, app, &self.neighborhood);
+        self.edit = edit;
         self.draw_top_layer = draw_top_layer;
     }
 }
@@ -98,7 +100,7 @@ impl State<App> for Viewer {
                             ));
                         }
                     }
-                } else if let Some(t) = crate::per_neighborhood::handle_action(
+                } else if let Some(t) = self.edit.handle_panel_action(
                     ctx,
                     app,
                     x.as_ref(),
@@ -131,16 +133,15 @@ impl State<App> for Viewer {
                 app.session.heuristic = self.left_panel.dropdown_value("heuristic");
 
                 if x != "heuristic" {
-                    let (world, draw_top_layer) = make_world(ctx, app, &self.neighborhood);
-                    self.world = world;
+                    let (edit, draw_top_layer) = setup_editing(ctx, app, &self.neighborhood);
+                    self.edit = edit;
                     self.draw_top_layer = draw_top_layer;
                 }
             }
             _ => {}
         }
 
-        let world_outcome = self.world.event(ctx);
-        if crate::per_neighborhood::handle_world_outcome(ctx, app, world_outcome) {
+        if self.edit.event(ctx, app) {
             self.neighborhood = Neighborhood::new(ctx, app, self.neighborhood.id);
             self.update(ctx, app);
         }
@@ -153,7 +154,7 @@ impl State<App> for Viewer {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        crate::draw_with_layering(g, app, |g| self.world.draw(g));
+        crate::draw_with_layering(g, app, |g| self.edit.world.draw(g));
         g.redraw(&self.neighborhood.fade_irrelevant);
         self.draw_top_layer.draw(g);
 
@@ -173,16 +174,16 @@ impl State<App> for Viewer {
     }
 }
 
-fn make_world(
+fn setup_editing(
     ctx: &mut EventCtx,
     app: &App,
     neighborhood: &Neighborhood,
-) -> (World<FilterableObj>, ToggleZoomed) {
+) -> (EditNeighborhood, ToggleZoomed) {
     let shortcuts = ctx.loading_screen("find shortcuts", |_, timer| {
         find_shortcuts(app, neighborhood, timer)
     });
 
-    let mut world = crate::per_neighborhood::make_world(ctx, app, neighborhood, &shortcuts);
+    let mut edit = EditNeighborhood::new(ctx, app, neighborhood, &shortcuts);
     let map = &app.map;
 
     // The world is drawn in between areas and roads, but some things need to be drawn on top of
@@ -191,7 +192,7 @@ fn make_world(
 
     let render_cells = crate::draw_cells::RenderCells::new(map, neighborhood);
     if app.session.draw_cells_as_areas {
-        world.draw_master_batch(ctx, render_cells.draw());
+        edit.world.draw_master_batch(ctx, render_cells.draw());
 
         let mut colorer = ColorNetwork::no_fading(app);
         colorer.ranked_roads(shortcuts.count_per_road.clone(), &app.cs.good_to_bad_red);
@@ -301,7 +302,7 @@ fn make_world(
         }
     }
 
-    (world, draw_top_layer.build(ctx))
+    (edit, draw_top_layer.build(ctx))
 }
 
 fn help() -> Vec<&'static str> {
