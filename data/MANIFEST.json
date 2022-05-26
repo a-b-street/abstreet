@@ -1441,9 +1441,9 @@
       "compressed_size_bytes": 3896689
     },
     "data/input/gb/london/screenshots/kennington.zip": {
-      "checksum": "19abb1d8c10ca063901ab9c876e5eca6",
-      "uncompressed_size_bytes": 6600386,
-      "compressed_size_bytes": 6599250
+      "checksum": "1795982e289ca9fb7adda827efd34aa6",
+      "uncompressed_size_bytes": 6516586,
+      "compressed_size_bytes": 6515432
     },
     "data/input/gb/long_marston/osm/center.osm": {
       "checksum": "c7c25ca197870b843ac79c591c1275f3",

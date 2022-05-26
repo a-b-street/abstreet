@@ -73,7 +73,7 @@ impl DrawIntersection {
             IntersectionType::Border => {
                 let r = map.get_r(*i.roads.iter().next().unwrap());
                 default_geom.extend(
-                    app.cs().road_center_line,
+                    app.cs().road_center_line(map),
                     calculate_border_arrows(i, r, map),
                 );
             }

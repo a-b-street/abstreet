@@ -100,14 +100,15 @@ impl DrawLane {
             }
             LaneType::SharedLeftTurn => {
                 let thickness = Distance::meters(0.25);
+                let center_line = app.cs().road_center_line(map);
                 batch.push(
-                    app.cs().road_center_line,
+                    center_line,
                     lane.lane_center_pts
                         .must_shift_right((lane.width - thickness) / 2.0)
                         .make_polygons(thickness),
                 );
                 batch.push(
-                    app.cs().road_center_line,
+                    center_line,
                     lane.lane_center_pts
                         .must_shift_left((lane.width - thickness) / 2.0)
                         .make_polygons(thickness),

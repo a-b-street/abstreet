@@ -66,13 +66,10 @@ impl DrawRoad {
                     ));
                 }
             } else {
-                let center_line_color = if r.is_private() && app.cs().private_road.is_some() {
-                    app.cs()
-                        .road_center_line
-                        .lerp(app.cs().private_road.unwrap(), 0.5)
-                } else {
-                    app.cs().road_center_line
-                };
+                let mut center_line_color = app.cs().road_center_line(app.map());
+                if r.is_private() && app.cs().private_road.is_some() {
+                    center_line_color = center_line_color.lerp(app.cs().private_road.unwrap(), 0.5)
+                }
                 let txt = Text::from(Line(name).fg(center_line_color));
                 let (pt, angle) = r.center_pts.must_dist_along(r.length() / 2.0);
                 batch.append(
@@ -134,13 +131,10 @@ impl Renderable for DrawRoad {
 /// If `text_width` is defined, don't draw the center line in the middle of the road for this
 /// amount of space
 fn render_center_line(app: &dyn AppLike, r: &Road, text_width: Option<Distance>) -> GeomBatch {
-    let center_line_color = if r.is_private() && app.cs().private_road.is_some() {
-        app.cs()
-            .road_center_line
-            .lerp(app.cs().private_road.unwrap(), 0.5)
-    } else {
-        app.cs().road_center_line
-    };
+    let mut center_line_color = app.cs().road_center_line(app.map());
+    if r.is_private() && app.cs().private_road.is_some() {
+        center_line_color = center_line_color.lerp(app.cs().private_road.unwrap(), 0.5)
+    }
 
     let mut batch = GeomBatch::new();
 

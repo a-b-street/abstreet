@@ -8,7 +8,7 @@ use fs_err::File;
 use serde::{Deserialize, Serialize};
 
 use map_model::osm::RoadRank;
-use map_model::LaneType;
+use map_model::{LaneType, Map};
 use widgetry::{Choice, Color, EventCtx, Fill, Style, Texture};
 
 use crate::tools::{loading_tips, ColorScale};
@@ -89,7 +89,7 @@ pub struct ColorScheme {
     sidewalk: Color,
     pub sidewalk_lines: Color,
     pub general_road_marking: Color,
-    pub road_center_line: Color,
+    road_center_line: Color,
     pub light_rail_track: Color,
     pub private_road: Option<Color>,
     pub unzoomed_highway: Color,
@@ -442,6 +442,16 @@ impl ColorScheme {
             RoadRank::Highway => Color::grey(0.2),
             RoadRank::Arterial => Color::grey(0.3),
             RoadRank::Local => Color::grey(0.4),
+        }
+    }
+
+    pub fn road_center_line(&self, map: &Map) -> Color {
+        // TODO A more robust approach is to offload this question to osm2lanes, and color by
+        // separators
+        if map.get_name().city.country == "gb" {
+            self.general_road_marking
+        } else {
+            self.road_center_line
         }
     }
 
