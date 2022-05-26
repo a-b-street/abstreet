@@ -8,6 +8,7 @@ S3_ROOT=s3://abstreet
 set -e
 
 cd web;
+# To quickly deploy just one app, modify APPS in the Makefile
 make release
 aws s3 sync build/dist/ $S3_ROOT/$VERSION/
 
