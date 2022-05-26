@@ -761,8 +761,13 @@ pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
         if !effects.changed_roads.is_empty() || !effects.changed_intersections.is_empty() {
             app.primary
                 .draw_map
-                .draw_all_unzoomed_roads_and_intersections =
-                DrawMap::regenerate_unzoomed_layer(&app.primary.map, &app.cs, ctx, timer);
+                .draw_all_unzoomed_roads_and_intersections = DrawMap::regenerate_unzoomed_layer(
+                ctx,
+                &app.primary.map,
+                &app.cs,
+                &app.opts,
+                timer,
+            );
         }
 
         for r in effects.changed_roads {

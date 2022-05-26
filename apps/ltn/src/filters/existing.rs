@@ -32,7 +32,7 @@ pub fn transform_existing_filters(ctx: &EventCtx, app: &mut App, timer: &mut Tim
     // TODO This is some of game's apply_map_edits
     let effects = app.map.must_apply_edits(edits, timer);
     app.draw_map.draw_all_unzoomed_roads_and_intersections =
-        DrawMap::regenerate_unzoomed_layer(&app.map, &app.cs, ctx, timer);
+        DrawMap::regenerate_unzoomed_layer(ctx, &app.map, &app.cs, &app.opts, timer);
     for r in effects.changed_roads {
         let road = app.map.get_r(r);
         app.draw_map.recreate_road(road, &app.map);

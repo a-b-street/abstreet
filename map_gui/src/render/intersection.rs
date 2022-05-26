@@ -220,26 +220,39 @@ impl DrawIntersection {
         if opts.suppress_traffic_signal_details.contains(&self.id) {
             return;
         }
+
         let mut maybe_redraw = self.draw_traffic_signal.borrow_mut();
-        let recalc = maybe_redraw
-            .as_ref()
-            .map(|(t, _)| *t != app.sim_time())
-            .unwrap_or(true);
-        if recalc {
-            let (idx, remaining) = app.current_stage_and_remaining_time(self.id);
-            let mut batch = GeomBatch::new();
-            traffic_signal::draw_signal_stage(
-                g.prerender,
-                &signal.stages[idx],
-                idx,
-                self.id,
-                Some(remaining),
-                &mut batch,
-                app,
-                app.opts().traffic_signal_style.clone(),
-            );
-            *maybe_redraw = Some((app.sim_time(), g.prerender.upload(batch)));
+        if app.opts().show_traffic_signal_icon {
+            // The icon doesn't change over time
+            let recalc = maybe_redraw.is_none();
+            if recalc {
+                let batch = GeomBatch::load_svg(g, "system/assets/map/traffic_signal.svg")
+                    .scale(0.3)
+                    .centered_on(app.map().get_i(self.id).polygon.polylabel());
+                *maybe_redraw = Some((Time::START_OF_DAY, g.prerender.upload(batch)));
+            }
+        } else {
+            let recalc = maybe_redraw
+                .as_ref()
+                .map(|(t, _)| *t != app.sim_time())
+                .unwrap_or(true);
+            if recalc {
+                let (idx, remaining) = app.current_stage_and_remaining_time(self.id);
+                let mut batch = GeomBatch::new();
+                traffic_signal::draw_signal_stage(
+                    g.prerender,
+                    &signal.stages[idx],
+                    idx,
+                    self.id,
+                    Some(remaining),
+                    &mut batch,
+                    app,
+                    app.opts().traffic_signal_style.clone(),
+                );
+                *maybe_redraw = Some((app.sim_time(), g.prerender.upload(batch)));
+            }
         }
+
         let (_, batch) = maybe_redraw.as_ref().unwrap();
         g.redraw(batch);
     }
