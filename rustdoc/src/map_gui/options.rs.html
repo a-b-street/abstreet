@@ -408,6 +408,10 @@
 <span id="403">403</span>
 <span id="404">404</span>
 <span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
@@ -448,6 +452,9 @@
     <span class="kw">pub</span> <span class="ident">show_stop_signs</span>: <span class="ident">bool</span>,
     <span class="doccomment">/// Draw crosswalks and unmarked crossings.</span>
     <span class="kw">pub</span> <span class="ident">show_crosswalks</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// If true, draw an icon for traffic signals both when zoomed and unzoomed. If false, color</span>
+    <span class="doccomment">/// the intersection when unzoomed and render the signal&#39;s current state when zoomed.</span>
+    <span class="kw">pub</span> <span class="ident">show_traffic_signal_icon</span>: <span class="ident">bool</span>,
 
     <span class="doccomment">/// When making a screen recording, enable this option to hide some UI elements</span>
     <span class="kw">pub</span> <span class="ident">minimal_controls</span>: <span class="ident">bool</span>,
@@ -495,6 +502,7 @@
             <span class="ident">show_building_driveways</span>: <span class="bool-val">true</span>,
             <span class="ident">show_stop_signs</span>: <span class="bool-val">true</span>,
             <span class="ident">show_crosswalks</span>: <span class="bool-val">true</span>,
+            <span class="ident">show_traffic_signal_icon</span>: <span class="bool-val">false</span>,
 
             <span class="ident">time_increment</span>: <span class="ident">Duration::minutes</span>(<span class="number">10</span>),
             <span class="ident">dont_draw_time_warp</span>: <span class="bool-val">false</span>,
