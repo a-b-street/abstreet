@@ -34,6 +34,10 @@ pub struct Options {
     pub camera_angle: CameraAngle,
     /// Draw building driveways.
     pub show_building_driveways: bool,
+    /// Draw stop signs.
+    pub show_stop_signs: bool,
+    /// Draw crosswalks and unmarked crossings.
+    pub show_crosswalks: bool,
 
     /// When making a screen recording, enable this option to hide some UI elements
     pub minimal_controls: bool,
@@ -79,6 +83,8 @@ impl Options {
             toggle_day_night_colors: false,
             camera_angle: CameraAngle::TopDown,
             show_building_driveways: true,
+            show_stop_signs: true,
+            show_crosswalks: true,
 
             time_increment: Duration::minutes(10),
             dont_draw_time_warp: false,

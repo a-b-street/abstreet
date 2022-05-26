@@ -57,6 +57,14 @@ struct Args {
 fn run(mut settings: Settings) {
     let mut opts = map_gui::options::Options::load_or_default();
     opts.color_scheme = map_gui::colors::ColorSchemeChoice::LTN;
+    opts.show_building_driveways = false;
+    // TODO Ideally we would have a better map model in the first place. The next best thing would
+    // be to change these settings based on the map's country, but that's a bit tricky to do early
+    // enough (before map_switched). So for now, assume primary use of this tool is in the UK,
+    // where these settings are most appropriate.
+    opts.show_stop_signs = false;
+    opts.show_crosswalks = false;
+
     let args = Args::from_iter(abstutil::cli_args());
     args.app_args.override_options(&mut opts);
 

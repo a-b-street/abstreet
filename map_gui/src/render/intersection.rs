@@ -55,6 +55,9 @@ impl DrawIntersection {
         }
 
         for turn in &i.turns {
+            if !app.opts().show_crosswalks {
+                break;
+            }
             if turn.turn_type.pedestrian_crossing() {
                 make_crosswalk(&mut default_geom, turn, map, app.cs());
             }
@@ -76,6 +79,9 @@ impl DrawIntersection {
             }
             IntersectionType::StopSign => {
                 for ss in map.get_stop_sign(i.id).roads.values() {
+                    if !app.opts().show_stop_signs {
+                        break;
+                    }
                     if ss.must_stop {
                         if let Some((octagon, pole, angle)) =
                             DrawIntersection::stop_sign_geom(ss, map)
