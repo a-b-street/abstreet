@@ -402,6 +402,12 @@
 <span id="397">397</span>
 <span id="398">398</span>
 <span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
@@ -438,6 +444,10 @@
     <span class="kw">pub</span> <span class="ident">camera_angle</span>: <span class="ident">CameraAngle</span>,
     <span class="doccomment">/// Draw building driveways.</span>
     <span class="kw">pub</span> <span class="ident">show_building_driveways</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// Draw stop signs.</span>
+    <span class="kw">pub</span> <span class="ident">show_stop_signs</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// Draw crosswalks and unmarked crossings.</span>
+    <span class="kw">pub</span> <span class="ident">show_crosswalks</span>: <span class="ident">bool</span>,
 
     <span class="doccomment">/// When making a screen recording, enable this option to hide some UI elements</span>
     <span class="kw">pub</span> <span class="ident">minimal_controls</span>: <span class="ident">bool</span>,
@@ -483,6 +493,8 @@
             <span class="ident">toggle_day_night_colors</span>: <span class="bool-val">false</span>,
             <span class="ident">camera_angle</span>: <span class="ident">CameraAngle::TopDown</span>,
             <span class="ident">show_building_driveways</span>: <span class="bool-val">true</span>,
+            <span class="ident">show_stop_signs</span>: <span class="bool-val">true</span>,
+            <span class="ident">show_crosswalks</span>: <span class="bool-val">true</span>,
 
             <span class="ident">time_increment</span>: <span class="ident">Duration::minutes</span>(<span class="number">10</span>),
             <span class="ident">dont_draw_time_warp</span>: <span class="bool-val">false</span>,
