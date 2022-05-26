@@ -38,6 +38,9 @@ pub struct Options {
     pub show_stop_signs: bool,
     /// Draw crosswalks and unmarked crossings.
     pub show_crosswalks: bool,
+    /// If true, draw an icon for traffic signals both when zoomed and unzoomed. If false, color
+    /// the intersection when unzoomed and render the signal's current state when zoomed.
+    pub show_traffic_signal_icon: bool,
 
     /// When making a screen recording, enable this option to hide some UI elements
     pub minimal_controls: bool,
@@ -85,6 +88,7 @@ impl Options {
             show_building_driveways: true,
             show_stop_signs: true,
             show_crosswalks: true,
+            show_traffic_signal_icon: false,
 
             time_increment: Duration::minutes(10),
             dont_draw_time_warp: false,

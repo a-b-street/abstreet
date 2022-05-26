@@ -7,7 +7,7 @@ use geom::{Bounds, Distance, Polygon};
 use map_model::{
     AreaID, BuildingID, IntersectionID, LaneID, Map, ParkingLotID, Road, RoadID, TransitStopID,
 };
-use widgetry::{Color, Drawable, EventCtx, GeomBatch};
+use widgetry::{Color, Drawable, EventCtx, Fill, GeomBatch};
 
 use crate::colors::ColorScheme;
 use crate::options::Options;
@@ -70,7 +70,7 @@ impl DrawMap {
         }
 
         let draw_all_unzoomed_roads_and_intersections =
-            DrawMap::regenerate_unzoomed_layer(map, cs, ctx, timer);
+            DrawMap::regenerate_unzoomed_layer(ctx, map, cs, opts, timer);
 
         let mut buildings: Vec<DrawBuilding> = Vec::new();
         let mut all_buildings = GeomBatch::new();
@@ -187,9 +187,10 @@ impl DrawMap {
     }
 
     pub fn regenerate_unzoomed_layer(
+        ctx: &EventCtx,
         map: &Map,
         cs: &ColorScheme,
-        ctx: &EventCtx,
+        opts: &Options,
         timer: &mut Timer,
     ) -> Drawable {
         timer.start("generate unzoomed roads and intersections");
@@ -200,14 +201,14 @@ impl DrawMap {
         // We want the outlines slightly above the equivalent layer. z-order is an isize, and f64
         // makes sort_by_key annoying, so just multiply the existing z-orders by 10.
         let outline_z_offset = 5;
-        let mut unzoomed_pieces: Vec<(isize, Color, Polygon)> = Vec::new();
+        let mut unzoomed_pieces: Vec<(isize, Fill, Polygon)> = Vec::new();
 
         for r in map.all_roads() {
             let width = r.get_width();
 
             unzoomed_pieces.push((
                 10 * r.zorder,
-                if r.is_light_rail() {
+                Fill::Color(if r.is_light_rail() {
                     cs.light_rail_track
                 } else if r.is_cycleway() {
                     cs.unzoomed_trail
@@ -215,7 +216,7 @@ impl DrawMap {
                     cs.private_road.unwrap()
                 } else {
                     cs.unzoomed_road_surface(r.get_rank())
-                },
+                }),
                 r.center_pts.make_polygons(width),
             ));
 
@@ -224,24 +225,31 @@ impl DrawMap {
                 if let Ok(pl) = r.center_pts.shift_left(width / 2.0) {
                     unzoomed_pieces.push((
                         10 * r.zorder + outline_z_offset,
-                        outline_color,
+                        outline_color.into(),
                         pl.make_polygons(outline_thickness),
                     ));
                 }
                 if let Ok(pl) = r.center_pts.shift_right(width / 2.0) {
                     unzoomed_pieces.push((
                         10 * r.zorder + outline_z_offset,
-                        outline_color,
+                        outline_color.into(),
                         pl.make_polygons(outline_thickness),
                     ));
                 }
             }
         }
+
+        let traffic_signal_icon = if opts.show_traffic_signal_icon {
+            GeomBatch::load_svg(ctx, "system/assets/map/traffic_signal.svg").scale(0.8)
+        } else {
+            GeomBatch::new()
+        };
+
         for i in map.all_intersections() {
             let zorder = 10 * i.get_zorder(map);
-            unzoomed_pieces.push((
-                zorder,
-                if i.is_stop_sign() {
+            let intersection_color =
+                if i.is_stop_sign() || (i.is_traffic_signal() && opts.show_traffic_signal_icon) {
+                    // Use the color of the road, so the intersection doesn't stand out
                     if i.is_light_rail(map) {
                         cs.light_rail_track
                     } else if i.is_cycleway(map) {
@@ -253,25 +261,38 @@ impl DrawMap {
                     }
                 } else {
                     cs.unzoomed_interesting_intersection
-                },
-                i.polygon.clone(),
-            ));
+                };
+            unzoomed_pieces.push((zorder, intersection_color.into(), i.polygon.clone()));
 
             if cs.experiment {
                 for pl in DrawIntersection::get_unzoomed_outline(i, map) {
                     unzoomed_pieces.push((
                         zorder + outline_z_offset,
-                        outline_color,
+                        outline_color.into(),
                         pl.make_polygons(outline_thickness),
                     ));
+                }
+            }
+
+            if opts.show_traffic_signal_icon && i.is_traffic_signal() {
+                // When the intersection has several z-orders meeting, we want to take the highest,
+                // so the icon is drawn over any connecting roads.
+                let icon_zorder = 10 * i.roads.iter().map(|r| map.get_r(*r).zorder).max().unwrap();
+                for (fill, polygon, _) in traffic_signal_icon
+                    .clone()
+                    .centered_on(i.polygon.polylabel())
+                    .consume()
+                {
+                    unzoomed_pieces.push((icon_zorder + outline_z_offset, fill, polygon));
                 }
             }
         }
         unzoomed_pieces.sort_by_key(|(z, _, _)| *z);
         let mut unzoomed_batch = GeomBatch::new();
-        for (_, color, poly) in unzoomed_pieces {
-            unzoomed_batch.push(color, poly);
+        for (_, fill, poly) in unzoomed_pieces {
+            unzoomed_batch.push(fill, poly);
         }
+
         let draw_all_unzoomed_roads_and_intersections = unzoomed_batch.upload(ctx);
         timer.stop("generate unzoomed roads and intersections");
         draw_all_unzoomed_roads_and_intersections
