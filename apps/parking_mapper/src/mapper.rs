@@ -594,7 +594,7 @@ fn find_divided_highways(app: &App) -> HashSet<RoadID> {
     // road, but didn't mark one side oneway!
     let mut oneways = Vec::new();
     for r in map.all_roads() {
-        if r.osm_tags.contains_key("oneway") {
+        if r.oneway_for_driving().is_some() {
             closest.add(r.id, r.center_pts.points());
             oneways.push(r.id);
         }

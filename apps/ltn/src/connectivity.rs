@@ -1,5 +1,6 @@
 use geom::{ArrowCap, Distance, PolyLine};
 use map_gui::tools::ColorNetwork;
+use raw_map::Direction;
 use widgetry::mapspace::ToggleZoomed;
 use widgetry::tools::PopupMsg;
 use widgetry::{
@@ -256,14 +257,14 @@ fn setup_editing(
 
                 // The arrow direction depends on if the road is one-way
                 let thickness = Distance::meters(6.0);
-                let arrow = if road.is_oneway() {
-                    if road.src_i == *i {
+                let arrow = if let Some(dir) = road.oneway_for_driving() {
+                    let pl = if road.src_i == *i {
                         PolyLine::must_new(vec![pt_farther, pt_closer])
-                            .make_arrow(thickness, ArrowCap::Triangle)
                     } else {
                         PolyLine::must_new(vec![pt_closer, pt_farther])
-                            .make_arrow(thickness, ArrowCap::Triangle)
-                    }
+                    };
+                    pl.maybe_reverse(dir == Direction::Back)
+                        .make_arrow(thickness, ArrowCap::Triangle)
                 } else {
                     // Order doesn't matter
                     PolyLine::must_new(vec![pt_closer, pt_farther])
@@ -282,19 +283,24 @@ fn setup_editing(
         .chain(neighborhood.orig_perimeter.roads.iter().map(|id| &id.road))
     {
         let road = map.get_r(*r);
-        if road.osm_tags.is("oneway", "yes") {
+        if let Some(dir) = road.oneway_for_driving() {
             let arrow_len = Distance::meters(10.0);
             let thickness = Distance::meters(1.0);
             for (pt, angle) in road
                 .center_pts
                 .step_along(Distance::meters(30.0), Distance::meters(5.0))
             {
-                if let Ok(poly) = PolyLine::must_new(vec![
+                // If the user has made the one-way point opposite to how the road is originally
+                // oriented, reverse the arrows
+                let pl = PolyLine::must_new(vec![
                     pt.project_away(arrow_len / 2.0, angle.opposite()),
                     pt.project_away(arrow_len / 2.0, angle),
                 ])
-                .make_arrow(thickness * 2.0, ArrowCap::Triangle)
-                .to_outline(thickness / 2.0)
+                .maybe_reverse(dir == Direction::Back);
+
+                if let Ok(poly) = pl
+                    .make_arrow(thickness * 2.0, ArrowCap::Triangle)
+                    .to_outline(thickness / 2.0)
                 {
                     draw_top_layer.unzoomed.push(colors::OUTLINE, poly);
                 }

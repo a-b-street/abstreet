@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use abstio::MapName;
 use abstutil::Timer;
 use map_model::osm::RoadRank;
-use map_model::{Block, Map, PathConstraints, Perimeter, RoadID, RoadSideID};
+use map_model::{Block, Map, Perimeter, RoadID, RoadSideID};
 use widgetry::Color;
 
 use crate::{colors, App};

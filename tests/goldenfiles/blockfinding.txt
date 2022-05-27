@@ -7,7 +7,7 @@ data/system/us/seattle/maps/lakeslice.bin
 data/system/us/phoenix/maps/tempe.bin
     419 single blocks (1 failures to blockify), 0 partial merges, 0 failures to blockify partitions
 data/system/gb/bristol/maps/east.bin
-    827 single blocks (3 failures to blockify), 2 partial merges, 0 failures to blockify partitions
+    829 single blocks (3 failures to blockify), 2 partial merges, 0 failures to blockify partitions
 data/system/gb/leeds/maps/north.bin
     1936 single blocks (1 failures to blockify), 6 partial merges, 1 failures to blockify partitions
 data/system/gb/london/maps/camden.bin

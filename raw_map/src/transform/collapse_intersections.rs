@@ -49,7 +49,10 @@ fn should_collapse(r1: OriginalRoad, r2: OriginalRoad, raw: &RawMap) -> Result<(
 
     // Avoid two one-ways that point at each other. https://www.openstreetmap.org/node/440979339 is
     // a bizarre example. These are actually blackholed, some problem with service roads.
-    if road1.osm_tags.is("oneway", "yes") && road2.osm_tags.is("oneway", "yes") && r1.i2 == r2.i2 {
+    if road1.oneway_for_driving().is_some()
+        && road2.oneway_for_driving().is_some()
+        && r1.i2 == r2.i2
+    {
         bail!("oneway roads point at each other");
     }
 

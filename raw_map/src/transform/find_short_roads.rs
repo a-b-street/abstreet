@@ -182,8 +182,8 @@ fn dual_carriageway_split(map: &RawMap, roads: Vec<OriginalRoad>) -> bool {
     ] {
         let road1 = &map.roads[&r1];
         let road2 = &map.roads[&r2];
-        if road1.is_oneway()
-            && road2.is_oneway()
+        if road1.oneway_for_driving().is_some()
+            && road2.oneway_for_driving().is_some()
             && road1.osm_tags.get(osm::NAME) == road2.osm_tags.get(osm::NAME)
         {
             // If they're about the same angle, it's probably not a join/split

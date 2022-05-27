@@ -283,14 +283,8 @@ impl DiagonalFilter {
         let r2 = map.get_r(self.r2);
 
         // Orient the road to face the intersection
-        let mut pl1 = r1.center_pts.clone();
-        if r1.src_i == self.i {
-            pl1 = pl1.reversed();
-        }
-        let mut pl2 = r2.center_pts.clone();
-        if r2.src_i == self.i {
-            pl2 = pl2.reversed();
-        }
+        let pl1 = r1.center_pts.maybe_reverse(r1.src_i == self.i);
+        let pl2 = r2.center_pts.maybe_reverse(r2.src_i == self.i);
 
         // The other combinations of left/right here would produce points or a line across just one
         // road

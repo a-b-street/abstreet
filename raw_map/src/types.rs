@@ -556,4 +556,31 @@ impl LaneSpec {
             }
         }
     }
+
+    /// None if bidirectional. If it's one-way, which direction is that relative to the road?
+    /// (Usually forwards)
+    pub fn oneway_for_driving(lanes: &[LaneSpec]) -> Option<Direction> {
+        let mut fwd = false;
+        let mut back = false;
+        for x in lanes {
+            if x.lt == LaneType::Driving {
+                if x.dir == Direction::Fwd {
+                    fwd = true;
+                } else {
+                    back = true;
+                }
+            }
+        }
+        if fwd && back {
+            // Bidirectional
+            None
+        } else if fwd {
+            Some(Direction::Fwd)
+        } else if back {
+            Some(Direction::Back)
+        } else {
+            // Not driveable at all
+            None
+        }
+    }
 }

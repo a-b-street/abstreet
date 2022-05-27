@@ -93,7 +93,8 @@ pub fn handle_world_outcome(ctx: &mut EventCtx, app: &mut App, outcome: WorldOut
             let road = map.get_r(r);
             // Filtering a road that's already marked bike-only doesn't make sense. Likewise for
             // one-ways.
-            if !PathConstraints::Car.can_use_road(road, map) || road.is_oneway() {
+            if !PathConstraints::Car.can_use_road(road, map) || road.oneway_for_driving().is_some()
+            {
                 return true;
             }
 

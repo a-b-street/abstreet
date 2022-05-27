@@ -25,7 +25,7 @@ pub fn apply_parking(map: &mut RawMap, opts: &Options, timer: &mut Timer) {
                     && id.osm_way_id.0 % 100 <= pct
                     && r.length() >= Distance::meters(20.0)
                 {
-                    if r.osm_tags.is("oneway", "yes") {
+                    if r.oneway_for_driving().is_some() {
                         r.osm_tags.remove(osm::PARKING_BOTH);
                         r.osm_tags.insert(osm::PARKING_RIGHT, "parallel");
                     } else {

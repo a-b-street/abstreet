@@ -612,9 +612,8 @@ impl Road {
         self.get_rank() != osm::RoadRank::Local
     }
 
-    // TODO Oversimplified -- should look at lanes, and be clear this is for driving
-    pub fn is_oneway(&self) -> bool {
-        self.osm_tags.is("oneway", "yes")
+    pub fn oneway_for_driving(&self) -> Option<Direction> {
+        LaneSpec::oneway_for_driving(&self.lane_specs())
     }
 }
 

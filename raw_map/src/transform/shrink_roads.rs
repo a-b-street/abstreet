@@ -19,7 +19,7 @@ pub fn shrink(raw: &mut RawMap, timer: &mut Timer) {
             continue;
         }
         // Only attempt this fix for dual carriageways
-        if !road.is_oneway() {
+        if road.oneway_for_driving().is_none() {
             continue;
         }
 

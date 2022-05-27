@@ -325,7 +325,7 @@ impl RawMap {
         let mut graph = DiGraphMap::new();
         for (id, r) in &self.roads {
             graph.add_edge(id.i1, id.i2, id);
-            if !r.osm_tags.contains_key("oneway") {
+            if r.oneway_for_driving().is_none() {
                 graph.add_edge(id.i2, id.i1, id);
             }
         }
@@ -422,8 +422,8 @@ impl RawRoad {
             .any(|spec| spec.lt == LaneType::Driving)
     }
 
-    pub fn is_oneway(&self) -> bool {
-        self.osm_tags.is("oneway", "yes")
+    pub fn oneway_for_driving(&self) -> Option<Direction> {
+        LaneSpec::oneway_for_driving(&self.lane_specs_ltr)
     }
 
     /// Points from first to last point. Undefined for loops.

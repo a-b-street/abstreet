@@ -23,7 +23,7 @@ pub fn connects_dual_carriageway(map: &RawMap, id: &OriginalRoad) -> bool {
         if road.osm_tags.is("dual_carriageway", "yes") {
             i1_dual_carriageway = true;
         }
-        if road.osm_tags.is("oneway", "yes") {
+        if road.oneway_for_driving().is_some() {
             if let Some(name) = road.osm_tags.get(osm::NAME) {
                 oneway_names_i1.insert(name.to_string());
             }
@@ -40,7 +40,7 @@ pub fn connects_dual_carriageway(map: &RawMap, id: &OriginalRoad) -> bool {
         if road.osm_tags.is("dual_carriageway", "yes") {
             i2_dual_carriageway = true;
         }
-        if road.osm_tags.is("oneway", "yes") {
+        if road.oneway_for_driving().is_some() {
             if let Some(name) = road.osm_tags.get(osm::NAME) {
                 oneway_names_i2.insert(name.to_string());
             }

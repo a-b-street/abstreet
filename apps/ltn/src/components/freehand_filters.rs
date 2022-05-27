@@ -51,7 +51,9 @@ impl FreehandFilters {
                 continue;
             }
             let road = app.map.get_r(*r);
-            if !PathConstraints::Car.can_use_road(road, &app.map) || road.is_oneway() {
+            if !PathConstraints::Car.can_use_road(road, &app.map)
+                || road.oneway_for_driving().is_some()
+            {
                 continue;
             }
             if let Some((pt, _)) = road.center_pts.intersection(&path) {

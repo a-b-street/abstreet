@@ -123,6 +123,14 @@ impl PolyLine {
         PolyLine::must_new(pts)
     }
 
+    pub fn maybe_reverse(&self, reverse: bool) -> PolyLine {
+        if reverse {
+            self.reversed()
+        } else {
+            self.clone()
+        }
+    }
+
     /// Returns the quadrant where the overall angle of this polyline (pointing from the first to
     /// last point) is in. Output between 0 and 3.
     pub fn quadrant(&self) -> i64 {
