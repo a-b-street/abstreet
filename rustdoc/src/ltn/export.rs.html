@@ -146,16 +146,16 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">features</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
     <span class="comment">// All neighborhood boundaries</span>
-    <span class="kw">for</span> (<span class="ident">id</span>, (<span class="ident">block</span>, <span class="ident">color</span>)) <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">all_neighborhoods</span>() {
+    <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">info</span>) <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">all_neighborhoods</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">feature</span> <span class="op">=</span> <span class="ident">Feature</span> {
             <span class="ident">bbox</span>: <span class="prelude-val">None</span>,
-            <span class="ident">geometry</span>: <span class="prelude-val">Some</span>(<span class="ident">block</span>.<span class="ident">polygon</span>.<span class="ident">to_geojson</span>(<span class="prelude-val">None</span>)),
+            <span class="ident">geometry</span>: <span class="prelude-val">Some</span>(<span class="ident">info</span>.<span class="ident">block</span>.<span class="ident">polygon</span>.<span class="ident">to_geojson</span>(<span class="prelude-val">None</span>)),
             <span class="ident">id</span>: <span class="prelude-val">None</span>,
             <span class="ident">properties</span>: <span class="prelude-val">None</span>,
             <span class="ident">foreign_members</span>: <span class="prelude-val">None</span>,
         };
         <span class="ident">feature</span>.<span class="ident">set_property</span>(<span class="string">&quot;type&quot;</span>, <span class="string">&quot;neighborhood&quot;</span>);
-        <span class="ident">feature</span>.<span class="ident">set_property</span>(<span class="string">&quot;fill&quot;</span>, <span class="ident">color</span>.<span class="ident">as_hex</span>());
+        <span class="ident">feature</span>.<span class="ident">set_property</span>(<span class="string">&quot;fill&quot;</span>, <span class="ident">info</span>.<span class="ident">color</span>.<span class="ident">as_hex</span>());
         <span class="comment">// Cells should cover these up</span>
         <span class="ident">feature</span>.<span class="ident">set_property</span>(<span class="string">&quot;fill-opacity&quot;</span>, <span class="number">0.0</span>);
         <span class="ident">features</span>.<span class="ident">push</span>(<span class="ident">feature</span>);

@@ -656,6 +656,19 @@
 <span id="651">651</span>
 <span id="652">652</span>
 <span id="653">653</span>
+<span id="654">654</span>
+<span id="655">655</span>
+<span id="656">656</span>
+<span id="657">657</span>
+<span id="658">658</span>
+<span id="659">659</span>
+<span id="660">660</span>
+<span id="661">661</span>
+<span id="662">662</span>
+<span id="663">663</span>
+<span id="664">664</span>
+<span id="665">665</span>
+<span id="666">666</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
@@ -698,6 +711,19 @@
             <span class="ident">DirectedRoadID</span> {
                 <span class="ident">road</span>: <span class="self">self</span>,
                 <span class="ident">dir</span>: <span class="ident">Direction::Back</span>,
+            },
+        ]
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">both_sides</span>(<span class="self">self</span>) -&gt; [<span class="ident">RoadSideID</span>; <span class="number">2</span>] {
+        [
+            <span class="ident">RoadSideID</span> {
+                <span class="ident">road</span>: <span class="self">self</span>,
+                <span class="ident">side</span>: <span class="ident">SideOfRoad::Right</span>,
+            },
+            <span class="ident">RoadSideID</span> {
+                <span class="ident">road</span>: <span class="self">self</span>,
+                <span class="ident">side</span>: <span class="ident">SideOfRoad::Left</span>,
             },
         ]
     }
