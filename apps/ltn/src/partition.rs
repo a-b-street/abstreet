@@ -5,8 +5,9 @@ use serde::{Deserialize, Serialize};
 
 use abstio::MapName;
 use abstutil::Timer;
+use geom::Polygon;
 use map_model::osm::RoadRank;
-use map_model::{Block, Map, PathConstraints, Perimeter, RoadID, RoadSideID};
+use map_model::{Block, BuildingID, Map, Perimeter, RoadID, RoadSideID};
 use widgetry::Color;
 
 use crate::{colors, App};
@@ -42,6 +43,9 @@ pub struct Partitioning {
 pub struct NeighborhoodInfo {
     pub block: Block,
     pub color: Color,
+    /// These buildings are on the outer side of this neighborhood's perimeter, and they don't
+    /// belong to another neighborhood.
+    pub perimeter_buildings: Vec<BuildingID>,
 }
 
 impl NeighborhoodInfo {
@@ -49,6 +53,7 @@ impl NeighborhoodInfo {
         Self {
             block,
             color: Color::CLEAR,
+            perimeter_buildings: Vec::new(),
         }
     }
 }
@@ -165,6 +170,7 @@ impl Partitioning {
             }
 
             p.recalculate_coloring();
+            p.recalculate_perimeter_buildings(map);
             return p;
         }
         unreachable!()
@@ -238,6 +244,7 @@ impl Partitioning {
             self.block_to_neighborhood.insert(id, new_owner);
             // Tell the caller to recreate this SelectBoundary state, switching to the neighborhood
             // we just donated to, since the old is now gone
+            self.recalculate_perimeter_buildings(map);
             return Ok(Some(new_owner));
         }
 
@@ -266,6 +273,7 @@ impl Partitioning {
 
         self.neighborhoods.get_mut(&new_owner).unwrap().block = new_neighborhood_block;
         self.block_to_neighborhood.insert(id, new_owner);
+        self.recalculate_perimeter_buildings(map);
         Ok(None)
     }
 
@@ -316,7 +324,36 @@ impl Partitioning {
             // Revert the change above!
             self.neighborhoods.remove(&new_owner).unwrap();
         }
+        self.recalculate_perimeter_buildings(map);
         result
+    }
+
+    // Must be called when anything in the partitioning changes
+    fn recalculate_perimeter_buildings(&mut self, map: &Map) {
+        let mut road_side_to_neighborhood: BTreeMap<RoadSideID, NeighborhoodID> = BTreeMap::new();
+        for (id, info) in self.all_neighborhoods() {
+            for side in &info.block.perimeter.roads {
+                road_side_to_neighborhood.insert(*side, *id);
+            }
+            for r in &info.block.perimeter.interior {
+                for side in r.both_sides() {
+                    road_side_to_neighborhood.insert(side, *id);
+                }
+            }
+        }
+
+        // Walk along the other side of every neighborhood's perimeter. If that side of the road
+        // isn't covered, record any buildings there.
+        for info in self.neighborhoods.values_mut() {
+            info.perimeter_buildings.clear();
+            for side in &info.block.perimeter.roads {
+                let other_side = side.other_side();
+                if !road_side_to_neighborhood.contains_key(&other_side) {
+                    info.perimeter_buildings
+                        .extend(map.road_side_to_buildings(other_side));
+                }
+            }
+        }
     }
 }
 
@@ -334,6 +371,25 @@ impl Partitioning {
 
     pub fn neighborhood_color(&self, id: NeighborhoodID) -> Color {
         self.neighborhoods[&id].color
+    }
+
+    /// May include perimeter buildings
+    pub fn neighborhood_boundary(&self, id: NeighborhoodID, map: &Map) -> Polygon {
+        let info = &self.neighborhoods[&id];
+        let mut pieces = vec![info.block.polygon.clone()];
+        for b in &info.perimeter_buildings {
+            pieces.push(map.get_b(*b).polygon.clone());
+        }
+
+        //Polygon::convex_hull(pieces)
+
+        Polygon::union_all(pieces)
+
+        /*let mut pts = Vec::new();
+        for polygon in pieces {
+            pts.extend(polygon.into_points());
+        }
+        Polygon::concave_hull(pts, 10)*/
     }
 
     pub fn all_neighborhoods(&self) -> &BTreeMap<NeighborhoodID, NeighborhoodInfo> {

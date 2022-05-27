@@ -172,11 +172,13 @@ fn make_world(ctx: &mut EventCtx, app: &App, timer: &mut Timer) -> World<Neighbo
     let mut world = World::bounded(app.map.get_bounds());
     let map = &app.map;
     for (id, info) in app.session.partitioning.all_neighborhoods() {
+        let hitbox = app.session.partitioning.neighborhood_boundary(*id, map);
+
         match app.session.draw_neighborhood_style {
             Style::SimpleColoring => {
                 world
                     .add(*id)
-                    .hitbox(info.block.polygon.clone())
+                    .hitbox(hitbox)
                     .draw_color(info.color)
                     .hover_outline(colors::OUTLINE, Distance::meters(5.0))
                     .clickable()
@@ -190,7 +192,7 @@ fn make_world(ctx: &mut EventCtx, app: &App, timer: &mut Timer) -> World<Neighbo
                 let hovered_batch = render_cells.draw();
                 world
                     .add(*id)
-                    .hitbox(info.block.polygon.clone())
+                    .hitbox(hitbox)
                     .draw_color(info.color.alpha(0.5))
                     .draw_hovered(hovered_batch)
                     .clickable()
@@ -209,7 +211,7 @@ fn make_world(ctx: &mut EventCtx, app: &App, timer: &mut Timer) -> World<Neighbo
                 let color = app.cs.good_to_bad_red.eval(pct);
                 world
                     .add(*id)
-                    .hitbox(info.block.polygon.clone())
+                    .hitbox(hitbox)
                     .draw_color(color.alpha(0.5))
                     .hover_outline(colors::OUTLINE, Distance::meters(5.0))
                     .clickable()
@@ -218,7 +220,7 @@ fn make_world(ctx: &mut EventCtx, app: &App, timer: &mut Timer) -> World<Neighbo
             Style::Shortcuts => {
                 world
                     .add(*id)
-                    .hitbox(info.block.polygon.clone())
+                    .hitbox(hitbox)
                     // Slight lie, because draw_over_roads has to be drawn after the World
                     .drawn_in_master_batch()
                     .hover_outline(colors::OUTLINE, Distance::meters(5.0))

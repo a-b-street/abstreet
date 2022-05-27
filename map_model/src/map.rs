@@ -16,7 +16,7 @@ use crate::{
     CompressedMovementID, ControlStopSign, ControlTrafficSignal, DirectedRoadID, Direction,
     Intersection, IntersectionID, Lane, LaneID, LaneType, Map, MapEdits, Movement, MovementID,
     OffstreetParking, ParkingLot, ParkingLotID, Path, PathConstraints, PathRequest, PathV2,
-    Pathfinder, PathfinderCaching, Position, Road, RoadID, RoutingParams, TransitRoute,
+    Pathfinder, PathfinderCaching, Position, Road, RoadID, RoadSideID, RoutingParams, TransitRoute,
     TransitRouteID, TransitStop, TransitStopID, Turn, TurnID, TurnType, Zone,
 };
 
@@ -799,6 +799,17 @@ impl Map {
 
     pub fn road_to_buildings(&self, r: RoadID) -> &BTreeSet<BuildingID> {
         self.road_to_buildings.get(r)
+    }
+
+    pub fn road_side_to_buildings(&self, road_side: RoadSideID) -> BTreeSet<BuildingID> {
+        let sidewalk = road_side.get_outermost_lane(self).id;
+        let mut results = BTreeSet::new();
+        for b in self.road_to_buildings(road_side.road) {
+            if self.get_b(*b).sidewalk() == sidewalk {
+                results.insert(*b);
+            }
+        }
+        results
     }
 
     pub(crate) fn recalculate_road_to_buildings(&mut self) {
