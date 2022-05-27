@@ -34,6 +34,9 @@ pub struct Cell {
     pub roads: BTreeMap<RoadID, DistanceInterval>,
     /// Intersections where this cell touches the boundary of the neighborhood.
     pub borders: BTreeSet<IntersectionID>,
+    /// This cell is located outside the neighborhood's boundary, on the other side of the
+    /// perimeter road
+    pub cul_de_sac: bool,
 }
 
 impl Cell {
@@ -147,7 +150,7 @@ fn find_cells(
         if !PathConstraints::Car.can_use_road(map.get_r(start), map) {
             continue;
         }
-        let cell = floodfill(map, start, borders, &modal_filters);
+        let cell = floodfill(map, start, borders, &modal_filters, false);
         visited.extend(cell.roads.keys().cloned());
         cells.push(cell);
     }
@@ -159,6 +162,7 @@ fn find_cells(
             let mut cell = Cell {
                 roads: BTreeMap::new(),
                 borders: btreeset! { road.src_i },
+                cul_de_sac: false,
             };
             cell.roads.insert(
                 road.id,
@@ -173,6 +177,7 @@ fn find_cells(
             let mut cell = Cell {
                 roads: BTreeMap::new(),
                 borders: btreeset! { road.dst_i },
+                cul_de_sac: false,
             };
             cell.roads.insert(
                 road.id,
@@ -186,7 +191,7 @@ fn find_cells(
     }
 
     for r in cul_de_sacs {
-        cells.push(floodfill(map, *r, borders, &modal_filters));
+        cells.push(floodfill(map, *r, borders, &modal_filters, true));
     }
 
     cells
@@ -197,6 +202,7 @@ fn floodfill(
     start: RoadID,
     neighborhood_borders: &BTreeSet<IntersectionID>,
     modal_filters: &ModalFilters,
+    cul_de_sac: bool,
 ) -> Cell {
     let mut visited_roads: BTreeMap<RoadID, DistanceInterval> = BTreeMap::new();
     let mut cell_borders = BTreeSet::new();
@@ -280,5 +286,6 @@ fn floodfill(
     Cell {
         roads: visited_roads,
         borders: cell_borders,
+        cul_de_sac,
     }
 }
