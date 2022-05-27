@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use abstio::MapName;
 use abstutil::Timer;
 use map_model::osm::RoadRank;
-use map_model::{Block, Map, Perimeter, RoadID, RoadSideID, PathConstraints};
+use map_model::{Block, Map, PathConstraints, Perimeter, RoadID, RoadSideID};
 use widgetry::Color;
 
 use crate::{colors, App};
@@ -130,7 +130,10 @@ impl Partitioning {
 
             let mut neighborhoods = BTreeMap::new();
             for block in blocks {
-                neighborhoods.insert(NeighborhoodID(neighborhoods.len()), NeighborhoodInfo::new(block));
+                neighborhoods.insert(
+                    NeighborhoodID(neighborhoods.len()),
+                    NeighborhoodInfo::new(block),
+                );
             }
             let neighborhood_id_counter = neighborhoods.len();
             let mut p = Partitioning {
@@ -180,7 +183,8 @@ impl Partitioning {
             .collect();
         let colors = Perimeter::calculate_coloring(&perims, colors::NEIGHBORHOODS.len())
             .unwrap_or_else(|| (0..perims.len()).collect());
-        let orig_coloring: Vec<Color> = self.neighborhoods.values().map(|info| info.color).collect();
+        let orig_coloring: Vec<Color> =
+            self.neighborhoods.values().map(|info| info.color).collect();
         for (info, color_idx) in self.neighborhoods.values_mut().zip(colors.into_iter()) {
             info.color = colors::NEIGHBORHOODS[color_idx % colors::NEIGHBORHOODS.len()];
         }
@@ -246,7 +250,8 @@ impl Partitioning {
         // as the old_owner (so the UI for trimming a neighborhood is less jarring), and create new
         // neighborhoods for the others.
         old_neighborhood_blocks.sort_by_key(|block| block.perimeter.interior.len());
-        self.neighborhoods.get_mut(&old_owner).unwrap().block = old_neighborhood_blocks.pop().unwrap();
+        self.neighborhoods.get_mut(&old_owner).unwrap().block =
+            old_neighborhood_blocks.pop().unwrap();
         let new_splits = !old_neighborhood_blocks.is_empty();
         for split_piece in old_neighborhood_blocks {
             let new_neighborhood = NeighborhoodID(self.neighborhood_id_counter);
@@ -464,11 +469,13 @@ impl Partitioning {
                 let r = map.get_r(road_side.road);
                 for i in [r.src_i, r.dst_i] {
                     for r in &map.get_i(i).roads {
-                        if !PathConstraints::Car.can_use_road(map.get_r(*r),  map) {
+                        if !PathConstraints::Car.can_use_road(map.get_r(*r), map) {
                             continue;
                         }
                         let [side1, side2] = r.both_sides();
-                        if uncovered_road_sides.contains(&side1) && uncovered_road_sides.contains(&side2) {
+                        if uncovered_road_sides.contains(&side1)
+                            && uncovered_road_sides.contains(&side2)
+                        {
                             info.cul_de_sacs.insert(*r);
                         }
                     }

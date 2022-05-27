@@ -25,8 +25,8 @@ struct RenderCellsBuilder {
 
     boundary_polygon: Polygon,
 
-    // Special cases. (cell idx, polygons)
-    cul_de_sacs: Vec<(usize, Vec<Polygon>)>,
+    // Special cases. (cell idx, shape)
+    cul_de_sacs: Vec<(usize, Polygon)>,
 }
 
 impl RenderCells {
@@ -80,72 +80,50 @@ impl RenderCellsBuilder {
         // Initially fill out the grid based on the roads in each cell
         let mut warn_leak = true;
         for (cell_idx, cell) in neighborhood.cells.iter().enumerate() {
-            if cell.cul_de_sac {
-                let mut polygons = Vec::new();
-                for (r, interval) in &cell.roads {
-                    let road = map.get_r(*r);
-                    polygons.push(
-                        road.center_pts
-                            .exact_slice(interval.start, interval.end)
-                            // TODO We cover up the street with shortcut coloring
-                            .make_polygons(2.0 * road.get_width()),
-                    );
-
-                    // TODO We could filter the buildings by where the driveway connects along the
-                    // road
-                    for b in map.road_to_buildings(*r) {
-                        polygons.push(map.get_b(*b).polygon.clone());
-                    }
-                }
-                for i in
-                    map_gui::tools::intersections_from_roads(&cell.roads.keys().cloned().collect(), map)
+            if let Some(polygon) = cell.cul_de_sac.clone() {
+                cul_de_sacs.push((cell_idx, polygon));
+                continue;
+            }
+            for (r, interval) in &cell.roads {
+                let road = map.get_r(*r);
+                // Some roads with a filter are _very_ short, and this fails. The connecting roads
+                // on either side should contribute a grid cell and wind up fine.
+                if let Ok(slice) = road
+                    .center_pts
+                    .maybe_exact_slice(interval.start, interval.end)
                 {
-                    polygons.push(map.get_i(i).polygon.clone());
-                }
-
-                cul_de_sacs.push((cell_idx, polygons));
-            } else {
-                for (r, interval) in &cell.roads {
-                    let road = map.get_r(*r);
-                    // Some roads with a filter are _very_ short, and this fails. The connecting roads
-                    // on either side should contribute a grid cell and wind up fine.
-                    if let Ok(slice) = road
-                        .center_pts
-                        .maybe_exact_slice(interval.start, interval.end)
+                    // Walk along the center line. We could look at the road's thickness and fill
+                    // out points based on that, but the diffusion should take care of it.
+                    for (pt, _) in
+                        slice.step_along(Distance::meters(RESOLUTION_M / 2.0), Distance::ZERO)
                     {
-                        // Walk along the center line. We could look at the road's thickness and fill
-                        // out points based on that, but the diffusion should take care of it.
-                        for (pt, _) in
-                            slice.step_along(Distance::meters(RESOLUTION_M / 2.0), Distance::ZERO)
-                        {
-                            // TODO If we wind up negative (left or above) here, do we overflow and
-                            // catch it below?
-                            let grid_idx = grid.idx(
-                                ((pt.x() - bounds.min_x) / RESOLUTION_M) as usize,
-                                ((pt.y() - bounds.min_y) / RESOLUTION_M) as usize,
-                            );
-                            // Due to tunnels/bridges, sometimes a road belongs to a neighborhood, but
-                            // leaks outside the neighborhood's boundary. Avoid crashing. The real fix
-                            // is to better define boundaries in the face of z-order changes.
-                            //
-                            // Example is https://www.openstreetmap.org/way/87298633
-                            if grid_idx >= grid.data.len() {
-                                if warn_leak {
-                                    warn!(
-                                        "{} leaks outside its neighborhood's boundary polygon, near {}",
-                                        road.id, pt
-                                    );
-                                    // In some neighborhoods, there are so many warnings that logging
-                                    // causes noticeable slowdown!
-                                    warn_leak = false;
-                                }
-                                continue;
+                        // TODO If we wind up negative (left or above) here, do we overflow and
+                        // catch it below?
+                        let grid_idx = grid.idx(
+                            ((pt.x() - bounds.min_x) / RESOLUTION_M) as usize,
+                            ((pt.y() - bounds.min_y) / RESOLUTION_M) as usize,
+                        );
+                        // Due to tunnels/bridges, sometimes a road belongs to a neighborhood, but
+                        // leaks outside the neighborhood's boundary. Avoid crashing. The real fix
+                        // is to better define boundaries in the face of z-order changes.
+                        //
+                        // Example is https://www.openstreetmap.org/way/87298633
+                        if grid_idx >= grid.data.len() {
+                            if warn_leak {
+                                warn!(
+                                    "{} leaks outside its neighborhood's boundary polygon, near {}",
+                                    road.id, pt
+                                );
+                                // In some neighborhoods, there are so many warnings that logging
+                                // causes noticeable slowdown!
+                                warn_leak = false;
                             }
-
-                            // If roads from two different cells are close enough to clobber
-                            // originally, oh well?
-                            grid.data[grid_idx] = Some(cell_idx);
+                            continue;
                         }
+
+                        // If roads from two different cells are close enough to clobber
+                        // originally, oh well?
+                        grid.data[grid_idx] = Some(cell_idx);
                     }
                 }
             }
@@ -250,9 +228,9 @@ impl RenderCellsBuilder {
             result.colors.push(color);
         }
 
-        for (idx, polygons) in self.cul_de_sacs {
+        for (idx, polygon) in self.cul_de_sacs {
             // Overwrite whatever happened above
-            result.polygons_per_cell[idx] = vec![Polygon::convex_hull(polygons)];
+            result.polygons_per_cell[idx] = vec![polygon];
             // Debugging
             result.colors[idx] = Color::RED;
         }

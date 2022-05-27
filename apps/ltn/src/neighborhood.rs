@@ -35,8 +35,8 @@ pub struct Cell {
     /// Intersections where this cell touches the boundary of the neighborhood.
     pub borders: BTreeSet<IntersectionID>,
     /// This cell is located outside the neighborhood's boundary, on the other side of the
-    /// perimeter road
-    pub cul_de_sac: bool,
+    /// perimeter road. Its shape has been calculated already.
+    pub cul_de_sac: Option<Polygon>,
 }
 
 impl Cell {
@@ -82,26 +82,6 @@ impl Neighborhood {
             n.borders.insert(road.src_i);
             n.borders.insert(road.dst_i);
         }
-        // The neighborhood's perimeter hugs the "interior" of the neighborhood. If we just use the
-        // other side of the perimeter road, the highlighted area nicely shows the boundary road
-        // too.
-        let fade_area = Polygon::with_holes(
-            map.get_boundary_polygon().clone().into_ring(),
-            vec![n
-                .orig_perimeter
-                .clone()
-                .flip_side_of_road()
-                .to_block(map)
-                .unwrap()
-                .polygon
-                .into_ring()],
-        );
-        /*let mut wat = GeomBatch::from(vec![(app.cs.fade_map_dark, fade_area)]);
-        for r in app.session.partitioning.neighborhood_cul_de_sacs(id) {
-            wat.push(widgetry::Color::RED.alpha(0.9), map.get_r(*r).get_thick_polygon());
-        }
-        n.fade_irrelevant = wat.upload(ctx);*/
-        n.fade_irrelevant = GeomBatch::from(vec![(app.cs.fade_map_dark, fade_area)]).upload(ctx);
 
         for r in &n.orig_perimeter.interior {
             let road = map.get_r(*r);
@@ -119,6 +99,29 @@ impl Neighborhood {
             &app.session.modal_filters,
             app.session.partitioning.neighborhood_cul_de_sacs(id),
         );
+
+        // Drawing stuff below
+
+        // The neighborhood's perimeter hugs the "interior" of the neighborhood. If we just use the
+        // other side of the perimeter road, the highlighted area nicely shows the boundary road
+        // too.
+        let mut holes = vec![n
+            .orig_perimeter
+            .clone()
+            .flip_side_of_road()
+            .to_block(map)
+            .unwrap()
+            .polygon
+            .into_ring()];
+        // Extend to cul-de-sacs
+        for cell in &n.cells {
+            if let Some(polygon) = cell.cul_de_sac.clone() {
+                holes.push(polygon.into_ring());
+            }
+        }
+
+        let fade_area = Polygon::with_holes(map.get_boundary_polygon().clone().into_ring(), holes);
+        n.fade_irrelevant = GeomBatch::from(vec![(app.cs.fade_map_dark, fade_area)]).upload(ctx);
 
         let mut label_roads = n.perimeter.clone();
         label_roads.extend(n.orig_perimeter.interior.clone());
@@ -162,7 +165,7 @@ fn find_cells(
             let mut cell = Cell {
                 roads: BTreeMap::new(),
                 borders: btreeset! { road.src_i },
-                cul_de_sac: false,
+                cul_de_sac: None,
             };
             cell.roads.insert(
                 road.id,
@@ -177,7 +180,7 @@ fn find_cells(
             let mut cell = Cell {
                 roads: BTreeMap::new(),
                 borders: btreeset! { road.dst_i },
-                cul_de_sac: false,
+                cul_de_sac: None,
             };
             cell.roads.insert(
                 road.id,
@@ -282,6 +285,35 @@ fn floodfill(
             }
         }
     }
+
+    let cul_de_sac = if cul_de_sac {
+        let mut polygons = Vec::new();
+        for (r, interval) in &visited_roads {
+            let road = map.get_r(*r);
+            // In case there are no buildings to extend the area, double the road's width. We draw
+            // over it for the shortcut heatmap
+            polygons.push(
+                road.center_pts
+                    .exact_slice(interval.start, interval.end)
+                    .make_polygons(2.0 * road.get_width()),
+            );
+
+            // TODO We could filter the buildings by where the driveway connects along the
+            // road
+            for b in map.road_to_buildings(*r) {
+                polygons.push(map.get_b(*b).polygon.clone());
+            }
+        }
+        for i in
+            map_gui::tools::intersections_from_roads(&visited_roads.keys().cloned().collect(), map)
+        {
+            polygons.push(map.get_i(i).polygon.clone());
+        }
+
+        Some(Polygon::convex_hull(polygons))
+    } else {
+        None
+    };
 
     Cell {
         roads: visited_roads,

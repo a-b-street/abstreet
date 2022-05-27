@@ -50,7 +50,7 @@ impl RoadID {
                 road: self,
                 side: SideOfRoad::Right,
             },
-            RoadSideID{
+            RoadSideID {
                 road: self,
                 side: SideOfRoad::Left,
             },
