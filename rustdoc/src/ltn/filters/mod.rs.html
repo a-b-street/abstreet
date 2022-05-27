@@ -357,12 +357,6 @@
 <span id="352">352</span>
 <span id="353">353</span>
 <span id="354">354</span>
-<span id="355">355</span>
-<span id="356">356</span>
-<span id="357">357</span>
-<span id="358">358</span>
-<span id="359">359</span>
-<span id="360">360</span>
 </pre><pre class="rust"><code><span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">auto</span>;
 <span class="kw">mod</span> <span class="ident">existing</span>;
 
@@ -648,14 +642,8 @@
         <span class="kw">let</span> <span class="ident">r2</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">r2</span>);
 
         <span class="comment">// Orient the road to face the intersection</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pl1</span> <span class="op">=</span> <span class="ident">r1</span>.<span class="ident">center_pts</span>.<span class="ident">clone</span>();
-        <span class="kw">if</span> <span class="ident">r1</span>.<span class="ident">src_i</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">i</span> {
-            <span class="ident">pl1</span> <span class="op">=</span> <span class="ident">pl1</span>.<span class="ident">reversed</span>();
-        }
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pl2</span> <span class="op">=</span> <span class="ident">r2</span>.<span class="ident">center_pts</span>.<span class="ident">clone</span>();
-        <span class="kw">if</span> <span class="ident">r2</span>.<span class="ident">src_i</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">i</span> {
-            <span class="ident">pl2</span> <span class="op">=</span> <span class="ident">pl2</span>.<span class="ident">reversed</span>();
-        }
+        <span class="kw">let</span> <span class="ident">pl1</span> <span class="op">=</span> <span class="ident">r1</span>.<span class="ident">center_pts</span>.<span class="ident">maybe_reverse</span>(<span class="ident">r1</span>.<span class="ident">src_i</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">i</span>);
+        <span class="kw">let</span> <span class="ident">pl2</span> <span class="op">=</span> <span class="ident">r2</span>.<span class="ident">center_pts</span>.<span class="ident">maybe_reverse</span>(<span class="ident">r2</span>.<span class="ident">src_i</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">i</span>);
 
         <span class="comment">// The other combinations of left/right here would produce points or a line across just one</span>
         <span class="comment">// road</span>

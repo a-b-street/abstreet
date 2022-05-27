@@ -937,7 +937,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">graph</span> <span class="op">=</span> <span class="ident">DiGraphMap::new</span>();
         <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">r</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">roads</span> {
             <span class="ident">graph</span>.<span class="ident">add_edge</span>(<span class="ident">id</span>.<span class="ident">i1</span>, <span class="ident">id</span>.<span class="ident">i2</span>, <span class="ident">id</span>);
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">r</span>.<span class="ident">osm_tags</span>.<span class="ident">contains_key</span>(<span class="string">&quot;oneway&quot;</span>) {
+            <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">oneway_for_driving</span>().<span class="ident">is_none</span>() {
                 <span class="ident">graph</span>.<span class="ident">add_edge</span>(<span class="ident">id</span>.<span class="ident">i2</span>, <span class="ident">id</span>.<span class="ident">i1</span>, <span class="ident">id</span>);
             }
         }
@@ -1034,8 +1034,8 @@
             .<span class="ident">any</span>(<span class="op">|</span><span class="ident">spec</span><span class="op">|</span> <span class="ident">spec</span>.<span class="ident">lt</span> <span class="op">==</span> <span class="ident">LaneType::Driving</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_oneway</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="string">&quot;oneway&quot;</span>, <span class="string">&quot;yes&quot;</span>)
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">oneway_for_driving</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Direction</span><span class="op">&gt;</span> {
+        <span class="ident">LaneSpec::oneway_for_driving</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">lane_specs_ltr</span>)
     }
 
     <span class="doccomment">/// Points from first to last point. Undefined for loops.</span>

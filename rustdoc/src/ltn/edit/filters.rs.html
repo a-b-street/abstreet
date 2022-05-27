@@ -134,6 +134,7 @@
 <span id="129">129</span>
 <span id="130">130</span>
 <span id="131">131</span>
+<span id="132">132</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom::Distance</span>;
 <span class="kw">use</span> <span class="ident">map_model::PathConstraints</span>;
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">World</span>, <span class="ident">WorldOutcome</span>};
@@ -229,7 +230,8 @@
             <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>);
             <span class="comment">// Filtering a road that&#39;s already marked bike-only doesn&#39;t make sense. Likewise for</span>
             <span class="comment">// one-ways.</span>
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">PathConstraints::Car</span>.<span class="ident">can_use_road</span>(<span class="ident">road</span>, <span class="ident">map</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">road</span>.<span class="ident">is_oneway</span>() {
+            <span class="kw">if</span> <span class="op">!</span><span class="ident">PathConstraints::Car</span>.<span class="ident">can_use_road</span>(<span class="ident">road</span>, <span class="ident">map</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">road</span>.<span class="ident">oneway_for_driving</span>().<span class="ident">is_some</span>()
+            {
                 <span class="kw">return</span> <span class="bool-val">true</span>;
             }
 

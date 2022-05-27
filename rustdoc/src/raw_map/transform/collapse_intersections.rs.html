@@ -255,6 +255,9 @@
 <span id="250">250</span>
 <span id="251">251</span>
 <span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
@@ -306,7 +309,10 @@
 
     <span class="comment">// Avoid two one-ways that point at each other. https://www.openstreetmap.org/node/440979339 is</span>
     <span class="comment">// a bizarre example. These are actually blackholed, some problem with service roads.</span>
-    <span class="kw">if</span> <span class="ident">road1</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="string">&quot;oneway&quot;</span>, <span class="string">&quot;yes&quot;</span>) <span class="op">&amp;&amp;</span> <span class="ident">road2</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="string">&quot;oneway&quot;</span>, <span class="string">&quot;yes&quot;</span>) <span class="op">&amp;&amp;</span> <span class="ident">r1</span>.<span class="ident">i2</span> <span class="op">==</span> <span class="ident">r2</span>.<span class="ident">i2</span> {
+    <span class="kw">if</span> <span class="ident">road1</span>.<span class="ident">oneway_for_driving</span>().<span class="ident">is_some</span>()
+        <span class="op">&amp;&amp;</span> <span class="ident">road2</span>.<span class="ident">oneway_for_driving</span>().<span class="ident">is_some</span>()
+        <span class="op">&amp;&amp;</span> <span class="ident">r1</span>.<span class="ident">i2</span> <span class="op">==</span> <span class="ident">r2</span>.<span class="ident">i2</span>
+    {
         <span class="macro">bail!</span>(<span class="string">&quot;oneway roads point at each other&quot;</span>);
     }
 

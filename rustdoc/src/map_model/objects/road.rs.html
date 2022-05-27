@@ -668,7 +668,6 @@
 <span id="663">663</span>
 <span id="664">664</span>
 <span id="665">665</span>
-<span id="666">666</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
@@ -1283,9 +1282,8 @@
         <span class="self">self</span>.<span class="ident">get_rank</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">osm::RoadRank::Local</span>
     }
 
-    <span class="comment">// TODO Oversimplified -- should look at lanes, and be clear this is for driving</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_oneway</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="string">&quot;oneway&quot;</span>, <span class="string">&quot;yes&quot;</span>)
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">oneway_for_driving</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Direction</span><span class="op">&gt;</span> {
+        <span class="ident">LaneSpec::oneway_for_driving</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">lane_specs</span>())
     }
 }
 

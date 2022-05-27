@@ -1114,6 +1114,14 @@
 <span id="1109">1109</span>
 <span id="1110">1110</span>
 <span id="1111">1111</span>
+<span id="1112">1112</span>
+<span id="1113">1113</span>
+<span id="1114">1114</span>
+<span id="1115">1115</span>
+<span id="1116">1116</span>
+<span id="1117">1117</span>
+<span id="1118">1118</span>
+<span id="1119">1119</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
@@ -1237,6 +1245,14 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">clone</span>();
         <span class="ident">pts</span>.<span class="ident">reverse</span>();
         <span class="ident">PolyLine::must_new</span>(<span class="ident">pts</span>)
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_reverse</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">reverse</span>: <span class="ident">bool</span>) -&gt; <span class="ident">PolyLine</span> {
+        <span class="kw">if</span> <span class="ident">reverse</span> {
+            <span class="self">self</span>.<span class="ident">reversed</span>()
+        } <span class="kw">else</span> {
+            <span class="self">self</span>.<span class="ident">clone</span>()
+        }
     }
 
     <span class="doccomment">/// Returns the quadrant where the overall angle of this polyline (pointing from the first to</span>

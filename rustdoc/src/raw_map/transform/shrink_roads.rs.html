@@ -93,7 +93,7 @@
             <span class="kw">continue</span>;
         }
         <span class="comment">// Only attempt this fix for dual carriageways</span>
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">road</span>.<span class="ident">is_oneway</span>() {
+        <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">oneway_for_driving</span>().<span class="ident">is_none</span>() {
             <span class="kw">continue</span>;
         }
 
