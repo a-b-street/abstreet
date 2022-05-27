@@ -130,7 +130,7 @@ fn run(mut settings: Settings) {
                         .partitioning
                         .all_neighborhoods()
                         .iter()
-                        .find(|(_, (block, _))| block.perimeter.interior.contains(&r))
+                        .find(|(_, info)| info.block.perimeter.interior.contains(&r))
                         .expect("Can't find neighborhood containing Gregory Street");
                     app.session.consultation = Some(*neighborhood);
 

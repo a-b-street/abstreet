@@ -171,13 +171,13 @@ impl State<App> for BrowseNeighborhoods {
 fn make_world(ctx: &mut EventCtx, app: &App, timer: &mut Timer) -> World<NeighborhoodID> {
     let mut world = World::bounded(app.map.get_bounds());
     let map = &app.map;
-    for (id, (block, color)) in app.session.partitioning.all_neighborhoods() {
+    for (id, info) in app.session.partitioning.all_neighborhoods() {
         match app.session.draw_neighborhood_style {
             Style::SimpleColoring => {
                 world
                     .add(*id)
-                    .hitbox(block.polygon.clone())
-                    .draw_color(*color)
+                    .hitbox(info.block.polygon.clone())
+                    .draw_color(info.color)
                     .hover_outline(colors::OUTLINE, Distance::meters(5.0))
                     .clickable()
                     .build(ctx);
@@ -190,8 +190,8 @@ fn make_world(ctx: &mut EventCtx, app: &App, timer: &mut Timer) -> World<Neighbo
                 let hovered_batch = render_cells.draw();
                 world
                     .add(*id)
-                    .hitbox(block.polygon.clone())
-                    .draw_color(color.alpha(0.5))
+                    .hitbox(info.block.polygon.clone())
+                    .draw_color(info.color.alpha(0.5))
                     .draw_hovered(hovered_batch)
                     .clickable()
                     .build(ctx);
@@ -209,7 +209,7 @@ fn make_world(ctx: &mut EventCtx, app: &App, timer: &mut Timer) -> World<Neighbo
                 let color = app.cs.good_to_bad_red.eval(pct);
                 world
                     .add(*id)
-                    .hitbox(block.polygon.clone())
+                    .hitbox(info.block.polygon.clone())
                     .draw_color(color.alpha(0.5))
                     .hover_outline(colors::OUTLINE, Distance::meters(5.0))
                     .clickable()
@@ -218,7 +218,7 @@ fn make_world(ctx: &mut EventCtx, app: &App, timer: &mut Timer) -> World<Neighbo
             Style::Shortcuts => {
                 world
                     .add(*id)
-                    .hitbox(block.polygon.clone())
+                    .hitbox(info.block.polygon.clone())
                     // Slight lie, because draw_over_roads has to be drawn after the World
                     .drawn_in_master_batch()
                     .hover_outline(colors::OUTLINE, Distance::meters(5.0))
@@ -258,8 +258,8 @@ pub fn draw_boundary_roads(ctx: &EventCtx, app: &App) -> ToggleZoomed {
     let mut seen_roads = HashSet::new();
     let mut seen_borders = HashSet::new();
     let mut batch = ToggleZoomed::builder();
-    for (block, _) in app.session.partitioning.all_neighborhoods().values() {
-        for id in &block.perimeter.roads {
+    for info in app.session.partitioning.all_neighborhoods().values() {
+        for id in &info.block.perimeter.roads {
             let r = id.road;
             if seen_roads.contains(&r) {
                 continue;
