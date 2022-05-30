@@ -21,6 +21,7 @@ static SYSTEM_DATA: include_dir::Dir = include_dir::include_dir!(
     "../data/system",
     "assets/",
     "-assets/music/",
+    "ltn_proposals/",
     "proposals/",
     "study_areas/"
 );

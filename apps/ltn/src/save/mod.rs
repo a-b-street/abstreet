@@ -49,14 +49,14 @@ impl Proposal {
     }
 
     /// Try to load a proposal. If it fails, returns a popup message state.
-    pub fn load(ctx: &mut EventCtx, app: &mut App, name: &str) -> Option<Box<dyn State<App>>> {
-        match Self::inner_load(ctx, app, name) {
+    pub fn load(ctx: &mut EventCtx, app: &mut App, path: String) -> Option<Box<dyn State<App>>> {
+        match Self::inner_load(ctx, app, &path) {
             Ok(()) => None,
             Err(err) => Some(PopupMsg::new_state(
                 ctx,
                 "Error",
                 vec![
-                    format!("Couldn't load proposal {}", name),
+                    format!("Couldn't load proposal {}", path),
                     err.to_string(),
                     "The format of saved proposals recently changed.".to_string(),
                     "Contact dabreegster@gmail.com if you need help restoring a file.".to_string(),
@@ -65,8 +65,8 @@ impl Proposal {
         }
     }
 
-    fn inner_load(ctx: &mut EventCtx, app: &mut App, name: &str) -> Result<()> {
-        let bytes = abstio::slurp_file(abstio::path_ltn_proposals(app.map.get_name(), name))?;
+    fn inner_load(ctx: &mut EventCtx, app: &mut App, path: &str) -> Result<()> {
+        let bytes = abstio::slurp_file(path)?;
         let decoder = flate2::read::GzDecoder::new(&bytes[..]);
         let value = serde_json::from_reader(decoder)?;
         let proposal = perma::from_permanent(&app.map, value)?;
@@ -177,9 +177,15 @@ fn load_picker_ui(
                 .map(abstutil::basename)
                 .collect(),
         ),
-        Box::new(|name, ctx, app| match Proposal::load(ctx, app, &name) {
-            Some(err_state) => Transition::Replace(err_state),
-            None => preserve_state.switch_to_state(ctx, app),
+        Box::new(|name, ctx, app| {
+            match Proposal::load(
+                ctx,
+                app,
+                abstio::path_ltn_proposals(app.map.get_name(), &name),
+            ) {
+                Some(err_state) => Transition::Replace(err_state),
+                None => preserve_state.switch_to_state(ctx, app),
+            }
         }),
     )
 }

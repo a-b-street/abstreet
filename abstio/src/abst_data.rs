@@ -127,6 +127,7 @@ impl Manifest {
         if parts[1] == "system" {
             if parts[2] == "assets"
                 || parts[2] == "extra_fonts"
+                || parts[2] == "ltn_proposals"
                 || parts[2] == "proposals"
                 || parts[2] == "study_areas"
             {

@@ -101,6 +101,7 @@ impl CityName {
         for country in list_all_objects(path("system")) {
             if country == "assets"
                 || country == "extra_fonts"
+                || country == "ltn_proposals"
                 || country == "proposals"
                 || country == "study_areas"
             {

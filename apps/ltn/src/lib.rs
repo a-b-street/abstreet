@@ -49,7 +49,7 @@ struct Args {
     proposal: Option<String>,
     /// Lock the user into one fixed neighborhood, and remove many controls
     #[structopt(long)]
-    consultation: bool,
+    consultation: Option<String>,
     #[structopt(flatten)]
     app_args: map_gui::SimpleAppArgs,
 }
@@ -101,29 +101,56 @@ fn run(mut settings: Settings) {
             session,
             move |ctx, app| {
                 // Restore the partitioning from a file before calling BrowseNeighborhoods
-                let popup_state = args
-                    .proposal
-                    .as_ref()
-                    .and_then(|name| crate::save::Proposal::load(ctx, app, name));
+                let popup_state = args.proposal.as_ref().and_then(|name| {
+                    crate::save::Proposal::load(
+                        ctx,
+                        app,
+                        abstio::path_ltn_proposals(app.map.get_name(), name),
+                    )
+                });
 
                 let mut states = Vec::new();
-                if args.consultation {
+                if let Some(ref consultation) = args.consultation {
                     if app.map.get_name() != &MapName::new("gb", "bristol", "east") {
                         panic!("Consultation mode not supported on this map");
                     }
 
-                    app.session.alt_proposals = crate::save::AltProposals::new();
-                    ctx.loading_screen("initialize", |ctx, timer| {
-                        crate::clear_current_proposal(ctx, app, timer);
-                    });
+                    let focus_on_street = match consultation.as_ref() {
+                        "pt1" => {
+                            // Use the inferred boundaries
+                            app.session.alt_proposals = crate::save::AltProposals::new();
+                            ctx.loading_screen("initialize", |ctx, timer| {
+                                crate::clear_current_proposal(ctx, app, timer);
+                            });
+
+                            "Gregory Street"
+                        }
+                        "pt2" => {
+                            // Don't even generate the default boundaries; load a baked-in proposal
+                            // with some special overrides
+                            app.session.alt_proposals = crate::save::AltProposals::new();
+                            if crate::save::Proposal::load(
+                                ctx,
+                                app,
+                                abstio::path("system/ltn_proposals/bristol_beaufort_road.json.gz"),
+                            )
+                            .is_some()
+                            {
+                                panic!("Consultation pt2 mode broken; go fix bristol_beaufort_road.json.gz manually");
+                            }
+
+                            "Jubilee Road"
+                        }
+                        _ => panic!("Unknown Bristol consultation mode {consultation}"),
+                    };
 
                     // Look for the neighborhood containing one small street
                     let r = app
                         .map
                         .all_roads()
                         .iter()
-                        .find(|r| r.get_name(None) == "Gregory Street")
-                        .expect("Can't find Gregory Street")
+                        .find(|r| r.get_name(None) == focus_on_street)
+                        .expect(&format!("Can't find {focus_on_street}"))
                         .id;
                     let (neighborhood, _) = app
                         .session
@@ -131,8 +158,12 @@ fn run(mut settings: Settings) {
                         .all_neighborhoods()
                         .iter()
                         .find(|(_, info)| info.block.perimeter.interior.contains(&r))
-                        .expect("Can't find neighborhood containing Gregory Street");
+                        .expect(&format!(
+                            "Can't find neighborhood containing {focus_on_street}"
+                        ));
                     app.session.consultation = Some(*neighborhood);
+
+                    // TODO Maybe center the camera, ignoring any saved values
 
                     states.push(connectivity::Viewer::new_state(
                         ctx,
