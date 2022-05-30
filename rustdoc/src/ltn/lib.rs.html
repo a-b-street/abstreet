@@ -280,6 +280,11 @@
 <span id="275">275</span>
 <span id="276">276</span>
 <span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::type_complexity</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">structopt::StructOpt</span>;
@@ -365,6 +370,8 @@
             <span class="ident">alt_proposals</span>: <span class="ident">save::AltProposals::new</span>(),
             <span class="ident">draw_all_filters</span>: <span class="ident">Toggle3Zoomed::empty</span>(<span class="ident">ctx</span>),
             <span class="ident">impact</span>: <span class="ident">impact::Impact::empty</span>(<span class="ident">ctx</span>),
+
+            <span class="ident">edit_filters</span>: <span class="bool-val">true</span>,
 
             <span class="ident">highlight_boundary_roads</span>: <span class="bool-val">false</span>,
             <span class="ident">draw_neighborhood_style</span>: <span class="ident">browse::Style::SimpleColoring</span>,
@@ -496,6 +503,9 @@
     <span class="kw">pub</span> <span class="ident">alt_proposals</span>: <span class="ident">save::AltProposals</span>,
     <span class="kw">pub</span> <span class="ident">draw_all_filters</span>: <span class="ident">Toggle3Zoomed</span>,
     <span class="kw">pub</span> <span class="ident">impact</span>: <span class="ident">impact::Impact</span>,
+
+    <span class="comment">// True if we&#39;re editing filters, false if we&#39;re editing one-ways. (An enum is overkill)</span>
+    <span class="kw">pub</span> <span class="ident">edit_filters</span>: <span class="ident">bool</span>,
 
     <span class="comment">// Remember form settings in different tabs.</span>
     <span class="comment">// Browse neighborhoods:</span>
