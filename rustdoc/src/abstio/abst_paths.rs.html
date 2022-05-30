@@ -457,6 +457,7 @@
 <span id="452">452</span>
 <span id="453">453</span>
 <span id="454">454</span>
+<span id="455">455</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Generate paths for different A/B Street files</span>
 
 <span class="comment">// TODO There&#39;s some repeated code here for listing files locally/from the manifest/merged. Maybe</span>
@@ -560,6 +561,7 @@
         <span class="kw">for</span> <span class="ident">country</span> <span class="kw">in</span> <span class="ident">list_all_objects</span>(<span class="ident">path</span>(<span class="string">&quot;system&quot;</span>)) {
             <span class="kw">if</span> <span class="ident">country</span> <span class="op">==</span> <span class="string">&quot;assets&quot;</span>
                 <span class="op">|</span><span class="op">|</span> <span class="ident">country</span> <span class="op">==</span> <span class="string">&quot;extra_fonts&quot;</span>
+                <span class="op">|</span><span class="op">|</span> <span class="ident">country</span> <span class="op">==</span> <span class="string">&quot;ltn_proposals&quot;</span>
                 <span class="op">|</span><span class="op">|</span> <span class="ident">country</span> <span class="op">==</span> <span class="string">&quot;proposals&quot;</span>
                 <span class="op">|</span><span class="op">|</span> <span class="ident">country</span> <span class="op">==</span> <span class="string">&quot;study_areas&quot;</span>
             {

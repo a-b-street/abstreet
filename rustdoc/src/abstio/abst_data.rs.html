@@ -210,6 +210,7 @@
 <span id="205">205</span>
 <span id="206">206</span>
 <span id="207">207</span>
+<span id="208">208</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
@@ -339,6 +340,7 @@
         <span class="kw">if</span> <span class="ident">parts</span>[<span class="number">1</span>] <span class="op">==</span> <span class="string">&quot;system&quot;</span> {
             <span class="kw">if</span> <span class="ident">parts</span>[<span class="number">2</span>] <span class="op">==</span> <span class="string">&quot;assets&quot;</span>
                 <span class="op">|</span><span class="op">|</span> <span class="ident">parts</span>[<span class="number">2</span>] <span class="op">==</span> <span class="string">&quot;extra_fonts&quot;</span>
+                <span class="op">|</span><span class="op">|</span> <span class="ident">parts</span>[<span class="number">2</span>] <span class="op">==</span> <span class="string">&quot;ltn_proposals&quot;</span>
                 <span class="op">|</span><span class="op">|</span> <span class="ident">parts</span>[<span class="number">2</span>] <span class="op">==</span> <span class="string">&quot;proposals&quot;</span>
                 <span class="op">|</span><span class="op">|</span> <span class="ident">parts</span>[<span class="number">2</span>] <span class="op">==</span> <span class="string">&quot;study_areas&quot;</span>
             {
