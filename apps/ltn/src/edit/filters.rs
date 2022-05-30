@@ -22,6 +22,12 @@ pub fn widget(ctx: &mut EventCtx, app: &App) -> Widget {
         ]),
         crate::components::FreehandFilters::button(ctx),
         Widget::row(vec![
+            ctx.style()
+                .btn_plain
+                .icon("system/assets/tools/undo.svg")
+                .disabled(app.session.modal_filters.previous_version.is_none())
+                .hotkey(lctrl(Key::Z))
+                .build_widget(ctx, "undo"),
             format!(
                 "{} filters added",
                 app.session.modal_filters.roads.len()
@@ -29,12 +35,6 @@ pub fn widget(ctx: &mut EventCtx, app: &App) -> Widget {
             )
             .text_widget(ctx)
             .centered_vert(),
-            ctx.style()
-                .btn_plain
-                .icon("system/assets/tools/undo.svg")
-                .disabled(app.session.modal_filters.previous_version.is_none())
-                .hotkey(lctrl(Key::Z))
-                .build_widget(ctx, "undo"),
         ]),
     ])
 }
