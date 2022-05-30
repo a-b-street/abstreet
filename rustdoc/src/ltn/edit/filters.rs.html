@@ -159,6 +159,12 @@
         ]),
         <span class="ident"><span class="kw">crate</span>::components::FreehandFilters::button</span>(<span class="ident">ctx</span>),
         <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_plain</span>
+                .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/undo.svg&quot;</span>)
+                .<span class="ident">disabled</span>(<span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">previous_version</span>.<span class="ident">is_none</span>())
+                .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::Z</span>))
+                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;undo&quot;</span>),
             <span class="macro">format!</span>(
                 <span class="string">&quot;{} filters added&quot;</span>,
                 <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">roads</span>.<span class="ident">len</span>()
@@ -166,12 +172,6 @@
             )
             .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
             .<span class="ident">centered_vert</span>(),
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain</span>
-                .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/undo.svg&quot;</span>)
-                .<span class="ident">disabled</span>(<span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">previous_version</span>.<span class="ident">is_none</span>())
-                .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::Z</span>))
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;undo&quot;</span>),
         ]),
     ])
 }
