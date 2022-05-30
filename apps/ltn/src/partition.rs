@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use abstio::MapName;
 use abstutil::Timer;
+use geom::Polygon;
 use map_model::osm::RoadRank;
 use map_model::{Block, Map, Perimeter, RoadID, RoadSideID};
 use widgetry::Color;
@@ -42,6 +43,9 @@ pub struct Partitioning {
 pub struct NeighborhoodInfo {
     pub block: Block,
     pub color: Color,
+    /// Draw a special cone of light when focused on this neighborhood. It doesn't change which
+    /// roads can be edited.
+    pub override_drawing_boundary: Option<Polygon>,
 }
 
 impl NeighborhoodInfo {
@@ -49,6 +53,7 @@ impl NeighborhoodInfo {
         Self {
             block,
             color: Color::CLEAR,
+            override_drawing_boundary: None,
         }
     }
 }
@@ -334,6 +339,32 @@ impl Partitioning {
 
     pub fn neighborhood_color(&self, id: NeighborhoodID) -> Color {
         self.neighborhoods[&id].color
+    }
+
+    pub fn neighborhood_boundary_polygon(&self, app: &App, id: NeighborhoodID) -> Polygon {
+        let info = &self.neighborhoods[&id];
+        if let Some(polygon) = info.override_drawing_boundary.clone() {
+            return polygon;
+        }
+        // The neighborhood's perimeter hugs the "interior" of the neighborhood. If we just use the
+        // other side of the perimeter road, the highlighted area nicely shows the boundary road
+        // too. (But sometimes this breaks, of course)
+        match info
+            .block
+            .perimeter
+            .clone()
+            .flip_side_of_road()
+            .to_block(&app.map)
+        {
+            Ok(block) => block.polygon,
+            Err(_) => info.block.polygon.clone(),
+        }
+    }
+    pub fn override_neighborhood_boundary_polygon(&mut self, id: NeighborhoodID, polygon: Polygon) {
+        self.neighborhoods
+            .get_mut(&id)
+            .unwrap()
+            .override_drawing_boundary = Some(polygon);
     }
 
     pub fn all_neighborhoods(&self) -> &BTreeMap<NeighborhoodID, NeighborhoodInfo> {

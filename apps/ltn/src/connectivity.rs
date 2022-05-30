@@ -101,6 +101,14 @@ impl State<App> for Viewer {
                             ));
                         }
                     }
+                } else if x == "Customize boundary" {
+                    return Transition::Push(
+                        crate::customize_boundary::CustomizeBoundary::new_state(
+                            ctx,
+                            app,
+                            self.neighborhood.id,
+                        ),
+                    );
                 } else if let Some(t) = self.edit.handle_panel_action(
                     ctx,
                     app,
@@ -332,6 +340,10 @@ fn advanced_panel(ctx: &EventCtx, app: &App) -> Widget {
     Widget::col(vec![
         Toggle::checkbox(ctx, "Advanced features", None, app.opts.dev),
         Line("Advanced features").small_heading().into_widget(ctx),
+        ctx.style()
+            .btn_outline
+            .text("Customize boundary")
+            .build_def(ctx),
         Widget::row(vec![
             "Draw traffic cells as".text_widget(ctx).centered_vert(),
             Toggle::choice(

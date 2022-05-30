@@ -21,6 +21,7 @@ mod browse;
 mod colors;
 mod components;
 mod connectivity;
+mod customize_boundary;
 mod draw_cells;
 mod edit;
 mod export;
