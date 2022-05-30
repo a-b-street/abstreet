@@ -81,17 +81,16 @@ impl Neighborhood {
         }
         // The neighborhood's perimeter hugs the "interior" of the neighborhood. If we just use the
         // other side of the perimeter road, the highlighted area nicely shows the boundary road
-        // too.
+        // too. (But sometimes this breaks, of course)
+        let highlight_boundary = match n.orig_perimeter.clone().flip_side_of_road().to_block(map) {
+            Ok(poly) => poly,
+            Err(_) => n.orig_perimeter.clone().to_block(map).unwrap(),
+        }
+        .polygon
+        .into_ring();
         let fade_area = Polygon::with_holes(
             map.get_boundary_polygon().clone().into_ring(),
-            vec![n
-                .orig_perimeter
-                .clone()
-                .flip_side_of_road()
-                .to_block(map)
-                .unwrap()
-                .polygon
-                .into_ring()],
+            vec![highlight_boundary],
         );
         n.fade_irrelevant = GeomBatch::from(vec![(app.cs.fade_map_dark, fade_area)]).upload(ctx);
 
