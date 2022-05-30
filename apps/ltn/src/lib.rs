@@ -84,6 +84,8 @@ fn run(mut settings: Settings) {
             draw_all_filters: Toggle3Zoomed::empty(ctx),
             impact: impact::Impact::empty(ctx),
 
+            edit_filters: true,
+
             highlight_boundary_roads: false,
             draw_neighborhood_style: browse::Style::SimpleColoring,
             draw_cells_as_areas: true,
@@ -214,6 +216,9 @@ pub struct Session {
     pub alt_proposals: save::AltProposals,
     pub draw_all_filters: Toggle3Zoomed,
     pub impact: impact::Impact,
+
+    // True if we're editing filters, false if we're editing one-ways. (An enum is overkill)
+    pub edit_filters: bool,
 
     // Remember form settings in different tabs.
     // Browse neighborhoods:
