@@ -270,11 +270,6 @@
 <span id="265">265</span>
 <span id="266">266</span>
 <span id="267">267</span>
-<span id="268">268</span>
-<span id="269">269</span>
-<span id="270">270</span>
-<span id="271">271</span>
-<span id="272">272</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">maplit::btreeset</span>;
@@ -356,18 +351,13 @@
             <span class="ident">n</span>.<span class="ident">borders</span>.<span class="ident">insert</span>(<span class="ident">road</span>.<span class="ident">src_i</span>);
             <span class="ident">n</span>.<span class="ident">borders</span>.<span class="ident">insert</span>(<span class="ident">road</span>.<span class="ident">dst_i</span>);
         }
-        <span class="comment">// The neighborhood&#39;s perimeter hugs the &quot;interior&quot; of the neighborhood. If we just use the</span>
-        <span class="comment">// other side of the perimeter road, the highlighted area nicely shows the boundary road</span>
-        <span class="comment">// too. (But sometimes this breaks, of course)</span>
-        <span class="kw">let</span> <span class="ident">highlight_boundary</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">n</span>.<span class="ident">orig_perimeter</span>.<span class="ident">clone</span>().<span class="ident">flip_side_of_road</span>().<span class="ident">to_block</span>(<span class="ident">map</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">poly</span>) =&gt; <span class="ident">poly</span>,
-            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="ident">n</span>.<span class="ident">orig_perimeter</span>.<span class="ident">clone</span>().<span class="ident">to_block</span>(<span class="ident">map</span>).<span class="ident">unwrap</span>(),
-        }
-        .<span class="ident">polygon</span>
-        .<span class="ident">into_ring</span>();
         <span class="kw">let</span> <span class="ident">fade_area</span> <span class="op">=</span> <span class="ident">Polygon::with_holes</span>(
             <span class="ident">map</span>.<span class="ident">get_boundary_polygon</span>().<span class="ident">clone</span>().<span class="ident">into_ring</span>(),
-            <span class="macro">vec!</span>[<span class="ident">highlight_boundary</span>],
+            <span class="macro">vec!</span>[<span class="ident">app</span>
+                .<span class="ident">session</span>
+                .<span class="ident">partitioning</span>
+                .<span class="ident">neighborhood_boundary_polygon</span>(<span class="ident">app</span>, <span class="ident">id</span>)
+                .<span class="ident">into_ring</span>()],
         );
         <span class="ident">n</span>.<span class="ident">fade_irrelevant</span> <span class="op">=</span> <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">fade_map_dark</span>, <span class="ident">fade_area</span>)]).<span class="ident">upload</span>(<span class="ident">ctx</span>);
 

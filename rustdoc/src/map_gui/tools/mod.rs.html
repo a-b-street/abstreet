@@ -429,6 +429,8 @@
 <span id="424">424</span>
 <span id="425">425</span>
 <span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Assorted tools and UI states that&#39;re useful for applications built to display maps.</span>
 
 <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
@@ -446,6 +448,7 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::labels::DrawRoadLabels</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::minimap</span>::{<span class="ident">Minimap</span>, <span class="ident">MinimapControls</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::navigate::Navigator</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::polygon::EditPolygon</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::title_screen</span>::{<span class="ident">Executable</span>, <span class="ident">TitleScreen</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::trip_files</span>::{<span class="ident">TripManagement</span>, <span class="ident">TripManagementState</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::turn_explorer::TurnExplorer</span>;
@@ -474,6 +477,7 @@
 <span class="kw">mod</span> <span class="ident">labels</span>;
 <span class="kw">mod</span> <span class="ident">minimap</span>;
 <span class="kw">mod</span> <span class="ident">navigate</span>;
+<span class="kw">mod</span> <span class="ident">polygon</span>;
 <span class="kw">mod</span> <span class="ident">title_screen</span>;
 <span class="kw">mod</span> <span class="ident">trip_files</span>;
 <span class="kw">mod</span> <span class="ident">turn_explorer</span>;

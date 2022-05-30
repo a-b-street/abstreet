@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Obj",""]],"struct":[["PolygonEditor",""]]});
+initSidebarItems({"struct":[["PolygonEditor",""]]});
