@@ -54,7 +54,7 @@ fn parse_args() -> anyhow::Result<Vec<String>> {
     // Consider using a proper url parsing crate. This works fine for now, though.
     let url_parts = url.split("?").collect::<Vec<_>>();
     if url_parts.len() != 2 {
-        bail!("URL {} doesn't seem to have query params");
+        bail!("URL {url} doesn't seem to have query params");
     }
     let parts = url_parts[1]
         .split("&")
