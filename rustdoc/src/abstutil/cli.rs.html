@@ -123,7 +123,7 @@
     <span class="comment">// Consider using a proper url parsing crate. This works fine for now, though.</span>
     <span class="kw">let</span> <span class="ident">url_parts</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">split</span>(<span class="string">&quot;?&quot;</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
     <span class="kw">if</span> <span class="ident">url_parts</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">2</span> {
-        <span class="macro">bail!</span>(<span class="string">&quot;URL {} doesn&#39;t seem to have query params&quot;</span>);
+        <span class="macro">bail!</span>(<span class="string">&quot;URL {url} doesn&#39;t seem to have query params&quot;</span>);
     }
     <span class="kw">let</span> <span class="ident">parts</span> <span class="op">=</span> <span class="ident">url_parts</span>[<span class="number">1</span>]
         .<span class="ident">split</span>(<span class="string">&quot;&amp;&quot;</span>)
