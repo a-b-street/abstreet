@@ -2,7 +2,8 @@ extern crate rand;
 
 use std::collections::BTreeSet;
 
-use rand::{thread_rng, Rng};
+use rand::Rng;
+use rand_xorshift::XorShiftRng;
 use serde::{Deserialize, Serialize};
 
 use abstutil::Timer;
@@ -15,7 +16,10 @@ use crate::{Scenario, TripMode};
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Serialize, Deserialize)]
 pub enum ScenarioModifier {
     RepeatDays(usize),
-    RepeatDaysNoise(usize),
+    RepeatDaysNoise {
+        days: usize,
+        departure_time_noise: Duration,
+    },
     ChangeMode {
         pct_ppl: usize,
         departure_filter: (Time, Time),
@@ -30,10 +34,13 @@ pub enum ScenarioModifier {
 impl ScenarioModifier {
     /// If this modifies scenario_name, then that means prebaked results don't match up and
     /// shouldn't be used.
-    pub fn apply(&self, map: &Map, mut s: Scenario) -> Scenario {
+    pub fn apply(&self, map: &Map, mut s: Scenario, rng: &mut XorShiftRng) -> Scenario {
         match self {
-            ScenarioModifier::RepeatDays(n) => repeat_days(s, *n, None),
-            ScenarioModifier::RepeatDaysNoise(n) => repeat_days(s, *n, Some(10)),
+            ScenarioModifier::RepeatDays(n) => repeat_days(s, *n, None, rng),
+            ScenarioModifier::RepeatDaysNoise {
+                days,
+                departure_time_noise,
+            } => repeat_days(s, *days, Some(departure_time_noise), rng),
             ScenarioModifier::ChangeMode {
                 pct_ppl,
                 departure_filter,
@@ -95,9 +102,12 @@ impl ScenarioModifier {
     pub fn describe(&self) -> String {
         match self {
             ScenarioModifier::RepeatDays(n) => format!("repeat the entire day {} times", n),
-            ScenarioModifier::RepeatDaysNoise(n) => format!(
-                "repeat the entire day {} times with +/- 10 minutes noise on each departure",
-                n
+            ScenarioModifier::RepeatDaysNoise {
+                days,
+                departure_time_noise,
+            } => format!(
+                "repeat the entire day {} times with +/- {} minutes noise on each departure",
+                days, departure_time_noise
             ),
             ScenarioModifier::ChangeMode {
                 pct_ppl,
@@ -126,9 +136,13 @@ impl ScenarioModifier {
 //
 // The bigger problem is that any people that seem to require multiple cars... will wind up
 // needing LOTS of cars.
-fn repeat_days(mut s: Scenario, days: usize, noise: Option<usize>) -> Scenario {
+fn repeat_days(
+    mut s: Scenario,
+    days: usize,
+    noise: Option<&geom::Duration>,
+    rng: &mut XorShiftRng,
+) -> Scenario {
     s.scenario_name = format!("{} (repeated {} days)", s.scenario_name, days);
-    let mut rng = thread_rng();
     for person in &mut s.people {
         let mut trips = Vec::new();
         let mut offset = Duration::ZERO;
@@ -137,9 +151,10 @@ fn repeat_days(mut s: Scenario, days: usize, noise: Option<usize>) -> Scenario {
                 let mut new = trip.clone();
                 new.depart += offset;
                 if let Some(noise_v) = noise {
-                    let noise_rnd = Duration::minutes(rng.gen_range(0..=(noise_v * 2)))
-                        - Duration::minutes(noise_v);
-                    new.depart += noise_rnd;
+                    let noise_rnd = Duration::seconds(
+                        rng.gen_range((0.)..=(noise_v.inner_seconds() as f64 * 2.)),
+                    ) - *noise_v;
+                    new.depart = new.depart.clamped_sub(noise_rnd);
                 }
                 new.modified = true;
                 trips.push(new);

@@ -3914,6 +3914,7 @@ dependencies = [
  "log",
  "map_model",
  "rand",
+ "rand_xorshift",
  "serde",
 ]
 
