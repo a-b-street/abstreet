@@ -510,11 +510,11 @@ impl LoadSim {
             map.recalculate_pathfinding_after_edits(timer);
         }
 
+        let mut rng = XorShiftRng::seed_from_u64(self.rng_seed);
         for m in &self.modifiers {
-            scenario = m.apply(&map, scenario);
+            scenario = m.apply(&map, scenario, &mut rng);
         }
 
-        let mut rng = XorShiftRng::seed_from_u64(self.rng_seed);
         let mut sim = Sim::new(&map, self.opts.clone());
         sim.instantiate(&scenario, &map, &mut rng, timer);
 

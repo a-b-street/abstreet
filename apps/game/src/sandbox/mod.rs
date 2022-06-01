@@ -551,7 +551,11 @@ impl State<App> for SandboxLoader {
 
                         if let GameplayMode::PlayScenario(_, _, ref modifiers) = self.mode {
                             for m in modifiers {
-                                scenario = m.apply(&app.primary.map, scenario);
+                                scenario = m.apply(
+                                    &app.primary.map,
+                                    scenario,
+                                    &mut app.primary.current_flags.sim_flags.make_rng(),
+                                );
                             }
                         }
 
