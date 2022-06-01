@@ -369,9 +369,10 @@ impl State<App> for EditScenarioModifiers {
                     ));
                 }
                 "Repeat schedule multiple days with +/- 10 minutes of noise" => {
-                    self.modifiers.push(ScenarioModifier::RepeatDaysNoise(
-                        self.panel.spinner("repeat_days_noise"),
-                    ));
+                    self.modifiers.push(ScenarioModifier::RepeatDaysNoise {
+                        days: self.panel.spinner("repeat_days_noise"),
+                        departure_time_noise: Duration::minutes(10),
+                    });
                     return Transition::Replace(EditScenarioModifiers::new_state(
                         ctx,
                         self.scenario_name.clone(),
