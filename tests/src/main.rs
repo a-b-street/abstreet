@@ -141,7 +141,7 @@ fn check_proposals() -> Result<()> {
     Ok(())
 }
 
-/// Verify lane-chaging behavior is overall reasonable, by asserting all cars and bikes can
+/// Verify lane-changing behavior is overall reasonable, by asserting all cars and bikes can
 /// complete their trip under a time limit.
 fn test_lane_changing(map: &Map) -> Result<()> {
     // This uses a fixed RNG seed
