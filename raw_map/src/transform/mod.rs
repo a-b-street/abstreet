@@ -7,6 +7,7 @@ mod dual_carriageways;
 mod find_short_roads;
 mod merge_short_road;
 mod remove_disconnected;
+mod sausage_links;
 mod shrink_roads;
 mod snappy;
 
@@ -55,6 +56,10 @@ impl RawMap {
         timer.start("shrinking overlapping roads");
         shrink_roads::shrink(self, timer);
         timer.stop("shrinking overlapping roads");
+
+        timer.start("collapsing sausage links");
+        sausage_links::collapse_sausage_links(self);
+        timer.stop("collapsing sausage links");
 
         timer.stop("simplify RawMap");
     }
