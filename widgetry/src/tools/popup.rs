@@ -20,6 +20,10 @@ impl PopupMsg {
         for l in lines {
             txt.add_line(l);
         }
+        Self::new_state_for_txt(ctx, txt)
+    }
+
+    pub fn new_state_for_txt<A>(ctx: &mut EventCtx, txt: Text) -> Box<dyn State<A>> {
         Box::new(PopupMsg {
             panel: Panel::new_builder(Widget::col(vec![
                 txt.into_widget(ctx),
