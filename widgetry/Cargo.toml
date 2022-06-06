@@ -28,7 +28,7 @@ image = { version = "0.23.12", default-features = false, features=["png"] }
 instant = "0.1.7"
 js-sys = { version = "0.3.47", optional = true }
 log = "0.4.14"
-lru = "0.6.4"
+lru = "0.7.1"
 # Don't upgrade until a crash with opening lane info panels is fixed
 lyon = "0.16.2"
 serde = "1.0.123"
