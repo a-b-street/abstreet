@@ -190,6 +190,8 @@ pub fn write_file(path: String, contents: String) -> Result<String> {
         "text/csv"
     } else if path.ends_with("json") {
         "application/json"
+    } else if path.ends_with("bin") {
+        "application/octet-stream"
     } else {
         bail!("Don't know MIME type for {path}");
     };
