@@ -1,8 +1,8 @@
-use geom::{Distance, Duration};
+use geom::Duration;
 use map_gui::tools::{
     DrawRoadLabels, InputWaypoints, TripManagement, TripManagementState, WaypointID,
 };
-use map_model::{PathfinderCache, NORMAL_LANE_THICKNESS};
+use map_model::{PathV2, PathfinderCache};
 use synthpop::{TripEndpoint, TripMode};
 use widgetry::mapspace::{ToggleZoomed, World};
 use widgetry::{
@@ -136,12 +136,12 @@ impl RoutePlanner {
     // Returns a widget to display
     fn recalculate_paths(&mut self, ctx: &mut EventCtx, app: &App) -> Widget {
         let map = &app.map;
-        let mut draw = ToggleZoomed::builder();
+
+        let mut paths: Vec<(PathV2, Color)> = Vec::new();
 
         // The baseline is the one ignoring ALL filters (pre-existing and new)
         let baseline_time = {
             let mut total_time = Duration::ZERO;
-            let color = *colors::PLAN_ROUTE_BEFORE;
             let mut params = map.routing_params().clone();
             params.main_road_penalty = app.session.main_road_penalty;
 
@@ -152,13 +152,8 @@ impl RoutePlanner {
                             .pathfind_with_params(map, req, params.clone())
                     })
                 {
-                    let cost = path.get_cost();
-                    if let Some(pl) = path.into_v1(map).ok().and_then(|path| path.trace(map)) {
-                        let shape = pl.make_polygons(5.0 * NORMAL_LANE_THICKNESS);
-                        draw.unzoomed.push(color.alpha(0.8), shape.clone());
-                        draw.zoomed.push(color.alpha(0.5), shape);
-                        total_time += cost;
-                    }
+                    total_time += path.get_cost();
+                    paths.push((path, *colors::PLAN_ROUTE_BEFORE));
                 }
             }
 
@@ -172,8 +167,7 @@ impl RoutePlanner {
             params.main_road_penalty = app.session.main_road_penalty;
 
             let mut total_time = Duration::ZERO;
-            let mut draw_after = ToggleZoomed::builder();
-            let color = *colors::PLAN_ROUTE_AFTER;
+            let mut paths_after = Vec::new();
             for pair in self.waypoints.get_waypoints().windows(2) {
                 if let Some(path) = TripEndpoint::path_req(pair[0], pair[1], TripMode::Drive, map)
                     .and_then(|req| {
@@ -181,18 +175,13 @@ impl RoutePlanner {
                             .pathfind_with_params(map, req, params.clone())
                     })
                 {
-                    let cost = path.get_cost();
-                    if let Some(pl) = path.into_v1(map).ok().and_then(|path| path.trace(map)) {
-                        let shape = pl.make_polygons(5.0 * NORMAL_LANE_THICKNESS);
-                        draw_after.unzoomed.push(color.alpha(0.8), shape.clone());
-                        draw_after.zoomed.push(color.alpha(0.5), shape);
-                        total_time += cost;
-                    }
+                    total_time += path.get_cost();
+                    paths_after.push((path, *colors::PLAN_ROUTE_AFTER));
                 }
             }
             // To simplify colors, don't draw this path when it's the same as the baseline
             if total_time != baseline_time {
-                draw.append(draw_after);
+                paths.append(&mut paths_after);
             }
 
             total_time
@@ -201,21 +190,12 @@ impl RoutePlanner {
         let biking_time = {
             // No custom params -- use the map's built-in bike CH
             let mut total_time = Duration::ZERO;
-            let color = *colors::PLAN_ROUTE_BIKE;
             for pair in self.waypoints.get_waypoints().windows(2) {
-                if let Some((path, pl)) =
-                    TripEndpoint::path_req(pair[0], pair[1], TripMode::Bike, map)
-                        .and_then(|req| map.pathfind(req).ok())
-                        .and_then(|path| path.trace(map).map(|pl| (path, pl)))
+                if let Some(path) = TripEndpoint::path_req(pair[0], pair[1], TripMode::Bike, map)
+                    .and_then(|req| map.pathfind_v2(req).ok())
                 {
-                    let shape = pl.exact_dashed_polygons(
-                        2.0 * NORMAL_LANE_THICKNESS,
-                        Distance::meters(10.0),
-                        Distance::meters(6.0),
-                    );
-                    draw.unzoomed.extend(color.alpha(0.8), shape.clone());
-                    draw.zoomed.extend(color.alpha(0.5), shape);
-                    total_time += path.estimate_duration(map, Some(map_model::MAX_BIKE_SPEED));
+                    total_time += path.get_cost();
+                    paths.push((path, *colors::PLAN_ROUTE_BIKE));
                 }
             }
             total_time
@@ -224,27 +204,18 @@ impl RoutePlanner {
         let walking_time = {
             // No custom params -- use the map's built-in CH
             let mut total_time = Duration::ZERO;
-            let color = *colors::PLAN_ROUTE_WALK;
             for pair in self.waypoints.get_waypoints().windows(2) {
-                if let Some((path, pl)) =
-                    TripEndpoint::path_req(pair[0], pair[1], TripMode::Walk, map)
-                        .and_then(|req| map.pathfind(req).ok())
-                        .and_then(|path| path.trace(map).map(|pl| (path, pl)))
+                if let Some(path) = TripEndpoint::path_req(pair[0], pair[1], TripMode::Walk, map)
+                    .and_then(|req| map.pathfind_v2(req).ok())
                 {
-                    let shape = pl.exact_dashed_polygons(
-                        1.5 * NORMAL_LANE_THICKNESS,
-                        Distance::meters(8.0),
-                        Distance::meters(6.0),
-                    );
-                    draw.unzoomed.extend(color.alpha(0.8), shape.clone());
-                    draw.zoomed.extend(color.alpha(0.5), shape);
-                    total_time += path.estimate_duration(map, Some(map_model::MAX_WALKING_SPEED));
+                    total_time += path.get_cost();
+                    paths.push((path, *colors::PLAN_ROUTE_WALK));
                 }
             }
             total_time
         };
 
-        self.draw_routes = draw.build(ctx);
+        self.draw_routes = crate::draw_overlapping_paths::draw_overlapping_paths(ctx, app, paths);
 
         Widget::col(vec![
             Widget::row(vec![
