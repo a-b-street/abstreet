@@ -325,6 +325,7 @@ fn generate_manifest(truth: &Manifest) -> Manifest {
         let orig_path = entry.path().display().to_string();
         let path = orig_path.replace("\\", "/");
         if path.contains("system/assets/")
+            || path.contains("system/ltn_proposals")
             || path.contains("system/proposals")
             || path.contains("system/study_areas")
         {
