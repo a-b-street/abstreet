@@ -391,6 +391,24 @@ impl<ID: ObjectID> World<ID> {
         }
     }
 
+    /// Like delete, but doesn't crash if the object doesn't exist
+    pub fn maybe_delete(&mut self, id: ID) {
+        if self.hovering == Some(id) {
+            self.hovering = None;
+            if self.dragging_from.is_some() {
+                panic!("Can't delete {:?} mid-drag", id);
+            }
+        }
+
+        if let Some(obj) = self.objects.remove(&id) {
+            if self.quadtree.remove(obj.quadtree_id).is_none() {
+                // This can happen for objects that're out-of-bounds. One example is intersections
+                // in map_editor.
+                warn!("{:?} wasn't in the quadtree", id);
+            }
+        }
+    }
+
     /// After adding all objects to a `World`, call this to initially detect if the cursor is
     /// hovering on an object. This may also be called after adding or deleting objects to
     /// immediately recalculate hover before the mouse moves.
