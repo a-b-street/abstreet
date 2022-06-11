@@ -431,6 +431,8 @@
 <span id="426">426</span>
 <span id="427">427</span>
 <span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Assorted tools and UI states that&#39;re useful for applications built to display maps.</span>
 
 <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
@@ -443,6 +445,7 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::camera</span>::{<span class="ident">CameraState</span>, <span class="ident">DefaultMap</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::city_picker::CityPicker</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::colors</span>::{<span class="ident">ColorDiscrete</span>, <span class="ident">ColorLegend</span>, <span class="ident">ColorNetwork</span>, <span class="ident">ColorScale</span>, <span class="ident">DivergingScale</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::draw_overlapping_paths::draw_overlapping_paths</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::heatmap</span>::{<span class="ident">draw_isochrone</span>, <span class="ident">make_heatmap</span>, <span class="ident">Grid</span>, <span class="ident">HeatmapOptions</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::icons</span>::{<span class="ident">goal_marker</span>, <span class="ident">start_marker</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::labels::DrawRoadLabels</span>;
@@ -470,6 +473,7 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
 <span class="kw">mod</span> <span class="ident">command</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">compare_counts</span>;
+<span class="kw">mod</span> <span class="ident">draw_overlapping_paths</span>;
 <span class="kw">mod</span> <span class="ident">heatmap</span>;
 <span class="kw">mod</span> <span class="ident">icons</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
