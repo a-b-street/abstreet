@@ -215,7 +215,7 @@ impl RoutePlanner {
             total_time
         };
 
-        self.draw_routes = crate::draw_overlapping_paths::draw_overlapping_paths(ctx, app, paths);
+        self.draw_routes = map_gui::tools::draw_overlapping_paths(ctx, app, paths);
 
         Widget::col(vec![
             Widget::row(vec![

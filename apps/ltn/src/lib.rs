@@ -23,7 +23,6 @@ mod components;
 mod connectivity;
 mod customize_boundary;
 mod draw_cells;
-mod draw_overlapping_paths;
 mod edit;
 mod export;
 mod filters;
