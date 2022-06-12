@@ -95,6 +95,7 @@ fn run(mut settings: Settings) {
             current_trip_name: None,
 
             consultation: None,
+            consultation_proposal_path: None,
         };
         map_gui::SimpleApp::new(
             ctx,
@@ -119,33 +120,21 @@ fn run(mut settings: Settings) {
                     }
 
                     let focus_on_street = match consultation.as_ref() {
-                        "pt1" => {
-                            // Use the inferred boundaries
-                            app.session.alt_proposals = crate::save::AltProposals::new();
-                            ctx.loading_screen("initialize", |ctx, timer| {
-                                crate::clear_current_proposal(ctx, app, timer);
-                            });
-
-                            "Gregory Street"
-                        }
+                        "pt1" => "Gregory Street",
                         "pt2" => {
-                            // Don't even generate the default boundaries; load a baked-in proposal
-                            // with some special overrides
-                            app.session.alt_proposals = crate::save::AltProposals::new();
-                            if crate::save::Proposal::load(
-                                ctx,
-                                app,
-                                abstio::path("system/ltn_proposals/bristol_beaufort_road.json.gz"),
-                            )
-                            .is_some()
-                            {
-                                panic!("Consultation pt2 mode broken; go fix bristol_beaufort_road.json.gz manually");
-                            }
-
+                            // Start from a baked-in proposal with special boundaries
+                            app.session.consultation_proposal_path = Some(abstio::path(
+                                "system/ltn_proposals/bristol_beaufort_road.json.gz",
+                            ));
                             "Jubilee Road"
                         }
                         _ => panic!("Unknown Bristol consultation mode {consultation}"),
                     };
+
+                    app.session.alt_proposals = crate::save::AltProposals::new();
+                    ctx.loading_screen("initialize", |ctx, timer| {
+                        crate::clear_current_proposal(ctx, app, timer);
+                    });
 
                     // Look for the neighbourhood containing one small street
                     let r = app
@@ -233,6 +222,8 @@ pub struct Session {
     current_trip_name: Option<String>,
 
     consultation: Option<NeighbourhoodID>,
+    // The current consultation should always be based off a built-in proposal
+    consultation_proposal_path: Option<String>,
 }
 
 /// Do the equivalent of `SimpleApp::draw_unzoomed` or `draw_zoomed`, but after the water/park
@@ -272,7 +263,14 @@ pub fn after_edit(ctx: &EventCtx, app: &mut App) {
     app.session.draw_all_filters = app.session.modal_filters.draw(ctx, &app.map);
 }
 
-pub fn clear_current_proposal(ctx: &EventCtx, app: &mut App, timer: &mut Timer) {
+pub fn clear_current_proposal(ctx: &mut EventCtx, app: &mut App, timer: &mut Timer) {
+    if let Some(path) = app.session.consultation_proposal_path.clone() {
+        if crate::save::Proposal::load(ctx, app, path.clone()).is_some() {
+            panic!("Consultation mode broken; go fix {path} manually");
+        }
+        return;
+    }
+
     app.session.proposal_name = None;
     // Reset this first. transform_existing_filters will fill some out.
     app.session.modal_filters = ModalFilters::default();

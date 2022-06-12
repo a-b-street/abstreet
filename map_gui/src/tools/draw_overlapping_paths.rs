@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use geom::{PolyLine, Pt2D, Ring};
+use geom::{Pt2D, Ring};
 use map_model::{CommonEndpoint, PathStepV2, PathV2, RoadID};
 use widgetry::mapspace::ToggleZoomed;
 use widgetry::{Color, EventCtx};
