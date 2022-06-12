@@ -558,6 +558,26 @@ impl PolyLine {
         Polygon::precomputed(points, indices)
     }
 
+    /// This does the equivalent of make_polygons, returning the (start left, start right, end
+    /// left, end right). Fails rarely.
+    pub fn get_four_corners_of_thickened(
+        &self,
+        width: Distance,
+    ) -> Option<(Pt2D, Pt2D, Pt2D, Pt2D)> {
+        let mut side1 = self
+            .shift_with_sharp_angles(width / 2.0, MITER_THRESHOLD)
+            .ok()?;
+        let mut side2 = self
+            .shift_with_sharp_angles(-width / 2.0, MITER_THRESHOLD)
+            .ok()?;
+        Some((
+            side1[0],
+            side2[0],
+            side1.pop().unwrap(),
+            side2.pop().unwrap(),
+        ))
+    }
+
     pub fn exact_dashed_polygons(
         &self,
         width: Distance,

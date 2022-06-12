@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use geom::{Distance, PolyLine, Pt2D};
+use geom::{PolyLine, Pt2D, Ring};
 use map_model::{CommonEndpoint, PathStepV2, PathV2, RoadID};
 use widgetry::mapspace::ToggleZoomed;
 use widgetry::{Color, EventCtx};
@@ -34,9 +34,10 @@ pub fn draw_overlapping_paths(
         }
     }
 
-    // Per road and color, mark where the adjusted polyline begins and ends, and its width
+    // Per road and color, mark the 4 corners of the thickened polyline.
+    // (beginning left, beginning right, end left, end right)
     // TODO Make Color implement Ord; use hex in the meantime
-    let mut pieces: BTreeMap<(RoadID, String), (Pt2D, Pt2D, Distance)> = BTreeMap::new();
+    let mut pieces: BTreeMap<(RoadID, String), (Pt2D, Pt2D, Pt2D, Pt2D)> = BTreeMap::new();
     // Per road, divide the needed colors proportionally
     let mut draw = ToggleZoomed::builder();
     for (road, colors) in colors_per_road {
@@ -48,30 +49,36 @@ pub fn draw_overlapping_paths(
                 draw.unzoomed.push(color.alpha(0.8), polygon.clone());
                 draw.zoomed.push(color.alpha(0.5), polygon);
 
-                pieces.insert(
-                    (road.id, color.as_hex()),
-                    (pl.first_pt(), pl.last_pt(), width_per_piece),
-                );
+                // Reproduce what make_polygons does to get the 4 corners
+                if let Some(corners) = pl.get_four_corners_of_thickened(width_per_piece) {
+                    pieces.insert((road.id, color.as_hex()), corners);
+                }
             }
         }
     }
 
     // Fill in intersections
     for (from, to, color) in colors_per_movement {
-        if let Some((from_pt1, from_pt2, from_width)) = pieces.get(&(from, color.as_hex())).cloned()
-        {
-            if let Some((to_pt1, to_pt2, to_width)) = pieces.get(&(to, color.as_hex())).cloned() {
+        if let Some(from_corners) = pieces.get(&(from, color.as_hex())) {
+            if let Some(to_corners) = pieces.get(&(to, color.as_hex())) {
                 let from_road = app.map().get_r(from);
                 let to_road = app.map().get_r(to);
                 if let CommonEndpoint::One(i) = from_road.common_endpoint(to_road) {
-                    let pt1 = if from_road.src_i == i {
-                        from_pt1
+                    let (from_left, from_right) = if from_road.src_i == i {
+                        (from_corners.0, from_corners.1)
                     } else {
-                        from_pt2
+                        (from_corners.2, from_corners.3)
                     };
-                    let pt2 = if to_road.src_i == i { to_pt1 } else { to_pt2 };
-                    if let Ok(pl) = PolyLine::new(vec![pt1, pt2]) {
-                        let polygon = pl.make_polygons(from_width.min(to_width));
+                    let (to_left, to_right) = if to_road.src_i == i {
+                        (to_corners.0, to_corners.1)
+                    } else {
+                        (to_corners.2, to_corners.3)
+                    };
+                    // Glue the 4 corners together
+                    if let Ok(ring) =
+                        Ring::new(vec![from_left, from_right, to_right, to_left, from_left])
+                    {
+                        let polygon = ring.into_polygon();
                         draw.unzoomed.push(color.alpha(0.8), polygon.clone());
                         draw.zoomed.push(color.alpha(0.5), polygon);
                     }
