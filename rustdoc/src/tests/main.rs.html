@@ -383,23 +383,6 @@
 <span id="378">378</span>
 <span id="379">379</span>
 <span id="380">380</span>
-<span id="381">381</span>
-<span id="382">382</span>
-<span id="383">383</span>
-<span id="384">384</span>
-<span id="385">385</span>
-<span id="386">386</span>
-<span id="387">387</span>
-<span id="388">388</span>
-<span id="389">389</span>
-<span id="390">390</span>
-<span id="391">391</span>
-<span id="392">392</span>
-<span id="393">393</span>
-<span id="394">394</span>
-<span id="395">395</span>
-<span id="396">396</span>
-<span id="397">397</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Integration tests</span>
 
 <span class="kw">use</span> <span class="ident">std::io::Write</span>;
@@ -410,7 +393,7 @@
 
 <span class="kw">use</span> <span class="ident">abstio</span>::{<span class="ident">CityName</span>, <span class="ident">MapName</span>};
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Time</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">Perimeter</span>, <span class="ident">RoadID</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">AlertHandler</span>, <span class="ident">PrebakeSummary</span>, <span class="ident">Sim</span>, <span class="ident">SimFlags</span>, <span class="ident">SimOptions</span>};
 <span class="kw">use</span> <span class="ident">synthpop</span>::{<span class="ident">IndividTrip</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>, <span class="ident">TripPurpose</span>};
@@ -461,24 +444,7 @@
         <span class="ident">path</span>,
         <span class="ident">name</span>,
         <span class="ident">clip</span>,
-        <span class="ident">convert_osm::Options</span> {
-            <span class="ident">map_config</span>: <span class="ident">map_model::MapConfig</span> {
-                <span class="ident">driving_side</span>: <span class="ident">map_model::DrivingSide::Right</span>,
-                <span class="ident">bikes_can_use_bus_lanes</span>: <span class="bool-val">true</span>,
-                <span class="ident">inferred_sidewalks</span>: <span class="bool-val">true</span>,
-                <span class="ident">street_parking_spot_length</span>: <span class="ident">Distance::meters</span>(<span class="number">8.0</span>),
-                <span class="ident">turn_on_red</span>: <span class="bool-val">false</span>,
-            },
-            <span class="ident">onstreet_parking</span>: <span class="ident">convert_osm::OnstreetParking::JustOSM</span>,
-            <span class="ident">public_offstreet_parking</span>: <span class="ident">convert_osm::PublicOffstreetParking::None</span>,
-            <span class="ident">private_offstreet_parking</span>: <span class="ident">convert_osm::PrivateOffstreetParking::FixedPerBldg</span>(<span class="number">0</span>),
-            <span class="ident">include_railroads</span>: <span class="bool-val">true</span>,
-            <span class="ident">extra_buildings</span>: <span class="prelude-val">None</span>,
-            <span class="ident">skip_local_roads</span>: <span class="bool-val">false</span>,
-            <span class="ident">filter_crosswalks</span>: <span class="bool-val">false</span>,
-            <span class="ident">gtfs_url</span>: <span class="prelude-val">None</span>,
-            <span class="ident">elevation</span>: <span class="bool-val">false</span>,
-        },
+        <span class="ident">convert_osm::Options::default_for_side</span>(<span class="ident">map_model::DrivingSide::Right</span>),
         <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>,
     );
     <span class="ident">Map::create_from_raw</span>(<span class="ident">raw</span>, <span class="ident">map_model::RawToMapOptions::default</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>)

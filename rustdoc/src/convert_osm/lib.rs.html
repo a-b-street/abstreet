@@ -262,6 +262,29 @@
 <span id="257">257</span>
 <span id="258">258</span>
 <span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
 </pre><pre class="rust"><code><span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">anyhow</span>;
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
@@ -305,6 +328,29 @@
     <span class="doccomment">/// Configure public transit using this URL to a static GTFS feed in .zip format.</span>
     <span class="kw">pub</span> <span class="ident">gtfs_url</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">elevation</span>: <span class="ident">bool</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">Options</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">default_for_side</span>(<span class="ident">driving_side</span>: <span class="ident">raw_map::DrivingSide</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">Self</span> {
+            <span class="ident">map_config</span>: <span class="ident">MapConfig</span> {
+                <span class="ident">driving_side</span>,
+                <span class="ident">bikes_can_use_bus_lanes</span>: <span class="bool-val">true</span>,
+                <span class="ident">inferred_sidewalks</span>: <span class="bool-val">true</span>,
+                <span class="ident">street_parking_spot_length</span>: <span class="ident">Distance::meters</span>(<span class="number">8.0</span>),
+                <span class="ident">turn_on_red</span>: <span class="bool-val">true</span>,
+            },
+            <span class="ident">onstreet_parking</span>: <span class="ident">OnstreetParking::JustOSM</span>,
+            <span class="ident">public_offstreet_parking</span>: <span class="ident">PublicOffstreetParking::None</span>,
+            <span class="ident">private_offstreet_parking</span>: <span class="ident">PrivateOffstreetParking::FixedPerBldg</span>(<span class="number">1</span>),
+            <span class="ident">include_railroads</span>: <span class="bool-val">true</span>,
+            <span class="ident">extra_buildings</span>: <span class="prelude-val">None</span>,
+            <span class="ident">skip_local_roads</span>: <span class="bool-val">false</span>,
+            <span class="ident">filter_crosswalks</span>: <span class="bool-val">false</span>,
+            <span class="ident">gtfs_url</span>: <span class="prelude-val">None</span>,
+            <span class="ident">elevation</span>: <span class="bool-val">false</span>,
+        }
+    }
 }
 
 <span class="doccomment">/// What roads will have on-street parking lanes? Data from</span>
