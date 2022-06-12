@@ -188,11 +188,19 @@ impl RoutePlanner {
         };
 
         let biking_time = {
-            // No custom params -- use the map's built-in bike CH
+            // No custom params, but don't use the map's built-in bike CH. Changes to one-way
+            // streets haven't been reflected, and it's cheap enough to use Dijkstra's for
+            // calculating one path at a time anyway.
             let mut total_time = Duration::ZERO;
             for pair in self.waypoints.get_waypoints().windows(2) {
                 if let Some(path) = TripEndpoint::path_req(pair[0], pair[1], TripMode::Bike, map)
-                    .and_then(|req| map.pathfind_v2(req).ok())
+                    .and_then(|req| {
+                        self.pathfinder_cache.pathfind_with_params(
+                            map,
+                            req,
+                            map.routing_params().clone(),
+                        )
+                    })
                 {
                     total_time += path.get_cost();
                     paths.push((path, *colors::PLAN_ROUTE_BIKE));
@@ -202,11 +210,17 @@ impl RoutePlanner {
         };
 
         let walking_time = {
-            // No custom params -- use the map's built-in CH
+            // Same as above -- don't use the built-in CH.
             let mut total_time = Duration::ZERO;
             for pair in self.waypoints.get_waypoints().windows(2) {
                 if let Some(path) = TripEndpoint::path_req(pair[0], pair[1], TripMode::Walk, map)
-                    .and_then(|req| map.pathfind_v2(req).ok())
+                    .and_then(|req| {
+                        self.pathfinder_cache.pathfind_with_params(
+                            map,
+                            req,
+                            map.routing_params().clone(),
+                        )
+                    })
                 {
                     total_time += path.get_cost();
                     paths.push((path, *colors::PLAN_ROUTE_WALK));

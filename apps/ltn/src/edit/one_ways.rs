@@ -109,7 +109,8 @@ pub fn handle_world_outcome(ctx: &mut EventCtx, app: &mut App, outcome: WorldOut
                     app.draw_map.recreate_intersection(i, &app.map);
                 }
 
-                // TODO Pathfinding
+                // See the argument in filters/existing.rs about not recalculating the pathfinder.
+                app.map.keep_pathfinder_despite_edits();
             });
 
             true
