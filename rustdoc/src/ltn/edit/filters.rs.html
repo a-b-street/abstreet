@@ -195,7 +195,7 @@
             .<span class="ident">drawn_in_master_batch</span>()
             .<span class="ident">hover_outline</span>(<span class="ident">colors::OUTLINE</span>, <span class="ident">Distance::meters</span>(<span class="number">5.0</span>))
             .<span class="ident">tooltip</span>(<span class="ident">Text::from</span>(<span class="macro">format!</span>(
-                <span class="string">&quot;{} shortcuts cross {}&quot;</span>,
+                <span class="string">&quot;{} possible shortcuts cross {}&quot;</span>,
                 <span class="ident">shortcuts</span>.<span class="ident">count_per_road</span>.<span class="ident">get</span>(<span class="kw-2">*</span><span class="ident">r</span>),
                 <span class="ident">road</span>.<span class="ident">get_name</span>(<span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">language</span>.<span class="ident">as_ref</span>()),
             )))
@@ -211,7 +211,7 @@
             .<span class="ident">drawn_in_master_batch</span>()
             .<span class="ident">hover_outline</span>(<span class="ident">colors::OUTLINE</span>, <span class="ident">Distance::meters</span>(<span class="number">5.0</span>))
             .<span class="ident">tooltip</span>(<span class="ident">Text::from</span>(<span class="macro">format!</span>(
-                <span class="string">&quot;{} shortcuts cross this intersection&quot;</span>,
+                <span class="string">&quot;{} possible shortcuts cross this intersection&quot;</span>,
                 <span class="ident">shortcuts</span>.<span class="ident">count_per_intersection</span>.<span class="ident">get</span>(<span class="kw-2">*</span><span class="ident">i</span>)
             )))
             .<span class="ident">clickable</span>()
