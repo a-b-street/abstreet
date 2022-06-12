@@ -360,6 +360,20 @@
 <span id="355">355</span>
 <span id="356">356</span>
 <span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom::Duration</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{
     <span class="ident">DrawRoadLabels</span>, <span class="ident">InputWaypoints</span>, <span class="ident">TripManagement</span>, <span class="ident">TripManagementState</span>, <span class="ident">WaypointID</span>,
@@ -550,11 +564,19 @@
         };
 
         <span class="kw">let</span> <span class="ident">biking_time</span> <span class="op">=</span> {
-            <span class="comment">// No custom params -- use the map&#39;s built-in bike CH</span>
+            <span class="comment">// No custom params, but don&#39;t use the map&#39;s built-in bike CH. Changes to one-way</span>
+            <span class="comment">// streets haven&#39;t been reflected, and it&#39;s cheap enough to use Dijkstra&#39;s for</span>
+            <span class="comment">// calculating one path at a time anyway.</span>
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_time</span> <span class="op">=</span> <span class="ident">Duration::ZERO</span>;
             <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>().<span class="ident">windows</span>(<span class="number">2</span>) {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">TripEndpoint::path_req</span>(<span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>], <span class="ident">TripMode::Bike</span>, <span class="ident">map</span>)
-                    .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">pathfind_v2</span>(<span class="ident">req</span>).<span class="ident">ok</span>())
+                    .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> {
+                        <span class="self">self</span>.<span class="ident">pathfinder_cache</span>.<span class="ident">pathfind_with_params</span>(
+                            <span class="ident">map</span>,
+                            <span class="ident">req</span>,
+                            <span class="ident">map</span>.<span class="ident">routing_params</span>().<span class="ident">clone</span>(),
+                        )
+                    })
                 {
                     <span class="ident">total_time</span> <span class="op">+</span><span class="op">=</span> <span class="ident">path</span>.<span class="ident">get_cost</span>();
                     <span class="ident">paths</span>.<span class="ident">push</span>((<span class="ident">path</span>, <span class="kw-2">*</span><span class="ident">colors::PLAN_ROUTE_BIKE</span>));
@@ -564,11 +586,17 @@
         };
 
         <span class="kw">let</span> <span class="ident">walking_time</span> <span class="op">=</span> {
-            <span class="comment">// No custom params -- use the map&#39;s built-in CH</span>
+            <span class="comment">// Same as above -- don&#39;t use the built-in CH.</span>
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_time</span> <span class="op">=</span> <span class="ident">Duration::ZERO</span>;
             <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>().<span class="ident">windows</span>(<span class="number">2</span>) {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">TripEndpoint::path_req</span>(<span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>], <span class="ident">TripMode::Walk</span>, <span class="ident">map</span>)
-                    .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">pathfind_v2</span>(<span class="ident">req</span>).<span class="ident">ok</span>())
+                    .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> {
+                        <span class="self">self</span>.<span class="ident">pathfinder_cache</span>.<span class="ident">pathfind_with_params</span>(
+                            <span class="ident">map</span>,
+                            <span class="ident">req</span>,
+                            <span class="ident">map</span>.<span class="ident">routing_params</span>().<span class="ident">clone</span>(),
+                        )
+                    })
                 {
                     <span class="ident">total_time</span> <span class="op">+</span><span class="op">=</span> <span class="ident">path</span>.<span class="ident">get_cost</span>();
                     <span class="ident">paths</span>.<span class="ident">push</span>((<span class="ident">path</span>, <span class="kw-2">*</span><span class="ident">colors::PLAN_ROUTE_WALK</span>));
