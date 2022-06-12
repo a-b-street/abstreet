@@ -1122,6 +1122,26 @@
 <span id="1117">1117</span>
 <span id="1118">1118</span>
 <span id="1119">1119</span>
+<span id="1120">1120</span>
+<span id="1121">1121</span>
+<span id="1122">1122</span>
+<span id="1123">1123</span>
+<span id="1124">1124</span>
+<span id="1125">1125</span>
+<span id="1126">1126</span>
+<span id="1127">1127</span>
+<span id="1128">1128</span>
+<span id="1129">1129</span>
+<span id="1130">1130</span>
+<span id="1131">1131</span>
+<span id="1132">1132</span>
+<span id="1133">1133</span>
+<span id="1134">1134</span>
+<span id="1135">1135</span>
+<span id="1136">1136</span>
+<span id="1137">1137</span>
+<span id="1138">1138</span>
+<span id="1139">1139</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
@@ -1680,6 +1700,26 @@
             <span class="ident">indices</span>.<span class="ident">extend</span>(<span class="macro">vec!</span>[<span class="ident">len</span> <span class="op">-</span> <span class="ident">high_idx</span>, <span class="ident">len</span> <span class="op">-</span> <span class="ident">high_idx</span> <span class="op">-</span> <span class="number">1</span>, <span class="ident">high_idx</span>]);
         }
         <span class="ident">Polygon::precomputed</span>(<span class="ident">points</span>, <span class="ident">indices</span>)
+    }
+
+    <span class="doccomment">/// This does the equivalent of make_polygons, returning the (start left, start right, end</span>
+    <span class="doccomment">/// left, end right). Fails rarely.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_four_corners_of_thickened</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">width</span>: <span class="ident">Distance</span>,
+    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Pt2D</span>, <span class="ident">Pt2D</span>, <span class="ident">Pt2D</span>, <span class="ident">Pt2D</span>)<span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">side1</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">shift_with_sharp_angles</span>(<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">MITER_THRESHOLD</span>)
+            .<span class="ident">ok</span>()<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">side2</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">shift_with_sharp_angles</span>(<span class="op">-</span><span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">MITER_THRESHOLD</span>)
+            .<span class="ident">ok</span>()<span class="question-mark">?</span>;
+        <span class="prelude-val">Some</span>((
+            <span class="ident">side1</span>[<span class="number">0</span>],
+            <span class="ident">side2</span>[<span class="number">0</span>],
+            <span class="ident">side1</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>(),
+            <span class="ident">side2</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>(),
+        ))
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exact_dashed_polygons</span>(
