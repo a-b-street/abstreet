@@ -6,7 +6,7 @@ use widgetry::{lctrl, EventCtx, Image, Key, Line, Text, TextExt, Widget};
 
 use super::Obj;
 use crate::shortcuts::Shortcuts;
-use crate::{after_edit, colors, App, DiagonalFilter, Neighborhood};
+use crate::{after_edit, colors, App, DiagonalFilter, Neighbourhood};
 
 pub fn widget(ctx: &mut EventCtx, app: &App) -> Widget {
     Widget::col(vec![
@@ -44,13 +44,13 @@ pub fn widget(ctx: &mut EventCtx, app: &App) -> Widget {
 pub fn make_world(
     ctx: &mut EventCtx,
     app: &App,
-    neighborhood: &Neighborhood,
+    neighbourhood: &Neighbourhood,
     shortcuts: &Shortcuts,
 ) -> World<Obj> {
     let map = &app.map;
     let mut world = World::bounded(map.get_bounds());
 
-    for r in &neighborhood.orig_perimeter.interior {
+    for r in &neighbourhood.orig_perimeter.interior {
         let road = map.get_r(*r);
         world
             .add(Obj::InteriorRoad(*r))
@@ -67,7 +67,7 @@ pub fn make_world(
             .build(ctx);
     }
 
-    for i in &neighborhood.interior_intersections {
+    for i in &neighbourhood.interior_intersections {
         world
             .add(Obj::InteriorIntersection(*i))
             .hitbox(map.get_i(*i).polygon.clone())

@@ -1,4 +1,4 @@
-//! Experiments to make a neighborhood be low-traffic by automatically placing filters to prevent
+//! Experiments to make a neighbourhood be low-traffic by automatically placing filters to prevent
 //! all shortcuts.
 
 use anyhow::Result;
@@ -8,7 +8,7 @@ use map_model::RoadID;
 use widgetry::{Choice, EventCtx};
 
 use crate::shortcuts::find_shortcuts;
-use crate::{after_edit, App, Neighborhood};
+use crate::{after_edit, App, Neighbourhood};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Heuristic {
@@ -48,17 +48,17 @@ impl Heuristic {
         self,
         ctx: &EventCtx,
         app: &mut App,
-        neighborhood: &Neighborhood,
+        neighbourhood: &Neighbourhood,
         timer: &mut Timer,
     ) -> Result<()> {
-        if neighborhood
+        if neighbourhood
             .cells
             .iter()
             .filter(|c| c.is_disconnected())
             .count()
             != 0
         {
-            bail!("This neighborhood has a disconnected cell; fix that first");
+            bail!("This neighbourhood has a disconnected cell; fix that first");
         }
 
         // TODO If we already have no shortcuts, stop
@@ -66,10 +66,10 @@ impl Heuristic {
         app.session.modal_filters.before_edit();
 
         match self {
-            Heuristic::Greedy => greedy(ctx, app, neighborhood, timer),
-            Heuristic::BruteForce => brute_force(ctx, app, neighborhood, timer),
-            Heuristic::SplitCells => split_cells(ctx, app, neighborhood, timer),
-            Heuristic::OnlyOneBorder => only_one_border(app, neighborhood),
+            Heuristic::Greedy => greedy(ctx, app, neighbourhood, timer),
+            Heuristic::BruteForce => brute_force(ctx, app, neighbourhood, timer),
+            Heuristic::SplitCells => split_cells(ctx, app, neighbourhood, timer),
+            Heuristic::OnlyOneBorder => only_one_border(app, neighbourhood),
         }
 
         let empty = app.session.modal_filters.cancel_empty_edit();
@@ -82,8 +82,8 @@ impl Heuristic {
     }
 }
 
-fn greedy(ctx: &EventCtx, app: &mut App, neighborhood: &Neighborhood, timer: &mut Timer) {
-    let shortcuts = find_shortcuts(app, &neighborhood, timer);
+fn greedy(ctx: &EventCtx, app: &mut App, neighbourhood: &Neighbourhood, timer: &mut Timer) {
+    let shortcuts = find_shortcuts(app, &neighbourhood, timer);
     // TODO How should we break ties? Some shortcuts are worse than others; use that weight?
     // TODO Should this operation be per cell instead? We could hover on a road belonging to that
     // cell to select it
@@ -93,28 +93,28 @@ fn greedy(ctx: &EventCtx, app: &mut App, neighborhood: &Neighborhood, timer: &mu
         .iter()
         .max_by_key(|pair| pair.1)
     {
-        if try_to_filter_road(ctx, app, neighborhood, *r).is_none() {
+        if try_to_filter_road(ctx, app, neighbourhood, *r).is_none() {
             warn!("Filtering {} disconnects a cell, never mind", r);
             // TODO Try the next choice
         }
     }
 }
 
-fn brute_force(ctx: &EventCtx, app: &mut App, neighborhood: &Neighborhood, timer: &mut Timer) {
+fn brute_force(ctx: &EventCtx, app: &mut App, neighbourhood: &Neighbourhood, timer: &mut Timer) {
     // Which road leads to the fewest shortcuts?
     let mut best: Option<(RoadID, usize)> = None;
 
     let orig_filters = app.session.modal_filters.roads.len();
     timer.start_iter(
         "evaluate candidate filters",
-        neighborhood.orig_perimeter.interior.len(),
+        neighbourhood.orig_perimeter.interior.len(),
     );
-    for r in &neighborhood.orig_perimeter.interior {
+    for r in &neighbourhood.orig_perimeter.interior {
         timer.next();
         if app.session.modal_filters.roads.contains_key(r) {
             continue;
         }
-        if let Some(new) = try_to_filter_road(ctx, app, neighborhood, *r) {
+        if let Some(new) = try_to_filter_road(ctx, app, neighbourhood, *r) {
             let num_shortcuts =
                 // This spams too many logs, and can't be used within a start_iter anyway
                 find_shortcuts(app, &new, &mut Timer::throwaway())
@@ -132,27 +132,27 @@ fn brute_force(ctx: &EventCtx, app: &mut App, neighborhood: &Neighborhood, timer
     }
 
     if let Some((r, _)) = best {
-        try_to_filter_road(ctx, app, neighborhood, r).unwrap();
+        try_to_filter_road(ctx, app, neighbourhood, r).unwrap();
     }
 }
 
-fn split_cells(ctx: &EventCtx, app: &mut App, neighborhood: &Neighborhood, timer: &mut Timer) {
+fn split_cells(ctx: &EventCtx, app: &mut App, neighbourhood: &Neighbourhood, timer: &mut Timer) {
     // Filtering which road leads to new cells with the MOST streets in the smaller cell?
     let mut best: Option<(RoadID, usize)> = None;
 
     let orig_filters = app.session.modal_filters.roads.len();
     timer.start_iter(
         "evaluate candidate filters",
-        neighborhood.orig_perimeter.interior.len(),
+        neighbourhood.orig_perimeter.interior.len(),
     );
-    for r in &neighborhood.orig_perimeter.interior {
+    for r in &neighbourhood.orig_perimeter.interior {
         timer.next();
         if app.session.modal_filters.roads.contains_key(r) {
             continue;
         }
-        if let Some(new) = try_to_filter_road(ctx, app, neighborhood, *r) {
+        if let Some(new) = try_to_filter_road(ctx, app, neighbourhood, *r) {
             // Did we split the cell?
-            if new.cells.len() > neighborhood.cells.len() {
+            if new.cells.len() > neighbourhood.cells.len() {
                 // Find the two new cells
                 let split_cells: Vec<_> = new
                     .cells
@@ -178,12 +178,12 @@ fn split_cells(ctx: &EventCtx, app: &mut App, neighborhood: &Neighborhood, timer
     }
 
     if let Some((r, _)) = best {
-        try_to_filter_road(ctx, app, neighborhood, r).unwrap();
+        try_to_filter_road(ctx, app, neighbourhood, r).unwrap();
     }
 }
 
-fn only_one_border(app: &mut App, neighborhood: &Neighborhood) {
-    for cell in &neighborhood.cells {
+fn only_one_border(app: &mut App, neighbourhood: &Neighbourhood) {
+    for cell in &neighbourhood.cells {
         if cell.borders.len() > 1 {
             // TODO How to pick which one to leave open?
             for i in cell.borders.iter().skip(1) {
@@ -209,25 +209,25 @@ fn only_one_border(app: &mut App, neighborhood: &Neighborhood) {
     }
 }
 
-// If successful, returns a Neighborhood and leaves the new filter in place. If it disconncts a
+// If successful, returns a Neighbourhood and leaves the new filter in place. If it disconncts a
 // cell, reverts the change and returns None
 fn try_to_filter_road(
     ctx: &EventCtx,
     app: &mut App,
-    neighborhood: &Neighborhood,
+    neighbourhood: &Neighbourhood,
     r: RoadID,
-) -> Option<Neighborhood> {
+) -> Option<Neighbourhood> {
     let road = app.map.get_r(r);
     app.session
         .modal_filters
         .roads
         .insert(r, road.length() / 2.0);
     // TODO This is expensive; can we just do the connectivity work and not drawing?
-    let new_neighborhood = Neighborhood::new(ctx, app, neighborhood.id);
-    if new_neighborhood.cells.iter().any(|c| c.is_disconnected()) {
+    let new_neighbourhood = Neighbourhood::new(ctx, app, neighbourhood.id);
+    if new_neighbourhood.cells.iter().any(|c| c.is_disconnected()) {
         app.session.modal_filters.roads.remove(&r).unwrap();
         None
     } else {
-        Some(new_neighborhood)
+        Some(new_neighbourhood)
     }
 }

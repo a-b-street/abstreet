@@ -6,7 +6,7 @@ use widgetry::mapspace::{ObjectID, World};
 use widgetry::{EventCtx, Key, Line, Panel, PanelBuilder, Widget, DEFAULT_CORNER_RADIUS};
 
 use crate::shortcuts::Shortcuts;
-use crate::{after_edit, App, BrowseNeighborhoods, Neighborhood, Transition};
+use crate::{after_edit, App, BrowseNeighbourhoods, Neighbourhood, Transition};
 
 // TODO This is only used for styling now
 #[derive(PartialEq)]
@@ -60,7 +60,7 @@ impl Tab {
     }
 }
 
-pub struct EditNeighborhood {
+pub struct EditNeighbourhood {
     // Only pub for drawing
     pub world: World<Obj>,
 }
@@ -72,7 +72,7 @@ pub enum Obj {
 }
 impl ObjectID for Obj {}
 
-impl EditNeighborhood {
+impl EditNeighbourhood {
     pub fn temporary() -> Self {
         Self {
             world: World::unbounded(),
@@ -82,14 +82,14 @@ impl EditNeighborhood {
     pub fn new(
         ctx: &mut EventCtx,
         app: &App,
-        neighborhood: &Neighborhood,
+        neighbourhood: &Neighbourhood,
         shortcuts: &Shortcuts,
     ) -> Self {
         Self {
             world: if app.session.edit_filters {
-                filters::make_world(ctx, app, neighborhood, shortcuts)
+                filters::make_world(ctx, app, neighbourhood, shortcuts)
             } else {
-                one_ways::make_world(ctx, app, neighborhood)
+                one_ways::make_world(ctx, app, neighbourhood)
             },
         }
     }
@@ -104,8 +104,8 @@ impl EditNeighborhood {
     ) -> PanelBuilder {
         let contents = Widget::col(vec![
             app.session.alt_proposals.to_widget(ctx, app),
-            BrowseNeighborhoods::button(ctx, app),
-            Line("Editing neighborhood")
+            BrowseNeighbourhoods::button(ctx, app),
+            Line("Editing neighbourhood")
                 .small_heading()
                 .into_widget(ctx),
             edit_mode(ctx, app.session.edit_filters),
@@ -122,7 +122,7 @@ impl EditNeighborhood {
         crate::components::LeftPanel::builder(ctx, top_panel, contents)
     }
 
-    /// If true, the neighborhood has changed and the caller should recalculate stuff, including
+    /// If true, the neighbourhood has changed and the caller should recalculate stuff, including
     /// the panel
     pub fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> bool {
         let outcome = self.world.event(ctx);
@@ -138,14 +138,14 @@ impl EditNeighborhood {
         ctx: &mut EventCtx,
         app: &mut App,
         action: &str,
-        neighborhood: &Neighborhood,
+        neighbourhood: &Neighbourhood,
         panel: &Panel,
     ) -> Option<Transition> {
-        let id = neighborhood.id;
+        let id = neighbourhood.id;
         match action {
-            "Browse neighborhoods" => {
+            "Browse neighbourhoods" => {
                 // Recalculate the state to redraw any changed filters
-                Some(Transition::Replace(BrowseNeighborhoods::new_state(
+                Some(Transition::Replace(BrowseNeighbourhoods::new_state(
                     ctx, app,
                 )))
             }
@@ -162,7 +162,7 @@ impl EditNeighborhood {
             "Create filters along a shape" => Some(Transition::Push(
                 crate::components::FreehandFilters::new_state(
                     ctx,
-                    neighborhood,
+                    neighbourhood,
                     panel.center_of("Create filters along a shape"),
                 ),
             )),

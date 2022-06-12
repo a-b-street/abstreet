@@ -5,7 +5,7 @@ use widgetry::{
     VerticalAlignment, Widget,
 };
 
-use crate::{App, BrowseNeighborhoods, Transition};
+use crate::{App, BrowseNeighbourhoods, Transition};
 
 pub struct TopPanel;
 
@@ -19,7 +19,7 @@ impl TopPanel {
                 Line(if consultation {
                     "East Bristol Liveable Neighbourhood"
                 } else {
-                    "Low traffic neighborhoods"
+                    "Low traffic neighbourhoods"
                 })
                 .small_heading()
                 .into_widget(ctx)
@@ -81,7 +81,7 @@ impl TopPanel {
                                 ctx,
                                 app,
                                 map_gui::tools::Executable::LTN,
-                                Box::new(|ctx, app, _| BrowseNeighborhoods::new_state(ctx, app)),
+                                Box::new(|ctx, app, _| BrowseNeighbourhoods::new_state(ctx, app)),
                             ),
                         ]))
                     } else {
@@ -92,7 +92,7 @@ impl TopPanel {
                     ctx,
                     app,
                     Box::new(|ctx, app| {
-                        Transition::Replace(BrowseNeighborhoods::new_state(ctx, app))
+                        Transition::Replace(BrowseNeighbourhoods::new_state(ctx, app))
                     }),
                 ))),
                 "search" => Some(Transition::Push(map_gui::tools::Navigator::new_state(

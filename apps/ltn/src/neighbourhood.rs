@@ -7,10 +7,10 @@ use map_gui::tools::DrawRoadLabels;
 use map_model::{IntersectionID, Map, PathConstraints, Perimeter, RoadID};
 use widgetry::{Drawable, EventCtx, GeomBatch};
 
-use crate::{App, ModalFilters, NeighborhoodID};
+use crate::{App, ModalFilters, NeighbourhoodID};
 
-pub struct Neighborhood {
-    pub id: NeighborhoodID,
+pub struct Neighbourhood {
+    pub id: NeighbourhoodID,
 
     // These're fixed
     pub orig_perimeter: Perimeter,
@@ -18,7 +18,7 @@ pub struct Neighborhood {
     pub borders: BTreeSet<IntersectionID>,
     pub interior_intersections: BTreeSet<IntersectionID>,
 
-    // The cells change as a result of modal filters, which're stored for all neighborhoods in
+    // The cells change as a result of modal filters, which're stored for all neighbourhoods in
     // app.session.
     pub cells: Vec<Cell>,
 
@@ -26,13 +26,13 @@ pub struct Neighborhood {
     pub labels: DrawRoadLabels,
 }
 
-/// A partitioning of the interior of a neighborhood based on driving connectivity
+/// A partitioning of the interior of a neighbourhood based on driving connectivity
 pub struct Cell {
     /// Most roads are fully in one cell. Roads with modal filters on them are sometimes split
     /// between two cells, and the DistanceInterval indicates the split. The distances are over the
     /// road's center line length.
     pub roads: BTreeMap<RoadID, DistanceInterval>,
-    /// Intersections where this cell touches the boundary of the neighborhood.
+    /// Intersections where this cell touches the boundary of the neighbourhood.
     pub borders: BTreeSet<IntersectionID>,
 }
 
@@ -49,17 +49,17 @@ pub struct DistanceInterval {
     pub end: Distance,
 }
 
-impl Neighborhood {
-    pub fn new(ctx: &EventCtx, app: &App, id: NeighborhoodID) -> Neighborhood {
+impl Neighbourhood {
+    pub fn new(ctx: &EventCtx, app: &App, id: NeighbourhoodID) -> Neighbourhood {
         let map = &app.map;
         let orig_perimeter = app
             .session
             .partitioning
-            .neighborhood_block(id)
+            .neighbourhood_block(id)
             .perimeter
             .clone();
 
-        let mut n = Neighborhood {
+        let mut n = Neighbourhood {
             id,
             orig_perimeter,
             perimeter: BTreeSet::new(),
@@ -84,7 +84,7 @@ impl Neighborhood {
             vec![app
                 .session
                 .partitioning
-                .neighborhood_boundary_polygon(app, id)
+                .neighbourhood_boundary_polygon(app, id)
                 .into_ring()],
         );
         n.fade_irrelevant = GeomBatch::from(vec![(app.cs.fade_map_dark, fade_area)]).upload(ctx);
@@ -178,7 +178,7 @@ fn find_cells(
 fn floodfill(
     map: &Map,
     start: RoadID,
-    neighborhood_borders: &BTreeSet<IntersectionID>,
+    neighbourhood_borders: &BTreeSet<IntersectionID>,
     modal_filters: &ModalFilters,
 ) -> Cell {
     let mut visited_roads: BTreeMap<RoadID, DistanceInterval> = BTreeMap::new();
@@ -204,10 +204,10 @@ fn floodfill(
         );
         for i in [current.src_i, current.dst_i] {
             // It's possible for one border intersection to have two roads in the interior of the
-            // neighborhood. Don't consider a turn between those roads through this intersection as
+            // neighbourhood. Don't consider a turn between those roads through this intersection as
             // counting as connectivity -- we're right at the boundary road, so it's like leaving
-            // and re-entering the neighborhood.
-            if neighborhood_borders.contains(&i) {
+            // and re-entering the neighbourhood.
+            if neighbourhood_borders.contains(&i) {
                 cell_borders.insert(i);
                 continue;
             }

@@ -13,12 +13,12 @@ use widgetry::{
 
 use crate::browse::draw_boundary_roads;
 use crate::partition::BlockID;
-use crate::{colors, App, NeighborhoodID, Partitioning, Transition};
+use crate::{colors, App, NeighbourhoodID, Partitioning, Transition};
 
 pub struct SelectBoundary {
     top_panel: Panel,
     left_panel: Panel,
-    id: NeighborhoodID,
+    id: NeighbourhoodID,
     world: World<BlockID>,
     draw_boundary_roads: ToggleZoomed,
     frontier: BTreeSet<BlockID>,
@@ -35,7 +35,7 @@ pub struct SelectBoundary {
 }
 
 impl SelectBoundary {
-    pub fn new_state(ctx: &mut EventCtx, app: &App, id: NeighborhoodID) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &App, id: NeighbourhoodID) -> Box<dyn State<App>> {
         let top_panel = crate::components::TopPanel::panel(ctx, app);
         let left_panel = make_panel(ctx, app, id, &top_panel);
         let mut state = SelectBoundary {
@@ -54,7 +54,7 @@ impl SelectBoundary {
             lasso: None,
         };
 
-        let initial_boundary = app.session.partitioning.neighborhood_block(id);
+        let initial_boundary = app.session.partitioning.neighbourhood_block(id);
         state.frontier = app
             .session
             .partitioning
@@ -104,7 +104,7 @@ impl SelectBoundary {
         }
     }
 
-    // If the block is part of the current neighborhood, remove it. Otherwise add it. It's assumed
+    // If the block is part of the current neighbourhood, remove it. Otherwise add it. It's assumed
     // this block is in the previous frontier
     fn toggle_block(&mut self, ctx: &mut EventCtx, app: &mut App, id: BlockID) -> Transition {
         if self.last_failed_change == Some((id, self.currently_have_block(app, id))) {
@@ -113,16 +113,16 @@ impl SelectBoundary {
         self.last_failed_change = None;
 
         match self.try_toggle_block(app, id) {
-            Ok(Some(new_neighborhood)) => {
+            Ok(Some(new_neighbourhood)) => {
                 app.session.partitioning.recalculate_coloring();
-                return Transition::Replace(SelectBoundary::new_state(ctx, app, new_neighborhood));
+                return Transition::Replace(SelectBoundary::new_state(ctx, app, new_neighbourhood));
             }
             Ok(None) => {
                 let old_frontier = std::mem::take(&mut self.frontier);
                 self.frontier = app.session.partitioning.calculate_frontier(
                     &app.session
                         .partitioning
-                        .neighborhood_block(self.id)
+                        .neighbourhood_block(self.id)
                         .perimeter,
                 );
 
@@ -135,7 +135,7 @@ impl SelectBoundary {
                 changed_blocks.push(id);
 
                 if app.session.partitioning.recalculate_coloring() {
-                    // The coloring of neighborhoods changed; this could possibly have impact far
+                    // The coloring of neighbourhoods changed; this could possibly have impact far
                     // away. Just redraw all blocks.
                     changed_blocks.clear();
                     changed_blocks.extend(app.session.partitioning.all_block_ids());
@@ -161,16 +161,16 @@ impl SelectBoundary {
         Transition::Keep
     }
 
-    // Ok(Some(x)) means the current neighborhood was destroyed, and the caller should switch to
+    // Ok(Some(x)) means the current neighbourhood was destroyed, and the caller should switch to
     // focusing on a different neigbhorhood
-    fn try_toggle_block(&mut self, app: &mut App, id: BlockID) -> Result<Option<NeighborhoodID>> {
+    fn try_toggle_block(&mut self, app: &mut App, id: BlockID) -> Result<Option<NeighbourhoodID>> {
         if self.currently_have_block(app, id) {
             app.session
                 .partitioning
-                .remove_block_from_neighborhood(&app.map, id, self.id)
+                .remove_block_from_neighbourhood(&app.map, id, self.id)
         } else {
-            let old_owner = app.session.partitioning.block_to_neighborhood(id);
-            // Ignore the return value if the old neighborhood is deleted
+            let old_owner = app.session.partitioning.block_to_neighbourhood(id);
+            // Ignore the return value if the old neighbourhood is deleted
             app.session
                 .partitioning
                 .transfer_block(&app.map, id, old_owner, self.id)?;
@@ -179,17 +179,17 @@ impl SelectBoundary {
     }
 
     fn currently_have_block(&self, app: &App, id: BlockID) -> bool {
-        app.session.partitioning.block_to_neighborhood(id) == self.id
+        app.session.partitioning.block_to_neighbourhood(id) == self.id
     }
 
     fn add_blocks_freehand(&mut self, ctx: &mut EventCtx, app: &mut App, lasso_polygon: Polygon) {
-        ctx.loading_screen("expand current neighborhood boundary", |ctx, timer| {
+        ctx.loading_screen("expand current neighbourhood boundary", |ctx, timer| {
             timer.start("find matching blocks");
             // Find all of the blocks within the polygon
             let mut add_blocks = Vec::new();
             for (id, block) in app.session.partitioning.all_single_blocks() {
                 if lasso_polygon.contains_pt(block.polygon.center()) {
-                    if app.session.partitioning.block_to_neighborhood(id) != self.id {
+                    if app.session.partitioning.block_to_neighbourhood(id) != self.id {
                         add_blocks.push(id);
                     }
                 }
@@ -208,7 +208,7 @@ impl SelectBoundary {
                 for block_id in add_blocks.drain(..) {
                     timer.next();
                     if self.frontier.contains(&block_id) {
-                        let old_owner = app.session.partitioning.block_to_neighborhood(block_id);
+                        let old_owner = app.session.partitioning.block_to_neighbourhood(block_id);
                         if let Ok(_) = app
                             .session
                             .partitioning
@@ -227,7 +227,7 @@ impl SelectBoundary {
                     self.frontier = app.session.partitioning.calculate_frontier(
                         &app.session
                             .partitioning
-                            .neighborhood_block(self.id)
+                            .neighbourhood_block(self.id)
                             .perimeter,
                     );
                 } else {
@@ -264,8 +264,8 @@ impl State<App> for SelectBoundary {
         if let Outcome::Clicked(x) = self.left_panel.event(ctx) {
             match x.as_ref() {
                 "Cancel" => {
-                    // TODO If we destroyed the current neighborhood, then we cancel, we'll pop
-                    // back to a different neighborhood than we started with. And also the original
+                    // TODO If we destroyed the current neighbourhood, then we cancel, we'll pop
+                    // back to a different neighbourhood than we started with. And also the original
                     // partitioning will have been lost!!!
                     app.session.partitioning = self.orig_partitioning.clone();
                     return Transition::Replace(crate::connectivity::Viewer::new_state(
@@ -323,12 +323,12 @@ impl State<App> for SelectBoundary {
     }
 }
 
-fn make_panel(ctx: &mut EventCtx, app: &App, id: NeighborhoodID, top_panel: &Panel) -> Panel {
+fn make_panel(ctx: &mut EventCtx, app: &App, id: NeighbourhoodID, top_panel: &Panel) -> Panel {
     crate::components::LeftPanel::builder(
         ctx,
         top_panel,
         Widget::col(vec![
-            Line("Adjusting neighborhood boundary")
+            Line("Adjusting neighbourhood boundary")
                 .small_heading()
                 .into_widget(ctx),
             Text::from_all(vec![
@@ -349,8 +349,8 @@ fn make_panel(ctx: &mut EventCtx, app: &App, id: NeighborhoodID, top_panel: &Pan
             ])
             .into_widget(ctx),
             format!(
-                "Neighborhood area: {}",
-                app.session.partitioning.neighborhood_area_km2(id)
+                "Neighbourhood area: {}",
+                app.session.partitioning.neighbourhood_area_km2(id)
             )
             .text_widget(ctx),
             ctx.style()
@@ -381,12 +381,12 @@ fn make_panel_for_lasso(ctx: &mut EventCtx, top_panel: &Panel) -> Panel {
         ctx,
         top_panel,
         Widget::col(vec![
-            "Draw a custom boundary for a neighborhood"
+            "Draw a custom boundary for a neighbourhood"
                 .text_widget(ctx)
                 .centered_vert(),
             Text::from_all(vec![
                 Line("Click and drag").fg(ctx.style().text_hotkey_color),
-                Line(" to select the blocks to add to this neighborhood"),
+                Line(" to select the blocks to add to this neighbourhood"),
             ])
             .into_widget(ctx),
         ]),
@@ -396,7 +396,7 @@ fn make_panel_for_lasso(ctx: &mut EventCtx, top_panel: &Panel) -> Panel {
 
 fn help() -> Vec<&'static str> {
     vec![
-        "You can grow or shrink the blue neighborhood boundary here.",
+        "You can grow or shrink the blue neighbourhood boundary here.",
         "Due to various known issues, it's not always possible to draw the boundary you want.",
         "",
         "The aqua blocks show where you can currently expand the boundary.",

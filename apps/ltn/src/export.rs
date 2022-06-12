@@ -3,7 +3,7 @@ use anyhow::Result;
 use geom::{PolyLine, Pt2D};
 use widgetry::EventCtx;
 
-use crate::{App, Neighborhood};
+use crate::{App, Neighbourhood};
 
 /// Returns the path where the file was written
 pub fn write_geojson_file(ctx: &EventCtx, app: &App) -> Result<String> {
@@ -19,8 +19,8 @@ fn geojson_string(ctx: &EventCtx, app: &App) -> Result<String> {
     let map = &app.map;
     let mut features = Vec::new();
 
-    // All neighborhood boundaries
-    for (id, info) in app.session.partitioning.all_neighborhoods() {
+    // All neighbourhood boundaries
+    for (id, info) in app.session.partitioning.all_neighbourhoods() {
         let mut feature = Feature {
             bbox: None,
             geometry: Some(info.block.polygon.to_geojson(None)),
@@ -28,15 +28,15 @@ fn geojson_string(ctx: &EventCtx, app: &App) -> Result<String> {
             properties: None,
             foreign_members: None,
         };
-        feature.set_property("type", "neighborhood");
+        feature.set_property("type", "neighbourhood");
         feature.set_property("fill", info.color.as_hex());
         // Cells should cover these up
         feature.set_property("fill-opacity", 0.0);
         features.push(feature);
 
-        // Cells per neighborhood
+        // Cells per neighbourhood
         let render_cells =
-            crate::draw_cells::RenderCells::new(map, &Neighborhood::new(ctx, app, *id));
+            crate::draw_cells::RenderCells::new(map, &Neighbourhood::new(ctx, app, *id));
         for (idx, multipolygon) in render_cells.to_multipolygons().into_iter().enumerate() {
             let mut feature = Feature {
                 bbox: None,

@@ -78,8 +78,8 @@ fn is_road_id(path: &str) -> bool {
             Regex::new(r"^/partitioning/single_blocks/\d+/perimeter/interior/\d+$").unwrap(),
             Regex::new(r"^/partitioning/single_blocks/\d+/perimeter/roads/\d+/road$").unwrap(),
             // The other
-            Regex::new(r"^/partitioning/neighborhoods/\d+/0/perimeter/interior/\d+$").unwrap(),
-            Regex::new(r"^/partitioning/neighborhoods/\d+/0/perimeter/roads/\d+/road$").unwrap(),
+            Regex::new(r"^/partitioning/neighbourhoods/\d+/0/perimeter/interior/\d+$").unwrap(),
+            Regex::new(r"^/partitioning/neighbourhoods/\d+/0/perimeter/roads/\d+/road$").unwrap(),
         ];
     }
 

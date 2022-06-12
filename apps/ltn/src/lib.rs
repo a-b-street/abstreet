@@ -6,11 +6,11 @@ use abstio::MapName;
 use abstutil::Timer;
 use widgetry::{EventCtx, GfxCtx, Settings};
 
-pub use browse::BrowseNeighborhoods;
+pub use browse::BrowseNeighbourhoods;
 use filters::Toggle3Zoomed;
 pub use filters::{DiagonalFilter, ModalFilters};
-pub use neighborhood::{Cell, DistanceInterval, Neighborhood};
-pub use partition::{NeighborhoodID, Partitioning};
+pub use neighbourhood::{Cell, DistanceInterval, Neighbourhood};
+pub use partition::{NeighbourhoodID, Partitioning};
 
 #[macro_use]
 extern crate anyhow;
@@ -27,7 +27,7 @@ mod edit;
 mod export;
 mod filters;
 mod impact;
-mod neighborhood;
+mod neighbourhood;
 mod partition;
 mod route_planner;
 mod save;
@@ -39,7 +39,7 @@ type App = map_gui::SimpleApp<Session>;
 type Transition = widgetry::Transition<App>;
 
 pub fn main() {
-    let settings = Settings::new("Low traffic neighborhoods");
+    let settings = Settings::new("Low traffic neighbourhoods");
     run(settings);
 }
 
@@ -48,7 +48,7 @@ struct Args {
     /// Load a previously saved proposal with this name. Note this takes a name, not a full path.
     #[structopt(long)]
     proposal: Option<String>,
-    /// Lock the user into one fixed neighborhood, and remove many controls
+    /// Lock the user into one fixed neighbourhood, and remove many controls
     #[structopt(long)]
     consultation: Option<String>,
     #[structopt(flatten)]
@@ -87,7 +87,7 @@ fn run(mut settings: Settings) {
             edit_filters: true,
 
             highlight_boundary_roads: false,
-            draw_neighborhood_style: browse::Style::SimpleColoring,
+            draw_neighbourhood_style: browse::Style::SimpleColoring,
             draw_cells_as_areas: true,
             heuristic: filters::auto::Heuristic::SplitCells,
             main_road_penalty: 1.0,
@@ -103,7 +103,7 @@ fn run(mut settings: Settings) {
             args.app_args.cam,
             session,
             move |ctx, app| {
-                // Restore the partitioning from a file before calling BrowseNeighborhoods
+                // Restore the partitioning from a file before calling BrowseNeighbourhoods
                 let popup_state = args.proposal.as_ref().and_then(|name| {
                     crate::save::Proposal::load(
                         ctx,
@@ -147,7 +147,7 @@ fn run(mut settings: Settings) {
                         _ => panic!("Unknown Bristol consultation mode {consultation}"),
                     };
 
-                    // Look for the neighborhood containing one small street
+                    // Look for the neighbourhood containing one small street
                     let r = app
                         .map
                         .all_roads()
@@ -155,16 +155,16 @@ fn run(mut settings: Settings) {
                         .find(|r| r.get_name(None) == focus_on_street)
                         .expect(&format!("Can't find {focus_on_street}"))
                         .id;
-                    let (neighborhood, _) = app
+                    let (neighbourhood, _) = app
                         .session
                         .partitioning
-                        .all_neighborhoods()
+                        .all_neighbourhoods()
                         .iter()
                         .find(|(_, info)| info.block.perimeter.interior.contains(&r))
                         .expect(&format!(
-                            "Can't find neighborhood containing {focus_on_street}"
+                            "Can't find neighbourhood containing {focus_on_street}"
                         ));
-                    app.session.consultation = Some(*neighborhood);
+                    app.session.consultation = Some(*neighbourhood);
 
                     // TODO Maybe center the camera, ignoring any saved values
 
@@ -178,9 +178,9 @@ fn run(mut settings: Settings) {
                         ctx,
                         app,
                         map_gui::tools::Executable::LTN,
-                        Box::new(|ctx, app, _| BrowseNeighborhoods::new_state(ctx, app)),
+                        Box::new(|ctx, app, _| BrowseNeighbourhoods::new_state(ctx, app)),
                     ));
-                    states.push(BrowseNeighborhoods::new_state(ctx, app));
+                    states.push(BrowseNeighbourhoods::new_state(ctx, app));
                 }
                 if let Some(state) = popup_state {
                     states.push(state);
@@ -197,7 +197,7 @@ use wasm_bindgen::prelude::*;
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen(js_name = "run")]
 pub fn run_wasm(root_dom_id: String, assets_base_url: String, assets_are_gzipped: bool) {
-    let settings = Settings::new("Low traffic neighborhoods")
+    let settings = Settings::new("Low traffic neighbourhoods")
         .root_dom_element_id(root_dom_id)
         .assets_base_url(assets_base_url)
         .assets_are_gzipped(assets_are_gzipped);
@@ -221,9 +221,9 @@ pub struct Session {
     pub edit_filters: bool,
 
     // Remember form settings in different tabs.
-    // Browse neighborhoods:
+    // Browse neighbourhoods:
     pub highlight_boundary_roads: bool,
-    pub draw_neighborhood_style: browse::Style,
+    pub draw_neighbourhood_style: browse::Style,
     // Connectivity:
     pub draw_cells_as_areas: bool,
     pub heuristic: filters::auto::Heuristic,
@@ -232,7 +232,7 @@ pub struct Session {
 
     current_trip_name: Option<String>,
 
-    consultation: Option<NeighborhoodID>,
+    consultation: Option<NeighbourhoodID>,
 }
 
 /// Do the equivalent of `SimpleApp::draw_unzoomed` or `draw_zoomed`, but after the water/park

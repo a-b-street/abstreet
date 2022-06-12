@@ -5,7 +5,7 @@ use map_model::{IntersectionID, PathConstraints, Perimeter};
 use widgetry::tools::PolyLineLasso;
 use widgetry::{DrawBaselayer, EventCtx, GfxCtx, Key, Line, ScreenPt, State, Text, Widget};
 
-use crate::{after_edit, App, DiagonalFilter, Neighborhood, Transition};
+use crate::{after_edit, App, DiagonalFilter, Neighbourhood, Transition};
 
 pub struct FreehandFilters {
     lasso: PolyLineLasso,
@@ -18,13 +18,13 @@ pub struct FreehandFilters {
 impl FreehandFilters {
     pub fn new_state(
         ctx: &EventCtx,
-        neighborhood: &Neighborhood,
+        neighbourhood: &Neighbourhood,
         instructions_at: ScreenPt,
     ) -> Box<dyn State<App>> {
         Box::new(Self {
             lasso: PolyLineLasso::new(),
-            perimeter: neighborhood.orig_perimeter.clone(),
-            interior_intersections: neighborhood.interior_intersections.clone(),
+            perimeter: neighbourhood.orig_perimeter.clone(),
+            interior_intersections: neighbourhood.interior_intersections.clone(),
             instructions_at,
             instructions: Text::from_all(vec![
                 Line("Click and drag").fg(ctx.style().text_hotkey_color),

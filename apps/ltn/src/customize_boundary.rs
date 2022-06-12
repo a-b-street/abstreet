@@ -5,20 +5,20 @@ use widgetry::{
     Widget,
 };
 
-use crate::{App, NeighborhoodID, Transition};
+use crate::{App, NeighbourhoodID, Transition};
 
 pub struct CustomizeBoundary {
     panel: Panel,
     edit: EditPolygon,
-    id: NeighborhoodID,
+    id: NeighbourhoodID,
 }
 
 impl CustomizeBoundary {
-    pub fn new_state(ctx: &mut EventCtx, app: &App, id: NeighborhoodID) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &App, id: NeighbourhoodID) -> Box<dyn State<App>> {
         let points = app
             .session
             .partitioning
-            .neighborhood_boundary_polygon(app, id)
+            .neighbourhood_boundary_polygon(app, id)
             .into_points();
         Box::new(Self {
             id,
@@ -53,7 +53,7 @@ impl State<App> for CustomizeBoundary {
                     if let Ok(ring) = Ring::new(pts) {
                         app.session
                             .partitioning
-                            .override_neighborhood_boundary_polygon(self.id, ring.into_polygon());
+                            .override_neighbourhood_boundary_polygon(self.id, ring.into_polygon());
                         return Transition::Multi(vec![Transition::Pop, Transition::Recreate]);
                     }
                     // Silently stay here so the user can try to fix

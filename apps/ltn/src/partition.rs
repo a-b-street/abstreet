@@ -14,41 +14,41 @@ use crate::{colors, App};
 
 /// An opaque ID, won't be contiguous as we adjust boundaries
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
-pub struct NeighborhoodID(pub usize);
+pub struct NeighbourhoodID(pub usize);
 
 /// Identifies a single / unmerged block, which never changes
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct BlockID(usize);
 
 // Some states want this
-impl widgetry::mapspace::ObjectID for NeighborhoodID {}
+impl widgetry::mapspace::ObjectID for NeighbourhoodID {}
 impl widgetry::mapspace::ObjectID for BlockID {}
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Partitioning {
     pub map: MapName,
-    neighborhoods: BTreeMap<NeighborhoodID, NeighborhoodInfo>,
+    neighbourhoods: BTreeMap<NeighbourhoodID, NeighbourhoodInfo>,
     // The single / unmerged blocks never change
     single_blocks: Vec<Block>,
 
-    neighborhood_id_counter: usize,
+    neighbourhood_id_counter: usize,
 
-    // Invariant: This is a surjection, every block belongs to exactly one neighborhood
-    block_to_neighborhood: BTreeMap<BlockID, NeighborhoodID>,
+    // Invariant: This is a surjection, every block belongs to exactly one neighbourhood
+    block_to_neighbourhood: BTreeMap<BlockID, NeighbourhoodID>,
 
     use_expensive_blockfinding: bool,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
-pub struct NeighborhoodInfo {
+pub struct NeighbourhoodInfo {
     pub block: Block,
     pub color: Color,
-    /// Draw a special cone of light when focused on this neighborhood. It doesn't change which
+    /// Draw a special cone of light when focused on this neighbourhood. It doesn't change which
     /// roads can be edited.
     pub override_drawing_boundary: Option<Polygon>,
 }
 
-impl NeighborhoodInfo {
+impl NeighbourhoodInfo {
     fn new(block: Block) -> Self {
         Self {
             block,
@@ -63,19 +63,19 @@ impl Partitioning {
     pub fn empty() -> Partitioning {
         Partitioning {
             map: MapName::new("zz", "temp", "orary"),
-            neighborhoods: BTreeMap::new(),
+            neighbourhoods: BTreeMap::new(),
             single_blocks: Vec::new(),
 
-            neighborhood_id_counter: 0,
+            neighbourhood_id_counter: 0,
 
-            block_to_neighborhood: BTreeMap::new(),
+            block_to_neighbourhood: BTreeMap::new(),
 
             use_expensive_blockfinding: false,
         }
     }
 
     pub fn is_empty(&self) -> bool {
-        self.neighborhoods.is_empty()
+        self.neighbourhoods.is_empty()
     }
 
     pub fn seed_using_heuristics(app: &App, timer: &mut Timer) -> Partitioning {
@@ -99,7 +99,7 @@ impl Partitioning {
 
             timer.start("partition");
             let partitions = Perimeter::partition_by_predicate(single_block_perims, |r| {
-                // "Interior" roads of a neighborhood aren't classified as arterial
+                // "Interior" roads of a neighbourhood aren't classified as arterial
                 map.get_r(r).get_rank() == RoadRank::Local
             });
 
@@ -130,40 +130,40 @@ impl Partitioning {
                 }
             }
 
-            let mut neighborhoods = BTreeMap::new();
+            let mut neighbourhoods = BTreeMap::new();
             for block in blocks {
-                neighborhoods.insert(
-                    NeighborhoodID(neighborhoods.len()),
-                    NeighborhoodInfo::new(block),
+                neighbourhoods.insert(
+                    NeighbourhoodID(neighbourhoods.len()),
+                    NeighbourhoodInfo::new(block),
                 );
             }
-            let neighborhood_id_counter = neighborhoods.len();
+            let neighbourhood_id_counter = neighbourhoods.len();
             let mut p = Partitioning {
                 map: map.get_name().clone(),
-                neighborhoods,
+                neighbourhoods,
                 single_blocks,
 
-                neighborhood_id_counter,
-                block_to_neighborhood: BTreeMap::new(),
+                neighbourhood_id_counter,
+                block_to_neighbourhood: BTreeMap::new(),
                 use_expensive_blockfinding,
             };
 
             // TODO We could probably build this up as we go
             for id in p.all_block_ids() {
-                if let Some(neighborhood) = p.neighborhood_containing(id) {
-                    p.block_to_neighborhood.insert(id, neighborhood);
+                if let Some(neighbourhood) = p.neighbourhood_containing(id) {
+                    p.block_to_neighbourhood.insert(id, neighbourhood);
                 } else {
                     if !use_expensive_blockfinding {
                         // Try the expensive check, then
                         error!(
-                            "Block doesn't belong to any neighborhood? Retrying with expensive checks {:?}",
+                            "Block doesn't belong to any neighbourhood? Retrying with expensive checks {:?}",
                             p.get_block(id).perimeter
                         );
                         continue 'METHOD;
                     }
                     // This will break everything downstream, so bail out immediately
                     panic!(
-                        "Block doesn't belong to any neighborhood?! {:?}",
+                        "Block doesn't belong to any neighbourhood?! {:?}",
                         p.get_block(id).perimeter
                     );
                 }
@@ -178,18 +178,25 @@ impl Partitioning {
     /// True if the coloring changed
     pub fn recalculate_coloring(&mut self) -> bool {
         let perims: Vec<Perimeter> = self
-            .neighborhoods
+            .neighbourhoods
             .values()
             .map(|info| info.block.perimeter.clone())
             .collect();
-        let colors = Perimeter::calculate_coloring(&perims, colors::NEIGHBORHOODS.len())
+        let colors = Perimeter::calculate_coloring(&perims, colors::NEIGHBOURHOODS.len())
             .unwrap_or_else(|| (0..perims.len()).collect());
-        let orig_coloring: Vec<Color> =
-            self.neighborhoods.values().map(|info| info.color).collect();
-        for (info, color_idx) in self.neighborhoods.values_mut().zip(colors.into_iter()) {
-            info.color = colors::NEIGHBORHOODS[color_idx % colors::NEIGHBORHOODS.len()];
+        let orig_coloring: Vec<Color> = self
+            .neighbourhoods
+            .values()
+            .map(|info| info.color)
+            .collect();
+        for (info, color_idx) in self.neighbourhoods.values_mut().zip(colors.into_iter()) {
+            info.color = colors::NEIGHBOURHOODS[color_idx % colors::NEIGHBOURHOODS.len()];
         }
-        let new_coloring: Vec<Color> = self.neighborhoods.values().map(|info| info.color).collect();
+        let new_coloring: Vec<Color> = self
+            .neighbourhoods
+            .values()
+            .map(|info| info.color)
+            .collect();
         orig_coloring != new_coloring
     }
 
@@ -198,38 +205,38 @@ impl Partitioning {
         &mut self,
         map: &Map,
         id: BlockID,
-        old_owner: NeighborhoodID,
-        new_owner: NeighborhoodID,
-    ) -> Result<Option<NeighborhoodID>> {
+        old_owner: NeighbourhoodID,
+        new_owner: NeighbourhoodID,
+    ) -> Result<Option<NeighbourhoodID>> {
         assert_ne!(old_owner, new_owner);
 
-        // Is the newly expanded neighborhood a valid perimeter?
+        // Is the newly expanded neighbourhood a valid perimeter?
         let new_owner_blocks: Vec<BlockID> = self
-            .block_to_neighborhood
+            .block_to_neighbourhood
             .iter()
-            .filter_map(|(block, neighborhood)| {
-                if *neighborhood == new_owner || *block == id {
+            .filter_map(|(block, neighbourhood)| {
+                if *neighbourhood == new_owner || *block == id {
                     Some(*block)
                 } else {
                     None
                 }
             })
             .collect();
-        let mut new_neighborhood_blocks = self.make_merged_blocks(map, new_owner_blocks)?;
-        if new_neighborhood_blocks.len() != 1 {
+        let mut new_neighbourhood_blocks = self.make_merged_blocks(map, new_owner_blocks)?;
+        if new_neighbourhood_blocks.len() != 1 {
             // This happens when a hole would be created by adding this block. There are probably
             // some smaller blocks nearby to add first.
             bail!("Couldn't add block -- you may need to add an intermediate block first to avoid a hole, or there's a bug you can't workaround yet");
         }
-        let new_neighborhood_block = new_neighborhood_blocks.pop().unwrap();
+        let new_neighbourhood_block = new_neighbourhood_blocks.pop().unwrap();
 
-        // Is the old neighborhood, minus this block, still valid?
-        // TODO refactor Neighborhood to BlockIDs?
+        // Is the old neighbourhood, minus this block, still valid?
+        // TODO refactor Neighbourhood to BlockIDs?
         let old_owner_blocks: Vec<BlockID> = self
-            .block_to_neighborhood
+            .block_to_neighbourhood
             .iter()
-            .filter_map(|(block, neighborhood)| {
-                if *neighborhood == old_owner && *block != id {
+            .filter_map(|(block, neighbourhood)| {
+                if *neighbourhood == old_owner && *block != id {
                     Some(*block)
                 } else {
                     None
@@ -237,55 +244,56 @@ impl Partitioning {
             })
             .collect();
         if old_owner_blocks.is_empty() {
-            // We're deleting the old neighborhood!
-            self.neighborhoods.get_mut(&new_owner).unwrap().block = new_neighborhood_block;
-            self.neighborhoods.remove(&old_owner).unwrap();
-            self.block_to_neighborhood.insert(id, new_owner);
-            // Tell the caller to recreate this SelectBoundary state, switching to the neighborhood
+            // We're deleting the old neighbourhood!
+            self.neighbourhoods.get_mut(&new_owner).unwrap().block = new_neighbourhood_block;
+            self.neighbourhoods.remove(&old_owner).unwrap();
+            self.block_to_neighbourhood.insert(id, new_owner);
+            // Tell the caller to recreate this SelectBoundary state, switching to the neighbourhood
             // we just donated to, since the old is now gone
             return Ok(Some(new_owner));
         }
 
-        let mut old_neighborhood_blocks = self.make_merged_blocks(map, old_owner_blocks.clone())?;
-        // We might be splitting the old neighborhood into multiple pieces! Pick the largest piece
-        // as the old_owner (so the UI for trimming a neighborhood is less jarring), and create new
-        // neighborhoods for the others.
-        old_neighborhood_blocks.sort_by_key(|block| block.perimeter.interior.len());
-        self.neighborhoods.get_mut(&old_owner).unwrap().block =
-            old_neighborhood_blocks.pop().unwrap();
-        let new_splits = !old_neighborhood_blocks.is_empty();
-        for split_piece in old_neighborhood_blocks {
-            let new_neighborhood = NeighborhoodID(self.neighborhood_id_counter);
-            self.neighborhood_id_counter += 1;
+        let mut old_neighbourhood_blocks =
+            self.make_merged_blocks(map, old_owner_blocks.clone())?;
+        // We might be splitting the old neighbourhood into multiple pieces! Pick the largest piece
+        // as the old_owner (so the UI for trimming a neighbourhood is less jarring), and create new
+        // neighbourhoods for the others.
+        old_neighbourhood_blocks.sort_by_key(|block| block.perimeter.interior.len());
+        self.neighbourhoods.get_mut(&old_owner).unwrap().block =
+            old_neighbourhood_blocks.pop().unwrap();
+        let new_splits = !old_neighbourhood_blocks.is_empty();
+        for split_piece in old_neighbourhood_blocks {
+            let new_neighbourhood = NeighbourhoodID(self.neighbourhood_id_counter);
+            self.neighbourhood_id_counter += 1;
             // Temporary color
-            self.neighborhoods
-                .insert(new_neighborhood, NeighborhoodInfo::new(split_piece));
+            self.neighbourhoods
+                .insert(new_neighbourhood, NeighbourhoodInfo::new(split_piece));
         }
         if new_splits {
             // We need to update the owner of all single blocks in these new pieces
             for id in old_owner_blocks {
-                self.block_to_neighborhood
-                    .insert(id, self.neighborhood_containing(id).unwrap());
+                self.block_to_neighbourhood
+                    .insert(id, self.neighbourhood_containing(id).unwrap());
             }
         }
 
-        self.neighborhoods.get_mut(&new_owner).unwrap().block = new_neighborhood_block;
-        self.block_to_neighborhood.insert(id, new_owner);
+        self.neighbourhoods.get_mut(&new_owner).unwrap().block = new_neighbourhood_block;
+        self.block_to_neighbourhood.insert(id, new_owner);
         Ok(None)
     }
 
-    /// Needs to find an existing neighborhood to take the block, or make a new one
-    pub fn remove_block_from_neighborhood(
+    /// Needs to find an existing neighbourhood to take the block, or make a new one
+    pub fn remove_block_from_neighbourhood(
         &mut self,
         map: &Map,
         id: BlockID,
-        old_owner: NeighborhoodID,
-    ) -> Result<Option<NeighborhoodID>> {
-        // Find all RoadSideIDs in the block matching the current neighborhood perimeter. Look for
-        // the first one that borders another neighborhood, and transfer the block there.
+        old_owner: NeighbourhoodID,
+    ) -> Result<Option<NeighbourhoodID>> {
+        // Find all RoadSideIDs in the block matching the current neighbourhood perimeter. Look for
+        // the first one that borders another neighbourhood, and transfer the block there.
         // TODO This can get unintuitive -- if we remove a block bordering two other
-        // neighborhoods, which one should we donate to?
-        let current_perim_set: BTreeSet<RoadSideID> = self.neighborhoods[&old_owner]
+        // neighbourhoods, which one should we donate to?
+        let current_perim_set: BTreeSet<RoadSideID> = self.neighbourhoods[&old_owner]
             .block
             .perimeter
             .roads
@@ -296,11 +304,11 @@ impl Partitioning {
             if !current_perim_set.contains(road_side) {
                 continue;
             }
-            // Is there another neighborhood that has the other side of this road on its perimeter?
-            // TODO We could map road -> BlockID then use block_to_neighborhood
+            // Is there another neighbourhood that has the other side of this road on its perimeter?
+            // TODO We could map road -> BlockID then use block_to_neighbourhood
             let other_side = road_side.other_side();
             if let Some((new_owner, _)) = self
-                .neighborhoods
+                .neighbourhoods
                 .iter()
                 .find(|(_, info)| info.block.perimeter.roads.contains(&other_side))
             {
@@ -310,16 +318,18 @@ impl Partitioning {
         }
 
         // We didn't find any match, so we're jettisoning a block near the edge of the map (or a
-        // buggy area missing blocks). Create a new neighborhood with just this block.
-        let new_owner = NeighborhoodID(self.neighborhood_id_counter);
-        self.neighborhood_id_counter += 1;
+        // buggy area missing blocks). Create a new neighbourhood with just this block.
+        let new_owner = NeighbourhoodID(self.neighbourhood_id_counter);
+        self.neighbourhood_id_counter += 1;
         // Temporary color
-        self.neighborhoods
-            .insert(new_owner, NeighborhoodInfo::new(self.get_block(id).clone()));
+        self.neighbourhoods.insert(
+            new_owner,
+            NeighbourhoodInfo::new(self.get_block(id).clone()),
+        );
         let result = self.transfer_block(map, id, old_owner, new_owner);
         if result.is_err() {
             // Revert the change above!
-            self.neighborhoods.remove(&new_owner).unwrap();
+            self.neighbourhoods.remove(&new_owner).unwrap();
         }
         result
     }
@@ -327,26 +337,26 @@ impl Partitioning {
 
 // Read-only
 impl Partitioning {
-    pub fn neighborhood_block(&self, id: NeighborhoodID) -> &Block {
-        &self.neighborhoods[&id].block
+    pub fn neighbourhood_block(&self, id: NeighbourhoodID) -> &Block {
+        &self.neighbourhoods[&id].block
     }
 
-    pub fn neighborhood_area_km2(&self, id: NeighborhoodID) -> String {
+    pub fn neighbourhood_area_km2(&self, id: NeighbourhoodID) -> String {
         // Convert from m^2 to km^2
-        let area = self.neighborhood_block(id).polygon.area() / 1_000_000.0;
+        let area = self.neighbourhood_block(id).polygon.area() / 1_000_000.0;
         format!("~{:.1} km²", area)
     }
 
-    pub fn neighborhood_color(&self, id: NeighborhoodID) -> Color {
-        self.neighborhoods[&id].color
+    pub fn neighbourhood_color(&self, id: NeighbourhoodID) -> Color {
+        self.neighbourhoods[&id].color
     }
 
-    pub fn neighborhood_boundary_polygon(&self, app: &App, id: NeighborhoodID) -> Polygon {
-        let info = &self.neighborhoods[&id];
+    pub fn neighbourhood_boundary_polygon(&self, app: &App, id: NeighbourhoodID) -> Polygon {
+        let info = &self.neighbourhoods[&id];
         if let Some(polygon) = info.override_drawing_boundary.clone() {
             return polygon;
         }
-        // The neighborhood's perimeter hugs the "interior" of the neighborhood. If we just use the
+        // The neighbourhood's perimeter hugs the "interior" of the neighbourhood. If we just use the
         // other side of the perimeter road, the highlighted area nicely shows the boundary road
         // too. (But sometimes this breaks, of course)
         match info
@@ -360,22 +370,26 @@ impl Partitioning {
             Err(_) => info.block.polygon.clone(),
         }
     }
-    pub fn override_neighborhood_boundary_polygon(&mut self, id: NeighborhoodID, polygon: Polygon) {
-        self.neighborhoods
+    pub fn override_neighbourhood_boundary_polygon(
+        &mut self,
+        id: NeighbourhoodID,
+        polygon: Polygon,
+    ) {
+        self.neighbourhoods
             .get_mut(&id)
             .unwrap()
             .override_drawing_boundary = Some(polygon);
     }
 
-    pub fn all_neighborhoods(&self) -> &BTreeMap<NeighborhoodID, NeighborhoodInfo> {
-        &self.neighborhoods
+    pub fn all_neighbourhoods(&self) -> &BTreeMap<NeighbourhoodID, NeighbourhoodInfo> {
+        &self.neighbourhoods
     }
 
     // Just used for initial creation
-    fn neighborhood_containing(&self, find_block: BlockID) -> Option<NeighborhoodID> {
+    fn neighbourhood_containing(&self, find_block: BlockID) -> Option<NeighbourhoodID> {
         // TODO We could probably build this mapping up when we do Perimeter::merge_all
         let find_block = self.get_block(find_block);
-        for (id, info) in &self.neighborhoods {
+        for (id, info) in &self.neighbourhoods {
             if info.block.perimeter.contains(&find_block.perimeter) {
                 return Some(*id);
             }
@@ -399,13 +413,13 @@ impl Partitioning {
         &self.single_blocks[id.0]
     }
 
-    pub fn block_to_neighborhood(&self, id: BlockID) -> NeighborhoodID {
-        self.block_to_neighborhood[&id]
+    pub fn block_to_neighbourhood(&self, id: BlockID) -> NeighbourhoodID {
+        self.block_to_neighbourhood[&id]
     }
 
-    pub fn all_blocks_in_neighborhood(&self, id: NeighborhoodID) -> Vec<BlockID> {
+    pub fn all_blocks_in_neighbourhood(&self, id: NeighbourhoodID) -> Vec<BlockID> {
         let mut result = Vec::new();
-        for (block, n) in &self.block_to_neighborhood {
+        for (block, n) in &self.block_to_neighbourhood {
             if *n == id {
                 result.push(*block);
             }
@@ -413,9 +427,9 @@ impl Partitioning {
         result
     }
 
-    pub fn some_block_in_neighborhood(&self, id: NeighborhoodID) -> BlockID {
-        for (block, neighborhood) in &self.block_to_neighborhood {
-            if id == *neighborhood {
+    pub fn some_block_in_neighbourhood(&self, id: NeighbourhoodID) -> BlockID {
+        for (block, neighbourhood) in &self.block_to_neighbourhood {
+            if id == *neighbourhood {
                 return *block;
             }
         }

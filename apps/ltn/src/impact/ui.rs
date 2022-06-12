@@ -10,7 +10,7 @@ use widgetry::{
 };
 
 use crate::impact::{end_of_day, Filters, Impact};
-use crate::{colors, App, BrowseNeighborhoods, Transition};
+use crate::{colors, App, BrowseNeighbourhoods, Transition};
 
 // TODO Share structure or pieces with Ungap's predict mode
 // ... can't we just produce data of a certain shape, and have a UI pretty tuned for that?
@@ -47,7 +47,7 @@ impl ShowResults {
         }
 
         let contents = Widget::col(vec![
-            BrowseNeighborhoods::button(ctx, app),
+            BrowseNeighbourhoods::button(ctx, app),
             Line("Impact prediction").small_heading().into_widget(ctx),
             Text::from(Line("This tool starts with a travel demand model, calculates the route every trip takes before and after changes, and displays volumes along roads")).wrap_to_pct(ctx, 20).into_widget(ctx),
             Text::from_all(vec![
@@ -79,10 +79,10 @@ impl State<App> for ShowResults {
         }
         match self.left_panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
-                "Browse neighborhoods" => {
+                "Browse neighbourhoods" => {
                     // Don't just Pop; if we updated the results, the UI won't warn the user about a slow
                     // loading
-                    return Transition::Replace(BrowseNeighborhoods::new_state(ctx, app));
+                    return Transition::Replace(BrowseNeighbourhoods::new_state(ctx, app));
                 }
                 "Save before/after counts to files" => {
                     let path1 = "counts_a.json";

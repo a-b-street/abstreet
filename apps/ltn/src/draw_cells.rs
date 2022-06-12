@@ -5,7 +5,7 @@ use map_gui::tools::Grid;
 use map_model::Map;
 use widgetry::{Color, GeomBatch};
 
-use crate::{colors, Neighborhood};
+use crate::{colors, Neighbourhood};
 
 const RESOLUTION_M: f64 = 10.0;
 
@@ -16,22 +16,22 @@ pub struct RenderCells {
 }
 
 struct RenderCellsBuilder {
-    /// The grid only covers the boundary polygon of the neighborhood. The values are cell indices,
-    /// and `Some(num_cells)` marks the boundary of the neighborhood.
+    /// The grid only covers the boundary polygon of the neighbourhood. The values are cell indices,
+    /// and `Some(num_cells)` marks the boundary of the neighbourhood.
     grid: Grid<Option<usize>>,
     colors: Vec<Color>,
-    /// Bounds of the neighborhood boundary polygon
+    /// Bounds of the neighbourhood boundary polygon
     bounds: Bounds,
 
     boundary_polygon: Polygon,
 }
 
 impl RenderCells {
-    /// Partition a neighborhood's boundary polygon based on the cells. This discretizes space into
+    /// Partition a neighbourhood's boundary polygon based on the cells. This discretizes space into
     /// a grid, and then extracts a polygon from the raster. The results don't look perfect, but
     /// it's fast.
-    pub fn new(map: &Map, neighborhood: &Neighborhood) -> RenderCells {
-        RenderCellsBuilder::new(map, neighborhood).finalize()
+    pub fn new(map: &Map, neighbourhood: &Neighbourhood) -> RenderCells {
+        RenderCellsBuilder::new(map, neighbourhood).finalize()
     }
 
     pub fn draw(&self) -> GeomBatch {
@@ -55,8 +55,8 @@ impl RenderCells {
 }
 
 impl RenderCellsBuilder {
-    fn new(map: &Map, neighborhood: &Neighborhood) -> RenderCellsBuilder {
-        let boundary_polygon = neighborhood
+    fn new(map: &Map, neighbourhood: &Neighbourhood) -> RenderCellsBuilder {
+        let boundary_polygon = neighbourhood
             .orig_perimeter
             .clone()
             .to_block(map)
@@ -73,7 +73,7 @@ impl RenderCellsBuilder {
 
         // Initially fill out the grid based on the roads in each cell
         let mut warn_leak = true;
-        for (cell_idx, cell) in neighborhood.cells.iter().enumerate() {
+        for (cell_idx, cell) in neighbourhood.cells.iter().enumerate() {
             for (r, interval) in &cell.roads {
                 let road = map.get_r(*r);
                 // Some roads with a filter are _very_ short, and this fails. The connecting roads
@@ -91,18 +91,18 @@ impl RenderCellsBuilder {
                             ((pt.x() - bounds.min_x) / RESOLUTION_M) as usize,
                             ((pt.y() - bounds.min_y) / RESOLUTION_M) as usize,
                         );
-                        // Due to tunnels/bridges, sometimes a road belongs to a neighborhood, but
-                        // leaks outside the neighborhood's boundary. Avoid crashing. The real fix
+                        // Due to tunnels/bridges, sometimes a road belongs to a neighbourhood, but
+                        // leaks outside the neighbourhood's boundary. Avoid crashing. The real fix
                         // is to better define boundaries in the face of z-order changes.
                         //
                         // Example is https://www.openstreetmap.org/way/87298633
                         if grid_idx >= grid.data.len() {
                             if warn_leak {
                                 warn!(
-                                    "{} leaks outside its neighborhood's boundary polygon, near {}",
+                                    "{} leaks outside its neighbourhood's boundary polygon, near {}",
                                     road.id, pt
                                 );
-                                // In some neighborhoods, there are so many warnings that logging
+                                // In some neighbourhoods, there are so many warnings that logging
                                 // causes noticeable slowdown!
                                 warn_leak = false;
                             }
@@ -119,7 +119,7 @@ impl RenderCellsBuilder {
         // Also mark the boundary polygon, so we can prevent the diffusion from "leaking" outside
         // the area. The grid covers the rectangular bounds of the polygon. Rather than make an
         // enum with 3 cases, just assign a new index to mean "boundary."
-        let boundary_marker = neighborhood.cells.len();
+        let boundary_marker = neighbourhood.cells.len();
         for (pt, _) in
             geom::PolyLine::unchecked_new(boundary_polygon.clone().into_ring().into_points())
                 .step_along(Distance::meters(RESOLUTION_M / 2.0), Distance::ZERO)
@@ -134,10 +134,10 @@ impl RenderCellsBuilder {
         }
 
         let adjacencies = diffusion(&mut grid, boundary_marker);
-        let mut cell_colors = color_cells(neighborhood.cells.len(), adjacencies);
+        let mut cell_colors = color_cells(neighbourhood.cells.len(), adjacencies);
 
         // Color some special cells
-        for (idx, cell) in neighborhood.cells.iter().enumerate() {
+        for (idx, cell) in neighbourhood.cells.iter().enumerate() {
             if cell.is_disconnected() {
                 cell_colors[idx] = colors::DISCONNECTED_CELL;
             }
@@ -202,7 +202,7 @@ impl RenderCellsBuilder {
                 }
             }
 
-            // Sometimes one cell "leaks" out of the neighborhood boundary. Not sure why. But we
+            // Sometimes one cell "leaks" out of the neighbourhood boundary. Not sure why. But we
             // can just clip the result.
             let mut clipped = Vec::new();
             for p in cell_polygons {

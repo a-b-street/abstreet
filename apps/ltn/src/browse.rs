@@ -11,23 +11,23 @@ use widgetry::{
 };
 
 use crate::filters::auto::Heuristic;
-use crate::{colors, App, Neighborhood, NeighborhoodID, Transition};
+use crate::{colors, App, Neighbourhood, NeighbourhoodID, Transition};
 
-pub struct BrowseNeighborhoods {
+pub struct BrowseNeighbourhoods {
     top_panel: Panel,
     left_panel: Panel,
-    world: World<NeighborhoodID>,
+    world: World<NeighbourhoodID>,
     draw_over_roads: ToggleZoomed,
     labels: DrawRoadLabels,
     draw_boundary_roads: ToggleZoomed,
 }
 
-impl BrowseNeighborhoods {
+impl BrowseNeighbourhoods {
     pub fn new_state(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
         map_gui::tools::update_url_map_name(app);
 
         let (world, draw_over_roads) =
-            ctx.loading_screen("calculate neighborhoods", |ctx, timer| {
+            ctx.loading_screen("calculate neighbourhoods", |ctx, timer| {
                 if &app.session.partitioning.map != app.map.get_name() {
                     app.session.alt_proposals = crate::save::AltProposals::new();
                     crate::clear_current_proposal(ctx, app, timer);
@@ -50,7 +50,7 @@ impl BrowseNeighborhoods {
             ]),
         )
         .build(ctx);
-        Box::new(BrowseNeighborhoods {
+        Box::new(BrowseNeighbourhoods {
             top_panel,
             left_panel,
             world,
@@ -62,14 +62,14 @@ impl BrowseNeighborhoods {
 
     pub fn button(ctx: &EventCtx, app: &App) -> Widget {
         ctx.style()
-            .btn_back("Browse neighborhoods")
+            .btn_back("Browse neighbourhoods")
             .hotkey(Key::Escape)
             .build_def(ctx)
             .hide(app.session.consultation.is_some())
     }
 }
 
-impl State<App> for BrowseNeighborhoods {
+impl State<App> for BrowseNeighbourhoods {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         if let Some(t) = crate::components::TopPanel::event(ctx, app, &mut self.top_panel, help) {
             return t;
@@ -85,32 +85,32 @@ impl State<App> for BrowseNeighborhoods {
                     ));
                 }
                 "Automatically place filters" => {
-                    ctx.loading_screen("automatically filter all neighborhoods", |ctx, timer| {
+                    ctx.loading_screen("automatically filter all neighbourhoods", |ctx, timer| {
                         timer.start_iter(
-                            "filter neighborhood",
-                            app.session.partitioning.all_neighborhoods().len(),
+                            "filter neighbourhood",
+                            app.session.partitioning.all_neighbourhoods().len(),
                         );
                         for id in app
                             .session
                             .partitioning
-                            .all_neighborhoods()
+                            .all_neighbourhoods()
                             .keys()
                             .cloned()
                             .collect::<Vec<_>>()
                         {
                             timer.next();
-                            let neighborhood = Neighborhood::new(ctx, app, id);
+                            let neighbourhood = Neighbourhood::new(ctx, app, id);
                             // Ignore errors
-                            let _ = app.session.heuristic.apply(ctx, app, &neighborhood, timer);
+                            let _ = app.session.heuristic.apply(ctx, app, &neighbourhood, timer);
                         }
                     });
-                    return Transition::Replace(BrowseNeighborhoods::new_state(ctx, app));
+                    return Transition::Replace(BrowseNeighbourhoods::new_state(ctx, app));
                 }
                 x => {
                     return crate::save::AltProposals::handle_action(
                         ctx,
                         app,
-                        crate::save::PreserveState::BrowseNeighborhoods,
+                        crate::save::PreserveState::BrowseNeighbourhoods,
                         x,
                     )
                     .unwrap();
@@ -119,7 +119,7 @@ impl State<App> for BrowseNeighborhoods {
             Outcome::Changed(x) => {
                 if x == "Advanced features" {
                     app.opts.dev = self.left_panel.is_checked("Advanced features");
-                    return Transition::Replace(BrowseNeighborhoods::new_state(ctx, app));
+                    return Transition::Replace(BrowseNeighbourhoods::new_state(ctx, app));
                 }
                 if x == "heuristic" {
                     app.session.heuristic = self.left_panel.dropdown_value("heuristic");
@@ -128,7 +128,7 @@ impl State<App> for BrowseNeighborhoods {
                         app.session.highlight_boundary_roads =
                             self.left_panel.is_checked("highlight boundary roads");
                     } else {
-                        app.session.draw_neighborhood_style =
+                        app.session.draw_neighbourhood_style =
                             self.left_panel.dropdown_value("style");
                     }
 
@@ -168,11 +168,11 @@ impl State<App> for BrowseNeighborhoods {
     }
 }
 
-fn make_world(ctx: &mut EventCtx, app: &App, timer: &mut Timer) -> World<NeighborhoodID> {
+fn make_world(ctx: &mut EventCtx, app: &App, timer: &mut Timer) -> World<NeighbourhoodID> {
     let mut world = World::bounded(app.map.get_bounds());
     let map = &app.map;
-    for (id, info) in app.session.partitioning.all_neighborhoods() {
-        match app.session.draw_neighborhood_style {
+    for (id, info) in app.session.partitioning.all_neighbourhoods() {
+        match app.session.draw_neighbourhood_style {
             Style::SimpleColoring => {
                 world
                     .add(*id)
@@ -183,10 +183,10 @@ fn make_world(ctx: &mut EventCtx, app: &App, timer: &mut Timer) -> World<Neighbo
                     .build(ctx);
             }
             Style::Cells => {
-                // TODO The cell colors are confusing alongside the other neighborhood colors. I
+                // TODO The cell colors are confusing alongside the other neighbourhood colors. I
                 // tried greying out everything else, but then the view is too jumpy.
-                let neighborhood = Neighborhood::new(ctx, app, *id);
-                let render_cells = crate::draw_cells::RenderCells::new(map, &neighborhood);
+                let neighbourhood = Neighbourhood::new(ctx, app, *id);
+                let render_cells = crate::draw_cells::RenderCells::new(map, &neighbourhood);
                 let hovered_batch = render_cells.draw();
                 world
                     .add(*id)
@@ -197,10 +197,10 @@ fn make_world(ctx: &mut EventCtx, app: &App, timer: &mut Timer) -> World<Neighbo
                     .build(ctx);
             }
             Style::Quietness => {
-                let neighborhood = Neighborhood::new(ctx, app, *id);
-                let shortcuts = crate::shortcuts::find_shortcuts(app, &neighborhood, timer);
+                let neighbourhood = Neighbourhood::new(ctx, app, *id);
+                let shortcuts = crate::shortcuts::find_shortcuts(app, &neighbourhood, timer);
                 let (quiet_streets, total_streets) =
-                    shortcuts.quiet_and_total_streets(&neighborhood);
+                    shortcuts.quiet_and_total_streets(&neighbourhood);
                 let pct = if total_streets == 0 {
                     0.0
                 } else {
@@ -231,22 +231,22 @@ fn make_world(ctx: &mut EventCtx, app: &App, timer: &mut Timer) -> World<Neighbo
 }
 
 fn draw_over_roads(ctx: &mut EventCtx, app: &App, timer: &mut Timer) -> ToggleZoomed {
-    if app.session.draw_neighborhood_style != Style::Shortcuts {
+    if app.session.draw_neighbourhood_style != Style::Shortcuts {
         return ToggleZoomed::empty(ctx);
     }
 
     let mut count_per_road = Counter::new();
     let mut count_per_intersection = Counter::new();
 
-    for id in app.session.partitioning.all_neighborhoods().keys() {
-        let neighborhood = Neighborhood::new(ctx, app, *id);
-        let shortcuts = crate::shortcuts::find_shortcuts(app, &neighborhood, timer);
+    for id in app.session.partitioning.all_neighbourhoods().keys() {
+        let neighbourhood = Neighbourhood::new(ctx, app, *id);
+        let shortcuts = crate::shortcuts::find_shortcuts(app, &neighbourhood, timer);
         count_per_road.extend(shortcuts.count_per_road);
         count_per_intersection.extend(shortcuts.count_per_intersection);
     }
 
-    // TODO It's a bit weird to draw one heatmap covering streets in every neighborhood. The
-    // shortcuts are calculated per neighborhood, but now we're showing them all together, as if
+    // TODO It's a bit weird to draw one heatmap covering streets in every neighbourhood. The
+    // shortcuts are calculated per neighbourhood, but now we're showing them all together, as if
     // it's the impact prediction mode using a demand model.
     let mut colorer = ColorNetwork::no_fading(app);
     colorer.ranked_roads(count_per_road, &app.cs.good_to_bad_red);
@@ -258,7 +258,7 @@ pub fn draw_boundary_roads(ctx: &EventCtx, app: &App) -> ToggleZoomed {
     let mut seen_roads = HashSet::new();
     let mut seen_borders = HashSet::new();
     let mut batch = ToggleZoomed::builder();
-    for info in app.session.partitioning.all_neighborhoods().values() {
+    for info in app.session.partitioning.all_neighbourhoods().values() {
         for id in &info.block.perimeter.roads {
             let r = id.road;
             if seen_roads.contains(&r) {
@@ -345,7 +345,7 @@ fn help() -> Vec<&'static str> {
     vec![
         "Basic map navigation: click and drag to pan, swipe or scroll to zoom",
         "",
-        "Click a neighborhood to analyze it. You can adjust boundaries there.",
+        "Click a neighbourhood to analyze it. You can adjust boundaries there.",
     ]
 }
 
@@ -357,11 +357,11 @@ fn advanced_panel(ctx: &EventCtx, app: &App) -> Widget {
         Line("Advanced features").small_heading().into_widget(ctx),
         Widget::col(vec![
             Widget::row(vec![
-                "Draw neighborhoods:".text_widget(ctx).centered_vert(),
+                "Draw neighbourhoods:".text_widget(ctx).centered_vert(),
                 Widget::dropdown(
                     ctx,
                     "style",
-                    app.session.draw_neighborhood_style,
+                    app.session.draw_neighbourhood_style,
                     vec![
                         Choice::new("simple", Style::SimpleColoring),
                         Choice::new("cells", Style::Cells),

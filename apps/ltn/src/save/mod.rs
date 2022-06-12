@@ -11,7 +11,7 @@ use widgetry::tools::PopupMsg;
 use widgetry::{Choice, EventCtx, Key, Line, State, Widget};
 
 use crate::partition::BlockID;
-use crate::{App, BrowseNeighborhoods, ModalFilters, Partitioning, Transition};
+use crate::{App, BrowseNeighbourhoods, ModalFilters, Partitioning, Transition};
 
 /// Captures all of the edits somebody makes to a map in the LTN tool. Note this is separate from
 /// `map_model::MapEdits`.
@@ -307,11 +307,11 @@ impl AltProposals {
 
 // After switching proposals, we have to recreate state
 //
-// To preserve per-neigbhorhood states, we have to transform neighborhood IDs, which may change if
+// To preserve per-neigbhorhood states, we have to transform neighbourhood IDs, which may change if
 // the partitioning is different. If the boundary is a bit different, match up by all the blocks in
-// the current neighborhood.
+// the current neighbourhood.
 pub enum PreserveState {
-    BrowseNeighborhoods,
+    BrowseNeighbourhoods,
     Route,
     Connectivity(Vec<BlockID>),
     Shortcuts(Option<PathRequest>, Vec<BlockID>),
@@ -320,18 +320,18 @@ pub enum PreserveState {
 impl PreserveState {
     fn switch_to_state(self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self {
-            PreserveState::BrowseNeighborhoods => {
-                Transition::Replace(BrowseNeighborhoods::new_state(ctx, app))
+            PreserveState::BrowseNeighbourhoods => {
+                Transition::Replace(BrowseNeighbourhoods::new_state(ctx, app))
             }
             PreserveState::Route => {
                 Transition::Replace(crate::route_planner::RoutePlanner::new_state(ctx, app))
             }
             PreserveState::Connectivity(blocks) => {
-                // Count which new neighborhoods have the blocks from the original. Pick the one
+                // Count which new neighbourhoods have the blocks from the original. Pick the one
                 // with the most matches
                 let mut count = Counter::new();
                 for block in blocks {
-                    count.inc(app.session.partitioning.block_to_neighborhood(block));
+                    count.inc(app.session.partitioning.block_to_neighbourhood(block));
                 }
                 Transition::Replace(crate::connectivity::Viewer::new_state(
                     ctx,
@@ -342,7 +342,7 @@ impl PreserveState {
             PreserveState::Shortcuts(req, blocks) => {
                 let mut count = Counter::new();
                 for block in blocks {
-                    count.inc(app.session.partitioning.block_to_neighborhood(block));
+                    count.inc(app.session.partitioning.block_to_neighbourhood(block));
                 }
                 Transition::Replace(crate::shortcut_viewer::BrowseShortcuts::new_state(
                     ctx,

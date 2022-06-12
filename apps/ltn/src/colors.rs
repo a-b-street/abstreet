@@ -1,9 +1,9 @@
 use widgetry::Color;
 
 lazy_static::lazy_static! {
-    /// Rotate through these colors for neighborhoods. Use 4-color (ehem, 6-color?) theorem to make
+    /// Rotate through these colors for neighbourhoods. Use 4-color (ehem, 6-color?) theorem to make
     /// adjacent things different
-    pub static ref NEIGHBORHOODS: [Color; 6] = [
+    pub static ref NEIGHBOURHOODS: [Color; 6] = [
         Color::BLUE.alpha(0.3),
         Color::YELLOW.alpha(0.3),
         Color::GREEN.alpha(0.3),

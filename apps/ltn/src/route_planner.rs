@@ -10,7 +10,7 @@ use widgetry::{
     RoundedF64, Spinner, State, Text, Widget,
 };
 
-use crate::{colors, App, BrowseNeighborhoods, Transition};
+use crate::{colors, App, BrowseNeighbourhoods, Transition};
 
 pub struct RoutePlanner {
     top_panel: Panel,
@@ -76,7 +76,7 @@ impl RoutePlanner {
 
         let contents = Widget::col(vec![
             app.session.alt_proposals.to_widget(ctx, app),
-            BrowseNeighborhoods::button(ctx, app),
+            BrowseNeighbourhoods::button(ctx, app),
             ctx.style()
                 .btn_back("Analyze neighbourhood")
                 .hotkey(Key::Escape)
@@ -119,9 +119,9 @@ impl RoutePlanner {
         panel.restore(ctx, &self.left_panel);
         self.left_panel = panel;
 
-        // Fade all neighborhood interiors, so it's very clear when a route cuts through
+        // Fade all neighbourhood interiors, so it's very clear when a route cuts through
         let mut batch = GeomBatch::new();
-        for info in app.session.partitioning.all_neighborhoods().values() {
+        for info in app.session.partitioning.all_neighbourhoods().values() {
             batch.push(app.cs.fade_map_dark, info.block.polygon.clone());
         }
 
@@ -265,8 +265,8 @@ impl State<App> for RoutePlanner {
 
         let panel_outcome = self.left_panel.event(ctx);
         if let Outcome::Clicked(ref x) = panel_outcome {
-            if x == "Browse neighborhoods" {
-                return Transition::Replace(BrowseNeighborhoods::new_state(ctx, app));
+            if x == "Browse neighbourhoods" {
+                return Transition::Replace(BrowseNeighbourhoods::new_state(ctx, app));
             }
             if x == "Analyze neighbourhood" {
                 return Transition::Pop;
@@ -326,7 +326,7 @@ fn help() -> Vec<&'static str> {
     vec![
         "You can test how different driving routes are affected by proposed LTNs.",
         "",
-        "The fastest route may not cut through neighborhoods normally,",
+        "The fastest route may not cut through neighbourhoods normally,",
         "but you can adjust the slow-down factor to mimic rush hour conditions",
     ]
 }

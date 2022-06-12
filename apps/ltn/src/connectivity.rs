@@ -7,29 +7,29 @@ use widgetry::{
     DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, TextExt, Toggle, Widget,
 };
 
-use crate::edit::{EditNeighborhood, Tab};
+use crate::edit::{EditNeighbourhood, Tab};
 use crate::filters::auto::Heuristic;
 use crate::shortcuts::find_shortcuts;
-use crate::{colors, App, Neighborhood, NeighborhoodID, Transition};
+use crate::{colors, App, Neighbourhood, NeighbourhoodID, Transition};
 
 pub struct Viewer {
     top_panel: Panel,
     left_panel: Panel,
-    neighborhood: Neighborhood,
+    neighbourhood: Neighbourhood,
     draw_top_layer: ToggleZoomed,
-    edit: EditNeighborhood,
+    edit: EditNeighbourhood,
 }
 
 impl Viewer {
-    pub fn new_state(ctx: &mut EventCtx, app: &App, id: NeighborhoodID) -> Box<dyn State<App>> {
-        let neighborhood = Neighborhood::new(ctx, app, id);
+    pub fn new_state(ctx: &mut EventCtx, app: &App, id: NeighbourhoodID) -> Box<dyn State<App>> {
+        let neighbourhood = Neighbourhood::new(ctx, app, id);
 
         let mut viewer = Viewer {
             top_panel: crate::components::TopPanel::panel(ctx, app),
             left_panel: Panel::empty(ctx),
-            neighborhood,
+            neighbourhood,
             draw_top_layer: ToggleZoomed::empty(ctx),
-            edit: EditNeighborhood::temporary(),
+            edit: EditNeighbourhood::temporary(),
         };
         viewer.update(ctx, app);
         Box::new(viewer)
@@ -37,7 +37,7 @@ impl Viewer {
 
     fn update(&mut self, ctx: &mut EventCtx, app: &App) {
         let disconnected_cells = self
-            .neighborhood
+            .neighbourhood
             .cells
             .iter()
             .filter(|c| c.is_disconnected())
@@ -57,10 +57,10 @@ impl Viewer {
                 &self.top_panel,
                 Widget::col(vec![
                     format!(
-                        "Neighborhood area: {}",
+                        "Neighbourhood area: {}",
                         app.session
                             .partitioning
-                            .neighborhood_area_km2(self.neighborhood.id)
+                            .neighbourhood_area_km2(self.neighbourhood.id)
                     )
                     .text_widget(ctx),
                     warning.text_widget(ctx),
@@ -69,7 +69,7 @@ impl Viewer {
             )
             .build(ctx);
 
-        let (edit, draw_top_layer) = setup_editing(ctx, app, &self.neighborhood);
+        let (edit, draw_top_layer) = setup_editing(ctx, app, &self.neighbourhood);
         self.edit = edit;
         self.draw_top_layer = draw_top_layer;
     }
@@ -83,13 +83,17 @@ impl State<App> for Viewer {
         match self.left_panel.event(ctx) {
             Outcome::Clicked(x) => {
                 if x == "Automatically place filters" {
-                    match ctx.loading_screen("automatically filter a neighborhood", |ctx, timer| {
-                        app.session
-                            .heuristic
-                            .apply(ctx, app, &self.neighborhood, timer)
-                    }) {
+                    match ctx.loading_screen(
+                        "automatically filter a neighbourhood",
+                        |ctx, timer| {
+                            app.session
+                                .heuristic
+                                .apply(ctx, app, &self.neighbourhood, timer)
+                        },
+                    ) {
                         Ok(()) => {
-                            self.neighborhood = Neighborhood::new(ctx, app, self.neighborhood.id);
+                            self.neighbourhood =
+                                Neighbourhood::new(ctx, app, self.neighbourhood.id);
                             self.update(ctx, app);
                             return Transition::Keep;
                         }
@@ -106,14 +110,14 @@ impl State<App> for Viewer {
                         crate::customize_boundary::CustomizeBoundary::new_state(
                             ctx,
                             app,
-                            self.neighborhood.id,
+                            self.neighbourhood.id,
                         ),
                     );
                 } else if let Some(t) = self.edit.handle_panel_action(
                     ctx,
                     app,
                     x.as_ref(),
-                    &self.neighborhood,
+                    &self.neighbourhood,
                     &self.left_panel,
                 ) {
                     return t;
@@ -125,7 +129,7 @@ impl State<App> for Viewer {
                     crate::save::PreserveState::Connectivity(
                         app.session
                             .partitioning
-                            .all_blocks_in_neighborhood(self.neighborhood.id),
+                            .all_blocks_in_neighbourhood(self.neighbourhood.id),
                     ),
                     &x,
                 )
@@ -142,7 +146,7 @@ impl State<App> for Viewer {
                 app.session.heuristic = self.left_panel.dropdown_value("heuristic");
 
                 if x != "heuristic" {
-                    let (edit, draw_top_layer) = setup_editing(ctx, app, &self.neighborhood);
+                    let (edit, draw_top_layer) = setup_editing(ctx, app, &self.neighbourhood);
                     self.edit = edit;
                     self.draw_top_layer = draw_top_layer;
                 }
@@ -151,7 +155,7 @@ impl State<App> for Viewer {
         }
 
         if self.edit.event(ctx, app) {
-            self.neighborhood = Neighborhood::new(ctx, app, self.neighborhood.id);
+            self.neighbourhood = Neighbourhood::new(ctx, app, self.neighbourhood.id);
             self.update(ctx, app);
         }
 
@@ -164,7 +168,7 @@ impl State<App> for Viewer {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         crate::draw_with_layering(g, app, |g| self.edit.world.draw(g));
-        g.redraw(&self.neighborhood.fade_irrelevant);
+        g.redraw(&self.neighbourhood.fade_irrelevant);
         self.draw_top_layer.draw(g);
 
         self.top_panel.draw(g);
@@ -174,32 +178,32 @@ impl State<App> for Viewer {
         // same might be nice. And we should seed the quadtree with the locations of filters and
         // arrows, possibly.
         if g.canvas.is_unzoomed() {
-            self.neighborhood.labels.draw(g, app);
+            self.neighbourhood.labels.draw(g, app);
         }
     }
 
     fn recreate(&mut self, ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
-        Self::new_state(ctx, app, self.neighborhood.id)
+        Self::new_state(ctx, app, self.neighbourhood.id)
     }
 }
 
 fn setup_editing(
     ctx: &mut EventCtx,
     app: &App,
-    neighborhood: &Neighborhood,
-) -> (EditNeighborhood, ToggleZoomed) {
+    neighbourhood: &Neighbourhood,
+) -> (EditNeighbourhood, ToggleZoomed) {
     let shortcuts = ctx.loading_screen("find shortcuts", |_, timer| {
-        find_shortcuts(app, neighborhood, timer)
+        find_shortcuts(app, neighbourhood, timer)
     });
 
-    let mut edit = EditNeighborhood::new(ctx, app, neighborhood, &shortcuts);
+    let mut edit = EditNeighbourhood::new(ctx, app, neighbourhood, &shortcuts);
     let map = &app.map;
 
     // The world is drawn in between areas and roads, but some things need to be drawn on top of
     // roads
     let mut draw_top_layer = ToggleZoomed::builder();
 
-    let render_cells = crate::draw_cells::RenderCells::new(map, neighborhood);
+    let render_cells = crate::draw_cells::RenderCells::new(map, neighbourhood);
     if app.session.draw_cells_as_areas {
         edit.world.draw_master_batch(ctx, render_cells.draw());
 
@@ -213,7 +217,7 @@ fn setup_editing(
 
         draw_top_layer.append(colorer.draw);
     } else {
-        for (idx, cell) in neighborhood.cells.iter().enumerate() {
+        for (idx, cell) in neighbourhood.cells.iter().enumerate() {
             let color = render_cells.colors[idx].alpha(0.9);
             for (r, interval) in &cell.roads {
                 let road = map.get_r(*r);
@@ -233,23 +237,23 @@ fn setup_editing(
     }
 
     // Draw the borders of each cell
-    for (idx, cell) in neighborhood.cells.iter().enumerate() {
+    for (idx, cell) in neighbourhood.cells.iter().enumerate() {
         let color = render_cells.colors[idx];
         for i in &cell.borders {
-            // Most borders only have one road in the interior of the neighborhood. Draw an arrow
+            // Most borders only have one road in the interior of the neighbourhood. Draw an arrow
             // for each of those. If there happen to be multiple interior roads for one border, the
             // arrows will overlap each other -- but that happens anyway with borders close
             // together at certain angles.
             for r in cell.roads.keys() {
                 let road = map.get_r(*r);
-                // Design choice: when we have a filter right at the entrance of a neighborhood, it
+                // Design choice: when we have a filter right at the entrance of a neighbourhood, it
                 // creates its own little cell allowing access to just the very beginning of the
                 // road. Let's not draw anything for that.
                 if app.session.modal_filters.roads.contains_key(r) {
                     continue;
                 }
 
-                // Find the angle pointing into the neighborhood
+                // Find the angle pointing into the neighbourhood
                 let angle_in = if road.src_i == *i {
                     road.center_pts.first_line().angle()
                 } else if road.dst_i == *i {
@@ -284,11 +288,11 @@ fn setup_editing(
     }
 
     // Draw one-way arrows
-    for r in neighborhood
+    for r in neighbourhood
         .orig_perimeter
         .interior
         .iter()
-        .chain(neighborhood.orig_perimeter.roads.iter().map(|id| &id.road))
+        .chain(neighbourhood.orig_perimeter.roads.iter().map(|id| &id.road))
     {
         let road = map.get_r(*r);
         if let Some(dir) = road.oneway_for_driving() {
@@ -321,7 +325,7 @@ fn setup_editing(
 
 fn help() -> Vec<&'static str> {
     vec![
-        "The colored cells show where it's possible to drive without leaving the neighborhood.",
+        "The colored cells show where it's possible to drive without leaving the neighbourhood.",
         "",
         "The darker red roads have more predicted shortcutting traffic.",
         "",

@@ -5,7 +5,7 @@ use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::{EventCtx, Image, Text, TextExt, Widget};
 
 use super::Obj;
-use crate::{colors, App, Neighborhood};
+use crate::{colors, App, Neighbourhood};
 
 pub fn widget(ctx: &mut EventCtx) -> Widget {
     Widget::col(vec![
@@ -19,11 +19,11 @@ pub fn widget(ctx: &mut EventCtx) -> Widget {
     ])
 }
 
-pub fn make_world(ctx: &mut EventCtx, app: &App, neighborhood: &Neighborhood) -> World<Obj> {
+pub fn make_world(ctx: &mut EventCtx, app: &App, neighbourhood: &Neighbourhood) -> World<Obj> {
     let map = &app.map;
     let mut world = World::bounded(map.get_bounds());
 
-    for r in &neighborhood.orig_perimeter.interior {
+    for r in &neighbourhood.orig_perimeter.interior {
         let road = map.get_r(*r);
         if !PathConstraints::Car.can_use_road(road, map) {
             continue;

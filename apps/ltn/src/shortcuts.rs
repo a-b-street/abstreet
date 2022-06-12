@@ -6,7 +6,7 @@ use map_model::{
     Pathfinder, Position, RoadID,
 };
 
-use crate::{App, Cell, Neighborhood};
+use crate::{App, Cell, Neighbourhood};
 
 pub struct Shortcuts {
     pub paths: Vec<Path>,
@@ -15,19 +15,19 @@ pub struct Shortcuts {
 }
 
 impl Shortcuts {
-    pub fn quiet_and_total_streets(&self, neighborhood: &Neighborhood) -> (usize, usize) {
-        let quiet_streets = neighborhood
+    pub fn quiet_and_total_streets(&self, neighbourhood: &Neighbourhood) -> (usize, usize) {
+        let quiet_streets = neighbourhood
             .orig_perimeter
             .interior
             .iter()
             .filter(|r| self.count_per_road.get(**r) == 0)
             .count();
-        let total_streets = neighborhood.orig_perimeter.interior.len();
+        let total_streets = neighbourhood.orig_perimeter.interior.len();
         (quiet_streets, total_streets)
     }
 }
 
-pub fn find_shortcuts(app: &App, neighborhood: &Neighborhood, timer: &mut Timer) -> Shortcuts {
+pub fn find_shortcuts(app: &App, neighbourhood: &Neighbourhood, timer: &mut Timer) -> Shortcuts {
     let map = &app.map;
     let modal_filters = &app.session.modal_filters;
     // The overall approach: look for all possible paths from an entrance to an exit, only if they
@@ -39,9 +39,9 @@ pub fn find_shortcuts(app: &App, neighborhood: &Neighborhood, timer: &mut Timer)
     // to pairs of entrances/exits in the _same_ cell.
     let mut requests = Vec::new();
 
-    for cell in &neighborhood.cells {
-        let entrances = find_entrances(map, neighborhood, cell);
-        let exits = find_exits(map, neighborhood, cell);
+    for cell in &neighbourhood.cells {
+        let entrances = find_entrances(map, neighbourhood, cell);
+        let exits = find_exits(map, neighbourhood, cell);
 
         for entrance in &entrances {
             for exit in &exits {
@@ -58,12 +58,12 @@ pub fn find_shortcuts(app: &App, neighborhood: &Neighborhood, timer: &mut Timer)
 
     let mut params = map.routing_params().clone();
     modal_filters.update_routing_params(&mut params);
-    // Don't allow leaving the neighborhood and using perimeter roads at all. Even if the optimal
+    // Don't allow leaving the neighbourhood and using perimeter roads at all. Even if the optimal
     // path is to leave and re-enter, don't do that. The point of this view is to show possible
     // detours people might try to take in response to one filter. Note the original "demand model"
-    // input is bogus anyway; it's all possible entrances and exits to the neighborhood, without
+    // input is bogus anyway; it's all possible entrances and exits to the neighbourhood, without
     // regards for the larger path somebody actually wants to take.
-    params.avoid_roads.extend(neighborhood.perimeter.clone());
+    params.avoid_roads.extend(neighbourhood.perimeter.clone());
 
     let pathfinder = Pathfinder::new_dijkstra(map, params, vec![PathConstraints::Car], timer);
     let paths: Vec<Path> = timer
@@ -93,12 +93,12 @@ pub fn find_shortcuts(app: &App, neighborhood: &Neighborhood, timer: &mut Timer)
         for step in path.get_steps() {
             match step {
                 PathStep::Lane(l) => {
-                    if neighborhood.orig_perimeter.interior.contains(&l.road) {
+                    if neighbourhood.orig_perimeter.interior.contains(&l.road) {
                         count_per_road.inc(l.road);
                     }
                 }
                 PathStep::Turn(t) => {
-                    if neighborhood.interior_intersections.contains(&t.parent) {
+                    if neighbourhood.interior_intersections.contains(&t.parent) {
                         count_per_intersection.inc(t.parent);
                     }
                 }
@@ -122,10 +122,10 @@ struct EntryExit {
     major_road_name: String,
 }
 
-fn find_entrances(map: &Map, neighborhood: &Neighborhood, cell: &Cell) -> Vec<EntryExit> {
+fn find_entrances(map: &Map, neighbourhood: &Neighbourhood, cell: &Cell) -> Vec<EntryExit> {
     let mut entrances = Vec::new();
     for i in &cell.borders {
-        if let Some(major_road_name) = find_major_road_name(map, neighborhood, *i) {
+        if let Some(major_road_name) = find_major_road_name(map, neighbourhood, *i) {
             let mut seen: HashSet<DirectedRoadID> = HashSet::new();
             for l in map.get_i(*i).get_outgoing_lanes(map, PathConstraints::Car) {
                 let dr = map.get_l(l).get_directed_parent();
@@ -142,10 +142,10 @@ fn find_entrances(map: &Map, neighborhood: &Neighborhood, cell: &Cell) -> Vec<En
     entrances
 }
 
-fn find_exits(map: &Map, neighborhood: &Neighborhood, cell: &Cell) -> Vec<EntryExit> {
+fn find_exits(map: &Map, neighbourhood: &Neighbourhood, cell: &Cell) -> Vec<EntryExit> {
     let mut exits = Vec::new();
     for i in &cell.borders {
-        if let Some(major_road_name) = find_major_road_name(map, neighborhood, *i) {
+        if let Some(major_road_name) = find_major_road_name(map, neighbourhood, *i) {
             let mut seen: HashSet<DirectedRoadID> = HashSet::new();
             for l in map.get_i(*i).get_incoming_lanes(map, PathConstraints::Car) {
                 let dr = map.get_l(l).get_directed_parent();
@@ -164,12 +164,12 @@ fn find_exits(map: &Map, neighborhood: &Neighborhood, cell: &Cell) -> Vec<EntryE
 
 fn find_major_road_name(
     map: &Map,
-    neighborhood: &Neighborhood,
+    neighbourhood: &Neighbourhood,
     i: IntersectionID,
 ) -> Option<String> {
     let mut names = Vec::new();
     for r in &map.get_i(i).roads {
-        if neighborhood.perimeter.contains(r) {
+        if neighbourhood.perimeter.contains(r) {
             names.push(map.get_r(*r).get_name(None));
         }
     }

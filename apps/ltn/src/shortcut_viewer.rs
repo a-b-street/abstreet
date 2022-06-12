@@ -3,9 +3,9 @@ use map_model::{PathRequest, NORMAL_LANE_THICKNESS};
 use widgetry::mapspace::ToggleZoomed;
 use widgetry::{EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text, TextExt, Widget};
 
-use crate::edit::{EditNeighborhood, Tab};
+use crate::edit::{EditNeighbourhood, Tab};
 use crate::shortcuts::{find_shortcuts, Shortcuts};
-use crate::{colors, App, Neighborhood, NeighborhoodID, Transition};
+use crate::{colors, App, Neighbourhood, NeighbourhoodID, Transition};
 
 pub struct BrowseShortcuts {
     top_panel: Panel,
@@ -14,23 +14,23 @@ pub struct BrowseShortcuts {
     current_idx: usize,
 
     draw_path: ToggleZoomed,
-    edit: EditNeighborhood,
-    neighborhood: Neighborhood,
+    edit: EditNeighbourhood,
+    neighbourhood: Neighbourhood,
 }
 
 impl BrowseShortcuts {
     pub fn new_state(
         ctx: &mut EventCtx,
         app: &App,
-        id: NeighborhoodID,
+        id: NeighbourhoodID,
         start_with_request: Option<PathRequest>,
     ) -> Box<dyn State<App>> {
-        let neighborhood = Neighborhood::new(ctx, app, id);
+        let neighbourhood = Neighbourhood::new(ctx, app, id);
 
         let shortcuts = ctx.loading_screen("find shortcuts", |_, timer| {
-            find_shortcuts(app, &neighborhood, timer)
+            find_shortcuts(app, &neighbourhood, timer)
         });
-        let edit = EditNeighborhood::new(ctx, app, &neighborhood, &shortcuts);
+        let edit = EditNeighbourhood::new(ctx, app, &neighbourhood, &shortcuts);
 
         let mut state = BrowseShortcuts {
             top_panel: crate::components::TopPanel::panel(ctx, app),
@@ -38,7 +38,7 @@ impl BrowseShortcuts {
             shortcuts,
             current_idx: 0,
             draw_path: ToggleZoomed::empty(ctx),
-            neighborhood,
+            neighbourhood,
             edit,
         };
 
@@ -60,7 +60,7 @@ impl BrowseShortcuts {
 
     fn recalculate(&mut self, ctx: &mut EventCtx, app: &App) {
         let (quiet_streets, total_streets) =
-            self.shortcuts.quiet_and_total_streets(&self.neighborhood);
+            self.shortcuts.quiet_and_total_streets(&self.neighbourhood);
 
         if self.shortcuts.paths.is_empty() {
             self.left_panel = self
@@ -104,7 +104,7 @@ impl BrowseShortcuts {
                             ))),
                             (quiet_streets as f64) / (total_streets as f64),
                         ),
-                        "Browse possible shortcuts through the neighborhood.".text_widget(ctx),
+                        "Browse possible shortcuts through the neighbourhood.".text_widget(ctx),
                         self.prev_next_controls(ctx),
                     ]),
                 )
@@ -182,7 +182,7 @@ impl State<App> for BrowseShortcuts {
                         ctx,
                         app,
                         x,
-                        &self.neighborhood,
+                        &self.neighbourhood,
                         &self.left_panel,
                     ) {
                         return t;
@@ -199,7 +199,7 @@ impl State<App> for BrowseShortcuts {
                             current_request,
                             app.session
                                 .partitioning
-                                .all_blocks_in_neighborhood(self.neighborhood.id),
+                                .all_blocks_in_neighbourhood(self.neighbourhood.id),
                         ),
                         x,
                     )
@@ -215,7 +215,7 @@ impl State<App> for BrowseShortcuts {
             return Transition::Replace(BrowseShortcuts::new_state(
                 ctx,
                 app,
-                self.neighborhood.id,
+                self.neighbourhood.id,
                 Some(current_request),
             ));
         }
@@ -230,10 +230,10 @@ impl State<App> for BrowseShortcuts {
         self.edit.world.draw(g);
         self.draw_path.draw(g);
 
-        g.redraw(&self.neighborhood.fade_irrelevant);
+        g.redraw(&self.neighbourhood.fade_irrelevant);
         app.session.draw_all_filters.draw(g);
         if g.canvas.is_unzoomed() {
-            self.neighborhood.labels.draw(g, app);
+            self.neighbourhood.labels.draw(g, app);
         }
     }
 
@@ -243,13 +243,13 @@ impl State<App> for BrowseShortcuts {
         } else {
             Some(self.shortcuts.paths[self.current_idx].get_req().clone())
         };
-        Self::new_state(ctx, app, self.neighborhood.id, current_request)
+        Self::new_state(ctx, app, self.neighbourhood.id, current_request)
     }
 }
 
 fn help() -> Vec<&'static str> {
     vec![
-        "This shows every possible path a driver could take through the neighborhood.",
+        "This shows every possible path a driver could take through the neighbourhood.",
         "Not all paths may be realistic -- small service roads and alleyways are possible, but unlikely.",
     ]
 }
