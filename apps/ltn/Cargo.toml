@@ -27,7 +27,7 @@ maplit = "1.0.2"
 map_gui = { path = "../../map_gui" }
 map_model = { path = "../../map_model" }
 raw_map = { path = "../../raw_map" }
-regex = "1.5.4"
+regex = "1.5.5"
 serde = "1.0.123"
 serde_json = "1.0.61"
 synthpop = { path = "../../synthpop" }

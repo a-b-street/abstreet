@@ -28,13 +28,13 @@ image = { version = "0.23.12", default-features = false, features=["png"] }
 instant = "0.1.7"
 js-sys = { version = "0.3.47", optional = true }
 log = "0.4.14"
-lru = "0.6.4"
+lru = "0.7.1"
 # Don't upgrade until a crash with opening lane info panels is fixed
 lyon = "0.16.2"
 serde = "1.0.123"
 serde_json = "1.0.61"
 stretch = "0.3.2"
-tokio = { version ="1.1.1", features=["full"], optional = true }
+tokio = { version ="1.19.2", features=["full"], optional = true }
 ttf-parser = "0.15.0"
 usvg = { version = "0.22.0", default-features=false, features=["text"] }
 wasm-bindgen = { version = "0.2.70", optional = true }
