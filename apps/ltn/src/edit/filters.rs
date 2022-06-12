@@ -58,7 +58,7 @@ pub fn make_world(
             .drawn_in_master_batch()
             .hover_outline(colors::OUTLINE, Distance::meters(5.0))
             .tooltip(Text::from(format!(
-                "{} shortcuts cross {}",
+                "{} possible shortcuts cross {}",
                 shortcuts.count_per_road.get(*r),
                 road.get_name(app.opts.language.as_ref()),
             )))
@@ -74,7 +74,7 @@ pub fn make_world(
             .drawn_in_master_batch()
             .hover_outline(colors::OUTLINE, Distance::meters(5.0))
             .tooltip(Text::from(format!(
-                "{} shortcuts cross this intersection",
+                "{} possible shortcuts cross this intersection",
                 shortcuts.count_per_intersection.get(*i)
             )))
             .clickable()
