@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/neighborhood.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>neighborhood.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/neighbourhood.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>neighbourhood.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -279,10 +279,10 @@
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">Perimeter</span>, <span class="ident">RoadID</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">App</span>, <span class="ident">ModalFilters</span>, <span class="ident">NeighborhoodID</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">App</span>, <span class="ident">ModalFilters</span>, <span class="ident">NeighbourhoodID</span>};
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Neighborhood</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">NeighborhoodID</span>,
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Neighbourhood</span> {
+    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">NeighbourhoodID</span>,
 
     <span class="comment">// These&#39;re fixed</span>
     <span class="kw">pub</span> <span class="ident">orig_perimeter</span>: <span class="ident">Perimeter</span>,
@@ -290,7 +290,7 @@
     <span class="kw">pub</span> <span class="ident">borders</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">interior_intersections</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
 
-    <span class="comment">// The cells change as a result of modal filters, which&#39;re stored for all neighborhoods in</span>
+    <span class="comment">// The cells change as a result of modal filters, which&#39;re stored for all neighbourhoods in</span>
     <span class="comment">// app.session.</span>
     <span class="kw">pub</span> <span class="ident">cells</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Cell</span><span class="op">&gt;</span>,
 
@@ -298,13 +298,13 @@
     <span class="kw">pub</span> <span class="ident">labels</span>: <span class="ident">DrawRoadLabels</span>,
 }
 
-<span class="doccomment">/// A partitioning of the interior of a neighborhood based on driving connectivity</span>
+<span class="doccomment">/// A partitioning of the interior of a neighbourhood based on driving connectivity</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Cell</span> {
     <span class="doccomment">/// Most roads are fully in one cell. Roads with modal filters on them are sometimes split</span>
     <span class="doccomment">/// between two cells, and the DistanceInterval indicates the split. The distances are over the</span>
     <span class="doccomment">/// road&#39;s center line length.</span>
     <span class="kw">pub</span> <span class="ident">roads</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">RoadID</span>, <span class="ident">DistanceInterval</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Intersections where this cell touches the boundary of the neighborhood.</span>
+    <span class="doccomment">/// Intersections where this cell touches the boundary of the neighbourhood.</span>
     <span class="kw">pub</span> <span class="ident">borders</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
 }
 
@@ -321,17 +321,17 @@
     <span class="kw">pub</span> <span class="ident">end</span>: <span class="ident">Distance</span>,
 }
 
-<span class="kw">impl</span> <span class="ident">Neighborhood</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">NeighborhoodID</span>) -&gt; <span class="ident">Neighborhood</span> {
+<span class="kw">impl</span> <span class="ident">Neighbourhood</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">NeighbourhoodID</span>) -&gt; <span class="ident">Neighbourhood</span> {
         <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>;
         <span class="kw">let</span> <span class="ident">orig_perimeter</span> <span class="op">=</span> <span class="ident">app</span>
             .<span class="ident">session</span>
             .<span class="ident">partitioning</span>
-            .<span class="ident">neighborhood_block</span>(<span class="ident">id</span>)
+            .<span class="ident">neighbourhood_block</span>(<span class="ident">id</span>)
             .<span class="ident">perimeter</span>
             .<span class="ident">clone</span>();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">Neighborhood</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">Neighbourhood</span> {
             <span class="ident">id</span>,
             <span class="ident">orig_perimeter</span>,
             <span class="ident">perimeter</span>: <span class="ident">BTreeSet::new</span>(),
@@ -356,7 +356,7 @@
             <span class="macro">vec!</span>[<span class="ident">app</span>
                 .<span class="ident">session</span>
                 .<span class="ident">partitioning</span>
-                .<span class="ident">neighborhood_boundary_polygon</span>(<span class="ident">app</span>, <span class="ident">id</span>)
+                .<span class="ident">neighbourhood_boundary_polygon</span>(<span class="ident">app</span>, <span class="ident">id</span>)
                 .<span class="ident">into_ring</span>()],
         );
         <span class="ident">n</span>.<span class="ident">fade_irrelevant</span> <span class="op">=</span> <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">fade_map_dark</span>, <span class="ident">fade_area</span>)]).<span class="ident">upload</span>(<span class="ident">ctx</span>);
@@ -450,7 +450,7 @@
 <span class="kw">fn</span> <span class="ident">floodfill</span>(
     <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
     <span class="ident">start</span>: <span class="ident">RoadID</span>,
-    <span class="ident">neighborhood_borders</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
+    <span class="ident">neighbourhood_borders</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
     <span class="ident">modal_filters</span>: <span class="kw-2">&amp;</span><span class="ident">ModalFilters</span>,
 ) -&gt; <span class="ident">Cell</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">visited_roads</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">RoadID</span>, <span class="ident">DistanceInterval</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
@@ -476,10 +476,10 @@
         );
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> [<span class="ident">current</span>.<span class="ident">src_i</span>, <span class="ident">current</span>.<span class="ident">dst_i</span>] {
             <span class="comment">// It&#39;s possible for one border intersection to have two roads in the interior of the</span>
-            <span class="comment">// neighborhood. Don&#39;t consider a turn between those roads through this intersection as</span>
+            <span class="comment">// neighbourhood. Don&#39;t consider a turn between those roads through this intersection as</span>
             <span class="comment">// counting as connectivity -- we&#39;re right at the boundary road, so it&#39;s like leaving</span>
-            <span class="comment">// and re-entering the neighborhood.</span>
-            <span class="kw">if</span> <span class="ident">neighborhood_borders</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>) {
+            <span class="comment">// and re-entering the neighbourhood.</span>
+            <span class="kw">if</span> <span class="ident">neighbourhood_borders</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>) {
                 <span class="ident">cell_borders</span>.<span class="ident">insert</span>(<span class="ident">i</span>);
                 <span class="kw">continue</span>;
             }

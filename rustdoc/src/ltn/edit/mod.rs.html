@@ -232,7 +232,7 @@
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">EventCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">PanelBuilder</span>, <span class="ident">Widget</span>, <span class="ident">DEFAULT_CORNER_RADIUS</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::shortcuts::Shortcuts</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">after_edit</span>, <span class="ident">App</span>, <span class="ident">BrowseNeighborhoods</span>, <span class="ident">Neighborhood</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">after_edit</span>, <span class="ident">App</span>, <span class="ident">BrowseNeighbourhoods</span>, <span class="ident">Neighbourhood</span>, <span class="ident">Transition</span>};
 
 <span class="comment">// TODO This is only used for styling now</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>)]</span>
@@ -286,7 +286,7 @@
     }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">EditNeighborhood</span> {
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">EditNeighbourhood</span> {
     <span class="comment">// Only pub for drawing</span>
     <span class="kw">pub</span> <span class="ident">world</span>: <span class="ident">World</span><span class="op">&lt;</span><span class="ident">Obj</span><span class="op">&gt;</span>,
 }
@@ -298,7 +298,7 @@
 }
 <span class="kw">impl</span> <span class="ident">ObjectID</span> <span class="kw">for</span> <span class="ident">Obj</span> {}
 
-<span class="kw">impl</span> <span class="ident">EditNeighborhood</span> {
+<span class="kw">impl</span> <span class="ident">EditNeighbourhood</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">temporary</span>() -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">world</span>: <span class="ident">World::unbounded</span>(),
@@ -308,14 +308,14 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
         <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
         <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-        <span class="ident">neighborhood</span>: <span class="kw-2">&amp;</span><span class="ident">Neighborhood</span>,
+        <span class="ident">neighbourhood</span>: <span class="kw-2">&amp;</span><span class="ident">Neighbourhood</span>,
         <span class="ident">shortcuts</span>: <span class="kw-2">&amp;</span><span class="ident">Shortcuts</span>,
     ) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">world</span>: <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_filters</span> {
-                <span class="ident">filters::make_world</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">neighborhood</span>, <span class="ident">shortcuts</span>)
+                <span class="ident">filters::make_world</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">neighbourhood</span>, <span class="ident">shortcuts</span>)
             } <span class="kw">else</span> {
-                <span class="ident">one_ways::make_world</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">neighborhood</span>)
+                <span class="ident">one_ways::make_world</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">neighbourhood</span>)
             },
         }
     }
@@ -330,8 +330,8 @@
     ) -&gt; <span class="ident">PanelBuilder</span> {
         <span class="kw">let</span> <span class="ident">contents</span> <span class="op">=</span> <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
             <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">alt_proposals</span>.<span class="ident">to_widget</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-            <span class="ident">BrowseNeighborhoods::button</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-            <span class="ident">Line</span>(<span class="string">&quot;Editing neighborhood&quot;</span>)
+            <span class="ident">BrowseNeighbourhoods::button</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+            <span class="ident">Line</span>(<span class="string">&quot;Editing neighbourhood&quot;</span>)
                 .<span class="ident">small_heading</span>()
                 .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">edit_mode</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_filters</span>),
@@ -348,7 +348,7 @@
         <span class="ident"><span class="kw">crate</span>::components::LeftPanel::builder</span>(<span class="ident">ctx</span>, <span class="ident">top_panel</span>, <span class="ident">contents</span>)
     }
 
-    <span class="doccomment">/// If true, the neighborhood has changed and the caller should recalculate stuff, including</span>
+    <span class="doccomment">/// If true, the neighbourhood has changed and the caller should recalculate stuff, including</span>
     <span class="doccomment">/// the panel</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">let</span> <span class="ident">outcome</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">event</span>(<span class="ident">ctx</span>);
@@ -364,14 +364,14 @@
         <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
         <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
         <span class="ident">action</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">neighborhood</span>: <span class="kw-2">&amp;</span><span class="ident">Neighborhood</span>,
+        <span class="ident">neighbourhood</span>: <span class="kw-2">&amp;</span><span class="ident">Neighbourhood</span>,
         <span class="ident">panel</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>,
     ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">neighborhood</span>.<span class="ident">id</span>;
+        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">neighbourhood</span>.<span class="ident">id</span>;
         <span class="kw">match</span> <span class="ident">action</span> {
-            <span class="string">&quot;Browse neighborhoods&quot;</span> =&gt; {
+            <span class="string">&quot;Browse neighbourhoods&quot;</span> =&gt; {
                 <span class="comment">// Recalculate the state to redraw any changed filters</span>
-                <span class="prelude-val">Some</span>(<span class="ident">Transition::Replace</span>(<span class="ident">BrowseNeighborhoods::new_state</span>(
+                <span class="prelude-val">Some</span>(<span class="ident">Transition::Replace</span>(<span class="ident">BrowseNeighbourhoods::new_state</span>(
                     <span class="ident">ctx</span>, <span class="ident">app</span>,
                 )))
             }
@@ -388,7 +388,7 @@
             <span class="string">&quot;Create filters along a shape&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(
                 <span class="ident"><span class="kw">crate</span>::components::FreehandFilters::new_state</span>(
                     <span class="ident">ctx</span>,
-                    <span class="ident">neighborhood</span>,
+                    <span class="ident">neighbourhood</span>,
                     <span class="ident">panel</span>.<span class="ident">center_of</span>(<span class="string">&quot;Create filters along a shape&quot;</span>),
                 ),
             )),

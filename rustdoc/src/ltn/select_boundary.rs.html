@@ -424,12 +424,12 @@
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::browse::draw_boundary_roads</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::partition::BlockID</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">colors</span>, <span class="ident">App</span>, <span class="ident">NeighborhoodID</span>, <span class="ident">Partitioning</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">colors</span>, <span class="ident">App</span>, <span class="ident">NeighbourhoodID</span>, <span class="ident">Partitioning</span>, <span class="ident">Transition</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SelectBoundary</span> {
     <span class="ident">top_panel</span>: <span class="ident">Panel</span>,
     <span class="ident">left_panel</span>: <span class="ident">Panel</span>,
-    <span class="ident">id</span>: <span class="ident">NeighborhoodID</span>,
+    <span class="ident">id</span>: <span class="ident">NeighbourhoodID</span>,
     <span class="ident">world</span>: <span class="ident">World</span><span class="op">&lt;</span><span class="ident">BlockID</span><span class="op">&gt;</span>,
     <span class="ident">draw_boundary_roads</span>: <span class="ident">ToggleZoomed</span>,
     <span class="ident">frontier</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">BlockID</span><span class="op">&gt;</span>,
@@ -446,7 +446,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">SelectBoundary</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">NeighborhoodID</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">NeighbourhoodID</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">top_panel</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::components::TopPanel::panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
         <span class="kw">let</span> <span class="ident">left_panel</span> <span class="op">=</span> <span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">top_panel</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">SelectBoundary</span> {
@@ -465,7 +465,7 @@
             <span class="ident">lasso</span>: <span class="prelude-val">None</span>,
         };
 
-        <span class="kw">let</span> <span class="ident">initial_boundary</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">neighborhood_block</span>(<span class="ident">id</span>);
+        <span class="kw">let</span> <span class="ident">initial_boundary</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">neighbourhood_block</span>(<span class="ident">id</span>);
         <span class="ident">state</span>.<span class="ident">frontier</span> <span class="op">=</span> <span class="ident">app</span>
             .<span class="ident">session</span>
             .<span class="ident">partitioning</span>
@@ -515,7 +515,7 @@
         }
     }
 
-    <span class="comment">// If the block is part of the current neighborhood, remove it. Otherwise add it. It&#39;s assumed</span>
+    <span class="comment">// If the block is part of the current neighbourhood, remove it. Otherwise add it. It&#39;s assumed</span>
     <span class="comment">// this block is in the previous frontier</span>
     <span class="kw">fn</span> <span class="ident">toggle_block</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">BlockID</span>) -&gt; <span class="ident">Transition</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">last_failed_change</span> <span class="op">==</span> <span class="prelude-val">Some</span>((<span class="ident">id</span>, <span class="self">self</span>.<span class="ident">currently_have_block</span>(<span class="ident">app</span>, <span class="ident">id</span>))) {
@@ -524,16 +524,16 @@
         <span class="self">self</span>.<span class="ident">last_failed_change</span> <span class="op">=</span> <span class="prelude-val">None</span>;
 
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">try_toggle_block</span>(<span class="ident">app</span>, <span class="ident">id</span>) {
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">new_neighborhood</span>)) =&gt; {
+            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">new_neighbourhood</span>)) =&gt; {
                 <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">recalculate_coloring</span>();
-                <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">SelectBoundary::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">new_neighborhood</span>));
+                <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">SelectBoundary::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">new_neighbourhood</span>));
             }
             <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) =&gt; {
                 <span class="kw">let</span> <span class="ident">old_frontier</span> <span class="op">=</span> <span class="ident">std::mem::take</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">frontier</span>);
                 <span class="self">self</span>.<span class="ident">frontier</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">calculate_frontier</span>(
                     <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">session</span>
                         .<span class="ident">partitioning</span>
-                        .<span class="ident">neighborhood_block</span>(<span class="self">self</span>.<span class="ident">id</span>)
+                        .<span class="ident">neighbourhood_block</span>(<span class="self">self</span>.<span class="ident">id</span>)
                         .<span class="ident">perimeter</span>,
                 );
 
@@ -546,7 +546,7 @@
                 <span class="ident">changed_blocks</span>.<span class="ident">push</span>(<span class="ident">id</span>);
 
                 <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">recalculate_coloring</span>() {
-                    <span class="comment">// The coloring of neighborhoods changed; this could possibly have impact far</span>
+                    <span class="comment">// The coloring of neighbourhoods changed; this could possibly have impact far</span>
                     <span class="comment">// away. Just redraw all blocks.</span>
                     <span class="ident">changed_blocks</span>.<span class="ident">clear</span>();
                     <span class="ident">changed_blocks</span>.<span class="ident">extend</span>(<span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">all_block_ids</span>());
@@ -572,16 +572,16 @@
         <span class="ident">Transition::Keep</span>
     }
 
-    <span class="comment">// Ok(Some(x)) means the current neighborhood was destroyed, and the caller should switch to</span>
+    <span class="comment">// Ok(Some(x)) means the current neighbourhood was destroyed, and the caller should switch to</span>
     <span class="comment">// focusing on a different neigbhorhood</span>
-    <span class="kw">fn</span> <span class="ident">try_toggle_block</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">BlockID</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NeighborhoodID</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">try_toggle_block</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">BlockID</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NeighbourhoodID</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">currently_have_block</span>(<span class="ident">app</span>, <span class="ident">id</span>) {
             <span class="ident">app</span>.<span class="ident">session</span>
                 .<span class="ident">partitioning</span>
-                .<span class="ident">remove_block_from_neighborhood</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>, <span class="ident">id</span>, <span class="self">self</span>.<span class="ident">id</span>)
+                .<span class="ident">remove_block_from_neighbourhood</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>, <span class="ident">id</span>, <span class="self">self</span>.<span class="ident">id</span>)
         } <span class="kw">else</span> {
-            <span class="kw">let</span> <span class="ident">old_owner</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">block_to_neighborhood</span>(<span class="ident">id</span>);
-            <span class="comment">// Ignore the return value if the old neighborhood is deleted</span>
+            <span class="kw">let</span> <span class="ident">old_owner</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">block_to_neighbourhood</span>(<span class="ident">id</span>);
+            <span class="comment">// Ignore the return value if the old neighbourhood is deleted</span>
             <span class="ident">app</span>.<span class="ident">session</span>
                 .<span class="ident">partitioning</span>
                 .<span class="ident">transfer_block</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>, <span class="ident">id</span>, <span class="ident">old_owner</span>, <span class="self">self</span>.<span class="ident">id</span>)<span class="question-mark">?</span>;
@@ -590,17 +590,17 @@
     }
 
     <span class="kw">fn</span> <span class="ident">currently_have_block</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">BlockID</span>) -&gt; <span class="ident">bool</span> {
-        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">block_to_neighborhood</span>(<span class="ident">id</span>) <span class="op">==</span> <span class="self">self</span>.<span class="ident">id</span>
+        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">block_to_neighbourhood</span>(<span class="ident">id</span>) <span class="op">==</span> <span class="self">self</span>.<span class="ident">id</span>
     }
 
     <span class="kw">fn</span> <span class="ident">add_blocks_freehand</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>, <span class="ident">lasso_polygon</span>: <span class="ident">Polygon</span>) {
-        <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;expand current neighborhood boundary&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
+        <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;expand current neighbourhood boundary&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
             <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;find matching blocks&quot;</span>);
             <span class="comment">// Find all of the blocks within the polygon</span>
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">add_blocks</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
             <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">block</span>) <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">all_single_blocks</span>() {
                 <span class="kw">if</span> <span class="ident">lasso_polygon</span>.<span class="ident">contains_pt</span>(<span class="ident">block</span>.<span class="ident">polygon</span>.<span class="ident">center</span>()) {
-                    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">block_to_neighborhood</span>(<span class="ident">id</span>) <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">id</span> {
+                    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">block_to_neighbourhood</span>(<span class="ident">id</span>) <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">id</span> {
                         <span class="ident">add_blocks</span>.<span class="ident">push</span>(<span class="ident">id</span>);
                     }
                 }
@@ -619,7 +619,7 @@
                 <span class="kw">for</span> <span class="ident">block_id</span> <span class="kw">in</span> <span class="ident">add_blocks</span>.<span class="ident">drain</span>(..) {
                     <span class="ident">timer</span>.<span class="ident">next</span>();
                     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">frontier</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">block_id</span>) {
-                        <span class="kw">let</span> <span class="ident">old_owner</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">block_to_neighborhood</span>(<span class="ident">block_id</span>);
+                        <span class="kw">let</span> <span class="ident">old_owner</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">block_to_neighbourhood</span>(<span class="ident">block_id</span>);
                         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="ident">app</span>
                             .<span class="ident">session</span>
                             .<span class="ident">partitioning</span>
@@ -638,7 +638,7 @@
                     <span class="self">self</span>.<span class="ident">frontier</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">calculate_frontier</span>(
                         <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">session</span>
                             .<span class="ident">partitioning</span>
-                            .<span class="ident">neighborhood_block</span>(<span class="self">self</span>.<span class="ident">id</span>)
+                            .<span class="ident">neighbourhood_block</span>(<span class="self">self</span>.<span class="ident">id</span>)
                             .<span class="ident">perimeter</span>,
                     );
                 } <span class="kw">else</span> {
@@ -675,8 +675,8 @@
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;Cancel&quot;</span> =&gt; {
-                    <span class="comment">// TODO If we destroyed the current neighborhood, then we cancel, we&#39;ll pop</span>
-                    <span class="comment">// back to a different neighborhood than we started with. And also the original</span>
+                    <span class="comment">// TODO If we destroyed the current neighbourhood, then we cancel, we&#39;ll pop</span>
+                    <span class="comment">// back to a different neighbourhood than we started with. And also the original</span>
                     <span class="comment">// partitioning will have been lost!!!</span>
                     <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">orig_partitioning</span>.<span class="ident">clone</span>();
                     <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident"><span class="kw">crate</span>::connectivity::Viewer::new_state</span>(
@@ -734,12 +734,12 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">make_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">NeighborhoodID</span>, <span class="ident">top_panel</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) -&gt; <span class="ident">Panel</span> {
+<span class="kw">fn</span> <span class="ident">make_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">NeighbourhoodID</span>, <span class="ident">top_panel</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) -&gt; <span class="ident">Panel</span> {
     <span class="ident"><span class="kw">crate</span>::components::LeftPanel::builder</span>(
         <span class="ident">ctx</span>,
         <span class="ident">top_panel</span>,
         <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="ident">Line</span>(<span class="string">&quot;Adjusting neighborhood boundary&quot;</span>)
+            <span class="ident">Line</span>(<span class="string">&quot;Adjusting neighbourhood boundary&quot;</span>)
                 .<span class="ident">small_heading</span>()
                 .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[
@@ -760,8 +760,8 @@
             ])
             .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="macro">format!</span>(
-                <span class="string">&quot;Neighborhood area: {}&quot;</span>,
-                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">neighborhood_area_km2</span>(<span class="ident">id</span>)
+                <span class="string">&quot;Neighbourhood area: {}&quot;</span>,
+                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">neighbourhood_area_km2</span>(<span class="ident">id</span>)
             )
             .<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
@@ -792,12 +792,12 @@
         <span class="ident">ctx</span>,
         <span class="ident">top_panel</span>,
         <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="string">&quot;Draw a custom boundary for a neighborhood&quot;</span>
+            <span class="string">&quot;Draw a custom boundary for a neighbourhood&quot;</span>
                 .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
                 .<span class="ident">centered_vert</span>(),
             <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[
                 <span class="ident">Line</span>(<span class="string">&quot;Click and drag&quot;</span>).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>),
-                <span class="ident">Line</span>(<span class="string">&quot; to select the blocks to add to this neighborhood&quot;</span>),
+                <span class="ident">Line</span>(<span class="string">&quot; to select the blocks to add to this neighbourhood&quot;</span>),
             ])
             .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         ]),
@@ -807,7 +807,7 @@
 
 <span class="kw">fn</span> <span class="ident">help</span>() -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> {
     <span class="macro">vec!</span>[
-        <span class="string">&quot;You can grow or shrink the blue neighborhood boundary here.&quot;</span>,
+        <span class="string">&quot;You can grow or shrink the blue neighbourhood boundary here.&quot;</span>,
         <span class="string">&quot;Due to various known issues, it&#39;s not always possible to draw the boundary you want.&quot;</span>,
         <span class="string">&quot;&quot;</span>,
         <span class="string">&quot;The aqua blocks show where you can currently expand the boundary.&quot;</span>,

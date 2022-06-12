@@ -372,7 +372,7 @@
     <span class="ident">RoundedF64</span>, <span class="ident">Spinner</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>,
 };
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">colors</span>, <span class="ident">App</span>, <span class="ident">BrowseNeighborhoods</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">colors</span>, <span class="ident">App</span>, <span class="ident">BrowseNeighbourhoods</span>, <span class="ident">Transition</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RoutePlanner</span> {
     <span class="ident">top_panel</span>: <span class="ident">Panel</span>,
@@ -438,7 +438,7 @@
 
         <span class="kw">let</span> <span class="ident">contents</span> <span class="op">=</span> <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
             <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">alt_proposals</span>.<span class="ident">to_widget</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-            <span class="ident">BrowseNeighborhoods::button</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+            <span class="ident">BrowseNeighbourhoods::button</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_back</span>(<span class="string">&quot;Analyze neighbourhood&quot;</span>)
                 .<span class="ident">hotkey</span>(<span class="ident">Key::Escape</span>)
@@ -481,9 +481,9 @@
         <span class="ident">panel</span>.<span class="ident">restore</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">left_panel</span>);
         <span class="self">self</span>.<span class="ident">left_panel</span> <span class="op">=</span> <span class="ident">panel</span>;
 
-        <span class="comment">// Fade all neighborhood interiors, so it&#39;s very clear when a route cuts through</span>
+        <span class="comment">// Fade all neighbourhood interiors, so it&#39;s very clear when a route cuts through</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="kw">for</span> <span class="ident">info</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">all_neighborhoods</span>().<span class="ident">values</span>() {
+        <span class="kw">for</span> <span class="ident">info</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">all_neighbourhoods</span>().<span class="ident">values</span>() {
             <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">fade_map_dark</span>, <span class="ident">info</span>.<span class="ident">block</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>());
         }
 
@@ -627,8 +627,8 @@
 
         <span class="kw">let</span> <span class="ident">panel_outcome</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>);
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) <span class="op">=</span> <span class="ident">panel_outcome</span> {
-            <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;Browse neighborhoods&quot;</span> {
-                <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">BrowseNeighborhoods::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+            <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;Browse neighbourhoods&quot;</span> {
+                <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">BrowseNeighbourhoods::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
             }
             <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;Analyze neighbourhood&quot;</span> {
                 <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
@@ -688,7 +688,7 @@
     <span class="macro">vec!</span>[
         <span class="string">&quot;You can test how different driving routes are affected by proposed LTNs.&quot;</span>,
         <span class="string">&quot;&quot;</span>,
-        <span class="string">&quot;The fastest route may not cut through neighborhoods normally,&quot;</span>,
+        <span class="string">&quot;The fastest route may not cut through neighbourhoods normally,&quot;</span>,
         <span class="string">&quot;but you can adjust the slow-down factor to mimic rush hour conditions&quot;</span>,
     ]
 }

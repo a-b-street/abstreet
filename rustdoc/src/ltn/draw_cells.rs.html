@@ -306,7 +306,7 @@
 <span class="kw">use</span> <span class="ident">map_model::Map</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">GeomBatch</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">colors</span>, <span class="ident">Neighborhood</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">colors</span>, <span class="ident">Neighbourhood</span>};
 
 <span class="kw">const</span> <span class="ident">RESOLUTION_M</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">10.0</span>;
 
@@ -317,22 +317,22 @@
 }
 
 <span class="kw">struct</span> <span class="ident">RenderCellsBuilder</span> {
-    <span class="doccomment">/// The grid only covers the boundary polygon of the neighborhood. The values are cell indices,</span>
-    <span class="doccomment">/// and `Some(num_cells)` marks the boundary of the neighborhood.</span>
+    <span class="doccomment">/// The grid only covers the boundary polygon of the neighbourhood. The values are cell indices,</span>
+    <span class="doccomment">/// and `Some(num_cells)` marks the boundary of the neighbourhood.</span>
     <span class="ident">grid</span>: <span class="ident">Grid</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="ident">colors</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Color</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Bounds of the neighborhood boundary polygon</span>
+    <span class="doccomment">/// Bounds of the neighbourhood boundary polygon</span>
     <span class="ident">bounds</span>: <span class="ident">Bounds</span>,
 
     <span class="ident">boundary_polygon</span>: <span class="ident">Polygon</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">RenderCells</span> {
-    <span class="doccomment">/// Partition a neighborhood&#39;s boundary polygon based on the cells. This discretizes space into</span>
+    <span class="doccomment">/// Partition a neighbourhood&#39;s boundary polygon based on the cells. This discretizes space into</span>
     <span class="doccomment">/// a grid, and then extracts a polygon from the raster. The results don&#39;t look perfect, but</span>
     <span class="doccomment">/// it&#39;s fast.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">neighborhood</span>: <span class="kw-2">&amp;</span><span class="ident">Neighborhood</span>) -&gt; <span class="ident">RenderCells</span> {
-        <span class="ident">RenderCellsBuilder::new</span>(<span class="ident">map</span>, <span class="ident">neighborhood</span>).<span class="ident">finalize</span>()
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">neighbourhood</span>: <span class="kw-2">&amp;</span><span class="ident">Neighbourhood</span>) -&gt; <span class="ident">RenderCells</span> {
+        <span class="ident">RenderCellsBuilder::new</span>(<span class="ident">map</span>, <span class="ident">neighbourhood</span>).<span class="ident">finalize</span>()
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">GeomBatch</span> {
@@ -356,8 +356,8 @@
 }
 
 <span class="kw">impl</span> <span class="ident">RenderCellsBuilder</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">neighborhood</span>: <span class="kw-2">&amp;</span><span class="ident">Neighborhood</span>) -&gt; <span class="ident">RenderCellsBuilder</span> {
-        <span class="kw">let</span> <span class="ident">boundary_polygon</span> <span class="op">=</span> <span class="ident">neighborhood</span>
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">neighbourhood</span>: <span class="kw-2">&amp;</span><span class="ident">Neighbourhood</span>) -&gt; <span class="ident">RenderCellsBuilder</span> {
+        <span class="kw">let</span> <span class="ident">boundary_polygon</span> <span class="op">=</span> <span class="ident">neighbourhood</span>
             .<span class="ident">orig_perimeter</span>
             .<span class="ident">clone</span>()
             .<span class="ident">to_block</span>(<span class="ident">map</span>)
@@ -374,7 +374,7 @@
 
         <span class="comment">// Initially fill out the grid based on the roads in each cell</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">warn_leak</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="kw">for</span> (<span class="ident">cell_idx</span>, <span class="ident">cell</span>) <span class="kw">in</span> <span class="ident">neighborhood</span>.<span class="ident">cells</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
+        <span class="kw">for</span> (<span class="ident">cell_idx</span>, <span class="ident">cell</span>) <span class="kw">in</span> <span class="ident">neighbourhood</span>.<span class="ident">cells</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
             <span class="kw">for</span> (<span class="ident">r</span>, <span class="ident">interval</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">cell</span>.<span class="ident">roads</span> {
                 <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
                 <span class="comment">// Some roads with a filter are _very_ short, and this fails. The connecting roads</span>
@@ -392,18 +392,18 @@
                             ((<span class="ident">pt</span>.<span class="ident">x</span>() <span class="op">-</span> <span class="ident">bounds</span>.<span class="ident">min_x</span>) <span class="op">/</span> <span class="ident">RESOLUTION_M</span>) <span class="kw">as</span> <span class="ident">usize</span>,
                             ((<span class="ident">pt</span>.<span class="ident">y</span>() <span class="op">-</span> <span class="ident">bounds</span>.<span class="ident">min_y</span>) <span class="op">/</span> <span class="ident">RESOLUTION_M</span>) <span class="kw">as</span> <span class="ident">usize</span>,
                         );
-                        <span class="comment">// Due to tunnels/bridges, sometimes a road belongs to a neighborhood, but</span>
-                        <span class="comment">// leaks outside the neighborhood&#39;s boundary. Avoid crashing. The real fix</span>
+                        <span class="comment">// Due to tunnels/bridges, sometimes a road belongs to a neighbourhood, but</span>
+                        <span class="comment">// leaks outside the neighbourhood&#39;s boundary. Avoid crashing. The real fix</span>
                         <span class="comment">// is to better define boundaries in the face of z-order changes.</span>
                         <span class="comment">//</span>
                         <span class="comment">// Example is https://www.openstreetmap.org/way/87298633</span>
                         <span class="kw">if</span> <span class="ident">grid_idx</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">grid</span>.<span class="ident">data</span>.<span class="ident">len</span>() {
                             <span class="kw">if</span> <span class="ident">warn_leak</span> {
                                 <span class="macro">warn!</span>(
-                                    <span class="string">&quot;{} leaks outside its neighborhood&#39;s boundary polygon, near {}&quot;</span>,
+                                    <span class="string">&quot;{} leaks outside its neighbourhood&#39;s boundary polygon, near {}&quot;</span>,
                                     <span class="ident">road</span>.<span class="ident">id</span>, <span class="ident">pt</span>
                                 );
-                                <span class="comment">// In some neighborhoods, there are so many warnings that logging</span>
+                                <span class="comment">// In some neighbourhoods, there are so many warnings that logging</span>
                                 <span class="comment">// causes noticeable slowdown!</span>
                                 <span class="ident">warn_leak</span> <span class="op">=</span> <span class="bool-val">false</span>;
                             }
@@ -420,7 +420,7 @@
         <span class="comment">// Also mark the boundary polygon, so we can prevent the diffusion from &quot;leaking&quot; outside</span>
         <span class="comment">// the area. The grid covers the rectangular bounds of the polygon. Rather than make an</span>
         <span class="comment">// enum with 3 cases, just assign a new index to mean &quot;boundary.&quot;</span>
-        <span class="kw">let</span> <span class="ident">boundary_marker</span> <span class="op">=</span> <span class="ident">neighborhood</span>.<span class="ident">cells</span>.<span class="ident">len</span>();
+        <span class="kw">let</span> <span class="ident">boundary_marker</span> <span class="op">=</span> <span class="ident">neighbourhood</span>.<span class="ident">cells</span>.<span class="ident">len</span>();
         <span class="kw">for</span> (<span class="ident">pt</span>, <span class="kw">_</span>) <span class="kw">in</span>
             <span class="ident">geom::PolyLine::unchecked_new</span>(<span class="ident">boundary_polygon</span>.<span class="ident">clone</span>().<span class="ident">into_ring</span>().<span class="ident">into_points</span>())
                 .<span class="ident">step_along</span>(<span class="ident">Distance::meters</span>(<span class="ident">RESOLUTION_M</span> <span class="op">/</span> <span class="number">2.0</span>), <span class="ident">Distance::ZERO</span>)
@@ -435,10 +435,10 @@
         }
 
         <span class="kw">let</span> <span class="ident">adjacencies</span> <span class="op">=</span> <span class="ident">diffusion</span>(<span class="kw-2">&amp;mut</span> <span class="ident">grid</span>, <span class="ident">boundary_marker</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cell_colors</span> <span class="op">=</span> <span class="ident">color_cells</span>(<span class="ident">neighborhood</span>.<span class="ident">cells</span>.<span class="ident">len</span>(), <span class="ident">adjacencies</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cell_colors</span> <span class="op">=</span> <span class="ident">color_cells</span>(<span class="ident">neighbourhood</span>.<span class="ident">cells</span>.<span class="ident">len</span>(), <span class="ident">adjacencies</span>);
 
         <span class="comment">// Color some special cells</span>
-        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">cell</span>) <span class="kw">in</span> <span class="ident">neighborhood</span>.<span class="ident">cells</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
+        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">cell</span>) <span class="kw">in</span> <span class="ident">neighbourhood</span>.<span class="ident">cells</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
             <span class="kw">if</span> <span class="ident">cell</span>.<span class="ident">is_disconnected</span>() {
                 <span class="ident">cell_colors</span>[<span class="ident">idx</span>] <span class="op">=</span> <span class="ident">colors::DISCONNECTED_CELL</span>;
             }
@@ -503,7 +503,7 @@
                 }
             }
 
-            <span class="comment">// Sometimes one cell &quot;leaks&quot; out of the neighborhood boundary. Not sure why. But we</span>
+            <span class="comment">// Sometimes one cell &quot;leaks&quot; out of the neighbourhood boundary. Not sure why. But we</span>
             <span class="comment">// can just clip the result.</span>
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">clipped</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
             <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="ident">cell_polygons</span> {

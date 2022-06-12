@@ -132,7 +132,7 @@
     <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">App</span>, <span class="ident">BrowseNeighborhoods</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">App</span>, <span class="ident">BrowseNeighbourhoods</span>, <span class="ident">Transition</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TopPanel</span>;
 
@@ -146,7 +146,7 @@
                 <span class="ident">Line</span>(<span class="kw">if</span> <span class="ident">consultation</span> {
                     <span class="string">&quot;East Bristol Liveable Neighbourhood&quot;</span>
                 } <span class="kw">else</span> {
-                    <span class="string">&quot;Low traffic neighborhoods&quot;</span>
+                    <span class="string">&quot;Low traffic neighbourhoods&quot;</span>
                 })
                 .<span class="ident">small_heading</span>()
                 .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
@@ -208,7 +208,7 @@
                                 <span class="ident">ctx</span>,
                                 <span class="ident">app</span>,
                                 <span class="ident">map_gui::tools::Executable::LTN</span>,
-                                <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw">_</span><span class="op">|</span> <span class="ident">BrowseNeighborhoods::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
+                                <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw">_</span><span class="op">|</span> <span class="ident">BrowseNeighbourhoods::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
                             ),
                         ]))
                     } <span class="kw">else</span> {
@@ -219,7 +219,7 @@
                     <span class="ident">ctx</span>,
                     <span class="ident">app</span>,
                     <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                        <span class="ident">Transition::Replace</span>(<span class="ident">BrowseNeighborhoods::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))
+                        <span class="ident">Transition::Replace</span>(<span class="ident">BrowseNeighbourhoods::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))
                     }),
                 ))),
                 <span class="string">&quot;search&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">map_gui::tools::Navigator::new_state</span>(

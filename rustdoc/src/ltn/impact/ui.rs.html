@@ -353,7 +353,7 @@
 };
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::impact</span>::{<span class="ident">end_of_day</span>, <span class="ident">Filters</span>, <span class="ident">Impact</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">colors</span>, <span class="ident">App</span>, <span class="ident">BrowseNeighborhoods</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">colors</span>, <span class="ident">App</span>, <span class="ident">BrowseNeighbourhoods</span>, <span class="ident">Transition</span>};
 
 <span class="comment">// TODO Share structure or pieces with Ungap&#39;s predict mode</span>
 <span class="comment">// ... can&#39;t we just produce data of a certain shape, and have a UI pretty tuned for that?</span>
@@ -390,7 +390,7 @@
         }
 
         <span class="kw">let</span> <span class="ident">contents</span> <span class="op">=</span> <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="ident">BrowseNeighborhoods::button</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+            <span class="ident">BrowseNeighbourhoods::button</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
             <span class="ident">Line</span>(<span class="string">&quot;Impact prediction&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="string">&quot;This tool starts with a travel demand model, calculates the route every trip takes before and after changes, and displays volumes along roads&quot;</span>)).<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">20</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[
@@ -422,10 +422,10 @@
         }
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) =&gt; <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;Browse neighborhoods&quot;</span> =&gt; {
+                <span class="string">&quot;Browse neighbourhoods&quot;</span> =&gt; {
                     <span class="comment">// Don&#39;t just Pop; if we updated the results, the UI won&#39;t warn the user about a slow</span>
                     <span class="comment">// loading</span>
-                    <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">BrowseNeighborhoods::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+                    <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">BrowseNeighbourhoods::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
                 }
                 <span class="string">&quot;Save before/after counts to files&quot;</span> =&gt; {
                     <span class="kw">let</span> <span class="ident">path1</span> <span class="op">=</span> <span class="string">&quot;counts_a.json&quot;</span>;
