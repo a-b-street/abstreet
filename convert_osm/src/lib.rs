@@ -43,6 +43,29 @@ pub struct Options {
     pub elevation: bool,
 }
 
+impl Options {
+    pub fn default_for_side(driving_side: raw_map::DrivingSide) -> Self {
+        Self {
+            map_config: MapConfig {
+                driving_side,
+                bikes_can_use_bus_lanes: true,
+                inferred_sidewalks: true,
+                street_parking_spot_length: Distance::meters(8.0),
+                turn_on_red: true,
+            },
+            onstreet_parking: OnstreetParking::JustOSM,
+            public_offstreet_parking: PublicOffstreetParking::None,
+            private_offstreet_parking: PrivateOffstreetParking::FixedPerBldg(1),
+            include_railroads: true,
+            extra_buildings: None,
+            skip_local_roads: false,
+            filter_crosswalks: false,
+            gtfs_url: None,
+            elevation: false,
+        }
+    }
+}
+
 /// What roads will have on-street parking lanes? Data from
 /// <https://wiki.openstreetmap.org/wiki/Key:parking:lane> is always used if available.
 #[derive(Clone, Serialize, Deserialize)]

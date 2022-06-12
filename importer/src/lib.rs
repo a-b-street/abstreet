@@ -13,7 +13,6 @@ use structopt::StructOpt;
 
 use abstio::{CityName, MapName};
 use abstutil::Timer;
-use geom::Distance;
 use map_model::RawToMapOptions;
 
 use self::configuration::{load_configuration, ImporterConfiguration};
@@ -58,29 +57,13 @@ pub async fn oneshot(
     let mut timer = abstutil::Timer::new("oneshot");
     println!("- Running convert_osm on {}", osm_path);
     let name = abstutil::basename(&osm_path);
+    let mut options = convert_osm::Options::default_for_side(driving_side);
+    options.filter_crosswalks = filter_crosswalks;
     let raw = convert_osm::convert(
         osm_path,
         MapName::new("zz", "oneshot", &name),
         clip,
-        convert_osm::Options {
-            map_config: map_model::MapConfig {
-                driving_side,
-                bikes_can_use_bus_lanes: true,
-                inferred_sidewalks: true,
-                street_parking_spot_length: Distance::meters(8.0),
-                turn_on_red: true,
-            },
-
-            onstreet_parking: convert_osm::OnstreetParking::JustOSM,
-            public_offstreet_parking: convert_osm::PublicOffstreetParking::None,
-            private_offstreet_parking: convert_osm::PrivateOffstreetParking::FixedPerBldg(1),
-            include_railroads: true,
-            extra_buildings: None,
-            skip_local_roads: false,
-            filter_crosswalks,
-            gtfs_url: None,
-            elevation: false,
-        },
+        options,
         &mut timer,
     );
     // Often helpful to save intermediate representation in case user wants to load into map_editor

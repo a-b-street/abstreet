@@ -8,7 +8,7 @@ use rand::seq::SliceRandom;
 
 use abstio::{CityName, MapName};
 use abstutil::Timer;
-use geom::{Distance, Duration, Time};
+use geom::{Duration, Time};
 use map_model::{IntersectionID, LaneType, Map, Perimeter, RoadID};
 use sim::{AlertHandler, PrebakeSummary, Sim, SimFlags, SimOptions};
 use synthpop::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
@@ -59,24 +59,7 @@ fn import_map(path: String) -> Map {
         path,
         name,
         clip,
-        convert_osm::Options {
-            map_config: map_model::MapConfig {
-                driving_side: map_model::DrivingSide::Right,
-                bikes_can_use_bus_lanes: true,
-                inferred_sidewalks: true,
-                street_parking_spot_length: Distance::meters(8.0),
-                turn_on_red: false,
-            },
-            onstreet_parking: convert_osm::OnstreetParking::JustOSM,
-            public_offstreet_parking: convert_osm::PublicOffstreetParking::None,
-            private_offstreet_parking: convert_osm::PrivateOffstreetParking::FixedPerBldg(0),
-            include_railroads: true,
-            extra_buildings: None,
-            skip_local_roads: false,
-            filter_crosswalks: false,
-            gtfs_url: None,
-            elevation: false,
-        },
+        convert_osm::Options::default_for_side(map_model::DrivingSide::Right),
         &mut timer,
     );
     Map::create_from_raw(raw, map_model::RawToMapOptions::default(), &mut timer)
