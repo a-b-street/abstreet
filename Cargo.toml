@@ -32,7 +32,3 @@ members = [
 # update dependencies often).
 [profile.dev.package."*"]
 opt-level = 3
-
-[patch.crates-io]
-# Waiting for a release: https://github.com/21re/rust-geo-booleanop/pull/27
-geo-booleanop = { git = "https://github.com/21re/rust-geo-booleanop" }

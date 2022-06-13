@@ -13,7 +13,7 @@ pub fn write_geojson_file(ctx: &EventCtx, app: &App) -> Result<String> {
 }
 
 fn geojson_string(ctx: &EventCtx, app: &App) -> Result<String> {
-    use geo::algorithm::map_coords::MapCoordsInplace;
+    use geo::MapCoordsInPlace;
     use geojson::{Feature, FeatureCollection, GeoJson, Geometry, Value};
 
     let map = &app.map;
@@ -97,9 +97,9 @@ fn geojson_string(ctx: &EventCtx, app: &App) -> Result<String> {
         // This could be a Polygon, MultiPolygon, LineString
         let mut geom: geo::Geometry<f64> = feature.geometry.take().unwrap().value.try_into()?;
 
-        geom.map_coords_inplace(|c| {
-            let gps = Pt2D::new(c.0, c.1).to_gps(gps_bounds);
-            (gps.x(), gps.y())
+        geom.map_coords_in_place(|c| {
+            let gps = Pt2D::new(c.x, c.y).to_gps(gps_bounds);
+            (gps.x(), gps.y()).into()
         });
 
         // geo to geojson

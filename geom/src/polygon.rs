@@ -2,11 +2,7 @@ use std::convert::TryFrom;
 use std::fmt;
 
 use anyhow::Result;
-use geo::algorithm::area::Area;
-use geo::algorithm::convex_hull::ConvexHull;
-use geo::algorithm::intersects::Intersects;
-use geo::algorithm::simplifyvw::SimplifyVWPreserve;
-use geo_booleanop::boolean::BooleanOp;
+use geo::{Area, BooleanOps, ConvexHull, Intersects, SimplifyVWPreserve};
 use serde::{Deserialize, Serialize};
 
 use abstutil::Tags;
@@ -349,9 +345,9 @@ impl Polygon {
             return geo::MultiPolygon(Vec::new());
         }
 
-        let mut result = geo::MultiPolygon(vec![to_geo(list.pop().unwrap().points())]);
+        let mut result = geo::MultiPolygon(vec![list.pop().unwrap().into()]);
         for p in list {
-            result = result.union(&to_geo(p.points()));
+            result = result.union(&p.into());
         }
         result
     }

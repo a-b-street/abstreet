@@ -10,7 +10,7 @@ abstutil = { path = "../abstutil" }
 anyhow = "1.0.38"
 flatgeobuf = { version = "0.5" }
 futures = "0.3.12"
-geo = "0.20.1"
+geo = "0.21.0"
 geojson = { version = "0.22.2", features = ["geo-types"] }
 geom = { path = "../geom" }
 geozero = "0.7"
@@ -19,7 +19,6 @@ map_model = { path = "../map_model" }
 rand = "0.8.3"
 rand_distr = "0.4.0"
 rand_xorshift = "0.3.0"
-geo-booleanop = "0.3.2"
 serde = "1.0.123"
 serde_json = "1.0.61"
 sim = { path = "../sim" }

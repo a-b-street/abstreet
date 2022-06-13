@@ -1,8 +1,7 @@
 use std::convert::TryInto;
 
 use anyhow::Result;
-use geo::algorithm::area::Area;
-use geo::algorithm::contains::Contains;
+use geo::{Area, Contains};
 use geojson::GeoJson;
 
 use abstutil::Timer;

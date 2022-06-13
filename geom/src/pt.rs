@@ -1,6 +1,6 @@
 use std::fmt;
 
-use geo::algorithm::simplify::Simplify;
+use geo::Simplify;
 use ordered_float::NotNan;
 use serde::{Deserialize, Serialize};
 

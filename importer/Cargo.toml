@@ -16,7 +16,7 @@ anyhow = "1.0.38"
 collisions = { path = "../collisions" }
 convert_osm = { path = "../convert_osm" }
 csv = "1.1.4"
-geo = "0.20.1"
+geo = "0.21.0"
 geojson = { version = "0.22.2", features = ["geo-types"] }
 geom = { path = "../geom" }
 gdal = { version = "0.8.0", optional = true, features = ["bindgen"] }

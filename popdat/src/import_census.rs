@@ -1,5 +1,5 @@
 use anyhow::Result;
-use geo::algorithm::intersects::Intersects;
+use geo::{BoundingRect, Intersects, MapCoordsInPlace};
 
 use geom::{GPSBounds, Polygon};
 
@@ -13,11 +13,10 @@ impl CensusArea {
         use flatgeobuf::HttpFgbReader;
         use geozero::geo_types::GeoWriter;
 
-        use geo::algorithm::{bounding_rect::BoundingRect, map_coords::MapCoordsInplace};
         let mut geo_map_area: geo::Polygon<_> = map_area.clone().into();
-        geo_map_area.map_coords_inplace(|c| {
-            let projected = geom::Pt2D::new(c.0, c.1).to_gps(bounds);
-            (projected.x(), projected.y())
+        geo_map_area.map_coords_in_place(|c| {
+            let projected = geom::Pt2D::new(c.x, c.y).to_gps(bounds);
+            (projected.x(), projected.y()).into()
         });
 
         // See the import handbook for how to prepare this file.
@@ -76,10 +75,7 @@ impl CensusArea {
                 }
 
                 let mut polygon = geo_polygon.clone();
-                polygon.map_coords_inplace(|(x, y)| {
-                    let point = geom::LonLat::new(*x, *y).to_pt(bounds);
-                    (point.x(), point.y())
-                });
+                polygon.map_coords_in_place(|c| geom::LonLat::new(c.x, c.y).to_pt(bounds).into());
                 results.push(CensusArea {
                     polygon,
                     population,
