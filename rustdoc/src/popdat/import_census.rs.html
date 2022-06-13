@@ -94,12 +94,8 @@
 <span id="89">89</span>
 <span id="90">90</span>
 <span id="91">91</span>
-<span id="92">92</span>
-<span id="93">93</span>
-<span id="94">94</span>
-<span id="95">95</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">anyhow::Result</span>;
-<span class="kw">use</span> <span class="ident">geo::algorithm::intersects::Intersects</span>;
+<span class="kw">use</span> <span class="ident">geo</span>::{<span class="ident">BoundingRect</span>, <span class="ident">Intersects</span>, <span class="ident">MapCoordsInPlace</span>};
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">GPSBounds</span>, <span class="ident">Polygon</span>};
 
@@ -113,11 +109,10 @@
         <span class="kw">use</span> <span class="ident">flatgeobuf::HttpFgbReader</span>;
         <span class="kw">use</span> <span class="ident">geozero::geo_types::GeoWriter</span>;
 
-        <span class="kw">use</span> <span class="ident">geo::algorithm</span>::{<span class="ident">bounding_rect::BoundingRect</span>, <span class="ident">map_coords::MapCoordsInplace</span>};
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">geo_map_area</span>: <span class="ident">geo::Polygon</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">map_area</span>.<span class="ident">clone</span>().<span class="ident">into</span>();
-        <span class="ident">geo_map_area</span>.<span class="ident">map_coords_inplace</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">projected</span> <span class="op">=</span> <span class="ident">geom::Pt2D::new</span>(<span class="ident">c</span>.<span class="number">0</span>, <span class="ident">c</span>.<span class="number">1</span>).<span class="ident">to_gps</span>(<span class="ident">bounds</span>);
-            (<span class="ident">projected</span>.<span class="ident">x</span>(), <span class="ident">projected</span>.<span class="ident">y</span>())
+        <span class="ident">geo_map_area</span>.<span class="ident">map_coords_in_place</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">projected</span> <span class="op">=</span> <span class="ident">geom::Pt2D::new</span>(<span class="ident">c</span>.<span class="ident">x</span>, <span class="ident">c</span>.<span class="ident">y</span>).<span class="ident">to_gps</span>(<span class="ident">bounds</span>);
+            (<span class="ident">projected</span>.<span class="ident">x</span>(), <span class="ident">projected</span>.<span class="ident">y</span>()).<span class="ident">into</span>()
         });
 
         <span class="comment">// See the import handbook for how to prepare this file.</span>
@@ -176,10 +171,7 @@
                 }
 
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">polygon</span> <span class="op">=</span> <span class="ident">geo_polygon</span>.<span class="ident">clone</span>();
-                <span class="ident">polygon</span>.<span class="ident">map_coords_inplace</span>(<span class="op">|</span>(<span class="ident">x</span>, <span class="ident">y</span>)<span class="op">|</span> {
-                    <span class="kw">let</span> <span class="ident">point</span> <span class="op">=</span> <span class="ident">geom::LonLat::new</span>(<span class="kw-2">*</span><span class="ident">x</span>, <span class="kw-2">*</span><span class="ident">y</span>).<span class="ident">to_pt</span>(<span class="ident">bounds</span>);
-                    (<span class="ident">point</span>.<span class="ident">x</span>(), <span class="ident">point</span>.<span class="ident">y</span>())
-                });
+                <span class="ident">polygon</span>.<span class="ident">map_coords_in_place</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">geom::LonLat::new</span>(<span class="ident">c</span>.<span class="ident">x</span>, <span class="ident">c</span>.<span class="ident">y</span>).<span class="ident">to_pt</span>(<span class="ident">bounds</span>).<span class="ident">into</span>());
                 <span class="ident">results</span>.<span class="ident">push</span>(<span class="ident">CensusArea</span> {
                     <span class="ident">polygon</span>,
                     <span class="ident">population</span>,

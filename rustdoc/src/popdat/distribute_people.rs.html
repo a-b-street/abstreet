@@ -84,8 +84,7 @@
 <span id="79">79</span>
 <span id="80">80</span>
 <span id="81">81</span>
-<span id="82">82</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geo::algorithm</span>::{<span class="ident">area::Area</span>, <span class="ident">contains::Contains</span>};
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geo</span>::{<span class="ident">Area</span>, <span class="ident">BooleanOps</span>, <span class="ident">Contains</span>};
 <span class="kw">use</span> <span class="ident">rand::Rng</span>;
 <span class="kw">use</span> <span class="ident">rand_xorshift::XorShiftRng</span>;
 
@@ -140,7 +139,6 @@
 
     <span class="comment">// If the area is partly out-of-bounds, then scale down the number of residents linearly</span>
     <span class="comment">// based on area of the overlapping part of the polygon.</span>
-    <span class="kw">use</span> <span class="ident">geo_booleanop::boolean::BooleanOp</span>;
     <span class="kw">let</span> <span class="ident">pct_overlap</span> <span class="op">=</span> <span class="ident">polygon</span>.<span class="ident">intersection</span>(<span class="kw-2">&amp;</span><span class="ident">map_boundary</span>).<span class="ident">unsigned_area</span>() <span class="op">/</span> <span class="ident">polygon</span>.<span class="ident">unsigned_area</span>();
     <span class="kw">let</span> <span class="ident">num_residents</span> <span class="op">=</span> (<span class="ident">pct_overlap</span> <span class="op">*</span> (<span class="ident">population</span> <span class="kw">as</span> <span class="ident">f64</span>)) <span class="kw">as</span> <span class="ident">usize</span>;
     <span class="macro">debug!</span>(

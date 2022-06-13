@@ -84,12 +84,10 @@
 <span id="79">79</span>
 <span id="80">80</span>
 <span id="81">81</span>
-<span id="82">82</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::convert::TryInto</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
-<span class="kw">use</span> <span class="ident">geo::algorithm::area::Area</span>;
-<span class="kw">use</span> <span class="ident">geo::algorithm::contains::Contains</span>;
+<span class="kw">use</span> <span class="ident">geo</span>::{<span class="ident">Area</span>, <span class="ident">Contains</span>};
 <span class="kw">use</span> <span class="ident">geojson::GeoJson</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
