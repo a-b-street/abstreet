@@ -29,7 +29,7 @@ pub fn run(
     }
 
     for m in modifiers {
-        scenario = m.apply(&map, scenario);
+        scenario = m.apply(&map, scenario, &mut rng);
     }
 
     if should_delete_cancelled_trips {

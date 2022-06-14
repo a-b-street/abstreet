@@ -259,10 +259,17 @@ impl EditScenarioModifiers {
                 .build_def(ctx),
         );
         rows.push(Widget::row(vec![
-            Spinner::widget(ctx, "repeat_days", (2, 14), 2_usize, 1),
+            Spinner::widget(ctx, "repeat_days", (2, 14), 2, 1),
             ctx.style()
                 .btn_outline
                 .text("Repeat schedule multiple days")
+                .build_def(ctx),
+        ]));
+        rows.push(Widget::row(vec![
+            Spinner::widget(ctx, "repeat_days_noise", (2, 14), 2_usize, 1),
+            ctx.style()
+                .btn_outline
+                .text("Repeat schedule multiple days with +/- 10 minutes of noise")
                 .build_def(ctx),
         ]));
         rows.push(Widget::horiz_separator(ctx, 1.0));
@@ -355,6 +362,17 @@ impl State<App> for EditScenarioModifiers {
                     self.modifiers.push(ScenarioModifier::RepeatDays(
                         self.panel.spinner("repeat_days"),
                     ));
+                    return Transition::Replace(EditScenarioModifiers::new_state(
+                        ctx,
+                        self.scenario_name.clone(),
+                        self.modifiers.clone(),
+                    ));
+                }
+                "Repeat schedule multiple days with +/- 10 minutes of noise" => {
+                    self.modifiers.push(ScenarioModifier::RepeatDaysNoise {
+                        days: self.panel.spinner("repeat_days_noise"),
+                        departure_time_noise: Duration::minutes(10),
+                    });
                     return Transition::Replace(EditScenarioModifiers::new_state(
                         ctx,
                         self.scenario_name.clone(),

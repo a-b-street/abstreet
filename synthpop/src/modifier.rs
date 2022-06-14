@@ -1,5 +1,9 @@
+extern crate rand;
+
 use std::collections::BTreeSet;
 
+use rand::Rng;
+use rand_xorshift::XorShiftRng;
 use serde::{Deserialize, Serialize};
 
 use abstutil::Timer;
@@ -12,6 +16,10 @@ use crate::{Scenario, TripMode};
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Serialize, Deserialize)]
 pub enum ScenarioModifier {
     RepeatDays(usize),
+    RepeatDaysNoise {
+        days: usize,
+        departure_time_noise: Duration,
+    },
     ChangeMode {
         pct_ppl: usize,
         departure_filter: (Time, Time),
@@ -26,9 +34,13 @@ pub enum ScenarioModifier {
 impl ScenarioModifier {
     /// If this modifies scenario_name, then that means prebaked results don't match up and
     /// shouldn't be used.
-    pub fn apply(&self, map: &Map, mut s: Scenario) -> Scenario {
+    pub fn apply(&self, map: &Map, mut s: Scenario, rng: &mut XorShiftRng) -> Scenario {
         match self {
-            ScenarioModifier::RepeatDays(n) => repeat_days(s, *n),
+            ScenarioModifier::RepeatDays(n) => repeat_days(s, *n, None, rng),
+            ScenarioModifier::RepeatDaysNoise {
+                days,
+                departure_time_noise,
+            } => repeat_days(s, *days, Some(*departure_time_noise), rng),
             ScenarioModifier::ChangeMode {
                 pct_ppl,
                 departure_filter,
@@ -90,6 +102,13 @@ impl ScenarioModifier {
     pub fn describe(&self) -> String {
         match self {
             ScenarioModifier::RepeatDays(n) => format!("repeat the entire day {} times", n),
+            ScenarioModifier::RepeatDaysNoise {
+                days,
+                departure_time_noise,
+            } => format!(
+                "repeat the entire day {} times with +/- {} noise on each departure",
+                days, departure_time_noise
+            ),
             ScenarioModifier::ChangeMode {
                 pct_ppl,
                 to_mode,
@@ -117,7 +136,12 @@ impl ScenarioModifier {
 //
 // The bigger problem is that any people that seem to require multiple cars... will wind up
 // needing LOTS of cars.
-fn repeat_days(mut s: Scenario, days: usize) -> Scenario {
+fn repeat_days(
+    mut s: Scenario,
+    days: usize,
+    noise: Option<Duration>,
+    rng: &mut XorShiftRng,
+) -> Scenario {
     s.scenario_name = format!("{} (repeated {} days)", s.scenario_name, days);
     for person in &mut s.people {
         let mut trips = Vec::new();
@@ -126,6 +150,13 @@ fn repeat_days(mut s: Scenario, days: usize) -> Scenario {
             for trip in &person.trips {
                 let mut new = trip.clone();
                 new.depart += offset;
+                if let Some(noise_v) = noise {
+                    // + or - noise_v
+                    let noise_rnd = Duration::seconds(
+                        rng.gen_range((0.0)..=(2.0 * noise_v.inner_seconds() as f64)),
+                    ) - noise_v;
+                    new.depart = new.depart.clamped_sub(noise_rnd);
+                }
                 new.modified = true;
                 trips.push(new);
             }

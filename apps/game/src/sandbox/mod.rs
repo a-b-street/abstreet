@@ -549,18 +549,22 @@ impl State<App> for SandboxLoader {
                     ctx.loading_screen("instantiate scenario", |_, timer| {
                         app.primary.scenario = Some(scenario.clone());
 
+                        // Use the same RNG as we apply scenario modifiers and instantiate the
+                        // scenario. One unexpected effect will be that parked car seeding (during
+                        // scenario instantiation) may spuriously change if a scenario modifier
+                        // uses the RNG. This is at least consistent with the tests, headless mode,
+                        // and instantiating a scenario from CLI flags.
+                        let mut rng = app.primary.current_flags.sim_flags.make_rng();
+
                         if let GameplayMode::PlayScenario(_, _, ref modifiers) = self.mode {
                             for m in modifiers {
-                                scenario = m.apply(&app.primary.map, scenario);
+                                scenario = m.apply(&app.primary.map, scenario, &mut rng);
                             }
                         }
 
-                        app.primary.sim.instantiate(
-                            &scenario,
-                            &app.primary.map,
-                            &mut app.primary.current_flags.sim_flags.make_rng(),
-                            timer,
-                        );
+                        app.primary
+                            .sim
+                            .instantiate(&scenario, &app.primary.map, &mut rng, timer);
                         app.primary
                             .sim
                             .tiny_step(&app.primary.map, &mut app.primary.sim_cb);
@@ -572,6 +576,8 @@ impl State<App> for SandboxLoader {
                             secondary.sim.instantiate(
                                 &scenario,
                                 &secondary.map,
+                                // Start fresh here. This will match up with the primary sim,
+                                // unless modifiers used the RNG
                                 &mut secondary.current_flags.sim_flags.make_rng(),
                                 timer,
                             );

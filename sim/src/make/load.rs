@@ -108,7 +108,7 @@ impl SimFlags {
             let map = Map::load_synchronously(scenario.map_name.path(), timer);
 
             for m in &self.scenario_modifiers {
-                scenario = m.apply(&map, scenario);
+                scenario = m.apply(&map, scenario, &mut rng);
             }
 
             if opts.run_name == "unnamed" {
