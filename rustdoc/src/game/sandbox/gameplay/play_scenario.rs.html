@@ -690,6 +690,24 @@
 <span id="685">685</span>
 <span id="686">686</span>
 <span id="687">687</span>
+<span id="688">688</span>
+<span id="689">689</span>
+<span id="690">690</span>
+<span id="691">691</span>
+<span id="692">692</span>
+<span id="693">693</span>
+<span id="694">694</span>
+<span id="695">695</span>
+<span id="696">696</span>
+<span id="697">697</span>
+<span id="698">698</span>
+<span id="699">699</span>
+<span id="700">700</span>
+<span id="701">701</span>
+<span id="702">702</span>
+<span id="703">703</span>
+<span id="704">704</span>
+<span id="705">705</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">maplit::btreeset</span>;
@@ -951,10 +969,17 @@
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         );
         <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="ident">Spinner::widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;repeat_days&quot;</span>, (<span class="number">2</span>, <span class="number">14</span>), <span class="number">2_usize</span>, <span class="number">1</span>),
+            <span class="ident">Spinner::widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;repeat_days&quot;</span>, (<span class="number">2</span>, <span class="number">14</span>), <span class="number">2</span>, <span class="number">1</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_outline</span>
                 .<span class="ident">text</span>(<span class="string">&quot;Repeat schedule multiple days&quot;</span>)
+                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+        ]));
+        <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+            <span class="ident">Spinner::widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;repeat_days_noise&quot;</span>, (<span class="number">2</span>, <span class="number">14</span>), <span class="number">2_usize</span>, <span class="number">1</span>),
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_outline</span>
+                .<span class="ident">text</span>(<span class="string">&quot;Repeat schedule multiple days with +/- 10 minutes of noise&quot;</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         ]));
         <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget::horiz_separator</span>(<span class="ident">ctx</span>, <span class="number">1.0</span>));
@@ -1047,6 +1072,17 @@
                     <span class="self">self</span>.<span class="ident">modifiers</span>.<span class="ident">push</span>(<span class="ident">ScenarioModifier::RepeatDays</span>(
                         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;repeat_days&quot;</span>),
                     ));
+                    <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">EditScenarioModifiers::new_state</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="self">self</span>.<span class="ident">scenario_name</span>.<span class="ident">clone</span>(),
+                        <span class="self">self</span>.<span class="ident">modifiers</span>.<span class="ident">clone</span>(),
+                    ));
+                }
+                <span class="string">&quot;Repeat schedule multiple days with +/- 10 minutes of noise&quot;</span> =&gt; {
+                    <span class="self">self</span>.<span class="ident">modifiers</span>.<span class="ident">push</span>(<span class="ident">ScenarioModifier::RepeatDaysNoise</span> {
+                        <span class="ident">days</span>: <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;repeat_days_noise&quot;</span>),
+                        <span class="ident">departure_time_noise</span>: <span class="ident">Duration::minutes</span>(<span class="number">10</span>),
+                    });
                     <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">EditScenarioModifiers::new_state</span>(
                         <span class="ident">ctx</span>,
                         <span class="self">self</span>.<span class="ident">scenario_name</span>.<span class="ident">clone</span>(),
