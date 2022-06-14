@@ -259,7 +259,7 @@ impl EditScenarioModifiers {
                 .build_def(ctx),
         );
         rows.push(Widget::row(vec![
-            Spinner::widget(ctx, "repeat_days", (2, 14), 2_usize, 1),
+            Spinner::widget(ctx, "repeat_days", (2, 14), 2, 1),
             ctx.style()
                 .btn_outline
                 .text("Repeat schedule multiple days")

@@ -40,7 +40,7 @@ impl ScenarioModifier {
             ScenarioModifier::RepeatDaysNoise {
                 days,
                 departure_time_noise,
-            } => repeat_days(s, *days, Some(departure_time_noise), rng),
+            } => repeat_days(s, *days, Some(*departure_time_noise), rng),
             ScenarioModifier::ChangeMode {
                 pct_ppl,
                 departure_filter,
@@ -106,7 +106,7 @@ impl ScenarioModifier {
                 days,
                 departure_time_noise,
             } => format!(
-                "repeat the entire day {} times with +/- {} minutes noise on each departure",
+                "repeat the entire day {} times with +/- {} noise on each departure",
                 days, departure_time_noise
             ),
             ScenarioModifier::ChangeMode {
@@ -139,7 +139,7 @@ impl ScenarioModifier {
 fn repeat_days(
     mut s: Scenario,
     days: usize,
-    noise: Option<&geom::Duration>,
+    noise: Option<Duration>,
     rng: &mut XorShiftRng,
 ) -> Scenario {
     s.scenario_name = format!("{} (repeated {} days)", s.scenario_name, days);
@@ -151,9 +151,10 @@ fn repeat_days(
                 let mut new = trip.clone();
                 new.depart += offset;
                 if let Some(noise_v) = noise {
+                    // + or - noise_v
                     let noise_rnd = Duration::seconds(
-                        rng.gen_range((0.)..=(noise_v.inner_seconds() as f64 * 2.)),
-                    ) - *noise_v;
+                        rng.gen_range((0.0)..=(2.0 * noise_v.inner_seconds() as f64)),
+                    ) - noise_v;
                     new.depart = new.depart.clamped_sub(noise_rnd);
                 }
                 new.modified = true;
