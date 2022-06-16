@@ -105,11 +105,11 @@ impl Polygon {
     pub fn triangles(&self) -> Vec<Triangle> {
         let mut triangles: Vec<Triangle> = Vec::new();
         for slice in self.indices.chunks_exact(3) {
-            triangles.push(Triangle::new(
-                self.points[slice[0] as usize],
-                self.points[slice[1] as usize],
-                self.points[slice[2] as usize],
-            ));
+            triangles.push(Triangle {
+                pt1: self.points[slice[0] as usize],
+                pt2: self.points[slice[1] as usize],
+                pt3: self.points[slice[2] as usize],
+            });
         }
         triangles
     }
@@ -599,12 +599,6 @@ pub struct Triangle {
     pub pt1: Pt2D,
     pub pt2: Pt2D,
     pub pt3: Pt2D,
-}
-
-impl Triangle {
-    pub fn new(pt1: Pt2D, pt2: Pt2D, pt3: Pt2D) -> Triangle {
-        Triangle { pt1, pt2, pt3 }
-    }
 }
 
 impl From<geo::Polygon<f64>> for Polygon {
