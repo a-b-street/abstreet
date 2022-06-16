@@ -1,5 +1,5 @@
 use abstutil::prettyprint_usize;
-use geom::{Circle, Distance, Duration, Polygon, Pt2D, Time};
+use geom::{Circle, Distance, Duration, Polygon, Pt2D, Ring, Time};
 use map_gui::ID;
 use sim::AlertLocation;
 use widgetry::tools::PopupMsg;
@@ -239,19 +239,18 @@ impl TimePanel {
             // Add a triangle-shaped cursor above the baseline cursor
             progress_bar = progress_bar.translate(0.0, triangle_height);
 
-            use geom::Triangle;
-            let triangle = Triangle::new(
+            let triangle = Ring::must_new(vec![
                 Pt2D::zero(),
                 Pt2D::new(triangle_width, 0.0),
                 Pt2D::new(triangle_width / 2.0, triangle_height),
-            );
-            let mut triangle_poly = Polygon::from_triangle(&triangle);
-            triangle_poly = triangle_poly.translate(
+                Pt2D::zero(),
+            ])
+            .into_polygon()
+            .translate(
                 baseline_finished_width - triangle_width / 2.0 + cursor_width / 2.0,
                 0.0,
             );
-
-            progress_bar.push(cursor_fg, triangle_poly);
+            progress_bar.push(cursor_fg, triangle);
         }
 
         let mut tooltip_text = Text::from("Finished Trips");
