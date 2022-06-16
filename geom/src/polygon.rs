@@ -353,11 +353,11 @@ impl Polygon {
     }
 
     pub fn intersection(&self, other: &Polygon) -> Vec<Polygon> {
-        from_multi(to_geo(self.points()).intersection(&to_geo(other.points())))
+        from_multi(self.to_geo().intersection(&other.to_geo()))
     }
 
     pub fn convex_hull(list: Vec<Polygon>) -> Polygon {
-        let mp: geo::MultiPolygon<f64> = list.into_iter().map(|p| to_geo(p.points())).collect();
+        let mp: geo::MultiPolygon<f64> = list.into_iter().map(|p| p.to_geo()).collect();
         mp.convex_hull().into()
     }
 
@@ -370,18 +370,18 @@ impl Polygon {
     /// Find the "pole of inaccessibility" -- the most distant internal point from the polygon
     /// outline
     pub fn polylabel(&self) -> Pt2D {
-        let pt = polylabel::polylabel(&to_geo(self.points()), &1.0).unwrap();
+        let pt = polylabel::polylabel(&self.to_geo(), &1.0).unwrap();
         Pt2D::new(pt.x(), pt.y())
     }
 
     /// Do two polygons intersect at all?
     pub fn intersects(&self, other: &Polygon) -> bool {
-        to_geo(self.points()).intersects(&to_geo(other.points()))
+        self.to_geo().intersects(&other.to_geo())
     }
 
     /// Does this polygon intersect a polyline?
     pub fn intersects_polyline(&self, pl: &PolyLine) -> bool {
-        to_geo(self.points()).intersects(&pl.to_geo())
+        self.to_geo().intersects(&pl.to_geo())
     }
 
     /// Creates the outline around the polygon, with the thickness half straddling the polygon and
@@ -408,7 +408,7 @@ impl Polygon {
     /// Usually m^2, unless the polygon is in screen-space
     pub fn area(&self) -> f64 {
         // Polygon orientation messes this up sometimes
-        to_geo(self.points()).unsigned_area()
+        self.to_geo().unsigned_area()
     }
 
     /// Doesn't handle multiple crossings in and out.
@@ -558,12 +558,19 @@ impl Polygon {
     }
 
     pub fn simplify(&self, epsilon: f64) -> Polygon {
-        to_geo(self.points()).simplifyvw_preserve(&epsilon).into()
+        self.to_geo().simplifyvw_preserve(&epsilon).into()
     }
 
     /// An arbitrary placeholder value, when Option types aren't worthwhile
     pub fn dummy() -> Self {
         Polygon::rectangle(0.1, 0.1)
+    }
+
+    // A less verbose way of invoking the From/Into impl. Note this hides a potentially expensive
+    // clone. The eventual goal is for Polygon to directly wrap a geo::Polygon, at which point this
+    // cost goes away.
+    fn to_geo(&self) -> geo::Polygon<f64> {
+        self.clone().into()
     }
 }
 
@@ -624,17 +631,6 @@ impl Triangle {
         }
         true
     }
-}
-
-fn to_geo(pts: &[Pt2D]) -> geo::Polygon<f64> {
-    geo::Polygon::new(
-        geo::LineString::from(
-            pts.iter()
-                .map(|pt| geo::Point::new(pt.x(), pt.y()))
-                .collect::<Vec<_>>(),
-        ),
-        Vec::new(),
-    )
 }
 
 impl From<geo::Polygon<f64>> for Polygon {
