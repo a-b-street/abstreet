@@ -2,7 +2,7 @@ use std::convert::TryFrom;
 use std::fmt;
 
 use anyhow::Result;
-use geo::{Area, BooleanOps, ConvexHull, Intersects, SimplifyVWPreserve};
+use geo::{Area, BooleanOps, Contains, ConvexHull, Intersects, SimplifyVWPreserve};
 use serde::{Deserialize, Serialize};
 
 use abstutil::Tags;
@@ -120,8 +120,9 @@ impl Polygon {
 
     /// Does this polygon contain the point either in the interior or right on the border? Haven't
     /// tested carefully for polygons with holes.
+    // TODO Not sure about the "right on the border"
     pub fn contains_pt(&self, pt: Pt2D) -> bool {
-        self.triangles().into_iter().any(|tri| tri.contains_pt(pt))
+        self.to_geo().contains(&geo::Point::from(pt))
     }
 
     pub fn get_bounds(&self) -> Bounds {
@@ -603,33 +604,6 @@ pub struct Triangle {
 impl Triangle {
     pub fn new(pt1: Pt2D, pt2: Pt2D, pt3: Pt2D) -> Triangle {
         Triangle { pt1, pt2, pt3 }
-    }
-
-    fn contains_pt(&self, pt: Pt2D) -> bool {
-        let x1 = self.pt1.x();
-        let y1 = self.pt1.y();
-        let x2 = self.pt2.x();
-        let y2 = self.pt2.y();
-        let x3 = self.pt3.x();
-        let y3 = self.pt3.y();
-        let px = pt.x();
-        let py = pt.y();
-
-        // Barycentric coefficients for pt
-        // Use epsilon to deal with small denominators
-        let epsilon = 0.000_000_1;
-        let l0 = ((y2 - y3) * (px - x3) + (x3 - x2) * (py - y3))
-            / (((y2 - y3) * (x1 - x3) + (x3 - x2) * (y1 - y3)) + epsilon);
-        let l1 = ((y3 - y1) * (px - x3) + (x1 - x3) * (py - y3))
-            / (((y2 - y3) * (x1 - x3) + (x3 - x2) * (y1 - y3)) + epsilon);
-        let l2 = 1.0 - l0 - l1;
-
-        for x in [l0, l1, l2] {
-            if x >= 1.0 || x <= 0.0 {
-                return false;
-            }
-        }
-        true
     }
 }
 
