@@ -22,5 +22,5 @@ raw_map = { path = "../raw_map" }
 serde = "1.0.123"
 serde_json = "1.0.61"
 structopt = "0.3.23"
-thread_local = "1.1.2"
+thread_local = "1.1.4"
 traffic_signal_data = { path = "../traffic_signal_data" }
