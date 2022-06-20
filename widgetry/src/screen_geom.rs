@@ -206,11 +206,11 @@ impl From<geom::Bounds> for ScreenDims {
     }
 }
 
-impl From<ScreenDims> for stretch::geometry::Size<stretch::style::Dimension> {
+impl From<ScreenDims> for taffy::geometry::Size<taffy::style::Dimension> {
     fn from(dims: ScreenDims) -> Self {
         Self {
-            width: stretch::style::Dimension::Points(dims.width as f32),
-            height: stretch::style::Dimension::Points(dims.height as f32),
+            width: taffy::style::Dimension::Points(dims.width as f32),
+            height: taffy::style::Dimension::Points(dims.height as f32),
         }
     }
 }

@@ -2,10 +2,10 @@ use std::cell::RefCell;
 use std::collections::HashSet;
 use std::rc::Rc;
 
-use stretch::geometry::Size;
-use stretch::node::{Node, Stretch};
-use stretch::number::Number;
-use stretch::style::{Dimension, Style};
+use taffy::geometry::Size;
+use taffy::node::{Node, Taffy};
+use taffy::number::Number;
+use taffy::style::{Dimension, Style};
 
 use geom::Polygon;
 
@@ -21,7 +21,7 @@ use crate::{
 pub struct Panel {
     top_level: Widget,
     // (layout, root_dims)
-    cached_flexbox: Option<(Stretch, Vec<Node>, ScreenDims)>,
+    cached_flexbox: Option<(Taffy, Vec<Node>, ScreenDims)>,
     horiz: HorizontalAlignment,
     vert: VerticalAlignment,
     dims_x: PanelDims,
@@ -165,19 +165,19 @@ impl Panel {
         self.cached_flexbox = None;
     }
 
-    fn compute_flexbox(&self) -> (Stretch, Vec<Node>, ScreenDims) {
-        let mut stretch = Stretch::new();
-        let root = stretch
+    fn compute_flexbox(&self) -> (Taffy, Vec<Node>, ScreenDims) {
+        let mut taffy = Taffy::new();
+        let root = taffy
             .new_node(
                 Style {
                     ..Default::default()
                 },
-                Vec::new(),
+                &[],
             )
             .unwrap();
 
         let mut nodes = vec![];
-        self.top_level.get_flexbox(root, &mut stretch, &mut nodes);
+        self.top_level.get_flexbox(root, &mut taffy, &mut nodes);
         nodes.reverse();
 
         // TODO Express more simply. Constraining this seems useless.
@@ -185,22 +185,22 @@ impl Panel {
             width: Number::Undefined,
             height: Number::Undefined,
         };
-        stretch.compute_layout(root, container_size).unwrap();
+        taffy.compute_layout(root, container_size).unwrap();
 
         // TODO I'm so confused why these 2 are acting differently. :(
         let effective_dims = if self.scrollable_x || self.scrollable_y {
             self.container_dims
         } else {
-            let result = stretch.layout(root).unwrap();
+            let result = taffy.layout(root).unwrap();
             ScreenDims::new(result.size.width.into(), result.size.height.into())
         };
 
-        (stretch, nodes, effective_dims)
+        (taffy, nodes, effective_dims)
     }
 
     fn recompute_layout_if_needed(&mut self, ctx: &EventCtx, recompute_bg: bool) {
         self.recompute_scrollbar_layout(ctx);
-        let (stretch, nodes, effective_dims) = self
+        let (taffy, nodes, effective_dims) = self
             .cached_flexbox
             .take()
             .unwrap_or_else(|| self.compute_flexbox());
@@ -212,7 +212,7 @@ impl Panel {
             let offset = self.scroll_offset();
             let mut nodes = nodes.clone();
             self.top_level.apply_flexbox(
-                &stretch,
+                &taffy,
                 &mut nodes,
                 top_left.x,
                 top_left.y,
@@ -223,7 +223,7 @@ impl Panel {
             );
             assert!(nodes.is_empty());
         }
-        self.cached_flexbox = Some((stretch, nodes, effective_dims));
+        self.cached_flexbox = Some((taffy, nodes, effective_dims));
     }
 
     fn scroll_offset(&self) -> (f64, f64) {
