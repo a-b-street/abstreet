@@ -422,6 +422,12 @@ impl<ID: ObjectID> World<ID> {
             .and_then(|cursor| self.calculate_hover(cursor));
     }
 
+    /// Forcibly reset the hovering state to empty. This is a necessary hack when launching a new
+    /// state that uses `DrawBaselayer::PreviousState` and has tooltips.
+    pub fn hack_unset_hovering(&mut self) {
+        self.hovering = None;
+    }
+
     /// If a drag event causes the world to be totally rebuilt, call this with the previous world
     /// to preserve the ongoing drag.
     ///
