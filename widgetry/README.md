@@ -56,7 +56,7 @@ for precise mouseover.
 Widgets like buttons (with keybindings), checkboxes, sliders, pop-up menus, text
 entry, and some data viz things. You can combine these in `Panel`s to dispatch
 event handling and drawing. Styling (background colors, outline, padding) and
-Flexbox-ish layouting via [stretch](https://vislyhq.github.io/stretch/).
+Flexbox-ish layouting via [taffy](https://github.com/DioxusLabs/taffy/).
 
 The API / programming style is kind of funny; see the
 [demo](../widgetry_demo/src/lib.rs) to get a sense of it. No callbacks. You
