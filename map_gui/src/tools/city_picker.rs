@@ -273,17 +273,7 @@ impl<A: AppLike + 'static> AllCityPicker<A> {
         on_load: Box<dyn FnOnce(&mut EventCtx, &mut A) -> Transition<A>>,
     ) -> Box<dyn State<A>> {
         let mut autocomplete_entries = Vec::new();
-        let mut buttons = Vec::new();
-
         for name in MapName::list_all_maps_merged(&Manifest::load()) {
-            buttons.push(
-                ctx.style()
-                    .btn_outline
-                    .text(name.describe())
-                    .build_widget(ctx, &name.path())
-                    .margin_right(10)
-                    .margin_below(10),
-            );
             autocomplete_entries.push((name.describe(), name.path()));
         }
 
@@ -299,7 +289,6 @@ impl<A: AppLike + 'static> AllCityPicker<A> {
                     Autocomplete::new_widget(ctx, autocomplete_entries, 10).named("search"),
                 ])
                 .padding(8),
-                Widget::custom_row(buttons).flex_wrap(ctx, Percent::int(70)),
             ]))
             .dims_width(PanelDims::ExactPercent(0.8))
             .dims_height(PanelDims::ExactPercent(0.8))
@@ -320,14 +309,7 @@ impl<A: AppLike + 'static> State<A> for AllCityPicker<A> {
                 "close" => {
                     return Transition::Pop;
                 }
-                path => {
-                    return chose_city(
-                        ctx,
-                        app,
-                        MapName::from_path(path).unwrap(),
-                        &mut self.on_load,
-                    );
-                }
+                _ => unreachable!(),
             }
         }
         if let Some(mut paths) = self.panel.autocomplete_done::<String>("search") {
