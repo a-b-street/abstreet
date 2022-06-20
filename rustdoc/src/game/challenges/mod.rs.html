@@ -282,10 +282,24 @@
 <span id="277">277</span>
 <span id="278">278</span>
 <span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Percent</span>};
 <span class="kw">use</span> <span class="ident">synthpop::OrigPersonID</span>;
+<span class="kw">use</span> <span class="ident">widgetry::tools::PopupMsg</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">EventCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">SimpleState</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app::App</span>;
@@ -541,7 +555,19 @@
                         .<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">gameplay</span>.<span class="ident">map_name</span>())
                         .<span class="ident">unwrap</span>();
                     <span class="kw">if</span> <span class="op">!</span><span class="ident">abstio::file_exists</span>(<span class="ident">map_name</span>.<span class="ident">path</span>()) {
-                        <span class="kw">return</span> <span class="ident">map_gui::tools::prompt_to_download_missing_data</span>(<span class="ident">ctx</span>, <span class="ident">map_name</span>);
+                        <span class="comment">// Be lazy here and just tell the user what to do, instead of running the</span>
+                        <span class="comment">// code below. This is a rare case anyway.</span>
+                        <span class="kw">return</span> <span class="ident">map_gui::tools::prompt_to_download_missing_data</span>(
+                            <span class="ident">ctx</span>,
+                            <span class="ident">map_name</span>,
+                            <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="kw">_</span><span class="op">|</span> {
+                                <span class="ident">Transition::Replace</span>(<span class="ident">PopupMsg::new_state</span>(
+                                    <span class="ident">ctx</span>,
+                                    <span class="string">&quot;Download complete&quot;</span>,
+                                    <span class="macro">vec!</span>[<span class="string">&quot;Download complete. Click &#39;Start!&#39; again&quot;</span>],
+                                ))
+                            }),
+                        );
                     }
                 }
 

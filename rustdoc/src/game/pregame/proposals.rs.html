@@ -183,6 +183,10 @@
 <span id="178">178</span>
 <span id="179">179</span>
 <span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">geom::Percent</span>;
@@ -323,7 +327,11 @@
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
     {
         <span class="kw">if</span> <span class="op">!</span><span class="ident">abstio::file_exists</span>(<span class="ident">edits</span>.<span class="ident">map_name</span>.<span class="ident">path</span>()) {
-            <span class="kw">return</span> <span class="ident">map_gui::tools::prompt_to_download_missing_data</span>(<span class="ident">ctx</span>, <span class="ident">edits</span>.<span class="ident">map_name</span>);
+            <span class="kw">return</span> <span class="ident">map_gui::tools::prompt_to_download_missing_data</span>(
+                <span class="ident">ctx</span>,
+                <span class="ident">edits</span>.<span class="ident">map_name</span>.<span class="ident">clone</span>(),
+                <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> <span class="ident">launch</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>)),
+            );
         }
     }
 
