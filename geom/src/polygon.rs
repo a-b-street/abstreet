@@ -118,9 +118,7 @@ impl Polygon {
         (&self.points, &self.indices)
     }
 
-    /// Does this polygon contain the point either in the interior or right on the border? Haven't
-    /// tested carefully for polygons with holes.
-    // TODO Not sure about the "right on the border"
+    /// Does this polygon contain the point in its interior?
     pub fn contains_pt(&self, pt: Pt2D) -> bool {
         self.to_geo().contains(&geo::Point::from(pt))
     }
