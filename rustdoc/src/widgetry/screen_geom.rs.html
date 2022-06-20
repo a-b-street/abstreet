@@ -427,11 +427,11 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ScreenDims</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">stretch::geometry::Size</span><span class="op">&lt;</span><span class="ident">stretch::style::Dimension</span><span class="op">&gt;</span> {
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ScreenDims</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">taffy::geometry::Size</span><span class="op">&lt;</span><span class="ident">taffy::style::Dimension</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">dims</span>: <span class="ident">ScreenDims</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">width</span>: <span class="ident">stretch::style::Dimension::Points</span>(<span class="ident">dims</span>.<span class="ident">width</span> <span class="kw">as</span> <span class="ident">f32</span>),
-            <span class="ident">height</span>: <span class="ident">stretch::style::Dimension::Points</span>(<span class="ident">dims</span>.<span class="ident">height</span> <span class="kw">as</span> <span class="ident">f32</span>),
+            <span class="ident">width</span>: <span class="ident">taffy::style::Dimension::Points</span>(<span class="ident">dims</span>.<span class="ident">width</span> <span class="kw">as</span> <span class="ident">f32</span>),
+            <span class="ident">height</span>: <span class="ident">taffy::style::Dimension::Points</span>(<span class="ident">dims</span>.<span class="ident">height</span> <span class="kw">as</span> <span class="ident">f32</span>),
         }
     }
 }

@@ -888,10 +888,10 @@
 <span id="883">883</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
-<span class="kw">use</span> <span class="ident">stretch::geometry</span>::{<span class="ident">Rect</span>, <span class="ident">Size</span>};
-<span class="kw">use</span> <span class="ident">stretch::node</span>::{<span class="ident">Node</span>, <span class="ident">Stretch</span>};
-<span class="kw">use</span> <span class="ident">stretch::number::Number</span>;
-<span class="kw">use</span> <span class="ident">stretch::style</span>::{
+<span class="kw">use</span> <span class="ident">taffy::geometry</span>::{<span class="ident">Rect</span>, <span class="ident">Size</span>};
+<span class="kw">use</span> <span class="ident">taffy::node</span>::{<span class="ident">Node</span>, <span class="ident">Taffy</span>};
+<span class="kw">use</span> <span class="ident">taffy::number::Number</span>;
+<span class="kw">use</span> <span class="ident">taffy::style</span>::{
     <span class="ident">AlignItems</span>, <span class="ident">Dimension</span>, <span class="ident">FlexDirection</span>, <span class="ident">FlexWrap</span>, <span class="ident">JustifyContent</span>, <span class="ident">PositionType</span>, <span class="ident">Style</span>,
 };
 
@@ -1406,27 +1406,27 @@
 
         <span class="comment">// Pretend we&#39;re in a Panel and basically copy recompute_layout</span>
         {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stretch</span> <span class="op">=</span> <span class="ident">Stretch::new</span>();
-            <span class="kw">let</span> <span class="ident">root</span> <span class="op">=</span> <span class="ident">stretch</span>
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">taffy</span> <span class="op">=</span> <span class="ident">Taffy::new</span>();
+            <span class="kw">let</span> <span class="ident">root</span> <span class="op">=</span> <span class="ident">taffy</span>
                 .<span class="ident">new_node</span>(
                     <span class="ident">Style</span> {
                         ..<span class="ident">Default::default</span>()
                     },
-                    <span class="ident">Vec::new</span>(),
+                    <span class="kw-2">&amp;</span>[],
                 )
                 .<span class="ident">unwrap</span>();
 
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">nodes</span> <span class="op">=</span> <span class="macro">vec!</span>[];
-            <span class="self">self</span>.<span class="ident">get_flexbox</span>(<span class="ident">root</span>, <span class="kw-2">&amp;mut</span> <span class="ident">stretch</span>, <span class="kw-2">&amp;mut</span> <span class="ident">nodes</span>);
+            <span class="self">self</span>.<span class="ident">get_flexbox</span>(<span class="ident">root</span>, <span class="kw-2">&amp;mut</span> <span class="ident">taffy</span>, <span class="kw-2">&amp;mut</span> <span class="ident">nodes</span>);
             <span class="ident">nodes</span>.<span class="ident">reverse</span>();
 
             <span class="kw">let</span> <span class="ident">container_size</span> <span class="op">=</span> <span class="ident">Size</span> {
                 <span class="ident">width</span>: <span class="ident">Number::Undefined</span>,
                 <span class="ident">height</span>: <span class="ident">Number::Undefined</span>,
             };
-            <span class="ident">stretch</span>.<span class="ident">compute_layout</span>(<span class="ident">root</span>, <span class="ident">container_size</span>).<span class="ident">unwrap</span>();
+            <span class="ident">taffy</span>.<span class="ident">compute_layout</span>(<span class="ident">root</span>, <span class="ident">container_size</span>).<span class="ident">unwrap</span>();
 
-            <span class="self">self</span>.<span class="ident">apply_flexbox</span>(<span class="kw-2">&amp;</span><span class="ident">stretch</span>, <span class="kw-2">&amp;mut</span> <span class="ident">nodes</span>, <span class="number">0.0</span>, <span class="number">0.0</span>, (<span class="number">0.0</span>, <span class="number">0.0</span>), <span class="ident">ctx</span>, <span class="bool-val">true</span>, <span class="bool-val">true</span>);
+            <span class="self">self</span>.<span class="ident">apply_flexbox</span>(<span class="kw-2">&amp;</span><span class="ident">taffy</span>, <span class="kw-2">&amp;mut</span> <span class="ident">nodes</span>, <span class="number">0.0</span>, <span class="number">0.0</span>, (<span class="number">0.0</span>, <span class="number">0.0</span>), <span class="ident">ctx</span>, <span class="bool-val">true</span>, <span class="bool-val">true</span>);
             <span class="macro">assert!</span>(<span class="ident">nodes</span>.<span class="ident">is_empty</span>());
         }
 
@@ -1479,7 +1479,7 @@
     }
 
     <span class="comment">// Populate a flattened list of Nodes, matching the traversal order</span>
-    <span class="kw">fn</span> <span class="ident">get_flexbox</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">parent</span>: <span class="ident">Node</span>, <span class="ident">stretch</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Stretch</span>, <span class="ident">nodes</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&gt;</span>) {
+    <span class="kw">fn</span> <span class="ident">get_flexbox</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">parent</span>: <span class="ident">Node</span>, <span class="ident">taffy</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Taffy</span>, <span class="ident">nodes</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&gt;</span>) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">style</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">layout</span>.<span class="ident">style</span>;
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">container</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">widget</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">Container</span><span class="op">&gt;</span>() {
             <span class="ident">style</span>.<span class="ident">flex_direction</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">container</span>.<span class="ident">is_row</span> {
@@ -1487,19 +1487,19 @@
             } <span class="kw">else</span> {
                 <span class="ident">FlexDirection::Column</span>
             };
-            <span class="kw">let</span> <span class="ident">node</span> <span class="op">=</span> <span class="ident">stretch</span>.<span class="ident">new_node</span>(<span class="ident">style</span>, <span class="ident">Vec::new</span>()).<span class="ident">unwrap</span>();
+            <span class="kw">let</span> <span class="ident">node</span> <span class="op">=</span> <span class="ident">taffy</span>.<span class="ident">new_node</span>(<span class="ident">style</span>, <span class="kw-2">&amp;</span>[]).<span class="ident">unwrap</span>();
             <span class="ident">nodes</span>.<span class="ident">push</span>(<span class="ident">node</span>);
             <span class="kw">for</span> <span class="ident">widget</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">container</span>.<span class="ident">members</span> {
-                <span class="ident">widget</span>.<span class="ident">get_flexbox</span>(<span class="ident">node</span>, <span class="ident">stretch</span>, <span class="ident">nodes</span>);
+                <span class="ident">widget</span>.<span class="ident">get_flexbox</span>(<span class="ident">node</span>, <span class="ident">taffy</span>, <span class="ident">nodes</span>);
             }
-            <span class="ident">stretch</span>.<span class="ident">add_child</span>(<span class="ident">parent</span>, <span class="ident">node</span>).<span class="ident">unwrap</span>();
+            <span class="ident">taffy</span>.<span class="ident">add_child</span>(<span class="ident">parent</span>, <span class="ident">node</span>).<span class="ident">unwrap</span>();
         } <span class="kw">else</span> {
             <span class="ident">style</span>.<span class="ident">size</span> <span class="op">=</span> <span class="ident">Size</span> {
                 <span class="ident">width</span>: <span class="ident">Dimension::Points</span>(<span class="self">self</span>.<span class="ident">widget</span>.<span class="ident">get_dims</span>().<span class="ident">width</span> <span class="kw">as</span> <span class="ident">f32</span>),
                 <span class="ident">height</span>: <span class="ident">Dimension::Points</span>(<span class="self">self</span>.<span class="ident">widget</span>.<span class="ident">get_dims</span>().<span class="ident">height</span> <span class="kw">as</span> <span class="ident">f32</span>),
             };
-            <span class="kw">let</span> <span class="ident">node</span> <span class="op">=</span> <span class="ident">stretch</span>.<span class="ident">new_node</span>(<span class="ident">style</span>, <span class="ident">Vec::new</span>()).<span class="ident">unwrap</span>();
-            <span class="ident">stretch</span>.<span class="ident">add_child</span>(<span class="ident">parent</span>, <span class="ident">node</span>).<span class="ident">unwrap</span>();
+            <span class="kw">let</span> <span class="ident">node</span> <span class="op">=</span> <span class="ident">taffy</span>.<span class="ident">new_node</span>(<span class="ident">style</span>, <span class="kw-2">&amp;</span>[]).<span class="ident">unwrap</span>();
+            <span class="ident">taffy</span>.<span class="ident">add_child</span>(<span class="ident">parent</span>, <span class="ident">node</span>).<span class="ident">unwrap</span>();
             <span class="ident">nodes</span>.<span class="ident">push</span>(<span class="ident">node</span>);
         }
     }
@@ -1507,7 +1507,7 @@
     <span class="comment">// TODO Clean up argument passing</span>
     <span class="kw">fn</span> <span class="ident">apply_flexbox</span>(
         <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">stretch</span>: <span class="kw-2">&amp;</span><span class="ident">Stretch</span>,
+        <span class="ident">taffy</span>: <span class="kw-2">&amp;</span><span class="ident">Taffy</span>,
         <span class="ident">nodes</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&gt;</span>,
         <span class="ident">dx</span>: <span class="ident">f64</span>,
         <span class="ident">dy</span>: <span class="ident">f64</span>,
@@ -1516,7 +1516,7 @@
         <span class="ident">recompute_layout</span>: <span class="ident">bool</span>,
         <span class="ident">defer_draw</span>: <span class="ident">bool</span>,
     ) {
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">stretch</span>.<span class="ident">layout</span>(<span class="ident">nodes</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>()).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">taffy</span>.<span class="ident">layout</span>(<span class="ident">nodes</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>()).<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">x</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">location</span>.<span class="ident">x</span>.<span class="ident">into</span>();
         <span class="kw">let</span> <span class="ident">y</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">location</span>.<span class="ident">y</span>.<span class="ident">into</span>();
         <span class="kw">let</span> <span class="ident">width</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">size</span>.<span class="ident">width</span>.<span class="ident">into</span>();
@@ -1572,7 +1572,7 @@
             <span class="comment">// layout() doesn&#39;t return absolute position; it&#39;s relative to the container.</span>
             <span class="kw">for</span> <span class="ident">widget</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">container</span>.<span class="ident">members</span> {
                 <span class="ident">widget</span>.<span class="ident">apply_flexbox</span>(
-                    <span class="ident">stretch</span>,
+                    <span class="ident">taffy</span>,
                     <span class="ident">nodes</span>,
                     <span class="ident">x</span> <span class="op">+</span> <span class="ident">dx</span>,
                     <span class="ident">y</span> <span class="op">+</span> <span class="ident">dy</span>,
