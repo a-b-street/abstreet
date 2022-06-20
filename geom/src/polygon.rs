@@ -614,7 +614,7 @@ impl From<geo::Polygon<f64>> for Polygon {
 impl From<Polygon> for geo::Polygon<f64> {
     fn from(poly: Polygon) -> Self {
         if let Some(mut rings) = poly.rings {
-            let exterior = rings.pop().expect("expected poly.rings[0] to be exterior");
+            let exterior = rings.remove(0);
             let interiors: Vec<geo::LineString<f64>> =
                 rings.into_iter().map(geo::LineString::from).collect();
             Self::new(exterior.into(), interiors)
