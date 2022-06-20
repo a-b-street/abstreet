@@ -86,8 +86,15 @@ impl SimpleState<App> for TitleScreen {
                         {
                             let map_name = level.map.clone();
                             if !abstio::file_exists(map_name.path()) {
+                                let level = level.clone();
                                 return map_gui::tools::prompt_to_download_missing_data(
-                                    ctx, map_name,
+                                    ctx,
+                                    map_name,
+                                    Box::new(move |ctx, app| {
+                                        Transition::Replace(crate::before_level::Picker::new_state(
+                                            ctx, app, level,
+                                        ))
+                                    }),
                                 );
                             }
                         }

@@ -1,5 +1,6 @@
 use std::collections::BTreeSet;
 
+use anyhow::Result;
 use fs_err::File;
 use futures_channel::mpsc;
 
@@ -32,12 +33,10 @@ fn size_of_city(map: &MapName) -> u64 {
     bytes
 }
 
-/// Prompt to download a missing city. On either success or failure (maybe the player choosing to
-/// not download, maybe a network error), the new map isn't automatically loaded or anything; up to
-/// the caller to handle that.
 pub fn prompt_to_download_missing_data<A: AppLike + 'static>(
     ctx: &mut EventCtx,
     map_name: MapName,
+    on_load: Box<dyn FnOnce(&mut EventCtx, &mut A) -> Transition<A>>,
 ) -> Transition<A> {
     Transition::Push(ChooseSomething::new_state(
         ctx,
@@ -64,28 +63,29 @@ pub fn prompt_to_download_missing_data<A: AppLike + 'static>(
 
             let (outer_progress_tx, outer_progress_rx) = futures_channel::mpsc::channel(1000);
             let (inner_progress_tx, inner_progress_rx) = futures_channel::mpsc::channel(1000);
-            Transition::Replace(FutureLoader::<A, Vec<String>>::new_state(
+            Transition::Replace(FutureLoader::<A, Result<()>>::new_state(
                 ctx,
                 Box::pin(async {
                     let result =
                         download_cities(cities, outer_progress_tx, inner_progress_tx).await;
-                    let wrap: Box<dyn Send + FnOnce(&A) -> Vec<String>> =
+                    let wrap: Box<dyn Send + FnOnce(&A) -> Result<()>> =
                         Box::new(move |_: &A| result);
                     Ok(wrap)
                 }),
                 outer_progress_rx,
                 inner_progress_rx,
                 "Downloading missing files",
-                Box::new(|ctx, _, maybe_messages| {
-                    let messages = match maybe_messages {
-                        Ok(m) => m,
-                        Err(err) => vec![format!("Something went very wrong: {}", err)],
+                Box::new(|ctx, app, maybe_result| {
+                    let error_msg = match maybe_result {
+                        Ok(Ok(())) => None,
+                        Ok(Err(err)) => Some(err.to_string()),
+                        Err(err) => Some(format!("Something went very wrong: {}", err)),
                     };
-                    Transition::Replace(PopupMsg::new_state(
-                        ctx,
-                        "Download complete. Try again!",
-                        messages,
-                    ))
+                    if let Some(err) = error_msg {
+                        Transition::Replace(PopupMsg::new_state(ctx, "Download failed", vec![err]))
+                    } else {
+                        on_load(ctx, app)
+                    }
                 }),
             ))
         }),
@@ -96,7 +96,7 @@ async fn download_cities(
     cities: Vec<String>,
     mut outer_progress: mpsc::Sender<String>,
     mut inner_progress: mpsc::Sender<String>,
-) -> Vec<String> {
+) -> Result<()> {
     let mut data_packs = DataPacks {
         runtime: BTreeSet::new(),
         input: BTreeSet::new(),
@@ -150,6 +150,8 @@ async fn download_cities(
             }
         }
     }
-    messages.insert(0, format!("Downloaded {} files", num_files));
-    messages
+    if !messages.is_empty() {
+        bail!("{} errors: {}", messages.len(), messages.join(", "));
+    }
+    Ok(())
 }

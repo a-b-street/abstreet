@@ -186,6 +186,12 @@ impl<A: AppLike + 'static> CityPicker<A> {
 
 impl<A: AppLike + 'static> State<A> for CityPicker<A> {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Transition<A> {
+        // TODO This happens if we prompt the user to download something, but they cancel. At that
+        // point, we've lost the callback, so for now, just totally bail out.
+        if self.on_load.is_none() {
+            return Transition::Pop;
+        }
+
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
@@ -304,6 +310,11 @@ impl<A: AppLike + 'static> AllCityPicker<A> {
 
 impl<A: AppLike + 'static> State<A> for AllCityPicker<A> {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Transition<A> {
+        // Same as CityPicker
+        if self.on_load.is_none() {
+            return Transition::Pop;
+        }
+
         if let Outcome::Clicked(x) = self.panel.event(ctx) {
             match x.as_ref() {
                 "close" => {
@@ -431,6 +442,11 @@ impl<A: AppLike + 'static> CitiesInCountryPicker<A> {
 
 impl<A: AppLike + 'static> State<A> for CitiesInCountryPicker<A> {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Transition<A> {
+        // Same as CityPicker
+        if self.on_load.is_none() {
+            return Transition::Pop;
+        }
+
         if let Outcome::Clicked(x) = self.panel.event(ctx) {
             match x.as_ref() {
                 "close" => {
@@ -460,6 +476,7 @@ impl<A: AppLike + 'static> State<A> for CitiesInCountryPicker<A> {
                             return crate::tools::prompt_to_download_missing_data(
                                 ctx,
                                 maps.pop().unwrap(),
+                                self.on_load.take().unwrap(),
                             );
                         }
                     }
@@ -506,7 +523,14 @@ fn chose_city<A: AppLike + 'static>(
     #[cfg(not(target_arch = "wasm32"))]
     {
         if !abstio::file_exists(name.path()) {
-            return crate::tools::prompt_to_download_missing_data(ctx, name);
+            let on_load = on_load.take().unwrap();
+            return crate::tools::prompt_to_download_missing_data(
+                ctx,
+                name.clone(),
+                Box::new(move |ctx, app| {
+                    Transition::Replace(MapLoader::new_state(ctx, app, name, on_load))
+                }),
+            );
         }
     }
 

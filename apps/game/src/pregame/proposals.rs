@@ -138,7 +138,11 @@ fn launch(ctx: &mut EventCtx, app: &App, edits: PermanentMapEdits) -> Transition
     #[cfg(not(target_arch = "wasm32"))]
     {
         if !abstio::file_exists(edits.map_name.path()) {
-            return map_gui::tools::prompt_to_download_missing_data(ctx, edits.map_name);
+            return map_gui::tools::prompt_to_download_missing_data(
+                ctx,
+                edits.map_name.clone(),
+                Box::new(move |ctx, app| launch(ctx, app, edits)),
+            );
         }
     }
 

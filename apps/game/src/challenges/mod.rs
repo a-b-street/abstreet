@@ -2,6 +2,7 @@ use std::collections::BTreeMap;
 
 use geom::{Duration, Percent};
 use synthpop::OrigPersonID;
+use widgetry::tools::PopupMsg;
 use widgetry::{EventCtx, Key, Line, Panel, SimpleState, State, Text, TextExt, Widget};
 
 use crate::app::App;
@@ -257,7 +258,19 @@ impl SimpleState<App> for ChallengesPicker {
                         .map(|c| c.gameplay.map_name())
                         .unwrap();
                     if !abstio::file_exists(map_name.path()) {
-                        return map_gui::tools::prompt_to_download_missing_data(ctx, map_name);
+                        // Be lazy here and just tell the user what to do, instead of running the
+                        // code below. This is a rare case anyway.
+                        return map_gui::tools::prompt_to_download_missing_data(
+                            ctx,
+                            map_name,
+                            Box::new(|ctx, _| {
+                                Transition::Replace(PopupMsg::new_state(
+                                    ctx,
+                                    "Download complete",
+                                    vec!["Download complete. Click 'Start!' again"],
+                                ))
+                            }),
+                        );
                     }
                 }
 
