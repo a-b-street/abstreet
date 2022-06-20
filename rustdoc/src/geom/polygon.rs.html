@@ -662,49 +662,11 @@
 <span id="657">657</span>
 <span id="658">658</span>
 <span id="659">659</span>
-<span id="660">660</span>
-<span id="661">661</span>
-<span id="662">662</span>
-<span id="663">663</span>
-<span id="664">664</span>
-<span id="665">665</span>
-<span id="666">666</span>
-<span id="667">667</span>
-<span id="668">668</span>
-<span id="669">669</span>
-<span id="670">670</span>
-<span id="671">671</span>
-<span id="672">672</span>
-<span id="673">673</span>
-<span id="674">674</span>
-<span id="675">675</span>
-<span id="676">676</span>
-<span id="677">677</span>
-<span id="678">678</span>
-<span id="679">679</span>
-<span id="680">680</span>
-<span id="681">681</span>
-<span id="682">682</span>
-<span id="683">683</span>
-<span id="684">684</span>
-<span id="685">685</span>
-<span id="686">686</span>
-<span id="687">687</span>
-<span id="688">688</span>
-<span id="689">689</span>
-<span id="690">690</span>
-<span id="691">691</span>
-<span id="692">692</span>
-<span id="693">693</span>
-<span id="694">694</span>
-<span id="695">695</span>
-<span id="696">696</span>
-<span id="697">697</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::convert::TryFrom</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
-<span class="kw">use</span> <span class="ident">geo</span>::{<span class="ident">Area</span>, <span class="ident">BooleanOps</span>, <span class="ident">ConvexHull</span>, <span class="ident">Intersects</span>, <span class="ident">SimplifyVWPreserve</span>};
+<span class="kw">use</span> <span class="ident">geo</span>::{<span class="ident">Area</span>, <span class="ident">BooleanOps</span>, <span class="ident">Contains</span>, <span class="ident">ConvexHull</span>, <span class="ident">Intersects</span>, <span class="ident">SimplifyVWPreserve</span>};
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="ident">abstutil::Tags</span>;
@@ -807,11 +769,11 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">triangles</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Triangle</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">triangles</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Triangle</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">for</span> <span class="ident">slice</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">indices</span>.<span class="ident">chunks_exact</span>(<span class="number">3</span>) {
-            <span class="ident">triangles</span>.<span class="ident">push</span>(<span class="ident">Triangle::new</span>(
-                <span class="self">self</span>.<span class="ident">points</span>[<span class="ident">slice</span>[<span class="number">0</span>] <span class="kw">as</span> <span class="ident">usize</span>],
-                <span class="self">self</span>.<span class="ident">points</span>[<span class="ident">slice</span>[<span class="number">1</span>] <span class="kw">as</span> <span class="ident">usize</span>],
-                <span class="self">self</span>.<span class="ident">points</span>[<span class="ident">slice</span>[<span class="number">2</span>] <span class="kw">as</span> <span class="ident">usize</span>],
-            ));
+            <span class="ident">triangles</span>.<span class="ident">push</span>(<span class="ident">Triangle</span> {
+                <span class="ident">pt1</span>: <span class="self">self</span>.<span class="ident">points</span>[<span class="ident">slice</span>[<span class="number">0</span>] <span class="kw">as</span> <span class="ident">usize</span>],
+                <span class="ident">pt2</span>: <span class="self">self</span>.<span class="ident">points</span>[<span class="ident">slice</span>[<span class="number">1</span>] <span class="kw">as</span> <span class="ident">usize</span>],
+                <span class="ident">pt3</span>: <span class="self">self</span>.<span class="ident">points</span>[<span class="ident">slice</span>[<span class="number">2</span>] <span class="kw">as</span> <span class="ident">usize</span>],
+            });
         }
         <span class="ident">triangles</span>
     }
@@ -820,10 +782,9 @@
         (<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">points</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">indices</span>)
     }
 
-    <span class="doccomment">/// Does this polygon contain the point either in the interior or right on the border? Haven&#39;t</span>
-    <span class="doccomment">/// tested carefully for polygons with holes.</span>
+    <span class="doccomment">/// Does this polygon contain the point in its interior?</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">contains_pt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">triangles</span>().<span class="ident">into_iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">tri</span><span class="op">|</span> <span class="ident">tri</span>.<span class="ident">contains_pt</span>(<span class="ident">pt</span>))
+        <span class="self">self</span>.<span class="ident">to_geo</span>().<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">geo::Point::from</span>(<span class="ident">pt</span>))
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_bounds</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Bounds</span> {
@@ -1055,11 +1016,11 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">intersection</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Polygon</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> {
-        <span class="ident">from_multi</span>(<span class="ident">to_geo</span>(<span class="self">self</span>.<span class="ident">points</span>()).<span class="ident">intersection</span>(<span class="kw-2">&amp;</span><span class="ident">to_geo</span>(<span class="ident">other</span>.<span class="ident">points</span>())))
+        <span class="ident">from_multi</span>(<span class="self">self</span>.<span class="ident">to_geo</span>().<span class="ident">intersection</span>(<span class="kw-2">&amp;</span><span class="ident">other</span>.<span class="ident">to_geo</span>()))
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">convex_hull</span>(<span class="ident">list</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span>) -&gt; <span class="ident">Polygon</span> {
-        <span class="kw">let</span> <span class="ident">mp</span>: <span class="ident">geo::MultiPolygon</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">list</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">to_geo</span>(<span class="ident">p</span>.<span class="ident">points</span>())).<span class="ident">collect</span>();
+        <span class="kw">let</span> <span class="ident">mp</span>: <span class="ident">geo::MultiPolygon</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">list</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">to_geo</span>()).<span class="ident">collect</span>();
         <span class="ident">mp</span>.<span class="ident">convex_hull</span>().<span class="ident">into</span>()
     }
 
@@ -1072,18 +1033,18 @@
     <span class="doccomment">/// Find the &quot;pole of inaccessibility&quot; -- the most distant internal point from the polygon</span>
     <span class="doccomment">/// outline</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">polylabel</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Pt2D</span> {
-        <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">polylabel::polylabel</span>(<span class="kw-2">&amp;</span><span class="ident">to_geo</span>(<span class="self">self</span>.<span class="ident">points</span>()), <span class="kw-2">&amp;</span><span class="number">1.0</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">polylabel::polylabel</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">to_geo</span>(), <span class="kw-2">&amp;</span><span class="number">1.0</span>).<span class="ident">unwrap</span>();
         <span class="ident">Pt2D::new</span>(<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>())
     }
 
     <span class="doccomment">/// Do two polygons intersect at all?</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">intersects</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Polygon</span>) -&gt; <span class="ident">bool</span> {
-        <span class="ident">to_geo</span>(<span class="self">self</span>.<span class="ident">points</span>()).<span class="ident">intersects</span>(<span class="kw-2">&amp;</span><span class="ident">to_geo</span>(<span class="ident">other</span>.<span class="ident">points</span>()))
+        <span class="self">self</span>.<span class="ident">to_geo</span>().<span class="ident">intersects</span>(<span class="kw-2">&amp;</span><span class="ident">other</span>.<span class="ident">to_geo</span>())
     }
 
     <span class="doccomment">/// Does this polygon intersect a polyline?</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">intersects_polyline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pl</span>: <span class="kw-2">&amp;</span><span class="ident">PolyLine</span>) -&gt; <span class="ident">bool</span> {
-        <span class="ident">to_geo</span>(<span class="self">self</span>.<span class="ident">points</span>()).<span class="ident">intersects</span>(<span class="kw-2">&amp;</span><span class="ident">pl</span>.<span class="ident">to_geo</span>())
+        <span class="self">self</span>.<span class="ident">to_geo</span>().<span class="ident">intersects</span>(<span class="kw-2">&amp;</span><span class="ident">pl</span>.<span class="ident">to_geo</span>())
     }
 
     <span class="doccomment">/// Creates the outline around the polygon, with the thickness half straddling the polygon and</span>
@@ -1110,7 +1071,7 @@
     <span class="doccomment">/// Usually m^2, unless the polygon is in screen-space</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">area</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">f64</span> {
         <span class="comment">// Polygon orientation messes this up sometimes</span>
-        <span class="ident">to_geo</span>(<span class="self">self</span>.<span class="ident">points</span>()).<span class="ident">unsigned_area</span>()
+        <span class="self">self</span>.<span class="ident">to_geo</span>().<span class="ident">unsigned_area</span>()
     }
 
     <span class="doccomment">/// Doesn&#39;t handle multiple crossings in and out.</span>
@@ -1260,12 +1221,19 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">simplify</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">epsilon</span>: <span class="ident">f64</span>) -&gt; <span class="ident">Polygon</span> {
-        <span class="ident">to_geo</span>(<span class="self">self</span>.<span class="ident">points</span>()).<span class="ident">simplifyvw_preserve</span>(<span class="kw-2">&amp;</span><span class="ident">epsilon</span>).<span class="ident">into</span>()
+        <span class="self">self</span>.<span class="ident">to_geo</span>().<span class="ident">simplifyvw_preserve</span>(<span class="kw-2">&amp;</span><span class="ident">epsilon</span>).<span class="ident">into</span>()
     }
 
     <span class="doccomment">/// An arbitrary placeholder value, when Option types aren&#39;t worthwhile</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dummy</span>() -&gt; <span class="self">Self</span> {
         <span class="ident">Polygon::rectangle</span>(<span class="number">0.1</span>, <span class="number">0.1</span>)
+    }
+
+    <span class="comment">// A less verbose way of invoking the From/Into impl. Note this hides a potentially expensive</span>
+    <span class="comment">// clone. The eventual goal is for Polygon to directly wrap a geo::Polygon, at which point this</span>
+    <span class="comment">// cost goes away.</span>
+    <span class="kw">fn</span> <span class="ident">to_geo</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">geo::Polygon</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">clone</span>().<span class="ident">into</span>()
     }
 }
 
@@ -1295,50 +1263,6 @@
     <span class="kw">pub</span> <span class="ident">pt3</span>: <span class="ident">Pt2D</span>,
 }
 
-<span class="kw">impl</span> <span class="ident">Triangle</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">pt1</span>: <span class="ident">Pt2D</span>, <span class="ident">pt2</span>: <span class="ident">Pt2D</span>, <span class="ident">pt3</span>: <span class="ident">Pt2D</span>) -&gt; <span class="ident">Triangle</span> {
-        <span class="ident">Triangle</span> { <span class="ident">pt1</span>, <span class="ident">pt2</span>, <span class="ident">pt3</span> }
-    }
-
-    <span class="kw">fn</span> <span class="ident">contains_pt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">let</span> <span class="ident">x1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pt1</span>.<span class="ident">x</span>();
-        <span class="kw">let</span> <span class="ident">y1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pt1</span>.<span class="ident">y</span>();
-        <span class="kw">let</span> <span class="ident">x2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pt2</span>.<span class="ident">x</span>();
-        <span class="kw">let</span> <span class="ident">y2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pt2</span>.<span class="ident">y</span>();
-        <span class="kw">let</span> <span class="ident">x3</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pt3</span>.<span class="ident">x</span>();
-        <span class="kw">let</span> <span class="ident">y3</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pt3</span>.<span class="ident">y</span>();
-        <span class="kw">let</span> <span class="ident">px</span> <span class="op">=</span> <span class="ident">pt</span>.<span class="ident">x</span>();
-        <span class="kw">let</span> <span class="ident">py</span> <span class="op">=</span> <span class="ident">pt</span>.<span class="ident">y</span>();
-
-        <span class="comment">// Barycentric coefficients for pt</span>
-        <span class="comment">// Use epsilon to deal with small denominators</span>
-        <span class="kw">let</span> <span class="ident">epsilon</span> <span class="op">=</span> <span class="number">0.000_000_1</span>;
-        <span class="kw">let</span> <span class="ident">l0</span> <span class="op">=</span> ((<span class="ident">y2</span> <span class="op">-</span> <span class="ident">y3</span>) <span class="op">*</span> (<span class="ident">px</span> <span class="op">-</span> <span class="ident">x3</span>) <span class="op">+</span> (<span class="ident">x3</span> <span class="op">-</span> <span class="ident">x2</span>) <span class="op">*</span> (<span class="ident">py</span> <span class="op">-</span> <span class="ident">y3</span>))
-            <span class="op">/</span> (((<span class="ident">y2</span> <span class="op">-</span> <span class="ident">y3</span>) <span class="op">*</span> (<span class="ident">x1</span> <span class="op">-</span> <span class="ident">x3</span>) <span class="op">+</span> (<span class="ident">x3</span> <span class="op">-</span> <span class="ident">x2</span>) <span class="op">*</span> (<span class="ident">y1</span> <span class="op">-</span> <span class="ident">y3</span>)) <span class="op">+</span> <span class="ident">epsilon</span>);
-        <span class="kw">let</span> <span class="ident">l1</span> <span class="op">=</span> ((<span class="ident">y3</span> <span class="op">-</span> <span class="ident">y1</span>) <span class="op">*</span> (<span class="ident">px</span> <span class="op">-</span> <span class="ident">x3</span>) <span class="op">+</span> (<span class="ident">x1</span> <span class="op">-</span> <span class="ident">x3</span>) <span class="op">*</span> (<span class="ident">py</span> <span class="op">-</span> <span class="ident">y3</span>))
-            <span class="op">/</span> (((<span class="ident">y2</span> <span class="op">-</span> <span class="ident">y3</span>) <span class="op">*</span> (<span class="ident">x1</span> <span class="op">-</span> <span class="ident">x3</span>) <span class="op">+</span> (<span class="ident">x3</span> <span class="op">-</span> <span class="ident">x2</span>) <span class="op">*</span> (<span class="ident">y1</span> <span class="op">-</span> <span class="ident">y3</span>)) <span class="op">+</span> <span class="ident">epsilon</span>);
-        <span class="kw">let</span> <span class="ident">l2</span> <span class="op">=</span> <span class="number">1.0</span> <span class="op">-</span> <span class="ident">l0</span> <span class="op">-</span> <span class="ident">l1</span>;
-
-        <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> [<span class="ident">l0</span>, <span class="ident">l1</span>, <span class="ident">l2</span>] {
-            <span class="kw">if</span> <span class="ident">x</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">1.0</span> <span class="op">|</span><span class="op">|</span> <span class="ident">x</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">0.0</span> {
-                <span class="kw">return</span> <span class="bool-val">false</span>;
-            }
-        }
-        <span class="bool-val">true</span>
-    }
-}
-
-<span class="kw">fn</span> <span class="ident">to_geo</span>(<span class="ident">pts</span>: <span class="kw-2">&amp;</span>[<span class="ident">Pt2D</span>]) -&gt; <span class="ident">geo::Polygon</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> {
-    <span class="ident">geo::Polygon::new</span>(
-        <span class="ident">geo::LineString::from</span>(
-            <span class="ident">pts</span>.<span class="ident">iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">geo::Point::new</span>(<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>()))
-                .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
-        ),
-        <span class="ident">Vec::new</span>(),
-    )
-}
-
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">geo::Polygon</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Polygon</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">poly</span>: <span class="ident">geo::Polygon</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> (<span class="ident">exterior</span>, <span class="ident">interiors</span>) <span class="op">=</span> <span class="ident">poly</span>.<span class="ident">into_inner</span>();
@@ -1352,7 +1276,7 @@
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">geo::Polygon</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">poly</span>: <span class="ident">Polygon</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">rings</span>) <span class="op">=</span> <span class="ident">poly</span>.<span class="ident">rings</span> {
-            <span class="kw">let</span> <span class="ident">exterior</span> <span class="op">=</span> <span class="ident">rings</span>.<span class="ident">pop</span>().<span class="ident">expect</span>(<span class="string">&quot;expected poly.rings[0] to be exterior&quot;</span>);
+            <span class="kw">let</span> <span class="ident">exterior</span> <span class="op">=</span> <span class="ident">rings</span>.<span class="ident">remove</span>(<span class="number">0</span>);
             <span class="kw">let</span> <span class="ident">interiors</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">geo::LineString</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span>
                 <span class="ident">rings</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="ident">geo::LineString::from</span>).<span class="ident">collect</span>();
             <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">exterior</span>.<span class="ident">into</span>(), <span class="ident">interiors</span>)

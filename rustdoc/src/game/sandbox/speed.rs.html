@@ -567,9 +567,8 @@
 <span id="562">562</span>
 <span id="563">563</span>
 <span id="564">564</span>
-<span id="565">565</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">abstutil::prettyprint_usize</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_gui::ID</span>;
 <span class="kw">use</span> <span class="ident">sim::AlertLocation</span>;
 <span class="kw">use</span> <span class="ident">widgetry::tools::PopupMsg</span>;
@@ -809,19 +808,18 @@
             <span class="comment">// Add a triangle-shaped cursor above the baseline cursor</span>
             <span class="ident">progress_bar</span> <span class="op">=</span> <span class="ident">progress_bar</span>.<span class="ident">translate</span>(<span class="number">0.0</span>, <span class="ident">triangle_height</span>);
 
-            <span class="kw">use</span> <span class="ident">geom::Triangle</span>;
-            <span class="kw">let</span> <span class="ident">triangle</span> <span class="op">=</span> <span class="ident">Triangle::new</span>(
+            <span class="kw">let</span> <span class="ident">triangle</span> <span class="op">=</span> <span class="ident">Ring::must_new</span>(<span class="macro">vec!</span>[
                 <span class="ident">Pt2D::zero</span>(),
                 <span class="ident">Pt2D::new</span>(<span class="ident">triangle_width</span>, <span class="number">0.0</span>),
                 <span class="ident">Pt2D::new</span>(<span class="ident">triangle_width</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">triangle_height</span>),
-            );
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">triangle_poly</span> <span class="op">=</span> <span class="ident">Polygon::from_triangle</span>(<span class="kw-2">&amp;</span><span class="ident">triangle</span>);
-            <span class="ident">triangle_poly</span> <span class="op">=</span> <span class="ident">triangle_poly</span>.<span class="ident">translate</span>(
+                <span class="ident">Pt2D::zero</span>(),
+            ])
+            .<span class="ident">into_polygon</span>()
+            .<span class="ident">translate</span>(
                 <span class="ident">baseline_finished_width</span> <span class="op">-</span> <span class="ident">triangle_width</span> <span class="op">/</span> <span class="number">2.0</span> <span class="op">+</span> <span class="ident">cursor_width</span> <span class="op">/</span> <span class="number">2.0</span>,
                 <span class="number">0.0</span>,
             );
-
-            <span class="ident">progress_bar</span>.<span class="ident">push</span>(<span class="ident">cursor_fg</span>, <span class="ident">triangle_poly</span>);
+            <span class="ident">progress_bar</span>.<span class="ident">push</span>(<span class="ident">cursor_fg</span>, <span class="ident">triangle</span>);
         }
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tooltip_text</span> <span class="op">=</span> <span class="ident">Text::from</span>(<span class="string">&quot;Finished Trips&quot;</span>);
