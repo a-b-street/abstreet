@@ -172,7 +172,7 @@ impl Panel {
                 Style {
                     ..Default::default()
                 },
-                &Vec::new(),
+                &[],
             )
             .unwrap();
 

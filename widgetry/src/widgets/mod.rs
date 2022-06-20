@@ -524,7 +524,7 @@ impl Widget {
                     Style {
                         ..Default::default()
                     },
-                    &Vec::new(),
+                    &[],
                 )
                 .unwrap();
 
@@ -599,7 +599,7 @@ impl Widget {
             } else {
                 FlexDirection::Column
             };
-            let node = taffy.new_node(style, &Vec::new()).unwrap();
+            let node = taffy.new_node(style, &[]).unwrap();
             nodes.push(node);
             for widget in &container.members {
                 widget.get_flexbox(node, taffy, nodes);
@@ -610,7 +610,7 @@ impl Widget {
                 width: Dimension::Points(self.widget.get_dims().width as f32),
                 height: Dimension::Points(self.widget.get_dims().height as f32),
             };
-            let node = taffy.new_node(style, &Vec::new()).unwrap();
+            let node = taffy.new_node(style, &[]).unwrap();
             taffy.add_child(parent, node).unwrap();
             nodes.push(node);
         }
