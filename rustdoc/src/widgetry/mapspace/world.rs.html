@@ -660,6 +660,12 @@
 <span id="655">655</span>
 <span id="656">656</span>
 <span id="657">657</span>
+<span id="658">658</span>
+<span id="659">659</span>
+<span id="660">660</span>
+<span id="661">661</span>
+<span id="662">662</span>
+<span id="663">663</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 <span class="kw">use</span> <span class="ident">std::fmt::Debug</span>;
 <span class="kw">use</span> <span class="ident">std::hash::Hash</span>;
@@ -1082,6 +1088,12 @@
             .<span class="ident">canvas</span>
             .<span class="ident">get_cursor_in_map_space</span>()
             .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">cursor</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">calculate_hover</span>(<span class="ident">cursor</span>));
+    }
+
+    <span class="doccomment">/// Forcibly reset the hovering state to empty. This is a necessary hack when launching a new</span>
+    <span class="doccomment">/// state that uses `DrawBaselayer::PreviousState` and has tooltips.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hack_unset_hovering</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">hovering</span> <span class="op">=</span> <span class="prelude-val">None</span>;
     }
 
     <span class="doccomment">/// If a drag event causes the world to be totally rebuilt, call this with the previous world</span>
