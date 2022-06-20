@@ -33,7 +33,7 @@ lru = "0.7.1"
 lyon = "0.16.2"
 serde = "1.0.123"
 serde_json = "1.0.61"
-stretch = "0.3.2"
+taffy = "0.1.0"
 tokio = { version ="1.19.2", features=["full"], optional = true }
 ttf-parser = "0.15.0"
 usvg = { version = "0.22.0", default-features=false, features=["text"] }
