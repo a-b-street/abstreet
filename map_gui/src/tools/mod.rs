@@ -181,6 +181,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("halsnhead", "center") => "Halsnead",
             ("hampton", "center") => "Hampton",
             ("kergilliack", "center") => "Kergilliack",
+            ("keighley", "center") => "Keighley",
             ("kidbrooke_village", "center") => "Kidbrooke Village",
             ("lcid", "center") => "Leeds Climate Innovation District",
             ("leeds", "central") => "Leeds (city center)",

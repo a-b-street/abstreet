@@ -1000,6 +1000,21 @@
       "uncompressed_size_bytes": 4593198,
       "compressed_size_bytes": 1087540
     },
+    "data/input/gb/keighley/osm/center.osm": {
+      "checksum": "85e39a46333170c2aed27569bdb0bcec",
+      "uncompressed_size_bytes": 4674504,
+      "compressed_size_bytes": 525210
+    },
+    "data/input/gb/keighley/osm/west-yorkshire-latest.osm.pbf": {
+      "checksum": "1719d8ca0217a336344dc6d6ac24e446",
+      "uncompressed_size_bytes": 39912873,
+      "compressed_size_bytes": 39870520
+    },
+    "data/input/gb/keighley/raw_maps/center.bin": {
+      "checksum": "c319d176deb0d7dd75a3477415ebb659",
+      "uncompressed_size_bytes": 1773921,
+      "compressed_size_bytes": 282722
+    },
     "data/input/gb/kergilliack/osm/center.osm": {
       "checksum": "5e3a354b326f41b5bb71eaaee5a1577b",
       "uncompressed_size_bytes": 25034841,
@@ -3939,6 +3954,16 @@
       "checksum": "c5e4690ba7b474cfba7175af29c9c6c7",
       "uncompressed_size_bytes": 5375592,
       "compressed_size_bytes": 1272150
+    },
+    "data/system/gb/keighley/maps/center.bin": {
+      "checksum": "52c469812eb0b056fb76db3b8deacc79",
+      "uncompressed_size_bytes": 8341739,
+      "compressed_size_bytes": 3152479
+    },
+    "data/system/gb/keighley/scenarios/center/background.bin": {
+      "checksum": "5328173483a3e8f7ecf7dd1f97599924",
+      "uncompressed_size_bytes": 1895635,
+      "compressed_size_bytes": 452961
     },
     "data/system/gb/kergilliack/maps/center.bin": {
       "checksum": "017817d5a28b63c24d339c96542fac08",
