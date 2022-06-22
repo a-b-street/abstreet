@@ -32,3 +32,7 @@ members = [
 # update dependencies often).
 [profile.dev.package."*"]
 opt-level = 3
+
+[patch.crates-io]
+# avoid duplicating geo dependency, until next polylabel release
+polylabel = { git = "https://github.com/urschrei/polylabel-rs", rev = "70b023783059513dca043b2f0c712fe31f682288" }
