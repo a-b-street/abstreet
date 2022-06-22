@@ -4,7 +4,7 @@ use aabb_quadtree::QuadTree;
 use lazy_static::lazy_static;
 use regex::Regex;
 
-use geom::{Distance, Pt2D};
+use geom::{Angle, Bounds, Distance, Polygon, Pt2D};
 use map_model::{osm, Road};
 use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Line, Text};
 
@@ -14,10 +14,37 @@ use crate::AppLike;
 ///
 /// By default, the text is white; it works well on dark backgrounds.
 pub struct DrawRoadLabels {
-    per_zoom: RefCell<[Option<Drawable>; 11]>,
+    per_zoom: RefCell<Option<PerZoom>>,
     include_roads: Box<dyn Fn(&Road) -> bool>,
     fg_color: Color,
     outline_color: Color,
+}
+
+// TODO There may be an off-by-one floating around here. Watch what this does at extremely low zoom
+// levels near 0.
+struct PerZoom {
+    draw_per_zoom: Vec<Option<Drawable>>,
+    step_size: f64,
+}
+
+impl PerZoom {
+    // We assume min_zoom_for_detail doesn't change over the lifetime of this
+    fn new(min_zoom_for_detail: f64) -> Self {
+        let step_size = 0.1;
+        let num_buckets = (min_zoom_for_detail / step_size) as usize;
+        Self {
+            draw_per_zoom: std::iter::repeat_with(|| None).take(num_buckets).collect(),
+            step_size,
+        }
+    }
+
+    // Takes the current canvas zoom, rounds it to the nearest step_size, and returns the index of
+    // the bucket to fill out
+    fn discretize_zoom(&self, zoom: f64) -> (f64, usize) {
+        let bucket = (zoom / self.step_size).floor() as usize;
+        let rounded = (bucket as f64) * self.step_size;
+        (rounded, bucket)
+    }
 }
 
 impl DrawRoadLabels {
@@ -45,29 +72,27 @@ impl DrawRoadLabels {
     }
 
     pub fn draw(&self, g: &mut GfxCtx, app: &dyn AppLike) {
-        let (zoom, idx) = Self::discretize_zoom(g.canvas.cam_zoom);
-        let value = &mut self.per_zoom.borrow_mut()[idx];
-        if value.is_none() {
-            *value = Some(self.render(g, app, zoom));
+        let mut per_zoom = self.per_zoom.borrow_mut();
+        if per_zoom.is_none() {
+            *per_zoom = Some(PerZoom::new(g.canvas.settings.min_zoom_for_detail));
         }
-        g.redraw(value.as_ref().unwrap());
-    }
+        let per_zoom = per_zoom.as_mut().unwrap();
 
-    fn discretize_zoom(zoom: f64) -> (f64, usize) {
-        // TODO Maybe more values between 1.0 and min_zoom_for_detail?
-        if zoom >= 1.0 {
-            return (1.0, 10);
+        let (zoom, idx) = per_zoom.discretize_zoom(g.canvas.cam_zoom);
+        let draw = &mut per_zoom.draw_per_zoom[idx];
+        if draw.is_none() {
+            *draw = Some(self.render(g, app, zoom));
         }
-        let rounded = (zoom * 10.0).round();
-        let idx = rounded as usize;
-        (rounded / 10.0, idx)
+        g.redraw(draw.as_ref().unwrap());
     }
 
     fn render(&self, g: &mut GfxCtx, app: &dyn AppLike, zoom: f64) -> Drawable {
         let mut batch = GeomBatch::new();
         let map = app.map();
 
-        let text_scale = 1.0 + 2.0 * (1.0 - zoom);
+        // We want the effective size of the text to stay around 1
+        // effective = zoom * text_scale
+        let text_scale = 1.0 / zoom;
 
         let mut quadtree = QuadTree::default(map.get_bounds().as_bbox());
 
@@ -82,25 +107,6 @@ impl DrawRoadLabels {
                 continue;
             };
             let (pt, angle) = r.center_pts.must_dist_along(r.length() / 2.0);
-
-            fn cheaply_overestimate_bounds(
-                text: &str,
-                text_scale: f64,
-                center: Pt2D,
-                angle: geom::Angle,
-            ) -> geom::Bounds {
-                // assume all chars are bigger than largest possible char
-                let letter_width = 30.0 * text_scale;
-                let letter_height = 30.0 * text_scale;
-
-                geom::Polygon::rectangle_centered(
-                    center,
-                    Distance::meters(letter_width * text.len() as f64),
-                    Distance::meters(letter_height),
-                )
-                .rotate(angle.reorient())
-                .get_bounds()
-            }
 
             // Don't get too close to other labels.
             let big_bounds = cheaply_overestimate_bounds(&name, text_scale, pt, angle);
@@ -210,4 +216,18 @@ mod tests {
             }
         }
     }
+}
+
+fn cheaply_overestimate_bounds(text: &str, text_scale: f64, center: Pt2D, angle: Angle) -> Bounds {
+    // assume all chars are bigger than largest possible char
+    let letter_width = 30.0 * text_scale;
+    let letter_height = 30.0 * text_scale;
+
+    Polygon::rectangle_centered(
+        center,
+        Distance::meters(letter_width * text.len() as f64),
+        Distance::meters(letter_height),
+    )
+    .rotate(angle.reorient())
+    .get_bounds()
 }
