@@ -157,18 +157,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8da52d66c7071e2e3fa2a1e5c6d088fec47b593032b254f5e980de8ea54454d6"
 
 [[package]]
-name = "as-slice"
-version = "0.1.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "45403b49e3954a4b8428a0ac21a4b7afadccf92bfd96273f1a58cd4812496ae0"
-dependencies = [
- "generic-array 0.12.4",
- "generic-array 0.13.3",
- "generic-array 0.14.4",
- "stable_deref_trait",
-]
-
-[[package]]
 name = "atk-sys"
 version = "0.15.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -483,7 +471,7 @@ dependencies = [
  "anyhow",
  "csv",
  "fs-err",
- "geo 0.21.0",
+ "geo",
  "geojson",
  "geom",
  "importer",
@@ -1345,7 +1333,7 @@ dependencies = [
  "enumset",
  "fs-err",
  "futures-channel",
- "geo 0.21.0",
+ "geo",
  "geojson",
  "geom",
  "getrandom",
@@ -1428,48 +1416,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "generic-array"
-version = "0.12.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ffdf9f34f1447443d37393cc6c2b8313aebddcd96906caf34e54c68d8e57d7bd"
-dependencies = [
- "typenum",
-]
-
-[[package]]
-name = "generic-array"
-version = "0.13.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f797e67af32588215eaaab8327027ee8e71b9dd0b2b26996aedf20c030fce309"
-dependencies = [
- "typenum",
-]
-
-[[package]]
-name = "generic-array"
-version = "0.14.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "501466ecc8a30d1d3b7fc9229b122b2ce8ed6e9d9223f1138d4babb253e51817"
-dependencies = [
- "typenum",
- "version_check",
-]
-
-[[package]]
-name = "geo"
-version = "0.20.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d7e2e3be15682a45e9dfe9a04f84bff275390047204ab22f3c6b2312fcfb9e24"
-dependencies = [
- "geo-types",
- "geographiclib-rs",
- "log",
- "num-traits",
- "robust",
- "rstar 0.8.3",
-]
-
-[[package]]
 name = "geo"
 version = "0.21.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1481,7 +1427,7 @@ dependencies = [
  "log",
  "num-traits",
  "robust",
- "rstar 0.9.3",
+ "rstar",
 ]
 
 [[package]]
@@ -1492,8 +1438,7 @@ checksum = "5696e8138fbc44f64edc88b423afbe5a8f635df003376b3a57087e61a8ae7b66"
 dependencies = [
  "approx",
  "num-traits",
- "rstar 0.8.3",
- "rstar 0.9.3",
+ "rstar",
 ]
 
 [[package]]
@@ -1526,7 +1471,7 @@ dependencies = [
  "anyhow",
  "earcutr",
  "fs-err",
- "geo 0.21.0",
+ "geo",
  "geojson",
  "histogram",
  "instant",
@@ -1735,15 +1680,6 @@ dependencies = [
 
 [[package]]
 name = "hash32"
-version = "0.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d4041af86e63ac4298ce40e5cca669066e75b6f1aa3390fe2561ffa5e1d9f4cc"
-dependencies = [
- "byteorder",
-]
-
-[[package]]
-name = "hash32"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b0c35f58762feb77d74ebe43bdbc3210f09be9fe6742234d573bacc26ed92b67"
@@ -1806,24 +1742,12 @@ dependencies = [
 
 [[package]]
 name = "heapless"
-version = "0.6.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "634bd4d29cbf24424d0a4bfcbf80c6960129dc24424752a7d1d1390607023422"
-dependencies = [
- "as-slice",
- "generic-array 0.14.4",
- "hash32 0.1.1",
- "stable_deref_trait",
-]
-
-[[package]]
-name = "heapless"
 version = "0.7.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8a08e755adbc0ad283725b29f4a4883deee15336f372d5f61fae59efec40f983"
 dependencies = [
  "atomic-polyfill",
- "hash32 0.2.1",
+ "hash32",
  "rustc_version 0.4.0",
  "spin 0.9.3",
  "stable_deref_trait",
@@ -1989,7 +1913,7 @@ dependencies = [
  "csv",
  "fs-err",
  "gdal",
- "geo 0.21.0",
+ "geo",
  "geojson",
  "geom",
  "hashbrown 0.9.1",
@@ -2237,7 +2161,7 @@ dependencies = [
  "anyhow",
  "contour",
  "flate2",
- "geo 0.21.0",
+ "geo",
  "geojson",
  "geom",
  "getrandom",
@@ -2933,12 +2857,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "pdqselect"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4ec91767ecc0a0bbe558ce8c9da33c068066c57ecc8bb8477ef8c1ad3ef77c27"
-
-[[package]]
 name = "peeking_take_while"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3038,11 +2956,10 @@ dependencies = [
 
 [[package]]
 name = "polylabel"
-version = "2.4.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9eacb1d18495675b5b9a56b92ea542e9ff6ebc98de4a166329ca9a1fbf408f88"
+version = "2.4.0"
+source = "git+https://github.com/urschrei/polylabel-rs?rev=70b023783059513dca043b2f0c712fe31f682288#70b023783059513dca043b2f0c712fe31f682288"
 dependencies = [
- "geo 0.20.1",
+ "geo",
  "libc",
  "num-traits",
  "thiserror",
@@ -3057,7 +2974,7 @@ dependencies = [
  "anyhow",
  "flatgeobuf",
  "futures",
- "geo 0.21.0",
+ "geo",
  "geojson",
  "geom",
  "geozero",
@@ -3422,23 +3339,11 @@ dependencies = [
 
 [[package]]
 name = "rstar"
-version = "0.8.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ce61d743ebe516592df4dd542dfe823577b811299f7bee1106feb1bbb993dbac"
-dependencies = [
- "heapless 0.6.1",
- "num-traits",
- "pdqselect",
- "smallvec",
-]
-
-[[package]]
-name = "rstar"
 version = "0.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b40f1bfe5acdab44bc63e6699c28b74f75ec43afb59f3eda01e145aff86a25fa"
 dependencies = [
- "heapless 0.7.13",
+ "heapless",
  "num-traits",
  "smallvec",
 ]
@@ -3939,7 +3844,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ec27dea659b100d489dffa57cf0efc6d7bfefb119af817b92cc14006c0b214e3"
 dependencies = [
  "arrayvec 0.7.2",
- "hash32 0.2.1",
+ "hash32",
  "hash32-derive",
  "num-traits",
  "typenum",
