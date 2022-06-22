@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["simplify_name",""],["simplify_patterns",""]],"struct":[["DrawRoadLabels","Labels roads when unzoomed. Label size and frequency depends on the zoom level."]]});
+initSidebarItems({"fn":[["cheaply_overestimate_bounds",""],["simplify_name",""],["simplify_patterns",""]],"struct":[["DrawRoadLabels","Labels roads when unzoomed. Label size and frequency depends on the zoom level."],["PerZoom",""]]});
