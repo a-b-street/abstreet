@@ -4,9 +4,11 @@ use raw_map::Direction;
 use widgetry::mapspace::ToggleZoomed;
 use widgetry::tools::PopupMsg;
 use widgetry::{
-    DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, TextExt, Toggle, Widget,
+    Color, ControlState, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome,
+    Panel, State, TextExt, Toggle, Widget,
 };
 
+use crate::draw_cells::RenderCells;
 use crate::edit::{EditNeighbourhood, Tab};
 use crate::filters::auto::Heuristic;
 use crate::shortcuts::find_shortcuts;
@@ -18,6 +20,8 @@ pub struct Viewer {
     neighbourhood: Neighbourhood,
     draw_top_layer: ToggleZoomed,
     edit: EditNeighbourhood,
+
+    show_error: Drawable,
 }
 
 impl Viewer {
@@ -30,23 +34,45 @@ impl Viewer {
             neighbourhood,
             draw_top_layer: ToggleZoomed::empty(ctx),
             edit: EditNeighbourhood::temporary(),
+            show_error: Drawable::empty(ctx),
         };
         viewer.update(ctx, app);
         Box::new(viewer)
     }
 
     fn update(&mut self, ctx: &mut EventCtx, app: &App) {
-        let disconnected_cells = self
-            .neighbourhood
-            .cells
-            .iter()
-            .filter(|c| c.is_disconnected())
-            .count();
+        let (edit, draw_top_layer, render_cells) = setup_editing(ctx, app, &self.neighbourhood);
+        self.edit = edit;
+        self.draw_top_layer = draw_top_layer;
+
+        let mut show_error = GeomBatch::new();
+        let mut disconnected_cells = 0;
+        for (idx, cell) in self.neighbourhood.cells.iter().enumerate() {
+            if cell.is_disconnected() {
+                disconnected_cells += 1;
+                show_error.extend(
+                    Color::RED.alpha(0.8),
+                    render_cells.polygons_per_cell[idx].clone(),
+                );
+            }
+        }
         let warning = if disconnected_cells == 0 {
-            String::new()
+            Widget::nothing()
         } else {
-            format!("{} cells are totally disconnected", disconnected_cells)
+            let msg = if disconnected_cells == 1 {
+                "1 cell isn't reachable".to_string()
+            } else {
+                format!("{disconnected_cells} cells aren't reachable")
+            };
+
+            ctx.style()
+                .btn_plain
+                .icon_text("system/assets/tools/warning.svg", msg)
+                .label_color(Color::RED, ControlState::Default)
+                .no_tooltip()
+                .build_widget(ctx, "warning")
         };
+        self.show_error = ctx.upload(show_error);
 
         self.left_panel = self
             .edit
@@ -63,15 +89,11 @@ impl Viewer {
                             .neighbourhood_area_km2(self.neighbourhood.id)
                     )
                     .text_widget(ctx),
-                    warning.text_widget(ctx),
+                    warning,
                     advanced_panel(ctx, app),
                 ]),
             )
             .build(ctx);
-
-        let (edit, draw_top_layer) = setup_editing(ctx, app, &self.neighbourhood);
-        self.edit = edit;
-        self.draw_top_layer = draw_top_layer;
     }
 }
 
@@ -113,6 +135,9 @@ impl State<App> for Viewer {
                             self.neighbourhood.id,
                         ),
                     );
+                } else if x == "warning" {
+                    // Not really clickable
+                    return Transition::Keep;
                 } else if let Some(t) = self.edit.handle_panel_action(
                     ctx,
                     app,
@@ -146,7 +171,7 @@ impl State<App> for Viewer {
                 app.session.heuristic = self.left_panel.dropdown_value("heuristic");
 
                 if x != "heuristic" {
-                    let (edit, draw_top_layer) = setup_editing(ctx, app, &self.neighbourhood);
+                    let (edit, draw_top_layer, _) = setup_editing(ctx, app, &self.neighbourhood);
                     self.edit = edit;
                     self.draw_top_layer = draw_top_layer;
                 }
@@ -180,6 +205,10 @@ impl State<App> for Viewer {
         if g.canvas.is_unzoomed() {
             self.neighbourhood.labels.draw(g, app);
         }
+
+        if self.left_panel.currently_hovering() == Some(&"warning".to_string()) {
+            g.redraw(&self.show_error);
+        }
     }
 
     fn recreate(&mut self, ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
@@ -191,7 +220,7 @@ fn setup_editing(
     ctx: &mut EventCtx,
     app: &App,
     neighbourhood: &Neighbourhood,
-) -> (EditNeighbourhood, ToggleZoomed) {
+) -> (EditNeighbourhood, ToggleZoomed, RenderCells) {
     let shortcuts = ctx.loading_screen("find shortcuts", |_, timer| {
         find_shortcuts(app, neighbourhood, timer)
     });
@@ -203,7 +232,7 @@ fn setup_editing(
     // roads
     let mut draw_top_layer = ToggleZoomed::builder();
 
-    let render_cells = crate::draw_cells::RenderCells::new(map, neighbourhood);
+    let render_cells = RenderCells::new(map, neighbourhood);
     if app.session.draw_cells_as_areas {
         edit.world.draw_master_batch(ctx, render_cells.draw());
 
@@ -320,7 +349,7 @@ fn setup_editing(
         }
     }
 
-    (edit, draw_top_layer.build(ctx))
+    (edit, draw_top_layer.build(ctx), render_cells)
 }
 
 fn help() -> Vec<&'static str> {

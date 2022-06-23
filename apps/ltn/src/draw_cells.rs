@@ -10,7 +10,7 @@ use crate::{colors, Neighbourhood};
 const RESOLUTION_M: f64 = 10.0;
 
 pub struct RenderCells {
-    polygons_per_cell: Vec<Vec<Polygon>>,
+    pub polygons_per_cell: Vec<Vec<Polygon>>,
     /// Colors per cell, such that adjacent cells are colored differently
     pub colors: Vec<Color>,
 }
