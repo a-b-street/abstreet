@@ -406,7 +406,7 @@ impl Polygon {
 
     /// Usually m^2, unless the polygon is in screen-space
     pub fn area(&self) -> f64 {
-        // Polygon orientation messes this up sometimes
+        // Don't use signed_area, since we may work with polygons that have different orientations
         self.to_geo().unsigned_area()
     }
 
