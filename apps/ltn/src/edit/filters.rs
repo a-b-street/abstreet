@@ -1,5 +1,4 @@
 use geom::Distance;
-use map_model::PathConstraints;
 use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::tools::open_browser;
 use widgetry::{lctrl, EventCtx, Image, Key, Line, Text, TextExt, Widget};
@@ -95,14 +94,9 @@ pub fn handle_world_outcome(
     match outcome {
         WorldOutcome::ClickedObject(Obj::InteriorRoad(r)) => {
             let road = map.get_r(r);
-            if !PathConstraints::Car.can_use_road(road, map) {
-                return EditOutcome::error(
-                    ctx,
-                    "This street isn't accessible by car; no need for a filter",
-                );
-            }
+            // The world doesn't contain non-driveable roads, so no need to check for that error
             if road.oneway_for_driving().is_some() {
-                return EditOutcome::error(ctx, "You can't filter a one-way street");
+                return EditOutcome::error(ctx, "A one-way street can't have a filter");
             }
 
             app.session.modal_filters.before_edit();
