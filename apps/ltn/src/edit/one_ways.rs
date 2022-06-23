@@ -1,5 +1,4 @@
 use geom::Distance;
-use map_model::PathConstraints;
 use raw_map::{Direction, DrivingSide, LaneSpec, LaneType};
 use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::{EventCtx, Image, Text, TextExt, Widget};
@@ -25,9 +24,6 @@ pub fn make_world(ctx: &mut EventCtx, app: &App, neighbourhood: &Neighbourhood) 
 
     for r in &neighbourhood.orig_perimeter.interior {
         let road = map.get_r(*r);
-        if !PathConstraints::Car.can_use_road(road, map) {
-            continue;
-        }
         world
             .add(Obj::InteriorRoad(*r))
             .hitbox(road.get_thick_polygon())
@@ -52,6 +48,10 @@ pub fn handle_world_outcome(
 ) -> EditOutcome {
     match outcome {
         WorldOutcome::ClickedObject(Obj::InteriorRoad(r)) => {
+            if app.session.modal_filters.roads.contains_key(&r) {
+                return EditOutcome::error(ctx, "A one-way street can't have a filter");
+            }
+
             let leftmost_dir = if app.map.get_config().driving_side == DrivingSide::Right {
                 Direction::Back
             } else {
