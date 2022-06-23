@@ -4,7 +4,7 @@ use raw_map::{Direction, DrivingSide, LaneSpec, LaneType};
 use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::{EventCtx, Image, Text, TextExt, Widget};
 
-use super::Obj;
+use super::{EditOutcome, Obj};
 use crate::{colors, App, Neighbourhood};
 
 pub fn widget(ctx: &mut EventCtx) -> Widget {
@@ -45,7 +45,11 @@ pub fn make_world(ctx: &mut EventCtx, app: &App, neighbourhood: &Neighbourhood) 
     world
 }
 
-pub fn handle_world_outcome(ctx: &mut EventCtx, app: &mut App, outcome: WorldOutcome<Obj>) -> bool {
+pub fn handle_world_outcome(
+    ctx: &mut EventCtx,
+    app: &mut App,
+    outcome: WorldOutcome<Obj>,
+) -> EditOutcome {
     match outcome {
         WorldOutcome::ClickedObject(Obj::InteriorRoad(r)) => {
             let leftmost_dir = if app.map.get_config().driving_side == DrivingSide::Right {
@@ -113,8 +117,8 @@ pub fn handle_world_outcome(ctx: &mut EventCtx, app: &mut App, outcome: WorldOut
                 app.map.keep_pathfinder_despite_edits();
             });
 
-            true
+            EditOutcome::Recalculate
         }
-        _ => false,
+        _ => EditOutcome::Nothing,
     }
 }

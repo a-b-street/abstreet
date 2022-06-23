@@ -9,7 +9,7 @@ use widgetry::{
 };
 
 use crate::draw_cells::RenderCells;
-use crate::edit::{EditNeighbourhood, Tab};
+use crate::edit::{EditNeighbourhood, EditOutcome, Tab};
 use crate::filters::auto::Heuristic;
 use crate::shortcuts::find_shortcuts;
 use crate::{colors, App, Neighbourhood, NeighbourhoodID, Transition};
@@ -179,9 +179,15 @@ impl State<App> for Viewer {
             _ => {}
         }
 
-        if self.edit.event(ctx, app) {
-            self.neighbourhood = Neighbourhood::new(ctx, app, self.neighbourhood.id);
-            self.update(ctx, app);
+        match self.edit.event(ctx, app) {
+            EditOutcome::Nothing => {}
+            EditOutcome::Recalculate => {
+                self.neighbourhood = Neighbourhood::new(ctx, app, self.neighbourhood.id);
+                self.update(ctx, app);
+            }
+            EditOutcome::Transition(t) => {
+                return t;
+            }
         }
 
         Transition::Keep

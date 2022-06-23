@@ -3,6 +3,7 @@ mod one_ways;
 
 use map_model::{IntersectionID, RoadID};
 use widgetry::mapspace::{ObjectID, World};
+use widgetry::tools::PopupMsg;
 use widgetry::{EventCtx, Key, Line, Panel, PanelBuilder, Widget, DEFAULT_CORNER_RADIUS};
 
 use crate::shortcuts::Shortcuts;
@@ -72,6 +73,23 @@ pub enum Obj {
 }
 impl ObjectID for Obj {}
 
+pub enum EditOutcome {
+    Nothing,
+    /// The neighbourhood has changed and the caller should recalculate stuff, including the panel
+    Recalculate,
+    Transition(Transition),
+}
+
+impl EditOutcome {
+    fn error(ctx: &mut EventCtx, msg: &str) -> Self {
+        Self::Transition(Transition::Push(PopupMsg::new_state(
+            ctx,
+            "Error",
+            vec![msg],
+        )))
+    }
+}
+
 impl EditNeighbourhood {
     pub fn temporary() -> Self {
         Self {
@@ -122,15 +140,17 @@ impl EditNeighbourhood {
         crate::components::LeftPanel::builder(ctx, top_panel, contents)
     }
 
-    /// If true, the neighbourhood has changed and the caller should recalculate stuff, including
-    /// the panel
-    pub fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> bool {
+    pub fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> EditOutcome {
         let outcome = self.world.event(ctx);
-        if app.session.edit_filters {
+        let outcome = if app.session.edit_filters {
             filters::handle_world_outcome(ctx, app, outcome)
         } else {
             one_ways::handle_world_outcome(ctx, app, outcome)
+        };
+        if matches!(outcome, EditOutcome::Transition(_)) {
+            self.world.hack_unset_hovering();
         }
+        outcome
     }
 
     pub fn handle_panel_action(
