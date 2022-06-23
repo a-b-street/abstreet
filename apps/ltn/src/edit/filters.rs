@@ -4,7 +4,7 @@ use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::tools::open_browser;
 use widgetry::{lctrl, EventCtx, Image, Key, Line, Text, TextExt, Widget};
 
-use super::Obj;
+use super::{EditOutcome, Obj};
 use crate::shortcuts::Shortcuts;
 use crate::{after_edit, colors, App, DiagonalFilter, Neighbourhood};
 
@@ -86,16 +86,23 @@ pub fn make_world(
     world
 }
 
-pub fn handle_world_outcome(ctx: &mut EventCtx, app: &mut App, outcome: WorldOutcome<Obj>) -> bool {
+pub fn handle_world_outcome(
+    ctx: &mut EventCtx,
+    app: &mut App,
+    outcome: WorldOutcome<Obj>,
+) -> EditOutcome {
     let map = &app.map;
     match outcome {
         WorldOutcome::ClickedObject(Obj::InteriorRoad(r)) => {
             let road = map.get_r(r);
-            // Filtering a road that's already marked bike-only doesn't make sense. Likewise for
-            // one-ways.
-            if !PathConstraints::Car.can_use_road(road, map) || road.oneway_for_driving().is_some()
-            {
-                return true;
+            if !PathConstraints::Car.can_use_road(road, map) {
+                return EditOutcome::error(
+                    ctx,
+                    "This street isn't accessible by car; no need for a filter",
+                );
+            }
+            if road.oneway_for_driving().is_some() {
+                return EditOutcome::error(ctx, "You can't filter a one-way street");
             }
 
             app.session.modal_filters.before_edit();
@@ -111,22 +118,22 @@ pub fn handle_world_outcome(ctx: &mut EventCtx, app: &mut App, outcome: WorldOut
                 app.session.modal_filters.roads.insert(r, distance);
             }
             after_edit(ctx, app);
-            true
+            EditOutcome::Recalculate
         }
         WorldOutcome::ClickedObject(Obj::InteriorIntersection(i)) => {
             app.session.modal_filters.before_edit();
             DiagonalFilter::cycle_through_alternatives(app, i);
             after_edit(ctx, app);
-            true
+            EditOutcome::Recalculate
         }
         WorldOutcome::Keypress("debug", Obj::InteriorIntersection(i)) => {
             open_browser(app.map.get_i(i).orig_id.to_string());
-            false
+            EditOutcome::Nothing
         }
         WorldOutcome::Keypress("debug", Obj::InteriorRoad(r)) => {
             open_browser(app.map.get_r(r).orig_id.osm_way_id.to_string());
-            false
+            EditOutcome::Nothing
         }
-        _ => false,
+        _ => EditOutcome::Nothing,
     }
 }

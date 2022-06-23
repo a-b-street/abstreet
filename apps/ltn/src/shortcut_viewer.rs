@@ -3,7 +3,7 @@ use map_model::{PathRequest, NORMAL_LANE_THICKNESS};
 use widgetry::mapspace::ToggleZoomed;
 use widgetry::{EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text, TextExt, Widget};
 
-use crate::edit::{EditNeighbourhood, Tab};
+use crate::edit::{EditNeighbourhood, EditOutcome, Tab};
 use crate::shortcuts::{find_shortcuts, Shortcuts};
 use crate::{colors, App, Neighbourhood, NeighbourhoodID, Transition};
 
@@ -209,15 +209,21 @@ impl State<App> for BrowseShortcuts {
             _ => {}
         }
 
-        if self.edit.event(ctx, app) {
-            // Reset state, but if possible, preserve the current individual shortcut.
-            let current_request = self.shortcuts.paths[self.current_idx].get_req().clone();
-            return Transition::Replace(BrowseShortcuts::new_state(
-                ctx,
-                app,
-                self.neighbourhood.id,
-                Some(current_request),
-            ));
+        match self.edit.event(ctx, app) {
+            EditOutcome::Nothing => {}
+            EditOutcome::Recalculate => {
+                // Reset state, but if possible, preserve the current individual shortcut.
+                let current_request = self.shortcuts.paths[self.current_idx].get_req().clone();
+                return Transition::Replace(BrowseShortcuts::new_state(
+                    ctx,
+                    app,
+                    self.neighbourhood.id,
+                    Some(current_request),
+                ));
+            }
+            EditOutcome::Transition(t) => {
+                return t;
+            }
         }
 
         Transition::Keep

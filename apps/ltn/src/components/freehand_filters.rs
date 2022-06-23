@@ -51,6 +51,7 @@ impl FreehandFilters {
                 continue;
             }
             let road = app.map.get_r(*r);
+            // Don't show error messages for these
             if !PathConstraints::Car.can_use_road(road, &app.map)
                 || road.oneway_for_driving().is_some()
             {
