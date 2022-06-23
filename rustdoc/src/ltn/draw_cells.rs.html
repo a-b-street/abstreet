@@ -311,7 +311,7 @@
 <span class="kw">const</span> <span class="ident">RESOLUTION_M</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">10.0</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RenderCells</span> {
-    <span class="ident">polygons_per_cell</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">polygons_per_cell</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="doccomment">/// Colors per cell, such that adjacent cells are colored differently</span>
     <span class="kw">pub</span> <span class="ident">colors</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Color</span><span class="op">&gt;</span>,
 }

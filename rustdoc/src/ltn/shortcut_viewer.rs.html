@@ -258,12 +258,18 @@
 <span id="253">253</span>
 <span id="254">254</span>
 <span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">map_gui::tools::percentage_bar</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">PathRequest</span>, <span class="ident">NORMAL_LANE_THICKNESS</span>};
 <span class="kw">use</span> <span class="ident">widgetry::mapspace::ToggleZoomed</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::edit</span>::{<span class="ident">EditNeighbourhood</span>, <span class="ident">Tab</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::edit</span>::{<span class="ident">EditNeighbourhood</span>, <span class="ident">EditOutcome</span>, <span class="ident">Tab</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::shortcuts</span>::{<span class="ident">find_shortcuts</span>, <span class="ident">Shortcuts</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">colors</span>, <span class="ident">App</span>, <span class="ident">Neighbourhood</span>, <span class="ident">NeighbourhoodID</span>, <span class="ident">Transition</span>};
 
@@ -469,15 +475,21 @@
             <span class="kw">_</span> =&gt; {}
         }
 
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">edit</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>) {
-            <span class="comment">// Reset state, but if possible, preserve the current individual shortcut.</span>
-            <span class="kw">let</span> <span class="ident">current_request</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">shortcuts</span>.<span class="ident">paths</span>[<span class="self">self</span>.<span class="ident">current_idx</span>].<span class="ident">get_req</span>().<span class="ident">clone</span>();
-            <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">BrowseShortcuts::new_state</span>(
-                <span class="ident">ctx</span>,
-                <span class="ident">app</span>,
-                <span class="self">self</span>.<span class="ident">neighbourhood</span>.<span class="ident">id</span>,
-                <span class="prelude-val">Some</span>(<span class="ident">current_request</span>),
-            ));
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">edit</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>) {
+            <span class="ident">EditOutcome::Nothing</span> =&gt; {}
+            <span class="ident">EditOutcome::Recalculate</span> =&gt; {
+                <span class="comment">// Reset state, but if possible, preserve the current individual shortcut.</span>
+                <span class="kw">let</span> <span class="ident">current_request</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">shortcuts</span>.<span class="ident">paths</span>[<span class="self">self</span>.<span class="ident">current_idx</span>].<span class="ident">get_req</span>().<span class="ident">clone</span>();
+                <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">BrowseShortcuts::new_state</span>(
+                    <span class="ident">ctx</span>,
+                    <span class="ident">app</span>,
+                    <span class="self">self</span>.<span class="ident">neighbourhood</span>.<span class="ident">id</span>,
+                    <span class="prelude-val">Some</span>(<span class="ident">current_request</span>),
+                ));
+            }
+            <span class="ident">EditOutcome::Transition</span>(<span class="ident">t</span>) =&gt; {
+                <span class="kw">return</span> <span class="ident">t</span>;
+            }
         }
 
         <span class="ident">Transition::Keep</span>
