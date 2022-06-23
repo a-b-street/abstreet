@@ -1070,7 +1070,7 @@
 
     <span class="doccomment">/// Usually m^2, unless the polygon is in screen-space</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">area</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">f64</span> {
-        <span class="comment">// Polygon orientation messes this up sometimes</span>
+        <span class="comment">// Don&#39;t use signed_area, since we may work with polygons that have different orientations</span>
         <span class="self">self</span>.<span class="ident">to_geo</span>().<span class="ident">unsigned_area</span>()
     }
 
