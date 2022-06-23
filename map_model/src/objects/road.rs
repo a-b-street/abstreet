@@ -615,6 +615,11 @@ impl Road {
     pub fn oneway_for_driving(&self) -> Option<Direction> {
         LaneSpec::oneway_for_driving(&self.lane_specs())
     }
+
+    /// Does either end of this road lead nowhere?
+    pub fn is_deadend(&self, map: &Map) -> bool {
+        map.get_i(self.src_i).is_deadend() || map.get_i(self.dst_i).is_deadend()
+    }
 }
 
 // TODO All of this is kind of deprecated? Some callers seem to really need to still handle lanes

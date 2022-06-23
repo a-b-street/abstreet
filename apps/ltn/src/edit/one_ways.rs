@@ -51,6 +51,9 @@ pub fn handle_world_outcome(
             if app.session.modal_filters.roads.contains_key(&r) {
                 return EditOutcome::error(ctx, "A one-way street can't have a filter");
             }
+            if app.map.get_r(r).is_deadend(&app.map) {
+                return EditOutcome::error(ctx, "A dead-end street can't be one-way");
+            }
 
             let leftmost_dir = if app.map.get_config().driving_side == DrivingSide::Right {
                 Direction::Back
