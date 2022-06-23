@@ -1,5 +1,8 @@
+use std::collections::BTreeSet;
+
 use geom::{ArrowCap, Distance, PolyLine};
 use map_gui::tools::ColorNetwork;
+use map_model::PathConstraints;
 use raw_map::Direction;
 use widgetry::mapspace::ToggleZoomed;
 use widgetry::tools::PopupMsg;
@@ -56,6 +59,10 @@ impl Viewer {
                 );
             }
         }
+
+        // TODO warning text
+        detect_oneway_blackholes(app, &self.neighbourhood, &mut show_error);
+
         let warning = if disconnected_cells == 0 {
             Widget::nothing()
         } else {
@@ -407,4 +414,23 @@ fn advanced_panel(ctx: &EventCtx, app: &App) -> Widget {
         ),
     ])
     .section(ctx)
+}
+
+fn detect_oneway_blackholes(app: &App, neighbourhood: &Neighbourhood, show_error: &mut GeomBatch) {
+    // Only focus on problems in the current neighbourhood
+    let relevant_roads: BTreeSet<_> = neighbourhood.orig_perimeter.interior.iter().cloned().collect();
+
+    let (_, lanes) = map_model::connectivity::find_scc(&app.map, PathConstraints::Car);
+    let mut problem_roads = BTreeSet::new();
+    for l in lanes {
+        let r = l.road;
+        if relevant_roads.contains(&r) {
+            problem_roads.insert(r);
+        }
+    }
+
+    for r in problem_roads {
+        // TODO Red rat-runs
+        show_error.push(Color::CYAN.alpha(0.5), app.map.get_r(r).get_thick_polygon());
+    }
 }
