@@ -1002,7 +1002,7 @@
     }
 
     <span class="doccomment">/// Union all of the polygons into one geo::MultiPolygon</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">union_all_into_multipolygon</span>(<span class="kw-2">mut</span> <span class="ident">list</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span>) -&gt; <span class="ident">geo::MultiPolygon</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">union_all_into_multipolygon</span>(<span class="kw-2">mut</span> <span class="ident">list</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span>) -&gt; <span class="ident">geo::MultiPolygon</span> {
         <span class="comment">// TODO Not sure why this happened, or if this is really valid to construct...</span>
         <span class="kw">if</span> <span class="ident">list</span>.<span class="ident">is_empty</span>() {
             <span class="kw">return</span> <span class="ident">geo::MultiPolygon</span>(<span class="ident">Vec::new</span>());
@@ -1020,13 +1020,13 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">convex_hull</span>(<span class="ident">list</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span>) -&gt; <span class="ident">Polygon</span> {
-        <span class="kw">let</span> <span class="ident">mp</span>: <span class="ident">geo::MultiPolygon</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">list</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">to_geo</span>()).<span class="ident">collect</span>();
+        <span class="kw">let</span> <span class="ident">mp</span>: <span class="ident">geo::MultiPolygon</span> <span class="op">=</span> <span class="ident">list</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">to_geo</span>()).<span class="ident">collect</span>();
         <span class="ident">mp</span>.<span class="ident">convex_hull</span>().<span class="ident">into</span>()
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">concave_hull</span>(<span class="ident">points</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>, <span class="ident">concavity</span>: <span class="ident">u32</span>) -&gt; <span class="ident">Polygon</span> {
         <span class="kw">use</span> <span class="ident">geo::k_nearest_concave_hull::KNearestConcaveHull</span>;
-        <span class="kw">let</span> <span class="ident">points</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">geo::Point</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">points</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">geo::Point::from</span>(<span class="kw-2">*</span><span class="ident">p</span>)).<span class="ident">collect</span>();
+        <span class="kw">let</span> <span class="ident">points</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">geo::Point</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">points</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">geo::Point::from</span>(<span class="kw-2">*</span><span class="ident">p</span>)).<span class="ident">collect</span>();
         <span class="ident">points</span>.<span class="ident">k_nearest_concave_hull</span>(<span class="ident">concavity</span>).<span class="ident">into</span>()
     }
 
@@ -1232,7 +1232,7 @@
     <span class="comment">// A less verbose way of invoking the From/Into impl. Note this hides a potentially expensive</span>
     <span class="comment">// clone. The eventual goal is for Polygon to directly wrap a geo::Polygon, at which point this</span>
     <span class="comment">// cost goes away.</span>
-    <span class="kw">fn</span> <span class="ident">to_geo</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">geo::Polygon</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">to_geo</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">geo::Polygon</span> {
         <span class="self">self</span>.<span class="ident">clone</span>().<span class="ident">into</span>()
     }
 }
@@ -1263,8 +1263,8 @@
     <span class="kw">pub</span> <span class="ident">pt3</span>: <span class="ident">Pt2D</span>,
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">geo::Polygon</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Polygon</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">poly</span>: <span class="ident">geo::Polygon</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">geo::Polygon</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Polygon</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">poly</span>: <span class="ident">geo::Polygon</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> (<span class="ident">exterior</span>, <span class="ident">interiors</span>) <span class="op">=</span> <span class="ident">poly</span>.<span class="ident">into_inner</span>();
         <span class="ident">Polygon::with_holes</span>(
             <span class="ident">Ring::from</span>(<span class="ident">exterior</span>),
@@ -1273,11 +1273,11 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">geo::Polygon</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> {
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">geo::Polygon</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">poly</span>: <span class="ident">Polygon</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">rings</span>) <span class="op">=</span> <span class="ident">poly</span>.<span class="ident">rings</span> {
             <span class="kw">let</span> <span class="ident">exterior</span> <span class="op">=</span> <span class="ident">rings</span>.<span class="ident">remove</span>(<span class="number">0</span>);
-            <span class="kw">let</span> <span class="ident">interiors</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">geo::LineString</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span>
+            <span class="kw">let</span> <span class="ident">interiors</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">geo::LineString</span><span class="op">&gt;</span> <span class="op">=</span>
                 <span class="ident">rings</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="ident">geo::LineString::from</span>).<span class="ident">collect</span>();
             <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">exterior</span>.<span class="ident">into</span>(), <span class="ident">interiors</span>)
         } <span class="kw">else</span> {
@@ -1292,7 +1292,7 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">from_multi</span>(<span class="ident">multi</span>: <span class="ident">geo::MultiPolygon</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">from_multi</span>(<span class="ident">multi</span>: <span class="ident">geo::MultiPolygon</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> {
     <span class="comment">// TODO This should just call Polygon::from, but while importing maps, it seems like</span>
     <span class="comment">// intersection() is hitting non-Ring cases that crash. So keep using buggy_new for now.</span>
     <span class="ident">multi</span>

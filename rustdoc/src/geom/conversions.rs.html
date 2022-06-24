@@ -24,8 +24,8 @@
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Pt2D</span>;
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pts_to_line_string</span>(<span class="ident">raw_pts</span>: <span class="kw-2">&amp;</span>[<span class="ident">Pt2D</span>]) -&gt; <span class="ident">geo::LineString</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">geo::Point</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">raw_pts</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pts_to_line_string</span>(<span class="ident">raw_pts</span>: <span class="kw-2">&amp;</span>[<span class="ident">Pt2D</span>]) -&gt; <span class="ident">geo::LineString</span> {
+    <span class="kw">let</span> <span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">geo::Point</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">raw_pts</span>
         .<span class="ident">iter</span>()
         .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">geo::Point::new</span>(<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>()))
         .<span class="ident">collect</span>();

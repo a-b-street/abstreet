@@ -358,26 +358,26 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">geo::Coordinate</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> {
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">geo::Coordinate</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">pt</span>: <span class="ident">Pt2D</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">geo::Coordinate</span> { <span class="ident">x</span>: <span class="ident">pt</span>.<span class="ident">x</span>, <span class="ident">y</span>: <span class="ident">pt</span>.<span class="ident">y</span> }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">geo::Point</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> {
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">geo::Point</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">pt</span>: <span class="ident">Pt2D</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">geo::Point::new</span>(<span class="ident">pt</span>.<span class="ident">x</span>, <span class="ident">pt</span>.<span class="ident">y</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">geo::Coordinate</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Pt2D</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">coord</span>: <span class="ident">geo::Coordinate</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">geo::Coordinate</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Pt2D</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">coord</span>: <span class="ident">geo::Coordinate</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">Pt2D::new</span>(<span class="ident">coord</span>.<span class="ident">x</span>, <span class="ident">coord</span>.<span class="ident">y</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">geo::Point</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Pt2D</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">point</span>: <span class="ident">geo::Point</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">geo::Point</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Pt2D</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">point</span>: <span class="ident">geo::Point</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">Pt2D::new</span>(<span class="ident">point</span>.<span class="ident">x</span>(), <span class="ident">point</span>.<span class="ident">y</span>())
     }
 }

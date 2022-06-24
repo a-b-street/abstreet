@@ -106,7 +106,7 @@
 <span class="doccomment">/// A quad-tree to quickly find the closest points to some polylines.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span> {
     <span class="comment">// TODO maybe any type of geo:: thing</span>
-    <span class="ident">geometries</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">geo::LineString</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">geometries</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">geo::LineString</span><span class="op">&gt;</span>,
     <span class="ident">quadtree</span>: <span class="ident">QuadTree</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>,
 }
 

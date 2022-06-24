@@ -80,10 +80,6 @@
 <span id="75">75</span>
 <span id="76">76</span>
 <span id="77">77</span>
-<span id="78">78</span>
-<span id="79">79</span>
-<span id="80">80</span>
-<span id="81">81</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::convert::TryInto</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
@@ -131,11 +127,8 @@
     <span class="ident">abstio::maybe_read_json</span>(<span class="ident">path</span>, <span class="kw-2">&amp;mut</span> <span class="ident">Timer::throwaway</span>())
 }
 
-<span class="kw">fn</span> <span class="ident">find_matching_regions</span>(
-    <span class="ident">geojson</span>: <span class="ident">GeoJson</span>,
-    <span class="ident">center</span>: <span class="ident">LonLat</span>,
-) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">geo::MultiPolygon</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>, <span class="ident">String</span>)<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">center</span>: <span class="ident">geo::Point</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">center</span>.<span class="ident">into</span>();
+<span class="kw">fn</span> <span class="ident">find_matching_regions</span>(<span class="ident">geojson</span>: <span class="ident">GeoJson</span>, <span class="ident">center</span>: <span class="ident">LonLat</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">geo::MultiPolygon</span>, <span class="ident">String</span>)<span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">center</span>: <span class="ident">geo::Point</span> <span class="op">=</span> <span class="ident">center</span>.<span class="ident">into</span>();
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">matches</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
@@ -145,8 +138,7 @@
     <span class="kw">if</span> <span class="kw">let</span> <span class="ident">GeoJson::FeatureCollection</span>(<span class="ident">fc</span>) <span class="op">=</span> <span class="ident">geojson</span> {
         <span class="macro">info!</span>(<span class="string">&quot;Searching {} regions&quot;</span>, <span class="ident">fc</span>.<span class="ident">features</span>.<span class="ident">len</span>());
         <span class="kw">for</span> <span class="kw-2">mut</span> <span class="ident">feature</span> <span class="kw">in</span> <span class="ident">fc</span>.<span class="ident">features</span> {
-            <span class="kw">let</span> <span class="ident">mp</span>: <span class="ident">geo::MultiPolygon</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="op">=</span>
-                <span class="ident">feature</span>.<span class="ident">geometry</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>().<span class="ident">value</span>.<span class="ident">try_into</span>().<span class="ident">unwrap</span>();
+            <span class="kw">let</span> <span class="ident">mp</span>: <span class="ident">geo::MultiPolygon</span> <span class="op">=</span> <span class="ident">feature</span>.<span class="ident">geometry</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>().<span class="ident">value</span>.<span class="ident">try_into</span>().<span class="ident">unwrap</span>();
             <span class="kw">if</span> <span class="ident">mp</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">center</span>) {
                 <span class="ident">matches</span>.<span class="ident">push</span>((
                     <span class="ident">mp</span>,

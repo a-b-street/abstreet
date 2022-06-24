@@ -586,7 +586,7 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Ring</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">geo::LineString</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> {
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Ring</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">geo::LineString</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">ring</span>: <span class="ident">Ring</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">coords</span> <span class="op">=</span> <span class="ident">ring</span>
             .<span class="ident">pts</span>
@@ -597,8 +597,8 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">geo::LineString</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Ring</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">line_string</span>: <span class="ident">geo::LineString</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">geo::LineString</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Ring</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">line_string</span>: <span class="ident">geo::LineString</span>) -&gt; <span class="self">Self</span> {
         <span class="comment">// Dedupe adjacent points. Only needed for results from concave hull.</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">line_string</span>.<span class="number">0</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="ident">Pt2D::from</span>).<span class="ident">collect</span>();
         <span class="ident">pts</span>.<span class="ident">dedup</span>();

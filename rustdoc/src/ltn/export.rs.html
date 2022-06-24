@@ -221,7 +221,7 @@
     <span class="kw">for</span> <span class="ident">feature</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">features</span> {
         <span class="comment">// geojson to geo</span>
         <span class="comment">// This could be a Polygon, MultiPolygon, LineString</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">geom</span>: <span class="ident">geo::Geometry</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">feature</span>.<span class="ident">geometry</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>().<span class="ident">value</span>.<span class="ident">try_into</span>()<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">geom</span>: <span class="ident">geo::Geometry</span> <span class="op">=</span> <span class="ident">feature</span>.<span class="ident">geometry</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>().<span class="ident">value</span>.<span class="ident">try_into</span>()<span class="question-mark">?</span>;
 
         <span class="ident">geom</span>.<span class="ident">map_coords_in_place</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">gps</span> <span class="op">=</span> <span class="ident">Pt2D::new</span>(<span class="ident">c</span>.<span class="ident">x</span>, <span class="ident">c</span>.<span class="ident">y</span>).<span class="ident">to_gps</span>(<span class="ident">gps_bounds</span>);

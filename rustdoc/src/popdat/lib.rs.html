@@ -181,7 +181,7 @@
 <span class="doccomment">/// have two overlapping areas.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CensusArea</span> {
-    <span class="kw">pub</span> <span class="ident">polygon</span>: <span class="ident">geo::Polygon</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">polygon</span>: <span class="ident">geo::Polygon</span>,
     <span class="kw">pub</span> <span class="ident">population</span>: <span class="ident">usize</span>,
     <span class="comment">// TODO Not sure what goes here, whatever census data actually has that could be useful</span>
 }

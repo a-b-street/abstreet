@@ -109,7 +109,7 @@
         <span class="kw">use</span> <span class="ident">flatgeobuf::HttpFgbReader</span>;
         <span class="kw">use</span> <span class="ident">geozero::geo_types::GeoWriter</span>;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">geo_map_area</span>: <span class="ident">geo::Polygon</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">map_area</span>.<span class="ident">clone</span>().<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">geo_map_area</span>: <span class="ident">geo::Polygon</span> <span class="op">=</span> <span class="ident">map_area</span>.<span class="ident">clone</span>().<span class="ident">into</span>();
         <span class="ident">geo_map_area</span>.<span class="ident">map_coords_in_place</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">projected</span> <span class="op">=</span> <span class="ident">geom::Pt2D::new</span>(<span class="ident">c</span>.<span class="ident">x</span>, <span class="ident">c</span>.<span class="ident">y</span>).<span class="ident">to_gps</span>(<span class="ident">bounds</span>);
             (<span class="ident">projected</span>.<span class="ident">x</span>(), <span class="ident">projected</span>.<span class="ident">y</span>()).<span class="ident">into</span>()

@@ -346,7 +346,7 @@
     }
 
     <span class="doccomment">/// Per cell, convert all polygons to a `geo::MultiPolygon`. Leave the coordinate system as map-space.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_multipolygons</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">geo::MultiPolygon</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_multipolygons</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">geo::MultiPolygon</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">polygons_per_cell</span>
             .<span class="ident">clone</span>()
             .<span class="ident">into_iter</span>()

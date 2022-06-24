@@ -390,7 +390,7 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">LonLat</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">geo::Point</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> {
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">LonLat</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">geo::Point</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">pt</span>: <span class="ident">LonLat</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">geo::Point::new</span>(<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>())
     }
