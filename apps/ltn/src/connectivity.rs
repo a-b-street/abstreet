@@ -467,6 +467,7 @@ fn detect_oneway_blackholes(app: &App, neighbourhood: &Neighbourhood) -> BTreeSe
     let (_, lanes) = map_model::connectivity::find_scc(&app.map, PathConstraints::Car);
     let mut problem_roads = BTreeSet::new();
     for l in lanes {
+        println!("{l} is disconnected");
         let r = l.road;
         if relevant_roads.contains(&r) {
             problem_roads.insert(r);
