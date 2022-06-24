@@ -8,7 +8,7 @@ use widgetry::mapspace::ToggleZoomed;
 use widgetry::tools::PopupMsg;
 use widgetry::{
     Color, ControlState, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome,
-    Panel, State, TextExt, Toggle, Widget,
+    Panel, RewriteColor, State, TextExt, Toggle, Widget,
 };
 
 use crate::draw_cells::RenderCells;
@@ -279,6 +279,20 @@ fn setup_editing(
         }
     }
 
+    // Draw a caution icon inside any disconnected cells
+    for (idx, cell) in neighbourhood.cells.iter().enumerate() {
+        if cell.is_disconnected() {
+            for poly in &render_cells.polygons_per_cell[idx] {
+                draw_top_layer.append_batch(
+                    GeomBatch::load_svg(ctx, "system/assets/tools/warning.svg")
+                        .color(RewriteColor::ChangeAll(Color::RED))
+                        .scale(1.0)
+                        .centered_on(poly.polylabel()),
+                );
+            }
+        }
+    }
+
     // Draw the borders of each cell
     for (idx, cell) in neighbourhood.cells.iter().enumerate() {
         let color = render_cells.colors[idx];
@@ -418,9 +432,18 @@ fn advanced_panel(ctx: &EventCtx, app: &App) -> Widget {
 }
 
 // True if there are problems
-fn detect_oneway_blackholes(app: &App, neighbourhood: &Neighbourhood, show_error: &mut GeomBatch) -> bool {
+fn detect_oneway_blackholes(
+    app: &App,
+    neighbourhood: &Neighbourhood,
+    show_error: &mut GeomBatch,
+) -> bool {
     // Only focus on problems in the current neighbourhood
-    let relevant_roads: BTreeSet<_> = neighbourhood.orig_perimeter.interior.iter().cloned().collect();
+    let relevant_roads: BTreeSet<_> = neighbourhood
+        .orig_perimeter
+        .interior
+        .iter()
+        .cloned()
+        .collect();
 
     let (_, lanes) = map_model::connectivity::find_scc(&app.map, PathConstraints::Car);
     let mut problem_roads = BTreeSet::new();

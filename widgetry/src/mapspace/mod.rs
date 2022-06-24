@@ -93,6 +93,15 @@ impl ToggleZoomedBuilder {
         self.zoomed.append(other.zoomed);
     }
 
+    pub fn append_batch(&mut self, other: GeomBatch) {
+        if self.always_draw_unzoomed {
+            self.unzoomed.append(other);
+        } else {
+            self.unzoomed.append(other.clone());
+            self.zoomed.append(other);
+        }
+    }
+
     pub fn build(self, ctx: &EventCtx) -> ToggleZoomed {
         if self.always_draw_unzoomed {
             assert!(self.zoomed.is_empty());
