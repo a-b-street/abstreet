@@ -2,7 +2,7 @@ use std::collections::BTreeSet;
 
 use geom::{ArrowCap, Distance, PolyLine};
 use map_gui::tools::ColorNetwork;
-use map_model::{RoadID, PathConstraints};
+use map_model::{PathConstraints, RoadID};
 use raw_map::Direction;
 use widgetry::mapspace::ToggleZoomed;
 use widgetry::tools::PopupMsg;
@@ -23,7 +23,6 @@ pub struct Viewer {
     neighbourhood: Neighbourhood,
     draw_top_layer: ToggleZoomed,
     edit: EditNeighbourhood,
-
     show_error: Drawable,
 }
 
@@ -44,7 +43,8 @@ impl Viewer {
     }
 
     fn update(&mut self, ctx: &mut EventCtx, app: &App) {
-        let (edit, draw_top_layer, show_error, warning_msg) = setup_editing(ctx, app, &self.neighbourhood);
+        let (edit, draw_top_layer, show_error, warning_msg) =
+            setup_editing(ctx, app, &self.neighbourhood);
         self.edit = edit;
         self.draw_top_layer = draw_top_layer;
         self.show_error = show_error;
@@ -207,12 +207,17 @@ impl State<App> for Viewer {
 }
 
 // Also returns (draw_top_layer, show_error, and an optional warning message)
-// TODO Just be part of the impl and mutate?
+// TODO Combine with update() and split this into pieces
 fn setup_editing(
     ctx: &mut EventCtx,
     app: &App,
     neighbourhood: &Neighbourhood,
-) -> (EditNeighbourhood, ToggleZoomed, Drawable, Option<&'static str>) {
+) -> (
+    EditNeighbourhood,
+    ToggleZoomed,
+    Drawable,
+    Option<&'static str>,
+) {
     let shortcuts = ctx.loading_screen("find shortcuts", |_, timer| {
         find_shortcuts(app, neighbourhood, timer)
     });
@@ -373,7 +378,7 @@ fn setup_editing(
             GeomBatch::load_svg(ctx, "system/assets/tools/warning.svg")
                 .color(RewriteColor::ChangeAll(Color::RED))
                 .scale(1.0)
-                .centered_on(road.center_pts.middle())
+                .centered_on(road.center_pts.middle()),
         );
 
         show_error.push(Color::RED.alpha(0.8), road.get_thick_polygon());
@@ -391,7 +396,12 @@ fn setup_editing(
         })
     };
 
-    (edit, draw_top_layer.build(ctx), show_error.upload(ctx), warning)
+    (
+        edit,
+        draw_top_layer.build(ctx),
+        show_error.upload(ctx),
+        warning,
+    )
 }
 
 fn help() -> Vec<&'static str> {
@@ -445,10 +455,7 @@ fn advanced_panel(ctx: &EventCtx, app: &App) -> Widget {
     .section(ctx)
 }
 
-fn detect_oneway_blackholes(
-    app: &App,
-    neighbourhood: &Neighbourhood,
-) -> BTreeSet<RoadID> {
+fn detect_oneway_blackholes(app: &App, neighbourhood: &Neighbourhood) -> BTreeSet<RoadID> {
     // Only focus on problems in the current neighbourhood
     let relevant_roads: BTreeSet<_> = neighbourhood
         .orig_perimeter
