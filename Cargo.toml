@@ -35,4 +35,4 @@ opt-level = 3
 
 [patch.crates-io]
 # avoid duplicating geo dependency, until next polylabel release
-polylabel = { git = "https://github.com/urschrei/polylabel-rs", rev = "70b023783059513dca043b2f0c712fe31f682288" }
+polylabel = { git = "https://github.com/urschrei/polylabel-rs", rev = "b919b8587b491b9a952a6d4c0670558bfd38e034" }
