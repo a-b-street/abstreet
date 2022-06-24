@@ -45,7 +45,7 @@ impl RenderCells {
     }
 
     /// Per cell, convert all polygons to a `geo::MultiPolygon`. Leave the coordinate system as map-space.
-    pub fn to_multipolygons(&self) -> Vec<geo::MultiPolygon<f64>> {
+    pub fn to_multipolygons(&self) -> Vec<geo::MultiPolygon> {
         self.polygons_per_cell
             .clone()
             .into_iter()

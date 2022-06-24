@@ -13,7 +13,7 @@ impl CensusArea {
         use flatgeobuf::HttpFgbReader;
         use geozero::geo_types::GeoWriter;
 
-        let mut geo_map_area: geo::Polygon<_> = map_area.clone().into();
+        let mut geo_map_area: geo::Polygon = map_area.clone().into();
         geo_map_area.map_coords_in_place(|c| {
             let projected = geom::Pt2D::new(c.x, c.y).to_gps(bounds);
             (projected.x(), projected.y()).into()

@@ -43,7 +43,7 @@ pub mod od;
 /// have two overlapping areas.
 #[derive(Debug, PartialEq)]
 pub struct CensusArea {
-    pub polygon: geo::Polygon<f64>,
+    pub polygon: geo::Polygon,
     pub population: usize,
     // TODO Not sure what goes here, whatever census data actually has that could be useful
 }

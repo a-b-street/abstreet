@@ -20,7 +20,7 @@ pub fn run(pbf_path: String, clip_path: String, out_path: String) -> Result<()> 
     clip(&pbf_path, &boundary, &out_path)
 }
 
-fn clip(pbf_path: &str, boundary: &Polygon<f64>, out_path: &str) -> Result<()> {
+fn clip(pbf_path: &str, boundary: &Polygon, out_path: &str) -> Result<()> {
     // TODO Maybe just have a single map with RcOSMObj. But then the order we write will be wrong.
     let mut way_node_ids: HashSet<i64> = HashSet::new();
     let mut way_ids: HashSet<i64> = HashSet::new();
@@ -97,7 +97,7 @@ fn clip(pbf_path: &str, boundary: &Polygon<f64>, out_path: &str) -> Result<()> {
     Ok(())
 }
 
-fn to_pt(pair: (osmio::Lat, osmio::Lon)) -> Point<f64> {
+fn to_pt(pair: (osmio::Lat, osmio::Lon)) -> Point {
     // Note our polygon uses (lon, lat)
     (pair.1.into(), pair.0.into()).into()
 }

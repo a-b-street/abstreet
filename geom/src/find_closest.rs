@@ -12,7 +12,7 @@ use crate::{Bounds, Distance, Pt2D};
 /// A quad-tree to quickly find the closest points to some polylines.
 pub struct FindClosest<K> {
     // TODO maybe any type of geo:: thing
-    geometries: BTreeMap<K, geo::LineString<f64>>,
+    geometries: BTreeMap<K, geo::LineString>,
     quadtree: QuadTree<K>,
 }
 

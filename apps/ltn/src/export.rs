@@ -95,7 +95,7 @@ fn geojson_string(ctx: &EventCtx, app: &App) -> Result<String> {
     for feature in &mut features {
         // geojson to geo
         // This could be a Polygon, MultiPolygon, LineString
-        let mut geom: geo::Geometry<f64> = feature.geometry.take().unwrap().value.try_into()?;
+        let mut geom: geo::Geometry = feature.geometry.take().unwrap().value.try_into()?;
 
         geom.map_coords_in_place(|c| {
             let gps = Pt2D::new(c.x, c.y).to_gps(gps_bounds);

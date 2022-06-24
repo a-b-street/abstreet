@@ -5,8 +5,8 @@
 
 use crate::Pt2D;
 
-pub fn pts_to_line_string(raw_pts: &[Pt2D]) -> geo::LineString<f64> {
-    let pts: Vec<geo::Point<f64>> = raw_pts
+pub fn pts_to_line_string(raw_pts: &[Pt2D]) -> geo::LineString {
+    let pts: Vec<geo::Point> = raw_pts
         .iter()
         .map(|pt| geo::Point::new(pt.x(), pt.y()))
         .collect();

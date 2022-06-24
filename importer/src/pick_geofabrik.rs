@@ -45,11 +45,8 @@ async fn load_remote_geojson(path: String, url: &str) -> Result<GeoJson> {
     abstio::maybe_read_json(path, &mut Timer::throwaway())
 }
 
-fn find_matching_regions(
-    geojson: GeoJson,
-    center: LonLat,
-) -> Vec<(geo::MultiPolygon<f64>, String)> {
-    let center: geo::Point<f64> = center.into();
+fn find_matching_regions(geojson: GeoJson, center: LonLat) -> Vec<(geo::MultiPolygon, String)> {
+    let center: geo::Point = center.into();
 
     let mut matches = Vec::new();
 
@@ -59,8 +56,7 @@ fn find_matching_regions(
     if let GeoJson::FeatureCollection(fc) = geojson {
         info!("Searching {} regions", fc.features.len());
         for mut feature in fc.features {
-            let mp: geo::MultiPolygon<f64> =
-                feature.geometry.take().unwrap().value.try_into().unwrap();
+            let mp: geo::MultiPolygon = feature.geometry.take().unwrap().value.try_into().unwrap();
             if mp.contains(&center) {
                 matches.push((
                     mp,

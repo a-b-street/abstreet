@@ -189,7 +189,7 @@ impl fmt::Display for LonLat {
     }
 }
 
-impl From<LonLat> for geo::Point<f64> {
+impl From<LonLat> for geo::Point {
     fn from(pt: LonLat) -> Self {
         geo::Point::new(pt.x(), pt.y())
     }
