@@ -49,10 +49,10 @@ impl Viewer {
         self.draw_top_layer = draw_top_layer;
 
         let mut show_error = GeomBatch::new();
-        let mut disconnected_cells = 0;
+        let mut filter_problems = false;
         for (idx, cell) in self.neighbourhood.cells.iter().enumerate() {
             if cell.is_disconnected() {
-                disconnected_cells += 1;
+                filter_problems = true;
                 show_error.extend(
                     Color::RED.alpha(0.8),
                     render_cells.polygons_per_cell[idx].clone(),
@@ -60,16 +60,17 @@ impl Viewer {
             }
         }
 
-        // TODO warning text
-        detect_oneway_blackholes(app, &self.neighbourhood, &mut show_error);
+        let oneway_problems = detect_oneway_blackholes(app, &self.neighbourhood, &mut show_error);
 
-        let warning = if disconnected_cells == 0 {
+        let warning = if !filter_problems && !oneway_problems {
             Widget::nothing()
         } else {
-            let msg = if disconnected_cells == 1 {
-                "1 cell isn't reachable".to_string()
+            let msg = if !filter_problems {
+                "Some areas unreachable due to one-way streets"
+            } else if !oneway_problems {
+                "Some areas unreachable due to filters"
             } else {
-                format!("{disconnected_cells} cells aren't reachable")
+                "Some areas unreachable due to one-way streets & filters"
             };
 
             ctx.style()
@@ -416,7 +417,8 @@ fn advanced_panel(ctx: &EventCtx, app: &App) -> Widget {
     .section(ctx)
 }
 
-fn detect_oneway_blackholes(app: &App, neighbourhood: &Neighbourhood, show_error: &mut GeomBatch) {
+// True if there are problems
+fn detect_oneway_blackholes(app: &App, neighbourhood: &Neighbourhood, show_error: &mut GeomBatch) -> bool {
     // Only focus on problems in the current neighbourhood
     let relevant_roads: BTreeSet<_> = neighbourhood.orig_perimeter.interior.iter().cloned().collect();
 
@@ -428,9 +430,13 @@ fn detect_oneway_blackholes(app: &App, neighbourhood: &Neighbourhood, show_error
             problem_roads.insert(r);
         }
     }
+    if problem_roads.is_empty() {
+        return false;
+    }
 
     for r in problem_roads {
         // TODO Red rat-runs
         show_error.push(Color::CYAN.alpha(0.5), app.map.get_r(r).get_thick_polygon());
     }
+    true
 }
