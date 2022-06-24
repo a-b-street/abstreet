@@ -2,7 +2,7 @@ use std::collections::BTreeSet;
 
 use geom::{ArrowCap, Distance, PolyLine};
 use map_gui::tools::ColorNetwork;
-use map_model::PathConstraints;
+use map_model::{RoadID, PathConstraints};
 use raw_map::Direction;
 use widgetry::mapspace::ToggleZoomed;
 use widgetry::tools::PopupMsg;
@@ -44,43 +44,21 @@ impl Viewer {
     }
 
     fn update(&mut self, ctx: &mut EventCtx, app: &App) {
-        let (edit, draw_top_layer, render_cells) = setup_editing(ctx, app, &self.neighbourhood);
+        let (edit, draw_top_layer, show_error, warning_msg) = setup_editing(ctx, app, &self.neighbourhood);
         self.edit = edit;
         self.draw_top_layer = draw_top_layer;
+        self.show_error = show_error;
 
-        let mut show_error = GeomBatch::new();
-        let mut filter_problems = false;
-        for (idx, cell) in self.neighbourhood.cells.iter().enumerate() {
-            if cell.is_disconnected() {
-                filter_problems = true;
-                show_error.extend(
-                    Color::RED.alpha(0.8),
-                    render_cells.polygons_per_cell[idx].clone(),
-                );
-            }
-        }
-
-        let oneway_problems = detect_oneway_blackholes(app, &self.neighbourhood, &mut show_error);
-
-        let warning = if !filter_problems && !oneway_problems {
-            Widget::nothing()
-        } else {
-            let msg = if !filter_problems {
-                "Some areas unreachable due to one-way streets"
-            } else if !oneway_problems {
-                "Some areas unreachable due to filters"
-            } else {
-                "Some areas unreachable due to one-way streets & filters"
-            };
-
+        let warning = if let Some(msg) = warning_msg {
             ctx.style()
                 .btn_plain
                 .icon_text("system/assets/tools/warning.svg", msg)
                 .label_color(Color::RED, ControlState::Default)
                 .no_tooltip()
                 .build_widget(ctx, "warning")
+        } else {
+            Widget::nothing()
         };
-        self.show_error = ctx.upload(show_error);
 
         self.left_panel = self
             .edit
@@ -179,9 +157,7 @@ impl State<App> for Viewer {
                 app.session.heuristic = self.left_panel.dropdown_value("heuristic");
 
                 if x != "heuristic" {
-                    let (edit, draw_top_layer, _) = setup_editing(ctx, app, &self.neighbourhood);
-                    self.edit = edit;
-                    self.draw_top_layer = draw_top_layer;
+                    self.update(ctx, app);
                 }
             }
             _ => {}
@@ -230,11 +206,13 @@ impl State<App> for Viewer {
     }
 }
 
+// Also returns (draw_top_layer, show_error, and an optional warning message)
+// TODO Just be part of the impl and mutate?
 fn setup_editing(
     ctx: &mut EventCtx,
     app: &App,
     neighbourhood: &Neighbourhood,
-) -> (EditNeighbourhood, ToggleZoomed, RenderCells) {
+) -> (EditNeighbourhood, ToggleZoomed, Drawable, Option<&'static str>) {
     let shortcuts = ctx.loading_screen("find shortcuts", |_, timer| {
         find_shortcuts(app, neighbourhood, timer)
     });
@@ -275,20 +253,6 @@ fn setup_editing(
                 map_gui::tools::intersections_from_roads(&cell.roads.keys().cloned().collect(), map)
             {
                 draw_top_layer = draw_top_layer.push(color, map.get_i(i).polygon.clone());
-            }
-        }
-    }
-
-    // Draw a caution icon inside any disconnected cells
-    for (idx, cell) in neighbourhood.cells.iter().enumerate() {
-        if cell.is_disconnected() {
-            for poly in &render_cells.polygons_per_cell[idx] {
-                draw_top_layer.append_batch(
-                    GeomBatch::load_svg(ctx, "system/assets/tools/warning.svg")
-                        .color(RewriteColor::ChangeAll(Color::RED))
-                        .scale(1.0)
-                        .centered_on(poly.polylabel()),
-                );
             }
         }
     }
@@ -377,7 +341,57 @@ fn setup_editing(
         }
     }
 
-    (edit, draw_top_layer.build(ctx), render_cells)
+    let mut show_error = GeomBatch::new();
+
+    // Draw a caution icon inside disconnected cells
+    let mut filter_problems = false;
+    for (idx, cell) in neighbourhood.cells.iter().enumerate() {
+        if cell.is_disconnected() {
+            filter_problems = true;
+            for poly in &render_cells.polygons_per_cell[idx] {
+                draw_top_layer.append_batch(
+                    GeomBatch::load_svg(ctx, "system/assets/tools/warning.svg")
+                        .color(RewriteColor::ChangeAll(Color::RED))
+                        .scale(1.0)
+                        .centered_on(poly.polylabel()),
+                );
+            }
+
+            show_error.extend(
+                Color::RED.alpha(0.8),
+                render_cells.polygons_per_cell[idx].clone(),
+            );
+        }
+    }
+
+    let mut oneway_problems = false;
+    for r in detect_oneway_blackholes(app, neighbourhood) {
+        oneway_problems = true;
+        let road = app.map.get_r(r);
+
+        draw_top_layer.append_batch(
+            GeomBatch::load_svg(ctx, "system/assets/tools/warning.svg")
+                .color(RewriteColor::ChangeAll(Color::RED))
+                .scale(1.0)
+                .centered_on(road.center_pts.middle())
+        );
+
+        show_error.push(Color::RED.alpha(0.8), road.get_thick_polygon());
+    }
+
+    let warning = if !filter_problems && !oneway_problems {
+        None
+    } else {
+        Some(if !filter_problems {
+            "Some areas unreachable due to one-way streets"
+        } else if !oneway_problems {
+            "Some areas unreachable due to filters"
+        } else {
+            "Some areas unreachable due to one-way streets & filters"
+        })
+    };
+
+    (edit, draw_top_layer.build(ctx), show_error.upload(ctx), warning)
 }
 
 fn help() -> Vec<&'static str> {
@@ -431,12 +445,10 @@ fn advanced_panel(ctx: &EventCtx, app: &App) -> Widget {
     .section(ctx)
 }
 
-// True if there are problems
 fn detect_oneway_blackholes(
     app: &App,
     neighbourhood: &Neighbourhood,
-    show_error: &mut GeomBatch,
-) -> bool {
+) -> BTreeSet<RoadID> {
     // Only focus on problems in the current neighbourhood
     let relevant_roads: BTreeSet<_> = neighbourhood
         .orig_perimeter
@@ -453,13 +465,5 @@ fn detect_oneway_blackholes(
             problem_roads.insert(r);
         }
     }
-    if problem_roads.is_empty() {
-        return false;
-    }
-
-    for r in problem_roads {
-        // TODO Red rat-runs
-        show_error.push(Color::CYAN.alpha(0.5), app.map.get_r(r).get_thick_polygon());
-    }
-    true
+    problem_roads
 }
