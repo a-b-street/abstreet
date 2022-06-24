@@ -164,26 +164,26 @@ impl HashablePt2D {
     }
 }
 
-impl From<Pt2D> for geo::Coordinate<f64> {
+impl From<Pt2D> for geo::Coordinate {
     fn from(pt: Pt2D) -> Self {
         geo::Coordinate { x: pt.x, y: pt.y }
     }
 }
 
-impl From<Pt2D> for geo::Point<f64> {
+impl From<Pt2D> for geo::Point {
     fn from(pt: Pt2D) -> Self {
         geo::Point::new(pt.x, pt.y)
     }
 }
 
-impl From<geo::Coordinate<f64>> for Pt2D {
-    fn from(coord: geo::Coordinate<f64>) -> Self {
+impl From<geo::Coordinate> for Pt2D {
+    fn from(coord: geo::Coordinate) -> Self {
         Pt2D::new(coord.x, coord.y)
     }
 }
 
-impl From<geo::Point<f64>> for Pt2D {
-    fn from(point: geo::Point<f64>) -> Self {
+impl From<geo::Point> for Pt2D {
+    fn from(point: geo::Point) -> Self {
         Pt2D::new(point.x(), point.y())
     }
 }

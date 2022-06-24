@@ -338,7 +338,7 @@ impl Polygon {
     }
 
     /// Union all of the polygons into one geo::MultiPolygon
-    pub fn union_all_into_multipolygon(mut list: Vec<Polygon>) -> geo::MultiPolygon<f64> {
+    pub fn union_all_into_multipolygon(mut list: Vec<Polygon>) -> geo::MultiPolygon {
         // TODO Not sure why this happened, or if this is really valid to construct...
         if list.is_empty() {
             return geo::MultiPolygon(Vec::new());
@@ -356,13 +356,13 @@ impl Polygon {
     }
 
     pub fn convex_hull(list: Vec<Polygon>) -> Polygon {
-        let mp: geo::MultiPolygon<f64> = list.into_iter().map(|p| p.to_geo()).collect();
+        let mp: geo::MultiPolygon = list.into_iter().map(|p| p.to_geo()).collect();
         mp.convex_hull().into()
     }
 
     pub fn concave_hull(points: Vec<Pt2D>, concavity: u32) -> Polygon {
         use geo::k_nearest_concave_hull::KNearestConcaveHull;
-        let points: Vec<geo::Point<f64>> = points.iter().map(|p| geo::Point::from(*p)).collect();
+        let points: Vec<geo::Point> = points.iter().map(|p| geo::Point::from(*p)).collect();
         points.k_nearest_concave_hull(concavity).into()
     }
 
@@ -568,7 +568,7 @@ impl Polygon {
     // A less verbose way of invoking the From/Into impl. Note this hides a potentially expensive
     // clone. The eventual goal is for Polygon to directly wrap a geo::Polygon, at which point this
     // cost goes away.
-    fn to_geo(&self) -> geo::Polygon<f64> {
+    fn to_geo(&self) -> geo::Polygon {
         self.clone().into()
     }
 }
@@ -599,8 +599,8 @@ pub struct Triangle {
     pub pt3: Pt2D,
 }
 
-impl From<geo::Polygon<f64>> for Polygon {
-    fn from(poly: geo::Polygon<f64>) -> Self {
+impl From<geo::Polygon> for Polygon {
+    fn from(poly: geo::Polygon) -> Self {
         let (exterior, interiors) = poly.into_inner();
         Polygon::with_holes(
             Ring::from(exterior),
@@ -609,11 +609,11 @@ impl From<geo::Polygon<f64>> for Polygon {
     }
 }
 
-impl From<Polygon> for geo::Polygon<f64> {
+impl From<Polygon> for geo::Polygon {
     fn from(poly: Polygon) -> Self {
         if let Some(mut rings) = poly.rings {
             let exterior = rings.remove(0);
-            let interiors: Vec<geo::LineString<f64>> =
+            let interiors: Vec<geo::LineString> =
                 rings.into_iter().map(geo::LineString::from).collect();
             Self::new(exterior.into(), interiors)
         } else {
@@ -628,7 +628,7 @@ impl From<Polygon> for geo::Polygon<f64> {
     }
 }
 
-fn from_multi(multi: geo::MultiPolygon<f64>) -> Vec<Polygon> {
+fn from_multi(multi: geo::MultiPolygon) -> Vec<Polygon> {
     // TODO This should just call Polygon::from, but while importing maps, it seems like
     // intersection() is hitting non-Ring cases that crash. So keep using buggy_new for now.
     multi

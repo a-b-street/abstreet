@@ -987,8 +987,8 @@ impl PolyLine {
         self.first_pt().angle_to(self.last_pt())
     }
 
-    pub(crate) fn to_geo(&self) -> geo::LineString<f64> {
-        let pts: Vec<geo::Point<f64>> = self
+    pub(crate) fn to_geo(&self) -> geo::LineString {
+        let pts: Vec<geo::Point> = self
             .pts
             .iter()
             .map(|pt| geo::Point::new(pt.x(), pt.y()))
