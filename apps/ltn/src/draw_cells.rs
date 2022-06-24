@@ -139,7 +139,7 @@ impl RenderCellsBuilder {
         // Color some special cells
         for (idx, cell) in neighbourhood.cells.iter().enumerate() {
             if cell.is_disconnected() {
-                cell_colors[idx] = colors::DISCONNECTED_CELL;
+                cell_colors[idx] = Color::CLEAR;
             }
         }
 
