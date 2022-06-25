@@ -258,6 +258,16 @@
 <span id="253">253</span>
 <span id="254">254</span>
 <span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 <span class="kw">use</span> <span class="ident">std::convert::TryFrom</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
@@ -365,8 +375,18 @@
         <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">2</span>
     }
 
-    <span class="doccomment">/// Does this intersection connect to only a single road segment?</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_deadend</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+    <span class="doccomment">/// Does this intersection connect to only a single driveable road segment?</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_deadend_for_driving</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">bool</span> {
+        <span class="comment">// If a driveable road leads only to a cycle lane, then that&#39;s still a dead-end for driving</span>
+        <span class="self">self</span>.<span class="ident">roads</span>
+            .<span class="ident">iter</span>()
+            .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">PathConstraints::Car</span>.<span class="ident">can_use_road</span>(<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">r</span>), <span class="ident">map</span>))
+            .<span class="ident">count</span>()
+            <span class="op">==</span> <span class="number">1</span>
+    }
+
+    <span class="doccomment">/// Ignoring mode of travel, is this intersection only connected to one road?</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_deadend_for_everyone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span>
     }
 

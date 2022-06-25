@@ -428,21 +428,13 @@
 <span id="423">423</span>
 <span id="424">424</span>
 <span id="425">425</span>
-<span id="426">426</span>
-<span id="427">427</span>
-<span id="428">428</span>
-<span id="429">429</span>
-<span id="430">430</span>
-<span id="431">431</span>
-<span id="432">432</span>
-<span id="433">433</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">lyon_geom::math::F64Point</span>;
 <span class="kw">use</span> <span class="ident">lyon_geom</span>::{<span class="ident">CubicBezierSegment</span>, <span class="ident">QuadraticBezierSegment</span>};
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Intersection</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">RoadID</span>, <span class="ident">Turn</span>, <span class="ident">TurnID</span>, <span class="ident">TurnType</span>};
 
@@ -580,7 +572,7 @@
     <span class="kw">let</span> <span class="ident">expected_turn_types</span> <span class="op">=</span> <span class="ident">expected_turn_types_for_four_way</span>(<span class="ident">i</span>, <span class="ident">map</span>);
 
     <span class="comment">// Just generate every possible combination of turns between incoming and outgoing lanes.</span>
-    <span class="kw">let</span> <span class="ident">is_deadend</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span>;
+    <span class="kw">let</span> <span class="ident">is_deadend</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">is_deadend_for_driving</span>(<span class="ident">map</span>);
     <span class="kw">for</span> <span class="ident">src</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">incoming_lanes</span> {
         <span class="kw">let</span> <span class="ident">src</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">src</span>);
         <span class="kw">if</span> <span class="op">!</span><span class="ident">src</span>.<span class="ident">lane_type</span>.<span class="ident">is_for_moving_vehicles</span>() {
@@ -620,14 +612,6 @@
                     } <span class="kw">else</span> {
                         <span class="ident">turn_type</span> <span class="op">=</span> <span class="ident">TurnType::Left</span>;
                     }
-                }
-
-                <span class="comment">// Some service roads wind up very short. Allowing u-turns there causes vehicles to</span>
-                <span class="comment">// gridlock pretty much instantly, because they occupy two intersections during the</span>
-                <span class="comment">// attempted movement.</span>
-                <span class="kw">if</span> <span class="ident">is_deadend</span> <span class="op">&amp;&amp;</span> <span class="ident">src</span>.<span class="ident">length</span>() <span class="op">&lt;</span> <span class="ident">Distance::meters</span>(<span class="number">7.0</span>) {
-                    <span class="macro">warn!</span>(<span class="string">&quot;Skipping U-turn at tiny deadend on {}&quot;</span>, <span class="ident">src</span>.<span class="ident">id</span>);
-                    <span class="kw">continue</span>;
                 }
             } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">expected_type</span>) <span class="op">=</span> <span class="ident">expected_turn_types</span>
                 .<span class="ident">as_ref</span>()

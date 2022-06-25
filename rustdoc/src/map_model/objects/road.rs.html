@@ -673,6 +673,8 @@
 <span id="668">668</span>
 <span id="669">669</span>
 <span id="670">670</span>
+<span id="671">671</span>
+<span id="672">672</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
@@ -1291,9 +1293,11 @@
         <span class="ident">LaneSpec::oneway_for_driving</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">lane_specs</span>())
     }
 
-    <span class="doccomment">/// Does either end of this road lead nowhere?</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_deadend</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">bool</span> {
-        <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="self">self</span>.<span class="ident">src_i</span>).<span class="ident">is_deadend</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="self">self</span>.<span class="ident">dst_i</span>).<span class="ident">is_deadend</span>()
+    <span class="doccomment">/// Does either end of this road lead nowhere for cars?</span>
+    <span class="doccomment">/// (Asking this for a non-driveable road may be kind of meaningless)</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_deadend_for_driving</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">bool</span> {
+        <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="self">self</span>.<span class="ident">src_i</span>).<span class="ident">is_deadend_for_driving</span>(<span class="ident">map</span>)
+            <span class="op">|</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="self">self</span>.<span class="ident">dst_i</span>).<span class="ident">is_deadend_for_driving</span>(<span class="ident">map</span>)
     }
 }
 

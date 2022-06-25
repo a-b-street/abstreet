@@ -344,6 +344,10 @@
 <span id="339">339</span>
 <span id="340">340</span>
 <span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>, <span class="ident">EPSILON_DIST</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -406,7 +410,7 @@
     }
 
     <span class="comment">// At a deadend make only one SharedSidewalkCorner</span>
-    <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_deadend</span>() {
+    <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_deadend_for_everyone</span>() {
         <span class="kw">let</span> (<span class="ident">l1</span>, <span class="ident">l2</span>) <span class="op">=</span> (<span class="ident">lanes</span>[<span class="number">0</span>].<span class="ident">unwrap</span>(), <span class="ident">lanes</span>[<span class="number">1</span>].<span class="ident">unwrap</span>());
         <span class="kw">return</span> <span class="macro">vec!</span>[<span class="ident">Turn</span> {
             <span class="ident">id</span>: <span class="ident">turn_id</span>(<span class="ident">i</span>.<span class="ident">id</span>, <span class="ident">l1</span>.<span class="ident">id</span>, <span class="ident">l2</span>.<span class="ident">id</span>),
@@ -570,7 +574,11 @@
     } <span class="kw">else</span> {
         <span class="op">-</span><span class="number">1.0</span>
         <span class="comment">// For deadends, go the long way around</span>
-    } <span class="op">*</span> <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_deadend</span>() { <span class="op">-</span><span class="number">1.0</span> } <span class="kw">else</span> { <span class="number">1.0</span> };
+    } <span class="op">*</span> <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_deadend_for_everyone</span>() {
+        <span class="op">-</span><span class="number">1.0</span>
+    } <span class="kw">else</span> {
+        <span class="number">1.0</span>
+    };
     <span class="comment">// Find all of the points on the intersection polygon between the two sidewalks. Assumes</span>
     <span class="comment">// sidewalks are the same length.</span>
     <span class="kw">let</span> <span class="ident">corner1</span> <span class="op">=</span> <span class="ident">l1</span>

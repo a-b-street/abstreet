@@ -239,7 +239,7 @@
             <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">oneway_for_driving</span>().<span class="ident">is_some</span>() {
                 <span class="kw">return</span> <span class="ident">EditOutcome::error</span>(<span class="ident">ctx</span>, <span class="string">&quot;A one-way street can&#39;t have a filter&quot;</span>);
             }
-            <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">is_deadend</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>) {
+            <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">is_deadend_for_driving</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>) {
                 <span class="kw">return</span> <span class="ident">EditOutcome::error</span>(<span class="ident">ctx</span>, <span class="string">&quot;You can&#39;t filter a dead-end&quot;</span>);
             }
 

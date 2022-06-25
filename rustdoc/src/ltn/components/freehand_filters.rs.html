@@ -152,7 +152,7 @@
             }
             <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
             <span class="comment">// Don&#39;t show error messages</span>
-            <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">oneway_for_driving</span>().<span class="ident">is_some</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">road</span>.<span class="ident">is_deadend</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>) {
+            <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">oneway_for_driving</span>().<span class="ident">is_some</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">road</span>.<span class="ident">is_deadend_for_driving</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>) {
                 <span class="kw">continue</span>;
             }
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">pt</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">intersection</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>) {

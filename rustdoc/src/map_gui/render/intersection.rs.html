@@ -662,6 +662,10 @@
 <span id="657">657</span>
 <span id="658">658</span>
 <span id="659">659</span>
+<span id="660">660</span>
+<span id="661">661</span>
+<span id="662">662</span>
+<span id="663">663</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>, <span class="ident">Time</span>, <span class="ident">EPSILON_DIST</span>};
@@ -1062,7 +1066,11 @@
             } <span class="kw">else</span> {
                 <span class="op">-</span><span class="number">1.0</span>
                 <span class="comment">// At a dead end we&#39;re going the long way around</span>
-            } <span class="op">*</span> <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_deadend</span>() { <span class="op">-</span><span class="number">1.0</span> } <span class="kw">else</span> { <span class="number">1.0</span> };
+            } <span class="op">*</span> <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_deadend_for_everyone</span>() {
+                <span class="op">-</span><span class="number">1.0</span>
+            } <span class="kw">else</span> {
+                <span class="number">1.0</span>
+            };
             <span class="kw">let</span> <span class="ident">l1</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">src</span>);
             <span class="kw">let</span> <span class="ident">l2</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>);
 
