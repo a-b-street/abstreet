@@ -230,7 +230,7 @@ impl DiagonalFilter {
                 let road = app.map.get_r(*r);
                 // Include non-driveable roads in this check, since we haven't filtered those out yet
                 road.oneway_for_driving().is_none()
-                    && !road.is_deadend(&app.map)
+                    && !road.is_deadend_for_driving(&app.map)
                     && PathConstraints::Car.can_use_road(road, &app.map)
             });
 

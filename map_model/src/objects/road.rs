@@ -616,9 +616,11 @@ impl Road {
         LaneSpec::oneway_for_driving(&self.lane_specs())
     }
 
-    /// Does either end of this road lead nowhere?
-    pub fn is_deadend(&self, map: &Map) -> bool {
-        map.get_i(self.src_i).is_deadend() || map.get_i(self.dst_i).is_deadend()
+    /// Does either end of this road lead nowhere for cars?
+    /// (Asking this for a non-driveable road may be kind of meaningless)
+    pub fn is_deadend_for_driving(&self, map: &Map) -> bool {
+        map.get_i(self.src_i).is_deadend_for_driving(map)
+            || map.get_i(self.dst_i).is_deadend_for_driving(map)
     }
 }
 

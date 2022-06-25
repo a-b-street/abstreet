@@ -98,7 +98,7 @@ pub fn handle_world_outcome(
             if road.oneway_for_driving().is_some() {
                 return EditOutcome::error(ctx, "A one-way street can't have a filter");
             }
-            if road.is_deadend(&app.map) {
+            if road.is_deadend_for_driving(&app.map) {
                 return EditOutcome::error(ctx, "You can't filter a dead-end");
             }
 

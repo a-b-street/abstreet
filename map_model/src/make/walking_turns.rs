@@ -60,7 +60,7 @@ pub fn make_walking_turns(map: &Map, i: &Intersection) -> Vec<Turn> {
     }
 
     // At a deadend make only one SharedSidewalkCorner
-    if i.is_deadend() {
+    if i.is_deadend_for_everyone() {
         let (l1, l2) = (lanes[0].unwrap(), lanes[1].unwrap());
         return vec![Turn {
             id: turn_id(i.id, l1.id, l2.id),
@@ -224,7 +224,11 @@ fn make_shared_sidewalk_corner(i: &Intersection, l1: &Lane, l2: &Lane) -> PolyLi
     } else {
         -1.0
         // For deadends, go the long way around
-    } * if i.is_deadend() { -1.0 } else { 1.0 };
+    } * if i.is_deadend_for_everyone() {
+        -1.0
+    } else {
+        1.0
+    };
     // Find all of the points on the intersection polygon between the two sidewalks. Assumes
     // sidewalks are the same length.
     let corner1 = l1

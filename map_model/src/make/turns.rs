@@ -4,7 +4,7 @@ use anyhow::Result;
 use lyon_geom::math::F64Point;
 use lyon_geom::{CubicBezierSegment, QuadraticBezierSegment};
 
-use geom::{Angle, Distance, PolyLine, Pt2D};
+use geom::{Angle, PolyLine, Pt2D};
 
 use crate::{Intersection, Lane, LaneID, LaneType, Map, RoadID, Turn, TurnID, TurnType};
 
@@ -142,7 +142,7 @@ fn make_vehicle_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
     let expected_turn_types = expected_turn_types_for_four_way(i, map);
 
     // Just generate every possible combination of turns between incoming and outgoing lanes.
-    let is_deadend = i.roads.len() == 1;
+    let is_deadend = i.is_deadend_for_driving(map);
     for src in &i.incoming_lanes {
         let src = map.get_l(*src);
         if !src.lane_type.is_for_moving_vehicles() {
@@ -182,14 +182,6 @@ fn make_vehicle_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
                     } else {
                         turn_type = TurnType::Left;
                     }
-                }
-
-                // Some service roads wind up very short. Allowing u-turns there causes vehicles to
-                // gridlock pretty much instantly, because they occupy two intersections during the
-                // attempted movement.
-                if is_deadend && src.length() < Distance::meters(7.0) {
-                    warn!("Skipping U-turn at tiny deadend on {}", src.id);
-                    continue;
                 }
             } else if let Some(expected_type) = expected_turn_types
                 .as_ref()

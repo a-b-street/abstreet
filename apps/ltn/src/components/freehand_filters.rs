@@ -52,7 +52,7 @@ impl FreehandFilters {
             }
             let road = app.map.get_r(*r);
             // Don't show error messages
-            if road.oneway_for_driving().is_some() || road.is_deadend(&app.map) {
+            if road.oneway_for_driving().is_some() || road.is_deadend_for_driving(&app.map) {
                 continue;
             }
             if let Some((pt, _)) = road.center_pts.intersection(&path) {

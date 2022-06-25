@@ -398,7 +398,11 @@ fn calculate_corner_curbs(i: &Intersection, map: &Map) -> Vec<Polygon> {
             } else {
                 -1.0
                 // At a dead end we're going the long way around
-            } * if i.is_deadend() { -1.0 } else { 1.0 };
+            } * if i.is_deadend_for_everyone() {
+                -1.0
+            } else {
+                1.0
+            };
             let l1 = map.get_l(turn.id.src);
             let l2 = map.get_l(turn.id.dst);
 
