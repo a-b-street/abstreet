@@ -15,7 +15,6 @@ use widgetry::{
 
 use crate::app::{App, Transition};
 use crate::common::Warping;
-use crate::edit::heuristics::add_new_lane;
 use crate::edit::zones::ZoneEditor;
 use crate::edit::{apply_map_edits, can_edit_lane, speed_limit_choices};
 
@@ -322,8 +321,8 @@ impl State<App> for RoadEditor {
                     let mut edits = app.primary.map.get_edits().clone();
                     let old = app.primary.map.get_r_edit(self.r);
                     let mut new = old.clone();
-                    let idx = add_new_lane(
-                        &mut new,
+                    let idx = LaneSpec::add_new_lane(
+                        &mut new.lanes_ltr,
                         lt,
                         &app.primary.map.get_r(self.r).osm_tags,
                         app.primary.map.get_config().driving_side,
