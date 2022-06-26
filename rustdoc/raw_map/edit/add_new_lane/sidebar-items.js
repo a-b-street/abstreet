@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["default_outside_lane_placement","Place the new lane according to its direction on the outside unless the outside is walkable in which case place inside the walkable lane"],["determine_lane_dir","If there are more lanes of type lt pointing forward, then insert the new one backwards, and vice versa"]]});

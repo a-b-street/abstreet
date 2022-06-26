@@ -610,6 +610,7 @@
 <span id="605">605</span>
 <span id="606">606</span>
 <span id="607">607</span>
+<span id="608">608</span>
 </pre><pre class="rust"><code><span class="doccomment">//! The convert_osm crate produces a RawMap from OSM and other data. Storing this intermediate</span>
 <span class="doccomment">//! structure is useful to iterate quickly on parts of the map importing pipeline without having to</span>
 <span class="doccomment">//! constantly read .osm files, and to visualize the intermediate state with map_editor.</span>
@@ -637,6 +638,7 @@
     <span class="ident">LaneType</span>, <span class="ident">MapConfig</span>, <span class="ident">NamePerLanguage</span>, <span class="ident">NORMAL_LANE_THICKNESS</span>, <span class="ident">SIDEWALK_THICKNESS</span>,
 };
 
+<span class="kw">mod</span> <span class="ident">edit</span>;
 <span class="kw">mod</span> <span class="ident">export</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">geometry</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">initial</span>;
