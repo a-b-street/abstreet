@@ -2,6 +2,7 @@
 // testing infrastructure.
 
 mod add_bike_lanes;
+mod add_new_lane;
 mod one_ways;
 
 use geom::Distance;

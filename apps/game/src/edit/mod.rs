@@ -25,7 +25,6 @@ use crate::debug::DebugMode;
 use crate::sandbox::{GameplayMode, SandboxMode, TimeWarpScreen};
 
 mod crosswalks;
-mod heuristics;
 mod multiple_roads;
 mod roads;
 mod routes;
