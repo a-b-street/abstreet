@@ -337,6 +337,11 @@
 <span id="332">332</span>
 <span id="333">333</span>
 <span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Bounds</span>, <span class="ident">GPSBounds</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -547,6 +552,11 @@
 
     <span class="doccomment">/// Rotates each polygon in the batch relative to the center of the entire batch.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rotate_around_batch_center</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">angle</span>: <span class="ident">Angle</span>) -&gt; <span class="ident">GeomBatch</span> {
+        <span class="comment">// Bounds won&#39;t be defined if so</span>
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">list</span>.<span class="ident">is_empty</span>() {
+            <span class="kw">return</span> <span class="self">self</span>;
+        }
+
         <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_bounds</span>().<span class="ident">center</span>();
         <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">poly</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">list</span> {
             <span class="kw-2">*</span><span class="ident">poly</span> <span class="op">=</span> <span class="ident">poly</span>.<span class="ident">rotate_around</span>(<span class="ident">angle</span>, <span class="ident">center</span>);

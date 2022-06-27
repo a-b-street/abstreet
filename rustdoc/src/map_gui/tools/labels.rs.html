@@ -236,6 +236,8 @@
 <span id="231">231</span>
 <span id="232">232</span>
 <span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 
 <span class="kw">use</span> <span class="ident">aabb_quadtree::QuadTree</span>;
@@ -280,7 +282,9 @@
     <span class="comment">// the bucket to fill out</span>
     <span class="kw">fn</span> <span class="ident">discretize_zoom</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">zoom</span>: <span class="ident">f64</span>) -&gt; (<span class="ident">f64</span>, <span class="ident">usize</span>) {
         <span class="kw">let</span> <span class="ident">bucket</span> <span class="op">=</span> (<span class="ident">zoom</span> <span class="op">/</span> <span class="self">self</span>.<span class="ident">step_size</span>).<span class="ident">floor</span>() <span class="kw">as</span> <span class="ident">usize</span>;
-        <span class="kw">let</span> <span class="ident">rounded</span> <span class="op">=</span> (<span class="ident">bucket</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="self">self</span>.<span class="ident">step_size</span>;
+        <span class="comment">// It&#39;s a bit weird to have the same zoom behavior for &lt; 0.1 and 0.1 to 0.2, but unclear</span>
+        <span class="comment">// what to do otherwise -- an effective zoom of 0 is broken</span>
+        <span class="kw">let</span> <span class="ident">rounded</span> <span class="op">=</span> (<span class="ident">bucket</span>.<span class="ident">max</span>(<span class="number">1</span>) <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="self">self</span>.<span class="ident">step_size</span>;
         (<span class="ident">rounded</span>, <span class="ident">bucket</span>)
     }
 }
