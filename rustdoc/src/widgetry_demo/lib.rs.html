@@ -647,9 +647,6 @@
 <span id="642">642</span>
 <span id="643">643</span>
 <span id="644">644</span>
-<span id="645">645</span>
-<span id="646">646</span>
-<span id="647">647</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">rand::SeedableRng</span>;
 <span class="kw">use</span> <span class="ident">rand_xorshift::XorShiftRng</span>;
 
@@ -765,10 +762,7 @@
                     <span class="ident">max_x</span>: <span class="prelude-val">Some</span>(<span class="ident">Time::START_OF_DAY</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">elapsed</span>),
                     ..<span class="ident">Default::default</span>()
                 },
-                <span class="ident">UnitFmt</span> {
-                    <span class="ident">round_durations</span>: <span class="bool-val">true</span>,
-                    <span class="ident">metric</span>: <span class="bool-val">true</span>,
-                },
+                <span class="ident">UnitFmt::metric</span>(),
             ),
         ]))
         <span class="comment">// Don&#39;t let the panel exceed this percentage of the window. Scrollbars appear</span>

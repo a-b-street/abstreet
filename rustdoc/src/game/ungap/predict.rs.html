@@ -485,11 +485,6 @@
 <span id="480">480</span>
 <span id="481">481</span>
 <span id="482">482</span>
-<span id="483">483</span>
-<span id="484">484</span>
-<span id="485">485</span>
-<span id="486">486</span>
-<span id="487">487</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
 <span class="kw">use</span> <span class="ident">abstio::Manifest</span>;
@@ -774,12 +769,7 @@
                     <span class="ident">Distance::meters</span>(<span class="number">1.0</span>),
                     <span class="comment">// Even if the user&#39;s settings are set to feet, our step size is in meters, so</span>
                     <span class="comment">// just render in meters.</span>
-                    <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> {
-                        <span class="ident">x</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">UnitFmt</span> {
-                            <span class="ident">round_durations</span>: <span class="bool-val">false</span>,
-                            <span class="ident">metric</span>: <span class="bool-val">true</span>,
-                        })
-                    }),
+                    <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">UnitFmt::metric</span>())),
                 ),
             ]),
         ])
