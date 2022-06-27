@@ -238,6 +238,9 @@
 <span id="233">233</span>
 <span id="234">234</span>
 <span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 
 <span class="kw">use</span> <span class="ident">aabb_quadtree::QuadTree</span>;
@@ -364,11 +367,14 @@
                     .<span class="ident">fg</span>(<span class="self">self</span>.<span class="ident">fg_color</span>)
                     .<span class="ident">outlined</span>(<span class="self">self</span>.<span class="ident">outline_color</span>),
             );
+            <span class="comment">// TODO scale and centered_on are slow, and rotate_around_batch_center is especially</span>
+            <span class="comment">// slow. Consider a one-off combined transformation, or a smarter way of composing</span>
+            <span class="comment">// GeomBatch transformations.</span>
             <span class="kw">let</span> <span class="ident">txt_batch</span> <span class="op">=</span> <span class="ident">txt</span>
                 .<span class="ident">render_autocropped</span>(<span class="ident">g</span>)
-                .<span class="ident">scale</span>(<span class="ident">text_scale</span>) <span class="comment">// &lt;- expensive</span>
-                .<span class="ident">centered_on</span>(<span class="ident">pt</span>) <span class="comment">// &lt;- expensive</span>
-                .<span class="ident">rotate_around_batch_center</span>(<span class="ident">angle</span>.<span class="ident">reorient</span>()); <span class="comment">// &lt;- most expensive</span>
+                .<span class="ident">scale</span>(<span class="ident">text_scale</span>)
+                .<span class="ident">centered_on</span>(<span class="ident">pt</span>)
+                .<span class="ident">rotate_around_batch_center</span>(<span class="ident">angle</span>.<span class="ident">reorient</span>());
 
             <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">txt_batch</span>);
         }
