@@ -208,6 +208,11 @@ impl GeomBatch {
 
     /// Rotates each polygon in the batch relative to the center of the entire batch.
     pub fn rotate_around_batch_center(mut self, angle: Angle) -> GeomBatch {
+        // Bounds won't be defined if so
+        if self.list.is_empty() {
+            return self;
+        }
+
         let center = self.get_bounds().center();
         for (_, poly, _) in &mut self.list {
             *poly = poly.rotate_around(angle, center);

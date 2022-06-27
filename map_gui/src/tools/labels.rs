@@ -42,7 +42,9 @@ impl PerZoom {
     // the bucket to fill out
     fn discretize_zoom(&self, zoom: f64) -> (f64, usize) {
         let bucket = (zoom / self.step_size).floor() as usize;
-        let rounded = (bucket as f64) * self.step_size;
+        // It's a bit weird to have the same zoom behavior for < 0.1 and 0.1 to 0.2, but unclear
+        // what to do otherwise -- an effective zoom of 0 is broken
+        let rounded = (bucket.max(1) as f64) * self.step_size;
         (rounded, bucket)
     }
 }
