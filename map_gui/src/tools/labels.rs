@@ -124,11 +124,14 @@ impl DrawRoadLabels {
                     .fg(self.fg_color)
                     .outlined(self.outline_color),
             );
+            // TODO scale and centered_on are slow, and rotate_around_batch_center is especially
+            // slow. Consider a one-off combined transformation, or a smarter way of composing
+            // GeomBatch transformations.
             let txt_batch = txt
                 .render_autocropped(g)
-                .scale(text_scale) // <- expensive
-                .centered_on(pt) // <- expensive
-                .rotate_around_batch_center(angle.reorient()); // <- most expensive
+                .scale(text_scale)
+                .centered_on(pt)
+                .rotate_around_batch_center(angle.reorient());
 
             batch.append(txt_batch);
         }
