@@ -113,10 +113,7 @@ impl Demo {
                     max_x: Some(Time::START_OF_DAY + self.elapsed),
                     ..Default::default()
                 },
-                UnitFmt {
-                    round_durations: true,
-                    metric: true,
-                },
+                UnitFmt::metric(),
             ),
         ]))
         // Don't let the panel exceed this percentage of the window. Scrollbars appear

@@ -282,12 +282,7 @@ impl Filters {
                     Distance::meters(1.0),
                     // Even if the user's settings are set to feet, our step size is in meters, so
                     // just render in meters.
-                    Box::new(|x| {
-                        x.to_string(&UnitFmt {
-                            round_durations: false,
-                            metric: true,
-                        })
-                    }),
+                    Box::new(|x| x.to_string(&UnitFmt::metric())),
                 ),
             ]),
         ])

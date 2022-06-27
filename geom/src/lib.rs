@@ -73,6 +73,16 @@ pub struct UnitFmt {
     pub metric: bool,
 }
 
+impl UnitFmt {
+    /// Default settings using metric.
+    pub fn metric() -> Self {
+        Self {
+            round_durations: true,
+            metric: true,
+        }
+    }
+}
+
 #[derive(Clone, Copy, Debug)]
 pub struct CornerRadii {
     pub top_left: f64,
