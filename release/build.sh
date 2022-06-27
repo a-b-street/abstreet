@@ -40,6 +40,7 @@ for name in game cli fifteen_min osm_viewer parking_mapper santa ltn; do
         # keychain holding a codesigning certificate with a Common Name
         # matching "Developer ID Application.*"
         #codesign -fs "Developer ID Application" --timestamp -o runtime "$bin"
+	echo Skipping
     fi
     cp "$bin" "$output";
 done
