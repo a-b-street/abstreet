@@ -94,6 +94,7 @@ pub fn extract_osm(
 
     let mut coastline_groups: Vec<(WayID, Vec<Pt2D>)> = Vec::new();
     let mut memorial_areas: Vec<Polygon> = Vec::new();
+    let mut amenity_areas: Vec<(Polygon, Amenity)> = Vec::new();
     timer.start_iter("processing OSM ways", doc.ways.len());
     for (id, way) in &mut doc.ways {
         timer.next();
@@ -162,6 +163,13 @@ pub fn extract_osm(
             });
         } else if way.tags.is("historic", "memorial") {
             memorial_areas.push(polygon);
+        } else if way.tags.contains_key("amenity") {
+            let amenity = Amenity {
+                names: NamePerLanguage::new(&way.tags).unwrap_or_else(NamePerLanguage::unnamed),
+                amenity_type: way.tags.get("amenity").unwrap().clone(),
+                osm_tags: way.tags.clone(),
+            };
+            amenity_areas.push((polygon, amenity));
         }
     }
 
@@ -173,8 +181,6 @@ pub fn extract_osm(
     }
 
     let boundary = map.boundary_polygon.clone().into_ring();
-
-    let mut amenity_areas: Vec<(Polygon, Amenity)> = Vec::new();
 
     // TODO Fill this out in a separate loop to keep a mutable borrow short. Maybe do this in
     // reader, or stop doing this entirely.
