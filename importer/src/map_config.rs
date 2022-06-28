@@ -82,9 +82,10 @@ pub fn config_for_map(name: &MapName) -> convert_osm::Options {
         } else {
             None
         },
-        // Our underlying elevation source is quite unvalidated outside of Seattle. We should
-        // consider disabling it in most places until resolved, but for the moment, just for one
-        // map of particular importance.
-        elevation: name != &MapName::new("br", "sao_paulo", "sao_miguel_paulista"),
+        // The underlying elevation source works well in Seattle, but is half-baked (and uses low
+        // resolution SRTM) elsewhere. Since the results aren't good and the cost of running this
+        // isn't cheap, only keep it for two places
+        elevation: name.city == CityName::new("us", "seattle")
+            || name.city == CityName::new("us", "san_francisco"),
     }
 }
