@@ -369,6 +369,7 @@
 <span id="364">364</span>
 <span id="365">365</span>
 <span id="366">366</span>
+<span id="367">367</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashSet</span>};
 <span class="kw">use</span> <span class="ident">std::marker::PhantomData</span>;
 
@@ -376,12 +377,13 @@
 
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
 <span class="kw">use</span> <span class="ident">synthpop::TripEndpoint</span>;
+<span class="kw">use</span> <span class="ident">widgetry::tools::ChooseSomething</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">SimpleState</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextBox</span>, <span class="ident">TextExt</span>,
     <span class="ident">Transition</span>, <span class="ident">Widget</span>,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::tools</span>::{<span class="ident">grey_out_map</span>, <span class="ident">ChooseSomething</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::tools::grey_out_map</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::AppLike</span>;
 
 <span class="doccomment">/// Save sequences of waypoints as named trips. Basic file management -- save, load, browse. This</span>

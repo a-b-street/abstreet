@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["ChooseSomething","Choose something from a menu, then feed the answer to a callback."]]});

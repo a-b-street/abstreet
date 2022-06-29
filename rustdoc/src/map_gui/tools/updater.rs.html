@@ -159,7 +159,6 @@
 <span id="154">154</span>
 <span id="155">155</span>
 <span id="156">156</span>
-<span id="157">157</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
@@ -168,10 +167,9 @@
 
 <span class="kw">use</span> <span class="ident">abstio</span>::{<span class="ident">DataPacks</span>, <span class="ident">Manifest</span>, <span class="ident">MapName</span>};
 <span class="kw">use</span> <span class="ident">abstutil::prettyprint_bytes</span>;
-<span class="kw">use</span> <span class="ident">widgetry::tools</span>::{<span class="ident">FutureLoader</span>, <span class="ident">PopupMsg</span>};
+<span class="kw">use</span> <span class="ident">widgetry::tools</span>::{<span class="ident">ChooseSomething</span>, <span class="ident">FutureLoader</span>, <span class="ident">PopupMsg</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">EventCtx</span>, <span class="ident">Key</span>, <span class="ident">Transition</span>};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::tools::ChooseSomething</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::AppLike</span>;
 
 <span class="comment">// For each city, how many total bytes do the runtime files cost to download?</span>

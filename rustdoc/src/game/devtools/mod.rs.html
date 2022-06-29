@@ -187,14 +187,16 @@
 <span id="182">182</span>
 <span id="183">183</span>
 <span id="184">184</span>
+<span id="185">185</span>
 </pre><pre class="rust"><code><span class="doccomment">//! This directory contains extra/experimental tools not directly related to A/B Street the game.</span>
 <span class="doccomment">//! Eventually some might be split into separate crates.</span>
 
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">LonLat</span>, <span class="ident">Percent</span>};
 <span class="kw">use</span> <span class="ident">map_gui::colors::ColorSchemeChoice</span>;
-<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">ChooseSomething</span>, <span class="ident">CityPicker</span>};
+<span class="kw">use</span> <span class="ident">map_gui::tools::CityPicker</span>;
 <span class="kw">use</span> <span class="ident">map_gui::AppLike</span>;
+<span class="kw">use</span> <span class="ident">widgetry::tools::ChooseSomething</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Choice</span>, <span class="ident">EventCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">SimpleState</span>, <span class="ident">State</span>, <span class="ident">Widget</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
