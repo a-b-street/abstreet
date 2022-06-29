@@ -28,6 +28,9 @@ pub struct OsmExtract {
     pub amenities: Vec<(Pt2D, Amenity)>,
     /// Crosswalks located at these points, which should be on a RawRoad's center line
     pub crosswalks: HashSet<HashablePt2D>,
+    /// Some kind of barrier nodes at these points. Only the ones on a RawRoad center line are
+    /// relevant.
+    pub barrier_nodes: HashSet<HashablePt2D>,
 }
 
 pub fn extract_osm(
@@ -66,6 +69,7 @@ pub fn extract_osm(
         complicated_turn_restrictions: Vec::new(),
         amenities: Vec::new(),
         crosswalks: HashSet::new(),
+        barrier_nodes: HashSet::new(),
     };
 
     timer.start_iter("processing OSM nodes", doc.nodes.len());
@@ -83,6 +87,10 @@ pub fn extract_osm(
         }
         if node.tags.is(osm::HIGHWAY, "crossing") {
             out.crosswalks.insert(node.pt.to_hashable());
+        }
+        // TODO Any kind of barrier?
+        if node.tags.is("barrier", "bollard") {
+            out.barrier_nodes.insert(node.pt.to_hashable());
         }
         for amenity in get_bldg_amenities(&node.tags) {
             out.amenities.push((node.pt, amenity));

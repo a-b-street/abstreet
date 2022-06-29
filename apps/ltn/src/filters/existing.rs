@@ -60,6 +60,13 @@ pub fn transform_existing_filters(ctx: &EventCtx, app: &mut App, timer: &mut Tim
             .roads
             .insert(r, app.map.get_r(r).length() / 2.0);
     }
+
+    // The new, kind of simpler case
+    for r in app.map.all_roads() {
+        for dist in &r.barrier_nodes {
+            app.session.modal_filters.roads.insert(r.id, *dist);
+        }
+    }
 }
 
 fn detect_filters(map: &Map) -> Vec<&Road> {

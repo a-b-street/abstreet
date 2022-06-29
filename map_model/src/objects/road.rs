@@ -189,6 +189,9 @@ pub struct Road {
 
     /// Meaningless order
     pub transit_stops: BTreeSet<TransitStopID>,
+
+    /// Some kind of modal filter or barrier this distance along center_pts.
+    pub barrier_nodes: Vec<Distance>,
 }
 
 impl Road {

@@ -6,7 +6,9 @@ use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 use structopt::StructOpt;
 
 use abstutil::{MultiMap, Timer};
-use geom::{Distance, FindClosest, HashablePt2D, Line, Polygon, Speed, EPSILON_DIST};
+use geom::{
+    Distance, FindClosest, HashablePt2D, Line, PolyLine, Polygon, Pt2D, Speed, EPSILON_DIST,
+};
 use raw_map::initial;
 
 pub use self::parking_lots::snap_driveway;
@@ -111,6 +113,7 @@ impl Map {
             let i2 = intersection_id_mapping[&r.dst_i];
 
             let raw_road = &raw.roads[&r.id];
+            let barrier_nodes = snap_nodes_to_line(&raw_road.barrier_nodes, &r.trimmed_center_pts);
             let mut road = Road {
                 id: road_id,
                 osm_tags: raw_road.osm_tags.clone(),
@@ -152,6 +155,7 @@ impl Map {
                 crosswalk_forward: raw_road.crosswalk_forward,
                 crosswalk_backward: raw_road.crosswalk_backward,
                 transit_stops: BTreeSet::new(),
+                barrier_nodes,
             };
             road.speed_limit = road.speed_limit_from_osm();
             road.access_restrictions = road.access_restrictions_from_osm();
@@ -372,4 +376,16 @@ pub fn trim_path(poly: &Polygon, path: Line) -> Line {
     }
     // Just give up
     path
+}
+
+fn snap_nodes_to_line(pts: &[Pt2D], pl: &PolyLine) -> Vec<Distance> {
+    let mut results = Vec::new();
+    for pt in pts {
+        let projected = pl.project_pt(*pt);
+        // TODO Check distance isn't too crazy? Not sure why it would be
+        if let Some((dist, _)) = pl.dist_along_of_point(projected) {
+            results.push(dist);
+        }
+    }
+    results
 }

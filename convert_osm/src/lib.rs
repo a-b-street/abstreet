@@ -132,6 +132,12 @@ pub fn convert(
 
     parking::apply_parking(&mut map, &opts, timer);
 
+    use_barrier_nodes(
+        &mut map,
+        split_output.barrier_nodes,
+        &split_output.pt_to_road,
+    );
+
     if opts.elevation {
         timer.start("add elevation data");
         if let Err(err) = elevation::add_data(&mut map) {
@@ -246,6 +252,22 @@ fn filter_crosswalks(
                     // service road, which later gets trimmed. So the crosswalk effectively
                     // disappears.
                 }
+            }
+        }
+    }
+}
+
+fn use_barrier_nodes(
+    map: &mut RawMap,
+    barrier_nodes: HashSet<HashablePt2D>,
+    pt_to_road: &HashMap<HashablePt2D, OriginalRoad>,
+) {
+    for pt in barrier_nodes {
+        // Many barriers are on footpaths or roads that we don't retain
+        if let Some(road) = pt_to_road.get(&pt).and_then(|r| map.roads.get_mut(r)) {
+            // Filters on roads that're already car-free are redundant
+            if road.is_driveable() {
+                road.barrier_nodes.push(pt.to_pt2d());
             }
         }
     }
