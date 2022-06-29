@@ -11,6 +11,7 @@ use crate::extract::OsmExtract;
 pub struct Output {
     pub amenities: Vec<(Pt2D, Amenity)>,
     pub crosswalks: HashSet<HashablePt2D>,
+    pub barrier_nodes: HashSet<HashablePt2D>,
     /// A mapping of all points to the split road. Some internal points on roads get removed in
     /// `split_up_roads`, so this mapping isn't redundant.
     pub pt_to_road: HashMap<HashablePt2D, OriginalRoad>,
@@ -222,6 +223,7 @@ pub fn split_up_roads(map: &mut RawMap, mut input: OsmExtract, timer: &mut Timer
     Output {
         amenities: input.amenities,
         crosswalks: input.crosswalks,
+        barrier_nodes: input.barrier_nodes,
         pt_to_road,
     }
 }

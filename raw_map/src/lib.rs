@@ -353,6 +353,11 @@ pub struct RawRoad {
     /// Is there a tagged crosswalk near each end of the road?
     pub crosswalk_forward: bool,
     pub crosswalk_backward: bool,
+    /// Barrier nodes along this road's original center line.
+    // TODO Preserving these across transformations (especially merging dual carriageways!) could
+    // be really hard. It might be better to split the road into two pieces to match the more often
+    // used OSM style.
+    pub barrier_nodes: Vec<Pt2D>,
 
     /// Derived from osm_tags. Not automatically updated.
     pub lane_specs_ltr: Vec<LaneSpec>,
@@ -376,6 +381,7 @@ impl RawRoad {
             // later
             crosswalk_forward: true,
             crosswalk_backward: true,
+            barrier_nodes: Vec::new(),
 
             lane_specs_ltr,
         })
