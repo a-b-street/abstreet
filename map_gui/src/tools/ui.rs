@@ -9,75 +9,9 @@ use abstutil::prettyprint_usize;
 use geom::{Distance, Duration, Polygon};
 use synthpop::TripMode;
 use widgetry::tools::FutureLoader;
-use widgetry::{
-    Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, State, Text,
-    TextBox, Toggle, Transition, Widget,
-};
+use widgetry::{Color, EventCtx, GeomBatch, Line, State, Text, Toggle, Transition, Widget};
 
-use crate::tools::grey_out_map;
 use crate::AppLike;
-
-/// Prompt for arbitrary text input, then feed the answer to a callback.
-pub struct PromptInput<A: AppLike> {
-    panel: Panel,
-    cb: Option<Box<dyn FnOnce(String, &mut EventCtx, &mut A) -> Transition<A>>>,
-}
-
-impl<A: AppLike + 'static> PromptInput<A> {
-    pub fn new_state(
-        ctx: &mut EventCtx,
-        query: &str,
-        initial: String,
-        cb: Box<dyn FnOnce(String, &mut EventCtx, &mut A) -> Transition<A>>,
-    ) -> Box<dyn State<A>> {
-        Box::new(PromptInput {
-            panel: Panel::new_builder(Widget::col(vec![
-                Widget::row(vec![
-                    Line(query).small_heading().into_widget(ctx),
-                    ctx.style().btn_close_widget(ctx),
-                ]),
-                TextBox::default_widget(ctx, "input", initial),
-                ctx.style()
-                    .btn_outline
-                    .text("confirm")
-                    .hotkey(Key::Enter)
-                    .build_def(ctx),
-            ]))
-            .build(ctx),
-            cb: Some(cb),
-        })
-    }
-}
-
-impl<A: AppLike + 'static> State<A> for PromptInput<A> {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Transition<A> {
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
-                "close" => Transition::Pop,
-                "confirm" => {
-                    let data = self.panel.text_box("input");
-                    (self.cb.take().unwrap())(data, ctx, app)
-                }
-                _ => unreachable!(),
-            },
-            _ => {
-                if ctx.normal_left_click() && ctx.canvas.get_cursor_in_screen_space().is_none() {
-                    return Transition::Pop;
-                }
-                Transition::Keep
-            }
-        }
-    }
-
-    fn draw_baselayer(&self) -> DrawBaselayer {
-        DrawBaselayer::PreviousState
-    }
-
-    fn draw(&self, g: &mut GfxCtx, app: &A) {
-        grey_out_map(g, app);
-        self.panel.draw(g);
-    }
-}
 
 pub struct FilePicker;
 

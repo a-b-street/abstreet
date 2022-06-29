@@ -2,6 +2,7 @@ mod choose_something;
 mod lasso;
 mod load;
 mod popup;
+mod prompt_input;
 pub(crate) mod screenshot;
 mod url;
 pub(crate) mod warper;
@@ -10,6 +11,7 @@ pub use choose_something::ChooseSomething;
 pub use lasso::{Lasso, PolyLineLasso};
 pub use load::{FileLoader, FutureLoader, RawBytes};
 pub use popup::PopupMsg;
+pub use prompt_input::PromptInput;
 pub use url::URLManager;
 
 use crate::{Color, GfxCtx};
