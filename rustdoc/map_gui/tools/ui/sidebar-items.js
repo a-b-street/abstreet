@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["checkbox_per_mode",""],["cmp_count","Less is better"],["cmp_dist","Shorter is better"],["cmp_duration","Shorter is better"],["color_for_mode",""],["percentage_bar",""]],"struct":[["FilePicker",""],["PromptInput","Prompt for arbitrary text input, then feed the answer to a callback."]]});
+initSidebarItems({"fn":[["checkbox_per_mode",""],["cmp_count","Less is better"],["cmp_dist","Shorter is better"],["cmp_duration","Shorter is better"],["color_for_mode",""],["percentage_bar",""]],"struct":[["FilePicker",""]]});

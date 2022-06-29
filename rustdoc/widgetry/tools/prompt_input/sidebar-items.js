@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["PromptInput","Prompt for arbitrary text input, then feed the answer to a callback."]]});
