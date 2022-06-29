@@ -4,8 +4,9 @@
 use abstutil::Timer;
 use geom::{LonLat, Percent};
 use map_gui::colors::ColorSchemeChoice;
-use map_gui::tools::{ChooseSomething, CityPicker};
+use map_gui::tools::CityPicker;
 use map_gui::AppLike;
+use widgetry::tools::ChooseSomething;
 use widgetry::{Choice, EventCtx, Key, Line, Panel, SimpleState, State, Widget};
 
 use crate::app::{App, Transition};

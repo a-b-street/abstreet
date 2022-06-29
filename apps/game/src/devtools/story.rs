@@ -2,9 +2,9 @@ use serde::{Deserialize, Serialize};
 
 use geom::{Distance, LonLat, Pt2D, Ring};
 use map_gui::render::DrawOptions;
-use map_gui::tools::{ChooseSomething, PromptInput};
+use map_gui::tools::PromptInput;
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
-use widgetry::tools::Lasso;
+use widgetry::tools::{ChooseSomething, Lasso};
 use widgetry::{
     lctrl, Choice, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
     Line, Outcome, Panel, SimpleState, State, Text, TextBox, VerticalAlignment, Widget,

@@ -5,12 +5,13 @@ use serde::{Deserialize, Serialize};
 
 use abstutil::Timer;
 use synthpop::TripEndpoint;
+use widgetry::tools::ChooseSomething;
 use widgetry::{
     Choice, Color, EventCtx, GfxCtx, Key, Line, Panel, SimpleState, State, Text, TextBox, TextExt,
     Transition, Widget,
 };
 
-use crate::tools::{grey_out_map, ChooseSomething};
+use crate::tools::grey_out_map;
 use crate::AppLike;
 
 /// Save sequences of waypoints as named trips. Basic file management -- save, load, browse. This

@@ -6,10 +6,9 @@ use futures_channel::mpsc;
 
 use abstio::{DataPacks, Manifest, MapName};
 use abstutil::prettyprint_bytes;
-use widgetry::tools::{FutureLoader, PopupMsg};
+use widgetry::tools::{ChooseSomething, FutureLoader, PopupMsg};
 use widgetry::{EventCtx, Key, Transition};
 
-use crate::tools::ChooseSomething;
 use crate::AppLike;
 
 // For each city, how many total bytes do the runtime files cost to download?

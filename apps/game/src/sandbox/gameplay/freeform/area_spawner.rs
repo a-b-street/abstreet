@@ -1,7 +1,7 @@
 use geom::{Polygon, Pt2D};
-use map_gui::tools::ChooseSomething;
 use map_model::{BuildingID, IntersectionID};
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
+use widgetry::tools::ChooseSomething;
 use widgetry::{
     Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
     Panel, State, TextExt, VerticalAlignment, Widget,

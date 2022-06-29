@@ -2,8 +2,8 @@ use std::collections::BTreeSet;
 
 use abstutil::Timer;
 use geom::Duration;
-use map_gui::tools::ChooseSomething;
 use map_model::IntersectionID;
+use widgetry::tools::ChooseSomething;
 use widgetry::{
     Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, State, TextExt, UpdateType,
     VerticalAlignment, Widget,

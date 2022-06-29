@@ -2,8 +2,9 @@ use std::collections::HashSet;
 
 use abstutil::prettyprint_usize;
 use geom::{ArrowCap, Circle, Distance, Duration, PolyLine, Pt2D, Time};
-use map_gui::tools::{ChooseSomething, ColorLegend, Minimap, MinimapControls};
+use map_gui::tools::{ColorLegend, Minimap, MinimapControls};
 use map_model::BuildingID;
+use widgetry::tools::ChooseSomething;
 use widgetry::{
     Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Image, Key, Line,
     Outcome, Panel, State, Text, TextExt, UpdateType, VerticalAlignment, Widget,

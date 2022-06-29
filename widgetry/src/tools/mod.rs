@@ -1,3 +1,4 @@
+mod choose_something;
 mod lasso;
 mod load;
 mod popup;
@@ -5,10 +6,14 @@ pub(crate) mod screenshot;
 mod url;
 pub(crate) mod warper;
 
+pub use choose_something::ChooseSomething;
 pub use lasso::{Lasso, PolyLineLasso};
 pub use load::{FileLoader, FutureLoader, RawBytes};
 pub use popup::PopupMsg;
 pub use url::URLManager;
+
+use crate::{Color, GfxCtx};
+use geom::Polygon;
 
 /// Store a cached key/value pair, only recalculating when the key changes.
 pub struct Cached<K: PartialEq + Clone, V> {
@@ -70,4 +75,14 @@ impl<K: PartialEq + Clone, V> Default for Cached<K, V> {
 
 pub fn open_browser<I: AsRef<str>>(url: I) {
     let _ = webbrowser::open(url.as_ref());
+}
+
+fn grey_out_map(g: &mut GfxCtx) {
+    // This is a copy of grey_out_map from map_gui, with no dependencies on App
+    g.fork_screenspace();
+    g.draw_polygon(
+        Color::BLACK.alpha(0.6),
+        Polygon::rectangle(g.canvas.window_width, g.canvas.window_height),
+    );
+    g.unfork();
 }

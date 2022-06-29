@@ -1,8 +1,7 @@
 use crate::{
-    hotkeys, Color, DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text,
-    Transition, Widget,
+    hotkeys, DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text, Transition,
+    Widget,
 };
-use geom::Polygon;
 
 /// Display a message dialog.
 pub struct PopupMsg {
@@ -59,14 +58,7 @@ impl<A> State<A> for PopupMsg {
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &A) {
-        // This is a copy of grey_out_map from map_gui, with no dependencies on App
-        g.fork_screenspace();
-        g.draw_polygon(
-            Color::BLACK.alpha(0.6),
-            Polygon::rectangle(g.canvas.window_width, g.canvas.window_height),
-        );
-        g.unfork();
-
+        super::grey_out_map(g);
         self.panel.draw(g);
     }
 }

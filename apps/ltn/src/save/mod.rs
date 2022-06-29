@@ -5,9 +5,9 @@ use serde::{Deserialize, Serialize};
 
 use abstio::MapName;
 use abstutil::Counter;
-use map_gui::tools::{ChooseSomething, PromptInput};
+use map_gui::tools::PromptInput;
 use map_model::PathRequest;
-use widgetry::tools::PopupMsg;
+use widgetry::tools::{ChooseSomething, PopupMsg};
 use widgetry::{Choice, EventCtx, Key, Line, State, Widget};
 
 use crate::partition::BlockID;

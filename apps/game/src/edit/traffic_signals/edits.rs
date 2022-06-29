@@ -1,9 +1,9 @@
 use geom::Duration;
-use map_gui::tools::{ChooseSomething, FilePicker};
+use map_gui::tools::FilePicker;
 use map_model::{
     ControlStopSign, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, StageType,
 };
-use widgetry::tools::PopupMsg;
+use widgetry::tools::{ChooseSomething, PopupMsg};
 use widgetry::{
     Choice, DrawBaselayer, EventCtx, Key, Line, Panel, SimpleState, Spinner, State, Text, TextExt,
     Widget,
