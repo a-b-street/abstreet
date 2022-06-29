@@ -257,6 +257,8 @@
 <span id="252">252</span>
 <span id="253">253</span>
 <span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">hash_map::Entry</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Counter</span>, <span class="ident">Tags</span>, <span class="ident">Timer</span>};
@@ -270,6 +272,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Output</span> {
     <span class="kw">pub</span> <span class="ident">amenities</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Pt2D</span>, <span class="ident">Amenity</span>)<span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">crosswalks</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">HashablePt2D</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">barrier_nodes</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">HashablePt2D</span><span class="op">&gt;</span>,
     <span class="doccomment">/// A mapping of all points to the split road. Some internal points on roads get removed in</span>
     <span class="doccomment">/// `split_up_roads`, so this mapping isn&#39;t redundant.</span>
     <span class="kw">pub</span> <span class="ident">pt_to_road</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">HashablePt2D</span>, <span class="ident">OriginalRoad</span><span class="op">&gt;</span>,
@@ -481,6 +484,7 @@
     <span class="ident">Output</span> {
         <span class="ident">amenities</span>: <span class="ident">input</span>.<span class="ident">amenities</span>,
         <span class="ident">crosswalks</span>: <span class="ident">input</span>.<span class="ident">crosswalks</span>,
+        <span class="ident">barrier_nodes</span>: <span class="ident">input</span>.<span class="ident">barrier_nodes</span>,
         <span class="ident">pt_to_road</span>,
     }
 }

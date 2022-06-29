@@ -611,6 +611,12 @@
 <span id="606">606</span>
 <span id="607">607</span>
 <span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
 </pre><pre class="rust"><code><span class="doccomment">//! The convert_osm crate produces a RawMap from OSM and other data. Storing this intermediate</span>
 <span class="doccomment">//! structure is useful to iterate quickly on parts of the map importing pipeline without having to</span>
 <span class="doccomment">//! constantly read .osm files, and to visualize the intermediate state with map_editor.</span>
@@ -966,6 +972,11 @@
     <span class="doccomment">/// Is there a tagged crosswalk near each end of the road?</span>
     <span class="kw">pub</span> <span class="ident">crosswalk_forward</span>: <span class="ident">bool</span>,
     <span class="kw">pub</span> <span class="ident">crosswalk_backward</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// Barrier nodes along this road&#39;s original center line.</span>
+    <span class="comment">// TODO Preserving these across transformations (especially merging dual carriageways!) could</span>
+    <span class="comment">// be really hard. It might be better to split the road into two pieces to match the more often</span>
+    <span class="comment">// used OSM style.</span>
+    <span class="kw">pub</span> <span class="ident">barrier_nodes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>,
 
     <span class="doccomment">/// Derived from osm_tags. Not automatically updated.</span>
     <span class="kw">pub</span> <span class="ident">lane_specs_ltr</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneSpec</span><span class="op">&gt;</span>,
@@ -989,6 +1000,7 @@
             <span class="comment">// later</span>
             <span class="ident">crosswalk_forward</span>: <span class="bool-val">true</span>,
             <span class="ident">crosswalk_backward</span>: <span class="bool-val">true</span>,
+            <span class="ident">barrier_nodes</span>: <span class="ident">Vec::new</span>(),
 
             <span class="ident">lane_specs_ltr</span>,
         })
