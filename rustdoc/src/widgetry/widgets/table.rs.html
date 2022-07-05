@@ -305,6 +305,8 @@
 <span id="300">300</span>
 <span id="301">301</span>
 <span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">abstutil::prettyprint_usize</span>;
 <span class="kw">use</span> <span class="ident">geom::Polygon</span>;
 
@@ -455,7 +457,7 @@
         <span class="comment">// Put together the UI</span>
         <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
             (<span class="self">self</span>.<span class="ident">filter</span>.<span class="ident">to_controls</span>)(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">filter</span>.<span class="ident">state</span>),
-            <span class="ident">make_table</span>(<span class="ident">ctx</span>, <span class="ident">headers</span>, <span class="ident">rows</span>, <span class="number">0.88</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>),
+            <span class="ident">render_table</span>(<span class="ident">ctx</span>, <span class="ident">headers</span>, <span class="ident">rows</span>, <span class="number">0.88</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>),
             <span class="ident">make_pagination</span>(<span class="ident">ctx</span>, <span class="ident">num_filtered</span>, <span class="self">self</span>.<span class="ident">skip</span>),
         ])
         .<span class="ident">named</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">id</span>)
@@ -547,7 +549,9 @@
     ])
 }
 
-<span class="kw">fn</span> <span class="ident">make_table</span>(
+<span class="doccomment">/// Render a table with the specified headers and rows. Each row will be a clickable button with a</span>
+<span class="doccomment">/// string label.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">render_table</span>(
     <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
     <span class="ident">headers</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span>,
     <span class="ident">rows</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">GeomBatch</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
@@ -608,5 +612,5 @@
     <span class="ident">Widget::custom_col</span>(<span class="ident">col</span>)
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0 (fe5b13d68 2022-05-18)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>
 </body></html>

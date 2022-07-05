@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Col",""]],"struct":[["Filter",""],["Table",""]]});
+initSidebarItems({"enum":[["Col",""]],"fn":[["render_table","Render a table with the specified headers and rows. Each row will be a clickable button with a string label."]],"struct":[["Filter",""],["Table",""]]});

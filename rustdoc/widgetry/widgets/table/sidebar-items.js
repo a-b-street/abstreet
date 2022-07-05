@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["ROWS",""]],"enum":[["Col",""]],"fn":[["make_pagination",""],["make_table",""]],"struct":[["Column",""],["Filter",""],["Table",""]]});
+initSidebarItems({"constant":[["ROWS",""]],"enum":[["Col",""]],"fn":[["make_pagination",""],["render_table","Render a table with the specified headers and rows. Each row will be a clickable button with a string label."]],"struct":[["Column",""],["Filter",""],["Table",""]]});
