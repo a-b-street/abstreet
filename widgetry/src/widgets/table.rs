@@ -148,7 +148,7 @@ impl<A, T, F> Table<A, T, F> {
         // Put together the UI
         Widget::col(vec![
             (self.filter.to_controls)(ctx, app, &self.filter.state),
-            make_table(ctx, headers, rows, 0.88 * ctx.canvas.window_width),
+            render_table(ctx, headers, rows, 0.88 * ctx.canvas.window_width),
             make_pagination(ctx, num_filtered, self.skip),
         ])
         .named(&self.id)
@@ -240,7 +240,9 @@ fn make_pagination(ctx: &mut EventCtx, total: usize, skip: usize) -> Widget {
     ])
 }
 
-fn make_table(
+/// Render a table with the specified headers and rows. Each row will be a clickable button with a
+/// string label.
+pub fn render_table(
     ctx: &mut EventCtx,
     headers: Vec<Widget>,
     rows: Vec<(String, Vec<GeomBatch>)>,
