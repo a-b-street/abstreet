@@ -378,6 +378,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "celes"
+version = "2.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0c7030e9a123aeed72ba38cb8d36b70ba973e19f7a52ce96c92d03bbc4f47310"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "cesu8"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2071,6 +2080,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "kstring"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ec3066350882a1cd6d950d055997f379ac37fd39f81cd4d8ed186032eb3c5747"
+dependencies = [
+ "static_assertions",
+]
+
+[[package]]
 name = "kurbo"
 version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2123,6 +2141,19 @@ name = "libm"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c7d73b3f436185384286bd8098d17ec07c9a7d2388a6599f824d8502b529702a"
+
+[[package]]
+name = "locale-codes"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d1f4cc9d2da40c19763d5dd398baf388f2cc1473ca3d53c578c75e9ad0402324"
+dependencies = [
+ "lazy_static",
+ "log",
+ "regex",
+ "serde",
+ "serde_json",
+]
 
 [[package]]
 name = "lock_api"
@@ -2739,6 +2770,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "osm-tags"
+version = "0.1.0"
+source = "git+https://github.com/a-b-street/osm2lanes#c0b45e46b2f420568e57acae519adc02c98b4db7"
+dependencies = [
+ "kstring",
+ "serde",
+]
+
+[[package]]
+name = "osm2lanes"
+version = "0.1.0"
+source = "git+https://github.com/a-b-street/osm2lanes#c0b45e46b2f420568e57acae519adc02c98b4db7"
+dependencies = [
+ "celes",
+ "locale-codes",
+ "log",
+ "osm-tags",
+ "serde",
+]
+
+[[package]]
 name = "osm_viewer"
 version = "0.1.0"
 dependencies = [
@@ -3163,6 +3215,8 @@ dependencies = [
  "geom",
  "kml",
  "log",
+ "osm-tags",
+ "osm2lanes",
  "petgraph",
  "serde",
  "serde_json",
@@ -3704,6 +3758,12 @@ name = "stable_deref_trait"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a8f112729512f8e442d81f95a8a7ddf2b7c6b8a1a6f509a95864142b30cab2d3"
+
+[[package]]
+name = "static_assertions"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
 name = "stdweb"
