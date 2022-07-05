@@ -7,7 +7,7 @@ use abstutil::{Tags, Timer};
 use geom::{Distance, FindClosest, HashablePt2D, Polygon, Pt2D, Ring};
 use kml::{ExtraShape, ExtraShapes};
 use raw_map::{
-    osm, Amenity, AreaType, Direction, DrivingSide, NamePerLanguage, RawArea, RawBuilding, RawMap,
+    osm, Amenity, AreaType, Direction, NamePerLanguage, RawArea, RawBuilding, RawMap,
     RawParkingLot, RestrictionType,
 };
 
@@ -454,6 +454,7 @@ fn is_road(tags: &mut Tags, opts: &Options, name: &MapName) -> bool {
     }
 
     // It's a road! Now fill in some possibly missing data.
+    // TODO Stop doing this entirely?
 
     // If there's no parking data in OSM already, then assume no parking and mark that it's
     // inferred.
@@ -466,51 +467,12 @@ fn is_road(tags: &mut Tags, opts: &Options, name: &MapName) -> bool {
         tags.insert(osm::PARKING_BOTH, "no_parking");
         tags.insert(osm::INFERRED_PARKING, "true");
     }
-
-    // If there's no sidewalk data in OSM already, then make an assumption and mark that
-    // it's inferred.
-    if !tags.contains_key(osm::SIDEWALK) && opts.map_config.inferred_sidewalks {
-        tags.insert(osm::INFERRED_SIDEWALKS, "true");
-
-        if tags.contains_key("sidewalk:left") || tags.contains_key("sidewalk:right") {
-            // Attempt to mangle
-            // https://wiki.openstreetmap.org/wiki/Key:sidewalk#Separately_mapped_sidewalks_on_only_one_side
-            // into left/right/both. We have to make assumptions for missing values.
-            let right = !tags.is("sidewalk:right", "no");
-            let left = !tags.is("sidewalk:left", "no");
-            let value = match (right, left) {
-                (true, true) => "both",
-                (true, false) => "right",
-                (false, true) => "left",
-                (false, false) => "none",
-            };
-            tags.insert(osm::SIDEWALK, value);
-        } else if tags.is_any(osm::HIGHWAY, vec!["motorway", "motorway_link"])
-            || tags.is_any("junction", vec!["intersection", "roundabout"])
-            || tags.is("foot", "no")
-            || tags.is(osm::HIGHWAY, "service")
-            // TODO For now, not attempting shared walking/biking paths.
-            || tags.is_any(osm::HIGHWAY, vec!["cycleway", "pedestrian", "track"])
-        {
-            tags.insert(osm::SIDEWALK, "none");
-        } else if tags.is("oneway", "yes") {
-            if opts.map_config.driving_side == DrivingSide::Right {
-                tags.insert(osm::SIDEWALK, "right");
-            } else {
-                tags.insert(osm::SIDEWALK, "left");
-            }
-            if tags.is_any(osm::HIGHWAY, vec!["residential", "living_street"])
-                && !tags.is("dual_carriageway", "yes")
-            {
-                tags.insert(osm::SIDEWALK, "both");
-            }
-            // Hack for Geneva, which maps sidewalks as separate ways
-            if name.city == CityName::new("ch", "geneva") {
-                tags.insert(osm::SIDEWALK, "both");
-            }
-        } else {
-            tags.insert(osm::SIDEWALK, "both");
-        }
+    // Hack for Geneva, which maps sidewalks as separate ways
+    if !tags.contains_key(osm::SIDEWALK)
+        && tags.is("oneway", "yes")
+        && name.city == CityName::new("ch", "geneva")
+    {
+        tags.insert(osm::SIDEWALK, "both");
     }
 
     true
