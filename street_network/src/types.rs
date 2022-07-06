@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use abstutil::{deserialize_btreemap, serialize_btreemap, Tags};
 use geom::Distance;
 
-use crate::osm;
+use crate::{osm, OriginalRoad};
 
 pub const NORMAL_LANE_THICKNESS: Distance = Distance::const_meters(2.5);
 const SERVICE_ROAD_LANE_THICKNESS: Distance = Distance::const_meters(1.5);
@@ -98,7 +98,10 @@ pub struct MapConfig {
     /// If true, turns on red which do not conflict crossing traffic ('right on red') are allowed
     pub turn_on_red: bool,
 
+    /// Enable experimental dog-leg intersection merging
     pub find_dog_legs_experiment: bool,
+    /// Experimentally merge these OSM ways
+    pub merge_osm_ways: Vec<OriginalRoad>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]

@@ -1,4 +1,3 @@
-use abstutil::Timer;
 use geom::Distance;
 
 use crate::{osm, IntersectionType, OriginalRoad, StreetNetwork};
@@ -26,15 +25,9 @@ pub fn find_short_roads(map: &mut StreetNetwork, consolidate_all: bool) -> Vec<O
     if map.config.find_dog_legs_experiment {
         roads.extend(map.find_dog_legs());
     }
-
-    // Use this to quickly test overrides to some ways before upstreaming in OSM.
-    // Since these IDs might be based on already merged roads, do these last.
-    if let Ok(ways) = abstio::maybe_read_json::<Vec<OriginalRoad>>(
-        "merge_osm_ways.json".to_string(),
-        &mut Timer::throwaway(),
-    ) {
-        roads.extend(ways);
-    }
+    // Use this to quickly test overrides to some ways before upstreaming in OSM. Since these IDs
+    // might be based on already merged roads, do these last.
+    roads.extend(map.config.merge_osm_ways.clone());
 
     map.mark_short_roads(roads)
 }

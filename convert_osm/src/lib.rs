@@ -53,6 +53,7 @@ impl Options {
                 street_parking_spot_length: Distance::meters(8.0),
                 turn_on_red: true,
                 find_dog_legs_experiment: false,
+                merge_osm_ways: Vec::new(),
             },
             onstreet_parking: OnstreetParking::JustOSM,
             public_offstreet_parking: PublicOffstreetParking::None,

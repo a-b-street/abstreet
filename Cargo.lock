@@ -1928,6 +1928,7 @@ dependencies = [
  "serde",
  "serde_json",
  "sim",
+ "street_network",
  "structopt",
  "synthpop",
 ]
@@ -3710,7 +3711,6 @@ name = "street_network"
 version = "0.1.0"
 dependencies = [
  "aabb-quadtree",
- "abstio",
  "abstutil",
  "anyhow",
  "geojson",
