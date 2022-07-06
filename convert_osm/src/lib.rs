@@ -46,15 +46,7 @@ pub struct Options {
 impl Options {
     pub fn default_for_side(driving_side: raw_map::DrivingSide) -> Self {
         Self {
-            map_config: MapConfig {
-                driving_side,
-                bikes_can_use_bus_lanes: true,
-                inferred_sidewalks: true,
-                street_parking_spot_length: Distance::meters(8.0),
-                turn_on_red: true,
-                find_dog_legs_experiment: false,
-                merge_osm_ways: Vec::new(),
-            },
+            map_config: MapConfig::default_for_side(driving_side),
             onstreet_parking: OnstreetParking::JustOSM,
             public_offstreet_parking: PublicOffstreetParking::None,
             private_offstreet_parking: PrivateOffstreetParking::FixedPerBldg(1),

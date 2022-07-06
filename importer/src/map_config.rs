@@ -20,7 +20,7 @@ pub fn config_for_map(name: &MapName) -> convert_osm::Options {
     };
 
     convert_osm::Options {
-        map_config: map_model::MapConfig {
+        map_config: street_network::MapConfig {
             driving_side: match name.city.country.as_ref() {
                 "au" | "gb" | "in" | "jp" | "nz" | "sg" => DrivingSide::Left,
                 _ => DrivingSide::Right,
