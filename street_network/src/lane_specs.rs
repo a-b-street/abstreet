@@ -556,6 +556,8 @@ mod tests {
                 inferred_sidewalks: true,
                 street_parking_spot_length: geom::Distance::meters(8.0),
                 turn_on_red: true,
+                find_dog_legs_experiment: false,
+                merge_osm_ways: Vec::new(),
             };
             let actual = get_lane_specs_ltr(&tags(input.clone()), &cfg);
             let actual_lt: String = actual.iter().map(|s| s.lt.to_char()).collect();

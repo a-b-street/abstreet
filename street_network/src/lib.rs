@@ -124,15 +124,7 @@ impl StreetNetwork {
             // Some nonsense thing
             boundary_polygon: Polygon::rectangle(1.0, 1.0),
             gps_bounds: GPSBounds::new(),
-            config: MapConfig {
-                driving_side: DrivingSide::Right,
-                bikes_can_use_bus_lanes: true,
-                inferred_sidewalks: true,
-                street_parking_spot_length: Distance::meters(8.0),
-                turn_on_red: true,
-                find_dog_legs_experiment: false,
-                merge_osm_ways: Vec::new(),
-            },
+            config: MapConfig::default_for_side(DrivingSide::Right),
         }
     }
 
