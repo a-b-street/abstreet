@@ -3,11 +3,11 @@ use std::collections::{HashMap, HashSet};
 use aabb_quadtree::QuadTree;
 use abstutil::Timer;
 
-use crate::{osm, RawMap};
+use crate::{osm, StreetNetwork};
 
 /// Look for roads that physically overlap, but aren't connected by an intersection. Shrink their
 /// width.
-pub fn shrink(raw: &mut RawMap, timer: &mut Timer) {
+pub fn shrink(raw: &mut StreetNetwork, timer: &mut Timer) {
     let mut road_centers = HashMap::new();
     let mut road_polygons = HashMap::new();
     let mut overlapping = Vec::new();

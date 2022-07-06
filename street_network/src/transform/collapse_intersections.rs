@@ -5,12 +5,12 @@ use anyhow::Result;
 use geom::{Distance, Pt2D};
 
 use crate::osm::NodeID;
-use crate::{osm, IntersectionType, OriginalRoad, RawMap};
+use crate::{osm, IntersectionType, OriginalRoad, StreetNetwork};
 
 /// Collapse degenerate intersections:
 /// - between two cycleways
 /// - when the lane specs match and only "unimportant" OSM tags differ
-pub fn collapse(raw: &mut RawMap) {
+pub fn collapse(raw: &mut StreetNetwork) {
     let mut merge: Vec<NodeID> = Vec::new();
     for id in raw.intersections.keys() {
         let roads = raw.roads_per_intersection(*id);
@@ -35,7 +35,7 @@ pub fn collapse(raw: &mut RawMap) {
     // Results look good so far.
 }
 
-fn should_collapse(r1: OriginalRoad, r2: OriginalRoad, raw: &RawMap) -> Result<()> {
+fn should_collapse(r1: OriginalRoad, r2: OriginalRoad, raw: &StreetNetwork) -> Result<()> {
     let road1 = &raw.roads[&r1];
     let road2 = &raw.roads[&r2];
 
@@ -135,7 +135,7 @@ fn should_collapse(r1: OriginalRoad, r2: OriginalRoad, raw: &RawMap) -> Result<(
     Ok(())
 }
 
-pub fn collapse_intersection(raw: &mut RawMap, i: NodeID) {
+pub fn collapse_intersection(raw: &mut StreetNetwork, i: NodeID) {
     let roads = raw.roads_per_intersection(i);
     assert_eq!(roads.len(), 2);
     let mut r1 = roads[0];
@@ -226,7 +226,7 @@ const SHORT_THRESHOLD: Distance = Distance::const_meters(30.0);
 /// "stubs." Trim those.
 ///
 /// Also do the same thing for extremely short dead-end service roads.
-pub fn trim_deadends(raw: &mut RawMap) {
+pub fn trim_deadends(raw: &mut StreetNetwork) {
     let mut remove_roads = BTreeSet::new();
     let mut remove_intersections = BTreeSet::new();
     for (id, i) in &raw.intersections {

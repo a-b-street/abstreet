@@ -9,12 +9,12 @@ pub fn clip_map(map: &mut RawMap, timer: &mut Timer) {
     timer.start("clipping map to boundary");
 
     // So we can use retain without borrowing issues
-    let boundary_polygon = map.boundary_polygon.clone();
+    let boundary_polygon = map.streets.boundary_polygon.clone();
     let boundary_ring = Ring::must_new(boundary_polygon.points().clone());
 
     // This is kind of indirect and slow, but first pass -- just remove roads that start or end
     // outside the boundary polygon.
-    map.roads.retain(|_, r| {
+    map.streets.roads.retain(|_, r| {
         let first_in = boundary_polygon.contains_pt(r.osm_center_points[0]);
         let last_in = boundary_polygon.contains_pt(*r.osm_center_points.last().unwrap());
         let light_rail_ok = if r.is_light_rail() {
@@ -33,10 +33,14 @@ pub fn clip_map(map: &mut RawMap, timer: &mut Timer) {
     let mut extra_borders: BTreeMap<osm::NodeID, osm::NodeID> = BTreeMap::new();
 
     // First pass: Clip roads beginning out of bounds
-    let road_ids: Vec<OriginalRoad> = map.roads.keys().cloned().collect();
+    let road_ids: Vec<OriginalRoad> = map.streets.roads.keys().cloned().collect();
     for id in road_ids {
-        let r = &map.roads[&id];
-        if map.boundary_polygon.contains_pt(r.osm_center_points[0]) {
+        let r = &map.streets.roads[&id];
+        if map
+            .streets
+            .boundary_polygon
+            .contains_pt(r.osm_center_points[0])
+        {
             continue;
         }
 
@@ -48,25 +52,26 @@ pub fn clip_map(map: &mut RawMap, timer: &mut Timer) {
         // disconnects two roads in the map that would be connected if we left in some
         // partly-out-of-bounds road.
         if map
+            .streets
             .roads
             .keys()
             .filter(|r2| r2.i1 == move_i || r2.i2 == move_i)
             .count()
             > 1
         {
-            let copy = map.intersections[&move_i].clone();
+            let copy = map.streets.intersections[&move_i].clone();
             // Don't conflict with OSM IDs
-            move_i = map.new_osm_node_id(-1);
+            move_i = map.streets.new_osm_node_id(-1);
             extra_borders.insert(orig_id, move_i);
-            map.intersections.insert(move_i, copy);
+            map.streets.intersections.insert(move_i, copy);
             println!("Disconnecting {} from some other stuff (starting OOB)", id);
         }
 
-        let i = map.intersections.get_mut(&move_i).unwrap();
+        let i = map.streets.intersections.get_mut(&move_i).unwrap();
         i.intersection_type = IntersectionType::Border;
 
         // Now trim it.
-        let mut mut_r = map.roads.remove(&id).unwrap();
+        let mut mut_r = map.streets.roads.remove(&id).unwrap();
         let center = PolyLine::must_new(mut_r.osm_center_points.clone());
         let border_pt = boundary_ring.all_intersections(&center)[0];
         if let Some(pl) = center.reversed().get_slice_ending_at(border_pt) {
@@ -75,7 +80,7 @@ pub fn clip_map(map: &mut RawMap, timer: &mut Timer) {
             panic!("{} interacts with border strangely", id);
         }
         i.point = mut_r.osm_center_points[0];
-        map.roads.insert(
+        map.streets.roads.insert(
             OriginalRoad {
                 osm_way_id: id.osm_way_id,
                 i1: move_i,
@@ -86,10 +91,11 @@ pub fn clip_map(map: &mut RawMap, timer: &mut Timer) {
     }
 
     // Second pass: clip roads ending out of bounds
-    let road_ids: Vec<OriginalRoad> = map.roads.keys().cloned().collect();
+    let road_ids: Vec<OriginalRoad> = map.streets.roads.keys().cloned().collect();
     for id in road_ids {
-        let r = &map.roads[&id];
+        let r = &map.streets.roads[&id];
         if map
+            .streets
             .boundary_polygon
             .contains_pt(*r.osm_center_points.last().unwrap())
         {
@@ -104,24 +110,25 @@ pub fn clip_map(map: &mut RawMap, timer: &mut Timer) {
         // disconnects two roads in the map that would be connected if we left in some
         // partly-out-of-bounds road.
         if map
+            .streets
             .roads
             .keys()
             .filter(|r2| r2.i1 == move_i || r2.i2 == move_i)
             .count()
             > 1
         {
-            let copy = map.intersections[&move_i].clone();
-            move_i = map.new_osm_node_id(-1);
+            let copy = map.streets.intersections[&move_i].clone();
+            move_i = map.streets.new_osm_node_id(-1);
             extra_borders.insert(orig_id, move_i);
-            map.intersections.insert(move_i, copy);
+            map.streets.intersections.insert(move_i, copy);
             println!("Disconnecting {} from some other stuff (ending OOB)", id);
         }
 
-        let i = map.intersections.get_mut(&move_i).unwrap();
+        let i = map.streets.intersections.get_mut(&move_i).unwrap();
         i.intersection_type = IntersectionType::Border;
 
         // Now trim it.
-        let mut mut_r = map.roads.remove(&id).unwrap();
+        let mut mut_r = map.streets.roads.remove(&id).unwrap();
         let center = PolyLine::must_new(mut_r.osm_center_points.clone());
         let border_pt = boundary_ring.all_intersections(&center.reversed())[0];
         if let Some(pl) = center.get_slice_ending_at(border_pt) {
@@ -130,7 +137,7 @@ pub fn clip_map(map: &mut RawMap, timer: &mut Timer) {
             panic!("{} interacts with border strangely", id);
         }
         i.point = *mut_r.osm_center_points.last().unwrap();
-        map.roads.insert(
+        map.streets.roads.insert(
             OriginalRoad {
                 osm_way_id: id.osm_way_id,
                 i1: id.i1,
@@ -149,7 +156,11 @@ pub fn clip_map(map: &mut RawMap, timer: &mut Timer) {
 
     let mut result_areas = Vec::new();
     for orig_area in map.areas.drain(..) {
-        for polygon in map.boundary_polygon.intersection(&orig_area.polygon) {
+        for polygon in map
+            .streets
+            .boundary_polygon
+            .intersection(&orig_area.polygon)
+        {
             let mut area = orig_area.clone();
             area.polygon = polygon;
             result_areas.push(area);
@@ -160,7 +171,7 @@ pub fn clip_map(map: &mut RawMap, timer: &mut Timer) {
     // TODO Don't touch parking lots. It'll be visually obvious if a clip intersects one of these.
     // The boundary should be manually adjusted.
 
-    if map.roads.is_empty() {
+    if map.streets.roads.is_empty() {
         panic!("There are no roads inside the clipping polygon");
     }
 

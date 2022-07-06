@@ -2,13 +2,13 @@ use std::collections::{BTreeMap, VecDeque};
 
 use anyhow::Result;
 
-use crate::{osm, IntersectionType, OriginalRoad, RawMap, RestrictionType};
+use crate::{osm, IntersectionType, OriginalRoad, RestrictionType, StreetNetwork};
 
 // TODO After merging a road, trying to drag the surviving intersection in map_editor crashes. I
 // bet the underlying problem there would help debug automated transformations near merged roads
 // too.
 
-impl RawMap {
+impl StreetNetwork {
     /// Returns (the surviving intersection, the deleted intersection, deleted roads, new roads)
     pub fn merge_short_road(
         &mut self,
@@ -192,7 +192,7 @@ impl RawMap {
 }
 
 /// Merge all roads marked with `junction=intersection`
-pub fn merge_all_junctions(map: &mut RawMap) {
+pub fn merge_all_junctions(map: &mut StreetNetwork) {
     let mut queue: VecDeque<OriginalRoad> = VecDeque::new();
     for (id, road) in &map.roads {
         if road.osm_tags.is("junction", "intersection") {

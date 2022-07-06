@@ -1,8 +1,7 @@
-use abstio::MapName;
 use abstutil::Timer;
 use geom::Distance;
 
-use crate::{osm, IntersectionType, OriginalRoad, RawMap};
+use crate::{osm, IntersectionType, OriginalRoad, StreetNetwork};
 
 /// Combines a few different sources/methods to decide which roads are short. Marks them for
 /// merging.
@@ -10,7 +9,7 @@ use crate::{osm, IntersectionType, OriginalRoad, RawMap};
 /// 1) Anything tagged in OSM
 /// 2) Anything a temporary local merge_osm_ways.json file
 /// 3) If `consolidate_all` is true, an experimental distance-based heuristic
-pub fn find_short_roads(map: &mut RawMap, consolidate_all: bool) -> Vec<OriginalRoad> {
+pub fn find_short_roads(map: &mut StreetNetwork, consolidate_all: bool) -> Vec<OriginalRoad> {
     let mut roads = Vec::new();
     for (id, road) in &map.roads {
         if road.osm_tags.is("junction", "intersection") {
@@ -24,21 +23,7 @@ pub fn find_short_roads(map: &mut RawMap, consolidate_all: bool) -> Vec<Original
     }
 
     // Gradually rolling out
-    if vec![
-        MapName::seattle("montlake"),
-        MapName::seattle("downtown"),
-        MapName::seattle("lakeslice"),
-        MapName::new("us", "phoenix", "tempe"),
-        MapName::new("gb", "bristol", "east"),
-        //MapName::new("gb", "leeds", "north"),
-        //MapName::new("gb", "london", "camden"),
-        MapName::new("gb", "london", "kennington"),
-        //MapName::new("gb", "london", "southwark"),
-        //MapName::new("gb", "manchester", "levenshulme"),
-        MapName::new("pl", "krakow", "center"),
-    ]
-    .contains(&map.name)
-    {
+    if map.config.find_dog_legs_experiment {
         roads.extend(map.find_dog_legs());
     }
 
@@ -54,7 +39,7 @@ pub fn find_short_roads(map: &mut RawMap, consolidate_all: bool) -> Vec<Original
     map.mark_short_roads(roads)
 }
 
-fn distance_heuristic(id: OriginalRoad, map: &RawMap) -> bool {
+fn distance_heuristic(id: OriginalRoad, map: &StreetNetwork) -> bool {
     let road_length = if let Ok(pl) = map.trimmed_road_geometry(id) {
         pl.length()
     } else {
@@ -67,7 +52,7 @@ fn distance_heuristic(id: OriginalRoad, map: &RawMap) -> bool {
     road_length < Distance::meters(5.0)
 }
 
-impl RawMap {
+impl StreetNetwork {
     fn mark_short_roads(&mut self, list: Vec<OriginalRoad>) -> Vec<OriginalRoad> {
         for id in &list {
             self.roads
@@ -172,7 +157,7 @@ impl RawMap {
 }
 
 // TODO Dedupe with find_divided_highways logic in parking_mapper
-fn dual_carriageway_split(map: &RawMap, roads: Vec<OriginalRoad>) -> bool {
+fn dual_carriageway_split(map: &StreetNetwork, roads: Vec<OriginalRoad>) -> bool {
     assert_eq!(roads.len(), 3);
     // Look for one-way roads with the same name
     for (r1, r2) in [

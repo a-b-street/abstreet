@@ -2,11 +2,11 @@ use std::collections::BTreeSet;
 
 use abstutil::{MultiMap, Timer};
 
-use crate::{osm, OriginalRoad, RawMap};
+use crate::{osm, OriginalRoad, StreetNetwork};
 
 /// Some roads might be totally disconnected from the largest clump because of how the map's
 /// bounding polygon was drawn, or bad map data, or which roads are filtered from OSM. Remove them.
-pub fn remove_disconnected_roads(map: &mut RawMap, timer: &mut Timer) {
+pub fn remove_disconnected_roads(map: &mut StreetNetwork, timer: &mut Timer) {
     timer.start("removing disconnected roads");
     // This is a simple floodfill, not Tarjan's. Assumes all roads bidirectional.
     // All the usizes are indices into the original list of roads

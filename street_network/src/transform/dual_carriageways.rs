@@ -1,12 +1,12 @@
 use std::collections::BTreeSet;
 
-use crate::{osm, OriginalRoad, RawMap};
+use crate::{osm, OriginalRoad, StreetNetwork};
 
 /// Does this road go between two divided one-ways? Ideally they're tagged explicitly
 /// (https://wiki.openstreetmap.org/wiki/Tag:dual_carriageway%3Dyes), but we can also apply simple
 /// heuristics to guess this.
 #[allow(unused)]
-pub fn connects_dual_carriageway(map: &RawMap, id: &OriginalRoad) -> bool {
+pub fn connects_dual_carriageway(map: &StreetNetwork, id: &OriginalRoad) -> bool {
     let connectors_angle = map.roads[id].angle();
     // There are false positives like https://www.openstreetmap.org/way/4636259 when we're looking
     // at a segment along a marked dual carriageway. Filter out by requiring the intersecting dual

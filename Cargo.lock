@@ -3155,17 +3155,11 @@ dependencies = [
 name = "raw_map"
 version = "0.1.0"
 dependencies = [
- "aabb-quadtree",
  "abstio",
  "abstutil",
- "anyhow",
- "geojson",
  "geom",
- "kml",
- "log",
- "petgraph",
  "serde",
- "serde_json",
+ "street_network",
  "strum",
  "strum_macros",
 ]
@@ -3710,6 +3704,23 @@ name = "stdweb"
 version = "0.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ef5430c8e36b713e13b48a9f709cc21e046723fe44ce34587b73a830203b533e"
+
+[[package]]
+name = "street_network"
+version = "0.1.0"
+dependencies = [
+ "aabb-quadtree",
+ "abstio",
+ "abstutil",
+ "anyhow",
+ "geojson",
+ "geom",
+ "kml",
+ "log",
+ "petgraph",
+ "serde",
+ "serde_json",
+]
 
 [[package]]
 name = "strsim"

@@ -54,7 +54,7 @@ impl MainState {
                     .to_string(),
             );
         }
-        let bounds = app.model.map.gps_bounds.to_bounds();
+        let bounds = app.model.map.streets.gps_bounds.to_bounds();
         ctx.canvas.map_dims = (bounds.width(), bounds.height());
 
         let mut state = MainState {
@@ -263,14 +263,17 @@ impl State<App> for MainState {
                             self.mode = Mode::SetBoundaryPt1;
                         }
                         "detect short roads" => {
-                            for r in app.model.map.find_dog_legs() {
+                            for r in app.model.map.streets.find_dog_legs() {
                                 app.model.road_deleted(r);
                                 app.model.road_added(ctx, r);
                             }
                         }
                         "simplify RawMap" => {
                             ctx.loading_screen("simplify", |ctx, timer| {
-                                app.model.map.run_all_simplifications(false, true, timer);
+                                app.model
+                                    .map
+                                    .streets
+                                    .run_all_simplifications(false, true, timer);
                                 app.model.recreate_world(ctx, timer);
                             });
                         }
@@ -306,7 +309,7 @@ impl State<App> for MainState {
             }
             Mode::CreatingRoad(i1) => {
                 if ctx.canvas_movement() {
-                    URLManager::update_url_cam(ctx, &app.model.map.gps_bounds);
+                    URLManager::update_url_cam(ctx, &app.model.map.streets.gps_bounds);
                 }
 
                 if ctx.input.pressed(Key::Escape) {
@@ -322,7 +325,7 @@ impl State<App> for MainState {
             }
             Mode::SetBoundaryPt1 => {
                 if ctx.canvas_movement() {
-                    URLManager::update_url_cam(ctx, &app.model.map.gps_bounds);
+                    URLManager::update_url_cam(ctx, &app.model.map.streets.gps_bounds);
                 }
 
                 let mut txt = Text::new();
@@ -341,7 +344,7 @@ impl State<App> for MainState {
             }
             Mode::SetBoundaryPt2(pt1) => {
                 if ctx.canvas_movement() {
-                    URLManager::update_url_cam(ctx, &app.model.map.gps_bounds);
+                    URLManager::update_url_cam(ctx, &app.model.map.streets.gps_bounds);
                 }
 
                 let mut txt = Text::new();
@@ -371,7 +374,7 @@ impl State<App> for MainState {
 
         g.draw_polygon(
             Color::rgb(242, 239, 233),
-            app.model.map.boundary_polygon.clone(),
+            app.model.map.streets.boundary_polygon.clone(),
         );
         app.model.world.draw(g);
         g.redraw(&app.model.draw_extra);
@@ -380,7 +383,8 @@ impl State<App> for MainState {
             Mode::Neutral | Mode::SetBoundaryPt1 => {}
             Mode::CreatingRoad(i1) => {
                 if let Some(cursor) = g.get_cursor_in_map_space() {
-                    if let Ok(l) = Line::new(app.model.map.intersections[&i1].point, cursor) {
+                    if let Ok(l) = Line::new(app.model.map.streets.intersections[&i1].point, cursor)
+                    {
                         g.draw_polygon(Color::GREEN, l.make_polygons(Distance::meters(5.0)));
                     }
                 }

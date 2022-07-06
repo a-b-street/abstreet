@@ -71,7 +71,7 @@ fn generate_input(input: &str, map: &RawMap) -> Result<Vec<OriginalRoad>> {
     fs_err::create_dir_all(input)?;
     let mut f = BufWriter::new(File::create(format!("{input}/query"))?);
     let mut ids = Vec::new();
-    for (id, r) in &map.roads {
+    for (id, r) in &map.streets.roads {
         // TODO Handle cul-de-sacs
         if let Ok(pl) = PolyLine::new(r.osm_center_points.clone()) {
             ids.push(*id);
@@ -84,7 +84,13 @@ fn generate_input(input: &str, map: &RawMap) -> Result<Vec<OriginalRoad>> {
             if *pts.last().unwrap() != pl.last_pt() {
                 pts.push(pl.last_pt());
             }
-            for (idx, gps) in map.gps_bounds.convert_back(&pts).into_iter().enumerate() {
+            for (idx, gps) in map
+                .streets
+                .gps_bounds
+                .convert_back(&pts)
+                .into_iter()
+                .enumerate()
+            {
                 write!(f, "{},{}", gps.x(), gps.y())?;
                 if idx != pts.len() - 1 {
                     write!(f, " ")?;
@@ -127,8 +133,8 @@ fn scrape_output(output: &str, map: &mut RawMap, ids: Vec<OriginalRoad>) -> Resu
             continue;
         }
         // TODO Also put total_climb and total_descent on the roads
-        map.intersections.get_mut(&id.i1).unwrap().elevation = values[0];
-        map.intersections.get_mut(&id.i2).unwrap().elevation = values[1];
+        map.streets.intersections.get_mut(&id.i1).unwrap().elevation = values[0];
+        map.streets.intersections.get_mut(&id.i2).unwrap().elevation = values[1];
     }
     if cnt != num_ids {
         bail!("Output had {} lines, but we made {} queries", cnt, num_ids);
@@ -136,8 +142,9 @@ fn scrape_output(output: &str, map: &mut RawMap, ids: Vec<OriginalRoad>) -> Resu
 
     // Calculate the incline for each road here, before the road gets trimmed for intersection
     // geometry. If we did this after trimming, we'd miss some of the horizontal distance.
-    for (id, road) in &mut map.roads {
-        let rise = map.intersections[&id.i2].elevation - map.intersections[&id.i1].elevation;
+    for (id, road) in &mut map.streets.roads {
+        let rise = map.streets.intersections[&id.i2].elevation
+            - map.streets.intersections[&id.i1].elevation;
         let run = road.length();
         if !(rise / run).is_finite() {
             // TODO Warn?

@@ -59,7 +59,7 @@ pub fn import(map: &mut RawMap) -> Result<()> {
         .deserialize()
     {
         let rec: Shape = rec?;
-        let pt = LonLat::new(rec.shape_pt_lon, rec.shape_pt_lat).to_pt(&map.gps_bounds);
+        let pt = LonLat::new(rec.shape_pt_lon, rec.shape_pt_lat).to_pt(&map.streets.gps_bounds);
         raw_shapes
             .entry(rec.shape_id)
             .or_insert_with(Vec::new)
@@ -146,8 +146,8 @@ pub fn import(map: &mut RawMap) -> Result<()> {
     {
         let rec: Stop = rec?;
         if stop_ids.contains(&rec.stop_id) {
-            let position = LonLat::new(rec.stop_lon, rec.stop_lat).to_pt(&map.gps_bounds);
-            if map.boundary_polygon.contains_pt(position) {
+            let position = LonLat::new(rec.stop_lon, rec.stop_lat).to_pt(&map.streets.gps_bounds);
+            if map.streets.boundary_polygon.contains_pt(position) {
                 map.transit_stops.insert(
                     rec.stop_id.0.clone(),
                     RawTransitStop {
@@ -234,7 +234,7 @@ fn dump_kml(map: &RawMap) {
 
     // One polyline per route
     for route in &map.transit_routes {
-        let points = map.gps_bounds.convert_back(route.shape.points());
+        let points = map.streets.gps_bounds.convert_back(route.shape.points());
         let mut attributes = BTreeMap::new();
         attributes.insert("long_name".to_string(), route.long_name.clone());
         attributes.insert("short_name".to_string(), route.short_name.clone());
@@ -249,7 +249,7 @@ fn dump_kml(map: &RawMap) {
         let mut attributes = BTreeMap::new();
         attributes.insert("gtfs_id".to_string(), stop.gtfs_id.clone());
         attributes.insert("name".to_string(), stop.name.clone());
-        let points = vec![stop.position.to_gps(&map.gps_bounds)];
+        let points = vec![stop.position.to_gps(&map.streets.gps_bounds)];
         shapes.push(ExtraShape { points, attributes });
     }
 
