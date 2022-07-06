@@ -30,7 +30,7 @@ pub async fn import_collision_data(
     // Always do this, it's idempotent and fast
     let shapes = kml::ExtraShapes::load_csv(
         path_shared_input("Road Safety Data - Accidents 2019.csv"),
-        &map.gps_bounds,
+        &map.streets.gps_bounds,
         timer,
     )
     .unwrap();

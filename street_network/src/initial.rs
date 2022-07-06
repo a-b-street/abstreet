@@ -1,4 +1,4 @@
-//! Naming is confusing, but RawMap -> InitialMap -> Map. InitialMap is separate pretty much just
+//! Naming is confusing, but StreetNetwork -> InitialMap -> Map. InitialMap is separate pretty much just
 //! for the step of producing <https://a-b-street.github.io/docs/tech/map/importing/geometry.html>.
 
 use std::collections::{BTreeMap, BTreeSet};
@@ -6,7 +6,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use abstutil::{Tags, Timer};
 use geom::{Bounds, Circle, Distance, PolyLine, Polygon, Pt2D};
 
-use crate::{osm, InputRoad, IntersectionType, OriginalRoad, RawMap};
+use crate::{osm, InputRoad, IntersectionType, OriginalRoad, StreetNetwork};
 
 pub struct InitialMap {
     pub roads: BTreeMap<OriginalRoad, Road>,
@@ -28,7 +28,7 @@ pub struct Road {
 }
 
 impl Road {
-    pub fn new(map: &RawMap, id: OriginalRoad) -> Road {
+    pub fn new(map: &StreetNetwork, id: OriginalRoad) -> Road {
         let road = &map.roads[&id];
         let (trimmed_center_pts, total_width) = road.untrimmed_road_geometry();
 
@@ -62,7 +62,7 @@ pub struct Intersection {
 }
 
 impl InitialMap {
-    pub fn new(raw: &RawMap, bounds: &Bounds, timer: &mut Timer) -> InitialMap {
+    pub fn new(raw: &StreetNetwork, bounds: &Bounds, timer: &mut Timer) -> InitialMap {
         let mut m = InitialMap {
             roads: BTreeMap::new(),
             intersections: BTreeMap::new(),

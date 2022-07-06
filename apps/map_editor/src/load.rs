@@ -81,7 +81,7 @@ pub fn load_map(
                 if !URLManager::change_camera(
                     ctx,
                     center_camera.as_ref(),
-                    &app.model.map.gps_bounds,
+                    &app.model.map.streets.gps_bounds,
                 ) && !app.model.map.name.map.is_empty()
                 {
                     CameraState::load(ctx, &app.model.map.name);

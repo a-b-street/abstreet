@@ -4,12 +4,12 @@ use abstutil::MultiMap;
 use geom::{Distance, FindClosest, Line, PolyLine};
 use kml::{ExtraShape, ExtraShapes};
 
-use crate::{Direction, OriginalRoad, RawMap};
+use crate::{Direction, OriginalRoad, StreetNetwork};
 
 const DEBUG_OUTPUT: bool = true;
 
 /// Snap separately mapped cycleways to main roads.
-pub fn snap_cycleways(map: &mut RawMap) {
+pub fn snap_cycleways(map: &mut StreetNetwork) {
     if true {
         return;
     }
@@ -123,7 +123,7 @@ struct Cycleway {
 // cycleways hit.
 // TODO Or look for cycleway polygons strictly overlapping thick road polygons
 fn v1(
-    map: &RawMap,
+    map: &StreetNetwork,
     cycleways: &[Cycleway],
     road_edges: &HashMap<(OriginalRoad, Direction), PolyLine>,
 ) -> MultiMap<OriginalRoad, (OriginalRoad, Direction)> {
@@ -220,16 +220,19 @@ fn v1(
         }
     }
 
-    if DEBUG_OUTPUT {
+    // TODO If this is still useful, figure out how to wire it up
+    let _debug_shapes = ExtraShapes {
+        shapes: debug_shapes,
+    };
+
+    /*if DEBUG_OUTPUT {
         abstio::write_binary(
             map.name
                 .city
                 .input_path(format!("{}_snapping.bin", map.name.map)),
-            &ExtraShapes {
-                shapes: debug_shapes,
-            },
+            &debug_shapes
         );
-    }
+    }*/
 
     matches
 }

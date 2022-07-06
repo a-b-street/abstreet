@@ -152,6 +152,7 @@ impl Map {
                 inferred_sidewalks: true,
                 street_parking_spot_length: Distance::meters(8.0),
                 turn_on_red: true,
+                find_dog_legs_experiment: false,
             },
             pathfinder: Pathfinder::empty(),
             pathfinder_dirty: false,

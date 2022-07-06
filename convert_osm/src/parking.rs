@@ -16,7 +16,7 @@ pub fn apply_parking(map: &mut RawMap, opts: &Options, timer: &mut Timer) {
         }
         OnstreetParking::SomeAdditionalWhereNoData { pct } => {
             let pct = pct as i64;
-            for (id, r) in map.roads.iter_mut() {
+            for (id, r) in map.streets.roads.iter_mut() {
                 // The 20m minimum is a rough heuristic.
                 if r.osm_tags.contains_key(osm::INFERRED_PARKING)
                     && r.osm_tags
@@ -52,8 +52,8 @@ fn use_parking_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
 
     // Match shapes with the nearest road + direction (true for forwards)
     let mut closest: FindClosest<(OriginalRoad, bool)> =
-        FindClosest::new(&map.gps_bounds.to_bounds());
-    for (id, r) in &map.roads {
+        FindClosest::new(&map.streets.gps_bounds.to_bounds());
+    for (id, r) in &map.streets.roads {
         if r.is_light_rail() || r.is_footway() || r.is_service() {
             continue;
         }
@@ -69,7 +69,7 @@ fn use_parking_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
     }
 
     for s in shapes.shapes.into_iter() {
-        let pts = map.gps_bounds.convert(&s.points);
+        let pts = map.streets.gps_bounds.convert(&s.points);
         if pts.len() <= 1 {
             continue;
         }
@@ -84,7 +84,7 @@ fn use_parking_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
             continue;
         };
         if let Some(((r, fwds), _)) = closest.closest_pt(middle, DIRECTED_ROAD_THICKNESS * 5.0) {
-            let tags = &mut map.roads.get_mut(&r).unwrap().osm_tags;
+            let tags = &mut map.streets.roads.get_mut(&r).unwrap().osm_tags;
 
             // Skip if the road already has this mapped.
             if !tags.contains_key(osm::INFERRED_PARKING) {
@@ -141,8 +141,8 @@ fn use_parking_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
                 tags.insert(osm::PARKING_BOTH, value);
             }
 
-            let lane_specs_ltr = raw_map::get_lane_specs_ltr(tags, &map.config);
-            map.roads.get_mut(&r).unwrap().lane_specs_ltr = lane_specs_ltr;
+            let lane_specs_ltr = raw_map::get_lane_specs_ltr(tags, &map.streets.config);
+            map.streets.roads.get_mut(&r).unwrap().lane_specs_ltr = lane_specs_ltr;
         }
     }
     timer.stop("apply parking hints");
@@ -152,7 +152,8 @@ fn use_offstreet_parking(map: &mut RawMap, path: String, timer: &mut Timer) {
     timer.start("match offstreet parking points");
     let shapes: ExtraShapes = abstio::read_binary(path, timer);
 
-    let mut closest: FindClosest<osm::OsmID> = FindClosest::new(&map.gps_bounds.to_bounds());
+    let mut closest: FindClosest<osm::OsmID> =
+        FindClosest::new(&map.streets.gps_bounds.to_bounds());
     for (id, b) in &map.buildings {
         closest.add(*id, b.polygon.points());
     }
@@ -160,7 +161,7 @@ fn use_offstreet_parking(map: &mut RawMap, path: String, timer: &mut Timer) {
     // TODO Another function just to use ?. Try blocks would rock.
     let mut handle_shape: Box<dyn FnMut(kml::ExtraShape) -> Option<()>> = Box::new(|s| {
         assert_eq!(s.points.len(), 1);
-        let pt = s.points[0].to_pt(&map.gps_bounds);
+        let pt = s.points[0].to_pt(&map.streets.gps_bounds);
         let (id, _) = closest.closest_pt(pt, Distance::meters(50.0))?;
         // TODO Handle parking lots.
         if !map.buildings[&id].polygon.contains_pt(pt) {

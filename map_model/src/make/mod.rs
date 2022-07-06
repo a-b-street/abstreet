@@ -45,12 +45,13 @@ pub struct RawToMapOptions {
 
 impl Map {
     pub fn create_from_raw(mut raw: RawMap, opts: RawToMapOptions, timer: &mut Timer) -> Map {
-        raw.run_all_simplifications(opts.consolidate_all_intersections, true, timer);
+        raw.streets
+            .run_all_simplifications(opts.consolidate_all_intersections, true, timer);
 
         timer.start("raw_map to InitialMap");
-        let gps_bounds = raw.gps_bounds.clone();
+        let gps_bounds = raw.streets.gps_bounds.clone();
         let bounds = gps_bounds.to_bounds();
-        let initial_map = initial::InitialMap::new(&raw, &bounds, timer);
+        let initial_map = initial::InitialMap::new(&raw.streets, &bounds, timer);
         timer.stop("raw_map to InitialMap");
 
         let mut map = Map {
@@ -62,12 +63,12 @@ impl Map {
             areas: Vec::new(),
             parking_lots: Vec::new(),
             zones: Vec::new(),
-            boundary_polygon: raw.boundary_polygon.clone(),
+            boundary_polygon: raw.streets.boundary_polygon.clone(),
             stop_signs: BTreeMap::new(),
             traffic_signals: BTreeMap::new(),
             gps_bounds,
             bounds,
-            config: raw.config.clone(),
+            config: raw.streets.config.clone(),
             pathfinder: Pathfinder::empty(),
             pathfinder_dirty: false,
             routing_params: RoutingParams::default(),
@@ -99,7 +100,9 @@ impl Map {
                 incoming_lanes: Vec::new(),
                 outgoing_lanes: Vec::new(),
                 roads: i.roads.iter().map(|id| road_id_mapping[id]).collect(),
-                merged: !raw.intersections[&i.id].trim_roads_for_merging.is_empty(),
+                merged: !raw.streets.intersections[&i.id]
+                    .trim_roads_for_merging
+                    .is_empty(),
             });
             intersection_id_mapping.insert(i.id, id);
         }
@@ -112,7 +115,7 @@ impl Map {
             let i1 = intersection_id_mapping[&r.src_i];
             let i2 = intersection_id_mapping[&r.dst_i];
 
-            let raw_road = &raw.roads[&r.id];
+            let raw_road = &raw.streets.roads[&r.id];
             let barrier_nodes = snap_nodes_to_line(&raw_road.barrier_nodes, &r.trimmed_center_pts);
             let mut road = Road {
                 id: road_id,

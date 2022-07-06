@@ -40,7 +40,7 @@ pub fn extract_osm(
     opts: &Options,
     timer: &mut Timer,
 ) -> OsmExtract {
-    let mut doc = crate::reader::read(osm_input_path, &map.gps_bounds, timer).unwrap();
+    let mut doc = crate::reader::read(osm_input_path, &map.streets.gps_bounds, timer).unwrap();
 
     // TODO Hacks to override OSM data. There's no problem upstream, but we want to accomplish
     // various things for A/B Street.
@@ -57,8 +57,8 @@ pub fn extract_osm(
 
     if clip_path.is_none() {
         // Use the boundary from .osm.
-        map.gps_bounds = doc.gps_bounds.clone();
-        map.boundary_polygon = map.gps_bounds.to_bounds().get_rectangle();
+        map.streets.gps_bounds = doc.gps_bounds.clone();
+        map.streets.boundary_polygon = map.streets.gps_bounds.to_bounds().get_rectangle();
     }
 
     let mut out = OsmExtract {
@@ -128,7 +128,7 @@ pub fn extract_osm(
             .is_any(osm::HIGHWAY, vec!["cycleway", "footway", "path"])
         {
             extra_footways.shapes.push(ExtraShape {
-                points: map.gps_bounds.convert_back(&way.pts),
+                points: map.streets.gps_bounds.convert_back(&way.pts),
                 attributes: way.tags.inner().clone(),
             });
         } else if way.tags.is("natural", "coastline") && !way.tags.is("place", "island") {
@@ -188,7 +188,7 @@ pub fn extract_osm(
         abstio::write_binary(map.name.city.input_path("footways.bin"), &extra_footways);
     }
 
-    let boundary = map.boundary_polygon.clone().into_ring();
+    let boundary = map.streets.boundary_polygon.clone().into_ring();
 
     // TODO Fill this out in a separate loop to keep a mutable borrow short. Maybe do this in
     // reader, or stop doing this entirely.
@@ -576,7 +576,7 @@ fn get_area_type(tags: &Tags) -> Option<AreaType> {
 // Look for any service roads that collide with parking lots, and treat them as parking aisles
 // instead.
 fn find_parking_aisles(map: &mut RawMap, roads: &mut Vec<(WayID, Vec<Pt2D>, Tags)>) {
-    let mut closest: FindClosest<usize> = FindClosest::new(&map.gps_bounds.to_bounds());
+    let mut closest: FindClosest<usize> = FindClosest::new(&map.streets.gps_bounds.to_bounds());
     for (idx, lot) in map.parking_lots.iter().enumerate() {
         closest.add(idx, lot.polygon.points());
     }

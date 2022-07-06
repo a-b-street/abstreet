@@ -1,6 +1,6 @@
 use abstutil::Timer;
 
-use crate::RawMap;
+use crate::StreetNetwork;
 
 mod collapse_intersections;
 mod dual_carriageways;
@@ -10,20 +10,20 @@ mod remove_disconnected;
 mod shrink_roads;
 mod snappy;
 
-impl RawMap {
+impl StreetNetwork {
     // TODO I suspect we'll soon take a full struct of options, maybe even a list of transformation
     // enums to run in order
-    /// Run a sequence of transformations to the RawMap before converting it to a full Map.
+    /// Run a sequence of transformations to the StreetNetwork before converting it to a full Map.
     ///
-    /// We don't want to run these during the OSM->RawMap import stage, because we want to use the
-    /// map_editor tool to debug the RawMap.
+    /// We don't want to run these during the OSM->StreetNetwork import stage, because we want to use the
+    /// map_editor tool to debug the StreetNetwork.
     pub fn run_all_simplifications(
         &mut self,
         consolidate_all_intersections: bool,
         remove_disconnected: bool,
         timer: &mut Timer,
     ) {
-        timer.start("simplify RawMap");
+        timer.start("simplify StreetNetwork");
 
         timer.start("trimming dead-end cycleways (round 1)");
         collapse_intersections::trim_deadends(self);
@@ -56,6 +56,6 @@ impl RawMap {
         shrink_roads::shrink(self, timer);
         timer.stop("shrinking overlapping roads");
 
-        timer.stop("simplify RawMap");
+        timer.stop("simplify StreetNetwork");
     }
 }

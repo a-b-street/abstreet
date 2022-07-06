@@ -52,6 +52,7 @@ impl Options {
                 inferred_sidewalks: true,
                 street_parking_spot_length: Distance::meters(8.0),
                 turn_on_red: true,
+                find_dog_legs_experiment: false,
             },
             onstreet_parking: OnstreetParking::JustOSM,
             public_offstreet_parking: PublicOffstreetParking::None,
@@ -111,13 +112,13 @@ pub fn convert(
 ) -> RawMap {
     let mut map = RawMap::blank(name);
     // Do this early. Calculating RawRoads uses DrivingSide, for example!
-    map.config = opts.map_config.clone();
+    map.streets.config = opts.map_config.clone();
 
     if let Some(ref path) = clip_path {
         let pts = LonLat::read_osmosis_polygon(path).unwrap();
         let gps_bounds = GPSBounds::from(pts.clone());
-        map.boundary_polygon = Ring::must_new(gps_bounds.convert(&pts)).into_polygon();
-        map.gps_bounds = gps_bounds;
+        map.streets.boundary_polygon = Ring::must_new(gps_bounds.convert(&pts)).into_polygon();
+        map.streets.gps_bounds = gps_bounds;
     }
 
     let extract = extract::extract_osm(&mut map, &osm_input_path, clip_path, &opts, timer);
@@ -126,7 +127,7 @@ pub fn convert(
 
     // Need to do a first pass of removing cul-de-sacs here, or we wind up with loop PolyLines when
     // doing the parking hint matching.
-    map.roads.retain(|r, _| r.i1 != r.i2);
+    map.streets.roads.retain(|r, _| r.i1 != r.i2);
 
     use_amenities(&mut map, split_output.amenities, timer);
 
@@ -169,7 +170,8 @@ pub fn convert(
 }
 
 fn use_amenities(map: &mut RawMap, amenities: Vec<(Pt2D, Amenity)>, timer: &mut Timer) {
-    let mut closest: FindClosest<osm::OsmID> = FindClosest::new(&map.gps_bounds.to_bounds());
+    let mut closest: FindClosest<osm::OsmID> =
+        FindClosest::new(&map.streets.gps_bounds.to_bounds());
     for (id, b) in &map.buildings {
         closest.add(*id, b.polygon.points());
     }
@@ -191,7 +193,7 @@ fn add_extra_buildings(map: &mut RawMap, path: &str) -> Result<()> {
     let mut id = -1;
     for (polygon, _) in Polygon::from_geojson_bytes(
         &abstio::slurp_file(path)?,
-        &map.gps_bounds,
+        &map.streets.gps_bounds,
         require_in_bounds,
     )? {
         // Add these as new buildings, generating a new dummy OSM ID.
@@ -220,7 +222,7 @@ fn filter_crosswalks(
 ) {
     // Normally we assume every road has a crosswalk, but since this map is configured to use OSM
     // crossing nodes, let's reverse that assumption.
-    for road in map.roads.values_mut() {
+    for road in map.streets.roads.values_mut() {
         road.crosswalk_forward = false;
         road.crosswalk_backward = false;
     }
@@ -231,7 +233,10 @@ fn filter_crosswalks(
         timer.next();
         // Some crossing nodes are outside the map boundary or otherwise not on a road that we
         // retained
-        if let Some(road) = pt_to_road.get(&pt).and_then(|r| map.roads.get_mut(r)) {
+        if let Some(road) = pt_to_road
+            .get(&pt)
+            .and_then(|r| map.streets.roads.get_mut(r))
+        {
             // TODO Support cul-de-sacs and other loop roads
             if let Ok(pl) = PolyLine::new(road.osm_center_points.clone()) {
                 // Crossings aren't right at an intersection. Where is this point along the center
@@ -264,7 +269,10 @@ fn use_barrier_nodes(
 ) {
     for pt in barrier_nodes {
         // Many barriers are on footpaths or roads that we don't retain
-        if let Some(road) = pt_to_road.get(&pt).and_then(|r| map.roads.get_mut(r)) {
+        if let Some(road) = pt_to_road
+            .get(&pt)
+            .and_then(|r| map.streets.roads.get_mut(r))
+        {
             // Filters on roads that're already car-free are redundant
             if road.is_driveable() {
                 road.barrier_nodes.push(pt.to_pt2d());
@@ -292,12 +300,15 @@ fn bristol_hack(map: &mut RawMap) {
     tags.insert("maxspeed", "1 mph");
     tags.insert("bicycle", "no");
 
-    map.roads.insert(
+    map.streets.roads.insert(
         id,
         RawRoad::new(
-            vec![map.intersections[&i1].point, map.intersections[&i2].point],
+            vec![
+                map.streets.intersections[&i1].point,
+                map.streets.intersections[&i2].point,
+            ],
             tags,
-            &map.config,
+            &map.streets.config,
         )
         .unwrap(),
     );

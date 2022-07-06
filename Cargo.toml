@@ -17,6 +17,7 @@ members = [
   "popdat",
   "raw_map",
   "sim",
+  "street_network",
   "synthpop",
   "tests",
   "traffic_seitan",

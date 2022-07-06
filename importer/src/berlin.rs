@@ -21,7 +21,7 @@ pub async fn import_extra_data(
     download_kml(
         map.get_city_name().input_path("planning_areas.bin"),
         "https://tsb-opendata.s3.eu-central-1.amazonaws.com/lor_planungsgraeume/lor_planungsraeume.kml",
-        &map.gps_bounds,
+        &map.streets.gps_bounds,
         // Keep partly out-of-bounds polygons
         false,
         timer

@@ -3,9 +3,9 @@ use geojson::Feature;
 
 use abstutil::Timer;
 
-use crate::RawMap;
+use crate::StreetNetwork;
 
-impl RawMap {
+impl StreetNetwork {
     /// Assumes `run_all_simplifications` has been called if desired
     pub fn save_to_geojson(&self, output_path: String, timer: &mut Timer) -> Result<()> {
         // TODO InitialMap is going away very soon, but we still need it

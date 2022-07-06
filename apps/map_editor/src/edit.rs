@@ -14,10 +14,10 @@ pub struct EditRoad {
 
 impl EditRoad {
     pub(crate) fn new_state(ctx: &mut EventCtx, app: &App, r: OriginalRoad) -> Box<dyn State<App>> {
-        let road = &app.model.map.roads[&r];
+        let road = &app.model.map.streets.roads[&r];
 
         let mut batch = GeomBatch::new();
-        if let Ok(pl) = app.model.map.trimmed_road_geometry(r) {
+        if let Ok(pl) = app.model.map.streets.trimmed_road_geometry(r) {
             batch.push(
                 Color::BLACK,
                 pl.make_arrow(Distance::meters(1.0), ArrowCap::Triangle),
@@ -32,7 +32,7 @@ impl EditRoad {
             "Length before trimming: {}",
             road.untrimmed_road_geometry().0.length()
         )));
-        if let Ok(pl) = app.model.map.trimmed_road_geometry(r) {
+        if let Ok(pl) = app.model.map.streets.trimmed_road_geometry(r) {
             txt.add_line(Line(format!("Length after trimming: {}", pl.length())));
         }
         for (rt, to) in &road.turn_restrictions {
@@ -160,7 +160,7 @@ impl SimpleState<App> for EditRoad {
             "Apply" => {
                 app.model.road_deleted(self.r);
 
-                let road = app.model.map.roads.get_mut(&self.r).unwrap();
+                let road = app.model.map.streets.roads.get_mut(&self.r).unwrap();
 
                 road.osm_tags.remove("lanes");
                 road.osm_tags.remove("oneway");
@@ -200,7 +200,7 @@ impl SimpleState<App> for EditRoad {
                 }
 
                 road.lane_specs_ltr =
-                    raw_map::get_lane_specs_ltr(&road.osm_tags, &app.model.map.config);
+                    raw_map::get_lane_specs_ltr(&road.osm_tags, &app.model.map.streets.config);
 
                 app.model.road_added(ctx, self.r);
                 Transition::Pop
