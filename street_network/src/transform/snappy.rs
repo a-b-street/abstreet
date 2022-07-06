@@ -220,19 +220,10 @@ fn v1(
         }
     }
 
-    // TODO If this is still useful, figure out how to wire it up
+    // TODO Consider writing this output for debugging
     let _debug_shapes = ExtraShapes {
         shapes: debug_shapes,
     };
-
-    /*if DEBUG_OUTPUT {
-        abstio::write_binary(
-            map.name
-                .city
-                .input_path(format!("{}_snapping.bin", map.name.map)),
-            &debug_shapes
-        );
-    }*/
 
     matches
 }

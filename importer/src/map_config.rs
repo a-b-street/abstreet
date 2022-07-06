@@ -1,4 +1,5 @@
 use abstio::{CityName, MapName};
+use abstutil::Timer;
 use geom::Distance;
 use map_model::DrivingSide;
 
@@ -46,6 +47,12 @@ pub fn config_for_map(name: &MapName) -> convert_osm::Options {
                 MapName::new("pl", "krakow", "center"),
             ]
             .contains(name),
+            merge_osm_ways: abstio::maybe_read_json::<Vec<street_network::OriginalRoad>>(
+                "merge_osm_ways.json".to_string(),
+                &mut Timer::throwaway(),
+            )
+            .ok()
+            .unwrap_or_else(Vec::new),
         },
         onstreet_parking: match name.city.city.as_ref() {
             "seattle" => {

@@ -1,3 +1,7 @@
+use std::fs::File;
+use std::io::Write;
+use std::path::Path;
+
 use anyhow::Result;
 use geojson::Feature;
 
@@ -61,7 +65,11 @@ impl StreetNetwork {
             bbox: None,
             foreign_members: None,
         };
-        abstio::write_json(output_path, &geojson::GeoJson::from(fc));
+        let obj = geojson::GeoJson::from(fc);
+
+        std::fs::create_dir_all(Path::new(&output_path).parent().unwrap())?;
+        let mut file = File::create(output_path)?;
+        file.write_all(serde_json::to_string_pretty(&obj)?.as_bytes())?;
         Ok(())
     }
 }
