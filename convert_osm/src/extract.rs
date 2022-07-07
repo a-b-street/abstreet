@@ -11,7 +11,7 @@ use raw_map::{
     RawParkingLot, RestrictionType,
 };
 
-use crate::osm_geom::{get_multipolygon_members, glue_multipolygon, multipoly_geometry};
+use crate::osm_reader::{get_multipolygon_members, glue_multipolygon, multipoly_geometry};
 use crate::Options;
 
 pub struct OsmExtract {
@@ -24,8 +24,6 @@ pub struct OsmExtract {
     pub simple_turn_restrictions: Vec<(RestrictionType, WayID, NodeID, WayID)>,
     /// (relation ID, from way ID, via way ID, to way ID)
     pub complicated_turn_restrictions: Vec<(RelationID, WayID, WayID, WayID)>,
-    /// (location, amenity)
-    pub amenities: Vec<(Pt2D, Amenity)>,
     /// Crosswalks located at these points, which should be on a RawRoad's center line
     pub crosswalks: HashSet<HashablePt2D>,
     /// Some kind of barrier nodes at these points. Only the ones on a RawRoad center line are
@@ -39,8 +37,8 @@ pub fn extract_osm(
     clip_path: Option<String>,
     opts: &Options,
     timer: &mut Timer,
-) -> OsmExtract {
-    let mut doc = crate::reader::read(osm_input_path, &map.streets.gps_bounds, timer).unwrap();
+) -> (OsmExtract, Vec<(Pt2D, Amenity)>) {
+    let mut doc = crate::osm_reader::read(osm_input_path, &map.streets.gps_bounds, timer).unwrap();
 
     // TODO Hacks to override OSM data. There's no problem upstream, but we want to accomplish
     // various things for A/B Street.
@@ -67,10 +65,10 @@ pub fn extract_osm(
         osm_node_ids: HashMap::new(),
         simple_turn_restrictions: Vec::new(),
         complicated_turn_restrictions: Vec::new(),
-        amenities: Vec::new(),
         crosswalks: HashSet::new(),
         barrier_nodes: HashSet::new(),
     };
+    let mut amenity_points = Vec::new();
 
     timer.start_iter("processing OSM nodes", doc.nodes.len());
     for (id, node) in &doc.nodes {
@@ -93,7 +91,7 @@ pub fn extract_osm(
             out.barrier_nodes.insert(node.pt.to_hashable());
         }
         for amenity in get_bldg_amenities(&node.tags) {
-            out.amenities.push((node.pt, amenity));
+            amenity_points.push((node.pt, amenity));
         }
     }
 
@@ -352,7 +350,7 @@ pub fn extract_osm(
     find_parking_aisles(map, &mut out.roads);
     timer.stop("find service roads crossing parking lots");
 
-    out
+    (out, amenity_points)
 }
 
 fn is_road(tags: &mut Tags, opts: &Options, name: &MapName) -> bool {

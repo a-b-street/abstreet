@@ -16,3 +16,4 @@ log = "0.4.14"
 raw_map = { path = "../raw_map" }
 roxmltree = { version = "0.14.0", features=["std"] }
 serde = "1.0.123"
+street_network = { path = "../street_network" }
