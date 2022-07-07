@@ -2,14 +2,13 @@ use std::collections::{hash_map::Entry, HashMap, HashSet};
 
 use abstutil::{Counter, Tags, Timer};
 use geom::{Distance, HashablePt2D, PolyLine, Pt2D};
-use raw_map::{
-    osm, Amenity, Direction, IntersectionType, OriginalRoad, RawIntersection, RawMap, RawRoad,
+use street_network::{
+    osm, Direction, IntersectionType, OriginalRoad, RawIntersection, RawRoad, StreetNetwork,
 };
 
 use crate::extract::OsmExtract;
 
 pub struct Output {
-    pub amenities: Vec<(Pt2D, Amenity)>,
     pub crosswalks: HashSet<HashablePt2D>,
     pub barrier_nodes: HashSet<HashablePt2D>,
     /// A mapping of all points to the split road. Some internal points on roads get removed in
@@ -17,7 +16,11 @@ pub struct Output {
     pub pt_to_road: HashMap<HashablePt2D, OriginalRoad>,
 }
 
-pub fn split_up_roads(map: &mut RawMap, mut input: OsmExtract, timer: &mut Timer) -> Output {
+pub fn split_up_roads(
+    streets: &mut StreetNetwork,
+    mut input: OsmExtract,
+    timer: &mut Timer,
+) -> Output {
     timer.start("splitting up roads");
 
     let mut roundabout_centers: HashMap<osm::NodeID, Pt2D> = HashMap::new();
@@ -56,7 +59,7 @@ pub fn split_up_roads(map: &mut RawMap, mut input: OsmExtract, timer: &mut Timer
     }
 
     for (pt, id) in &pt_to_intersection {
-        map.streets.intersections.insert(
+        streets.intersections.insert(
             *id,
             RawIntersection::new(
                 pt.to_pt2d(),
@@ -71,7 +74,7 @@ pub fn split_up_roads(map: &mut RawMap, mut input: OsmExtract, timer: &mut Timer
 
     // Set roundabouts to their center
     for (id, point) in roundabout_centers {
-        map.streets
+        streets
             .intersections
             .insert(id, RawIntersection::new(point, IntersectionType::StopSign));
     }
@@ -114,9 +117,9 @@ pub fn split_up_roads(map: &mut RawMap, mut input: OsmExtract, timer: &mut Timer
                 }
 
                 let osm_center_pts = simplify_linestring(std::mem::take(&mut pts));
-                match RawRoad::new(osm_center_pts, tags, &map.streets.config) {
+                match RawRoad::new(osm_center_pts, tags, &streets.config) {
                     Ok(road) => {
-                        map.streets.roads.insert(id, road);
+                        streets.roads.insert(id, road);
                     }
                     Err(err) => {
                         error!("Skipping {id}: {err}");
@@ -137,7 +140,7 @@ pub fn split_up_roads(map: &mut RawMap, mut input: OsmExtract, timer: &mut Timer
     // Resolve simple turn restrictions (via a node)
     let mut restrictions = Vec::new();
     for (restriction, from_osm, via_osm, to_osm) in input.simple_turn_restrictions {
-        let roads = map.streets.roads_per_intersection(via_osm);
+        let roads = streets.roads_per_intersection(via_osm);
         // If some of the roads are missing, they were likely filtered out -- usually service
         // roads.
         if let (Some(from), Some(to)) = (
@@ -148,7 +151,7 @@ pub fn split_up_roads(map: &mut RawMap, mut input: OsmExtract, timer: &mut Timer
         }
     }
     for (from, rt, to) in restrictions {
-        map.streets
+        streets
             .roads
             .get_mut(&from)
             .unwrap()
@@ -160,8 +163,7 @@ pub fn split_up_roads(map: &mut RawMap, mut input: OsmExtract, timer: &mut Timer
     // connected to both roads, for now
     let mut complicated_restrictions = Vec::new();
     for (rel_osm, from_osm, via_osm, to_osm) in input.complicated_turn_restrictions {
-        let via_candidates: Vec<OriginalRoad> = map
-            .streets
+        let via_candidates: Vec<OriginalRoad> = streets
             .roads
             .keys()
             .filter(|r| r.osm_way_id == via_osm)
@@ -177,17 +179,15 @@ pub fn split_up_roads(map: &mut RawMap, mut input: OsmExtract, timer: &mut Timer
         }
         let via = via_candidates[0];
 
-        let maybe_from = map
-            .streets
+        let maybe_from = streets
             .roads_per_intersection(via.i1)
             .into_iter()
-            .chain(map.streets.roads_per_intersection(via.i2).into_iter())
+            .chain(streets.roads_per_intersection(via.i2).into_iter())
             .find(|r| r.osm_way_id == from_osm);
-        let maybe_to = map
-            .streets
+        let maybe_to = streets
             .roads_per_intersection(via.i1)
             .into_iter()
-            .chain(map.streets.roads_per_intersection(via.i2).into_iter())
+            .chain(streets.roads_per_intersection(via.i2).into_iter())
             .find(|r| r.osm_way_id == to_osm);
         match (maybe_from, maybe_to) {
             (Some(from), Some(to)) => {
@@ -202,7 +202,7 @@ pub fn split_up_roads(map: &mut RawMap, mut input: OsmExtract, timer: &mut Timer
         }
     }
     for (from, via, to) in complicated_restrictions {
-        map.streets
+        streets
             .roads
             .get_mut(&from)
             .unwrap()
@@ -216,16 +216,10 @@ pub fn split_up_roads(map: &mut RawMap, mut input: OsmExtract, timer: &mut Timer
     for (pt, dir) in input.traffic_signals {
         if let Some(r) = pt_to_road.get(&pt) {
             // Example: https://www.openstreetmap.org/node/26734224
-            if !map.streets.roads[r]
-                .osm_tags
-                .is(osm::HIGHWAY, "construction")
-            {
+            if !streets.roads[r].osm_tags.is(osm::HIGHWAY, "construction") {
                 let i = if dir == Direction::Fwd { r.i2 } else { r.i1 };
-                map.streets
-                    .intersections
-                    .get_mut(&i)
-                    .unwrap()
-                    .intersection_type = IntersectionType::TrafficSignal;
+                streets.intersections.get_mut(&i).unwrap().intersection_type =
+                    IntersectionType::TrafficSignal;
             }
         }
     }
@@ -233,7 +227,6 @@ pub fn split_up_roads(map: &mut RawMap, mut input: OsmExtract, timer: &mut Timer
 
     timer.stop("splitting up roads");
     Output {
-        amenities: input.amenities,
         crosswalks: input.crosswalks,
         barrier_nodes: input.barrier_nodes,
         pt_to_road,

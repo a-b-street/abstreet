@@ -610,6 +610,7 @@ dependencies = [
  "raw_map",
  "roxmltree",
  "serde",
+ "street_network",
 ]
 
 [[package]]

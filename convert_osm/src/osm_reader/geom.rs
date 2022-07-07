@@ -3,9 +3,9 @@
 use anyhow::Result;
 
 use geom::{PolyLine, Polygon, Pt2D, Ring};
-use raw_map::osm::{OsmID, RelationID, WayID};
+use street_network::osm::{OsmID, RelationID, WayID};
 
-use crate::reader::{Document, Relation};
+use super::{Document, Relation};
 
 pub fn get_multipolygon_members(
     id: RelationID,
