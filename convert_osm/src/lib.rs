@@ -3,20 +3,17 @@ extern crate anyhow;
 #[macro_use]
 extern crate log;
 
-use std::collections::{HashMap, HashSet};
-
 use anyhow::Result;
 
 use abstio::MapName;
 use abstutil::{Tags, Timer};
-use geom::{Distance, FindClosest, GPSBounds, HashablePt2D, LonLat, PolyLine, Polygon, Pt2D, Ring};
+use geom::{Distance, FindClosest, GPSBounds, LonLat, Polygon, Pt2D, Ring};
 use raw_map::{osm, Amenity, OriginalRoad, RawMap, RawRoad};
 
 pub use import_streets::{
     OnstreetParking, Options, PrivateOffstreetParking, PublicOffstreetParking,
 };
 
-mod clip;
 mod elevation;
 mod extract;
 mod gtfs;
@@ -44,7 +41,7 @@ pub fn convert(
     let (extract, amenity_points) =
         extract::extract_osm(&mut map, &osm_input_path, clip_path, &opts, timer);
     let split_output = import_streets::split_ways::split_up_roads(&mut map.streets, extract, timer);
-    clip::clip_map(&mut map, timer);
+    clip_map(&mut map, timer);
 
     // Need to do a first pass of removing cul-de-sacs here, or we wind up with loop PolyLines when
     // doing the parking hint matching.
@@ -54,8 +51,8 @@ pub fn convert(
 
     parking::apply_parking(&mut map, &opts, timer);
 
-    use_barrier_nodes(
-        &mut map,
+    import_streets::use_barrier_nodes(
+        &mut map.streets,
         split_output.barrier_nodes,
         &split_output.pt_to_road,
     );
@@ -72,8 +69,8 @@ pub fn convert(
     }
 
     if opts.filter_crosswalks {
-        filter_crosswalks(
-            &mut map,
+        import_streets::filter_crosswalks(
+            &mut map.streets,
             split_output.crosswalks,
             split_output.pt_to_road,
             timer,
@@ -135,73 +132,6 @@ fn add_extra_buildings(map: &mut RawMap, path: &str) -> Result<()> {
     Ok(())
 }
 
-fn filter_crosswalks(
-    map: &mut RawMap,
-    crosswalks: HashSet<HashablePt2D>,
-    pt_to_road: HashMap<HashablePt2D, OriginalRoad>,
-    timer: &mut Timer,
-) {
-    // Normally we assume every road has a crosswalk, but since this map is configured to use OSM
-    // crossing nodes, let's reverse that assumption.
-    for road in map.streets.roads.values_mut() {
-        road.crosswalk_forward = false;
-        road.crosswalk_backward = false;
-    }
-
-    // Match each crosswalk node to a road
-    timer.start_iter("filter crosswalks", crosswalks.len());
-    for pt in crosswalks {
-        timer.next();
-        // Some crossing nodes are outside the map boundary or otherwise not on a road that we
-        // retained
-        if let Some(road) = pt_to_road
-            .get(&pt)
-            .and_then(|r| map.streets.roads.get_mut(r))
-        {
-            // TODO Support cul-de-sacs and other loop roads
-            if let Ok(pl) = PolyLine::new(road.osm_center_points.clone()) {
-                // Crossings aren't right at an intersection. Where is this point along the center
-                // line?
-                if let Some((dist, _)) = pl.dist_along_of_point(pt.to_pt2d()) {
-                    let pct = dist / pl.length();
-                    // Don't throw away any crossings. If it occurs in the first half of the road,
-                    // snap to the first intersection. If there's a mid-block crossing mapped,
-                    // that'll likely not be correctly interpreted, unless an intersection is there
-                    // anyway.
-                    if pct <= 0.5 {
-                        road.crosswalk_backward = true;
-                    } else {
-                        road.crosswalk_forward = true;
-                    }
-
-                    // TODO Some crosswalks incorrectly snap to the intersection near a short
-                    // service road, which later gets trimmed. So the crosswalk effectively
-                    // disappears.
-                }
-            }
-        }
-    }
-}
-
-fn use_barrier_nodes(
-    map: &mut RawMap,
-    barrier_nodes: HashSet<HashablePt2D>,
-    pt_to_road: &HashMap<HashablePt2D, OriginalRoad>,
-) {
-    for pt in barrier_nodes {
-        // Many barriers are on footpaths or roads that we don't retain
-        if let Some(road) = pt_to_road
-            .get(&pt)
-            .and_then(|r| map.streets.roads.get_mut(r))
-        {
-            // Filters on roads that're already car-free are redundant
-            if road.is_driveable() {
-                road.barrier_nodes.push(pt.to_pt2d());
-            }
-        }
-    }
-}
-
 // We're using Bristol for a project that requires an unusual LTN neighborhood boundary. Insert a
 // fake road where a bridge crosses another road, to force blockfinding to trace along there.
 fn bristol_hack(map: &mut RawMap) {
@@ -233,4 +163,34 @@ fn bristol_hack(map: &mut RawMap) {
         )
         .unwrap(),
     );
+}
+
+fn clip_map(map: &mut RawMap, timer: &mut Timer) {
+    import_streets::clip::clip_map(&mut map.streets, timer);
+
+    let boundary_polygon = map.streets.boundary_polygon.clone();
+
+    map.buildings.retain(|_, b| {
+        b.polygon
+            .points()
+            .iter()
+            .all(|pt| boundary_polygon.contains_pt(*pt))
+    });
+
+    let mut result_areas = Vec::new();
+    for orig_area in map.areas.drain(..) {
+        for polygon in map
+            .streets
+            .boundary_polygon
+            .intersection(&orig_area.polygon)
+        {
+            let mut area = orig_area.clone();
+            area.polygon = polygon;
+            result_areas.push(area);
+        }
+    }
+    map.areas = result_areas;
+
+    // TODO Don't touch parking lots. It'll be visually obvious if a clip intersects one of these.
+    // The boundary should be manually adjusted.
 }
