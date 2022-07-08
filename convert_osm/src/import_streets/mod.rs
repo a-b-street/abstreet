@@ -1,6 +1,9 @@
 use street_network::MapConfig;
 
+pub use self::extract::OsmExtract;
+
 pub mod clip;
+pub mod extract;
 pub mod split_ways;
 
 /// Configures the creation of a RawMap from OSM and other input data.
