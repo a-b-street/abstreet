@@ -4,9 +4,7 @@ use kml::ExtraShapes;
 use raw_map::RawMap;
 use street_network::{osm, OriginalRoad};
 
-use crate::import_streets::{
-    OnstreetParking, Options, PrivateOffstreetParking, PublicOffstreetParking,
-};
+use import_streets::{OnstreetParking, Options, PrivateOffstreetParking, PublicOffstreetParking};
 
 // Just used for matching hints to different sides of a road.
 const DIRECTED_ROAD_THICKNESS: Distance = Distance::const_meters(2.5);

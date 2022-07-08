@@ -20,8 +20,6 @@ mod clip;
 mod elevation;
 mod extract;
 mod gtfs;
-mod import_streets;
-mod osm_reader;
 mod parking;
 
 /// Create a RawMap from OSM and other input data.

@@ -2,7 +2,6 @@ use std::collections::BTreeMap;
 
 use anyhow::Result;
 
-use abstio::slurp_file;
 use abstutil::{prettyprint_usize, Tags, Timer};
 use geom::{GPSBounds, LonLat, Pt2D};
 use street_network::osm::{NodeID, OsmID, RelationID, WayID};
@@ -43,7 +42,7 @@ pub struct Relation {
 
 pub fn read(path: &str, input_gps_bounds: &GPSBounds, timer: &mut Timer) -> Result<Document> {
     timer.start(format!("read {}", path));
-    let bytes = slurp_file(path)?;
+    let bytes = std::fs::read(path)?;
     let raw_string = std::str::from_utf8(&bytes)?;
     let tree = roxmltree::Document::parse(raw_string)?;
     timer.stop(format!("read {}", path));
