@@ -6,7 +6,7 @@ use street_network::{
     osm, Direction, IntersectionType, OriginalRoad, RawIntersection, RawRoad, StreetNetwork,
 };
 
-use crate::extract::OsmExtract;
+use super::OsmExtract;
 
 pub struct Output {
     pub crosswalks: HashSet<HashablePt2D>,
