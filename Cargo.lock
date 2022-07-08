@@ -605,10 +605,10 @@ dependencies = [
  "csv",
  "fs-err",
  "geom",
+ "import_streets",
  "kml",
  "log",
  "raw_map",
- "roxmltree",
  "serde",
  "street_network",
 ]
@@ -1899,6 +1899,18 @@ dependencies = [
  "num-rational",
  "num-traits",
  "png",
+]
+
+[[package]]
+name = "import_streets"
+version = "0.1.0"
+dependencies = [
+ "abstutil",
+ "anyhow",
+ "geom",
+ "log",
+ "roxmltree",
+ "street_network",
 ]
 
 [[package]]

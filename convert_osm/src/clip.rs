@@ -2,7 +2,7 @@ use abstutil::Timer;
 use raw_map::RawMap;
 
 pub fn clip_map(map: &mut RawMap, timer: &mut Timer) {
-    crate::import_streets::clip::clip_map(&mut map.streets, timer);
+    import_streets::clip::clip_map(&mut map.streets, timer);
 
     let boundary_polygon = map.streets.boundary_polygon.clone();
 

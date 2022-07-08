@@ -1,19 +1,13 @@
 [package]
-name = "convert_osm"
+name = "import_streets"
 version = "0.1.0"
 authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 edition = "2021"
 
 [dependencies]
-abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
 anyhow = "1.0.38"
-csv = "1.1.4"
-fs-err = "2.6.0"
 geom = { path = "../geom" }
-kml = { path = "../kml" }
-import_streets = { path = "../import_streets" }
 log = "0.4.14"
-raw_map = { path = "../raw_map" }
-serde = "1.0.123"
+roxmltree = { version = "0.14.0", features=["std"] }
 street_network = { path = "../street_network" }

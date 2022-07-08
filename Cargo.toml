@@ -10,6 +10,7 @@ members = [
   "geom",
   "headless",
   "importer",
+  "import_streets",
   "kml",
   "map_gui",
   "map_model",

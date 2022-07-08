@@ -7,9 +7,9 @@ use kml::{ExtraShape, ExtraShapes};
 use raw_map::{Amenity, AreaType, RawArea, RawBuilding, RawMap, RawParkingLot};
 use street_network::{osm, NamePerLanguage};
 
-use crate::import_streets::OsmExtract;
-use crate::osm_reader::{get_multipolygon_members, glue_multipolygon, multipoly_geometry};
 use crate::Options;
+use import_streets::osm_reader::{get_multipolygon_members, glue_multipolygon, multipoly_geometry};
+use import_streets::OsmExtract;
 
 pub fn extract_osm(
     map: &mut RawMap,
@@ -18,7 +18,8 @@ pub fn extract_osm(
     opts: &Options,
     timer: &mut Timer,
 ) -> (OsmExtract, Vec<(Pt2D, Amenity)>) {
-    let mut doc = crate::osm_reader::read(osm_input_path, &map.streets.gps_bounds, timer).unwrap();
+    let mut doc =
+        import_streets::osm_reader::read(osm_input_path, &map.streets.gps_bounds, timer).unwrap();
 
     // TODO Hacks to override OSM data. There's no problem upstream, but we want to accomplish
     // various things for A/B Street.

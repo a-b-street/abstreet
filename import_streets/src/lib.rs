@@ -1,9 +1,16 @@
+#[macro_use]
+extern crate anyhow;
+#[macro_use]
+extern crate log;
+
 use street_network::MapConfig;
 
 pub use self::extract::OsmExtract;
 
+// TODO Clean up the public API of all of this
 pub mod clip;
 pub mod extract;
+pub mod osm_reader;
 pub mod split_ways;
 
 /// Configures the creation of a RawMap from OSM and other input data.
