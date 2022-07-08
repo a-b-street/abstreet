@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["read",""],["read_tags",""],["scrape_bounds",""]],"struct":[["Document",""],["Node",""],["Relation",""],["Way",""]]});

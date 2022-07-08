@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["should_collapse_roundabout","Many “roundabouts” like https://www.openstreetmap.org/way/427144965 are so tiny that they wind up with ridiculous geometry, cause constant gridlock, and prevent merging adjacent blocks."],["simplify_linestring",""],["split_up_roads",""]],"struct":[["Output",""]]});

@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["intersection_polygon",""]],"mod":[["algorithm",""]],"struct":[["InputRoad",""],["Results",""]]});
