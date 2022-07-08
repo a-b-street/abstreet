@@ -2,9 +2,9 @@ use std::collections::{HashMap, HashSet};
 
 use osm::{NodeID, OsmID, RelationID, WayID};
 
-use abstutil::{Tags, Timer};
+use abstutil::Tags;
 use geom::{HashablePt2D, Pt2D};
-use street_network::{osm, Direction, DrivingSide, RestrictionType, StreetNetwork};
+use street_network::{osm, Direction, DrivingSide, RestrictionType};
 
 use crate::osm_reader::{Node, Relation, Way};
 use crate::Options;
@@ -286,51 +286,4 @@ impl OsmExtract {
 
         true
     }
-}
-
-// TODO Finish writing this. This is part of the simplified end-to-end import, which the
-// osm2streets tests will call.
-pub fn extract_osm(
-    streets: &mut StreetNetwork,
-    osm_input_path: &str,
-    clip_path: Option<String>,
-    opts: &Options,
-    timer: &mut Timer,
-) -> OsmExtract {
-    let mut doc = crate::osm_reader::read(osm_input_path, &streets.gps_bounds, timer).unwrap();
-
-    let infer_both_sidewalks_for_oneways = false;
-
-    if clip_path.is_none() {
-        // Use the boundary from .osm.
-        streets.gps_bounds = doc.gps_bounds.clone();
-        streets.boundary_polygon = streets.gps_bounds.to_bounds().get_rectangle();
-    }
-
-    let mut out = OsmExtract::new();
-
-    timer.start_iter("processing OSM nodes", doc.nodes.len());
-    for (id, node) in &doc.nodes {
-        timer.next();
-        out.handle_node(*id, node);
-    }
-
-    timer.start_iter("processing OSM ways", doc.ways.len());
-    for (id, way) in &mut doc.ways {
-        timer.next();
-        let id = *id;
-
-        way.tags.insert(osm::OSM_WAY_ID, id.0.to_string());
-
-        out.handle_way(id, &way, opts, infer_both_sidewalks_for_oneways);
-    }
-
-    timer.start_iter("processing OSM relations", doc.relations.len());
-    for (id, rel) in &doc.relations {
-        timer.next();
-        let id = *id;
-        out.handle_relation(id, rel);
-    }
-
-    out
 }
