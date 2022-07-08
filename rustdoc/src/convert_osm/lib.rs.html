@@ -199,216 +199,26 @@
 <span id="194">194</span>
 <span id="195">195</span>
 <span id="196">196</span>
-<span id="197">197</span>
-<span id="198">198</span>
-<span id="199">199</span>
-<span id="200">200</span>
-<span id="201">201</span>
-<span id="202">202</span>
-<span id="203">203</span>
-<span id="204">204</span>
-<span id="205">205</span>
-<span id="206">206</span>
-<span id="207">207</span>
-<span id="208">208</span>
-<span id="209">209</span>
-<span id="210">210</span>
-<span id="211">211</span>
-<span id="212">212</span>
-<span id="213">213</span>
-<span id="214">214</span>
-<span id="215">215</span>
-<span id="216">216</span>
-<span id="217">217</span>
-<span id="218">218</span>
-<span id="219">219</span>
-<span id="220">220</span>
-<span id="221">221</span>
-<span id="222">222</span>
-<span id="223">223</span>
-<span id="224">224</span>
-<span id="225">225</span>
-<span id="226">226</span>
-<span id="227">227</span>
-<span id="228">228</span>
-<span id="229">229</span>
-<span id="230">230</span>
-<span id="231">231</span>
-<span id="232">232</span>
-<span id="233">233</span>
-<span id="234">234</span>
-<span id="235">235</span>
-<span id="236">236</span>
-<span id="237">237</span>
-<span id="238">238</span>
-<span id="239">239</span>
-<span id="240">240</span>
-<span id="241">241</span>
-<span id="242">242</span>
-<span id="243">243</span>
-<span id="244">244</span>
-<span id="245">245</span>
-<span id="246">246</span>
-<span id="247">247</span>
-<span id="248">248</span>
-<span id="249">249</span>
-<span id="250">250</span>
-<span id="251">251</span>
-<span id="252">252</span>
-<span id="253">253</span>
-<span id="254">254</span>
-<span id="255">255</span>
-<span id="256">256</span>
-<span id="257">257</span>
-<span id="258">258</span>
-<span id="259">259</span>
-<span id="260">260</span>
-<span id="261">261</span>
-<span id="262">262</span>
-<span id="263">263</span>
-<span id="264">264</span>
-<span id="265">265</span>
-<span id="266">266</span>
-<span id="267">267</span>
-<span id="268">268</span>
-<span id="269">269</span>
-<span id="270">270</span>
-<span id="271">271</span>
-<span id="272">272</span>
-<span id="273">273</span>
-<span id="274">274</span>
-<span id="275">275</span>
-<span id="276">276</span>
-<span id="277">277</span>
-<span id="278">278</span>
-<span id="279">279</span>
-<span id="280">280</span>
-<span id="281">281</span>
-<span id="282">282</span>
-<span id="283">283</span>
-<span id="284">284</span>
-<span id="285">285</span>
-<span id="286">286</span>
-<span id="287">287</span>
-<span id="288">288</span>
-<span id="289">289</span>
-<span id="290">290</span>
-<span id="291">291</span>
-<span id="292">292</span>
-<span id="293">293</span>
-<span id="294">294</span>
-<span id="295">295</span>
-<span id="296">296</span>
-<span id="297">297</span>
-<span id="298">298</span>
-<span id="299">299</span>
-<span id="300">300</span>
-<span id="301">301</span>
-<span id="302">302</span>
-<span id="303">303</span>
-<span id="304">304</span>
 </pre><pre class="rust"><code><span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">anyhow</span>;
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
 
-<span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
-
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="ident">abstio::MapName</span>;
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Tags</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">GPSBounds</span>, <span class="ident">HashablePt2D</span>, <span class="ident">LonLat</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
-<span class="kw">use</span> <span class="ident">raw_map</span>::{<span class="ident">osm</span>, <span class="ident">Amenity</span>, <span class="ident">MapConfig</span>, <span class="ident">OriginalRoad</span>, <span class="ident">RawMap</span>, <span class="ident">RawRoad</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">GPSBounds</span>, <span class="ident">LonLat</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
+<span class="kw">use</span> <span class="ident">raw_map</span>::{<span class="ident">osm</span>, <span class="ident">Amenity</span>, <span class="ident">OriginalRoad</span>, <span class="ident">RawMap</span>, <span class="ident">RawRoad</span>};
 
-<span class="kw">mod</span> <span class="ident">clip</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">import_streets</span>::{
+    <span class="ident">OnstreetParking</span>, <span class="ident">Options</span>, <span class="ident">PrivateOffstreetParking</span>, <span class="ident">PublicOffstreetParking</span>,
+};
+
 <span class="kw">mod</span> <span class="ident">elevation</span>;
 <span class="kw">mod</span> <span class="ident">extract</span>;
 <span class="kw">mod</span> <span class="ident">gtfs</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">osm_geom</span>;
 <span class="kw">mod</span> <span class="ident">parking</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">reader</span>;
-<span class="kw">mod</span> <span class="ident">split_ways</span>;
-
-<span class="doccomment">/// Configures the creation of a RawMap from OSM and other input data.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Options</span> {
-    <span class="kw">pub</span> <span class="ident">map_config</span>: <span class="ident">MapConfig</span>,
-
-    <span class="kw">pub</span> <span class="ident">onstreet_parking</span>: <span class="ident">OnstreetParking</span>,
-    <span class="kw">pub</span> <span class="ident">public_offstreet_parking</span>: <span class="ident">PublicOffstreetParking</span>,
-    <span class="kw">pub</span> <span class="ident">private_offstreet_parking</span>: <span class="ident">PrivateOffstreetParking</span>,
-    <span class="doccomment">/// OSM railway=rail will be included as light rail if so. Cosmetic only.</span>
-    <span class="kw">pub</span> <span class="ident">include_railroads</span>: <span class="ident">bool</span>,
-    <span class="doccomment">/// If provided, read polygons from this GeoJSON file and add them to the RawMap as buildings.</span>
-    <span class="kw">pub</span> <span class="ident">extra_buildings</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Only include highways and arterials. This may make sense for some region-wide maps for</span>
-    <span class="doccomment">/// particular use cases.</span>
-    <span class="kw">pub</span> <span class="ident">skip_local_roads</span>: <span class="ident">bool</span>,
-    <span class="doccomment">/// Only include crosswalks that match a `highway=crossing` OSM node.</span>
-    <span class="kw">pub</span> <span class="ident">filter_crosswalks</span>: <span class="ident">bool</span>,
-    <span class="doccomment">/// Configure public transit using this URL to a static GTFS feed in .zip format.</span>
-    <span class="kw">pub</span> <span class="ident">gtfs_url</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">elevation</span>: <span class="ident">bool</span>,
-}
-
-<span class="kw">impl</span> <span class="ident">Options</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">default_for_side</span>(<span class="ident">driving_side</span>: <span class="ident">raw_map::DrivingSide</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">map_config</span>: <span class="ident">MapConfig</span> {
-                <span class="ident">driving_side</span>,
-                <span class="ident">bikes_can_use_bus_lanes</span>: <span class="bool-val">true</span>,
-                <span class="ident">inferred_sidewalks</span>: <span class="bool-val">true</span>,
-                <span class="ident">street_parking_spot_length</span>: <span class="ident">Distance::meters</span>(<span class="number">8.0</span>),
-                <span class="ident">turn_on_red</span>: <span class="bool-val">true</span>,
-            },
-            <span class="ident">onstreet_parking</span>: <span class="ident">OnstreetParking::JustOSM</span>,
-            <span class="ident">public_offstreet_parking</span>: <span class="ident">PublicOffstreetParking::None</span>,
-            <span class="ident">private_offstreet_parking</span>: <span class="ident">PrivateOffstreetParking::FixedPerBldg</span>(<span class="number">1</span>),
-            <span class="ident">include_railroads</span>: <span class="bool-val">true</span>,
-            <span class="ident">extra_buildings</span>: <span class="prelude-val">None</span>,
-            <span class="ident">skip_local_roads</span>: <span class="bool-val">false</span>,
-            <span class="ident">filter_crosswalks</span>: <span class="bool-val">false</span>,
-            <span class="ident">gtfs_url</span>: <span class="prelude-val">None</span>,
-            <span class="ident">elevation</span>: <span class="bool-val">false</span>,
-        }
-    }
-}
-
-<span class="doccomment">/// What roads will have on-street parking lanes? Data from</span>
-<span class="doccomment">/// &lt;https://wiki.openstreetmap.org/wiki/Key:parking:lane&gt; is always used if available.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">OnstreetParking</span> {
-    <span class="doccomment">/// If not tagged, there won&#39;t be parking.</span>
-    <span class="ident">JustOSM</span>,
-    <span class="doccomment">/// If OSM data is missing, then try to match data from</span>
-    <span class="doccomment">/// &lt;http://data-seattlecitygis.opendata.arcgis.com/datasets/blockface&gt;. This is Seattle specific.</span>
-    <span class="ident">Blockface</span>(<span class="ident">String</span>),
-    <span class="doccomment">/// If OSM data is missing, then infer parking lanes on some percentage of</span>
-    <span class="doccomment">/// &quot;highway=residential&quot; roads.</span>
-    <span class="ident">SomeAdditionalWhereNoData</span> {
-        <span class="doccomment">/// [0, 100]</span>
-        <span class="ident">pct</span>: <span class="ident">usize</span>,
-    },
-}
-
-<span class="doccomment">/// How many spots are available in public parking garages?</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">PublicOffstreetParking</span> {
-    <span class="prelude-val">None</span>,
-    <span class="doccomment">/// Pull data from</span>
-    <span class="doccomment">/// &lt;https://data-seattlecitygis.opendata.arcgis.com/datasets/public-garages-or-parking-lots&gt;, a</span>
-    <span class="doccomment">/// Seattle-specific data source.</span>
-    <span class="ident">Gis</span>(<span class="ident">String</span>),
-}
-
-<span class="doccomment">/// If a building doesn&#39;t have anything from public_offstreet_parking and isn&#39;t tagged as a garage</span>
-<span class="doccomment">/// in OSM, how many private spots should it have?</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">PrivateOffstreetParking</span> {
-    <span class="ident">FixedPerBldg</span>(<span class="ident">usize</span>),
-    <span class="comment">// TODO Based on the number of residents?</span>
-}
 
 <span class="doccomment">/// Create a RawMap from OSM and other input data.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">convert</span>(
@@ -420,29 +230,30 @@
 ) -&gt; <span class="ident">RawMap</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">RawMap::blank</span>(<span class="ident">name</span>);
     <span class="comment">// Do this early. Calculating RawRoads uses DrivingSide, for example!</span>
-    <span class="ident">map</span>.<span class="ident">config</span> <span class="op">=</span> <span class="ident">opts</span>.<span class="ident">map_config</span>.<span class="ident">clone</span>();
+    <span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">config</span> <span class="op">=</span> <span class="ident">opts</span>.<span class="ident">map_config</span>.<span class="ident">clone</span>();
 
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">path</span>) <span class="op">=</span> <span class="ident">clip_path</span> {
         <span class="kw">let</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">LonLat::read_osmosis_polygon</span>(<span class="ident">path</span>).<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">gps_bounds</span> <span class="op">=</span> <span class="ident">GPSBounds::from</span>(<span class="ident">pts</span>.<span class="ident">clone</span>());
-        <span class="ident">map</span>.<span class="ident">boundary_polygon</span> <span class="op">=</span> <span class="ident">Ring::must_new</span>(<span class="ident">gps_bounds</span>.<span class="ident">convert</span>(<span class="kw-2">&amp;</span><span class="ident">pts</span>)).<span class="ident">into_polygon</span>();
-        <span class="ident">map</span>.<span class="ident">gps_bounds</span> <span class="op">=</span> <span class="ident">gps_bounds</span>;
+        <span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">boundary_polygon</span> <span class="op">=</span> <span class="ident">Ring::must_new</span>(<span class="ident">gps_bounds</span>.<span class="ident">convert</span>(<span class="kw-2">&amp;</span><span class="ident">pts</span>)).<span class="ident">into_polygon</span>();
+        <span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">gps_bounds</span> <span class="op">=</span> <span class="ident">gps_bounds</span>;
     }
 
-    <span class="kw">let</span> <span class="ident">extract</span> <span class="op">=</span> <span class="ident">extract::extract_osm</span>(<span class="kw-2">&amp;mut</span> <span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">osm_input_path</span>, <span class="ident">clip_path</span>, <span class="kw-2">&amp;</span><span class="ident">opts</span>, <span class="ident">timer</span>);
-    <span class="kw">let</span> <span class="ident">split_output</span> <span class="op">=</span> <span class="ident">split_ways::split_up_roads</span>(<span class="kw-2">&amp;mut</span> <span class="ident">map</span>, <span class="ident">extract</span>, <span class="ident">timer</span>);
-    <span class="ident">clip::clip_map</span>(<span class="kw-2">&amp;mut</span> <span class="ident">map</span>, <span class="ident">timer</span>);
+    <span class="kw">let</span> (<span class="ident">extract</span>, <span class="ident">amenity_points</span>) <span class="op">=</span>
+        <span class="ident">extract::extract_osm</span>(<span class="kw-2">&amp;mut</span> <span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">osm_input_path</span>, <span class="ident">clip_path</span>, <span class="kw-2">&amp;</span><span class="ident">opts</span>, <span class="ident">timer</span>);
+    <span class="kw">let</span> <span class="ident">split_output</span> <span class="op">=</span> <span class="ident">import_streets::split_ways::split_up_roads</span>(<span class="kw-2">&amp;mut</span> <span class="ident">map</span>.<span class="ident">streets</span>, <span class="ident">extract</span>, <span class="ident">timer</span>);
+    <span class="ident">clip_map</span>(<span class="kw-2">&amp;mut</span> <span class="ident">map</span>, <span class="ident">timer</span>);
 
     <span class="comment">// Need to do a first pass of removing cul-de-sacs here, or we wind up with loop PolyLines when</span>
     <span class="comment">// doing the parking hint matching.</span>
-    <span class="ident">map</span>.<span class="ident">roads</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">r</span>, <span class="kw">_</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">i1</span> <span class="op">!</span><span class="op">=</span> <span class="ident">r</span>.<span class="ident">i2</span>);
+    <span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">roads</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">r</span>, <span class="kw">_</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">i1</span> <span class="op">!</span><span class="op">=</span> <span class="ident">r</span>.<span class="ident">i2</span>);
 
-    <span class="ident">use_amenities</span>(<span class="kw-2">&amp;mut</span> <span class="ident">map</span>, <span class="ident">split_output</span>.<span class="ident">amenities</span>, <span class="ident">timer</span>);
+    <span class="ident">use_amenities</span>(<span class="kw-2">&amp;mut</span> <span class="ident">map</span>, <span class="ident">amenity_points</span>, <span class="ident">timer</span>);
 
     <span class="ident">parking::apply_parking</span>(<span class="kw-2">&amp;mut</span> <span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">opts</span>, <span class="ident">timer</span>);
 
-    <span class="ident">use_barrier_nodes</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">map</span>,
+    <span class="ident">import_streets::use_barrier_nodes</span>(
+        <span class="kw-2">&amp;mut</span> <span class="ident">map</span>.<span class="ident">streets</span>,
         <span class="ident">split_output</span>.<span class="ident">barrier_nodes</span>,
         <span class="kw-2">&amp;</span><span class="ident">split_output</span>.<span class="ident">pt_to_road</span>,
     );
@@ -459,8 +270,8 @@
     }
 
     <span class="kw">if</span> <span class="ident">opts</span>.<span class="ident">filter_crosswalks</span> {
-        <span class="ident">filter_crosswalks</span>(
-            <span class="kw-2">&amp;mut</span> <span class="ident">map</span>,
+        <span class="ident">import_streets::filter_crosswalks</span>(
+            <span class="kw-2">&amp;mut</span> <span class="ident">map</span>.<span class="ident">streets</span>,
             <span class="ident">split_output</span>.<span class="ident">crosswalks</span>,
             <span class="ident">split_output</span>.<span class="ident">pt_to_road</span>,
             <span class="ident">timer</span>,
@@ -478,7 +289,8 @@
 }
 
 <span class="kw">fn</span> <span class="ident">use_amenities</span>(<span class="ident">map</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RawMap</span>, <span class="ident">amenities</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Pt2D</span>, <span class="ident">Amenity</span>)<span class="op">&gt;</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">closest</span>: <span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">osm::OsmID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">FindClosest::new</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">gps_bounds</span>.<span class="ident">to_bounds</span>());
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">closest</span>: <span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">osm::OsmID</span><span class="op">&gt;</span> <span class="op">=</span>
+        <span class="ident">FindClosest::new</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">gps_bounds</span>.<span class="ident">to_bounds</span>());
     <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">b</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">buildings</span> {
         <span class="ident">closest</span>.<span class="ident">add</span>(<span class="kw-2">*</span><span class="ident">id</span>, <span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">points</span>());
     }
@@ -500,7 +312,7 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">id</span> <span class="op">=</span> <span class="op">-</span><span class="number">1</span>;
     <span class="kw">for</span> (<span class="ident">polygon</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">Polygon::from_geojson_bytes</span>(
         <span class="kw-2">&amp;</span><span class="ident">abstio::slurp_file</span>(<span class="ident">path</span>)<span class="question-mark">?</span>,
-        <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">gps_bounds</span>,
+        <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">gps_bounds</span>,
         <span class="ident">require_in_bounds</span>,
     )<span class="question-mark">?</span> {
         <span class="comment">// Add these as new buildings, generating a new dummy OSM ID.</span>
@@ -519,67 +331,6 @@
         <span class="ident">id</span> <span class="op">-</span><span class="op">=</span> <span class="op">-</span><span class="number">1</span>;
     }
     <span class="prelude-val">Ok</span>(())
-}
-
-<span class="kw">fn</span> <span class="ident">filter_crosswalks</span>(
-    <span class="ident">map</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RawMap</span>,
-    <span class="ident">crosswalks</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">HashablePt2D</span><span class="op">&gt;</span>,
-    <span class="ident">pt_to_road</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">HashablePt2D</span>, <span class="ident">OriginalRoad</span><span class="op">&gt;</span>,
-    <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>,
-) {
-    <span class="comment">// Normally we assume every road has a crosswalk, but since this map is configured to use OSM</span>
-    <span class="comment">// crossing nodes, let&#39;s reverse that assumption.</span>
-    <span class="kw">for</span> <span class="ident">road</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">roads</span>.<span class="ident">values_mut</span>() {
-        <span class="ident">road</span>.<span class="ident">crosswalk_forward</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        <span class="ident">road</span>.<span class="ident">crosswalk_backward</span> <span class="op">=</span> <span class="bool-val">false</span>;
-    }
-
-    <span class="comment">// Match each crosswalk node to a road</span>
-    <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;filter crosswalks&quot;</span>, <span class="ident">crosswalks</span>.<span class="ident">len</span>());
-    <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">crosswalks</span> {
-        <span class="ident">timer</span>.<span class="ident">next</span>();
-        <span class="comment">// Some crossing nodes are outside the map boundary or otherwise not on a road that we</span>
-        <span class="comment">// retained</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">road</span>) <span class="op">=</span> <span class="ident">pt_to_road</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">pt</span>).<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">roads</span>.<span class="ident">get_mut</span>(<span class="ident">r</span>)) {
-            <span class="comment">// TODO Support cul-de-sacs and other loop roads</span>
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) <span class="op">=</span> <span class="ident">PolyLine::new</span>(<span class="ident">road</span>.<span class="ident">osm_center_points</span>.<span class="ident">clone</span>()) {
-                <span class="comment">// Crossings aren&#39;t right at an intersection. Where is this point along the center</span>
-                <span class="comment">// line?</span>
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">dist</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">dist_along_of_point</span>(<span class="ident">pt</span>.<span class="ident">to_pt2d</span>()) {
-                    <span class="kw">let</span> <span class="ident">pct</span> <span class="op">=</span> <span class="ident">dist</span> <span class="op">/</span> <span class="ident">pl</span>.<span class="ident">length</span>();
-                    <span class="comment">// Don&#39;t throw away any crossings. If it occurs in the first half of the road,</span>
-                    <span class="comment">// snap to the first intersection. If there&#39;s a mid-block crossing mapped,</span>
-                    <span class="comment">// that&#39;ll likely not be correctly interpreted, unless an intersection is there</span>
-                    <span class="comment">// anyway.</span>
-                    <span class="kw">if</span> <span class="ident">pct</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">0.5</span> {
-                        <span class="ident">road</span>.<span class="ident">crosswalk_backward</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                    } <span class="kw">else</span> {
-                        <span class="ident">road</span>.<span class="ident">crosswalk_forward</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                    }
-
-                    <span class="comment">// TODO Some crosswalks incorrectly snap to the intersection near a short</span>
-                    <span class="comment">// service road, which later gets trimmed. So the crosswalk effectively</span>
-                    <span class="comment">// disappears.</span>
-                }
-            }
-        }
-    }
-}
-
-<span class="kw">fn</span> <span class="ident">use_barrier_nodes</span>(
-    <span class="ident">map</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RawMap</span>,
-    <span class="ident">barrier_nodes</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">HashablePt2D</span><span class="op">&gt;</span>,
-    <span class="ident">pt_to_road</span>: <span class="kw-2">&amp;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">HashablePt2D</span>, <span class="ident">OriginalRoad</span><span class="op">&gt;</span>,
-) {
-    <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">barrier_nodes</span> {
-        <span class="comment">// Many barriers are on footpaths or roads that we don&#39;t retain</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">road</span>) <span class="op">=</span> <span class="ident">pt_to_road</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">pt</span>).<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">roads</span>.<span class="ident">get_mut</span>(<span class="ident">r</span>)) {
-            <span class="comment">// Filters on roads that&#39;re already car-free are redundant</span>
-            <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">is_driveable</span>() {
-                <span class="ident">road</span>.<span class="ident">barrier_nodes</span>.<span class="ident">push</span>(<span class="ident">pt</span>.<span class="ident">to_pt2d</span>());
-            }
-        }
-    }
 }
 
 <span class="comment">// We&#39;re using Bristol for a project that requires an unusual LTN neighborhood boundary. Insert a</span>
@@ -601,15 +352,48 @@
     <span class="ident">tags</span>.<span class="ident">insert</span>(<span class="string">&quot;maxspeed&quot;</span>, <span class="string">&quot;1 mph&quot;</span>);
     <span class="ident">tags</span>.<span class="ident">insert</span>(<span class="string">&quot;bicycle&quot;</span>, <span class="string">&quot;no&quot;</span>);
 
-    <span class="ident">map</span>.<span class="ident">roads</span>.<span class="ident">insert</span>(
+    <span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">roads</span>.<span class="ident">insert</span>(
         <span class="ident">id</span>,
         <span class="ident">RawRoad::new</span>(
-            <span class="macro">vec!</span>[<span class="ident">map</span>.<span class="ident">intersections</span>[<span class="kw-2">&amp;</span><span class="ident">i1</span>].<span class="ident">point</span>, <span class="ident">map</span>.<span class="ident">intersections</span>[<span class="kw-2">&amp;</span><span class="ident">i2</span>].<span class="ident">point</span>],
+            <span class="macro">vec!</span>[
+                <span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">intersections</span>[<span class="kw-2">&amp;</span><span class="ident">i1</span>].<span class="ident">point</span>,
+                <span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">intersections</span>[<span class="kw-2">&amp;</span><span class="ident">i2</span>].<span class="ident">point</span>,
+            ],
             <span class="ident">tags</span>,
-            <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">config</span>,
+            <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">config</span>,
         )
         .<span class="ident">unwrap</span>(),
     );
+}
+
+<span class="kw">fn</span> <span class="ident">clip_map</span>(<span class="ident">map</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RawMap</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) {
+    <span class="ident">import_streets::clip::clip_map</span>(<span class="kw-2">&amp;mut</span> <span class="ident">map</span>.<span class="ident">streets</span>, <span class="ident">timer</span>);
+
+    <span class="kw">let</span> <span class="ident">boundary_polygon</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">boundary_polygon</span>.<span class="ident">clone</span>();
+
+    <span class="ident">map</span>.<span class="ident">buildings</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="kw">_</span>, <span class="ident">b</span><span class="op">|</span> {
+        <span class="ident">b</span>.<span class="ident">polygon</span>
+            .<span class="ident">points</span>()
+            .<span class="ident">iter</span>()
+            .<span class="ident">all</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">boundary_polygon</span>.<span class="ident">contains_pt</span>(<span class="kw-2">*</span><span class="ident">pt</span>))
+    });
+
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result_areas</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+    <span class="kw">for</span> <span class="ident">orig_area</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">areas</span>.<span class="ident">drain</span>(..) {
+        <span class="kw">for</span> <span class="ident">polygon</span> <span class="kw">in</span> <span class="ident">map</span>
+            .<span class="ident">streets</span>
+            .<span class="ident">boundary_polygon</span>
+            .<span class="ident">intersection</span>(<span class="kw-2">&amp;</span><span class="ident">orig_area</span>.<span class="ident">polygon</span>)
+        {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">area</span> <span class="op">=</span> <span class="ident">orig_area</span>.<span class="ident">clone</span>();
+            <span class="ident">area</span>.<span class="ident">polygon</span> <span class="op">=</span> <span class="ident">polygon</span>;
+            <span class="ident">result_areas</span>.<span class="ident">push</span>(<span class="ident">area</span>);
+        }
+    }
+    <span class="ident">map</span>.<span class="ident">areas</span> <span class="op">=</span> <span class="ident">result_areas</span>;
+
+    <span class="comment">// TODO Don&#39;t touch parking lots. It&#39;ll be visually obvious if a clip intersects one of these.</span>
+    <span class="comment">// The boundary should be manually adjusted.</span>
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="convert_osm" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>
