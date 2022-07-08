@@ -12,8 +12,8 @@ csv = "1.1.4"
 fs-err = "2.6.0"
 geom = { path = "../geom" }
 kml = { path = "../kml" }
-import_streets = { path = "../import_streets" }
+import_streets = { git = "https://github.com/a-b-street/osm2streets" }
 log = "0.4.14"
 raw_map = { path = "../raw_map" }
 serde = "1.0.123"
-street_network = { path = "../street_network" }
+street_network = { git = "https://github.com/a-b-street/osm2streets" }

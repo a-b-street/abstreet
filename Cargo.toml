@@ -10,7 +10,6 @@ members = [
   "geom",
   "headless",
   "importer",
-  "import_streets",
   "kml",
   "map_gui",
   "map_model",
@@ -18,7 +17,6 @@ members = [
   "popdat",
   "raw_map",
   "sim",
-  "street_network",
   "synthpop",
   "tests",
   "traffic_seitan",
@@ -34,6 +32,14 @@ members = [
 # update dependencies often).
 [profile.dev.package."*"]
 opt-level = 3
+
+# There's a circular dependency between this repo (abstreet) and osm2streets,
+# due to the 3 core dependency crates listed below. This patch is required to
+# avoid Cargo from getting confused.
+[patch."https://github.com/a-b-street/abstreet/"]
+geom = { path = "geom" }
+abstutil = { path = "abstutil" }
+kml = { path = "kml" }
 
 [patch.crates-io]
 # avoid duplicating geo dependency, until next polylabel release
