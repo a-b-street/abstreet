@@ -240,36 +240,23 @@ fn setup_editing(
 
     let render_cells = RenderCells::new(map, neighbourhood);
     if app.session.draw_cells_as_areas {
-        edit.world.draw_master_batch(ctx, render_cells.draw());
-
-        let mut colorer = ColorNetwork::no_fading(app);
-        colorer.ranked_roads(shortcuts.count_per_road.clone(), &app.cs.good_to_bad_red);
-        // TODO These two will be on different scales, which'll look really weird!
-        colorer.ranked_intersections(
-            shortcuts.count_per_intersection.clone(),
-            &app.cs.good_to_bad_red,
-        );
-
-        draw_top_layer.append(colorer.draw);
+        edit.world
+            .draw_master_batch(ctx, render_cells.draw_colored_areas());
     } else {
-        for (idx, cell) in neighbourhood.cells.iter().enumerate() {
-            let color = render_cells.colors[idx].alpha(0.9);
-            for (r, interval) in &cell.roads {
-                let road = map.get_r(*r);
-                draw_top_layer = draw_top_layer.push(
-                    color,
-                    road.center_pts
-                        .exact_slice(interval.start, interval.end)
-                        .make_polygons(road.get_width()),
-                );
-            }
-            for i in
-                map_gui::tools::intersections_from_roads(&cell.roads.keys().cloned().collect(), map)
-            {
-                draw_top_layer = draw_top_layer.push(color, map.get_i(i).polygon.clone());
-            }
-        }
+        draw_top_layer
+            .unzoomed
+            .append(render_cells.draw_island_outlines());
     }
+
+    let mut colorer = ColorNetwork::no_fading(app);
+    colorer.ranked_roads(shortcuts.count_per_road.clone(), &app.cs.good_to_bad_red);
+    // TODO These two will be on different scales, which'll look really weird!
+    colorer.ranked_intersections(
+        shortcuts.count_per_intersection.clone(),
+        &app.cs.good_to_bad_red,
+    );
+
+    draw_top_layer.append(colorer.draw);
 
     // Draw the borders of each cell
     for (idx, cell) in neighbourhood.cells.iter().enumerate() {
@@ -317,7 +304,11 @@ fn setup_editing(
                     PolyLine::must_new(vec![pt_closer, pt_farther])
                         .make_double_arrow(thickness, ArrowCap::Triangle)
                 };
-                draw_top_layer = draw_top_layer.push(color.alpha(1.0), arrow);
+                if app.session.draw_cells_as_areas {
+                    draw_top_layer = draw_top_layer.push(color.alpha(1.0), arrow);
+                } else {
+                    draw_top_layer = draw_top_layer.push(Color::BLACK, arrow);
+                }
             }
         }
     }

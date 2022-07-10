@@ -360,12 +360,19 @@ impl ColorScheme {
     fn ltn() -> ColorScheme {
         let mut cs = ColorScheme::day_mode();
         cs.scheme = ColorSchemeChoice::LTN;
+        cs.experiment = true;
         cs.private_road = None;
+        cs.fade_map_dark = Color::BLACK.alpha(0.3);
 
-        // The colors of cells / neighborhoods will show through these, de-emphasizing them
-        cs.parking_lot = Color::BLACK.alpha(0.2);
-        cs.residential_building = Color::BLACK.alpha(0.3);
-        cs.commercial_building = Color::BLACK.alpha(0.5);
+        // Based on Mapbox light scheme: https://www.mapbox.com/maps/light
+        cs.map_background = hex("#F6F6F4").into();
+        cs.residential_building = hex("#E9E9E7");
+        cs.commercial_building = hex("#D1D1CC");
+        cs.water = hex("#CAD2D3").into();
+        cs.grass = hex("#ECEEED").into();
+        cs.unzoomed_highway = Color::WHITE;
+        cs.unzoomed_arterial = Color::WHITE;
+        cs.unzoomed_residential = Color::WHITE;
 
         cs.gui_style.panel_bg = Color::WHITE;
         cs.panel_bg = cs.gui_style.panel_bg;

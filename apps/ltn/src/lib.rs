@@ -88,7 +88,7 @@ fn run(mut settings: Settings) {
 
             highlight_boundary_roads: false,
             draw_neighbourhood_style: browse::Style::SimpleColoring,
-            draw_cells_as_areas: true,
+            draw_cells_as_areas: false,
             heuristic: filters::auto::Heuristic::SplitCells,
             main_road_penalty: 1.0,
 

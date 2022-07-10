@@ -355,6 +355,10 @@ impl Polygon {
         from_multi(self.to_geo().intersection(&other.to_geo()))
     }
 
+    pub fn difference(&self, other: &Polygon) -> Vec<Polygon> {
+        from_multi(self.to_geo().difference(&other.to_geo()))
+    }
+
     pub fn convex_hull(list: Vec<Polygon>) -> Polygon {
         let mp: geo::MultiPolygon = list.into_iter().map(|p| p.to_geo()).collect();
         mp.convex_hull().into()

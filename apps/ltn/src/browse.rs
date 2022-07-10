@@ -187,7 +187,7 @@ fn make_world(ctx: &mut EventCtx, app: &App, timer: &mut Timer) -> World<Neighbo
                 // tried greying out everything else, but then the view is too jumpy.
                 let neighbourhood = Neighbourhood::new(ctx, app, *id);
                 let render_cells = crate::draw_cells::RenderCells::new(map, &neighbourhood);
-                let hovered_batch = render_cells.draw();
+                let hovered_batch = render_cells.draw_colored_areas();
                 world
                     .add(*id)
                     .hitbox(info.block.polygon.clone())
