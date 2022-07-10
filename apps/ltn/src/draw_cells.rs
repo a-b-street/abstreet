@@ -1,6 +1,6 @@
 use std::collections::{HashSet, VecDeque};
 
-use geom::{Bounds, Distance, Polygon};
+use geom::{Bounds, Distance, PolyLine, Polygon};
 use map_gui::tools::Grid;
 use map_model::Map;
 use widgetry::{Color, GeomBatch};
@@ -13,6 +13,8 @@ pub struct RenderCells {
     pub polygons_per_cell: Vec<Vec<Polygon>>,
     /// Colors per cell, such that adjacent cells are colored differently
     pub colors: Vec<Color>,
+
+    boundary_polygon: Polygon,
 }
 
 struct RenderCellsBuilder {
@@ -34,11 +36,45 @@ impl RenderCells {
         RenderCellsBuilder::new(map, neighbourhood).finalize()
     }
 
-    pub fn draw(&self) -> GeomBatch {
+    /// Draw cells as areas with different colors. The colors are meaningless, but the same color
+    /// won't be shared between adjacent cells.
+    pub fn draw_colored_areas(&self) -> GeomBatch {
         let mut batch = GeomBatch::new();
         for (color, polygons) in self.colors.iter().zip(self.polygons_per_cell.iter()) {
             for poly in polygons {
                 batch.push(*color, poly.clone());
+            }
+        }
+        batch
+    }
+
+    /// Draw the boundary between cells as a thick outline. It's meant to look like the
+    /// neighbourhood is split into disconnected islands.
+    pub fn draw_island_outlines(&self) -> GeomBatch {
+        let neighbourhood_boundary = self
+            .boundary_polygon
+            .to_outline(Distance::meters(25.0))
+            .ok();
+
+        let mut batch = GeomBatch::new();
+        for (cell_color, polygons) in self.colors.iter().zip(self.polygons_per_cell.iter()) {
+            for poly in polygons {
+                // If the cell is disconnected, keep drawing this as an area to point out the
+                // problem
+                if *cell_color == colors::DISCONNECTED_CELL {
+                    batch.push(*cell_color, poly.clone());
+                    continue;
+                }
+
+                let boundary = PolyLine::unchecked_new(poly.clone().into_points())
+                    .make_polygons(Distance::meters(10.0));
+
+                // If possible, try to erase where the cell boundary touches the perimeter road.
+                if let Some(ref neighbourhood_boundary) = neighbourhood_boundary {
+                    batch.extend(Color::BLACK, boundary.difference(neighbourhood_boundary));
+                } else {
+                    batch.push(Color::BLACK, boundary);
+                }
             }
         }
         batch
@@ -156,6 +192,7 @@ impl RenderCellsBuilder {
         let mut result = RenderCells {
             polygons_per_cell: Vec::new(),
             colors: Vec::new(),
+            boundary_polygon: self.boundary_polygon,
         };
 
         for (idx, color) in self.colors.into_iter().enumerate() {
@@ -206,7 +243,7 @@ impl RenderCellsBuilder {
             // can just clip the result.
             let mut clipped = Vec::new();
             for p in cell_polygons {
-                clipped.extend(p.intersection(&self.boundary_polygon));
+                clipped.extend(p.intersection(&result.boundary_polygon));
             }
 
             result.polygons_per_cell.push(clipped);

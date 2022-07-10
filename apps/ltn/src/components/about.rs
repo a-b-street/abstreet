@@ -15,6 +15,7 @@ impl About {
             ]),
             Text::from_multiline(vec![
                 Line("Created by Dustin Carlino, Cindy Huang, and Jennifer Ding"),
+                Line("with major design advice from Duncan Geere"),
                 Line("Developed at the Alan Turing Institute"),
                 Line("Data from OpenStreetMap"),
                 Line("See below for full credits and more info"),
