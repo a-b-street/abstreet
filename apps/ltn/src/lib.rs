@@ -66,6 +66,7 @@ fn run(mut settings: Settings) {
     opts.show_stop_signs = false;
     opts.show_crosswalks = false;
     opts.show_traffic_signal_icon = true;
+    opts.simplify_basemap = true;
 
     let args = Args::from_iter(abstutil::cli_args());
     args.app_args.override_options(&mut opts);

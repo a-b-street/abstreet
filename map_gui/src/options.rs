@@ -41,6 +41,8 @@ pub struct Options {
     /// If true, draw an icon for traffic signals both when zoomed and unzoomed. If false, color
     /// the intersection when unzoomed and render the signal's current state when zoomed.
     pub show_traffic_signal_icon: bool,
+    /// If true, modify several basemap features to de-emphasize them: border intersections
+    pub simplify_basemap: bool,
 
     /// When making a screen recording, enable this option to hide some UI elements
     pub minimal_controls: bool,
@@ -89,6 +91,7 @@ impl Options {
             show_stop_signs: true,
             show_crosswalks: true,
             show_traffic_signal_icon: false,
+            simplify_basemap: false,
 
             time_increment: Duration::minutes(10),
             dont_draw_time_warp: false,

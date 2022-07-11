@@ -370,6 +370,7 @@ impl ColorScheme {
         cs.map_background = hex("#F6F6F4").into();
         cs.residential_building = hex("#E9E9E7");
         cs.commercial_building = hex("#D1D1CC");
+        cs.parking_lot = cs.commercial_building;
         cs.water = hex("#CAD2D3").into();
         cs.grass = hex("#ECEEED").into();
         cs.unzoomed_highway = Color::WHITE;

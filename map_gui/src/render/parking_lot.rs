@@ -4,9 +4,10 @@ use geom::{Distance, PolyLine, Polygon, Pt2D};
 use map_model::{
     osm, LaneType, Map, ParkingLot, ParkingLotID, NORMAL_LANE_THICKNESS, PARKING_LOT_SPOT_LENGTH,
 };
-use widgetry::{Drawable, EventCtx, GeomBatch, GfxCtx};
+use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, RewriteColor};
 
 use crate::colors::ColorScheme;
+use crate::options::Options;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
 use crate::{AppLike, ID};
 
@@ -20,6 +21,7 @@ impl DrawParkingLot {
         ctx: &EventCtx,
         lot: &ParkingLot,
         cs: &ColorScheme,
+        opts: &Options,
         unzoomed_batch: &mut GeomBatch,
     ) -> DrawParkingLot {
         unzoomed_batch.push(cs.parking_lot, lot.polygon.clone());
@@ -33,7 +35,12 @@ impl DrawParkingLot {
         unzoomed_batch.append(
             GeomBatch::load_svg(ctx, "system/assets/map/parking.svg")
                 .scale(0.05)
-                .centered_on(lot.polygon.polylabel()),
+                .centered_on(lot.polygon.polylabel())
+                .color(if opts.simplify_basemap {
+                    RewriteColor::Change(Color::hex("#204A87"), cs.parking_lot)
+                } else {
+                    RewriteColor::NoOp
+                }),
         );
 
         DrawParkingLot {
