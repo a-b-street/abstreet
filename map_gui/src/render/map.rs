@@ -101,6 +101,7 @@ impl DrawMap {
                 ctx,
                 pl,
                 cs,
+                opts,
                 &mut all_unzoomed_parking_lots,
             ));
         }
@@ -247,21 +248,23 @@ impl DrawMap {
 
         for i in map.all_intersections() {
             let zorder = 10 * i.get_zorder(map);
-            let intersection_color =
-                if i.is_stop_sign() || (i.is_traffic_signal() && opts.show_traffic_signal_icon) {
-                    // Use the color of the road, so the intersection doesn't stand out
-                    if i.is_light_rail(map) {
-                        cs.light_rail_track
-                    } else if i.is_cycleway(map) {
-                        cs.unzoomed_trail
-                    } else if i.is_private(map) && cs.private_road.is_some() {
-                        cs.private_road.unwrap()
-                    } else {
-                        cs.unzoomed_road_surface(i.get_rank(map))
-                    }
+            let intersection_color = if opts.simplify_basemap
+                || i.is_stop_sign()
+                || (i.is_traffic_signal() && opts.show_traffic_signal_icon)
+            {
+                // Use the color of the road, so the intersection doesn't stand out
+                if i.is_light_rail(map) {
+                    cs.light_rail_track
+                } else if i.is_cycleway(map) {
+                    cs.unzoomed_trail
+                } else if i.is_private(map) && cs.private_road.is_some() {
+                    cs.private_road.unwrap()
                 } else {
-                    cs.unzoomed_interesting_intersection
-                };
+                    cs.unzoomed_road_surface(i.get_rank(map))
+                }
+            } else {
+                cs.unzoomed_interesting_intersection
+            };
             unzoomed_pieces.push((zorder, intersection_color.into(), i.polygon.clone()));
 
             if cs.road_outlines {
@@ -461,7 +464,9 @@ impl DrawMap {
         }
 
         for pl in map.all_parking_lots() {
-            batch.append(DrawParkingLot::new(ctx, pl, cs, &mut GeomBatch::new()).render(app));
+            batch.append(
+                DrawParkingLot::new(ctx, pl, cs, app.opts(), &mut GeomBatch::new()).render(app),
+            );
         }
 
         for r in map.all_roads() {
