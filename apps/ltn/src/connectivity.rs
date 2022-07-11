@@ -1,7 +1,7 @@
-use geom::{ArrowCap, Distance, PolyLine};
+use geom::{ArrowCap, Distance, PolyLine, Polygon};
 use map_gui::tools::ColorNetwork;
 use raw_map::Direction;
-use widgetry::mapspace::ToggleZoomed;
+use widgetry::mapspace::{DummyID, ToggleZoomed, World};
 use widgetry::tools::PopupMsg;
 use widgetry::{
     Color, ControlState, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome,
@@ -19,6 +19,7 @@ pub struct Viewer {
     left_panel: Panel,
     neighbourhood: Neighbourhood,
     draw_top_layer: ToggleZoomed,
+    highlight_cell: World<DummyID>,
     edit: EditNeighbourhood,
 
     show_error: Drawable,
@@ -33,6 +34,7 @@ impl Viewer {
             left_panel: Panel::empty(ctx),
             neighbourhood,
             draw_top_layer: ToggleZoomed::empty(ctx),
+            highlight_cell: World::unbounded(),
             edit: EditNeighbourhood::temporary(),
             show_error: Drawable::empty(ctx),
         };
@@ -41,9 +43,11 @@ impl Viewer {
     }
 
     fn update(&mut self, ctx: &mut EventCtx, app: &App) {
-        let (edit, draw_top_layer, render_cells) = setup_editing(ctx, app, &self.neighbourhood);
+        let (edit, draw_top_layer, render_cells, highlight_cell) =
+            setup_editing(ctx, app, &self.neighbourhood);
         self.edit = edit;
         self.draw_top_layer = draw_top_layer;
+        self.highlight_cell = highlight_cell;
 
         let mut show_error = GeomBatch::new();
         let mut disconnected_cells = 0;
@@ -171,9 +175,11 @@ impl State<App> for Viewer {
                 app.session.heuristic = self.left_panel.dropdown_value("heuristic");
 
                 if x != "heuristic" {
-                    let (edit, draw_top_layer, _) = setup_editing(ctx, app, &self.neighbourhood);
+                    let (edit, draw_top_layer, _, highlight_cell) =
+                        setup_editing(ctx, app, &self.neighbourhood);
                     self.edit = edit;
                     self.draw_top_layer = draw_top_layer;
+                    self.highlight_cell = highlight_cell;
                 }
             }
             _ => {}
@@ -190,6 +196,8 @@ impl State<App> for Viewer {
             }
         }
 
+        self.highlight_cell.event(ctx);
+
         Transition::Keep
     }
 
@@ -201,6 +209,7 @@ impl State<App> for Viewer {
         crate::draw_with_layering(g, app, |g| self.edit.world.draw(g));
         g.redraw(&self.neighbourhood.fade_irrelevant);
         self.draw_top_layer.draw(g);
+        self.highlight_cell.draw(g);
 
         self.top_panel.draw(g);
         self.left_panel.draw(g);
@@ -226,7 +235,7 @@ fn setup_editing(
     ctx: &mut EventCtx,
     app: &App,
     neighbourhood: &Neighbourhood,
-) -> (EditNeighbourhood, ToggleZoomed, RenderCells) {
+) -> (EditNeighbourhood, ToggleZoomed, RenderCells, World<DummyID>) {
     let shortcuts = ctx.loading_screen("find shortcuts", |_, timer| {
         find_shortcuts(app, neighbourhood, timer)
     });
@@ -237,6 +246,10 @@ fn setup_editing(
     // The world is drawn in between areas and roads, but some things need to be drawn on top of
     // roads
     let mut draw_top_layer = ToggleZoomed::builder();
+    // Use a separate world to highlight cells when hovering on them. This is separate from
+    // edit.world so it can be drawn at the right layer and also so that we draw it even while
+    // hovering on roads/intersections in a cell
+    let mut highlight_cell = World::bounded(app.map.get_bounds());
 
     let render_cells = RenderCells::new(map, neighbourhood);
     if app.session.draw_cells_as_areas {
@@ -246,6 +259,23 @@ fn setup_editing(
         draw_top_layer
             .unzoomed
             .append(render_cells.draw_island_outlines());
+
+        // Highlight cell areas and their border areas when hovered
+        for (idx, polygons) in render_cells.polygons_per_cell.iter().enumerate() {
+            let mut batch = GeomBatch::new();
+            batch.extend(Color::YELLOW.alpha(0.1), polygons.clone());
+            for arrow in neighbourhood.cells[idx].border_arrows(app) {
+                batch.push(Color::YELLOW, arrow);
+            }
+
+            highlight_cell
+                .add_unnamed()
+                .hitbox(Polygon::union_all(polygons.clone()))
+                // Don't draw cells by default
+                .drawn_in_master_batch()
+                .draw_hovered(batch)
+                .build(ctx);
+        }
     }
 
     let mut colorer = ColorNetwork::no_fading(app);
@@ -260,56 +290,13 @@ fn setup_editing(
 
     // Draw the borders of each cell
     for (idx, cell) in neighbourhood.cells.iter().enumerate() {
-        let color = render_cells.colors[idx];
-        for i in &cell.borders {
-            // Most borders only have one road in the interior of the neighbourhood. Draw an arrow
-            // for each of those. If there happen to be multiple interior roads for one border, the
-            // arrows will overlap each other -- but that happens anyway with borders close
-            // together at certain angles.
-            for r in cell.roads.keys() {
-                let road = map.get_r(*r);
-                // Design choice: when we have a filter right at the entrance of a neighbourhood, it
-                // creates its own little cell allowing access to just the very beginning of the
-                // road. Let's not draw anything for that.
-                if app.session.modal_filters.roads.contains_key(r) {
-                    continue;
-                }
-
-                // Find the angle pointing into the neighbourhood
-                let angle_in = if road.src_i == *i {
-                    road.center_pts.first_line().angle()
-                } else if road.dst_i == *i {
-                    road.center_pts.last_line().angle().opposite()
-                } else {
-                    // This interior road isn't connected to this border
-                    continue;
-                };
-
-                let center = map.get_i(*i).polygon.center();
-                let pt_farther = center.project_away(Distance::meters(40.0), angle_in.opposite());
-                let pt_closer = center.project_away(Distance::meters(10.0), angle_in.opposite());
-
-                // The arrow direction depends on if the road is one-way
-                let thickness = Distance::meters(6.0);
-                let arrow = if let Some(dir) = road.oneway_for_driving() {
-                    let pl = if road.src_i == *i {
-                        PolyLine::must_new(vec![pt_farther, pt_closer])
-                    } else {
-                        PolyLine::must_new(vec![pt_closer, pt_farther])
-                    };
-                    pl.maybe_reverse(dir == Direction::Back)
-                        .make_arrow(thickness, ArrowCap::Triangle)
-                } else {
-                    // Order doesn't matter
-                    PolyLine::must_new(vec![pt_closer, pt_farther])
-                        .make_double_arrow(thickness, ArrowCap::Triangle)
-                };
-                if app.session.draw_cells_as_areas {
-                    draw_top_layer = draw_top_layer.push(color.alpha(1.0), arrow);
-                } else {
-                    draw_top_layer = draw_top_layer.push(Color::BLACK, arrow);
-                }
-            }
+        let color = if app.session.draw_cells_as_areas {
+            render_cells.colors[idx].alpha(1.0)
+        } else {
+            Color::BLACK
+        };
+        for arrow in cell.border_arrows(app) {
+            draw_top_layer = draw_top_layer.push(color, arrow);
         }
     }
 
@@ -346,7 +333,12 @@ fn setup_editing(
         }
     }
 
-    (edit, draw_top_layer.build(ctx), render_cells)
+    (
+        edit,
+        draw_top_layer.build(ctx),
+        render_cells,
+        highlight_cell,
+    )
 }
 
 fn help() -> Vec<&'static str> {

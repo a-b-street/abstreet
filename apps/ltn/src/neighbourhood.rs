@@ -2,9 +2,9 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use maplit::btreeset;
 
-use geom::{Distance, Polygon};
+use geom::{ArrowCap, Distance, PolyLine, Polygon};
 use map_gui::tools::DrawRoadLabels;
-use map_model::{IntersectionID, Map, PathConstraints, Perimeter, RoadID};
+use map_model::{Direction, IntersectionID, Map, PathConstraints, Perimeter, RoadID};
 use widgetry::{Drawable, EventCtx, GeomBatch};
 
 use crate::{App, ModalFilters, NeighbourhoodID};
@@ -40,6 +40,60 @@ impl Cell {
     /// A cell is disconnected if it's not connected to a perimeter road.
     pub fn is_disconnected(&self) -> bool {
         self.borders.is_empty()
+    }
+
+    pub fn border_arrows(&self, app: &App) -> Vec<Polygon> {
+        let mut arrows = Vec::new();
+        for i in &self.borders {
+            // Most borders only have one road in the interior of the neighbourhood. Draw an arrow
+            // for each of those. If there happen to be multiple interior roads for one border, the
+            // arrows will overlap each other -- but that happens anyway with borders close
+            // together at certain angles.
+            for r in self.roads.keys() {
+                let road = app.map.get_r(*r);
+                // Design choice: when we have a filter right at the entrance of a neighbourhood, it
+                // creates its own little cell allowing access to just the very beginning of the
+                // road. Let's not draw anything for that.
+                if app.session.modal_filters.roads.contains_key(r) {
+                    continue;
+                }
+
+                // Find the angle pointing into the neighbourhood
+                let angle_in = if road.src_i == *i {
+                    road.center_pts.first_line().angle()
+                } else if road.dst_i == *i {
+                    road.center_pts.last_line().angle().opposite()
+                } else {
+                    // This interior road isn't connected to this border
+                    continue;
+                };
+
+                let center = app.map.get_i(*i).polygon.center();
+                let pt_farther = center.project_away(Distance::meters(40.0), angle_in.opposite());
+                let pt_closer = center.project_away(Distance::meters(10.0), angle_in.opposite());
+
+                // The arrow direction depends on if the road is one-way
+                let thickness = Distance::meters(6.0);
+                if let Some(dir) = road.oneway_for_driving() {
+                    let pl = if road.src_i == *i {
+                        PolyLine::must_new(vec![pt_farther, pt_closer])
+                    } else {
+                        PolyLine::must_new(vec![pt_closer, pt_farther])
+                    };
+                    arrows.push(
+                        pl.maybe_reverse(dir == Direction::Back)
+                            .make_arrow(thickness, ArrowCap::Triangle),
+                    );
+                } else {
+                    // Order doesn't matter
+                    arrows.push(
+                        PolyLine::must_new(vec![pt_closer, pt_farther])
+                            .make_double_arrow(thickness, ArrowCap::Triangle),
+                    );
+                }
+            }
+        }
+        arrows
     }
 }
 
