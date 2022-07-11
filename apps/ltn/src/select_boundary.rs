@@ -114,7 +114,6 @@ impl SelectBoundary {
 
         match self.try_toggle_block(app, id) {
             Ok(Some(new_neighbourhood)) => {
-                app.session.partitioning.recalculate_coloring();
                 return Transition::Replace(SelectBoundary::new_state(ctx, app, new_neighbourhood));
             }
             Ok(None) => {
@@ -133,13 +132,6 @@ impl SelectBoundary {
                     .collect();
                 // And always the current block
                 changed_blocks.push(id);
-
-                if app.session.partitioning.recalculate_coloring() {
-                    // The coloring of neighbourhoods changed; this could possibly have impact far
-                    // away. Just redraw all blocks.
-                    changed_blocks.clear();
-                    changed_blocks.extend(app.session.partitioning.all_block_ids());
-                }
 
                 for changed in changed_blocks {
                     self.world.delete_before_replacement(changed);
@@ -237,7 +229,6 @@ impl SelectBoundary {
             }
 
             // Just redraw everything
-            app.session.partitioning.recalculate_coloring();
             self.world = World::bounded(app.map.get_bounds());
             for id in app.session.partitioning.all_block_ids() {
                 self.add_block(ctx, app, id);

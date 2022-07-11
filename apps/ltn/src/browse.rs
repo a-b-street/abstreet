@@ -6,8 +6,8 @@ use map_gui::tools::{ColorNetwork, DrawRoadLabels};
 use synthpop::Scenario;
 use widgetry::mapspace::{ToggleZoomed, World, WorldOutcome};
 use widgetry::{
-    Choice, DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text, TextExt,
-    Toggle, Widget,
+    Choice, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, State,
+    Text, TextExt, Toggle, Widget,
 };
 
 use crate::filters::auto::Heuristic;
@@ -123,14 +123,8 @@ impl State<App> for BrowseNeighbourhoods {
                 }
                 if x == "heuristic" {
                     app.session.heuristic = self.left_panel.dropdown_value("heuristic");
-                } else {
-                    if x == "highlight boundary roads" {
-                        app.session.highlight_boundary_roads =
-                            self.left_panel.is_checked("highlight boundary roads");
-                    } else {
-                        app.session.draw_neighbourhood_style =
-                            self.left_panel.dropdown_value("style");
-                    }
+                } else if x == "style" {
+                    app.session.draw_neighbourhood_style = self.left_panel.dropdown_value("style");
 
                     ctx.loading_screen("change style", |ctx, timer| {
                         self.world = make_world(ctx, app, timer);
@@ -158,9 +152,7 @@ impl State<App> for BrowseNeighbourhoods {
 
         self.top_panel.draw(g);
         self.left_panel.draw(g);
-        if app.session.highlight_boundary_roads {
-            self.draw_boundary_roads.draw(g);
-        }
+        self.draw_boundary_roads.draw(g);
         app.session.draw_all_filters.draw(g);
         if g.canvas.is_unzoomed() {
             self.labels.draw(g, app);
@@ -173,12 +165,16 @@ fn make_world(ctx: &mut EventCtx, app: &App, timer: &mut Timer) -> World<Neighbo
     let map = &app.map;
     for (id, info) in app.session.partitioning.all_neighbourhoods() {
         match app.session.draw_neighbourhood_style {
-            Style::SimpleColoring => {
+            Style::Simple => {
                 world
                     .add(*id)
                     .hitbox(info.block.polygon.clone())
-                    .draw_color(info.color)
-                    .hover_outline(colors::OUTLINE, Distance::meters(5.0))
+                    // Don't draw anything normally
+                    .drawn_in_master_batch()
+                    .draw_hovered(GeomBatch::from(vec![(
+                        Color::YELLOW.alpha(0.5),
+                        info.block.polygon.clone(),
+                    )]))
                     .clickable()
                     .build(ctx);
             }
@@ -191,7 +187,7 @@ fn make_world(ctx: &mut EventCtx, app: &App, timer: &mut Timer) -> World<Neighbo
                 world
                     .add(*id)
                     .hitbox(info.block.polygon.clone())
-                    .draw_color(info.color.alpha(0.5))
+                    .drawn_in_master_batch()
                     .draw_hovered(hovered_batch)
                     .clickable()
                     .build(ctx);
@@ -295,7 +291,7 @@ pub fn draw_boundary_roads(ctx: &EventCtx, app: &App) -> ToggleZoomed {
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Style {
-    SimpleColoring,
+    Simple,
     Cells,
     Quietness,
     Shortcuts,
@@ -355,28 +351,20 @@ fn advanced_panel(ctx: &EventCtx, app: &App) -> Widget {
     }
     Widget::col(vec![
         Line("Advanced features").small_heading().into_widget(ctx),
-        Widget::col(vec![
-            Widget::row(vec![
-                "Draw neighbourhoods:".text_widget(ctx).centered_vert(),
-                Widget::dropdown(
-                    ctx,
-                    "style",
-                    app.session.draw_neighbourhood_style,
-                    vec![
-                        Choice::new("simple", Style::SimpleColoring),
-                        Choice::new("cells", Style::Cells),
-                        Choice::new("quietness", Style::Quietness),
-                        Choice::new("all shortcuts", Style::Shortcuts),
-                    ],
-                ),
-            ]),
-            Toggle::checkbox(
+        Widget::col(vec![Widget::row(vec![
+            "Draw neighbourhoods:".text_widget(ctx).centered_vert(),
+            Widget::dropdown(
                 ctx,
-                "highlight boundary roads",
-                Key::H,
-                app.session.highlight_boundary_roads,
+                "style",
+                app.session.draw_neighbourhood_style,
+                vec![
+                    Choice::new("simple", Style::Simple),
+                    Choice::new("cells", Style::Cells),
+                    Choice::new("quietness", Style::Quietness),
+                    Choice::new("all shortcuts", Style::Shortcuts),
+                ],
             ),
-        ])
+        ])])
         .section(ctx),
         Widget::col(vec![
             "Predict proposal impact".text_widget(ctx),

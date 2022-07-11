@@ -86,8 +86,7 @@ fn run(mut settings: Settings) {
 
             edit_filters: true,
 
-            highlight_boundary_roads: false,
-            draw_neighbourhood_style: browse::Style::SimpleColoring,
+            draw_neighbourhood_style: browse::Style::Simple,
             draw_cells_as_areas: false,
             heuristic: filters::auto::Heuristic::SplitCells,
             main_road_penalty: 1.0,
@@ -211,7 +210,6 @@ pub struct Session {
 
     // Remember form settings in different tabs.
     // Browse neighbourhoods:
-    pub highlight_boundary_roads: bool,
     pub draw_neighbourhood_style: browse::Style,
     // Connectivity:
     pub draw_cells_as_areas: bool,

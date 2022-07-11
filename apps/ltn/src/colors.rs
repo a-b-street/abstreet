@@ -1,17 +1,6 @@
 use widgetry::Color;
 
 lazy_static::lazy_static! {
-    /// Rotate through these colors for neighbourhoods. Use 4-color (ehem, 6-color?) theorem to make
-    /// adjacent things different
-    pub static ref NEIGHBOURHOODS: [Color; 6] = [
-        Color::BLUE.alpha(0.3),
-        Color::YELLOW.alpha(0.3),
-        Color::GREEN.alpha(0.3),
-        Color::PURPLE.alpha(0.3),
-        Color::PINK.alpha(0.3),
-        Color::ORANGE.alpha(0.3),
-    ];
-
     pub static ref CELLS: [Color; 6] = [
         Color::BLUE.alpha(0.5),
         Color::YELLOW.alpha(0.5),
