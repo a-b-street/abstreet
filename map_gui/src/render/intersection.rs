@@ -50,7 +50,7 @@ impl DrawIntersection {
             app.cs().zoomed_road_surface(LaneType::Sidewalk, rank),
             calculate_corners(i, map),
         );
-        if app.cs().experiment {
+        if app.cs().road_outlines {
             default_geom.extend(app.cs().curb(rank), calculate_corner_curbs(i, map));
         }
 
