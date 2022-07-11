@@ -220,7 +220,7 @@ impl DrawMap {
                 r.center_pts.make_polygons(width),
             ));
 
-            if cs.experiment {
+            if cs.road_outlines {
                 // Draw a thick outline on the left and right
                 if let Ok(pl) = r.center_pts.shift_left(width / 2.0) {
                     unzoomed_pieces.push((
@@ -264,7 +264,7 @@ impl DrawMap {
                 };
             unzoomed_pieces.push((zorder, intersection_color.into(), i.polygon.clone()));
 
-            if cs.experiment {
+            if cs.road_outlines {
                 for pl in DrawIntersection::get_unzoomed_outline(i, map) {
                     unzoomed_pieces.push((
                         zorder + outline_z_offset,

@@ -438,7 +438,7 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
         g.redraw(&draw_map.draw_all_areas);
         g.redraw(&draw_map.draw_all_unzoomed_parking_lots);
         g.redraw(&draw_map.draw_all_unzoomed_roads_and_intersections);
-        if !app.cs().experiment {
+        if app.cs().show_buildings_in_minimap {
             g.redraw(&draw_map.draw_all_buildings);
         }
         for draw in extra {

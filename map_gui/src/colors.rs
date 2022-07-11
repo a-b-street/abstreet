@@ -63,10 +63,9 @@ impl ColorSchemeChoice {
 pub struct ColorScheme {
     scheme: ColorSchemeChoice,
 
-    /// Enable new stuff if true. This is temporary, to iterate quickly on
-    /// https://github.com/a-b-street/abstreet/pull/715. Once the dust settles there, the ideas
-    /// there will be baked in as defaults and this flag goes away.
-    pub experiment: bool,
+    pub road_outlines: bool,
+    pub road_class_colors: bool,
+    pub show_buildings_in_minimap: bool,
 
     // UI
     pub panel_bg: Color,
@@ -187,7 +186,9 @@ impl ColorScheme {
         ColorScheme {
             scheme: ColorSchemeChoice::DayMode,
 
-            experiment: false,
+            road_outlines: false,
+            road_class_colors: false,
+            show_buildings_in_minimap: true,
 
             // UI
             panel_bg: gui_style.panel_bg,
@@ -340,7 +341,9 @@ impl ColorScheme {
     fn day_mode() -> ColorScheme {
         let mut cs = Self::light_background(Style::light_bg());
         cs.scheme = ColorSchemeChoice::DayMode;
-        cs.experiment = true;
+        cs.road_outlines = true;
+        cs.road_class_colors = true;
+        cs.show_buildings_in_minimap = false;
 
         cs.map_background = hex("#EEE5C8").into();
         cs.grass = hex("#BED4A3").into();
@@ -360,7 +363,6 @@ impl ColorScheme {
     fn ltn() -> ColorScheme {
         let mut cs = ColorScheme::day_mode();
         cs.scheme = ColorSchemeChoice::LTN;
-        cs.experiment = true;
         cs.private_road = None;
         cs.fade_map_dark = Color::BLACK.alpha(0.3);
 
@@ -408,7 +410,7 @@ impl ColorScheme {
     }
 
     pub fn zoomed_road_surface(&self, lane: LaneType, rank: RoadRank) -> Color {
-        let main_asphalt = if self.experiment {
+        let main_asphalt = if self.road_class_colors {
             match rank {
                 RoadRank::Highway => Color::grey(0.3),
                 RoadRank::Arterial => Color::grey(0.4),
@@ -417,7 +419,7 @@ impl ColorScheme {
         } else {
             self.driving_lane
         };
-        let parking_asphalt = if self.experiment {
+        let parking_asphalt = if self.road_class_colors {
             main_asphalt
         } else {
             self.parking_lane
@@ -436,7 +438,7 @@ impl ColorScheme {
         }
     }
     pub fn zoomed_intersection_surface(&self, rank: RoadRank) -> Color {
-        if self.experiment {
+        if self.road_class_colors {
             self.zoomed_road_surface(LaneType::Driving, rank)
         } else {
             self.normal_intersection
