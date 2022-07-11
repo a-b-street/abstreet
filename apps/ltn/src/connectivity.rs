@@ -262,6 +262,11 @@ fn setup_editing(
 
         // Highlight cell areas and their border areas when hovered
         for (idx, polygons) in render_cells.polygons_per_cell.iter().enumerate() {
+            // Edge case happening near https://www.openstreetmap.org/way/106879596
+            if polygons.is_empty() {
+                continue;
+            }
+
             let mut batch = GeomBatch::new();
             batch.extend(Color::YELLOW.alpha(0.1), polygons.clone());
             for arrow in neighbourhood.cells[idx].border_arrows(app) {
