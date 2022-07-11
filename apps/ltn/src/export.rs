@@ -29,9 +29,6 @@ fn geojson_string(ctx: &EventCtx, app: &App) -> Result<String> {
             foreign_members: None,
         };
         feature.set_property("type", "neighbourhood");
-        feature.set_property("fill", info.color.as_hex());
-        // Cells should cover these up
-        feature.set_property("fill-opacity", 0.0);
         features.push(feature);
 
         // Cells per neighbourhood

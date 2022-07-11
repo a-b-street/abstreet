@@ -8,9 +8,8 @@ use abstutil::Timer;
 use geom::Polygon;
 use map_model::osm::RoadRank;
 use map_model::{Block, Map, Perimeter, RoadID, RoadSideID};
-use widgetry::Color;
 
-use crate::{colors, App};
+use crate::App;
 
 /// An opaque ID, won't be contiguous as we adjust boundaries
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
@@ -42,7 +41,6 @@ pub struct Partitioning {
 #[derive(Clone, Serialize, Deserialize)]
 pub struct NeighbourhoodInfo {
     pub block: Block,
-    pub color: Color,
     /// Draw a special cone of light when focused on this neighbourhood. It doesn't change which
     /// roads can be edited.
     pub override_drawing_boundary: Option<Polygon>,
@@ -52,7 +50,6 @@ impl NeighbourhoodInfo {
     fn new(block: Block) -> Self {
         Self {
             block,
-            color: Color::CLEAR,
             override_drawing_boundary: None,
         }
     }
@@ -169,35 +166,9 @@ impl Partitioning {
                 }
             }
 
-            p.recalculate_coloring();
             return p;
         }
         unreachable!()
-    }
-
-    /// True if the coloring changed
-    pub fn recalculate_coloring(&mut self) -> bool {
-        let perims: Vec<Perimeter> = self
-            .neighbourhoods
-            .values()
-            .map(|info| info.block.perimeter.clone())
-            .collect();
-        let colors = Perimeter::calculate_coloring(&perims, colors::NEIGHBOURHOODS.len())
-            .unwrap_or_else(|| (0..perims.len()).collect());
-        let orig_coloring: Vec<Color> = self
-            .neighbourhoods
-            .values()
-            .map(|info| info.color)
-            .collect();
-        for (info, color_idx) in self.neighbourhoods.values_mut().zip(colors.into_iter()) {
-            info.color = colors::NEIGHBOURHOODS[color_idx % colors::NEIGHBOURHOODS.len()];
-        }
-        let new_coloring: Vec<Color> = self
-            .neighbourhoods
-            .values()
-            .map(|info| info.color)
-            .collect();
-        orig_coloring != new_coloring
     }
 
     // TODO Explain return value
@@ -265,7 +236,6 @@ impl Partitioning {
         for split_piece in old_neighbourhood_blocks {
             let new_neighbourhood = NeighbourhoodID(self.neighbourhood_id_counter);
             self.neighbourhood_id_counter += 1;
-            // Temporary color
             self.neighbourhoods
                 .insert(new_neighbourhood, NeighbourhoodInfo::new(split_piece));
         }
@@ -321,7 +291,6 @@ impl Partitioning {
         // buggy area missing blocks). Create a new neighbourhood with just this block.
         let new_owner = NeighbourhoodID(self.neighbourhood_id_counter);
         self.neighbourhood_id_counter += 1;
-        // Temporary color
         self.neighbourhoods.insert(
             new_owner,
             NeighbourhoodInfo::new(self.get_block(id).clone()),
@@ -345,10 +314,6 @@ impl Partitioning {
         // Convert from m^2 to km^2
         let area = self.neighbourhood_block(id).polygon.area() / 1_000_000.0;
         format!("~{:.1} km²", area)
-    }
-
-    pub fn neighbourhood_color(&self, id: NeighbourhoodID) -> Color {
-        self.neighbourhoods[&id].color
     }
 
     pub fn neighbourhood_boundary_polygon(&self, app: &App, id: NeighbourhoodID) -> Polygon {
