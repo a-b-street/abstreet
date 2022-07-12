@@ -764,13 +764,6 @@ impl Widget {
         }
     }
 
-    pub fn is_btn(&self, name: &str) -> bool {
-        self.widget
-            .downcast_ref::<Button>()
-            .map(|btn| btn.action == name)
-            .unwrap_or(false)
-    }
-
     fn find(&self, name: &str) -> Option<&Widget> {
         if self.id == Some(name.to_string()) {
             return Some(self);

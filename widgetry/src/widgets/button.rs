@@ -585,15 +585,19 @@ impl<'b, 'a: 'b, 'c> ButtonBuilder<'a, 'c> {
         Widget::new(Box::new(self.build(ctx, action))).named(action)
     }
 
-    /// Shorthand method to build a default widget whose `action` is derived from the label's text.
-    pub fn build_def(&self, ctx: &EventCtx) -> Widget {
-        let action = self
-            .default_style
+    /// Get the button's text label, if defined
+    pub fn get_action(&self) -> Option<&String> {
+        self.default_style
             .label
             .as_ref()
             .and_then(|label| label.text.as_ref())
-            .expect("Must set `label_text` before calling build_def");
+    }
 
+    /// Shorthand method to build a default widget whose `action` is derived from the label's text.
+    pub fn build_def(&self, ctx: &EventCtx) -> Widget {
+        let action = self
+            .get_action()
+            .expect("Must set `label_text` before calling build_def");
         self.build_widget(ctx, action)
     }
 
