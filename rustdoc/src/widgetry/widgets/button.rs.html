@@ -745,6 +745,10 @@
 <span id="740">740</span>
 <span id="741">741</span>
 <span id="742">742</span>
+<span id="743">743</span>
+<span id="744">744</span>
+<span id="745">745</span>
+<span id="746">746</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom::Polygon</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -1332,15 +1336,19 @@
         <span class="ident">Widget::new</span>(<span class="ident">Box::new</span>(<span class="self">self</span>.<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">action</span>))).<span class="ident">named</span>(<span class="ident">action</span>)
     }
 
-    <span class="doccomment">/// Shorthand method to build a default widget whose `action` is derived from the label&#39;s text.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_def</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="kw">let</span> <span class="ident">action</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">default_style</span>
+    <span class="doccomment">/// Get the button&#39;s text label, if defined</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_action</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">String</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">default_style</span>
             .<span class="ident">label</span>
             .<span class="ident">as_ref</span>()
             .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">label</span><span class="op">|</span> <span class="ident">label</span>.<span class="ident">text</span>.<span class="ident">as_ref</span>())
-            .<span class="ident">expect</span>(<span class="string">&quot;Must set `label_text` before calling build_def&quot;</span>);
+    }
 
+    <span class="doccomment">/// Shorthand method to build a default widget whose `action` is derived from the label&#39;s text.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_def</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; <span class="ident">Widget</span> {
+        <span class="kw">let</span> <span class="ident">action</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">get_action</span>()
+            .<span class="ident">expect</span>(<span class="string">&quot;Must set `label_text` before calling build_def&quot;</span>);
         <span class="self">self</span>.<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="ident">action</span>)
     }
 
