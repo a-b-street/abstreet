@@ -223,19 +223,32 @@ impl DrawMap {
 
             if cs.road_outlines {
                 // Draw a thick outline on the left and right
-                if let Ok(pl) = r.center_pts.shift_left(width / 2.0) {
-                    unzoomed_pieces.push((
-                        10 * r.zorder + outline_z_offset,
-                        outline_color.into(),
-                        pl.make_polygons(outline_thickness),
-                    ));
-                }
-                if let Ok(pl) = r.center_pts.shift_right(width / 2.0) {
-                    unzoomed_pieces.push((
-                        10 * r.zorder + outline_z_offset,
-                        outline_color.into(),
-                        pl.make_polygons(outline_thickness),
-                    ));
+                for pl in [
+                    r.center_pts.shift_left(width / 2.0),
+                    r.center_pts.shift_right(width / 2.0),
+                ]
+                .into_iter()
+                .flatten()
+                {
+                    if opts.simplify_basemap && r.is_cycleway() {
+                        for p in pl.exact_dashed_polygons(
+                            outline_thickness,
+                            Distance::meters(5.0),
+                            Distance::meters(2.0),
+                        ) {
+                            unzoomed_pieces.push((
+                                10 * r.zorder + outline_z_offset,
+                                outline_color.into(),
+                                p,
+                            ));
+                        }
+                    } else {
+                        unzoomed_pieces.push((
+                            10 * r.zorder + outline_z_offset,
+                            outline_color.into(),
+                            pl.make_polygons(outline_thickness),
+                        ));
+                    }
                 }
             }
         }

@@ -376,6 +376,8 @@ impl ColorScheme {
         cs.unzoomed_highway = Color::WHITE;
         cs.unzoomed_arterial = Color::WHITE;
         cs.unzoomed_residential = Color::WHITE;
+        cs.unzoomed_trail = Color::CLEAR;
+        cs.light_rail_track = Color::CLEAR;
 
         cs.gui_style.panel_bg = Color::WHITE;
         cs.panel_bg = cs.gui_style.panel_bg;
