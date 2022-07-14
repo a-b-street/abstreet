@@ -401,22 +401,10 @@
 <span id="396">396</span>
 <span id="397">397</span>
 <span id="398">398</span>
-<span id="399">399</span>
-<span id="400">400</span>
-<span id="401">401</span>
-<span id="402">402</span>
-<span id="403">403</span>
-<span id="404">404</span>
-<span id="405">405</span>
-<span id="406">406</span>
-<span id="407">407</span>
-<span id="408">408</span>
-<span id="409">409</span>
-<span id="410">410</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>};
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>};
 <span class="kw">use</span> <span class="ident">map_gui::tools::ColorNetwork</span>;
 <span class="kw">use</span> <span class="ident">raw_map::Direction</span>;
-<span class="kw">use</span> <span class="ident">widgetry::mapspace::ToggleZoomed</span>;
+<span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">DummyID</span>, <span class="ident">ToggleZoomed</span>, <span class="ident">World</span>};
 <span class="kw">use</span> <span class="ident">widgetry::tools::PopupMsg</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>,
@@ -434,6 +422,7 @@
     <span class="ident">left_panel</span>: <span class="ident">Panel</span>,
     <span class="ident">neighbourhood</span>: <span class="ident">Neighbourhood</span>,
     <span class="ident">draw_top_layer</span>: <span class="ident">ToggleZoomed</span>,
+    <span class="ident">highlight_cell</span>: <span class="ident">World</span><span class="op">&lt;</span><span class="ident">DummyID</span><span class="op">&gt;</span>,
     <span class="ident">edit</span>: <span class="ident">EditNeighbourhood</span>,
 
     <span class="ident">show_error</span>: <span class="ident">Drawable</span>,
@@ -448,6 +437,7 @@
             <span class="ident">left_panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
             <span class="ident">neighbourhood</span>,
             <span class="ident">draw_top_layer</span>: <span class="ident">ToggleZoomed::empty</span>(<span class="ident">ctx</span>),
+            <span class="ident">highlight_cell</span>: <span class="ident">World::unbounded</span>(),
             <span class="ident">edit</span>: <span class="ident">EditNeighbourhood::temporary</span>(),
             <span class="ident">show_error</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
         };
@@ -456,9 +446,11 @@
     }
 
     <span class="kw">fn</span> <span class="ident">update</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="kw">let</span> (<span class="ident">edit</span>, <span class="ident">draw_top_layer</span>, <span class="ident">render_cells</span>) <span class="op">=</span> <span class="ident">setup_editing</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">neighbourhood</span>);
+        <span class="kw">let</span> (<span class="ident">edit</span>, <span class="ident">draw_top_layer</span>, <span class="ident">render_cells</span>, <span class="ident">highlight_cell</span>) <span class="op">=</span>
+            <span class="ident">setup_editing</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">neighbourhood</span>);
         <span class="self">self</span>.<span class="ident">edit</span> <span class="op">=</span> <span class="ident">edit</span>;
         <span class="self">self</span>.<span class="ident">draw_top_layer</span> <span class="op">=</span> <span class="ident">draw_top_layer</span>;
+        <span class="self">self</span>.<span class="ident">highlight_cell</span> <span class="op">=</span> <span class="ident">highlight_cell</span>;
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">show_error</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">disconnected_cells</span> <span class="op">=</span> <span class="number">0</span>;
@@ -586,9 +578,11 @@
                 <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">heuristic</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;heuristic&quot;</span>);
 
                 <span class="kw">if</span> <span class="ident">x</span> <span class="op">!</span><span class="op">=</span> <span class="string">&quot;heuristic&quot;</span> {
-                    <span class="kw">let</span> (<span class="ident">edit</span>, <span class="ident">draw_top_layer</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">setup_editing</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">neighbourhood</span>);
+                    <span class="kw">let</span> (<span class="ident">edit</span>, <span class="ident">draw_top_layer</span>, <span class="kw">_</span>, <span class="ident">highlight_cell</span>) <span class="op">=</span>
+                        <span class="ident">setup_editing</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">neighbourhood</span>);
                     <span class="self">self</span>.<span class="ident">edit</span> <span class="op">=</span> <span class="ident">edit</span>;
                     <span class="self">self</span>.<span class="ident">draw_top_layer</span> <span class="op">=</span> <span class="ident">draw_top_layer</span>;
+                    <span class="self">self</span>.<span class="ident">highlight_cell</span> <span class="op">=</span> <span class="ident">highlight_cell</span>;
                 }
             }
             <span class="kw">_</span> =&gt; {}
@@ -605,6 +599,8 @@
             }
         }
 
+        <span class="self">self</span>.<span class="ident">highlight_cell</span>.<span class="ident">event</span>(<span class="ident">ctx</span>);
+
         <span class="ident">Transition::Keep</span>
     }
 
@@ -616,6 +612,7 @@
         <span class="ident"><span class="kw">crate</span>::draw_with_layering</span>(<span class="ident">g</span>, <span class="ident">app</span>, <span class="op">|</span><span class="ident">g</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">edit</span>.<span class="ident">world</span>.<span class="ident">draw</span>(<span class="ident">g</span>));
         <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">neighbourhood</span>.<span class="ident">fade_irrelevant</span>);
         <span class="self">self</span>.<span class="ident">draw_top_layer</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+        <span class="self">self</span>.<span class="ident">highlight_cell</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
 
         <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
@@ -641,7 +638,7 @@
     <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
     <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
     <span class="ident">neighbourhood</span>: <span class="kw-2">&amp;</span><span class="ident">Neighbourhood</span>,
-) -&gt; (<span class="ident">EditNeighbourhood</span>, <span class="ident">ToggleZoomed</span>, <span class="ident">RenderCells</span>) {
+) -&gt; (<span class="ident">EditNeighbourhood</span>, <span class="ident">ToggleZoomed</span>, <span class="ident">RenderCells</span>, <span class="ident">World</span><span class="op">&lt;</span><span class="ident">DummyID</span><span class="op">&gt;</span>) {
     <span class="kw">let</span> <span class="ident">shortcuts</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;find shortcuts&quot;</span>, <span class="op">|</span><span class="kw">_</span>, <span class="ident">timer</span><span class="op">|</span> {
         <span class="ident">find_shortcuts</span>(<span class="ident">app</span>, <span class="ident">neighbourhood</span>, <span class="ident">timer</span>)
     });
@@ -652,88 +649,62 @@
     <span class="comment">// The world is drawn in between areas and roads, but some things need to be drawn on top of</span>
     <span class="comment">// roads</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw_top_layer</span> <span class="op">=</span> <span class="ident">ToggleZoomed::builder</span>();
+    <span class="comment">// Use a separate world to highlight cells when hovering on them. This is separate from</span>
+    <span class="comment">// edit.world so it can be drawn at the right layer and also so that we draw it even while</span>
+    <span class="comment">// hovering on roads/intersections in a cell</span>
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">highlight_cell</span> <span class="op">=</span> <span class="ident">World::bounded</span>(<span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>());
 
     <span class="kw">let</span> <span class="ident">render_cells</span> <span class="op">=</span> <span class="ident">RenderCells::new</span>(<span class="ident">map</span>, <span class="ident">neighbourhood</span>);
     <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_cells_as_areas</span> {
-        <span class="ident">edit</span>.<span class="ident">world</span>.<span class="ident">draw_master_batch</span>(<span class="ident">ctx</span>, <span class="ident">render_cells</span>.<span class="ident">draw</span>());
-
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">colorer</span> <span class="op">=</span> <span class="ident">ColorNetwork::no_fading</span>(<span class="ident">app</span>);
-        <span class="ident">colorer</span>.<span class="ident">ranked_roads</span>(<span class="ident">shortcuts</span>.<span class="ident">count_per_road</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">good_to_bad_red</span>);
-        <span class="comment">// TODO These two will be on different scales, which&#39;ll look really weird!</span>
-        <span class="ident">colorer</span>.<span class="ident">ranked_intersections</span>(
-            <span class="ident">shortcuts</span>.<span class="ident">count_per_intersection</span>.<span class="ident">clone</span>(),
-            <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">good_to_bad_red</span>,
-        );
-
-        <span class="ident">draw_top_layer</span>.<span class="ident">append</span>(<span class="ident">colorer</span>.<span class="ident">draw</span>);
+        <span class="ident">edit</span>.<span class="ident">world</span>
+            .<span class="ident">draw_master_batch</span>(<span class="ident">ctx</span>, <span class="ident">render_cells</span>.<span class="ident">draw_colored_areas</span>());
     } <span class="kw">else</span> {
-        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">cell</span>) <span class="kw">in</span> <span class="ident">neighbourhood</span>.<span class="ident">cells</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-            <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident">render_cells</span>.<span class="ident">colors</span>[<span class="ident">idx</span>].<span class="ident">alpha</span>(<span class="number">0.9</span>);
-            <span class="kw">for</span> (<span class="ident">r</span>, <span class="ident">interval</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">cell</span>.<span class="ident">roads</span> {
-                <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
-                <span class="ident">draw_top_layer</span> <span class="op">=</span> <span class="ident">draw_top_layer</span>.<span class="ident">push</span>(
-                    <span class="ident">color</span>,
-                    <span class="ident">road</span>.<span class="ident">center_pts</span>
-                        .<span class="ident">exact_slice</span>(<span class="ident">interval</span>.<span class="ident">start</span>, <span class="ident">interval</span>.<span class="ident">end</span>)
-                        .<span class="ident">make_polygons</span>(<span class="ident">road</span>.<span class="ident">get_width</span>()),
-                );
+        <span class="ident">draw_top_layer</span>
+            .<span class="ident">unzoomed</span>
+            .<span class="ident">append</span>(<span class="ident">render_cells</span>.<span class="ident">draw_island_outlines</span>());
+
+        <span class="comment">// Highlight cell areas and their border areas when hovered</span>
+        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">polygons</span>) <span class="kw">in</span> <span class="ident">render_cells</span>.<span class="ident">polygons_per_cell</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
+            <span class="comment">// Edge case happening near https://www.openstreetmap.org/way/106879596</span>
+            <span class="kw">if</span> <span class="ident">polygons</span>.<span class="ident">is_empty</span>() {
+                <span class="kw">continue</span>;
             }
-            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span>
-                <span class="ident">map_gui::tools::intersections_from_roads</span>(<span class="kw-2">&amp;</span><span class="ident">cell</span>.<span class="ident">roads</span>.<span class="ident">keys</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>(), <span class="ident">map</span>)
-            {
-                <span class="ident">draw_top_layer</span> <span class="op">=</span> <span class="ident">draw_top_layer</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>());
+
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
+            <span class="ident">batch</span>.<span class="ident">extend</span>(<span class="ident">Color::YELLOW</span>.<span class="ident">alpha</span>(<span class="number">0.1</span>), <span class="ident">polygons</span>.<span class="ident">clone</span>());
+            <span class="kw">for</span> <span class="ident">arrow</span> <span class="kw">in</span> <span class="ident">neighbourhood</span>.<span class="ident">cells</span>[<span class="ident">idx</span>].<span class="ident">border_arrows</span>(<span class="ident">app</span>) {
+                <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::YELLOW</span>, <span class="ident">arrow</span>);
             }
+
+            <span class="ident">highlight_cell</span>
+                .<span class="ident">add_unnamed</span>()
+                .<span class="ident">hitbox</span>(<span class="ident">Polygon::union_all</span>(<span class="ident">polygons</span>.<span class="ident">clone</span>()))
+                <span class="comment">// Don&#39;t draw cells by default</span>
+                .<span class="ident">drawn_in_master_batch</span>()
+                .<span class="ident">draw_hovered</span>(<span class="ident">batch</span>)
+                .<span class="ident">build</span>(<span class="ident">ctx</span>);
         }
     }
 
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">colorer</span> <span class="op">=</span> <span class="ident">ColorNetwork::no_fading</span>(<span class="ident">app</span>);
+    <span class="ident">colorer</span>.<span class="ident">ranked_roads</span>(<span class="ident">shortcuts</span>.<span class="ident">count_per_road</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">good_to_bad_red</span>);
+    <span class="comment">// TODO These two will be on different scales, which&#39;ll look really weird!</span>
+    <span class="ident">colorer</span>.<span class="ident">ranked_intersections</span>(
+        <span class="ident">shortcuts</span>.<span class="ident">count_per_intersection</span>.<span class="ident">clone</span>(),
+        <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">good_to_bad_red</span>,
+    );
+
+    <span class="ident">draw_top_layer</span>.<span class="ident">append</span>(<span class="ident">colorer</span>.<span class="ident">draw</span>);
+
     <span class="comment">// Draw the borders of each cell</span>
     <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">cell</span>) <span class="kw">in</span> <span class="ident">neighbourhood</span>.<span class="ident">cells</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-        <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident">render_cells</span>.<span class="ident">colors</span>[<span class="ident">idx</span>];
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">cell</span>.<span class="ident">borders</span> {
-            <span class="comment">// Most borders only have one road in the interior of the neighbourhood. Draw an arrow</span>
-            <span class="comment">// for each of those. If there happen to be multiple interior roads for one border, the</span>
-            <span class="comment">// arrows will overlap each other -- but that happens anyway with borders close</span>
-            <span class="comment">// together at certain angles.</span>
-            <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">cell</span>.<span class="ident">roads</span>.<span class="ident">keys</span>() {
-                <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
-                <span class="comment">// Design choice: when we have a filter right at the entrance of a neighbourhood, it</span>
-                <span class="comment">// creates its own little cell allowing access to just the very beginning of the</span>
-                <span class="comment">// road. Let&#39;s not draw anything for that.</span>
-                <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">roads</span>.<span class="ident">contains_key</span>(<span class="ident">r</span>) {
-                    <span class="kw">continue</span>;
-                }
-
-                <span class="comment">// Find the angle pointing into the neighbourhood</span>
-                <span class="kw">let</span> <span class="ident">angle_in</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">src_i</span> <span class="op">==</span> <span class="kw-2">*</span><span class="ident">i</span> {
-                    <span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">first_line</span>().<span class="ident">angle</span>()
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">dst_i</span> <span class="op">==</span> <span class="kw-2">*</span><span class="ident">i</span> {
-                    <span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">last_line</span>().<span class="ident">angle</span>().<span class="ident">opposite</span>()
-                } <span class="kw">else</span> {
-                    <span class="comment">// This interior road isn&#39;t connected to this border</span>
-                    <span class="kw">continue</span>;
-                };
-
-                <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">center</span>();
-                <span class="kw">let</span> <span class="ident">pt_farther</span> <span class="op">=</span> <span class="ident">center</span>.<span class="ident">project_away</span>(<span class="ident">Distance::meters</span>(<span class="number">40.0</span>), <span class="ident">angle_in</span>.<span class="ident">opposite</span>());
-                <span class="kw">let</span> <span class="ident">pt_closer</span> <span class="op">=</span> <span class="ident">center</span>.<span class="ident">project_away</span>(<span class="ident">Distance::meters</span>(<span class="number">10.0</span>), <span class="ident">angle_in</span>.<span class="ident">opposite</span>());
-
-                <span class="comment">// The arrow direction depends on if the road is one-way</span>
-                <span class="kw">let</span> <span class="ident">thickness</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">6.0</span>);
-                <span class="kw">let</span> <span class="ident">arrow</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">dir</span>) <span class="op">=</span> <span class="ident">road</span>.<span class="ident">oneway_for_driving</span>() {
-                    <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">src_i</span> <span class="op">==</span> <span class="kw-2">*</span><span class="ident">i</span> {
-                        <span class="ident">PolyLine::must_new</span>(<span class="macro">vec!</span>[<span class="ident">pt_farther</span>, <span class="ident">pt_closer</span>])
-                    } <span class="kw">else</span> {
-                        <span class="ident">PolyLine::must_new</span>(<span class="macro">vec!</span>[<span class="ident">pt_closer</span>, <span class="ident">pt_farther</span>])
-                    };
-                    <span class="ident">pl</span>.<span class="ident">maybe_reverse</span>(<span class="ident">dir</span> <span class="op">==</span> <span class="ident">Direction::Back</span>)
-                        .<span class="ident">make_arrow</span>(<span class="ident">thickness</span>, <span class="ident">ArrowCap::Triangle</span>)
-                } <span class="kw">else</span> {
-                    <span class="comment">// Order doesn&#39;t matter</span>
-                    <span class="ident">PolyLine::must_new</span>(<span class="macro">vec!</span>[<span class="ident">pt_closer</span>, <span class="ident">pt_farther</span>])
-                        .<span class="ident">make_double_arrow</span>(<span class="ident">thickness</span>, <span class="ident">ArrowCap::Triangle</span>)
-                };
-                <span class="ident">draw_top_layer</span> <span class="op">=</span> <span class="ident">draw_top_layer</span>.<span class="ident">push</span>(<span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">1.0</span>), <span class="ident">arrow</span>);
-            }
+        <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_cells_as_areas</span> {
+            <span class="ident">render_cells</span>.<span class="ident">colors</span>[<span class="ident">idx</span>].<span class="ident">alpha</span>(<span class="number">1.0</span>)
+        } <span class="kw">else</span> {
+            <span class="ident">Color::BLACK</span>
+        };
+        <span class="kw">for</span> <span class="ident">arrow</span> <span class="kw">in</span> <span class="ident">cell</span>.<span class="ident">border_arrows</span>(<span class="ident">app</span>) {
+            <span class="ident">draw_top_layer</span> <span class="op">=</span> <span class="ident">draw_top_layer</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">arrow</span>);
         }
     }
 
@@ -770,7 +741,12 @@
         }
     }
 
-    (<span class="ident">edit</span>, <span class="ident">draw_top_layer</span>.<span class="ident">build</span>(<span class="ident">ctx</span>), <span class="ident">render_cells</span>)
+    (
+        <span class="ident">edit</span>,
+        <span class="ident">draw_top_layer</span>.<span class="ident">build</span>(<span class="ident">ctx</span>),
+        <span class="ident">render_cells</span>,
+        <span class="ident">highlight_cell</span>,
+    )
 }
 
 <span class="kw">fn</span> <span class="ident">help</span>() -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> {

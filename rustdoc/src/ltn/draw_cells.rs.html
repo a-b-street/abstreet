@@ -299,9 +299,47 @@
 <span id="294">294</span>
 <span id="295">295</span>
 <span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">Polygon</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>};
 <span class="kw">use</span> <span class="ident">map_gui::tools::Grid</span>;
 <span class="kw">use</span> <span class="ident">map_model::Map</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">GeomBatch</span>};
@@ -311,9 +349,12 @@
 <span class="kw">const</span> <span class="ident">RESOLUTION_M</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">10.0</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RenderCells</span> {
+    <span class="doccomment">/// Rarely, this might be empty if the area is very small</span>
     <span class="kw">pub</span> <span class="ident">polygons_per_cell</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="doccomment">/// Colors per cell, such that adjacent cells are colored differently</span>
     <span class="kw">pub</span> <span class="ident">colors</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Color</span><span class="op">&gt;</span>,
+
+    <span class="ident">boundary_polygon</span>: <span class="ident">Polygon</span>,
 }
 
 <span class="kw">struct</span> <span class="ident">RenderCellsBuilder</span> {
@@ -335,11 +376,45 @@
         <span class="ident">RenderCellsBuilder::new</span>(<span class="ident">map</span>, <span class="ident">neighbourhood</span>).<span class="ident">finalize</span>()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">GeomBatch</span> {
+    <span class="doccomment">/// Draw cells as areas with different colors. The colors are meaningless, but the same color</span>
+    <span class="doccomment">/// won&#39;t be shared between adjacent cells.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw_colored_areas</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">GeomBatch</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
         <span class="kw">for</span> (<span class="ident">color</span>, <span class="ident">polygons</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">colors</span>.<span class="ident">iter</span>().<span class="ident">zip</span>(<span class="self">self</span>.<span class="ident">polygons_per_cell</span>.<span class="ident">iter</span>()) {
             <span class="kw">for</span> <span class="ident">poly</span> <span class="kw">in</span> <span class="ident">polygons</span> {
                 <span class="ident">batch</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">color</span>, <span class="ident">poly</span>.<span class="ident">clone</span>());
+            }
+        }
+        <span class="ident">batch</span>
+    }
+
+    <span class="doccomment">/// Draw the boundary between cells as a thick outline. It&#39;s meant to look like the</span>
+    <span class="doccomment">/// neighbourhood is split into disconnected islands.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw_island_outlines</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">GeomBatch</span> {
+        <span class="kw">let</span> <span class="ident">neighbourhood_boundary</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">boundary_polygon</span>
+            .<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">25.0</span>))
+            .<span class="ident">ok</span>();
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
+        <span class="kw">for</span> (<span class="ident">cell_color</span>, <span class="ident">polygons</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">colors</span>.<span class="ident">iter</span>().<span class="ident">zip</span>(<span class="self">self</span>.<span class="ident">polygons_per_cell</span>.<span class="ident">iter</span>()) {
+            <span class="kw">for</span> <span class="ident">poly</span> <span class="kw">in</span> <span class="ident">polygons</span> {
+                <span class="comment">// If the cell is disconnected, keep drawing this as an area to point out the</span>
+                <span class="comment">// problem</span>
+                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">cell_color</span> <span class="op">==</span> <span class="ident">colors::DISCONNECTED_CELL</span> {
+                    <span class="ident">batch</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">cell_color</span>, <span class="ident">poly</span>.<span class="ident">clone</span>());
+                    <span class="kw">continue</span>;
+                }
+
+                <span class="kw">let</span> <span class="ident">boundary</span> <span class="op">=</span> <span class="ident">PolyLine::unchecked_new</span>(<span class="ident">poly</span>.<span class="ident">clone</span>().<span class="ident">into_points</span>())
+                    .<span class="ident">make_polygons</span>(<span class="ident">Distance::meters</span>(<span class="number">10.0</span>));
+
+                <span class="comment">// If possible, try to erase where the cell boundary touches the perimeter road.</span>
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">neighbourhood_boundary</span>) <span class="op">=</span> <span class="ident">neighbourhood_boundary</span> {
+                    <span class="ident">batch</span>.<span class="ident">extend</span>(<span class="ident">Color::BLACK</span>, <span class="ident">boundary</span>.<span class="ident">difference</span>(<span class="ident">neighbourhood_boundary</span>));
+                } <span class="kw">else</span> {
+                    <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::BLACK</span>, <span class="ident">boundary</span>);
+                }
             }
         }
         <span class="ident">batch</span>
@@ -457,6 +532,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">RenderCells</span> {
             <span class="ident">polygons_per_cell</span>: <span class="ident">Vec::new</span>(),
             <span class="ident">colors</span>: <span class="ident">Vec::new</span>(),
+            <span class="ident">boundary_polygon</span>: <span class="self">self</span>.<span class="ident">boundary_polygon</span>,
         };
 
         <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">color</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">colors</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
@@ -507,7 +583,7 @@
             <span class="comment">// can just clip the result.</span>
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">clipped</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
             <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="ident">cell_polygons</span> {
-                <span class="ident">clipped</span>.<span class="ident">extend</span>(<span class="ident">p</span>.<span class="ident">intersection</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">boundary_polygon</span>));
+                <span class="ident">clipped</span>.<span class="ident">extend</span>(<span class="ident">p</span>.<span class="ident">intersection</span>(<span class="kw-2">&amp;</span><span class="ident">result</span>.<span class="ident">boundary_polygon</span>));
             }
 
             <span class="ident">result</span>.<span class="ident">polygons_per_cell</span>.<span class="ident">push</span>(<span class="ident">clipped</span>);

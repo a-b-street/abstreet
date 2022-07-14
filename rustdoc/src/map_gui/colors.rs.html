@@ -524,6 +524,18 @@
 <span id="519">519</span>
 <span id="520">520</span>
 <span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
 </pre><pre class="rust"><code><span class="doccomment">//! A color scheme groups colors used for different map, dynamic, and UI elements in one place, to</span>
 <span class="doccomment">//! encourage deduplication. The player can also switch between different color schemes.</span>
 
@@ -589,10 +601,9 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ColorScheme</span> {
     <span class="ident">scheme</span>: <span class="ident">ColorSchemeChoice</span>,
 
-    <span class="doccomment">/// Enable new stuff if true. This is temporary, to iterate quickly on</span>
-    <span class="doccomment">/// https://github.com/a-b-street/abstreet/pull/715. Once the dust settles there, the ideas</span>
-    <span class="doccomment">/// there will be baked in as defaults and this flag goes away.</span>
-    <span class="kw">pub</span> <span class="ident">experiment</span>: <span class="ident">bool</span>,
+    <span class="kw">pub</span> <span class="ident">road_outlines</span>: <span class="ident">bool</span>,
+    <span class="kw">pub</span> <span class="ident">road_class_colors</span>: <span class="ident">bool</span>,
+    <span class="kw">pub</span> <span class="ident">show_buildings_in_minimap</span>: <span class="ident">bool</span>,
 
     <span class="comment">// UI</span>
     <span class="kw">pub</span> <span class="ident">panel_bg</span>: <span class="ident">Color</span>,
@@ -713,7 +724,9 @@
         <span class="ident">ColorScheme</span> {
             <span class="ident">scheme</span>: <span class="ident">ColorSchemeChoice::DayMode</span>,
 
-            <span class="ident">experiment</span>: <span class="bool-val">false</span>,
+            <span class="ident">road_outlines</span>: <span class="bool-val">false</span>,
+            <span class="ident">road_class_colors</span>: <span class="bool-val">false</span>,
+            <span class="ident">show_buildings_in_minimap</span>: <span class="bool-val">true</span>,
 
             <span class="comment">// UI</span>
             <span class="ident">panel_bg</span>: <span class="ident">gui_style</span>.<span class="ident">panel_bg</span>,
@@ -866,7 +879,9 @@
     <span class="kw">fn</span> <span class="ident">day_mode</span>() -&gt; <span class="ident">ColorScheme</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cs</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::light_background</span>(<span class="ident">Style::light_bg</span>());
         <span class="ident">cs</span>.<span class="ident">scheme</span> <span class="op">=</span> <span class="ident">ColorSchemeChoice::DayMode</span>;
-        <span class="ident">cs</span>.<span class="ident">experiment</span> <span class="op">=</span> <span class="bool-val">true</span>;
+        <span class="ident">cs</span>.<span class="ident">road_outlines</span> <span class="op">=</span> <span class="bool-val">true</span>;
+        <span class="ident">cs</span>.<span class="ident">road_class_colors</span> <span class="op">=</span> <span class="bool-val">true</span>;
+        <span class="ident">cs</span>.<span class="ident">show_buildings_in_minimap</span> <span class="op">=</span> <span class="bool-val">false</span>;
 
         <span class="ident">cs</span>.<span class="ident">map_background</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#EEE5C8&quot;</span>).<span class="ident">into</span>();
         <span class="ident">cs</span>.<span class="ident">grass</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#BED4A3&quot;</span>).<span class="ident">into</span>();
@@ -887,11 +902,20 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cs</span> <span class="op">=</span> <span class="ident">ColorScheme::day_mode</span>();
         <span class="ident">cs</span>.<span class="ident">scheme</span> <span class="op">=</span> <span class="ident">ColorSchemeChoice::LTN</span>;
         <span class="ident">cs</span>.<span class="ident">private_road</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+        <span class="ident">cs</span>.<span class="ident">fade_map_dark</span> <span class="op">=</span> <span class="ident">Color::BLACK</span>.<span class="ident">alpha</span>(<span class="number">0.3</span>);
 
-        <span class="comment">// The colors of cells / neighborhoods will show through these, de-emphasizing them</span>
-        <span class="ident">cs</span>.<span class="ident">parking_lot</span> <span class="op">=</span> <span class="ident">Color::BLACK</span>.<span class="ident">alpha</span>(<span class="number">0.2</span>);
-        <span class="ident">cs</span>.<span class="ident">residential_building</span> <span class="op">=</span> <span class="ident">Color::BLACK</span>.<span class="ident">alpha</span>(<span class="number">0.3</span>);
-        <span class="ident">cs</span>.<span class="ident">commercial_building</span> <span class="op">=</span> <span class="ident">Color::BLACK</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>);
+        <span class="comment">// Based on Mapbox light scheme: https://www.mapbox.com/maps/light</span>
+        <span class="ident">cs</span>.<span class="ident">map_background</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#F6F6F4&quot;</span>).<span class="ident">into</span>();
+        <span class="ident">cs</span>.<span class="ident">residential_building</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#E9E9E7&quot;</span>);
+        <span class="ident">cs</span>.<span class="ident">commercial_building</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#D1D1CC&quot;</span>);
+        <span class="ident">cs</span>.<span class="ident">parking_lot</span> <span class="op">=</span> <span class="ident">cs</span>.<span class="ident">commercial_building</span>;
+        <span class="ident">cs</span>.<span class="ident">water</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#CAD2D3&quot;</span>).<span class="ident">into</span>();
+        <span class="ident">cs</span>.<span class="ident">grass</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#ECEEED&quot;</span>).<span class="ident">into</span>();
+        <span class="ident">cs</span>.<span class="ident">unzoomed_highway</span> <span class="op">=</span> <span class="ident">Color::WHITE</span>;
+        <span class="ident">cs</span>.<span class="ident">unzoomed_arterial</span> <span class="op">=</span> <span class="ident">Color::WHITE</span>;
+        <span class="ident">cs</span>.<span class="ident">unzoomed_residential</span> <span class="op">=</span> <span class="ident">Color::WHITE</span>;
+        <span class="ident">cs</span>.<span class="ident">unzoomed_trail</span> <span class="op">=</span> <span class="ident">Color::CLEAR</span>;
+        <span class="ident">cs</span>.<span class="ident">light_rail_track</span> <span class="op">=</span> <span class="ident">Color::CLEAR</span>;
 
         <span class="ident">cs</span>.<span class="ident">gui_style</span>.<span class="ident">panel_bg</span> <span class="op">=</span> <span class="ident">Color::WHITE</span>;
         <span class="ident">cs</span>.<span class="ident">panel_bg</span> <span class="op">=</span> <span class="ident">cs</span>.<span class="ident">gui_style</span>.<span class="ident">panel_bg</span>;
@@ -927,7 +951,7 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">zoomed_road_surface</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">lane</span>: <span class="ident">LaneType</span>, <span class="ident">rank</span>: <span class="ident">RoadRank</span>) -&gt; <span class="ident">Color</span> {
-        <span class="kw">let</span> <span class="ident">main_asphalt</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">experiment</span> {
+        <span class="kw">let</span> <span class="ident">main_asphalt</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">road_class_colors</span> {
             <span class="kw">match</span> <span class="ident">rank</span> {
                 <span class="ident">RoadRank::Highway</span> =&gt; <span class="ident">Color::grey</span>(<span class="number">0.3</span>),
                 <span class="ident">RoadRank::Arterial</span> =&gt; <span class="ident">Color::grey</span>(<span class="number">0.4</span>),
@@ -936,7 +960,7 @@
         } <span class="kw">else</span> {
             <span class="self">self</span>.<span class="ident">driving_lane</span>
         };
-        <span class="kw">let</span> <span class="ident">parking_asphalt</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">experiment</span> {
+        <span class="kw">let</span> <span class="ident">parking_asphalt</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">road_class_colors</span> {
             <span class="ident">main_asphalt</span>
         } <span class="kw">else</span> {
             <span class="self">self</span>.<span class="ident">parking_lane</span>
@@ -955,7 +979,7 @@
         }
     }
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">zoomed_intersection_surface</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rank</span>: <span class="ident">RoadRank</span>) -&gt; <span class="ident">Color</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">experiment</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">road_class_colors</span> {
             <span class="self">self</span>.<span class="ident">zoomed_road_surface</span>(<span class="ident">LaneType::Driving</span>, <span class="ident">rank</span>)
         } <span class="kw">else</span> {
             <span class="self">self</span>.<span class="ident">normal_intersection</span>

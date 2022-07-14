@@ -282,7 +282,6 @@
 <span id="277">277</span>
 <span id="278">278</span>
 <span id="279">279</span>
-<span id="280">280</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::type_complexity</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">structopt::StructOpt</span>;
@@ -351,6 +350,7 @@
     <span class="ident">opts</span>.<span class="ident">show_stop_signs</span> <span class="op">=</span> <span class="bool-val">false</span>;
     <span class="ident">opts</span>.<span class="ident">show_crosswalks</span> <span class="op">=</span> <span class="bool-val">false</span>;
     <span class="ident">opts</span>.<span class="ident">show_traffic_signal_icon</span> <span class="op">=</span> <span class="bool-val">true</span>;
+    <span class="ident">opts</span>.<span class="ident">simplify_basemap</span> <span class="op">=</span> <span class="bool-val">true</span>;
 
     <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">Args::from_iter</span>(<span class="ident">abstutil::cli_args</span>());
     <span class="ident">args</span>.<span class="ident">app_args</span>.<span class="ident">override_options</span>(<span class="kw-2">&amp;mut</span> <span class="ident">opts</span>);
@@ -371,9 +371,8 @@
 
             <span class="ident">edit_filters</span>: <span class="bool-val">true</span>,
 
-            <span class="ident">highlight_boundary_roads</span>: <span class="bool-val">false</span>,
-            <span class="ident">draw_neighbourhood_style</span>: <span class="ident">browse::Style::SimpleColoring</span>,
-            <span class="ident">draw_cells_as_areas</span>: <span class="bool-val">true</span>,
+            <span class="ident">draw_neighbourhood_style</span>: <span class="ident">browse::Style::Simple</span>,
+            <span class="ident">draw_cells_as_areas</span>: <span class="bool-val">false</span>,
             <span class="ident">heuristic</span>: <span class="ident">filters::auto::Heuristic::SplitCells</span>,
             <span class="ident">main_road_penalty</span>: <span class="number">1.0</span>,
 
@@ -496,7 +495,6 @@
 
     <span class="comment">// Remember form settings in different tabs.</span>
     <span class="comment">// Browse neighbourhoods:</span>
-    <span class="kw">pub</span> <span class="ident">highlight_boundary_roads</span>: <span class="ident">bool</span>,
     <span class="kw">pub</span> <span class="ident">draw_neighbourhood_style</span>: <span class="ident">browse::Style</span>,
     <span class="comment">// Connectivity:</span>
     <span class="kw">pub</span> <span class="ident">draw_cells_as_areas</span>: <span class="ident">bool</span>,

@@ -400,15 +400,6 @@
 <span id="395">395</span>
 <span id="396">396</span>
 <span id="397">397</span>
-<span id="398">398</span>
-<span id="399">399</span>
-<span id="400">400</span>
-<span id="401">401</span>
-<span id="402">402</span>
-<span id="403">403</span>
-<span id="404">404</span>
-<span id="405">405</span>
-<span id="406">406</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
@@ -525,7 +516,6 @@
 
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">try_toggle_block</span>(<span class="ident">app</span>, <span class="ident">id</span>) {
             <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">new_neighbourhood</span>)) =&gt; {
-                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">recalculate_coloring</span>();
                 <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">SelectBoundary::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">new_neighbourhood</span>));
             }
             <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) =&gt; {
@@ -544,13 +534,6 @@
                     .<span class="ident">collect</span>();
                 <span class="comment">// And always the current block</span>
                 <span class="ident">changed_blocks</span>.<span class="ident">push</span>(<span class="ident">id</span>);
-
-                <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">recalculate_coloring</span>() {
-                    <span class="comment">// The coloring of neighbourhoods changed; this could possibly have impact far</span>
-                    <span class="comment">// away. Just redraw all blocks.</span>
-                    <span class="ident">changed_blocks</span>.<span class="ident">clear</span>();
-                    <span class="ident">changed_blocks</span>.<span class="ident">extend</span>(<span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">all_block_ids</span>());
-                }
 
                 <span class="kw">for</span> <span class="ident">changed</span> <span class="kw">in</span> <span class="ident">changed_blocks</span> {
                     <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">delete_before_replacement</span>(<span class="ident">changed</span>);
@@ -648,7 +631,6 @@
             }
 
             <span class="comment">// Just redraw everything</span>
-            <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">recalculate_coloring</span>();
             <span class="self">self</span>.<span class="ident">world</span> <span class="op">=</span> <span class="ident">World::bounded</span>(<span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>());
             <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">all_block_ids</span>() {
                 <span class="self">self</span>.<span class="ident">add_block</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>);

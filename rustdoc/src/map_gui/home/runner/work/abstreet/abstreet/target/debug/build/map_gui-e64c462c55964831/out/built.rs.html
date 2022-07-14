@@ -152,10 +152,10 @@
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">PROFILE</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">r&quot;debug&quot;</span>;
 <span class="attribute">#[<span class="ident">doc</span><span class="op">=</span><span class="string">r#&quot;The compiler that cargo resolved to use.&quot;#</span>]</span>
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">RUSTC</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">r&quot;/home/runner/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc&quot;</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">RUSTC</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">r&quot;rustc&quot;</span>;
 <span class="attribute">#[<span class="ident">doc</span><span class="op">=</span><span class="string">r#&quot;The documentation generator that cargo resolved to use.&quot;#</span>]</span>
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">RUSTDOC</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">r&quot;/home/runner/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustdoc&quot;</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">RUSTDOC</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">r&quot;rustdoc&quot;</span>;
 <span class="attribute">#[<span class="ident">doc</span><span class="op">=</span><span class="string">r#&quot;Value of OPT_LEVEL for the profile used during compilation.&quot;#</span>]</span>
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">OPT_LEVEL</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">r&quot;0&quot;</span>;
@@ -171,15 +171,15 @@
 <span class="attribute">#[<span class="ident">doc</span><span class="op">=</span><span class="string">r#&quot;The features as a comma-separated string.&quot;#</span>]</span>
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">FEATURES_STR</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">r&quot;BUILT, CLIPBOARD, NATIVE, SUBPROCESS&quot;</span>;
-<span class="attribute">#[<span class="ident">doc</span><span class="op">=</span><span class="string">r#&quot;The output of `/home/runner/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc -V`&quot;#</span>]</span>
+<span class="attribute">#[<span class="ident">doc</span><span class="op">=</span><span class="string">r#&quot;The output of `rustc -V`&quot;#</span>]</span>
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">RUSTC_VERSION</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">r&quot;rustc 1.62.0 (a8314ef7d 2022-06-27)&quot;</span>;
-<span class="attribute">#[<span class="ident">doc</span><span class="op">=</span><span class="string">r#&quot;The output of `/home/runner/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustdoc -V`&quot;#</span>]</span>
+<span class="attribute">#[<span class="ident">doc</span><span class="op">=</span><span class="string">r#&quot;The output of `rustdoc -V`&quot;#</span>]</span>
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">RUSTDOC_VERSION</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">r&quot;rustdoc 1.62.0 (a8314ef7d 2022-06-27)&quot;</span>;
 <span class="attribute">#[<span class="ident">doc</span><span class="op">=</span><span class="string">r#&quot;The build time in RFC2822, UTC.&quot;#</span>]</span>
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">BUILT_TIME_UTC</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">r&quot;Tue, 12 Jul 2022 13:34:48 +0000&quot;</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">BUILT_TIME_UTC</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">r&quot;Thu, 14 Jul 2022 11:32:57 +0000&quot;</span>;
 <span class="attribute">#[<span class="ident">doc</span><span class="op">=</span><span class="string">r#&quot;The target architecture, given by `CARGO_CFG_TARGET_ARCH`.&quot;#</span>]</span>
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">CFG_TARGET_ARCH</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">r&quot;x86_64&quot;</span>;

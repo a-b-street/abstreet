@@ -35,31 +35,9 @@
 <span id="30">30</span>
 <span id="31">31</span>
 <span id="32">32</span>
-<span id="33">33</span>
-<span id="34">34</span>
-<span id="35">35</span>
-<span id="36">36</span>
-<span id="37">37</span>
-<span id="38">38</span>
-<span id="39">39</span>
-<span id="40">40</span>
-<span id="41">41</span>
-<span id="42">42</span>
-<span id="43">43</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">widgetry::Color</span>;
 
 <span class="macro">lazy_static::lazy_static!</span> {
-    <span class="doccomment">/// Rotate through these colors for neighbourhoods. Use 4-color (ehem, 6-color?) theorem to make</span>
-    <span class="doccomment">/// adjacent things different</span>
-    <span class="kw">pub</span> <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">NEIGHBOURHOODS</span>: [<span class="ident">Color</span>; <span class="number">6</span>] <span class="op">=</span> [
-        <span class="ident">Color::BLUE</span>.<span class="ident">alpha</span>(<span class="number">0.3</span>),
-        <span class="ident">Color::YELLOW</span>.<span class="ident">alpha</span>(<span class="number">0.3</span>),
-        <span class="ident">Color::GREEN</span>.<span class="ident">alpha</span>(<span class="number">0.3</span>),
-        <span class="ident">Color::PURPLE</span>.<span class="ident">alpha</span>(<span class="number">0.3</span>),
-        <span class="ident">Color::PINK</span>.<span class="ident">alpha</span>(<span class="number">0.3</span>),
-        <span class="ident">Color::ORANGE</span>.<span class="ident">alpha</span>(<span class="number">0.3</span>),
-    ];
-
     <span class="kw">pub</span> <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">CELLS</span>: [<span class="ident">Color</span>; <span class="number">6</span>] <span class="op">=</span> [
         <span class="ident">Color::BLUE</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>),
         <span class="ident">Color::YELLOW</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>),
