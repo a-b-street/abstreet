@@ -11,7 +11,6 @@ anyhow = "1.0.38"
 csv = "1.1.4"
 fs-err = "2.6.0"
 geo = "0.22.0"
-geojson = { version = "0.22.2", features = ["geo-types"] }
 geom = { path = "../geom" }
 importer = { path = "../importer" }
 log = "0.4.14"

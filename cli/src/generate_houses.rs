@@ -1,7 +1,6 @@
 use std::collections::HashSet;
 
 use aabb_quadtree::QuadTree;
-use geojson::{Feature, FeatureCollection, GeoJson};
 use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
 
@@ -23,22 +22,15 @@ pub fn run(map: String, num_required: usize, rng_seed: u64, output: String) {
         );
     }
 
-    let mut features = Vec::new();
-    for poly in houses {
-        features.push(Feature {
-            bbox: None,
-            geometry: Some(poly.to_geojson(Some(map.get_gps_bounds()))),
-            id: None,
-            properties: None,
-            foreign_members: None,
-        });
-    }
-    let geojson = GeoJson::from(FeatureCollection {
-        bbox: None,
-        features,
-        foreign_members: None,
-    });
-    abstio::write_json(output, &geojson);
+    abstio::write_json(
+        output,
+        &geom::geometries_to_geojson(
+            houses
+                .into_iter()
+                .map(|poly| poly.to_geojson(Some(map.get_gps_bounds())))
+                .collect(),
+        ),
+    );
 }
 
 fn generate_buildings_on_empty_residential_roads(

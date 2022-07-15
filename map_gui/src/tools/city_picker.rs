@@ -526,8 +526,6 @@ fn chose_city<A: AppLike + 'static>(
 
 #[cfg(not(target_arch = "wasm32"))]
 fn reimport_city<A: AppLike + 'static>(ctx: &mut EventCtx, app: &A) -> Transition<A> {
-    use geojson::{Feature, FeatureCollection, GeoJson};
-
     let name = format!("updated_{}", app.map().get_name().as_filename());
 
     let mut args = vec![
@@ -543,21 +541,10 @@ fn reimport_city<A: AppLike + 'static>(ctx: &mut EventCtx, app: &A) -> Transitio
     // Write the current map boundary
     abstio::write_json(
         "boundary.json".to_string(),
-        &GeoJson::from(FeatureCollection {
-            bbox: None,
-            foreign_members: None,
-            features: vec![Feature {
-                bbox: None,
-                id: None,
-                properties: None,
-                foreign_members: None,
-                geometry: Some(
-                    app.map()
-                        .get_boundary_polygon()
-                        .to_geojson(Some(app.map().get_gps_bounds())),
-                ),
-            }],
-        }),
+        &geom::geometries_to_geojson(vec![app
+            .map()
+            .get_boundary_polygon()
+            .to_geojson(Some(app.map().get_gps_bounds()))]),
     );
 
     return Transition::Push(crate::tools::RunCommand::new_state(

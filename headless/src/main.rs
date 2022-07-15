@@ -523,7 +523,7 @@ impl LoadSim {
 }
 
 fn export_geometry(map: &Map, i: IntersectionID) -> geojson::GeoJson {
-    use geojson::{Feature, FeatureCollection, GeoJson};
+    let mut pairs = Vec::new();
 
     let i = map.get_i(i);
     // Translate all geometry to center around the intersection, with distances in meters.
@@ -533,18 +533,13 @@ fn export_geometry(map: &Map, i: IntersectionID) -> geojson::GeoJson {
     let mut props = serde_json::Map::new();
     props.insert("type".to_string(), "intersection".into());
     props.insert("id".to_string(), i.orig_id.to_string().into());
-    let mut features = vec![Feature {
-        bbox: None,
-        geometry: Some(
-            i.polygon
-                .translate(-center.x(), -center.y())
-                .into_ring()
-                .to_geojson(None),
-        ),
-        id: None,
-        properties: Some(props),
-        foreign_members: None,
-    }];
+    pairs.push((
+        i.polygon
+            .translate(-center.x(), -center.y())
+            .into_ring()
+            .to_geojson(None),
+        props,
+    ));
 
     // Each connected road
     for r in &i.roads {
@@ -552,65 +547,39 @@ fn export_geometry(map: &Map, i: IntersectionID) -> geojson::GeoJson {
         let mut props = serde_json::Map::new();
         props.insert("type".to_string(), "road".into());
         props.insert("id".to_string(), r.orig_id.osm_way_id.to_string().into());
-        features.push(Feature {
-            bbox: None,
-            geometry: Some(
-                r.center_pts
-                    .to_thick_ring(r.get_width())
-                    .translate(-center.x(), -center.y())
-                    .to_geojson(None),
-            ),
-            id: None,
-            properties: Some(props),
-            foreign_members: None,
-        });
+        pairs.push((
+            r.center_pts
+                .to_thick_ring(r.get_width())
+                .translate(-center.x(), -center.y())
+                .to_geojson(None),
+            props,
+        ));
     }
 
-    GeoJson::from(FeatureCollection {
-        bbox: None,
-        features,
-        foreign_members: None,
-    })
+    geom::geometries_with_properties_to_geojson(pairs)
 }
 
 fn export_all_geometry(map: &Map) -> geojson::GeoJson {
-    use geojson::{Feature, FeatureCollection, GeoJson};
-
-    let mut features = Vec::new();
+    let mut pairs = Vec::new();
     let gps_bounds = Some(map.get_gps_bounds());
 
     for i in map.all_intersections() {
         let mut props = serde_json::Map::new();
         props.insert("type".to_string(), "intersection".into());
         props.insert("id".to_string(), i.orig_id.to_string().into());
-        features.push(Feature {
-            bbox: None,
-            geometry: Some(i.polygon.clone().into_ring().to_geojson(gps_bounds)),
-            id: None,
-            properties: Some(props),
-            foreign_members: None,
-        });
+        pairs.push((i.polygon.clone().into_ring().to_geojson(gps_bounds), props));
     }
     for r in map.all_roads() {
         let mut props = serde_json::Map::new();
         props.insert("type".to_string(), "road".into());
         props.insert("id".to_string(), r.orig_id.osm_way_id.to_string().into());
-        features.push(Feature {
-            bbox: None,
-            geometry: Some(
-                r.center_pts
-                    .to_thick_ring(r.get_width())
-                    .to_geojson(gps_bounds),
-            ),
-            id: None,
-            properties: Some(props),
-            foreign_members: None,
-        });
+        pairs.push((
+            r.center_pts
+                .to_thick_ring(r.get_width())
+                .to_geojson(gps_bounds),
+            props,
+        ));
     }
 
-    GeoJson::from(FeatureCollection {
-        bbox: None,
-        features,
-        foreign_members: None,
-    })
+    geom::geometries_with_properties_to_geojson(pairs)
 }

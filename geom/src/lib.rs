@@ -118,6 +118,50 @@ impl Default for CornerRadii {
     }
 }
 
+/// Create a GeoJson with one feature per geometry, with the specified properties.
+// TODO Rethink after https://github.com/georust/geojson/issues/170
+pub fn geometries_with_properties_to_geojson(
+    input: Vec<(
+        geojson::Geometry,
+        serde_json::Map<String, serde_json::Value>,
+    )>,
+) -> geojson::GeoJson {
+    let mut features = Vec::new();
+    for (geom, properties) in input {
+        features.push(geojson::Feature {
+            bbox: None,
+            geometry: Some(geom),
+            id: None,
+            properties: Some(properties),
+            foreign_members: None,
+        });
+    }
+    geojson::GeoJson::from(geojson::FeatureCollection {
+        bbox: None,
+        features,
+        foreign_members: None,
+    })
+}
+
+/// Create a GeoJson with one feature per geometry, and no properties.
+pub fn geometries_to_geojson(input: Vec<geojson::Geometry>) -> geojson::GeoJson {
+    let mut features = Vec::new();
+    for geom in input {
+        features.push(geojson::Feature {
+            bbox: None,
+            geometry: Some(geom),
+            id: None,
+            properties: None,
+            foreign_members: None,
+        });
+    }
+    geojson::GeoJson::from(geojson::FeatureCollection {
+        bbox: None,
+        features,
+        foreign_members: None,
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
