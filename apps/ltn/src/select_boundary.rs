@@ -154,7 +154,7 @@ impl SelectBoundary {
     }
 
     // Ok(Some(x)) means the current neighbourhood was destroyed, and the caller should switch to
-    // focusing on a different neigbhorhood
+    // focusing on a different neighborhood
     fn try_toggle_block(&mut self, app: &mut App, id: BlockID) -> Result<Option<NeighbourhoodID>> {
         if self.currently_have_block(app, id) {
             app.session

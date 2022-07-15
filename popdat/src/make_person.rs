@@ -270,7 +270,7 @@ fn pick_mode(
     // Sometimes bike or walk for moderate trips
     if distance < config.walk_or_bike_for_distances_shorter_than {
         // TODO We could move all of these params to Config, but I'm not sure if the overall flow
-        // of logic in this functon is what we want yet.
+        // of logic in this function is what we want yet.
         if rng.gen_bool(0.15) {
             return TripMode::Bike;
         }

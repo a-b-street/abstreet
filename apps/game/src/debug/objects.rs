@@ -132,7 +132,7 @@ impl ObjectDebugger {
                 let mut f = fs_err::File::create(&path).unwrap();
                 writeln!(f, "{}", json_string).unwrap();
             }
-            // Don't wait for the command to complet.
+            // Don't wait for the command to complete.
             // Also, https://dadroit.com/ is the best viewer I've found so far, but we can change
             // this to another or make it configurable with an environment variable or something
             // once other people use this.

@@ -183,7 +183,7 @@ impl Layers {
         }
 
         if self.zoom_enabled_cache_key != zoom_enabled_cache_key(ctx) {
-            // approriately disable/enable zoom buttons in case user scroll-zoomed
+            // appropriately disable/enable zoom buttons in case user scroll-zoomed
             self.update_panel(ctx, app);
             self.zoom_enabled_cache_key = zoom_enabled_cache_key(ctx);
         }

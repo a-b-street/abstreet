@@ -326,7 +326,7 @@ impl Road {
         self.center_pts.length()
     }
 
-    /// Creates the thick polygon representing one half of the road. For roads with multipe
+    /// Creates the thick polygon representing one half of the road. For roads with multiple
     /// direction changes (like a two-way cycletrack adjacent to a regular two-way road), the
     /// results are probably weird.
     pub fn get_half_polygon(&self, dir: Direction, map: &Map) -> Result<Polygon> {

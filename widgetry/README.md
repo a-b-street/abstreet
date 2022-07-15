@@ -48,7 +48,7 @@ shader.
 
 Thanks to [usvg](https://github.com/RazrFalcon/resvg) and
 [lyon](https://github.com/nical/lyon/), SVGs and text are transformed into
-colored polygons. Programatically swap colors, rotate, scale stuff. Find bounds
+colored polygons. Programmatically swap colors, rotate, scale stuff. Find bounds
 for precise mouseover.
 
 ### GUI

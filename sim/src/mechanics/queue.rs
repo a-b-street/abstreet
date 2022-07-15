@@ -69,7 +69,7 @@ pub enum Queued {
 pub struct QueueEntry {
     pub member: Queued,
     pub front: Distance,
-    /// Not incuding FOLLOWING_DISTANCE
+    /// Not including FOLLOWING_DISTANCE
     pub back: Distance,
 }
 

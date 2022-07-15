@@ -44,7 +44,7 @@ mod time;
 pub const EPSILON_DIST: Distance = Distance::const_meters(0.01);
 
 /// Reduce the precision of an f64. This helps ensure serialization is idempotent (everything is
-/// exacly the same before and after saving/loading). Ideally we'd use some kind of proper
+/// exactly the same before and after saving/loading). Ideally we'd use some kind of proper
 /// fixed-precision type instead of f64.
 pub fn trim_f64(x: f64) -> f64 {
     (x * 10_000.0).round() / 10_000.0

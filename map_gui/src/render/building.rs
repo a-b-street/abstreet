@@ -73,7 +73,7 @@ impl DrawBuilding {
 
                 let bldg_height_per_level = 3.5;
                 // In downtown areas, really tall buildings look kind of ridculous next to
-                // everything else. So we artifically compress the number of levels a bit.
+                // everything else. So we artificially compress the number of levels a bit.
                 let bldg_rendered_meters = bldg_height_per_level * bldg.levels.powf(0.8);
                 let height = Distance::meters(bldg_rendered_meters);
 

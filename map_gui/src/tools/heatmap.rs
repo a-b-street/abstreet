@@ -311,7 +311,7 @@ pub fn draw_isochrone(
     // in a 2D grid of costs. Use a 100x100 meter resolution.
     let bounds = map.get_bounds();
     let resolution_m = 100.0;
-    // The costs we're storing are currenly durations, but the contour crate needs f64, so
+    // The costs we're storing are currently durations, but the contour crate needs f64, so
     // just store the number of seconds.
     let mut grid: Grid<f64> = Grid::new(
         (bounds.width() / resolution_m).ceil() as usize,

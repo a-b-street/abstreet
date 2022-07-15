@@ -18,11 +18,11 @@ export abstract class WidgetryApp<InitOutput> {
     this.appLoader = new AppLoader(this, domId);
 
     // Assume a default relative path to where we can find the "system" dir
-    // Overide with `myApp.setAssetsBaseURL('path/to/dir')`
+    // Override with `myApp.setAssetsBaseURL('path/to/dir')`
     this._assetsBaseURL = "./data";
 
     // Assume files are gzipped unless on localhost.
-    // Overide with `myApp.setAssetsAreGzipped(true)`
+    // Override with `myApp.setAssetsAreGzipped(true)`
     this._assetsAreGzipped = !isLocalhost;
   }
 

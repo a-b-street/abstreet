@@ -5,7 +5,7 @@ use super::*;
 /// left, unprotected right on red. With a last stage that is all-walk and variable.
 /// In some degenerate cases, usually with one or more one-way, this can reduce to stage per road.
 /// In some rare cases, usually with an alleyway, oncoming lanes can't both be protected left turns.
-/// In such cases the stage is split into two stages with each having a protected and yeild turn.
+/// In such cases the stage is split into two stages with each having a protected and yield turn.
 pub fn make_traffic_signal(map: &Map, i: &Intersection) -> Option<ControlTrafficSignal> {
     // Try to create the stages, this returns a unoptimized signal, which is then optimized.
     if let Some(ts) = make_signal(i, map) {
@@ -123,7 +123,7 @@ fn protected_yield_stage(p: MovementID, y: MovementID) -> Stage {
 /// stages will be added. The first stage has protected straight, and right and yield left.
 /// The second stage has protected left. Lastly, sometimes oncomming left turns can't both
 /// be protected, if this occurs the 2nd stage will have one direction protected and the
-/// other yeild and a 3rd, inverse, stage will be added which has the other direction's left
+/// other yield and a 3rd, inverse, stage will be added which has the other direction's left
 /// protected and other yield. Finally, any turns which weren't assigned, because there
 /// are no straights or there are more than just pairs of straight intersections, are assigned a
 /// stage. These, too are handled as pairs until one remains, which is handled as a one-way.

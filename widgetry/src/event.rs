@@ -98,7 +98,7 @@ impl Event {
                 // Anymore "a line" usually doesn't correspond to "a literal line of text" in the
                 // application, and must usually just be considered an abstract unit of
                 // measurement, because of things like configurable scroll sensitivity, variable
-                // text size, and the afforementioned advent of touchpads.
+                // text size, and the aforementioned advent of touchpads.
                 //
                 // With "Reverse" scrolling, positive values indicate upward or rightward scrolling.
                 // With "Natural" scrolling, it's the opposite.

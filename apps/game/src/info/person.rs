@@ -159,7 +159,7 @@ fn trips_body(
                 .color(RewriteColor::ChangeAll(color))
                 .batch(),
                 // Without this bottom padding, text is much closer to bottom of pill than top -
-                // seemingly moreso than just text ascender/descender descrepancies - why?
+                // seemingly more so than just text ascender/descender descrepancies - why?
                 Line(trip_status)
                     .small()
                     .fg(color)
