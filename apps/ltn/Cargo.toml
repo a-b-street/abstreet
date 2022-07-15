@@ -34,3 +34,6 @@ synthpop = { path = "../../synthpop" }
 wasm-bindgen = { version = "0.2.70", optional = true }
 widgetry = { path = "../../widgetry" }
 structopt = "0.3.23"
+
+model = { path = "/home/dabreegster/bus_spotting/model" }
+base64 = "0.13.0"

@@ -20,13 +20,15 @@ pub struct BrowseNeighbourhoods {
     draw_over_roads: ToggleZoomed,
     labels: DrawRoadLabels,
     draw_boundary_roads: ToggleZoomed,
+
+    bus_hack: ToggleZoomed,
 }
 
 impl BrowseNeighbourhoods {
     pub fn new_state(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
         map_gui::tools::update_url_map_name(app);
 
-        let (world, draw_over_roads) =
+        let (world, draw_over_roads, bus_hack) =
             ctx.loading_screen("calculate neighbourhoods", |ctx, timer| {
                 if &app.session.partitioning.map != app.map.get_name() {
                     app.session.alt_proposals = crate::save::AltProposals::new();
@@ -35,6 +37,7 @@ impl BrowseNeighbourhoods {
                 (
                     make_world(ctx, app, timer),
                     draw_over_roads(ctx, app, timer),
+                    do_bus_hack(ctx, app, timer),
                 )
             });
 
@@ -57,6 +60,7 @@ impl BrowseNeighbourhoods {
             draw_over_roads,
             labels: DrawRoadLabels::only_major_roads().light_background(),
             draw_boundary_roads: draw_boundary_roads(ctx, app),
+            bus_hack,
         })
     }
 
@@ -152,11 +156,12 @@ impl State<App> for BrowseNeighbourhoods {
 
         self.top_panel.draw(g);
         self.left_panel.draw(g);
-        self.draw_boundary_roads.draw(g);
+        //self.draw_boundary_roads.draw(g);
         app.session.draw_all_filters.draw(g);
         if g.canvas.is_unzoomed() {
             self.labels.draw(g, app);
         }
+        self.bus_hack.draw(g);
     }
 }
 
@@ -385,4 +390,53 @@ fn advanced_panel(ctx: &EventCtx, app: &App) -> Widget {
         ])
         .section(ctx),
     ])
+}
+
+fn do_bus_hack(ctx: &mut EventCtx, app: &App, timer: &mut Timer) -> ToggleZoomed {
+    use geom::FindClosest;
+    use map_model::{DirectedRoadID, PathConstraints, PathRequest};
+
+    let bytes = std::fs::read("/home/dabreegster/bus_spotting/data/output/multiday.bin").unwrap();
+    let decoded = base64::decode(bytes).unwrap();
+    let model = abstutil::from_binary::<model::MultidayModel>(&decoded).unwrap();
+
+    // Poor man's map matching: find the closest side of the road to the route endpoints, then do
+    // pathfinding for a bus
+    let mut closest: FindClosest<DirectedRoadID> = FindClosest::new(app.map.get_bounds());
+    for r in app.map.all_roads() {
+        for l in [&r.lanes[0], r.lanes.last().as_ref().unwrap()] {
+            closest.add(l.get_directed_parent(), l.lane_center_pts.points());
+        }
+    }
+
+    let mut paths = Vec::new();
+
+    timer.start_iter("match GTFS shapes", model.gtfs.shapes.len());
+    for (_, pl) in model.gtfs.shapes {
+        timer.next();
+        let threshold = Distance::meters(50.0);
+        if let Some((dr1, _)) = closest.closest_pt(pl.first_pt(), threshold) {
+            if let Some((dr2, _)) = closest.closest_pt(pl.last_pt(), threshold) {
+                if let Some(req) =
+                    PathRequest::between_directed_roads(&app.map, dr1, dr2, PathConstraints::Bus)
+                {
+                    if let Ok(path) = app.map.pathfind_v2(req) {
+                        let color = [
+                            Color::RED,
+                            Color::BLUE,
+                            Color::GREEN,
+                            Color::PURPLE,
+                            Color::YELLOW,
+                            Color::ORANGE,
+                            Color::CYAN,
+                        ][paths.len() % 7];
+                        paths.push((path, color));
+                    }
+                }
+            }
+        }
+    }
+    println!("wound up matching {} paths", paths.len());
+
+    map_gui::tools::draw_overlapping_paths(ctx, app, paths)
 }

@@ -40,14 +40,22 @@ pub fn draw_overlapping_paths(
     let mut pieces: BTreeMap<(RoadID, String), (Pt2D, Pt2D, Pt2D, Pt2D)> = BTreeMap::new();
     // Per road, divide the needed colors proportionally
     let mut draw = ToggleZoomed::builder();
+    let mut max_colors_per_road = 0;
     for (road, colors) in colors_per_road {
+        max_colors_per_road = max_colors_per_road.max(colors.len());
         let road = app.map().get_r(road);
-        let width_per_piece = road.get_width() / (colors.len() as f64);
+        let fake_width = geom::Distance::meters(30.0);
+        let width_per_piece = fake_width / (colors.len() as f64);
         for (idx, color) in colors.into_iter().enumerate() {
             if let Ok(pl) = road.shift_from_left_side((0.5 + (idx as f64)) * width_per_piece) {
                 let polygon = pl.make_polygons(width_per_piece);
                 draw.unzoomed.push(color.alpha(0.8), polygon.clone());
                 draw.zoomed.push(color.alpha(0.5), polygon);
+                if let Some(poly) =
+                    pl.to_thick_boundary(width_per_piece, geom::Distance::meters(1.0))
+                {
+                    draw.unzoomed.push(Color::BLACK, poly);
+                }
 
                 // Reproduce what make_polygons does to get the 4 corners
                 if let Some(corners) = pl.get_four_corners_of_thickened(width_per_piece) {
@@ -56,6 +64,7 @@ pub fn draw_overlapping_paths(
             }
         }
     }
+    info!("Road most shared has {} paths on it!", max_colors_per_road);
 
     // Fill in intersections
     for (from, to, color) in colors_per_movement {
