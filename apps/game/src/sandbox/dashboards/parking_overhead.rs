@@ -45,7 +45,7 @@ impl ParkingOverhead {
                         Line("- the person was inconvenienced"),
                         Line(""),
                         Line(
-                            "Note: Trips beginning/ending outside the map have an artifically \
+                            "Note: Trips beginning/ending outside the map have an artificially \
                              high overhead,",
                         ),
                         Line("since the time spent driving off-map isn't shown here."),

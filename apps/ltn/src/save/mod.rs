@@ -306,7 +306,7 @@ impl AltProposals {
 
 // After switching proposals, we have to recreate state
 //
-// To preserve per-neigbhorhood states, we have to transform neighbourhood IDs, which may change if
+// To preserve per-neighborhood states, we have to transform neighbourhood IDs, which may change if
 // the partitioning is different. If the boundary is a bit different, match up by all the blocks in
 // the current neighbourhood.
 pub enum PreserveState {

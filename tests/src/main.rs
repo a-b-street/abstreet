@@ -40,7 +40,7 @@ fn test_map_importer() -> Result<()> {
     ] {
         // TODO It's kind of a hack to reference the crate's directory relative to the data dir.
         let map = import_map(abstio::path(format!("../tests/input/{}.osm", name)));
-        // Enable to debug the result wih the normal GUI
+        // Enable to debug the result with the normal GUI
         if false {
             map.save();
         }

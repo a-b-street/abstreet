@@ -272,7 +272,7 @@ impl<T: 'static + Copy + PartialEq> WidgetImpl for DragDrop<T> {
                         selected,
                     }
                 } else {
-                    // Keep the intial state, which reflects hovering/selection from interacting
+                    // Keep the initial state, which reflects hovering/selection from interacting
                     // with the lanes on the map.
                     return;
                 }

@@ -90,7 +90,7 @@ impl GameplayState for FixTrafficSignals {
         _: &mut Actions,
     ) -> Option<Transition> {
         // Normally we just do this once at the beginning, but because there are other paths to
-        // reseting (like jump-to-time), it's safest just to do this.
+        // resetting (like jump-to-time), it's safest just to do this.
         if app.primary.sim_cb.is_none() {
             app.primary.sim_cb = Some(Box::new(FindDelayedIntersections {
                 halt_limit: THRESHOLD,

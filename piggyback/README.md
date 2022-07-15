@@ -15,7 +15,7 @@ a simple API for controlling a traffic simulation should be an easier start.
 Another goal is to take advantage of all the great stuff that exists in the web
 ecosystem. Instead of implementing satellite layers, multi-line text entry
 (seriously!), and story mapping ourselves, we can just use stuff that's built
-aready.
+already.
 
 ## How to run
 
@@ -37,7 +37,7 @@ No deployment instructions yet.
 ## How it works
 
 The `PiggybackDemo` struct is a thin layer written in Rust to hook up to the
-rest of the A/B Street codebase. After beng initialized with a WebGL context and
+rest of the A/B Street codebase. After being initialized with a WebGL context and
 a map file, it can render streets and agents and control a traffic simulation.
 It serves as a public API, exposed via WASM. Then a regular Mapbox GL app treats
 it as a library and adds a custom WebGL rendering layer that calls this API.
