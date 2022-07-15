@@ -34,13 +34,11 @@ cp release/play_abstreet.$ext release/ungap_the_map.$ext release/INSTRUCTIONS.tx
 
 for name in game cli fifteen_min osm_viewer parking_mapper santa ltn; do
     bin="target/release/${name}${suffix}"
-    # TODO Mac codesigning is disabled temporarily
     if [[ "$output" = "abst_mac" ]]; then
         # If this errors or hangs, ensure you've imported and unlocked a
         # keychain holding a codesigning certificate with a Common Name
         # matching "Developer ID Application.*"
-        #codesign -fs "Developer ID Application" --timestamp -o runtime "$bin"
-	echo Skipping
+        codesign -fs "Developer ID Application" --timestamp -o runtime "$bin"
     fi
     cp "$bin" "$output";
 done
@@ -58,12 +56,12 @@ case $os in
         ;;
 
     macos-latest)
-        #ditto -c -k --keepParent $output $output.zip
-        #xcrun notarytool submit --wait \
-        #    --apple-id $MACOS_DEVELOPER_APPLE_ID \
-        #    --team-id $MACOS_DEVELOPER_TEAM_ID \
-        #    --password $MACOS_DEVELOPER_APP_SPECIFIC_PASSWORD \
-        #    $output.zip
+        ditto -c -k --keepParent $output $output.zip
+        xcrun notarytool submit --wait \
+            --apple-id $MACOS_DEVELOPER_APPLE_ID \
+            --team-id $MACOS_DEVELOPER_TEAM_ID \
+            --password $MACOS_DEVELOPER_APP_SPECIFIC_PASSWORD \
+            $output.zip
 
         # TODO: staple the notarization so users can launch the app while
         # offline without warning. There's no way to staple the notarization to
@@ -74,7 +72,6 @@ case $os in
         #
         # >  can’t be opened because Apple cannot check it for malicious software.
 
-        zip -r $output $output
         rm -rf $output
         ;;
 
