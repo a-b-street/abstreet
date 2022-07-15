@@ -155,18 +155,9 @@
 <span id="150">150</span>
 <span id="151">151</span>
 <span id="152">152</span>
-<span id="153">153</span>
-<span id="154">154</span>
-<span id="155">155</span>
-<span id="156">156</span>
-<span id="157">157</span>
-<span id="158">158</span>
-<span id="159">159</span>
-<span id="160">160</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
 <span class="kw">use</span> <span class="ident">aabb_quadtree::QuadTree</span>;
-<span class="kw">use</span> <span class="ident">geojson</span>::{<span class="ident">Feature</span>, <span class="ident">FeatureCollection</span>, <span class="ident">GeoJson</span>};
 <span class="kw">use</span> <span class="ident">rand</span>::{<span class="ident">Rng</span>, <span class="ident">SeedableRng</span>};
 <span class="kw">use</span> <span class="ident">rand_xorshift::XorShiftRng</span>;
 
@@ -188,22 +179,15 @@
         );
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">features</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">for</span> <span class="ident">poly</span> <span class="kw">in</span> <span class="ident">houses</span> {
-        <span class="ident">features</span>.<span class="ident">push</span>(<span class="ident">Feature</span> {
-            <span class="ident">bbox</span>: <span class="prelude-val">None</span>,
-            <span class="ident">geometry</span>: <span class="prelude-val">Some</span>(<span class="ident">poly</span>.<span class="ident">to_geojson</span>(<span class="prelude-val">Some</span>(<span class="ident">map</span>.<span class="ident">get_gps_bounds</span>()))),
-            <span class="ident">id</span>: <span class="prelude-val">None</span>,
-            <span class="ident">properties</span>: <span class="prelude-val">None</span>,
-            <span class="ident">foreign_members</span>: <span class="prelude-val">None</span>,
-        });
-    }
-    <span class="kw">let</span> <span class="ident">geojson</span> <span class="op">=</span> <span class="ident">GeoJson::from</span>(<span class="ident">FeatureCollection</span> {
-        <span class="ident">bbox</span>: <span class="prelude-val">None</span>,
-        <span class="ident">features</span>,
-        <span class="ident">foreign_members</span>: <span class="prelude-val">None</span>,
-    });
-    <span class="ident">abstio::write_json</span>(<span class="ident">output</span>, <span class="kw-2">&amp;</span><span class="ident">geojson</span>);
+    <span class="ident">abstio::write_json</span>(
+        <span class="ident">output</span>,
+        <span class="kw-2">&amp;</span><span class="ident">geom::geometries_to_geojson</span>(
+            <span class="ident">houses</span>
+                .<span class="ident">into_iter</span>()
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">poly</span><span class="op">|</span> <span class="ident">poly</span>.<span class="ident">to_geojson</span>(<span class="prelude-val">Some</span>(<span class="ident">map</span>.<span class="ident">get_gps_bounds</span>())))
+                .<span class="ident">collect</span>(),
+        ),
+    );
 }
 
 <span class="kw">fn</span> <span class="ident">generate_buildings_on_empty_residential_roads</span>(

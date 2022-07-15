@@ -573,19 +573,6 @@
 <span id="568">568</span>
 <span id="569">569</span>
 <span id="570">570</span>
-<span id="571">571</span>
-<span id="572">572</span>
-<span id="573">573</span>
-<span id="574">574</span>
-<span id="575">575</span>
-<span id="576">576</span>
-<span id="577">577</span>
-<span id="578">578</span>
-<span id="579">579</span>
-<span id="580">580</span>
-<span id="581">581</span>
-<span id="582">582</span>
-<span id="583">583</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
 
 <span class="kw">use</span> <span class="ident">abstio</span>::{<span class="ident">CityName</span>, <span class="ident">Manifest</span>, <span class="ident">MapName</span>};
@@ -1114,8 +1101,6 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
 <span class="kw">fn</span> <span class="ident">reimport_city</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>) -&gt; <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
-    <span class="kw">use</span> <span class="ident">geojson</span>::{<span class="ident">Feature</span>, <span class="ident">FeatureCollection</span>, <span class="ident">GeoJson</span>};
-
     <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;updated_{}&quot;</span>, <span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_name</span>().<span class="ident">as_filename</span>());
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">args</span> <span class="op">=</span> <span class="macro">vec!</span>[
@@ -1131,21 +1116,10 @@
     <span class="comment">// Write the current map boundary</span>
     <span class="ident">abstio::write_json</span>(
         <span class="string">&quot;boundary.json&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="kw-2">&amp;</span><span class="ident">GeoJson::from</span>(<span class="ident">FeatureCollection</span> {
-            <span class="ident">bbox</span>: <span class="prelude-val">None</span>,
-            <span class="ident">foreign_members</span>: <span class="prelude-val">None</span>,
-            <span class="ident">features</span>: <span class="macro">vec!</span>[<span class="ident">Feature</span> {
-                <span class="ident">bbox</span>: <span class="prelude-val">None</span>,
-                <span class="ident">id</span>: <span class="prelude-val">None</span>,
-                <span class="ident">properties</span>: <span class="prelude-val">None</span>,
-                <span class="ident">foreign_members</span>: <span class="prelude-val">None</span>,
-                <span class="ident">geometry</span>: <span class="prelude-val">Some</span>(
-                    <span class="ident">app</span>.<span class="ident">map</span>()
-                        .<span class="ident">get_boundary_polygon</span>()
-                        .<span class="ident">to_geojson</span>(<span class="prelude-val">Some</span>(<span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_gps_bounds</span>())),
-                ),
-            }],
-        }),
+        <span class="kw-2">&amp;</span><span class="ident">geom::geometries_to_geojson</span>(<span class="macro">vec!</span>[<span class="ident">app</span>
+            .<span class="ident">map</span>()
+            .<span class="ident">get_boundary_polygon</span>()
+            .<span class="ident">to_geojson</span>(<span class="prelude-val">Some</span>(<span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_gps_bounds</span>()))]),
     );
 
     <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident"><span class="kw">crate</span>::tools::RunCommand::new_state</span>(
