@@ -425,7 +425,7 @@
 <span class="doccomment">/// left, unprotected right on red. With a last stage that is all-walk and variable.</span>
 <span class="doccomment">/// In some degenerate cases, usually with one or more one-way, this can reduce to stage per road.</span>
 <span class="doccomment">/// In some rare cases, usually with an alleyway, oncoming lanes can&#39;t both be protected left turns.</span>
-<span class="doccomment">/// In such cases the stage is split into two stages with each having a protected and yeild turn.</span>
+<span class="doccomment">/// In such cases the stage is split into two stages with each having a protected and yield turn.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_traffic_signal</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ControlTrafficSignal</span><span class="op">&gt;</span> {
     <span class="comment">// Try to create the stages, this returns a unoptimized signal, which is then optimized.</span>
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ts</span>) <span class="op">=</span> <span class="ident">make_signal</span>(<span class="ident">i</span>, <span class="ident">map</span>) {
@@ -543,7 +543,7 @@
 <span class="doccomment">/// stages will be added. The first stage has protected straight, and right and yield left.</span>
 <span class="doccomment">/// The second stage has protected left. Lastly, sometimes oncomming left turns can&#39;t both</span>
 <span class="doccomment">/// be protected, if this occurs the 2nd stage will have one direction protected and the</span>
-<span class="doccomment">/// other yeild and a 3rd, inverse, stage will be added which has the other direction&#39;s left</span>
+<span class="doccomment">/// other yield and a 3rd, inverse, stage will be added which has the other direction&#39;s left</span>
 <span class="doccomment">/// protected and other yield. Finally, any turns which weren&#39;t assigned, because there</span>
 <span class="doccomment">/// are no straights or there are more than just pairs of straight intersections, are assigned a</span>
 <span class="doccomment">/// stage. These, too are handled as pairs until one remains, which is handled as a one-way.</span>

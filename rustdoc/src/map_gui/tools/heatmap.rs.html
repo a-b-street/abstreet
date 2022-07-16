@@ -677,7 +677,7 @@
     <span class="comment">// in a 2D grid of costs. Use a 100x100 meter resolution.</span>
     <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_bounds</span>();
     <span class="kw">let</span> <span class="ident">resolution_m</span> <span class="op">=</span> <span class="number">100.0</span>;
-    <span class="comment">// The costs we&#39;re storing are currenly durations, but the contour crate needs f64, so</span>
+    <span class="comment">// The costs we&#39;re storing are currently durations, but the contour crate needs f64, so</span>
     <span class="comment">// just store the number of seconds.</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">grid</span>: <span class="ident">Grid</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Grid::new</span>(
         (<span class="ident">bounds</span>.<span class="ident">width</span>() <span class="op">/</span> <span class="ident">resolution_m</span>).<span class="ident">ceil</span>() <span class="kw">as</span> <span class="ident">usize</span>,

@@ -568,7 +568,7 @@
     <span class="comment">// Sometimes bike or walk for moderate trips</span>
     <span class="kw">if</span> <span class="ident">distance</span> <span class="op">&lt;</span> <span class="ident">config</span>.<span class="ident">walk_or_bike_for_distances_shorter_than</span> {
         <span class="comment">// TODO We could move all of these params to Config, but I&#39;m not sure if the overall flow</span>
-        <span class="comment">// of logic in this functon is what we want yet.</span>
+        <span class="comment">// of logic in this function is what we want yet.</span>
         <span class="kw">if</span> <span class="ident">rng</span>.<span class="ident">gen_bool</span>(<span class="number">0.15</span>) {
             <span class="kw">return</span> <span class="ident">TripMode::Bike</span>;
         }

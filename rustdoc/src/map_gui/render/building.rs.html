@@ -330,7 +330,7 @@
 
                 <span class="kw">let</span> <span class="ident">bldg_height_per_level</span> <span class="op">=</span> <span class="number">3.5</span>;
                 <span class="comment">// In downtown areas, really tall buildings look kind of ridculous next to</span>
-                <span class="comment">// everything else. So we artifically compress the number of levels a bit.</span>
+                <span class="comment">// everything else. So we artificially compress the number of levels a bit.</span>
                 <span class="kw">let</span> <span class="ident">bldg_rendered_meters</span> <span class="op">=</span> <span class="ident">bldg_height_per_level</span> <span class="op">*</span> <span class="ident">bldg</span>.<span class="ident">levels</span>.<span class="ident">powf</span>(<span class="number">0.8</span>);
                 <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="ident">bldg_rendered_meters</span>);
 

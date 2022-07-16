@@ -493,7 +493,7 @@
         <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Actions</span>,
     ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span> {
         <span class="comment">// Normally we just do this once at the beginning, but because there are other paths to</span>
-        <span class="comment">// reseting (like jump-to-time), it&#39;s safest just to do this.</span>
+        <span class="comment">// resetting (like jump-to-time), it&#39;s safest just to do this.</span>
         <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim_cb</span>.<span class="ident">is_none</span>() {
             <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim_cb</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">FindDelayedIntersections</span> {
                 <span class="ident">halt_limit</span>: <span class="ident">THRESHOLD</span>,

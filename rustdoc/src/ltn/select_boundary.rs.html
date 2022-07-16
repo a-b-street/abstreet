@@ -556,7 +556,7 @@
     }
 
     <span class="comment">// Ok(Some(x)) means the current neighbourhood was destroyed, and the caller should switch to</span>
-    <span class="comment">// focusing on a different neigbhorhood</span>
+    <span class="comment">// focusing on a different neighborhood</span>
     <span class="kw">fn</span> <span class="ident">try_toggle_block</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">BlockID</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NeighbourhoodID</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">currently_have_block</span>(<span class="ident">app</span>, <span class="ident">id</span>) {
             <span class="ident">app</span>.<span class="ident">session</span>

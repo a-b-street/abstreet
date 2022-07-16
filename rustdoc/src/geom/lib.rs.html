@@ -243,7 +243,7 @@
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">EPSILON_DIST</span>: <span class="ident">Distance</span> <span class="op">=</span> <span class="ident">Distance::const_meters</span>(<span class="number">0.01</span>);
 
 <span class="doccomment">/// Reduce the precision of an f64. This helps ensure serialization is idempotent (everything is</span>
-<span class="doccomment">/// exacly the same before and after saving/loading). Ideally we&#39;d use some kind of proper</span>
+<span class="doccomment">/// exactly the same before and after saving/loading). Ideally we&#39;d use some kind of proper</span>
 <span class="doccomment">/// fixed-precision type instead of f64.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trim_f64</span>(<span class="ident">x</span>: <span class="ident">f64</span>) -&gt; <span class="ident">f64</span> {
     (<span class="ident">x</span> <span class="op">*</span> <span class="number">10_000.0</span>).<span class="ident">round</span>() <span class="op">/</span> <span class="number">10_000.0</span>
