@@ -220,6 +220,25 @@ impl GeomBatch {
         self
     }
 
+    /// Equivalent to
+    /// `self.scale(scale).centered_on(center_on).rotate_around_batch_center(rotate)`, but faster.
+    pub fn multi_transform(mut self, scale: f64, center_on: Pt2D, rotate: Angle) -> GeomBatch {
+        if self.list.is_empty() {
+            return self;
+        }
+
+        let bounds = self.get_bounds().scale(scale);
+        let dx = center_on.x() - bounds.width() / 2.0;
+        let dy = center_on.y() - bounds.height() / 2.0;
+        let rotate_around_pt = bounds.center();
+
+        for (_, poly, _) in &mut self.list {
+            poly.inplace_multi_transform(scale, dx, dy, rotate, rotate_around_pt);
+        }
+
+        self
+    }
+
     /// Scales the batch by some factor.
     pub fn scale(self, factor: f64) -> GeomBatch {
         self.scale_xy(factor, factor)

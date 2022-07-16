@@ -169,6 +169,38 @@ impl Polygon {
         })
     }
 
+    /// Equivalent to `self.strip_rings().scale(scale).translate(translate_x, translate_y).rotate_around(rotate,
+    /// pivot)`, but modifies the polygon in-place and is faster.
+    pub fn inplace_multi_transform(
+        &mut self,
+        scale: f64,
+        translate_x: f64,
+        translate_y: f64,
+        rotate: Angle,
+        pivot: Pt2D,
+    ) {
+        // Give up on preserving rings; they might collapse down during transformation. It's a
+        // waste of performance anyway; this method is useful mainly for tesselations.
+        self.rings = None;
+
+        let (sin, cos) = rotate.normalized_radians().sin_cos();
+
+        for pt in &mut self.points {
+            // Scale
+            let x = scale * pt.x();
+            let y = scale * pt.y();
+            // Translate
+            let x = x + translate_x;
+            let y = y + translate_y;
+            // Rotate
+            let origin_pt = Pt2D::new(x - pivot.x(), y - pivot.y());
+            *pt = Pt2D::new(
+                pivot.x() + origin_pt.x() * cos - origin_pt.y() * sin,
+                pivot.y() + origin_pt.y() * cos + origin_pt.x() * sin,
+            );
+        }
+    }
+
     /// The order of these points depends on the constructor! The first and last point may or may
     /// not match. Polygons constructed from PolyLines will have a very weird order.
     // TODO rename outer_points to be clear
