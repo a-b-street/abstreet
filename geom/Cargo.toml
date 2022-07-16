@@ -8,6 +8,7 @@ edition = "2021"
 aabb-quadtree = "0.1.0"
 abstutil = { path = "../abstutil" }
 anyhow = "1.0.38"
+cavalier_contours = "0.2.0"
 earcutr = "0.1.1"
 fs-err = "2.6.0"
 geo = "0.22.0"

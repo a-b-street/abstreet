@@ -120,6 +120,16 @@ impl EditRoad {
                     Choice::strings(vec!["both", "none", "left", "right"]),
                 ),
             ]),
+            Widget::row(vec![
+                "Width scale".text_widget(ctx).margin_right(20),
+                Spinner::widget(
+                    ctx,
+                    "width_scale",
+                    (0.5, 10.0),
+                    1.0,
+                    0.5,
+                ),
+            ]),
         ]);
 
         let col = vec![
@@ -201,12 +211,29 @@ impl SimpleState<App> for EditRoad {
 
                 road.lane_specs_ltr =
                     raw_map::get_lane_specs_ltr(&road.osm_tags, &app.model.map.streets.config);
+                let scale = panel.spinner("width_scale");
+                for lane in &mut road.lane_specs_ltr {
+                    lane.width *= scale;
+                }
 
                 app.model.road_added(ctx, self.r);
                 Transition::Pop
             }
             _ => unreachable!(),
         }
+    }
+
+    fn panel_changed(&mut self, ctx: &mut EventCtx, app: &mut App, panel: &mut Panel) -> Option<Transition<App>> {
+        let scale = panel.spinner("width_scale");
+        app.model.road_deleted(self.r);
+        let road = app.model.map.streets.roads.get_mut(&self.r).unwrap();
+        road.lane_specs_ltr =
+            raw_map::get_lane_specs_ltr(&road.osm_tags, &app.model.map.streets.config);
+        for lane in &mut road.lane_specs_ltr {
+            lane.width *= scale;
+        }
+        app.model.road_added(ctx, self.r);
+        Some(Transition::Keep)
     }
 
     fn other_event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition<App> {
