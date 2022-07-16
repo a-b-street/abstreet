@@ -122,13 +122,7 @@ impl EditRoad {
             ]),
             Widget::row(vec![
                 "Width scale".text_widget(ctx).margin_right(20),
-                Spinner::widget(
-                    ctx,
-                    "width_scale",
-                    (0.5, 10.0),
-                    1.0,
-                    0.5,
-                ),
+                Spinner::widget(ctx, "width_scale", (0.5, 10.0), 1.0, 0.5),
             ]),
         ]);
 
@@ -223,7 +217,12 @@ impl SimpleState<App> for EditRoad {
         }
     }
 
-    fn panel_changed(&mut self, ctx: &mut EventCtx, app: &mut App, panel: &mut Panel) -> Option<Transition<App>> {
+    fn panel_changed(
+        &mut self,
+        ctx: &mut EventCtx,
+        app: &mut App,
+        panel: &mut Panel,
+    ) -> Option<Transition<App>> {
         let scale = panel.spinner("width_scale");
         app.model.road_deleted(self.r);
         let road = app.model.map.streets.roads.get_mut(&self.r).unwrap();

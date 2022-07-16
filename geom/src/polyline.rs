@@ -84,17 +84,14 @@ impl PolyLine {
 
     /// Like make_polygons, but make sure the points actually form a ring.
     pub fn to_thick_ring(&self, width: Distance) -> Ring {
-        let mut side1 = self
-            .shift_with_sharp_angles(width / 2.0, MITER_THRESHOLD)
-            .unwrap();
-        let mut side2 = self
-            .shift_with_sharp_angles(-width / 2.0, MITER_THRESHOLD)
-            .unwrap();
-        side2.reverse();
-        side1.extend(side2);
-        side1.push(side1[0]);
-        side1.dedup();
-        Ring::must_new(side1)
+        let left = self.cav_raw_shift(-width / 2.0);
+        let right = self.cav_raw_shift(width / 2.0);
+        let mut pts = left;
+        pts.reverse();
+        pts.extend(right);
+        pts.push(pts[0]);
+        pts.dedup();
+        Ring::must_new(pts)
     }
 
     pub fn to_thick_boundary(
@@ -421,14 +418,16 @@ impl PolyLine {
     }
 
     pub fn shift_right(&self, width: Distance) -> Result<PolyLine> {
-        self.shift_with_corrections(width)
+        //self.shift_with_corrections(width)
+        PolyLine::deduping_new(self.cav_raw_shift(width))
     }
     pub fn must_shift_right(&self, width: Distance) -> PolyLine {
         self.shift_right(width).unwrap()
     }
 
     pub fn shift_left(&self, width: Distance) -> Result<PolyLine> {
-        self.shift_with_corrections(-width)
+        //self.shift_with_corrections(-width)
+        PolyLine::deduping_new(self.cav_raw_shift(-width))
     }
     pub fn must_shift_left(&self, width: Distance) -> PolyLine {
         self.shift_left(width).unwrap()
@@ -1136,4 +1135,55 @@ fn to_set(pts: &[Pt2D]) -> (HashSet<HashablePt2D>, HashSet<HashablePt2D>) {
         }
     }
     (deduped, dupes)
+}
+
+use cavalier_contours::polyline::{
+    PlineCreation, PlineOffsetOptions, PlineSource, PlineSourceMut, PlineVertex, Polyline as CPL,
+};
+
+impl PolyLine {
+    fn to_cav(&self) -> CPL {
+        let mut pl = CPL::empty();
+        for pt in self.points() {
+            let bulge = 0.0;
+            pl.add_vertex(PlineVertex::new(pt.x(), pt.y(), bulge));
+        }
+        pl
+    }
+
+    // Positive is right
+    fn cav_raw_shift(&self, width: Distance) -> Vec<Pt2D> {
+        let cpl = self.to_cav();
+
+        let options = PlineOffsetOptions {
+            handle_self_intersects: true,
+            ..Default::default()
+        };
+        // cav_contours flips the left/right offset direction
+        let output = cpl.parallel_offset_opt(-width.inner_meters(), &options);
+        println!(
+            "input {} pts, output {} plines",
+            self.points().len(),
+            output.len()
+        );
+        let mut pts = Vec::new();
+        for pline in output {
+            for vert in pline.iter_vertexes() {
+                pts.push(Pt2D::new(vert.x, vert.y));
+            }
+        }
+        println!("... output had total of {} pts", pts.len());
+        pts
+    }
+
+    pub fn cav_make_polygons(&self, width: Distance) -> Polygon {
+        let left = self.cav_raw_shift(-width / 2.0);
+        let right = self.cav_raw_shift(width / 2.0);
+        let mut pts = left;
+        pts.reverse();
+        pts.extend(right);
+        pts.push(pts[0]);
+        pts.dedup();
+        Ring::must_new(pts).into_polygon()
+    }
 }
