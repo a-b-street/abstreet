@@ -230,7 +230,7 @@ impl GeomBatch {
         let bounds = self.get_bounds().scale(scale);
         let dx = center_on.x() - bounds.width() / 2.0;
         let dy = center_on.y() - bounds.height() / 2.0;
-        let rotate_around_pt = bounds.center();
+        let rotate_around_pt = bounds.center().offset(dx, dy);
 
         for (_, poly, _) in &mut self.list {
             poly.inplace_multi_transform(scale, dx, dy, rotate, rotate_around_pt);
