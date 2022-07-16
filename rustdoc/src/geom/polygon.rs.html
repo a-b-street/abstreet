@@ -666,6 +666,38 @@
 <span id="661">661</span>
 <span id="662">662</span>
 <span id="663">663</span>
+<span id="664">664</span>
+<span id="665">665</span>
+<span id="666">666</span>
+<span id="667">667</span>
+<span id="668">668</span>
+<span id="669">669</span>
+<span id="670">670</span>
+<span id="671">671</span>
+<span id="672">672</span>
+<span id="673">673</span>
+<span id="674">674</span>
+<span id="675">675</span>
+<span id="676">676</span>
+<span id="677">677</span>
+<span id="678">678</span>
+<span id="679">679</span>
+<span id="680">680</span>
+<span id="681">681</span>
+<span id="682">682</span>
+<span id="683">683</span>
+<span id="684">684</span>
+<span id="685">685</span>
+<span id="686">686</span>
+<span id="687">687</span>
+<span id="688">688</span>
+<span id="689">689</span>
+<span id="690">690</span>
+<span id="691">691</span>
+<span id="692">692</span>
+<span id="693">693</span>
+<span id="694">694</span>
+<span id="695">695</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::convert::TryFrom</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
@@ -835,6 +867,38 @@
                 <span class="ident">pivot</span>.<span class="ident">y</span>() <span class="op">+</span> <span class="ident">origin_pt</span>.<span class="ident">y</span>() <span class="op">*</span> <span class="ident">cos</span> <span class="op">+</span> <span class="ident">origin_pt</span>.<span class="ident">x</span>() <span class="op">*</span> <span class="ident">sin</span>,
             )
         })
+    }
+
+    <span class="doccomment">/// Equivalent to `self.strip_rings().scale(scale).translate(translate_x, translate_y).rotate_around(rotate,</span>
+    <span class="doccomment">/// pivot)`, but modifies the polygon in-place and is faster.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inplace_multi_transform</span>(
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
+        <span class="ident">scale</span>: <span class="ident">f64</span>,
+        <span class="ident">translate_x</span>: <span class="ident">f64</span>,
+        <span class="ident">translate_y</span>: <span class="ident">f64</span>,
+        <span class="ident">rotate</span>: <span class="ident">Angle</span>,
+        <span class="ident">pivot</span>: <span class="ident">Pt2D</span>,
+    ) {
+        <span class="comment">// Give up on preserving rings; they might collapse down during transformation. It&#39;s a</span>
+        <span class="comment">// waste of performance anyway; this method is useful mainly for tesselations.</span>
+        <span class="self">self</span>.<span class="ident">rings</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+
+        <span class="kw">let</span> (<span class="ident">sin</span>, <span class="ident">cos</span>) <span class="op">=</span> <span class="ident">rotate</span>.<span class="ident">normalized_radians</span>().<span class="ident">sin_cos</span>();
+
+        <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">points</span> {
+            <span class="comment">// Scale</span>
+            <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">scale</span> <span class="op">*</span> <span class="ident">pt</span>.<span class="ident">x</span>();
+            <span class="kw">let</span> <span class="ident">y</span> <span class="op">=</span> <span class="ident">scale</span> <span class="op">*</span> <span class="ident">pt</span>.<span class="ident">y</span>();
+            <span class="comment">// Translate</span>
+            <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">x</span> <span class="op">+</span> <span class="ident">translate_x</span>;
+            <span class="kw">let</span> <span class="ident">y</span> <span class="op">=</span> <span class="ident">y</span> <span class="op">+</span> <span class="ident">translate_y</span>;
+            <span class="comment">// Rotate</span>
+            <span class="kw">let</span> <span class="ident">origin_pt</span> <span class="op">=</span> <span class="ident">Pt2D::new</span>(<span class="ident">x</span> <span class="op">-</span> <span class="ident">pivot</span>.<span class="ident">x</span>(), <span class="ident">y</span> <span class="op">-</span> <span class="ident">pivot</span>.<span class="ident">y</span>());
+            <span class="kw-2">*</span><span class="ident">pt</span> <span class="op">=</span> <span class="ident">Pt2D::new</span>(
+                <span class="ident">pivot</span>.<span class="ident">x</span>() <span class="op">+</span> <span class="ident">origin_pt</span>.<span class="ident">x</span>() <span class="op">*</span> <span class="ident">cos</span> <span class="op">-</span> <span class="ident">origin_pt</span>.<span class="ident">y</span>() <span class="op">*</span> <span class="ident">sin</span>,
+                <span class="ident">pivot</span>.<span class="ident">y</span>() <span class="op">+</span> <span class="ident">origin_pt</span>.<span class="ident">y</span>() <span class="op">*</span> <span class="ident">cos</span> <span class="op">+</span> <span class="ident">origin_pt</span>.<span class="ident">x</span>() <span class="op">*</span> <span class="ident">sin</span>,
+            );
+        }
     }
 
     <span class="doccomment">/// The order of these points depends on the constructor! The first and last point may or may</span>

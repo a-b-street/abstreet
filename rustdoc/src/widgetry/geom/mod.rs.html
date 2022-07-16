@@ -342,6 +342,25 @@
 <span id="337">337</span>
 <span id="338">338</span>
 <span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Bounds</span>, <span class="ident">GPSBounds</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -561,6 +580,25 @@
         <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">poly</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">list</span> {
             <span class="kw-2">*</span><span class="ident">poly</span> <span class="op">=</span> <span class="ident">poly</span>.<span class="ident">rotate_around</span>(<span class="ident">angle</span>, <span class="ident">center</span>);
         }
+        <span class="self">self</span>
+    }
+
+    <span class="doccomment">/// Equivalent to</span>
+    <span class="doccomment">/// `self.scale(scale).centered_on(center_on).rotate_around_batch_center(rotate)`, but faster.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">multi_transform</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">scale</span>: <span class="ident">f64</span>, <span class="ident">center_on</span>: <span class="ident">Pt2D</span>, <span class="ident">rotate</span>: <span class="ident">Angle</span>) -&gt; <span class="ident">GeomBatch</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">list</span>.<span class="ident">is_empty</span>() {
+            <span class="kw">return</span> <span class="self">self</span>;
+        }
+
+        <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_bounds</span>().<span class="ident">scale</span>(<span class="ident">scale</span>);
+        <span class="kw">let</span> <span class="ident">dx</span> <span class="op">=</span> <span class="ident">center_on</span>.<span class="ident">x</span>() <span class="op">-</span> <span class="ident">bounds</span>.<span class="ident">width</span>() <span class="op">/</span> <span class="number">2.0</span>;
+        <span class="kw">let</span> <span class="ident">dy</span> <span class="op">=</span> <span class="ident">center_on</span>.<span class="ident">y</span>() <span class="op">-</span> <span class="ident">bounds</span>.<span class="ident">height</span>() <span class="op">/</span> <span class="number">2.0</span>;
+        <span class="kw">let</span> <span class="ident">rotate_around_pt</span> <span class="op">=</span> <span class="ident">bounds</span>.<span class="ident">center</span>();
+
+        <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">poly</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">list</span> {
+            <span class="ident">poly</span>.<span class="ident">inplace_multi_transform</span>(<span class="ident">scale</span>, <span class="ident">dx</span>, <span class="ident">dy</span>, <span class="ident">rotate</span>, <span class="ident">rotate_around_pt</span>);
+        }
+
         <span class="self">self</span>
     }
 
