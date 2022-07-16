@@ -64,6 +64,15 @@ impl Bounds {
         self.max_y += sides.inner_meters();
     }
 
+    /// Transform the boundary by scaling its corners.
+    pub fn scale(mut self, factor: f64) -> Self {
+        self.min_x *= factor;
+        self.min_y *= factor;
+        self.max_x *= factor;
+        self.max_y *= factor;
+        self
+    }
+
     /// True if the point is within the boundary.
     pub fn contains(&self, pt: Pt2D) -> bool {
         pt.x() >= self.min_x && pt.x() <= self.max_x && pt.y() >= self.min_y && pt.y() <= self.max_y
