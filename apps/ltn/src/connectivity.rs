@@ -9,9 +9,9 @@ use widgetry::{
 };
 
 use crate::draw_cells::RenderCells;
-use crate::edit::{EditNeighbourhood, EditOutcome, Tab};
+use crate::edit::{EditMode, EditNeighbourhood, EditOutcome, Tab};
 use crate::filters::auto::Heuristic;
-use crate::shortcuts::find_shortcuts;
+use crate::shortcuts::{find_shortcuts, Shortcuts};
 use crate::{colors, App, Neighbourhood, NeighbourhoodID, Transition};
 
 pub struct Viewer {
@@ -19,6 +19,7 @@ pub struct Viewer {
     left_panel: Panel,
     neighbourhood: Neighbourhood,
     draw_top_layer: ToggleZoomed,
+    draw_under_roads_layer: Drawable,
     highlight_cell: World<DummyID>,
     edit: EditNeighbourhood,
 
@@ -34,6 +35,7 @@ impl Viewer {
             left_panel: Panel::empty(ctx),
             neighbourhood,
             draw_top_layer: ToggleZoomed::empty(ctx),
+            draw_under_roads_layer: Drawable::empty(ctx),
             highlight_cell: World::unbounded(),
             edit: EditNeighbourhood::temporary(),
             show_error: Drawable::empty(ctx),
@@ -43,10 +45,11 @@ impl Viewer {
     }
 
     fn update(&mut self, ctx: &mut EventCtx, app: &App) {
-        let (edit, draw_top_layer, render_cells, highlight_cell) =
+        let (edit, draw_top_layer, draw_under_roads_layer, render_cells, highlight_cell, shortcuts) =
             setup_editing(ctx, app, &self.neighbourhood);
         self.edit = edit;
         self.draw_top_layer = draw_top_layer;
+        self.draw_under_roads_layer = draw_under_roads_layer;
         self.highlight_cell = highlight_cell;
 
         let mut show_error = GeomBatch::new();
@@ -85,6 +88,7 @@ impl Viewer {
                 app,
                 Tab::Connectivity,
                 &self.top_panel,
+                &shortcuts,
                 Widget::col(vec![
                     format!(
                         "Neighbourhood area: {}",
@@ -175,10 +179,11 @@ impl State<App> for Viewer {
                 app.session.heuristic = self.left_panel.dropdown_value("heuristic");
 
                 if x != "heuristic" {
-                    let (edit, draw_top_layer, _, highlight_cell) =
+                    let (edit, draw_top_layer, draw_under_roads_layer, _, highlight_cell, _) =
                         setup_editing(ctx, app, &self.neighbourhood);
                     self.edit = edit;
                     self.draw_top_layer = draw_top_layer;
+                    self.draw_under_roads_layer = draw_under_roads_layer;
                     self.highlight_cell = highlight_cell;
                 }
             }
@@ -206,10 +211,11 @@ impl State<App> for Viewer {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        crate::draw_with_layering(g, app, |g| self.edit.world.draw(g));
+        crate::draw_with_layering(g, app, |g| g.redraw(&self.draw_under_roads_layer));
         g.redraw(&self.neighbourhood.fade_irrelevant);
         self.draw_top_layer.draw(g);
         self.highlight_cell.draw(g);
+        self.edit.world.draw(g);
 
         self.top_panel.draw(g);
         self.left_panel.draw(g);
@@ -235,26 +241,31 @@ fn setup_editing(
     ctx: &mut EventCtx,
     app: &App,
     neighbourhood: &Neighbourhood,
-) -> (EditNeighbourhood, ToggleZoomed, RenderCells, World<DummyID>) {
+) -> (
+    EditNeighbourhood,
+    ToggleZoomed,
+    Drawable,
+    RenderCells,
+    World<DummyID>,
+    Shortcuts,
+) {
     let shortcuts = ctx.loading_screen("find shortcuts", |_, timer| {
         find_shortcuts(app, neighbourhood, timer)
     });
 
-    let mut edit = EditNeighbourhood::new(ctx, app, neighbourhood, &shortcuts);
+    let edit = EditNeighbourhood::new(ctx, app, neighbourhood, &shortcuts);
     let map = &app.map;
 
-    // The world is drawn in between areas and roads, but some things need to be drawn on top of
-    // roads
+    // Draw some stuff under roads and other stuff on top
     let mut draw_top_layer = ToggleZoomed::builder();
+    let mut draw_under_roads_layer = GeomBatch::new();
     // Use a separate world to highlight cells when hovering on them. This is separate from
-    // edit.world so it can be drawn at the right layer and also so that we draw it even while
-    // hovering on roads/intersections in a cell
+    // edit.world so that we draw it even while hovering on roads/intersections in a cell
     let mut highlight_cell = World::bounded(app.map.get_bounds());
 
     let render_cells = RenderCells::new(map, neighbourhood);
     if app.session.draw_cells_as_areas {
-        edit.world
-            .draw_master_batch(ctx, render_cells.draw_colored_areas());
+        draw_under_roads_layer = render_cells.draw_colored_areas();
     } else {
         draw_top_layer
             .unzoomed
@@ -291,7 +302,9 @@ fn setup_editing(
         &app.cs.good_to_bad_red,
     );
 
-    draw_top_layer.append(colorer.draw);
+    if !matches!(app.session.edit_mode, EditMode::Shortcuts(_)) {
+        draw_top_layer.append(colorer.draw);
+    }
 
     // Draw the borders of each cell
     for (idx, cell) in neighbourhood.cells.iter().enumerate() {
@@ -341,8 +354,10 @@ fn setup_editing(
     (
         edit,
         draw_top_layer.build(ctx),
+        ctx.upload(draw_under_roads_layer),
         render_cells,
         highlight_cell,
+        shortcuts,
     )
 }
 
