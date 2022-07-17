@@ -62,12 +62,11 @@ impl Tab {
 }
 
 // TODO This will replace Tab soon
-#[derive(Clone, Copy, PartialEq)]
 pub enum EditMode {
     Filters,
     Oneways,
     // Is a road clicked on right now?
-    Shortcuts(Option<RoadID>),
+    Shortcuts(Option<shortcuts::FocusedRoad>),
 }
 
 pub struct EditNeighbourhood {
@@ -108,7 +107,7 @@ impl EditNeighbourhood {
 
     pub fn new(ctx: &mut EventCtx, app: &App, neighbourhood: &Neighbourhood) -> Self {
         Self {
-            world: match app.session.edit_mode {
+            world: match &app.session.edit_mode {
                 EditMode::Filters => filters::make_world(ctx, app, neighbourhood),
                 EditMode::Oneways => one_ways::make_world(ctx, app, neighbourhood),
                 EditMode::Shortcuts(focus) => shortcuts::make_world(ctx, app, neighbourhood, focus),
@@ -122,7 +121,6 @@ impl EditNeighbourhood {
         app: &App,
         tab: Tab,
         top_panel: &Panel,
-        neighbourhood: &Neighbourhood,
         per_tab_contents: Widget,
     ) -> PanelBuilder {
         let contents = Widget::col(vec![
@@ -131,11 +129,11 @@ impl EditNeighbourhood {
             Line("Editing neighbourhood")
                 .small_heading()
                 .into_widget(ctx),
-            edit_mode(ctx, app.session.edit_mode),
+            edit_mode(ctx, &app.session.edit_mode),
             match app.session.edit_mode {
                 EditMode::Filters => filters::widget(ctx, app),
                 EditMode::Oneways => one_ways::widget(ctx),
-                EditMode::Shortcuts(focus) => shortcuts::widget(ctx, app, neighbourhood, focus),
+                EditMode::Shortcuts(ref focus) => shortcuts::widget(ctx, app, focus.as_ref()),
             }
             .section(ctx),
             tab.make_buttons(ctx, app),
@@ -145,12 +143,17 @@ impl EditNeighbourhood {
         crate::components::LeftPanel::builder(ctx, top_panel, contents)
     }
 
-    pub fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> EditOutcome {
+    pub fn event(
+        &mut self,
+        ctx: &mut EventCtx,
+        app: &mut App,
+        neighbourhood: &Neighbourhood,
+    ) -> EditOutcome {
         let outcome = self.world.event(ctx);
         let outcome = match app.session.edit_mode {
             EditMode::Filters => filters::handle_world_outcome(ctx, app, outcome),
             EditMode::Oneways => one_ways::handle_world_outcome(ctx, app, outcome),
-            EditMode::Shortcuts(_) => shortcuts::handle_world_outcome(ctx, app, outcome),
+            EditMode::Shortcuts(_) => shortcuts::handle_world_outcome(app, outcome, neighbourhood),
         };
         if matches!(outcome, EditOutcome::Transition(_)) {
             self.world.hack_unset_hovering();
@@ -213,16 +216,28 @@ impl EditNeighbourhood {
                 app.session.edit_mode = EditMode::Shortcuts(None);
                 Some(Transition::Recreate)
             }
+            "previous shortcut" => {
+                if let EditMode::Shortcuts(Some(ref mut focus)) = app.session.edit_mode {
+                    focus.current_idx -= 1;
+                }
+                Some(Transition::Recreate)
+            }
+            "next shortcut" => {
+                if let EditMode::Shortcuts(Some(ref mut focus)) = app.session.edit_mode {
+                    focus.current_idx += 1;
+                }
+                Some(Transition::Recreate)
+            }
             _ => None,
         }
     }
 }
 
-fn edit_mode(ctx: &mut EventCtx, edit_mode: EditMode) -> Widget {
+fn edit_mode(ctx: &mut EventCtx, edit_mode: &EditMode) -> Widget {
     let mut row = Vec::new();
     for (label, is_current) in [
-        ("Filters", edit_mode == EditMode::Filters),
-        ("One-ways", edit_mode == EditMode::Oneways),
+        ("Filters", matches!(edit_mode, EditMode::Filters)),
+        ("One-ways", matches!(edit_mode, EditMode::Oneways)),
         ("Shortcuts", matches!(edit_mode, EditMode::Shortcuts(_))),
     ] {
         row.push(

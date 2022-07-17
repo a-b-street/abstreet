@@ -8,8 +8,8 @@ use abstutil::prettyprint_usize;
 use geom::{Distance, Duration, PolyLine, Polygon, Ring, Speed, EPSILON_DIST};
 
 use crate::{
-    BuildingID, DirectedRoadID, LaneID, Map, PathConstraints, Position, Traversable, TurnID,
-    UberTurn,
+    BuildingID, DirectedRoadID, LaneID, Map, PathConstraints, Position, RoadID, Traversable,
+    TurnID, UberTurn,
 };
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -557,6 +557,17 @@ impl Path {
             "get_step_at_dist_along has leftover distance of {}",
             dist_along
         );
+    }
+
+    pub fn crosses_road(&self, r: RoadID) -> bool {
+        for step in &self.steps {
+            if let PathStep::Lane(l) | PathStep::ContraflowLane(l) = step {
+                if l.road == r {
+                    return true;
+                }
+            }
+        }
+        false
     }
 }
 

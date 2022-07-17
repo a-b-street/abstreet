@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use abstutil::{Counter, Timer};
+use abstutil::Counter;
 use geom::Distance;
 use map_gui::tools::{ColorNetwork, DrawRoadLabels};
 use synthpop::Scenario;
@@ -123,7 +123,7 @@ impl State<App> for BrowseNeighbourhoods {
                 } else if x == "style" {
                     app.session.draw_neighbourhood_style = self.left_panel.dropdown_value("style");
 
-                    ctx.loading_screen("change style", |ctx, timer| {
+                    ctx.loading_screen("change style", |ctx, _| {
                         self.world = make_world(ctx, app);
                         self.draw_over_roads = draw_over_roads(ctx, app);
                     });

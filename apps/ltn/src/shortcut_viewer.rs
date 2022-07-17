@@ -66,7 +66,6 @@ impl BrowseShortcuts {
                     app,
                     Tab::Shortcuts,
                     &self.top_panel,
-                    &self.neighbourhood,
                     percentage_bar(
                         ctx,
                         Text::from(Line(format!(
@@ -92,7 +91,6 @@ impl BrowseShortcuts {
                     app,
                     Tab::Shortcuts,
                     &self.top_panel,
-                    &self.neighbourhood,
                     Widget::col(vec![
                         percentage_bar(
                             ctx,
@@ -211,7 +209,7 @@ impl State<App> for BrowseShortcuts {
             _ => {}
         }
 
-        match self.edit.event(ctx, app) {
+        match self.edit.event(ctx, app, &self.neighbourhood) {
             EditOutcome::Nothing => {}
             EditOutcome::Recalculate => {
                 // Reset state, but if possible, preserve the current individual shortcut.

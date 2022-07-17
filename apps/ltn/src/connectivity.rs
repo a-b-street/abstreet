@@ -87,7 +87,6 @@ impl Viewer {
                 app,
                 Tab::Connectivity,
                 &self.top_panel,
-                &self.neighbourhood,
                 Widget::col(vec![
                     format!(
                         "Neighbourhood area: {}",
@@ -189,7 +188,7 @@ impl State<App> for Viewer {
             _ => {}
         }
 
-        match self.edit.event(ctx, app) {
+        match self.edit.event(ctx, app, &self.neighbourhood) {
             EditOutcome::Nothing => {}
             EditOutcome::Recalculate => {
                 self.neighbourhood = Neighbourhood::new(ctx, app, self.neighbourhood.id);
