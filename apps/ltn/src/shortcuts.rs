@@ -36,6 +36,14 @@ impl Shortcuts {
         let total_streets = neighbourhood.orig_perimeter.interior.len();
         (quiet_streets, total_streets)
     }
+
+    pub fn subset(&self, r: RoadID) -> Vec<Path> {
+        self.paths
+            .iter()
+            .filter(|path| path.crosses_road(r))
+            .cloned()
+            .collect()
+    }
 }
 
 pub fn find_shortcuts(app: &App, neighbourhood: &Neighbourhood, timer: &mut Timer) -> Shortcuts {
