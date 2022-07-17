@@ -9,7 +9,7 @@ use widgetry::{
 };
 
 use crate::draw_cells::RenderCells;
-use crate::edit::{EditMode, EditNeighbourhood, EditOutcome, Tab};
+use crate::edit::{EditMode, EditNeighbourhood, EditOutcome};
 use crate::filters::auto::Heuristic;
 use crate::{colors, App, Neighbourhood, NeighbourhoodID, Transition};
 
@@ -85,7 +85,6 @@ impl Viewer {
             .panel_builder(
                 ctx,
                 app,
-                Tab::Connectivity,
                 &self.top_panel,
                 Widget::col(vec![
                     format!(
