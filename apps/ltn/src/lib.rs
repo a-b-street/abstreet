@@ -32,7 +32,6 @@ mod partition;
 mod route_planner;
 mod save;
 mod select_boundary;
-mod shortcut_viewer;
 mod shortcuts;
 
 type App = map_gui::SimpleApp<Session>;

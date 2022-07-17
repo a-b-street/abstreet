@@ -9,59 +9,6 @@ use widgetry::{EventCtx, Key, Line, Panel, PanelBuilder, Widget, DEFAULT_CORNER_
 
 use crate::{after_edit, App, BrowseNeighbourhoods, Neighbourhood, Transition};
 
-// TODO This is only used for styling now
-#[derive(PartialEq)]
-pub enum Tab {
-    Connectivity,
-    Shortcuts,
-}
-
-impl Tab {
-    fn make_buttons(self, ctx: &mut EventCtx, app: &App) -> Widget {
-        let mut row = Vec::new();
-        for (tab, label, key) in [
-            (Tab::Connectivity, "Connectivity", Key::F1),
-            (Tab::Shortcuts, "Shortcuts (old)", Key::F2),
-        ] {
-            // TODO Match the TabController styling
-            row.push(
-                ctx.style()
-                    .btn_tab
-                    .text(label)
-                    .corner_rounding(geom::CornerRadii {
-                        top_left: DEFAULT_CORNER_RADIUS,
-                        top_right: DEFAULT_CORNER_RADIUS,
-                        bottom_left: 0.0,
-                        bottom_right: 0.0,
-                    })
-                    .hotkey(key)
-                    // We abuse "disabled" to denote "currently selected"
-                    .disabled(self == tab)
-                    .build_def(ctx),
-            );
-        }
-        if app.session.consultation.is_none() {
-            // TODO The 3rd doesn't really act like a tab
-            row.push(
-                ctx.style()
-                    .btn_tab
-                    .text("Adjust boundary")
-                    .corner_rounding(geom::CornerRadii {
-                        top_left: DEFAULT_CORNER_RADIUS,
-                        top_right: DEFAULT_CORNER_RADIUS,
-                        bottom_left: 0.0,
-                        bottom_right: 0.0,
-                    })
-                    .hotkey(Key::B)
-                    .build_def(ctx),
-            );
-        }
-
-        Widget::row(row)
-    }
-}
-
-// TODO This will replace Tab soon
 pub enum EditMode {
     Filters,
     Oneways,
@@ -119,7 +66,6 @@ impl EditNeighbourhood {
         &self,
         ctx: &mut EventCtx,
         app: &App,
-        tab: Tab,
         top_panel: &Panel,
         per_tab_contents: Widget,
     ) -> PanelBuilder {
@@ -136,9 +82,21 @@ impl EditNeighbourhood {
                 EditMode::Shortcuts(ref focus) => shortcuts::widget(ctx, app, focus.as_ref()),
             }
             .section(ctx),
-            tab.make_buttons(ctx, app),
+            {
+                let mut row = Vec::new();
+                if app.session.consultation.is_none() {
+                    row.push(
+                        ctx.style()
+                            .btn_outline
+                            .text("Adjust boundary")
+                            .hotkey(Key::B)
+                            .build_def(ctx),
+                    );
+                }
+                row.push(crate::route_planner::RoutePlanner::button(ctx));
+                Widget::row(row)
+            },
             per_tab_contents,
-            crate::route_planner::RoutePlanner::button(ctx),
         ]);
         crate::components::LeftPanel::builder(ctx, top_panel, contents)
     }
@@ -179,12 +137,6 @@ impl EditNeighbourhood {
             }
             "Adjust boundary" => Some(Transition::Replace(
                 crate::select_boundary::SelectBoundary::new_state(ctx, app, id),
-            )),
-            "Connectivity" => Some(Transition::Replace(crate::connectivity::Viewer::new_state(
-                ctx, app, id,
-            ))),
-            "Shortcuts (old)" => Some(Transition::Replace(
-                crate::shortcut_viewer::BrowseShortcuts::new_state(ctx, app, id, None),
             )),
             // Overkill to force all mode-specific code into the module
             "Create filters along a shape" => Some(Transition::Push(

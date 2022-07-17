@@ -5,7 +5,6 @@ use serde::{Deserialize, Serialize};
 
 use abstio::MapName;
 use abstutil::Counter;
-use map_model::PathRequest;
 use widgetry::tools::{ChooseSomething, PopupMsg, PromptInput};
 use widgetry::{Choice, EventCtx, Key, Line, State, Widget};
 
@@ -312,8 +311,8 @@ impl AltProposals {
 pub enum PreserveState {
     BrowseNeighbourhoods,
     Route,
+    // TODO app.session.edit_mode now has state for Shortcuts...
     Connectivity(Vec<BlockID>),
-    Shortcuts(Option<PathRequest>, Vec<BlockID>),
 }
 
 impl PreserveState {
@@ -336,18 +335,6 @@ impl PreserveState {
                     ctx,
                     app,
                     count.max_key(),
-                ))
-            }
-            PreserveState::Shortcuts(req, blocks) => {
-                let mut count = Counter::new();
-                for block in blocks {
-                    count.inc(app.session.partitioning.block_to_neighbourhood(block));
-                }
-                Transition::Replace(crate::shortcut_viewer::BrowseShortcuts::new_state(
-                    ctx,
-                    app,
-                    count.max_key(),
-                    req,
                 ))
             }
         }
