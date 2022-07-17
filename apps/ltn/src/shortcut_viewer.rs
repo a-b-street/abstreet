@@ -70,6 +70,7 @@ impl BrowseShortcuts {
                     app,
                     Tab::Shortcuts,
                     &self.top_panel,
+                    &self.shortcuts,
                     percentage_bar(
                         ctx,
                         Text::from(Line(format!(
@@ -95,6 +96,7 @@ impl BrowseShortcuts {
                     app,
                     Tab::Shortcuts,
                     &self.top_panel,
+                    &self.shortcuts,
                     Widget::col(vec![
                         percentage_bar(
                             ctx,

@@ -1,5 +1,6 @@
 mod filters;
 mod one_ways;
+mod shortcuts;
 
 use map_model::{IntersectionID, RoadID};
 use widgetry::mapspace::{ObjectID, World};
@@ -21,7 +22,7 @@ impl Tab {
         let mut row = Vec::new();
         for (tab, label, key) in [
             (Tab::Connectivity, "Connectivity", Key::F1),
-            (Tab::Shortcuts, "Shortcuts", Key::F2),
+            (Tab::Shortcuts, "Shortcuts (old)", Key::F2),
         ] {
             // TODO Match the TabController styling
             row.push(
@@ -59,6 +60,15 @@ impl Tab {
 
         Widget::row(row)
     }
+}
+
+// TODO This will replace Tab soon
+#[derive(Clone, Copy, PartialEq)]
+pub enum EditMode {
+    Filters,
+    Oneways,
+    // Is a road clicked on right now?
+    Shortcuts(Option<RoadID>),
 }
 
 pub struct EditNeighbourhood {
@@ -104,10 +114,12 @@ impl EditNeighbourhood {
         shortcuts: &Shortcuts,
     ) -> Self {
         Self {
-            world: if app.session.edit_filters {
-                filters::make_world(ctx, app, neighbourhood, shortcuts)
-            } else {
-                one_ways::make_world(ctx, app, neighbourhood)
+            world: match app.session.edit_mode {
+                EditMode::Filters => filters::make_world(ctx, app, neighbourhood, shortcuts),
+                EditMode::Oneways => one_ways::make_world(ctx, app, neighbourhood),
+                EditMode::Shortcuts(focus) => {
+                    shortcuts::make_world(ctx, app, neighbourhood, shortcuts, focus)
+                }
             },
         }
     }
@@ -118,6 +130,7 @@ impl EditNeighbourhood {
         app: &App,
         tab: Tab,
         top_panel: &Panel,
+        shortcuts: &Shortcuts,
         per_tab_contents: Widget,
     ) -> PanelBuilder {
         let contents = Widget::col(vec![
@@ -126,11 +139,11 @@ impl EditNeighbourhood {
             Line("Editing neighbourhood")
                 .small_heading()
                 .into_widget(ctx),
-            edit_mode(ctx, app.session.edit_filters),
-            if app.session.edit_filters {
-                filters::widget(ctx, app)
-            } else {
-                one_ways::widget(ctx)
+            edit_mode(ctx, app.session.edit_mode),
+            match app.session.edit_mode {
+                EditMode::Filters => filters::widget(ctx, app),
+                EditMode::Oneways => one_ways::widget(ctx),
+                EditMode::Shortcuts(focus) => shortcuts::widget(ctx, app, shortcuts, focus),
             }
             .section(ctx),
             tab.make_buttons(ctx, app),
@@ -142,10 +155,10 @@ impl EditNeighbourhood {
 
     pub fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> EditOutcome {
         let outcome = self.world.event(ctx);
-        let outcome = if app.session.edit_filters {
-            filters::handle_world_outcome(ctx, app, outcome)
-        } else {
-            one_ways::handle_world_outcome(ctx, app, outcome)
+        let outcome = match app.session.edit_mode {
+            EditMode::Filters => filters::handle_world_outcome(ctx, app, outcome),
+            EditMode::Oneways => one_ways::handle_world_outcome(ctx, app, outcome),
+            EditMode::Shortcuts(_) => shortcuts::handle_world_outcome(ctx, app, outcome),
         };
         if matches!(outcome, EditOutcome::Transition(_)) {
             self.world.hack_unset_hovering();
@@ -175,7 +188,7 @@ impl EditNeighbourhood {
             "Connectivity" => Some(Transition::Replace(crate::connectivity::Viewer::new_state(
                 ctx, app, id,
             ))),
-            "Shortcuts" => Some(Transition::Replace(
+            "Shortcuts (old)" => Some(Transition::Replace(
                 crate::shortcut_viewer::BrowseShortcuts::new_state(ctx, app, id, None),
             )),
             // Overkill to force all mode-specific code into the module
@@ -197,11 +210,15 @@ impl EditNeighbourhood {
                 crate::route_planner::RoutePlanner::new_state(ctx, app),
             )),
             "Filters" => {
-                app.session.edit_filters = true;
+                app.session.edit_mode = EditMode::Filters;
                 Some(Transition::Recreate)
             }
             "One-ways" => {
-                app.session.edit_filters = false;
+                app.session.edit_mode = EditMode::Oneways;
+                Some(Transition::Recreate)
+            }
+            "Shortcuts" => {
+                app.session.edit_mode = EditMode::Shortcuts(None);
                 Some(Transition::Recreate)
             }
             _ => None,
@@ -209,33 +226,26 @@ impl EditNeighbourhood {
     }
 }
 
-fn edit_mode(ctx: &mut EventCtx, filters: bool) -> Widget {
+fn edit_mode(ctx: &mut EventCtx, edit_mode: EditMode) -> Widget {
     let mut row = Vec::new();
-    row.push(
-        ctx.style()
-            .btn_tab
-            .text("Filters")
-            .corner_rounding(geom::CornerRadii {
-                top_left: DEFAULT_CORNER_RADIUS,
-                top_right: DEFAULT_CORNER_RADIUS,
-                bottom_left: 0.0,
-                bottom_right: 0.0,
-            })
-            .disabled(filters)
-            .build_def(ctx),
-    );
-    row.push(
-        ctx.style()
-            .btn_tab
-            .text("One-ways")
-            .corner_rounding(geom::CornerRadii {
-                top_left: DEFAULT_CORNER_RADIUS,
-                top_right: DEFAULT_CORNER_RADIUS,
-                bottom_left: 0.0,
-                bottom_right: 0.0,
-            })
-            .disabled(!filters)
-            .build_def(ctx),
-    );
+    for (label, is_current) in [
+        ("Filters", edit_mode == EditMode::Filters),
+        ("One-ways", edit_mode == EditMode::Oneways),
+        ("Shortcuts", matches!(edit_mode, EditMode::Shortcuts(_))),
+    ] {
+        row.push(
+            ctx.style()
+                .btn_tab
+                .text(label)
+                .corner_rounding(geom::CornerRadii {
+                    top_left: DEFAULT_CORNER_RADIUS,
+                    top_right: DEFAULT_CORNER_RADIUS,
+                    bottom_left: 0.0,
+                    bottom_right: 0.0,
+                })
+                .disabled(is_current)
+                .build_def(ctx),
+        );
+    }
     Widget::row(row)
 }
