@@ -4,13 +4,11 @@ use widgetry::mapspace::ToggleZoomed;
 use widgetry::{EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text, TextExt, Widget};
 
 use crate::edit::{EditNeighbourhood, EditOutcome, Tab};
-use crate::shortcuts::{find_shortcuts, Shortcuts};
 use crate::{colors, App, Neighbourhood, NeighbourhoodID, Transition};
 
 pub struct BrowseShortcuts {
     top_panel: Panel,
     left_panel: Panel,
-    shortcuts: Shortcuts,
     current_idx: usize,
 
     draw_path: ToggleZoomed,
@@ -26,16 +24,11 @@ impl BrowseShortcuts {
         start_with_request: Option<PathRequest>,
     ) -> Box<dyn State<App>> {
         let neighbourhood = Neighbourhood::new(ctx, app, id);
-
-        let shortcuts = ctx.loading_screen("find shortcuts", |_, timer| {
-            find_shortcuts(app, &neighbourhood, timer)
-        });
-        let edit = EditNeighbourhood::new(ctx, app, &neighbourhood, &shortcuts);
+        let edit = EditNeighbourhood::new(ctx, app, &neighbourhood);
 
         let mut state = BrowseShortcuts {
             top_panel: crate::components::TopPanel::panel(ctx, app),
             left_panel: Panel::empty(ctx),
-            shortcuts,
             current_idx: 0,
             draw_path: ToggleZoomed::empty(ctx),
             neighbourhood,
@@ -44,6 +37,7 @@ impl BrowseShortcuts {
 
         if let Some(req) = start_with_request {
             if let Some(idx) = state
+                .neighbourhood
                 .shortcuts
                 .paths
                 .iter()
@@ -59,10 +53,12 @@ impl BrowseShortcuts {
     }
 
     fn recalculate(&mut self, ctx: &mut EventCtx, app: &App) {
-        let (quiet_streets, total_streets) =
-            self.shortcuts.quiet_and_total_streets(&self.neighbourhood);
+        let (quiet_streets, total_streets) = self
+            .neighbourhood
+            .shortcuts
+            .quiet_and_total_streets(&self.neighbourhood);
 
-        if self.shortcuts.paths.is_empty() {
+        if self.neighbourhood.shortcuts.paths.is_empty() {
             self.left_panel = self
                 .edit
                 .panel_builder(
@@ -70,7 +66,7 @@ impl BrowseShortcuts {
                     app,
                     Tab::Shortcuts,
                     &self.top_panel,
-                    &self.shortcuts,
+                    &self.neighbourhood,
                     percentage_bar(
                         ctx,
                         Text::from(Line(format!(
@@ -96,7 +92,7 @@ impl BrowseShortcuts {
                     app,
                     Tab::Shortcuts,
                     &self.top_panel,
-                    &self.shortcuts,
+                    &self.neighbourhood,
                     Widget::col(vec![
                         percentage_bar(
                             ctx,
@@ -114,7 +110,7 @@ impl BrowseShortcuts {
         }
 
         let mut draw_path = ToggleZoomed::builder();
-        if let Some(pl) = self.shortcuts.paths[self.current_idx].trace(&app.map) {
+        if let Some(pl) = self.neighbourhood.shortcuts.paths[self.current_idx].trace(&app.map) {
             let color = colors::SHORTCUT_PATH;
             let shape = pl.make_polygons(3.0 * NORMAL_LANE_THICKNESS);
             draw_path.unzoomed.push(color.alpha(0.8), shape.clone());
@@ -148,7 +144,7 @@ impl BrowseShortcuts {
                 Line(format!(
                     "{}/{}",
                     self.current_idx + 1,
-                    self.shortcuts.paths.len()
+                    self.neighbourhood.shortcuts.paths.len()
                 ))
                 .secondary(),
             )
@@ -156,7 +152,7 @@ impl BrowseShortcuts {
             .centered_vert(),
             ctx.style()
                 .btn_next()
-                .disabled(self.current_idx == self.shortcuts.paths.len() - 1)
+                .disabled(self.current_idx == self.neighbourhood.shortcuts.paths.len() - 1)
                 .hotkey(Key::RightArrow)
                 .build_widget(ctx, "next shortcut"),
         ])
@@ -189,10 +185,14 @@ impl State<App> for BrowseShortcuts {
                     ) {
                         return t;
                     }
-                    let current_request = if self.shortcuts.paths.is_empty() {
+                    let current_request = if self.neighbourhood.shortcuts.paths.is_empty() {
                         None
                     } else {
-                        Some(self.shortcuts.paths[self.current_idx].get_req().clone())
+                        Some(
+                            self.neighbourhood.shortcuts.paths[self.current_idx]
+                                .get_req()
+                                .clone(),
+                        )
                     };
                     return crate::save::AltProposals::handle_action(
                         ctx,
@@ -215,7 +215,9 @@ impl State<App> for BrowseShortcuts {
             EditOutcome::Nothing => {}
             EditOutcome::Recalculate => {
                 // Reset state, but if possible, preserve the current individual shortcut.
-                let current_request = self.shortcuts.paths[self.current_idx].get_req().clone();
+                let current_request = self.neighbourhood.shortcuts.paths[self.current_idx]
+                    .get_req()
+                    .clone();
                 return Transition::Replace(BrowseShortcuts::new_state(
                     ctx,
                     app,
@@ -246,10 +248,14 @@ impl State<App> for BrowseShortcuts {
     }
 
     fn recreate(&mut self, ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
-        let current_request = if self.shortcuts.paths.is_empty() {
+        let current_request = if self.neighbourhood.shortcuts.paths.is_empty() {
             None
         } else {
-            Some(self.shortcuts.paths[self.current_idx].get_req().clone())
+            Some(
+                self.neighbourhood.shortcuts.paths[self.current_idx]
+                    .get_req()
+                    .clone(),
+            )
         };
         Self::new_state(ctx, app, self.neighbourhood.id, current_request)
     }

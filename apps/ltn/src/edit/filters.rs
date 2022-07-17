@@ -4,7 +4,6 @@ use widgetry::tools::open_browser;
 use widgetry::{lctrl, EventCtx, Image, Key, Line, Text, TextExt, Widget};
 
 use super::{EditOutcome, Obj};
-use crate::shortcuts::Shortcuts;
 use crate::{after_edit, colors, App, DiagonalFilter, Neighbourhood};
 
 pub fn widget(ctx: &mut EventCtx, app: &App) -> Widget {
@@ -40,12 +39,7 @@ pub fn widget(ctx: &mut EventCtx, app: &App) -> Widget {
 
 /// Creates clickable objects for managing filters on roads and intersections. Everything is
 /// invisible; the caller is responsible for drawing things.
-pub fn make_world(
-    ctx: &mut EventCtx,
-    app: &App,
-    neighbourhood: &Neighbourhood,
-    shortcuts: &Shortcuts,
-) -> World<Obj> {
+pub fn make_world(ctx: &mut EventCtx, app: &App, neighbourhood: &Neighbourhood) -> World<Obj> {
     let map = &app.map;
     let mut world = World::bounded(map.get_bounds());
 
@@ -58,7 +52,7 @@ pub fn make_world(
             .hover_outline(colors::OUTLINE, Distance::meters(5.0))
             .tooltip(Text::from(format!(
                 "{} possible shortcuts cross {}",
-                shortcuts.count_per_road.get(*r),
+                neighbourhood.shortcuts.count_per_road.get(*r),
                 road.get_name(app.opts.language.as_ref()),
             )))
             .hotkey(lctrl(Key::D), "debug")
@@ -74,7 +68,7 @@ pub fn make_world(
             .hover_outline(colors::OUTLINE, Distance::meters(5.0))
             .tooltip(Text::from(format!(
                 "{} possible shortcuts cross this intersection",
-                shortcuts.count_per_intersection.get(*i)
+                neighbourhood.shortcuts.count_per_intersection.get(*i)
             )))
             .clickable()
             .hotkey(lctrl(Key::D), "debug")

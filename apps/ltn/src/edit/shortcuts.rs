@@ -4,19 +4,18 @@ use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::{Color, EventCtx, Text, TextExt, Widget};
 
 use super::{EditMode, EditOutcome, Obj};
-use crate::shortcuts::Shortcuts;
 use crate::{colors, App, Neighbourhood};
 
 pub fn widget(
     ctx: &mut EventCtx,
     app: &App,
-    shortcuts: &Shortcuts,
+    neighbourhood: &Neighbourhood,
     focus: Option<RoadID>,
 ) -> Widget {
     match focus {
         Some(r) => Widget::col(vec![format!(
             "{} possible shortcuts cross {}",
-            shortcuts.count_per_road.get(r),
+            neighbourhood.shortcuts.count_per_road.get(r),
             app.map.get_r(r).get_name(app.opts.language.as_ref()),
         )
         .text_widget(ctx)]),
@@ -30,7 +29,6 @@ pub fn make_world(
     ctx: &mut EventCtx,
     app: &App,
     neighbourhood: &Neighbourhood,
-    shortcuts: &Shortcuts,
     focus: Option<RoadID>,
 ) -> World<Obj> {
     let map = &app.map;
@@ -52,7 +50,7 @@ pub fn make_world(
                 .hover_outline(colors::OUTLINE, Distance::meters(5.0))
                 .tooltip(Text::from(format!(
                     "{} possible shortcuts cross {}",
-                    shortcuts.count_per_road.get(*r),
+                    neighbourhood.shortcuts.count_per_road.get(*r),
                     road.get_name(app.opts.language.as_ref()),
                 )))
                 .clickable()

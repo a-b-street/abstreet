@@ -7,20 +7,20 @@ use map_gui::tools::DrawRoadLabels;
 use map_model::{Direction, IntersectionID, Map, PathConstraints, Perimeter, RoadID};
 use widgetry::{Drawable, EventCtx, GeomBatch};
 
+use crate::shortcuts::Shortcuts;
 use crate::{App, ModalFilters, NeighbourhoodID};
 
+// Once constructed, a Neighbourhood is immutable
 pub struct Neighbourhood {
     pub id: NeighbourhoodID,
 
-    // These're fixed
     pub orig_perimeter: Perimeter,
     pub perimeter: BTreeSet<RoadID>,
     pub borders: BTreeSet<IntersectionID>,
     pub interior_intersections: BTreeSet<IntersectionID>,
 
-    // The cells change as a result of modal filters, which're stored for all neighbourhoods in
-    // app.session.
     pub cells: Vec<Cell>,
+    pub shortcuts: Shortcuts,
 
     pub fade_irrelevant: Drawable,
     pub labels: DrawRoadLabels,
@@ -121,6 +121,7 @@ impl Neighbourhood {
             interior_intersections: BTreeSet::new(),
 
             cells: Vec::new(),
+            shortcuts: Shortcuts::empty(),
 
             fade_irrelevant: Drawable::empty(ctx),
             // Temporary value
@@ -163,6 +164,10 @@ impl Neighbourhood {
         label_roads.extend(n.orig_perimeter.interior.clone());
         n.labels =
             DrawRoadLabels::new(Box::new(move |r| label_roads.contains(&r.id))).light_background();
+
+        // TODO The timer could be nice for large areas. But plumbing through one everywhere is
+        // tedious, and would hit a nested start_iter bug anyway.
+        n.shortcuts = crate::shortcuts::find_shortcuts(app, &n, &mut abstutil::Timer::throwaway());
 
         n
     }

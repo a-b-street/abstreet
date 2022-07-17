@@ -7,7 +7,6 @@ use widgetry::mapspace::{ObjectID, World};
 use widgetry::tools::PopupMsg;
 use widgetry::{EventCtx, Key, Line, Panel, PanelBuilder, Widget, DEFAULT_CORNER_RADIUS};
 
-use crate::shortcuts::Shortcuts;
 use crate::{after_edit, App, BrowseNeighbourhoods, Neighbourhood, Transition};
 
 // TODO This is only used for styling now
@@ -107,19 +106,12 @@ impl EditNeighbourhood {
         }
     }
 
-    pub fn new(
-        ctx: &mut EventCtx,
-        app: &App,
-        neighbourhood: &Neighbourhood,
-        shortcuts: &Shortcuts,
-    ) -> Self {
+    pub fn new(ctx: &mut EventCtx, app: &App, neighbourhood: &Neighbourhood) -> Self {
         Self {
             world: match app.session.edit_mode {
-                EditMode::Filters => filters::make_world(ctx, app, neighbourhood, shortcuts),
+                EditMode::Filters => filters::make_world(ctx, app, neighbourhood),
                 EditMode::Oneways => one_ways::make_world(ctx, app, neighbourhood),
-                EditMode::Shortcuts(focus) => {
-                    shortcuts::make_world(ctx, app, neighbourhood, shortcuts, focus)
-                }
+                EditMode::Shortcuts(focus) => shortcuts::make_world(ctx, app, neighbourhood, focus),
             },
         }
     }
@@ -130,7 +122,7 @@ impl EditNeighbourhood {
         app: &App,
         tab: Tab,
         top_panel: &Panel,
-        shortcuts: &Shortcuts,
+        neighbourhood: &Neighbourhood,
         per_tab_contents: Widget,
     ) -> PanelBuilder {
         let contents = Widget::col(vec![
@@ -143,7 +135,7 @@ impl EditNeighbourhood {
             match app.session.edit_mode {
                 EditMode::Filters => filters::widget(ctx, app),
                 EditMode::Oneways => one_ways::widget(ctx),
-                EditMode::Shortcuts(focus) => shortcuts::widget(ctx, app, shortcuts, focus),
+                EditMode::Shortcuts(focus) => shortcuts::widget(ctx, app, neighbourhood, focus),
             }
             .section(ctx),
             tab.make_buttons(ctx, app),
