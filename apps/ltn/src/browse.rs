@@ -32,10 +32,7 @@ impl BrowseNeighbourhoods {
                     app.session.alt_proposals = crate::save::AltProposals::new();
                     crate::clear_current_proposal(ctx, app, timer);
                 }
-                (
-                    make_world(ctx, app, timer),
-                    draw_over_roads(ctx, app, timer),
-                )
+                (make_world(ctx, app), draw_over_roads(ctx, app))
             });
 
         let top_panel = crate::components::TopPanel::panel(ctx, app);
@@ -127,8 +124,8 @@ impl State<App> for BrowseNeighbourhoods {
                     app.session.draw_neighbourhood_style = self.left_panel.dropdown_value("style");
 
                     ctx.loading_screen("change style", |ctx, timer| {
-                        self.world = make_world(ctx, app, timer);
-                        self.draw_over_roads = draw_over_roads(ctx, app, timer);
+                        self.world = make_world(ctx, app);
+                        self.draw_over_roads = draw_over_roads(ctx, app);
                     });
                 }
             }
@@ -160,7 +157,7 @@ impl State<App> for BrowseNeighbourhoods {
     }
 }
 
-fn make_world(ctx: &mut EventCtx, app: &App, timer: &mut Timer) -> World<NeighbourhoodID> {
+fn make_world(ctx: &mut EventCtx, app: &App) -> World<NeighbourhoodID> {
     let mut world = World::bounded(app.map.get_bounds());
     let map = &app.map;
     for (id, info) in app.session.partitioning.all_neighbourhoods() {
@@ -194,9 +191,9 @@ fn make_world(ctx: &mut EventCtx, app: &App, timer: &mut Timer) -> World<Neighbo
             }
             Style::Quietness => {
                 let neighbourhood = Neighbourhood::new(ctx, app, *id);
-                let shortcuts = crate::shortcuts::find_shortcuts(app, &neighbourhood, timer);
-                let (quiet_streets, total_streets) =
-                    shortcuts.quiet_and_total_streets(&neighbourhood);
+                let (quiet_streets, total_streets) = neighbourhood
+                    .shortcuts
+                    .quiet_and_total_streets(&neighbourhood);
                 let pct = if total_streets == 0 {
                     0.0
                 } else {
@@ -226,7 +223,7 @@ fn make_world(ctx: &mut EventCtx, app: &App, timer: &mut Timer) -> World<Neighbo
     world
 }
 
-fn draw_over_roads(ctx: &mut EventCtx, app: &App, timer: &mut Timer) -> ToggleZoomed {
+fn draw_over_roads(ctx: &mut EventCtx, app: &App) -> ToggleZoomed {
     if app.session.draw_neighbourhood_style != Style::Shortcuts {
         return ToggleZoomed::empty(ctx);
     }
@@ -236,9 +233,8 @@ fn draw_over_roads(ctx: &mut EventCtx, app: &App, timer: &mut Timer) -> ToggleZo
 
     for id in app.session.partitioning.all_neighbourhoods().keys() {
         let neighbourhood = Neighbourhood::new(ctx, app, *id);
-        let shortcuts = crate::shortcuts::find_shortcuts(app, &neighbourhood, timer);
-        count_per_road.extend(shortcuts.count_per_road);
-        count_per_intersection.extend(shortcuts.count_per_intersection);
+        count_per_road.extend(neighbourhood.shortcuts.count_per_road);
+        count_per_intersection.extend(neighbourhood.shortcuts.count_per_intersection);
     }
 
     // TODO It's a bit weird to draw one heatmap covering streets in every neighbourhood. The

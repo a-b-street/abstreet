@@ -7,7 +7,6 @@ use abstutil::Timer;
 use map_model::RoadID;
 use widgetry::{Choice, EventCtx};
 
-use crate::shortcuts::find_shortcuts;
 use crate::{after_edit, App, Neighbourhood};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -66,7 +65,7 @@ impl Heuristic {
         app.session.modal_filters.before_edit();
 
         match self {
-            Heuristic::Greedy => greedy(ctx, app, neighbourhood, timer),
+            Heuristic::Greedy => greedy(ctx, app, neighbourhood),
             Heuristic::BruteForce => brute_force(ctx, app, neighbourhood, timer),
             Heuristic::SplitCells => split_cells(ctx, app, neighbourhood, timer),
             Heuristic::OnlyOneBorder => only_one_border(app, neighbourhood),
@@ -82,12 +81,12 @@ impl Heuristic {
     }
 }
 
-fn greedy(ctx: &EventCtx, app: &mut App, neighbourhood: &Neighbourhood, timer: &mut Timer) {
-    let shortcuts = find_shortcuts(app, &neighbourhood, timer);
+fn greedy(ctx: &EventCtx, app: &mut App, neighbourhood: &Neighbourhood) {
     // TODO How should we break ties? Some shortcuts are worse than others; use that weight?
     // TODO Should this operation be per cell instead? We could hover on a road belonging to that
     // cell to select it
-    if let Some((r, _)) = shortcuts
+    if let Some((r, _)) = neighbourhood
+        .shortcuts
         .count_per_road
         .borrow()
         .iter()
@@ -115,11 +114,7 @@ fn brute_force(ctx: &EventCtx, app: &mut App, neighbourhood: &Neighbourhood, tim
             continue;
         }
         if let Some(new) = try_to_filter_road(ctx, app, neighbourhood, *r) {
-            let num_shortcuts =
-                // This spams too many logs, and can't be used within a start_iter anyway
-                find_shortcuts(app, &new, &mut Timer::throwaway())
-                    .paths
-                    .len();
+            let num_shortcuts = new.shortcuts.paths.len();
             // TODO Again, break ties. Just the number of paths is kind of a weak metric.
             if best.map(|(_, score)| num_shortcuts < score).unwrap_or(true) {
                 best = Some((*r, num_shortcuts));

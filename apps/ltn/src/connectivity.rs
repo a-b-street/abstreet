@@ -11,7 +11,6 @@ use widgetry::{
 use crate::draw_cells::RenderCells;
 use crate::edit::{EditMode, EditNeighbourhood, EditOutcome, Tab};
 use crate::filters::auto::Heuristic;
-use crate::shortcuts::{find_shortcuts, Shortcuts};
 use crate::{colors, App, Neighbourhood, NeighbourhoodID, Transition};
 
 pub struct Viewer {
@@ -45,7 +44,7 @@ impl Viewer {
     }
 
     fn update(&mut self, ctx: &mut EventCtx, app: &App) {
-        let (edit, draw_top_layer, draw_under_roads_layer, render_cells, highlight_cell, shortcuts) =
+        let (edit, draw_top_layer, draw_under_roads_layer, render_cells, highlight_cell) =
             setup_editing(ctx, app, &self.neighbourhood);
         self.edit = edit;
         self.draw_top_layer = draw_top_layer;
@@ -88,7 +87,7 @@ impl Viewer {
                 app,
                 Tab::Connectivity,
                 &self.top_panel,
-                &shortcuts,
+                &self.neighbourhood,
                 Widget::col(vec![
                     format!(
                         "Neighbourhood area: {}",
@@ -179,7 +178,7 @@ impl State<App> for Viewer {
                 app.session.heuristic = self.left_panel.dropdown_value("heuristic");
 
                 if x != "heuristic" {
-                    let (edit, draw_top_layer, draw_under_roads_layer, _, highlight_cell, _) =
+                    let (edit, draw_top_layer, draw_under_roads_layer, _, highlight_cell) =
                         setup_editing(ctx, app, &self.neighbourhood);
                     self.edit = edit;
                     self.draw_top_layer = draw_top_layer;
@@ -247,13 +246,8 @@ fn setup_editing(
     Drawable,
     RenderCells,
     World<DummyID>,
-    Shortcuts,
 ) {
-    let shortcuts = ctx.loading_screen("find shortcuts", |_, timer| {
-        find_shortcuts(app, neighbourhood, timer)
-    });
-
-    let edit = EditNeighbourhood::new(ctx, app, neighbourhood, &shortcuts);
+    let edit = EditNeighbourhood::new(ctx, app, neighbourhood);
     let map = &app.map;
 
     // Draw some stuff under roads and other stuff on top
@@ -295,10 +289,13 @@ fn setup_editing(
     }
 
     let mut colorer = ColorNetwork::no_fading(app);
-    colorer.ranked_roads(shortcuts.count_per_road.clone(), &app.cs.good_to_bad_red);
+    colorer.ranked_roads(
+        neighbourhood.shortcuts.count_per_road.clone(),
+        &app.cs.good_to_bad_red,
+    );
     // TODO These two will be on different scales, which'll look really weird!
     colorer.ranked_intersections(
-        shortcuts.count_per_intersection.clone(),
+        neighbourhood.shortcuts.count_per_intersection.clone(),
         &app.cs.good_to_bad_red,
     );
 
@@ -357,7 +354,6 @@ fn setup_editing(
         ctx.upload(draw_under_roads_layer),
         render_cells,
         highlight_cell,
-        shortcuts,
     )
 }
 

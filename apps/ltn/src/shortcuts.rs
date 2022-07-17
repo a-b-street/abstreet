@@ -15,6 +15,17 @@ pub struct Shortcuts {
 }
 
 impl Shortcuts {
+    // For temporary use
+    pub fn empty() -> Self {
+        Self {
+            paths: Vec::new(),
+            count_per_road: Counter::new(),
+            count_per_intersection: Counter::new(),
+        }
+    }
+}
+
+impl Shortcuts {
     pub fn quiet_and_total_streets(&self, neighbourhood: &Neighbourhood) -> (usize, usize) {
         let quiet_streets = neighbourhood
             .orig_perimeter
