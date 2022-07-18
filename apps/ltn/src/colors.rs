@@ -26,7 +26,5 @@ pub const OUTLINE: Color = Color::BLACK;
 pub const HIGHLIGHT_BOUNDARY_UNZOOMED: Color = Color::RED.alpha(0.6);
 pub const HIGHLIGHT_BOUNDARY_ZOOMED: Color = Color::RED.alpha(0.5);
 
-pub const SHORTCUT_PATH: Color = Color::RED;
-
 pub const BLOCK_IN_BOUNDARY: Color = Color::BLUE.alpha(0.5);
 pub const BLOCK_IN_FRONTIER: Color = Color::CYAN.alpha(0.2);
