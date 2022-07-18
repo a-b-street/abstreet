@@ -1,4 +1,4 @@
-use map_model::{Path, RoadID, NORMAL_LANE_THICKNESS};
+use map_model::{Path, RoadID};
 use widgetry::mapspace::{ToggleZoomed, World, WorldOutcome};
 use widgetry::{Color, EventCtx, GeomBatch, Key, Line, Text, TextExt, Widget};
 
@@ -67,11 +67,8 @@ pub fn make_world(
             let mut preview = GeomBatch::new();
             let paths = neighbourhood.shortcuts.subset(*r);
             if !paths.is_empty() {
-                if let Some(pl) = paths[0].trace(&app.map) {
-                    preview.push(
-                        colors::SHORTCUT_PATH.alpha(0.5),
-                        pl.make_polygons(3.0 * NORMAL_LANE_THICKNESS),
-                    );
+                if let Ok(poly) = paths[0].trace_v2(&app.map) {
+                    preview.push(colors::SHORTCUT_PATH.alpha(0.5), poly);
                 }
             }
 
@@ -92,25 +89,28 @@ pub fn make_world(
 
     if let Some(ref focus) = focus {
         let mut draw_path = ToggleZoomed::builder();
-        if let Some(pl) = focus.paths[focus.current_idx].trace(&app.map) {
+        let path = &focus.paths[focus.current_idx];
+        if let Ok(poly) = path.trace_v2(&app.map) {
             let color = colors::SHORTCUT_PATH;
-            let shape = pl.make_polygons(3.0 * NORMAL_LANE_THICKNESS);
-            draw_path.unzoomed.push(color.alpha(0.8), shape.clone());
-            draw_path.zoomed.push(color.alpha(0.5), shape);
+            draw_path.unzoomed.push(color.alpha(0.8), poly.clone());
+            draw_path.zoomed.push(color.alpha(0.5), poly);
+
+            let first_pt = path.get_req().start.pt(&app.map);
+            let last_pt = path.get_req().end.pt(&app.map);
 
             draw_path
                 .unzoomed
-                .append(map_gui::tools::start_marker(ctx, pl.first_pt(), 2.0));
+                .append(map_gui::tools::start_marker(ctx, first_pt, 2.0));
             draw_path
                 .zoomed
-                .append(map_gui::tools::start_marker(ctx, pl.first_pt(), 0.5));
+                .append(map_gui::tools::start_marker(ctx, first_pt, 0.5));
 
             draw_path
                 .unzoomed
-                .append(map_gui::tools::goal_marker(ctx, pl.last_pt(), 2.0));
+                .append(map_gui::tools::goal_marker(ctx, last_pt, 2.0));
             draw_path
                 .zoomed
-                .append(map_gui::tools::goal_marker(ctx, pl.last_pt(), 0.5));
+                .append(map_gui::tools::goal_marker(ctx, last_pt, 0.5));
         }
         world.draw_master_batch(ctx, draw_path);
     }
@@ -126,13 +126,17 @@ pub fn handle_world_outcome(
 ) -> EditOutcome {
     match outcome {
         WorldOutcome::ClickedObject(Obj::InteriorRoad(r)) => {
-            // TODO handle 0 shortcut case
-            app.session.edit_mode = EditMode::Shortcuts(Some(FocusedRoad {
-                r,
-                paths: neighbourhood.shortcuts.subset(r),
-                current_idx: 0,
-            }));
-            EditOutcome::UpdatePanelAndWorld
+            let paths = neighbourhood.shortcuts.subset(r);
+            if paths.is_empty() {
+                EditOutcome::Nothing
+            } else {
+                app.session.edit_mode = EditMode::Shortcuts(Some(FocusedRoad {
+                    r,
+                    paths,
+                    current_idx: 0,
+                }));
+                EditOutcome::UpdatePanelAndWorld
+            }
         }
         WorldOutcome::ClickedFreeSpace(_) => {
             app.session.edit_mode = EditMode::Shortcuts(None);
