@@ -1,7 +1,7 @@
 use geom::Distance;
 use raw_map::LaneSpec;
 use widgetry::mapspace::{World, WorldOutcome};
-use widgetry::{EventCtx, Image, Text, TextExt, Widget};
+use widgetry::{EventCtx, Image, Text, TextExt, Transition, Widget};
 
 use super::{EditOutcome, Obj};
 use crate::{colors, App, Neighbourhood};
@@ -77,7 +77,7 @@ pub fn handle_world_outcome(
                 app.map.keep_pathfinder_despite_edits();
             });
 
-            EditOutcome::Recalculate
+            EditOutcome::Transition(Transition::Recreate)
         }
         _ => EditOutcome::Nothing,
     }
