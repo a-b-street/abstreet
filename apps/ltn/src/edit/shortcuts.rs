@@ -1,9 +1,10 @@
+use geom::Distance;
 use map_model::{Path, RoadID};
 use widgetry::mapspace::{ToggleZoomed, World, WorldOutcome};
 use widgetry::{Color, EventCtx, GeomBatch, Key, Line, Text, TextExt, Widget};
 
 use super::{EditMode, EditOutcome, Obj};
-use crate::{colors, App, Neighbourhood};
+use crate::{App, Neighbourhood};
 
 pub struct FocusedRoad {
     pub r: RoadID,
@@ -57,20 +58,20 @@ pub fn make_world(
     for r in &neighbourhood.orig_perimeter.interior {
         let road = map.get_r(*r);
         if focused_road == Some(*r) {
+            let mut batch = GeomBatch::new();
+            if let Ok(p) = road.get_thick_polygon().to_outline(Distance::meters(3.0)) {
+                batch.push(Color::RED, p);
+            }
+
             world
                 .add(Obj::InteriorRoad(*r))
                 .hitbox(road.get_thick_polygon())
-                .draw_color(Color::BLUE)
+                .draw(batch)
                 .build(ctx);
         } else {
-            // Preview one particular example
-            let mut preview = GeomBatch::new();
-            let paths = neighbourhood.shortcuts.subset(*r);
-            if !paths.is_empty() {
-                if let Ok(poly) = paths[0].trace_v2(&app.map) {
-                    preview.push(colors::SHORTCUT_PATH.alpha(0.5), poly);
-                }
-            }
+            // While hovering, show a heatmap of all shortcuts through this road
+            let subset = neighbourhood.shortcuts.subset(neighbourhood, *r);
+            let preview = subset.draw_heatmap(app);
 
             world
                 .add(Obj::InteriorRoad(*r))
@@ -91,7 +92,7 @@ pub fn make_world(
         let mut draw_path = ToggleZoomed::builder();
         let path = &focus.paths[focus.current_idx];
         if let Ok(poly) = path.trace_v2(&app.map) {
-            let color = colors::SHORTCUT_PATH;
+            let color = *app.cs.good_to_bad_red.0.last().unwrap();
             draw_path.unzoomed.push(color.alpha(0.8), poly.clone());
             draw_path.zoomed.push(color.alpha(0.5), poly);
 
@@ -112,7 +113,7 @@ pub fn make_world(
                 .zoomed
                 .append(map_gui::tools::goal_marker(ctx, last_pt, 0.5));
         }
-        world.draw_master_batch(ctx, draw_path);
+        world.draw_master_batch_while_not_hovering(ctx, draw_path);
     }
 
     world.initialize_hover(ctx);
@@ -126,13 +127,13 @@ pub fn handle_world_outcome(
 ) -> EditOutcome {
     match outcome {
         WorldOutcome::ClickedObject(Obj::InteriorRoad(r)) => {
-            let paths = neighbourhood.shortcuts.subset(r);
-            if paths.is_empty() {
+            let subset = neighbourhood.shortcuts.subset(neighbourhood, r);
+            if subset.paths.is_empty() {
                 EditOutcome::Nothing
             } else {
                 app.session.edit_mode = EditMode::Shortcuts(Some(FocusedRoad {
                     r,
-                    paths,
+                    paths: subset.paths,
                     current_idx: 0,
                 }));
                 EditOutcome::UpdatePanelAndWorld

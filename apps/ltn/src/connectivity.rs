@@ -1,5 +1,4 @@
 use geom::{ArrowCap, Distance, PolyLine, Polygon};
-use map_gui::tools::ColorNetwork;
 use raw_map::Direction;
 use widgetry::mapspace::{DummyID, ToggleZoomed, World};
 use widgetry::tools::PopupMsg;
@@ -295,19 +294,8 @@ fn setup_editing(
         }
     }
 
-    let mut colorer = ColorNetwork::no_fading(app);
-    colorer.ranked_roads(
-        neighbourhood.shortcuts.count_per_road.clone(),
-        &app.cs.good_to_bad_red,
-    );
-    // TODO These two will be on different scales, which'll look really weird!
-    colorer.ranked_intersections(
-        neighbourhood.shortcuts.count_per_intersection.clone(),
-        &app.cs.good_to_bad_red,
-    );
-
     if !matches!(app.session.edit_mode, EditMode::Shortcuts(_)) {
-        draw_top_layer.append(colorer.draw);
+        draw_top_layer.append(neighbourhood.shortcuts.draw_heatmap(app));
     }
 
     // Draw the borders of each cell

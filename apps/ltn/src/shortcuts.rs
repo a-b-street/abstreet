@@ -1,10 +1,12 @@
 use std::collections::HashSet;
 
 use abstutil::{Counter, Timer};
+use map_gui::tools::ColorNetwork;
 use map_model::{
     DirectedRoadID, IntersectionID, LaneID, Map, Path, PathConstraints, PathRequest, PathStep,
     Pathfinder, Position, RoadID,
 };
+use widgetry::mapspace::ToggleZoomedBuilder;
 
 use crate::{App, Cell, Neighbourhood};
 
@@ -23,9 +25,37 @@ impl Shortcuts {
             count_per_intersection: Counter::new(),
         }
     }
-}
 
-impl Shortcuts {
+    pub fn from_paths(neighbourhood: &Neighbourhood, paths: Vec<Path>) -> Self {
+        // How many shortcuts pass through each street?
+        let mut count_per_road = Counter::new();
+        let mut count_per_intersection = Counter::new();
+        for path in &paths {
+            for step in path.get_steps() {
+                match step {
+                    PathStep::Lane(l) => {
+                        if neighbourhood.orig_perimeter.interior.contains(&l.road) {
+                            count_per_road.inc(l.road);
+                        }
+                    }
+                    PathStep::Turn(t) => {
+                        if neighbourhood.interior_intersections.contains(&t.parent) {
+                            count_per_intersection.inc(t.parent);
+                        }
+                    }
+                    // Car paths don't make contraflow movements
+                    _ => unreachable!(),
+                }
+            }
+        }
+
+        Self {
+            paths,
+            count_per_road,
+            count_per_intersection,
+        }
+    }
+
     pub fn quiet_and_total_streets(&self, neighbourhood: &Neighbourhood) -> (usize, usize) {
         let quiet_streets = neighbourhood
             .orig_perimeter
@@ -37,12 +67,22 @@ impl Shortcuts {
         (quiet_streets, total_streets)
     }
 
-    pub fn subset(&self, r: RoadID) -> Vec<Path> {
-        self.paths
+    pub fn subset(&self, neighbourhood: &Neighbourhood, r: RoadID) -> Self {
+        let paths = self
+            .paths
             .iter()
             .filter(|path| path.crosses_road(r))
             .cloned()
-            .collect()
+            .collect();
+        Self::from_paths(neighbourhood, paths)
+    }
+
+    pub fn draw_heatmap(&self, app: &App) -> ToggleZoomedBuilder {
+        let mut colorer = ColorNetwork::no_fading(app);
+        colorer.ranked_roads(self.count_per_road.clone(), &app.cs.good_to_bad_red);
+        // TODO These two will be on different scales, which may look weird
+        colorer.ranked_intersections(self.count_per_intersection.clone(), &app.cs.good_to_bad_red);
+        colorer.draw
     }
 }
 
@@ -105,33 +145,7 @@ pub fn find_shortcuts(app: &App, neighbourhood: &Neighbourhood, timer: &mut Time
     //    along the perimeter roads that's sensible.)
     // 2) Comparing that time to the time for cutting through
 
-    // How many shortcuts pass through each street?
-    let mut count_per_road = Counter::new();
-    let mut count_per_intersection = Counter::new();
-    for path in &paths {
-        for step in path.get_steps() {
-            match step {
-                PathStep::Lane(l) => {
-                    if neighbourhood.orig_perimeter.interior.contains(&l.road) {
-                        count_per_road.inc(l.road);
-                    }
-                }
-                PathStep::Turn(t) => {
-                    if neighbourhood.interior_intersections.contains(&t.parent) {
-                        count_per_intersection.inc(t.parent);
-                    }
-                }
-                // Car paths don't make contraflow movements
-                _ => unreachable!(),
-            }
-        }
-    }
-
-    Shortcuts {
-        paths,
-        count_per_road,
-        count_per_intersection,
-    }
+    Shortcuts::from_paths(neighbourhood, paths)
 }
 
 struct EntryExit {
