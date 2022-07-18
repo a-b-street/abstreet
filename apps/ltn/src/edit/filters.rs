@@ -1,7 +1,7 @@
 use geom::Distance;
 use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::tools::open_browser;
-use widgetry::{lctrl, EventCtx, Image, Key, Line, Text, TextExt, Widget};
+use widgetry::{lctrl, EventCtx, Image, Key, Line, Text, TextExt, Transition, Widget};
 
 use super::{EditOutcome, Obj};
 use crate::{after_edit, colors, App, DiagonalFilter, Neighbourhood};
@@ -109,13 +109,13 @@ pub fn handle_world_outcome(
                 app.session.modal_filters.roads.insert(r, distance);
             }
             after_edit(ctx, app);
-            EditOutcome::Recalculate
+            EditOutcome::Transition(Transition::Recreate)
         }
         WorldOutcome::ClickedObject(Obj::InteriorIntersection(i)) => {
             app.session.modal_filters.before_edit();
             DiagonalFilter::cycle_through_alternatives(app, i);
             after_edit(ctx, app);
-            EditOutcome::Recalculate
+            EditOutcome::Transition(Transition::Recreate)
         }
         WorldOutcome::Keypress("debug", Obj::InteriorIntersection(i)) => {
             open_browser(app.map.get_i(i).orig_id.to_string());

@@ -1,7 +1,6 @@
-use geom::Distance;
 use map_model::{Path, RoadID, NORMAL_LANE_THICKNESS};
 use widgetry::mapspace::{ToggleZoomed, World, WorldOutcome};
-use widgetry::{Color, EventCtx, Key, Line, Text, TextExt, Widget};
+use widgetry::{Color, EventCtx, GeomBatch, Key, Line, Text, TextExt, Widget};
 
 use super::{EditMode, EditOutcome, Obj};
 use crate::{colors, App, Neighbourhood};
@@ -64,11 +63,23 @@ pub fn make_world(
                 .draw_color(Color::BLUE)
                 .build(ctx);
         } else {
+            // Preview one particular example
+            let mut preview = GeomBatch::new();
+            let paths = neighbourhood.shortcuts.subset(*r);
+            if !paths.is_empty() {
+                if let Some(pl) = paths[0].trace(&app.map) {
+                    preview.push(
+                        colors::SHORTCUT_PATH.alpha(0.5),
+                        pl.make_polygons(3.0 * NORMAL_LANE_THICKNESS),
+                    );
+                }
+            }
+
             world
                 .add(Obj::InteriorRoad(*r))
                 .hitbox(road.get_thick_polygon())
                 .drawn_in_master_batch()
-                .hover_outline(colors::OUTLINE, Distance::meters(5.0))
+                .draw_hovered(preview)
                 .tooltip(Text::from(format!(
                     "{} possible shortcuts cross {}",
                     neighbourhood.shortcuts.count_per_road.get(*r),
@@ -121,11 +132,11 @@ pub fn handle_world_outcome(
                 paths: neighbourhood.shortcuts.subset(r),
                 current_idx: 0,
             }));
-            EditOutcome::Recalculate
+            EditOutcome::UpdatePanelAndWorld
         }
         WorldOutcome::ClickedFreeSpace(_) => {
             app.session.edit_mode = EditMode::Shortcuts(None);
-            EditOutcome::Recalculate
+            EditOutcome::UpdatePanelAndWorld
         }
         _ => EditOutcome::Nothing,
     }

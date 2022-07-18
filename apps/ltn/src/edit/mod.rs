@@ -30,8 +30,10 @@ impl ObjectID for Obj {}
 
 pub enum EditOutcome {
     Nothing,
-    /// The neighbourhood has changed and the caller should recalculate stuff, including the panel
-    Recalculate,
+    /// Don't recreate the Neighbourhood
+    UpdatePanelAndWorld,
+    /// Use this with Transition::Recreate to recalculate the Neighbourhood, because it's actually
+    /// been edited
     Transition(Transition),
 }
 
@@ -126,20 +128,20 @@ impl EditNeighbourhood {
         action: &str,
         neighbourhood: &Neighbourhood,
         panel: &Panel,
-    ) -> Option<Transition> {
+    ) -> EditOutcome {
         let id = neighbourhood.id;
         match action {
             "Browse neighbourhoods" => {
                 // Recalculate the state to redraw any changed filters
-                Some(Transition::Replace(BrowseNeighbourhoods::new_state(
+                EditOutcome::Transition(Transition::Replace(BrowseNeighbourhoods::new_state(
                     ctx, app,
                 )))
             }
-            "Adjust boundary" => Some(Transition::Replace(
+            "Adjust boundary" => EditOutcome::Transition(Transition::Replace(
                 crate::select_boundary::SelectBoundary::new_state(ctx, app, id),
             )),
             // Overkill to force all mode-specific code into the module
-            "Create filters along a shape" => Some(Transition::Push(
+            "Create filters along a shape" => EditOutcome::Transition(Transition::Push(
                 crate::components::FreehandFilters::new_state(
                     ctx,
                     neighbourhood,
@@ -151,46 +153,50 @@ impl EditNeighbourhood {
                 app.session.modal_filters = prev;
                 after_edit(ctx, app);
                 // TODO Ideally, preserve panel state (checkboxes and dropdowns)
-                Some(Transition::Recreate)
+                EditOutcome::Transition(Transition::Recreate)
             }
-            "Plan a route" => Some(Transition::Push(
+            "Plan a route" => EditOutcome::Transition(Transition::Push(
                 crate::route_planner::RoutePlanner::new_state(ctx, app),
             )),
             "Filters" => {
                 app.session.edit_mode = EditMode::Filters;
-                Some(Transition::Recreate)
+                EditOutcome::UpdatePanelAndWorld
             }
             "One-ways" => {
                 app.session.edit_mode = EditMode::Oneways;
-                Some(Transition::Recreate)
+                EditOutcome::UpdatePanelAndWorld
             }
             "Shortcuts" => {
                 app.session.edit_mode = EditMode::Shortcuts(None);
-                Some(Transition::Recreate)
+                EditOutcome::UpdatePanelAndWorld
             }
             "previous shortcut" => {
                 if let EditMode::Shortcuts(Some(ref mut focus)) = app.session.edit_mode {
                     focus.current_idx -= 1;
                 }
-                Some(Transition::Recreate)
+                EditOutcome::UpdatePanelAndWorld
             }
             "next shortcut" => {
                 if let EditMode::Shortcuts(Some(ref mut focus)) = app.session.edit_mode {
                     focus.current_idx += 1;
                 }
-                Some(Transition::Recreate)
+                EditOutcome::UpdatePanelAndWorld
             }
-            _ => None,
+            _ => EditOutcome::Nothing,
         }
     }
 }
 
 fn edit_mode(ctx: &mut EventCtx, edit_mode: &EditMode) -> Widget {
     let mut row = Vec::new();
-    for (label, is_current) in [
-        ("Filters", matches!(edit_mode, EditMode::Filters)),
-        ("One-ways", matches!(edit_mode, EditMode::Oneways)),
-        ("Shortcuts", matches!(edit_mode, EditMode::Shortcuts(_))),
+    for (label, key, is_current) in [
+        ("Filters", Key::F1, matches!(edit_mode, EditMode::Filters)),
+        ("One-ways", Key::F2, matches!(edit_mode, EditMode::Oneways)),
+        (
+            "Shortcuts",
+            Key::F3,
+            matches!(edit_mode, EditMode::Shortcuts(_)),
+        ),
     ] {
         row.push(
             ctx.style()
@@ -202,6 +208,7 @@ fn edit_mode(ctx: &mut EventCtx, edit_mode: &EditMode) -> Widget {
                     bottom_left: 0.0,
                     bottom_right: 0.0,
                 })
+                .hotkey(key)
                 .disabled(is_current)
                 .build_def(ctx),
         );

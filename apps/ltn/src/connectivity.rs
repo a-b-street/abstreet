@@ -143,14 +143,24 @@ impl State<App> for Viewer {
                 } else if x == "warning" {
                     // Not really clickable
                     return Transition::Keep;
-                } else if let Some(t) = self.edit.handle_panel_action(
+                }
+
+                match self.edit.handle_panel_action(
                     ctx,
                     app,
                     x.as_ref(),
                     &self.neighbourhood,
                     &self.left_panel,
                 ) {
-                    return t;
+                    // Fall through to AltProposals
+                    EditOutcome::Nothing => {}
+                    EditOutcome::UpdatePanelAndWorld => {
+                        self.update(ctx, app);
+                        return Transition::Keep;
+                    }
+                    EditOutcome::Transition(t) => {
+                        return t;
+                    }
                 }
 
                 return crate::save::AltProposals::handle_action(
@@ -189,8 +199,7 @@ impl State<App> for Viewer {
 
         match self.edit.event(ctx, app, &self.neighbourhood) {
             EditOutcome::Nothing => {}
-            EditOutcome::Recalculate => {
-                self.neighbourhood = Neighbourhood::new(ctx, app, self.neighbourhood.id);
+            EditOutcome::UpdatePanelAndWorld => {
                 self.update(ctx, app);
             }
             EditOutcome::Transition(t) => {
