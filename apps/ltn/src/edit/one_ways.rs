@@ -7,15 +7,12 @@ use super::{EditOutcome, Obj};
 use crate::{colors, App, Neighbourhood};
 
 pub fn widget(ctx: &mut EventCtx) -> Widget {
-    Widget::col(vec![
-        Widget::row(vec![
-            Image::from_path("system/assets/tools/pencil.svg")
-                .into_widget(ctx)
-                .centered_vert(),
-            "Click a road to change its direction".text_widget(ctx),
-        ]),
-        // TODO edit/undo?
-    ])
+    Widget::col(vec![Widget::row(vec![
+        Image::from_path("system/assets/tools/pencil.svg")
+            .into_widget(ctx)
+            .centered_vert(),
+        "Click a road to change its direction".text_widget(ctx),
+    ])])
 }
 
 pub fn make_world(ctx: &mut EventCtx, app: &App, neighbourhood: &Neighbourhood) -> World<Obj> {

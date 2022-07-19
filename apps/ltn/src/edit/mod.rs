@@ -5,7 +5,7 @@ mod shortcuts;
 use map_model::{IntersectionID, RoadID};
 use widgetry::mapspace::{ObjectID, World};
 use widgetry::tools::PopupMsg;
-use widgetry::{EventCtx, Key, Line, Panel, PanelBuilder, Widget, DEFAULT_CORNER_RADIUS};
+use widgetry::{lctrl, EventCtx, Key, Line, Panel, PanelBuilder, TextExt, Widget};
 
 use crate::{after_edit, App, BrowseNeighbourhoods, Neighbourhood, Transition};
 
@@ -77,13 +77,30 @@ impl EditNeighbourhood {
             Line("Editing neighbourhood")
                 .small_heading()
                 .into_widget(ctx),
-            edit_mode(ctx, &app.session.edit_mode),
-            match app.session.edit_mode {
-                EditMode::Filters => filters::widget(ctx, app),
-                EditMode::Oneways => one_ways::widget(ctx),
-                EditMode::Shortcuts(ref focus) => shortcuts::widget(ctx, app, focus.as_ref()),
-            }
+            Widget::col(vec![
+                edit_mode(ctx, &app.session.edit_mode),
+                match app.session.edit_mode {
+                    EditMode::Filters => filters::widget(ctx),
+                    EditMode::Oneways => one_ways::widget(ctx),
+                    EditMode::Shortcuts(ref focus) => shortcuts::widget(ctx, app, focus.as_ref()),
+                },
+            ])
             .section(ctx),
+            Widget::row(vec![
+                ctx.style()
+                    .btn_plain
+                    .icon("system/assets/tools/undo.svg")
+                    .disabled(app.session.modal_filters.previous_version.is_none())
+                    .hotkey(lctrl(Key::Z))
+                    .build_widget(ctx, "undo"),
+                format!(
+                    "{} filters added",
+                    app.session.modal_filters.roads.len()
+                        + app.session.modal_filters.intersections.len()
+                )
+                .text_widget(ctx)
+                .centered_vert(),
+            ]),
             {
                 let mut row = Vec::new();
                 if app.session.consultation.is_none() {
@@ -153,6 +170,9 @@ impl EditNeighbourhood {
                 app.session.modal_filters = prev;
                 after_edit(ctx, app);
                 // TODO Ideally, preserve panel state (checkboxes and dropdowns)
+                if let EditMode::Shortcuts(ref mut maybe_focus) = app.session.edit_mode {
+                    *maybe_focus = None;
+                }
                 EditOutcome::Transition(Transition::Recreate)
             }
             "Plan a route" => EditOutcome::Transition(Transition::Push(
@@ -198,20 +218,18 @@ fn edit_mode(ctx: &mut EventCtx, edit_mode: &EditMode) -> Widget {
             matches!(edit_mode, EditMode::Shortcuts(_)),
         ),
     ] {
-        row.push(
-            ctx.style()
-                .btn_tab
-                .text(label)
-                .corner_rounding(geom::CornerRadii {
-                    top_left: DEFAULT_CORNER_RADIUS,
-                    top_right: DEFAULT_CORNER_RADIUS,
-                    bottom_left: 0.0,
-                    bottom_right: 0.0,
-                })
-                .hotkey(key)
-                .disabled(is_current)
-                .build_def(ctx),
-        );
+        if is_current {
+            row.push(
+                ctx.style()
+                    .btn_tab
+                    .btn()
+                    .label_underlined_text(label)
+                    .disabled(true)
+                    .build_def(ctx),
+            );
+        } else {
+            row.push(ctx.style().btn_tab.text(label).hotkey(key).build_def(ctx));
+        }
     }
     Widget::row(row)
 }
