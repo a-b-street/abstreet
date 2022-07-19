@@ -10,6 +10,7 @@ use widgetry::{
     Text, TextExt, Toggle, Widget,
 };
 
+use crate::edit::EditMode;
 use crate::filters::auto::Heuristic;
 use crate::{colors, App, Neighbourhood, NeighbourhoodID, Transition};
 
@@ -25,6 +26,11 @@ pub struct BrowseNeighbourhoods {
 impl BrowseNeighbourhoods {
     pub fn new_state(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
         map_gui::tools::update_url_map_name(app);
+
+        // Make sure we clear this state if we ever switch neighbourhoods
+        if let EditMode::Shortcuts(ref mut maybe_focus) = app.session.edit_mode {
+            *maybe_focus = None;
+        }
 
         let (world, draw_over_roads) =
             ctx.loading_screen("calculate neighbourhoods", |ctx, timer| {

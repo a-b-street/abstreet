@@ -12,6 +12,7 @@ use widgetry::{
 };
 
 use crate::browse::draw_boundary_roads;
+use crate::edit::EditMode;
 use crate::partition::BlockID;
 use crate::{colors, App, NeighbourhoodID, Partitioning, Transition};
 
@@ -35,7 +36,16 @@ pub struct SelectBoundary {
 }
 
 impl SelectBoundary {
-    pub fn new_state(ctx: &mut EventCtx, app: &App, id: NeighbourhoodID) -> Box<dyn State<App>> {
+    pub fn new_state(
+        ctx: &mut EventCtx,
+        app: &mut App,
+        id: NeighbourhoodID,
+    ) -> Box<dyn State<App>> {
+        // Make sure we clear this state if we ever modify neighbourhood boundaries
+        if let EditMode::Shortcuts(ref mut maybe_focus) = app.session.edit_mode {
+            *maybe_focus = None;
+        }
+
         let top_panel = crate::components::TopPanel::panel(ctx, app);
         let left_panel = make_panel(ctx, app, id, &top_panel);
         let mut state = SelectBoundary {
