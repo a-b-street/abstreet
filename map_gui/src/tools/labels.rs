@@ -170,12 +170,12 @@ fn simplify_patterns() -> Vec<(Regex, String)> {
     ] {
         // Only replace directions at the start or end of the string
         replace.push((
-            Regex::new(&format!("^{}", long)).unwrap(),
-            short.to_string(),
+            Regex::new(&format!("^{long} ")).unwrap(),
+            format!("{short} "),
         ));
         replace.push((
-            Regex::new(&format!("{}$", long)).unwrap(),
-            short.to_string(),
+            Regex::new(&format!(" {long}$")).unwrap(),
+            format!(" {short}"),
         ));
     }
 
@@ -209,6 +209,7 @@ mod tests {
         for (input, want) in [
             ("Northeast Northgate Way", "NE Northgate Way"),
             ("South 42nd Street", "S 42nd St"),
+            ("Northcote Road", "Northcote Road"),
         ] {
             let got = simplify_name(input.to_string()).unwrap();
             if got != want {
