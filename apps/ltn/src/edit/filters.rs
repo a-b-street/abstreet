@@ -1,12 +1,12 @@
 use geom::Distance;
 use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::tools::open_browser;
-use widgetry::{lctrl, EventCtx, Image, Key, Line, Text, TextExt, Transition, Widget};
+use widgetry::{lctrl, EventCtx, Image, Key, Line, Text, Transition, Widget};
 
 use super::{EditOutcome, Obj};
 use crate::{after_edit, colors, App, DiagonalFilter, Neighbourhood};
 
-pub fn widget(ctx: &mut EventCtx, app: &App) -> Widget {
+pub fn widget(ctx: &mut EventCtx) -> Widget {
     Widget::col(vec![
         Widget::row(vec![
             Image::from_path("system/assets/tools/pencil.svg")
@@ -19,21 +19,6 @@ pub fn widget(ctx: &mut EventCtx, app: &App) -> Widget {
             .into_widget(ctx),
         ]),
         crate::components::FreehandFilters::button(ctx),
-        Widget::row(vec![
-            ctx.style()
-                .btn_plain
-                .icon("system/assets/tools/undo.svg")
-                .disabled(app.session.modal_filters.previous_version.is_none())
-                .hotkey(lctrl(Key::Z))
-                .build_widget(ctx, "undo"),
-            format!(
-                "{} filters added",
-                app.session.modal_filters.roads.len()
-                    + app.session.modal_filters.intersections.len()
-            )
-            .text_widget(ctx)
-            .centered_vert(),
-        ]),
     ])
 }
 
