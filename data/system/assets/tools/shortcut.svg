@@ -1,0 +1,7 @@
+<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <defs/>
+    <g enable-background="new 0 0 24 24">
+        <path fill="none" stroke="none" visibility="hidden" d="M 0 0 L 24 0 L 24 24 L 0 24 Z"/>
+        <path fill="#000000" stroke="none" d="M 19 15.18 L 19 3 L 11 3 L 11 19 L 7 19 L 7 8.82 C 8.16 8.4 9 7.3 9 6 C 9 4.34 7.66 3 6 3 C 4.34 3 3 4.34 3 6 C 3 7.3 3.84 8.4 5 8.82 L 5 21 L 13 21 L 13 5 L 17 5 L 17 15.18 C 15.84 15.59 15 16.69 15 18 C 15 19.66 16.34 21 18 21 C 19.66 21 21 19.66 21 18 C 21 16.7 20.16 15.6 19 15.18 Z"/>
+    </g>
+</svg>

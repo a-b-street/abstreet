@@ -1,18 +1,13 @@
 use geom::Distance;
 use raw_map::LaneSpec;
 use widgetry::mapspace::{World, WorldOutcome};
-use widgetry::{EventCtx, Image, Text, TextExt, Transition, Widget};
+use widgetry::{EventCtx, Text, TextExt, Transition, Widget};
 
 use super::{EditOutcome, Obj};
 use crate::{colors, App, Neighbourhood};
 
 pub fn widget(ctx: &mut EventCtx) -> Widget {
-    Widget::col(vec![Widget::row(vec![
-        Image::from_path("system/assets/tools/pencil.svg")
-            .into_widget(ctx)
-            .centered_vert(),
-        "Click a road to change its direction".text_widget(ctx),
-    ])])
+    "Click a road to change its direction".text_widget(ctx)
 }
 
 pub fn make_world(ctx: &mut EventCtx, app: &App, neighbourhood: &Neighbourhood) -> World<Obj> {
