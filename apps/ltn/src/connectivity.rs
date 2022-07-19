@@ -144,13 +144,10 @@ impl State<App> for Viewer {
                     return Transition::Keep;
                 }
 
-                match self.edit.handle_panel_action(
-                    ctx,
-                    app,
-                    x.as_ref(),
-                    &self.neighbourhood,
-                    &self.left_panel,
-                ) {
+                match self
+                    .edit
+                    .handle_panel_action(ctx, app, x.as_ref(), &self.neighbourhood)
+                {
                     // Fall through to AltProposals
                     EditOutcome::Nothing => {}
                     EditOutcome::UpdatePanelAndWorld => {
@@ -234,6 +231,10 @@ impl State<App> for Viewer {
 
         if self.left_panel.currently_hovering() == Some(&"warning".to_string()) {
             g.redraw(&self.show_error);
+        }
+
+        if let EditMode::FreehandFilters(ref lasso) = app.session.edit_mode {
+            lasso.draw(g);
         }
     }
 

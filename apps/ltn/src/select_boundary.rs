@@ -45,6 +45,9 @@ impl SelectBoundary {
         if let EditMode::Shortcuts(ref mut maybe_focus) = app.session.edit_mode {
             *maybe_focus = None;
         }
+        if let EditMode::FreehandFilters(_) = app.session.edit_mode {
+            app.session.edit_mode = EditMode::Filters;
+        }
 
         let top_panel = crate::components::TopPanel::panel(ctx, app);
         let left_panel = make_panel(ctx, app, id, &top_panel);
