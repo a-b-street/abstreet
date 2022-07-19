@@ -9,6 +9,7 @@ pub fn widget(ctx: &mut EventCtx) -> Widget {
         Line("Click and drag").fg(ctx.style().text_hotkey_color),
         Line(" across the roads you want to filter"),
     ])
+    .wrap_to_pct(ctx, 15)
     .into_widget(ctx)
 }
 

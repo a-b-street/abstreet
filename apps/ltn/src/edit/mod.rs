@@ -216,33 +216,40 @@ impl EditNeighbourhood {
 
 fn edit_mode(ctx: &mut EventCtx, edit_mode: &EditMode) -> Widget {
     let mut row = Vec::new();
-    for (label, key, is_current) in [
-        ("Filters", Key::F1, matches!(edit_mode, EditMode::Filters)),
-        // system/assets/tools/select.svg when we have icons
+    for (label, key, icon, is_current) in [
+        (
+            "Filters",
+            Key::F1,
+            "system/assets/edit/construction.svg",
+            matches!(edit_mode, EditMode::Filters),
+        ),
         (
             "Freehand filters",
             Key::F2,
+            "system/assets/tools/select.svg",
             matches!(edit_mode, EditMode::FreehandFilters(_)),
         ),
-        ("One-ways", Key::F3, matches!(edit_mode, EditMode::Oneways)),
+        (
+            "One-ways",
+            Key::F3,
+            "system/assets/tools/one_ways.svg",
+            matches!(edit_mode, EditMode::Oneways),
+        ),
         (
             "Shortcuts",
             Key::F4,
+            "system/assets/tools/shortcut.svg",
             matches!(edit_mode, EditMode::Shortcuts(_)),
         ),
     ] {
-        if is_current {
-            row.push(
-                ctx.style()
-                    .btn_tab
-                    .btn()
-                    .label_underlined_text(label)
-                    .disabled(true)
-                    .build_def(ctx),
-            );
-        } else {
-            row.push(ctx.style().btn_tab.text(label).hotkey(key).build_def(ctx));
-        }
+        row.push(
+            ctx.style()
+                .btn_solid_primary
+                .icon(icon)
+                .disabled(is_current)
+                .hotkey(key)
+                .build_widget(ctx, label),
+        );
     }
     Widget::row(row)
 }
