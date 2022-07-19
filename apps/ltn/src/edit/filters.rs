@@ -7,19 +7,16 @@ use super::{EditOutcome, Obj};
 use crate::{after_edit, colors, App, DiagonalFilter, Neighbourhood};
 
 pub fn widget(ctx: &mut EventCtx) -> Widget {
-    Widget::col(vec![
-        Widget::row(vec![
-            Image::from_path("system/assets/tools/pencil.svg")
-                .into_widget(ctx)
-                .centered_vert(),
-            Text::from(Line(
-                "Click a road or intersection to add or remove a modal filter",
-            ))
-            .wrap_to_pct(ctx, 15)
-            .into_widget(ctx),
-        ]),
-        crate::components::FreehandFilters::button(ctx),
-    ])
+    Widget::col(vec![Widget::row(vec![
+        Image::from_path("system/assets/tools/pencil.svg")
+            .into_widget(ctx)
+            .centered_vert(),
+        Text::from(Line(
+            "Click a road or intersection to add or remove a modal filter",
+        ))
+        .wrap_to_pct(ctx, 15)
+        .into_widget(ctx),
+    ])])
 }
 
 /// Creates clickable objects for managing filters on roads and intersections. Everything is

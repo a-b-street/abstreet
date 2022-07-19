@@ -31,6 +31,9 @@ impl BrowseNeighbourhoods {
         if let EditMode::Shortcuts(ref mut maybe_focus) = app.session.edit_mode {
             *maybe_focus = None;
         }
+        if let EditMode::FreehandFilters(_) = app.session.edit_mode {
+            app.session.edit_mode = EditMode::Filters;
+        }
 
         let (world, draw_over_roads) =
             ctx.loading_screen("calculate neighbourhoods", |ctx, timer| {

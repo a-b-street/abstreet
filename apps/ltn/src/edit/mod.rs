@@ -1,16 +1,18 @@
 mod filters;
+mod freehand_filters;
 mod one_ways;
 mod shortcuts;
 
 use map_model::{IntersectionID, RoadID};
 use widgetry::mapspace::{ObjectID, World};
-use widgetry::tools::PopupMsg;
+use widgetry::tools::{PolyLineLasso, PopupMsg};
 use widgetry::{lctrl, EventCtx, Key, Line, Panel, PanelBuilder, TextExt, Widget};
 
 use crate::{after_edit, App, BrowseNeighbourhoods, Neighbourhood, Transition};
 
 pub enum EditMode {
     Filters,
+    FreehandFilters(PolyLineLasso),
     Oneways,
     // Is a road clicked on right now?
     Shortcuts(Option<shortcuts::FocusedRoad>),
@@ -58,6 +60,7 @@ impl EditNeighbourhood {
         Self {
             world: match &app.session.edit_mode {
                 EditMode::Filters => filters::make_world(ctx, app, neighbourhood),
+                EditMode::FreehandFilters(_) => World::unbounded(),
                 EditMode::Oneways => one_ways::make_world(ctx, app, neighbourhood),
                 EditMode::Shortcuts(focus) => shortcuts::make_world(ctx, app, neighbourhood, focus),
             },
@@ -81,6 +84,7 @@ impl EditNeighbourhood {
                 edit_mode(ctx, &app.session.edit_mode),
                 match app.session.edit_mode {
                     EditMode::Filters => filters::widget(ctx),
+                    EditMode::FreehandFilters(_) => freehand_filters::widget(ctx),
                     EditMode::Oneways => one_ways::widget(ctx),
                     EditMode::Shortcuts(ref focus) => shortcuts::widget(ctx, app, focus.as_ref()),
                 },
@@ -126,9 +130,14 @@ impl EditNeighbourhood {
         app: &mut App,
         neighbourhood: &Neighbourhood,
     ) -> EditOutcome {
+        if let EditMode::FreehandFilters(_) = app.session.edit_mode {
+            return freehand_filters::event(ctx, app, neighbourhood);
+        }
+
         let outcome = self.world.event(ctx);
         let outcome = match app.session.edit_mode {
             EditMode::Filters => filters::handle_world_outcome(ctx, app, outcome),
+            EditMode::FreehandFilters(_) => unreachable!(),
             EditMode::Oneways => one_ways::handle_world_outcome(ctx, app, outcome),
             EditMode::Shortcuts(_) => shortcuts::handle_world_outcome(app, outcome, neighbourhood),
         };
@@ -144,7 +153,6 @@ impl EditNeighbourhood {
         app: &mut App,
         action: &str,
         neighbourhood: &Neighbourhood,
-        panel: &Panel,
     ) -> EditOutcome {
         let id = neighbourhood.id;
         match action {
@@ -157,14 +165,6 @@ impl EditNeighbourhood {
             "Adjust boundary" => EditOutcome::Transition(Transition::Replace(
                 crate::select_boundary::SelectBoundary::new_state(ctx, app, id),
             )),
-            // Overkill to force all mode-specific code into the module
-            "Create filters along a shape" => EditOutcome::Transition(Transition::Push(
-                crate::components::FreehandFilters::new_state(
-                    ctx,
-                    neighbourhood,
-                    panel.center_of("Create filters along a shape"),
-                ),
-            )),
             "undo" => {
                 let prev = app.session.modal_filters.previous_version.take().unwrap();
                 app.session.modal_filters = prev;
@@ -173,6 +173,9 @@ impl EditNeighbourhood {
                 if let EditMode::Shortcuts(ref mut maybe_focus) = app.session.edit_mode {
                     *maybe_focus = None;
                 }
+                if let EditMode::FreehandFilters(_) = app.session.edit_mode {
+                    app.session.edit_mode = EditMode::Filters;
+                }
                 EditOutcome::Transition(Transition::Recreate)
             }
             "Plan a route" => EditOutcome::Transition(Transition::Push(
@@ -180,6 +183,10 @@ impl EditNeighbourhood {
             )),
             "Filters" => {
                 app.session.edit_mode = EditMode::Filters;
+                EditOutcome::UpdatePanelAndWorld
+            }
+            "Freehand filters" => {
+                app.session.edit_mode = EditMode::FreehandFilters(PolyLineLasso::new());
                 EditOutcome::UpdatePanelAndWorld
             }
             "One-ways" => {
@@ -211,10 +218,16 @@ fn edit_mode(ctx: &mut EventCtx, edit_mode: &EditMode) -> Widget {
     let mut row = Vec::new();
     for (label, key, is_current) in [
         ("Filters", Key::F1, matches!(edit_mode, EditMode::Filters)),
-        ("One-ways", Key::F2, matches!(edit_mode, EditMode::Oneways)),
+        // system/assets/tools/select.svg when we have icons
+        (
+            "Freehand filters",
+            Key::F2,
+            matches!(edit_mode, EditMode::FreehandFilters(_)),
+        ),
+        ("One-ways", Key::F3, matches!(edit_mode, EditMode::Oneways)),
         (
             "Shortcuts",
-            Key::F3,
+            Key::F4,
             matches!(edit_mode, EditMode::Shortcuts(_)),
         ),
     ] {
