@@ -1137,3 +1137,56 @@ fn to_set(pts: &[Pt2D]) -> (HashSet<HashablePt2D>, HashSet<HashablePt2D>) {
     }
     (deduped, dupes)
 }
+
+// TODO The below is a new way to shift and thicken polylines with way better math. Cut over to
+// this completely.
+
+use cavalier_contours::polyline::{
+    PlineCreation, PlineOffsetOptions, PlineSource, PlineSourceMut, PlineVertex, Polyline as CPL,
+};
+
+impl PolyLine {
+    // Convert to cavalier_contours
+    fn to_cav(&self) -> CPL {
+        let mut pl = CPL::empty();
+        for pt in self.points() {
+            let bulge = 0.0;
+            pl.add_vertex(PlineVertex::new(pt.x(), pt.y(), bulge));
+        }
+        pl
+    }
+
+    // Shift a polyline left (negative) or right (positive) using cavalier_contours. No deduping of
+    // results.
+    fn shift_cav(&self, width: Distance) -> Vec<Pt2D> {
+        let cpl = self.to_cav();
+
+        let options = PlineOffsetOptions {
+            handle_self_intersects: true,
+            ..Default::default()
+        };
+        // cavalier_contours flips the left/right offset direction
+        let output = cpl.parallel_offset_opt(-width.inner_meters(), &options);
+        let mut pts = Vec::new();
+        // I've only seen a single output so far, but regardless, just concatenate all the points
+        for pline in output {
+            for vert in pline.iter_vertexes() {
+                pts.push(Pt2D::new(vert.x, vert.y));
+            }
+        }
+        pts
+    }
+
+    /// Thicken a polyline like `make_polygons`, but use experimental new `cavalier_contours`
+    /// integration.
+    pub fn make_polygons_cav(&self, width: Distance) -> Polygon {
+        let left = self.shift_cav(-width / 2.0);
+        let right = self.shift_cav(width / 2.0);
+        let mut pts = left;
+        pts.reverse();
+        pts.extend(right);
+        pts.push(pts[0]);
+        pts.dedup();
+        Polygon::buggy_new(pts)
+    }
+}
