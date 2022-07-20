@@ -114,7 +114,7 @@ impl Event {
                     // a PixelDelta to a LineDelta.
 
                     // This scale factor is just a guess - but feels about right.
-                    let scale_factor = 0.1;
+                    let scale_factor = 0.01;
 
                     Some(Event::MouseWheelScroll(
                         scale_factor * pos.x,
