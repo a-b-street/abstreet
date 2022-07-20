@@ -69,15 +69,11 @@ pub fn make_world(
                 .draw(batch)
                 .build(ctx);
         } else {
-            // While hovering, show a heatmap of all shortcuts through this road
-            let subset = neighbourhood.shortcuts.subset(neighbourhood, *r);
-            let preview = subset.draw_heatmap(app);
-
             world
                 .add(Obj::InteriorRoad(*r))
                 .hitbox(road.get_thick_polygon())
                 .drawn_in_master_batch()
-                .draw_hovered(preview)
+                .hover_outline(Color::RED, Distance::meters(3.0))
                 .tooltip(Text::from(format!(
                     "{} possible shortcuts cross {}",
                     neighbourhood.shortcuts.count_per_road.get(*r),
@@ -122,7 +118,9 @@ pub fn make_world(
             .zoomed
             .append(map_gui::tools::goal_marker(ctx, last_pt, 0.5));
 
-        world.draw_master_batch_while_not_hovering(ctx, draw_path);
+        world.draw_master_batch(ctx, draw_path);
+    } else {
+        world.draw_master_batch(ctx, neighbourhood.shortcuts.draw_heatmap(app));
     }
 
     world.initialize_hover(ctx);
