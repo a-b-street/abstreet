@@ -18,6 +18,7 @@ impl About {
                 Line("with major design advice from Duncan Geere"),
                 Line("Developed at the Alan Turing Institute"),
                 Line("Data from OpenStreetMap"),
+                Line("Basemap style based on Mapbox Light"),
                 Line("See below for full credits and more info"),
             ])
             .into_widget(ctx),

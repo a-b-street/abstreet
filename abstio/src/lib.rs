@@ -36,5 +36,5 @@ mod io;
 /// and reading files in different environments.
 pub fn slurp_bytes(filename: &str) -> Vec<u8> {
     let path = path(filename);
-    slurp_file(&path).unwrap_or_else(|_| panic!("Can't read {}", path))
+    slurp_file(&path).unwrap_or_else(|err| panic!("Can't read {}: {}", path, err))
 }

@@ -93,6 +93,17 @@ impl Viewer {
                             .neighbourhood_area_km2(self.neighbourhood.id)
                     )
                     .text_widget(ctx),
+                    Widget::row(vec![
+                        "Draw traffic cells as".text_widget(ctx).centered_vert(),
+                        Toggle::choice(
+                            ctx,
+                            "draw cells",
+                            "areas",
+                            "outlines",
+                            Key::D,
+                            app.session.draw_cells_as_areas,
+                        ),
+                    ]),
                     warning,
                     advanced_panel(ctx, app),
                 ]),
@@ -171,25 +182,29 @@ impl State<App> for Viewer {
                 )
                 .unwrap();
             }
-            Outcome::Changed(x) => {
-                if x == "Advanced features" {
+            Outcome::Changed(x) => match x.as_ref() {
+                "Advanced features" => {
                     app.opts.dev = self.left_panel.is_checked("Advanced features");
                     self.update(ctx, app);
                     return Transition::Keep;
                 }
+                "heuristic" => {
+                    app.session.heuristic = self.left_panel.dropdown_value("heuristic");
+                    return Transition::Keep;
+                }
+                "areas" | "outlines" => {
+                    app.session.draw_cells_as_areas = self.left_panel.is_checked("draw cells");
 
-                app.session.draw_cells_as_areas = self.left_panel.is_checked("draw cells");
-                app.session.heuristic = self.left_panel.dropdown_value("heuristic");
-
-                if x != "heuristic" {
                     let (edit, draw_top_layer, draw_under_roads_layer, _, highlight_cell) =
                         setup_editing(ctx, app, &self.neighbourhood);
                     self.edit = edit;
                     self.draw_top_layer = draw_top_layer;
                     self.draw_under_roads_layer = draw_under_roads_layer;
                     self.highlight_cell = highlight_cell;
+                    return Transition::Keep;
                 }
-            }
+                _ => unreachable!(),
+            },
             _ => {}
         }
 
@@ -378,17 +393,6 @@ fn advanced_panel(ctx: &EventCtx, app: &App) -> Widget {
             .btn_outline
             .text("Customize boundary")
             .build_def(ctx),
-        Widget::row(vec![
-            "Draw traffic cells as".text_widget(ctx).centered_vert(),
-            Toggle::choice(
-                ctx,
-                "draw cells",
-                "areas",
-                "streets",
-                Key::D,
-                app.session.draw_cells_as_areas,
-            ),
-        ]),
         ctx.style()
             .btn_outline
             .text("Automatically place filters")
