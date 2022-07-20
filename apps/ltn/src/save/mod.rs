@@ -8,6 +8,7 @@ use abstutil::Counter;
 use widgetry::tools::{ChooseSomething, PopupMsg, PromptInput};
 use widgetry::{Choice, EventCtx, Key, Line, State, Widget};
 
+use crate::edit::EditMode;
 use crate::partition::BlockID;
 use crate::{App, BrowseNeighbourhoods, ModalFilters, Partitioning, Transition};
 
@@ -331,6 +332,16 @@ impl PreserveState {
                 for block in blocks {
                     count.inc(app.session.partitioning.block_to_neighbourhood(block));
                 }
+
+                if let EditMode::Shortcuts(ref mut maybe_focus) = app.session.edit_mode {
+                    // TODO We should try to preserve the focused road at least, or the specific
+                    // shortcut maybe.
+                    *maybe_focus = None;
+                }
+                if let EditMode::FreehandFilters(_) = app.session.edit_mode {
+                    app.session.edit_mode = EditMode::Filters;
+                }
+
                 Transition::Replace(crate::connectivity::Viewer::new_state(
                     ctx,
                     app,
