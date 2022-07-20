@@ -356,8 +356,6 @@
 <span id="351">351</span>
 <span id="352">352</span>
 <span id="353">353</span>
-<span id="354">354</span>
-<span id="355">355</span>
 </pre><pre class="rust"><code><span class="kw">mod</span> <span class="ident">perma</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
@@ -365,10 +363,10 @@
 
 <span class="kw">use</span> <span class="ident">abstio::MapName</span>;
 <span class="kw">use</span> <span class="ident">abstutil::Counter</span>;
-<span class="kw">use</span> <span class="ident">map_model::PathRequest</span>;
 <span class="kw">use</span> <span class="ident">widgetry::tools</span>::{<span class="ident">ChooseSomething</span>, <span class="ident">PopupMsg</span>, <span class="ident">PromptInput</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Choice</span>, <span class="ident">EventCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">State</span>, <span class="ident">Widget</span>};
 
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::edit::EditMode</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::partition::BlockID</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">App</span>, <span class="ident">BrowseNeighbourhoods</span>, <span class="ident">ModalFilters</span>, <span class="ident">Partitioning</span>, <span class="ident">Transition</span>};
 
@@ -672,8 +670,8 @@
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">PreserveState</span> {
     <span class="ident">BrowseNeighbourhoods</span>,
     <span class="ident">Route</span>,
+    <span class="comment">// TODO app.session.edit_mode now has state for Shortcuts...</span>
     <span class="ident">Connectivity</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BlockID</span><span class="op">&gt;</span>),
-    <span class="ident">Shortcuts</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathRequest</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BlockID</span><span class="op">&gt;</span>),
 }
 
 <span class="kw">impl</span> <span class="ident">PreserveState</span> {
@@ -692,22 +690,20 @@
                 <span class="kw">for</span> <span class="ident">block</span> <span class="kw">in</span> <span class="ident">blocks</span> {
                     <span class="ident">count</span>.<span class="ident">inc</span>(<span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">block_to_neighbourhood</span>(<span class="ident">block</span>));
                 }
+
+                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">EditMode::Shortcuts</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">maybe_focus</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> {
+                    <span class="comment">// TODO We should try to preserve the focused road at least, or the specific</span>
+                    <span class="comment">// shortcut maybe.</span>
+                    <span class="kw-2">*</span><span class="ident">maybe_focus</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+                }
+                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">EditMode::FreehandFilters</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> {
+                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> <span class="op">=</span> <span class="ident">EditMode::Filters</span>;
+                }
+
                 <span class="ident">Transition::Replace</span>(<span class="ident"><span class="kw">crate</span>::connectivity::Viewer::new_state</span>(
                     <span class="ident">ctx</span>,
                     <span class="ident">app</span>,
                     <span class="ident">count</span>.<span class="ident">max_key</span>(),
-                ))
-            }
-            <span class="ident">PreserveState::Shortcuts</span>(<span class="ident">req</span>, <span class="ident">blocks</span>) =&gt; {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">Counter::new</span>();
-                <span class="kw">for</span> <span class="ident">block</span> <span class="kw">in</span> <span class="ident">blocks</span> {
-                    <span class="ident">count</span>.<span class="ident">inc</span>(<span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">block_to_neighbourhood</span>(<span class="ident">block</span>));
-                }
-                <span class="ident">Transition::Replace</span>(<span class="ident"><span class="kw">crate</span>::shortcut_viewer::BrowseShortcuts::new_state</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="ident">app</span>,
-                    <span class="ident">count</span>.<span class="ident">max_key</span>(),
-                    <span class="ident">req</span>,
                 ))
             }
         }

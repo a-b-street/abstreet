@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["EditOutcome",""],["Obj",""],["Tab",""]],"fn":[["edit_mode",""]],"mod":[["filters",""],["one_ways",""]],"struct":[["EditNeighbourhood",""]]});
+initSidebarItems({"enum":[["EditMode",""],["EditOutcome",""],["Obj",""]],"fn":[["edit_mode",""]],"mod":[["filters",""],["freehand_filters",""],["one_ways",""],["shortcuts",""]],"struct":[["EditNeighbourhood",""]]});

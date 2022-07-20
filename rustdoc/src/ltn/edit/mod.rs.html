@@ -244,67 +244,51 @@
 <span id="239">239</span>
 <span id="240">240</span>
 <span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
 </pre><pre class="rust"><code><span class="kw">mod</span> <span class="ident">filters</span>;
+<span class="kw">mod</span> <span class="ident">freehand_filters</span>;
 <span class="kw">mod</span> <span class="ident">one_ways</span>;
+<span class="kw">mod</span> <span class="ident">shortcuts</span>;
 
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">RoadID</span>};
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ObjectID</span>, <span class="ident">World</span>};
-<span class="kw">use</span> <span class="ident">widgetry::tools::PopupMsg</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">EventCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">PanelBuilder</span>, <span class="ident">Widget</span>, <span class="ident">DEFAULT_CORNER_RADIUS</span>};
+<span class="kw">use</span> <span class="ident">widgetry::tools</span>::{<span class="ident">PolyLineLasso</span>, <span class="ident">PopupMsg</span>};
+<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">lctrl</span>, <span class="ident">EventCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">PanelBuilder</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::shortcuts::Shortcuts</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">after_edit</span>, <span class="ident">App</span>, <span class="ident">BrowseNeighbourhoods</span>, <span class="ident">Neighbourhood</span>, <span class="ident">Transition</span>};
 
-<span class="comment">// TODO This is only used for styling now</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Tab</span> {
-    <span class="ident">Connectivity</span>,
-    <span class="ident">Shortcuts</span>,
-}
-
-<span class="kw">impl</span> <span class="ident">Tab</span> {
-    <span class="kw">fn</span> <span class="ident">make_buttons</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> (<span class="ident">tab</span>, <span class="ident">label</span>, <span class="ident">key</span>) <span class="kw">in</span> [
-            (<span class="ident">Tab::Connectivity</span>, <span class="string">&quot;Connectivity&quot;</span>, <span class="ident">Key::F1</span>),
-            (<span class="ident">Tab::Shortcuts</span>, <span class="string">&quot;Shortcuts&quot;</span>, <span class="ident">Key::F2</span>),
-        ] {
-            <span class="comment">// TODO Match the TabController styling</span>
-            <span class="ident">row</span>.<span class="ident">push</span>(
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_tab</span>
-                    .<span class="ident">text</span>(<span class="ident">label</span>)
-                    .<span class="ident">corner_rounding</span>(<span class="ident">geom::CornerRadii</span> {
-                        <span class="ident">top_left</span>: <span class="ident">DEFAULT_CORNER_RADIUS</span>,
-                        <span class="ident">top_right</span>: <span class="ident">DEFAULT_CORNER_RADIUS</span>,
-                        <span class="ident">bottom_left</span>: <span class="number">0.0</span>,
-                        <span class="ident">bottom_right</span>: <span class="number">0.0</span>,
-                    })
-                    .<span class="ident">hotkey</span>(<span class="ident">key</span>)
-                    <span class="comment">// We abuse &quot;disabled&quot; to denote &quot;currently selected&quot;</span>
-                    .<span class="ident">disabled</span>(<span class="self">self</span> <span class="op">==</span> <span class="ident">tab</span>)
-                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-            );
-        }
-        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">consultation</span>.<span class="ident">is_none</span>() {
-            <span class="comment">// TODO The 3rd doesn&#39;t really act like a tab</span>
-            <span class="ident">row</span>.<span class="ident">push</span>(
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_tab</span>
-                    .<span class="ident">text</span>(<span class="string">&quot;Adjust boundary&quot;</span>)
-                    .<span class="ident">corner_rounding</span>(<span class="ident">geom::CornerRadii</span> {
-                        <span class="ident">top_left</span>: <span class="ident">DEFAULT_CORNER_RADIUS</span>,
-                        <span class="ident">top_right</span>: <span class="ident">DEFAULT_CORNER_RADIUS</span>,
-                        <span class="ident">bottom_left</span>: <span class="number">0.0</span>,
-                        <span class="ident">bottom_right</span>: <span class="number">0.0</span>,
-                    })
-                    .<span class="ident">hotkey</span>(<span class="ident">Key::B</span>)
-                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-            );
-        }
-
-        <span class="ident">Widget::row</span>(<span class="ident">row</span>)
-    }
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">EditMode</span> {
+    <span class="ident">Filters</span>,
+    <span class="ident">FreehandFilters</span>(<span class="ident">PolyLineLasso</span>),
+    <span class="ident">Oneways</span>,
+    <span class="comment">// Is a road clicked on right now?</span>
+    <span class="ident">Shortcuts</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">shortcuts::FocusedRoad</span><span class="op">&gt;</span>),
 }
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">EditNeighbourhood</span> {
@@ -321,8 +305,10 @@
 
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">EditOutcome</span> {
     <span class="ident">Nothing</span>,
-    <span class="doccomment">/// The neighbourhood has changed and the caller should recalculate stuff, including the panel</span>
-    <span class="ident">Recalculate</span>,
+    <span class="doccomment">/// Don&#39;t recreate the Neighbourhood</span>
+    <span class="ident">UpdatePanelAndWorld</span>,
+    <span class="doccomment">/// Use this with Transition::Recreate to recalculate the Neighbourhood, because it&#39;s actually</span>
+    <span class="doccomment">/// been edited</span>
     <span class="ident">Transition</span>(<span class="ident">Transition</span>),
 }
 
@@ -343,17 +329,13 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-        <span class="ident">neighbourhood</span>: <span class="kw-2">&amp;</span><span class="ident">Neighbourhood</span>,
-        <span class="ident">shortcuts</span>: <span class="kw-2">&amp;</span><span class="ident">Shortcuts</span>,
-    ) -&gt; <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">neighbourhood</span>: <span class="kw-2">&amp;</span><span class="ident">Neighbourhood</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">world</span>: <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_filters</span> {
-                <span class="ident">filters::make_world</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">neighbourhood</span>, <span class="ident">shortcuts</span>)
-            } <span class="kw">else</span> {
-                <span class="ident">one_ways::make_world</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">neighbourhood</span>)
+            <span class="ident">world</span>: <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> {
+                <span class="ident">EditMode::Filters</span> =&gt; <span class="ident">filters::make_world</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">neighbourhood</span>),
+                <span class="ident">EditMode::FreehandFilters</span>(<span class="kw">_</span>) =&gt; <span class="ident">World::unbounded</span>(),
+                <span class="ident">EditMode::Oneways</span> =&gt; <span class="ident">one_ways::make_world</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">neighbourhood</span>),
+                <span class="ident">EditMode::Shortcuts</span>(<span class="ident">focus</span>) =&gt; <span class="ident">shortcuts::make_world</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">neighbourhood</span>, <span class="ident">focus</span>),
             },
         }
     }
@@ -362,7 +344,6 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
         <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-        <span class="ident">tab</span>: <span class="ident">Tab</span>,
         <span class="ident">top_panel</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>,
         <span class="ident">per_tab_contents</span>: <span class="ident">Widget</span>,
     ) -&gt; <span class="ident">PanelBuilder</span> {
@@ -372,26 +353,67 @@
             <span class="ident">Line</span>(<span class="string">&quot;Editing neighbourhood&quot;</span>)
                 .<span class="ident">small_heading</span>()
                 .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">edit_mode</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_filters</span>),
-            <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_filters</span> {
-                <span class="ident">filters::widget</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)
-            } <span class="kw">else</span> {
-                <span class="ident">one_ways::widget</span>(<span class="ident">ctx</span>)
-            }
+            <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+                <span class="ident">edit_mode</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span>),
+                <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> {
+                    <span class="ident">EditMode::Filters</span> =&gt; <span class="ident">filters::widget</span>(<span class="ident">ctx</span>),
+                    <span class="ident">EditMode::FreehandFilters</span>(<span class="kw">_</span>) =&gt; <span class="ident">freehand_filters::widget</span>(<span class="ident">ctx</span>),
+                    <span class="ident">EditMode::Oneways</span> =&gt; <span class="ident">one_ways::widget</span>(<span class="ident">ctx</span>),
+                    <span class="ident">EditMode::Shortcuts</span>(<span class="kw-2">ref</span> <span class="ident">focus</span>) =&gt; <span class="ident">shortcuts::widget</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">focus</span>.<span class="ident">as_ref</span>()),
+                }
+                .<span class="ident">named</span>(<span class="string">&quot;edit mode contents&quot;</span>),
+            ])
             .<span class="ident">section</span>(<span class="ident">ctx</span>),
-            <span class="ident">tab</span>.<span class="ident">make_buttons</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
+                    .<span class="ident">btn_plain</span>
+                    .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/undo.svg&quot;</span>)
+                    .<span class="ident">disabled</span>(<span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">previous_version</span>.<span class="ident">is_none</span>())
+                    .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::Z</span>))
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;undo&quot;</span>),
+                <span class="macro">format!</span>(
+                    <span class="string">&quot;{} filters added&quot;</span>,
+                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">roads</span>.<span class="ident">len</span>()
+                        <span class="op">+</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">intersections</span>.<span class="ident">len</span>()
+                )
+                .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
+                .<span class="ident">centered_vert</span>(),
+            ]),
+            {
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+                <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">consultation</span>.<span class="ident">is_none</span>() {
+                    <span class="ident">row</span>.<span class="ident">push</span>(
+                        <span class="ident">ctx</span>.<span class="ident">style</span>()
+                            .<span class="ident">btn_outline</span>
+                            .<span class="ident">text</span>(<span class="string">&quot;Adjust boundary&quot;</span>)
+                            .<span class="ident">hotkey</span>(<span class="ident">Key::B</span>)
+                            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                    );
+                }
+                <span class="ident">row</span>.<span class="ident">push</span>(<span class="ident"><span class="kw">crate</span>::route_planner::RoutePlanner::button</span>(<span class="ident">ctx</span>));
+                <span class="ident">Widget::row</span>(<span class="ident">row</span>)
+            },
             <span class="ident">per_tab_contents</span>,
-            <span class="ident"><span class="kw">crate</span>::route_planner::RoutePlanner::button</span>(<span class="ident">ctx</span>),
         ]);
         <span class="ident"><span class="kw">crate</span>::components::LeftPanel::builder</span>(<span class="ident">ctx</span>, <span class="ident">top_panel</span>, <span class="ident">contents</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">EditOutcome</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">event</span>(
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
+        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
+        <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
+        <span class="ident">neighbourhood</span>: <span class="kw-2">&amp;</span><span class="ident">Neighbourhood</span>,
+    ) -&gt; <span class="ident">EditOutcome</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">EditMode::FreehandFilters</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> {
+            <span class="kw">return</span> <span class="ident">freehand_filters::event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">neighbourhood</span>);
+        }
+
         <span class="kw">let</span> <span class="ident">outcome</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">event</span>(<span class="ident">ctx</span>);
-        <span class="kw">let</span> <span class="ident">outcome</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_filters</span> {
-            <span class="ident">filters::handle_world_outcome</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">outcome</span>)
-        } <span class="kw">else</span> {
-            <span class="ident">one_ways::handle_world_outcome</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">outcome</span>)
+        <span class="kw">let</span> <span class="ident">outcome</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> {
+            <span class="ident">EditMode::Filters</span> =&gt; <span class="ident">filters::handle_world_outcome</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">outcome</span>),
+            <span class="ident">EditMode::FreehandFilters</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
+            <span class="ident">EditMode::Oneways</span> =&gt; <span class="ident">one_ways::handle_world_outcome</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">outcome</span>),
+            <span class="ident">EditMode::Shortcuts</span>(<span class="kw">_</span>) =&gt; <span class="ident">shortcuts::handle_world_outcome</span>(<span class="ident">app</span>, <span class="ident">outcome</span>, <span class="ident">neighbourhood</span>),
         };
         <span class="kw">if</span> <span class="macro">matches!</span>(<span class="ident">outcome</span>, <span class="ident">EditOutcome::Transition</span>(<span class="kw">_</span>)) {
             <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">hack_unset_hovering</span>();
@@ -405,84 +427,116 @@
         <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
         <span class="ident">action</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
         <span class="ident">neighbourhood</span>: <span class="kw-2">&amp;</span><span class="ident">Neighbourhood</span>,
-        <span class="ident">panel</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span> {
+        <span class="ident">panel</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Panel</span>,
+    ) -&gt; <span class="ident">EditOutcome</span> {
         <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">neighbourhood</span>.<span class="ident">id</span>;
         <span class="kw">match</span> <span class="ident">action</span> {
             <span class="string">&quot;Browse neighbourhoods&quot;</span> =&gt; {
                 <span class="comment">// Recalculate the state to redraw any changed filters</span>
-                <span class="prelude-val">Some</span>(<span class="ident">Transition::Replace</span>(<span class="ident">BrowseNeighbourhoods::new_state</span>(
+                <span class="ident">EditOutcome::Transition</span>(<span class="ident">Transition::Replace</span>(<span class="ident">BrowseNeighbourhoods::new_state</span>(
                     <span class="ident">ctx</span>, <span class="ident">app</span>,
                 )))
             }
-            <span class="string">&quot;Adjust boundary&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Transition::Replace</span>(
+            <span class="string">&quot;Adjust boundary&quot;</span> =&gt; <span class="ident">EditOutcome::Transition</span>(<span class="ident">Transition::Replace</span>(
                 <span class="ident"><span class="kw">crate</span>::select_boundary::SelectBoundary::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>),
-            )),
-            <span class="string">&quot;Connectivity&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Transition::Replace</span>(<span class="ident"><span class="kw">crate</span>::connectivity::Viewer::new_state</span>(
-                <span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>,
-            ))),
-            <span class="string">&quot;Shortcuts&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Transition::Replace</span>(
-                <span class="ident"><span class="kw">crate</span>::shortcut_viewer::BrowseShortcuts::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>, <span class="prelude-val">None</span>),
-            )),
-            <span class="comment">// Overkill to force all mode-specific code into the module</span>
-            <span class="string">&quot;Create filters along a shape&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(
-                <span class="ident"><span class="kw">crate</span>::components::FreehandFilters::new_state</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="ident">neighbourhood</span>,
-                    <span class="ident">panel</span>.<span class="ident">center_of</span>(<span class="string">&quot;Create filters along a shape&quot;</span>),
-                ),
             )),
             <span class="string">&quot;undo&quot;</span> =&gt; {
                 <span class="kw">let</span> <span class="ident">prev</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">previous_version</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
                 <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span> <span class="op">=</span> <span class="ident">prev</span>;
                 <span class="ident">after_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 <span class="comment">// TODO Ideally, preserve panel state (checkboxes and dropdowns)</span>
-                <span class="prelude-val">Some</span>(<span class="ident">Transition::Recreate</span>)
+                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">EditMode::Shortcuts</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">maybe_focus</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> {
+                    <span class="kw-2">*</span><span class="ident">maybe_focus</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+                }
+                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">EditMode::FreehandFilters</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> {
+                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> <span class="op">=</span> <span class="ident">EditMode::Filters</span>;
+                }
+                <span class="ident">EditOutcome::Transition</span>(<span class="ident">Transition::Recreate</span>)
             }
-            <span class="string">&quot;Plan a route&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(
+            <span class="string">&quot;Plan a route&quot;</span> =&gt; <span class="ident">EditOutcome::Transition</span>(<span class="ident">Transition::Push</span>(
                 <span class="ident"><span class="kw">crate</span>::route_planner::RoutePlanner::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
             )),
             <span class="string">&quot;Filters&quot;</span> =&gt; {
-                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_filters</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                <span class="prelude-val">Some</span>(<span class="ident">Transition::Recreate</span>)
+                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> <span class="op">=</span> <span class="ident">EditMode::Filters</span>;
+                <span class="ident">EditOutcome::UpdatePanelAndWorld</span>
+            }
+            <span class="string">&quot;Freehand filters&quot;</span> =&gt; {
+                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> <span class="op">=</span> <span class="ident">EditMode::FreehandFilters</span>(<span class="ident">PolyLineLasso::new</span>());
+                <span class="ident">EditOutcome::UpdatePanelAndWorld</span>
             }
             <span class="string">&quot;One-ways&quot;</span> =&gt; {
-                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_filters</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                <span class="prelude-val">Some</span>(<span class="ident">Transition::Recreate</span>)
+                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> <span class="op">=</span> <span class="ident">EditMode::Oneways</span>;
+                <span class="ident">EditOutcome::UpdatePanelAndWorld</span>
             }
-            <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="string">&quot;Shortcuts&quot;</span> =&gt; {
+                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> <span class="op">=</span> <span class="ident">EditMode::Shortcuts</span>(<span class="prelude-val">None</span>);
+                <span class="ident">EditOutcome::UpdatePanelAndWorld</span>
+            }
+            <span class="string">&quot;previous shortcut&quot;</span> =&gt; {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">EditMode::Shortcuts</span>(<span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">focus</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> {
+                    <span class="ident">focus</span>.<span class="ident">current_idx</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
+                }
+                <span class="comment">// Logically we could do UpdatePanelAndWorld, but we need to be more efficient</span>
+                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">EditMode::Shortcuts</span>(<span class="kw-2">ref</span> <span class="ident">focus</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> {
+                    <span class="kw">let</span> <span class="ident">panel_piece</span> <span class="op">=</span> <span class="ident">shortcuts::widget</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">focus</span>.<span class="ident">as_ref</span>());
+                    <span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;edit mode contents&quot;</span>, <span class="ident">panel_piece</span>);
+                    <span class="self">self</span>.<span class="ident">world</span> <span class="op">=</span> <span class="ident">shortcuts::make_world</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">neighbourhood</span>, <span class="ident">focus</span>);
+                }
+                <span class="ident">EditOutcome::Transition</span>(<span class="ident">Transition::Keep</span>)
+            }
+            <span class="string">&quot;next shortcut&quot;</span> =&gt; {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">EditMode::Shortcuts</span>(<span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">focus</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> {
+                    <span class="ident">focus</span>.<span class="ident">current_idx</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                }
+                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">EditMode::Shortcuts</span>(<span class="kw-2">ref</span> <span class="ident">focus</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> {
+                    <span class="kw">let</span> <span class="ident">panel_piece</span> <span class="op">=</span> <span class="ident">shortcuts::widget</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">focus</span>.<span class="ident">as_ref</span>());
+                    <span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;edit mode contents&quot;</span>, <span class="ident">panel_piece</span>);
+                    <span class="self">self</span>.<span class="ident">world</span> <span class="op">=</span> <span class="ident">shortcuts::make_world</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">neighbourhood</span>, <span class="ident">focus</span>);
+                }
+                <span class="ident">EditOutcome::Transition</span>(<span class="ident">Transition::Keep</span>)
+            }
+            <span class="kw">_</span> =&gt; <span class="ident">EditOutcome::Nothing</span>,
         }
     }
 }
 
-<span class="kw">fn</span> <span class="ident">edit_mode</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">filters</span>: <span class="ident">bool</span>) -&gt; <span class="ident">Widget</span> {
+<span class="kw">fn</span> <span class="ident">edit_mode</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">edit_mode</span>: <span class="kw-2">&amp;</span><span class="ident">EditMode</span>) -&gt; <span class="ident">Widget</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="ident">row</span>.<span class="ident">push</span>(
-        <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_tab</span>
-            .<span class="ident">text</span>(<span class="string">&quot;Filters&quot;</span>)
-            .<span class="ident">corner_rounding</span>(<span class="ident">geom::CornerRadii</span> {
-                <span class="ident">top_left</span>: <span class="ident">DEFAULT_CORNER_RADIUS</span>,
-                <span class="ident">top_right</span>: <span class="ident">DEFAULT_CORNER_RADIUS</span>,
-                <span class="ident">bottom_left</span>: <span class="number">0.0</span>,
-                <span class="ident">bottom_right</span>: <span class="number">0.0</span>,
-            })
-            .<span class="ident">disabled</span>(<span class="ident">filters</span>)
-            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-    );
-    <span class="ident">row</span>.<span class="ident">push</span>(
-        <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_tab</span>
-            .<span class="ident">text</span>(<span class="string">&quot;One-ways&quot;</span>)
-            .<span class="ident">corner_rounding</span>(<span class="ident">geom::CornerRadii</span> {
-                <span class="ident">top_left</span>: <span class="ident">DEFAULT_CORNER_RADIUS</span>,
-                <span class="ident">top_right</span>: <span class="ident">DEFAULT_CORNER_RADIUS</span>,
-                <span class="ident">bottom_left</span>: <span class="number">0.0</span>,
-                <span class="ident">bottom_right</span>: <span class="number">0.0</span>,
-            })
-            .<span class="ident">disabled</span>(<span class="op">!</span><span class="ident">filters</span>)
-            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-    );
+    <span class="kw">for</span> (<span class="ident">label</span>, <span class="ident">key</span>, <span class="ident">icon</span>, <span class="ident">is_current</span>) <span class="kw">in</span> [
+        (
+            <span class="string">&quot;Filters&quot;</span>,
+            <span class="ident">Key::F1</span>,
+            <span class="string">&quot;system/assets/edit/construction.svg&quot;</span>,
+            <span class="macro">matches!</span>(<span class="ident">edit_mode</span>, <span class="ident">EditMode::Filters</span>),
+        ),
+        (
+            <span class="string">&quot;Freehand filters&quot;</span>,
+            <span class="ident">Key::F2</span>,
+            <span class="string">&quot;system/assets/tools/select.svg&quot;</span>,
+            <span class="macro">matches!</span>(<span class="ident">edit_mode</span>, <span class="ident">EditMode::FreehandFilters</span>(<span class="kw">_</span>)),
+        ),
+        (
+            <span class="string">&quot;One-ways&quot;</span>,
+            <span class="ident">Key::F3</span>,
+            <span class="string">&quot;system/assets/tools/one_ways.svg&quot;</span>,
+            <span class="macro">matches!</span>(<span class="ident">edit_mode</span>, <span class="ident">EditMode::Oneways</span>),
+        ),
+        (
+            <span class="string">&quot;Shortcuts&quot;</span>,
+            <span class="ident">Key::F4</span>,
+            <span class="string">&quot;system/assets/tools/shortcut.svg&quot;</span>,
+            <span class="macro">matches!</span>(<span class="ident">edit_mode</span>, <span class="ident">EditMode::Shortcuts</span>(<span class="kw">_</span>)),
+        ),
+    ] {
+        <span class="ident">row</span>.<span class="ident">push</span>(
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_solid_primary</span>
+                .<span class="ident">icon</span>(<span class="ident">icon</span>)
+                .<span class="ident">disabled</span>(<span class="ident">is_current</span>)
+                .<span class="ident">hotkey</span>(<span class="ident">key</span>)
+                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="ident">label</span>),
+        );
+    }
     <span class="ident">Widget::row</span>(<span class="ident">row</span>)
 }
 </code></pre></div>

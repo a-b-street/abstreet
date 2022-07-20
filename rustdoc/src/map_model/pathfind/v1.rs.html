@@ -834,6 +834,17 @@
 <span id="829">829</span>
 <span id="830">830</span>
 <span id="831">831</span>
+<span id="832">832</span>
+<span id="833">833</span>
+<span id="834">834</span>
+<span id="835">835</span>
+<span id="836">836</span>
+<span id="837">837</span>
+<span id="838">838</span>
+<span id="839">839</span>
+<span id="840">840</span>
+<span id="841">841</span>
+<span id="842">842</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">VecDeque</span>};
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
@@ -844,8 +855,8 @@
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Ring</span>, <span class="ident">Speed</span>, <span class="ident">EPSILON_DIST</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">BuildingID</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">Position</span>, <span class="ident">Traversable</span>, <span class="ident">TurnID</span>,
-    <span class="ident">UberTurn</span>,
+    <span class="ident">BuildingID</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">Position</span>, <span class="ident">RoadID</span>, <span class="ident">Traversable</span>,
+    <span class="ident">TurnID</span>, <span class="ident">UberTurn</span>,
 };
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>)]</span>
@@ -1393,6 +1404,17 @@
             <span class="string">&quot;get_step_at_dist_along has leftover distance of {}&quot;</span>,
             <span class="ident">dist_along</span>
         );
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">crosses_road</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">r</span>: <span class="ident">RoadID</span>) -&gt; <span class="ident">bool</span> {
+        <span class="kw">for</span> <span class="ident">step</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">steps</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PathStep::Lane</span>(<span class="ident">l</span>) <span class="op">|</span> <span class="ident">PathStep::ContraflowLane</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="ident">step</span> {
+                <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">road</span> <span class="op">==</span> <span class="ident">r</span> {
+                    <span class="kw">return</span> <span class="bool-val">true</span>;
+                }
+            }
+        }
+        <span class="bool-val">false</span>
     }
 }
 

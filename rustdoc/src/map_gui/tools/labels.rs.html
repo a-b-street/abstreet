@@ -236,6 +236,7 @@
 <span id="231">231</span>
 <span id="232">232</span>
 <span id="233">233</span>
+<span id="234">234</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 
 <span class="kw">use</span> <span class="ident">aabb_quadtree::QuadTree</span>;
@@ -408,12 +409,12 @@
     ] {
         <span class="comment">// Only replace directions at the start or end of the string</span>
         <span class="ident">replace</span>.<span class="ident">push</span>((
-            <span class="ident">Regex::new</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;^{}&quot;</span>, <span class="ident">long</span>)).<span class="ident">unwrap</span>(),
-            <span class="ident">short</span>.<span class="ident">to_string</span>(),
+            <span class="ident">Regex::new</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;^{long} &quot;</span>)).<span class="ident">unwrap</span>(),
+            <span class="macro">format!</span>(<span class="string">&quot;{short} &quot;</span>),
         ));
         <span class="ident">replace</span>.<span class="ident">push</span>((
-            <span class="ident">Regex::new</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}$&quot;</span>, <span class="ident">long</span>)).<span class="ident">unwrap</span>(),
-            <span class="ident">short</span>.<span class="ident">to_string</span>(),
+            <span class="ident">Regex::new</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot; {long}$&quot;</span>)).<span class="ident">unwrap</span>(),
+            <span class="macro">format!</span>(<span class="string">&quot; {short}&quot;</span>),
         ));
     }
 
@@ -447,6 +448,7 @@
         <span class="kw">for</span> (<span class="ident">input</span>, <span class="ident">want</span>) <span class="kw">in</span> [
             (<span class="string">&quot;Northeast Northgate Way&quot;</span>, <span class="string">&quot;NE Northgate Way&quot;</span>),
             (<span class="string">&quot;South 42nd Street&quot;</span>, <span class="string">&quot;S 42nd St&quot;</span>),
+            (<span class="string">&quot;Northcote Road&quot;</span>, <span class="string">&quot;Northcote Road&quot;</span>),
         ] {
             <span class="kw">let</span> <span class="ident">got</span> <span class="op">=</span> <span class="ident">simplify_name</span>(<span class="ident">input</span>.<span class="ident">to_string</span>()).<span class="ident">unwrap</span>();
             <span class="kw">if</span> <span class="ident">got</span> <span class="op">!</span><span class="op">=</span> <span class="ident">want</span> {

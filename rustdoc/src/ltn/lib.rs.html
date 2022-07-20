@@ -280,8 +280,6 @@
 <span id="275">275</span>
 <span id="276">276</span>
 <span id="277">277</span>
-<span id="278">278</span>
-<span id="279">279</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::type_complexity</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">structopt::StructOpt</span>;
@@ -316,7 +314,6 @@
 <span class="kw">mod</span> <span class="ident">route_planner</span>;
 <span class="kw">mod</span> <span class="ident">save</span>;
 <span class="kw">mod</span> <span class="ident">select_boundary</span>;
-<span class="kw">mod</span> <span class="ident">shortcut_viewer</span>;
 <span class="kw">mod</span> <span class="ident">shortcuts</span>;
 
 <span class="kw">type</span> <span class="ident">App</span> <span class="op">=</span> <span class="ident">map_gui::SimpleApp</span><span class="op">&lt;</span><span class="ident">Session</span><span class="op">&gt;</span>;
@@ -369,7 +366,7 @@
             <span class="ident">draw_all_filters</span>: <span class="ident">Toggle3Zoomed::empty</span>(<span class="ident">ctx</span>),
             <span class="ident">impact</span>: <span class="ident">impact::Impact::empty</span>(<span class="ident">ctx</span>),
 
-            <span class="ident">edit_filters</span>: <span class="bool-val">true</span>,
+            <span class="ident">edit_mode</span>: <span class="ident">edit::EditMode::Filters</span>,
 
             <span class="ident">draw_neighbourhood_style</span>: <span class="ident">browse::Style::Simple</span>,
             <span class="ident">draw_cells_as_areas</span>: <span class="bool-val">false</span>,
@@ -490,8 +487,7 @@
     <span class="kw">pub</span> <span class="ident">draw_all_filters</span>: <span class="ident">Toggle3Zoomed</span>,
     <span class="kw">pub</span> <span class="ident">impact</span>: <span class="ident">impact::Impact</span>,
 
-    <span class="comment">// True if we&#39;re editing filters, false if we&#39;re editing one-ways. (An enum is overkill)</span>
-    <span class="kw">pub</span> <span class="ident">edit_filters</span>: <span class="ident">bool</span>,
+    <span class="kw">pub</span> <span class="ident">edit_mode</span>: <span class="ident">edit::EditMode</span>,
 
     <span class="comment">// Remember form settings in different tabs.</span>
     <span class="comment">// Browse neighbourhoods:</span>

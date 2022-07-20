@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["about",""],["freehand_filters",""],["left_panel",""],["top_panel",""]]});
+initSidebarItems({"mod":[["about",""],["left_panel",""],["top_panel",""]]});
