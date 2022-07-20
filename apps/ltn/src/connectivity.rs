@@ -155,10 +155,13 @@ impl State<App> for Viewer {
                     return Transition::Keep;
                 }
 
-                match self
-                    .edit
-                    .handle_panel_action(ctx, app, x.as_ref(), &self.neighbourhood)
-                {
+                match self.edit.handle_panel_action(
+                    ctx,
+                    app,
+                    x.as_ref(),
+                    &self.neighbourhood,
+                    &mut self.left_panel,
+                ) {
                     // Fall through to AltProposals
                     EditOutcome::Nothing => {}
                     EditOutcome::UpdatePanelAndWorld => {

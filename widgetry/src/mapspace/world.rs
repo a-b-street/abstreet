@@ -23,7 +23,6 @@ pub struct World<ID: ObjectID> {
     quadtree: QuadTree<ID>,
 
     draw_master_batches: Vec<ToggleZoomed>,
-    draw_master_batches_while_not_hovering: Vec<ToggleZoomed>,
 
     hovering: Option<ID>,
     // If we're currently dragging, where was the cursor during the last movement, and has the
@@ -327,7 +326,6 @@ impl<ID: ObjectID> World<ID> {
             ),
 
             draw_master_batches: Vec::new(),
-            draw_master_batches_while_not_hovering: Vec::new(),
 
             hovering: None,
             dragging_from: None,
@@ -341,7 +339,6 @@ impl<ID: ObjectID> World<ID> {
             quadtree: QuadTree::default(bounds.as_bbox()),
 
             draw_master_batches: Vec::new(),
-            draw_master_batches_while_not_hovering: Vec::new(),
 
             hovering: None,
             dragging_from: None,
@@ -455,16 +452,6 @@ impl<ID: ObjectID> World<ID> {
     /// Like `draw_master_batch`, but for already-built objects.
     pub fn draw_master_batch_built(&mut self, draw: ToggleZoomed) {
         self.draw_master_batches.push(draw);
-    }
-
-    /// Draw something underneath all objects, only when nothing is being hovered.
-    pub fn draw_master_batch_while_not_hovering<I: Into<ToggleZoomedBuilder>>(
-        &mut self,
-        ctx: &EventCtx,
-        draw: I,
-    ) {
-        self.draw_master_batches_while_not_hovering
-            .push(draw.into().build(ctx));
     }
 
     /// Let objects in the world respond to something happening.
@@ -599,11 +586,6 @@ impl<ID: ObjectID> World<ID> {
         // Always draw master batches first
         for draw in &self.draw_master_batches {
             draw.draw(g);
-        }
-        if self.get_hovering().is_none() {
-            for draw in &self.draw_master_batches_while_not_hovering {
-                draw.draw(g);
-            }
         }
 
         let mut objects = Vec::new();

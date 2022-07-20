@@ -87,7 +87,8 @@ impl EditNeighbourhood {
                     EditMode::FreehandFilters(_) => freehand_filters::widget(ctx),
                     EditMode::Oneways => one_ways::widget(ctx),
                     EditMode::Shortcuts(ref focus) => shortcuts::widget(ctx, app, focus.as_ref()),
-                },
+                }
+                .named("edit mode contents"),
             ])
             .section(ctx),
             Widget::row(vec![
@@ -153,6 +154,7 @@ impl EditNeighbourhood {
         app: &mut App,
         action: &str,
         neighbourhood: &Neighbourhood,
+        panel: &mut Panel,
     ) -> EditOutcome {
         let id = neighbourhood.id;
         match action {
@@ -201,13 +203,24 @@ impl EditNeighbourhood {
                 if let EditMode::Shortcuts(Some(ref mut focus)) = app.session.edit_mode {
                     focus.current_idx -= 1;
                 }
-                EditOutcome::UpdatePanelAndWorld
+                // Logically we could do UpdatePanelAndWorld, but we need to be more efficient
+                if let EditMode::Shortcuts(ref focus) = app.session.edit_mode {
+                    let panel_piece = shortcuts::widget(ctx, app, focus.as_ref());
+                    panel.replace(ctx, "edit mode contents", panel_piece);
+                    self.world = shortcuts::make_world(ctx, app, neighbourhood, focus);
+                }
+                EditOutcome::Transition(Transition::Keep)
             }
             "next shortcut" => {
                 if let EditMode::Shortcuts(Some(ref mut focus)) = app.session.edit_mode {
                     focus.current_idx += 1;
                 }
-                EditOutcome::UpdatePanelAndWorld
+                if let EditMode::Shortcuts(ref focus) = app.session.edit_mode {
+                    let panel_piece = shortcuts::widget(ctx, app, focus.as_ref());
+                    panel.replace(ctx, "edit mode contents", panel_piece);
+                    self.world = shortcuts::make_world(ctx, app, neighbourhood, focus);
+                }
+                EditOutcome::Transition(Transition::Keep)
             }
             _ => EditOutcome::Nothing,
         }
