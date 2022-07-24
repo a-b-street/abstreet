@@ -9,21 +9,16 @@ use synthpop::{Scenario, ScenarioModifier};
 
 use crate::{Sim, SimOptions};
 
-/// SimFlags specifies a simulation to setup. After parsing from structopt, you must call
-/// `initialize`.
+/// SimFlags specifies a simulation to setup.
 #[derive(Clone, StructOpt)]
 pub struct SimFlags {
-    /// A path to some file:
+    /// An optional path to some file:
     ///
     /// - some kind of map: start an empty simulation on the map
     /// - a scenario
     /// - a savestate: restore the simulation exactly from some savestate
     #[structopt()]
-    load_path: Option<String>,
-    /// The same as `load_path`, but with a default value filled out. Call `initialize` to set this
-    /// up.
-    #[structopt(skip)]
-    pub load: String,
+    pub load: Option<String>,
     /// A JSON list of modifiers to transform the scenario. These can be generated with the GUI.
     #[structopt(long, parse(try_from_str = parse_modifiers), default_value = "[]")]
     pub scenario_modifiers: ModifierList,
@@ -46,19 +41,10 @@ fn parse_modifiers(x: &str) -> Result<ModifierList> {
 impl SimFlags {
     pub const RNG_SEED: u64 = 42;
 
-    pub fn initialize(&mut self) {
-        // default_value can't call functions and this value can't be hardcoded
-        self.load = self
-            .load_path
-            .clone()
-            .unwrap_or_else(|| MapName::seattle("montlake").path());
-    }
-
     // TODO rename seattle_test
     pub fn for_test(run_name: &str) -> SimFlags {
         SimFlags {
-            load_path: None,
-            load: MapName::seattle("montlake").path(),
+            load: Some(MapName::seattle("montlake").path()),
             scenario_modifiers: Vec::new(),
             rng_seed: SimFlags::RNG_SEED,
             opts: SimOptions::new(run_name),
@@ -71,18 +57,21 @@ impl SimFlags {
 
     /// Loads a map and simulation. Not appropriate for use in the UI or on web.
     pub fn load_synchronously(&self, timer: &mut abstutil::Timer) -> (Map, Sim, XorShiftRng) {
-        if self.load.is_empty() {
-            panic!("You forgot to call initialize on SimFlags after parsing from structopt");
-        }
-
         let mut rng = self.make_rng();
 
         let mut opts = self.opts.clone();
 
-        if self.load.starts_with(&abstio::path_player("saves/")) {
-            info!("Resuming from {}", self.load);
+        if self.load.is_none() {
+            let map = Map::almost_blank();
+            let sim = Sim::new(&map, opts);
+            return (map, sim, rng);
+        }
+        let load = self.load.as_ref().unwrap();
 
-            let sim: Sim = abstio::must_read_object(self.load.clone(), timer);
+        if load.starts_with(&abstio::path_player("saves/")) {
+            info!("Resuming from {load}");
+
+            let sim: Sim = abstio::must_read_object(load.clone(), timer);
 
             let mut map = Map::load_synchronously(sim.map_name.path(), timer);
             match MapEdits::load_from_file(
@@ -100,10 +89,10 @@ impl SimFlags {
             }
 
             (map, sim, rng)
-        } else if self.load.contains("/scenarios/") {
-            info!("Seeding the simulation from scenario {}", self.load);
+        } else if load.contains("/scenarios/") {
+            info!("Seeding the simulation from scenario {load}");
 
-            let mut scenario: Scenario = abstio::must_read_object(self.load.clone(), timer);
+            let mut scenario: Scenario = abstio::must_read_object(load.clone(), timer);
 
             let map = Map::load_synchronously(scenario.map_name.path(), timer);
 
@@ -118,10 +107,10 @@ impl SimFlags {
             sim.instantiate(&scenario, &map, &mut rng, timer);
 
             (map, sim, rng)
-        } else if self.load.contains("/raw_maps/") || self.load.contains("/maps/") {
-            info!("Loading map {}", self.load);
+        } else if load.contains("/raw_maps/") || load.contains("/maps/") {
+            info!("Loading map {load}");
 
-            let map = Map::load_synchronously(self.load.clone(), timer);
+            let map = Map::load_synchronously(load.clone(), timer);
 
             timer.start("create sim");
             let sim = Sim::new(&map, opts);
@@ -129,7 +118,7 @@ impl SimFlags {
 
             (map, sim, rng)
         } else {
-            panic!("Don't know how to load {}", self.load);
+            panic!("Don't know how to load {load}");
         }
     }
 }

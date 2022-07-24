@@ -43,7 +43,7 @@ fn run(mut settings: Settings) {
         map_gui::SimpleApp::new(
             ctx,
             opts,
-            abstio::MapName::seattle("qa"),
+            Some(abstio::MapName::seattle("qa")),
             None,
             session,
             |ctx, app| {

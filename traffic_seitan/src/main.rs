@@ -27,8 +27,7 @@ struct Args {
 
 fn main() {
     abstutil::logger::setup();
-    let mut sim_flags = Args::from_args().flags;
-    sim_flags.initialize();
+    let sim_flags = Args::from_args().flags;
 
     let mut timer = Timer::throwaway();
     let (mut map, mut sim, mut rng) = sim_flags.load_synchronously(&mut timer);

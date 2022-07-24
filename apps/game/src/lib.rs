@@ -156,8 +156,7 @@ fn run(mut settings: Settings) {
         // This is approximately how much the 3 top panels in sandbox mode require.
         .require_minimum_width(1500.0);
 
-    let mut args = Args::from_iter(abstutil::cli_args());
-    args.flags.sim_flags.initialize();
+    let args = Args::from_iter(abstutil::cli_args());
 
     if args.prebake {
         challenges::prebake::prebake_all();
@@ -221,7 +220,7 @@ fn run(mut settings: Settings) {
         'OUTER: for (_, stages) in challenges::Challenge::all() {
             for challenge in stages {
                 if challenge.alias == x {
-                    setup.flags.sim_flags.load = challenge.gameplay.map_name().path();
+                    setup.flags.sim_flags.load = Some(challenge.gameplay.map_name().path());
                     setup.mode = Mode::Gameplay(challenge.gameplay);
                     break 'OUTER;
                 } else {
@@ -244,9 +243,18 @@ fn run(mut settings: Settings) {
     // other scenarios loaed in the UI later.
     let modifiers = setup.flags.sim_flags.scenario_modifiers.drain(..).collect();
 
-    if setup.mode == Mode::SomethingElse && setup.flags.sim_flags.load.contains("scenarios/") {
-        let (map_name, scenario) = abstio::parse_scenario_path(&setup.flags.sim_flags.load);
-        setup.flags.sim_flags.load = map_name.path();
+    if setup.mode == Mode::SomethingElse
+        && setup
+            .flags
+            .sim_flags
+            .load
+            .as_ref()
+            .map(|x| x.contains("scenarios/"))
+            .unwrap_or(false)
+    {
+        let (map_name, scenario) =
+            abstio::parse_scenario_path(setup.flags.sim_flags.load.as_ref().unwrap());
+        setup.flags.sim_flags.load = Some(map_name.path());
         setup.mode = Mode::Gameplay(sandbox::GameplayMode::PlayScenario(
             map_name, scenario, modifiers,
         ));
@@ -258,7 +266,7 @@ fn run(mut settings: Settings) {
         let site = site.replace("_", "-");
         let city = site.replace("-", "_");
         let name = MapName::new("gb", &city, "center");
-        setup.flags.sim_flags.load = name.path();
+        setup.flags.sim_flags.load = Some(name.path());
         setup.flags.study_area = Some(site);
         // Parking data in the actdev maps is nonexistent, so many people have convoluted walking
         // routes just to fetch their car. Just disable parking entirely.
@@ -276,17 +284,19 @@ fn run(mut settings: Settings) {
 
 fn setup_app(ctx: &mut EventCtx, mut setup: Setup) -> (App, Vec<Box<dyn State<App>>>) {
     let title = !setup.opts.dev
-        && !setup.flags.sim_flags.load.contains("player/save")
-        && !setup.flags.sim_flags.load.contains("/scenarios/")
-        && setup.mode == Mode::SomethingElse;
+        && setup.mode == Mode::SomethingElse
+        && match setup.flags.sim_flags.load {
+            None => true,
+            Some(ref x) => !x.contains("player/save") && !x.contains("/scenarios/"),
+        };
 
     // Load the map used previously if we're starting on the title screen without any overrides.
-    if title && setup.flags.sim_flags.load == MapName::seattle("montlake").path() {
+    if title && setup.flags.sim_flags.load.is_none() {
         if let Ok(default) = abstio::maybe_read_json::<map_gui::tools::DefaultMap>(
             abstio::path_player("maps.json"),
             &mut Timer::throwaway(),
         ) {
-            setup.flags.sim_flags.load = default.last_map.path();
+            setup.flags.sim_flags.load = Some(default.last_map.path());
         }
     }
 
@@ -323,65 +333,75 @@ fn setup_app(ctx: &mut EventCtx, mut setup: Setup) -> (App, Vec<Box<dyn State<Ap
         })
     });
 
+    // Get App created with a dummy blank map
+    let map = Map::almost_blank();
+    let sim = Sim::new(&map, setup.flags.sim_flags.opts.clone());
+    let primary = PerMap::map_loaded(
+        map,
+        sim,
+        setup.flags.clone(),
+        &setup.opts,
+        &cs,
+        ctx,
+        &mut Timer::throwaway(),
+    );
+    let mut app = App {
+        primary,
+        secondary: None,
+        store_unedited_map_in_secondary: false,
+        cs,
+        opts: setup.opts.clone(),
+        per_obj: crate::app::PerObjectActions::new(),
+        session: crate::app::SessionState::empty(),
+    };
+
     // SimFlags::load doesn't know how to do async IO, which we need on the web. But in the common
     // case, all we're creating there is a map. If so, use the proper async interface.
     //
     // Note if we started with a scenario, main() rewrote it to be the appropriate map, along with
     // mode.
-    if setup.flags.sim_flags.load.contains("/maps/") {
-        // Get App created with a dummy blank map
-        let map = Map::blank();
-        let sim = Sim::new(&map, setup.flags.sim_flags.opts.clone());
-        let primary = PerMap::map_loaded(
-            map,
-            sim,
-            setup.flags.clone(),
-            &setup.opts,
-            &cs,
-            ctx,
-            &mut Timer::throwaway(),
-        );
-        let app = App {
-            primary,
-            secondary: None,
-            store_unedited_map_in_secondary: false,
-            cs,
-            opts: setup.opts.clone(),
-            per_obj: crate::app::PerObjectActions::new(),
-            session: crate::app::SessionState::empty(),
-        };
-        let map_name = MapName::from_path(&app.primary.current_flags.sim_flags.load).unwrap();
-        let states = vec![map_gui::load::MapLoader::new_state(
+    let states = if setup.flags.sim_flags.load.is_none() {
+        continue_app_setup(ctx, &mut app, title, setup, secondary)
+    } else if setup
+        .flags
+        .sim_flags
+        .load
+        .as_ref()
+        .unwrap()
+        .contains("/maps/")
+    {
+        let map_name =
+            MapName::from_path(app.primary.current_flags.sim_flags.load.as_ref().unwrap()).unwrap();
+        vec![map_gui::load::MapLoader::new_state(
             ctx,
             &app,
             map_name,
             Box::new(move |ctx, app| {
                 Transition::Clear(continue_app_setup(ctx, app, title, setup, secondary))
             }),
-        )];
-        (app, states)
+        )]
     } else {
         // We're loading a savestate or a RawMap. Do it with blocking IO. This won't
         // work on the web.
         let primary = ctx.loading_screen("load map", |ctx, timer| {
             assert!(setup.flags.sim_flags.scenario_modifiers.is_empty());
             let (map, sim, _) = setup.flags.sim_flags.load_synchronously(timer);
-            PerMap::map_loaded(map, sim, setup.flags.clone(), &setup.opts, &cs, ctx, timer)
+            PerMap::map_loaded(
+                map,
+                sim,
+                setup.flags.clone(),
+                &setup.opts,
+                &app.cs,
+                ctx,
+                timer,
+            )
         });
+        app.primary = primary;
         assert!(secondary.is_none());
-        let mut app = App {
-            primary,
-            secondary: None,
-            store_unedited_map_in_secondary: false,
-            cs,
-            opts: setup.opts.clone(),
-            per_obj: crate::app::PerObjectActions::new(),
-            session: crate::app::SessionState::empty(),
-        };
 
-        let states = continue_app_setup(ctx, &mut app, title, setup, None);
-        (app, states)
-    }
+        continue_app_setup(ctx, &mut app, title, setup, None)
+    };
+    (app, states)
 }
 
 fn continue_app_setup(
@@ -408,7 +428,9 @@ fn continue_app_setup(
         .current_flags
         .sim_flags
         .load
-        .contains("player/saves/")
+        .as_ref()
+        .map(|x| x.contains("player/saves/"))
+        .unwrap_or(false)
     {
         assert!(setup.mode == Mode::SomethingElse);
         Some(app.primary.clear_sim())
