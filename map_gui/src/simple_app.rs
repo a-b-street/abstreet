@@ -78,7 +78,7 @@ impl SimpleAppArgs {
         settings
     }
 
-    pub fn map_name(&self) -> MapName {
+    pub fn map_name(&self) -> Option<MapName> {
         self.map_path
             .as_ref()
             .map(|path| {
@@ -92,7 +92,6 @@ impl SimpleAppArgs {
                 .ok()
                 .map(|x| x.last_map)
             })
-            .unwrap_or_else(|| MapName::seattle("montlake"))
     }
 }
 
@@ -102,7 +101,7 @@ impl<T: 'static> SimpleApp<T> {
     >(
         ctx: &mut EventCtx,
         opts: Options,
-        map_name: MapName,
+        map_name: Option<MapName>,
         cam: Option<String>,
         session: T,
         init_states: F,
@@ -111,10 +110,10 @@ impl<T: 'static> SimpleApp<T> {
         ctx.canvas.settings = opts.canvas_settings.clone();
 
         let cs = ColorScheme::new(ctx, opts.color_scheme);
-        // Start with a blank map
-        let map = Map::blank();
+        // Start with a minimal map
+        let map = Map::almost_blank();
         let draw_map = DrawMap::new(ctx, &map, &opts, &cs, &mut Timer::throwaway());
-        let app = SimpleApp {
+        let mut app = SimpleApp {
             map,
             draw_map,
             cs,
@@ -124,15 +123,19 @@ impl<T: 'static> SimpleApp<T> {
             time: Time::START_OF_DAY,
         };
 
-        let states = vec![MapLoader::new_state(
-            ctx,
-            &app,
-            map_name,
-            Box::new(move |ctx, app| {
-                URLManager::change_camera(ctx, cam.as_ref(), app.map().get_gps_bounds());
-                Transition::Clear(init_states(ctx, app))
-            }),
-        )];
+        let states = if let Some(map_name) = map_name {
+            vec![MapLoader::new_state(
+                ctx,
+                &app,
+                map_name,
+                Box::new(move |ctx, app| {
+                    URLManager::change_camera(ctx, cam.as_ref(), app.map().get_gps_bounds());
+                    Transition::Clear(init_states(ctx, app))
+                }),
+            )]
+        } else {
+            init_states(ctx, &mut app)
+        };
         (app, states)
     }
 
