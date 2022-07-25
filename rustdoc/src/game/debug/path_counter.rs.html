@@ -130,11 +130,13 @@
 <span id="125">125</span>
 <span id="126">126</span>
 <span id="127">127</span>
+<span id="128">128</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">abstutil::Counter</span>;
-<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">ColorLegend</span>, <span class="ident">ColorNetwork</span>};
+<span class="kw">use</span> <span class="ident">map_gui::tools::ColorNetwork</span>;
 <span class="kw">use</span> <span class="ident">map_gui::ID</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">PathStep</span>, <span class="ident">RoadID</span>, <span class="ident">Traversable</span>};
 <span class="kw">use</span> <span class="ident">widgetry::mapspace::ToggleZoomed</span>;
+<span class="kw">use</span> <span class="ident">widgetry::tools::ColorLegend</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>,
     <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,

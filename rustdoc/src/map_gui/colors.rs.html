@@ -536,6 +536,7 @@
 <span id="531">531</span>
 <span id="532">532</span>
 <span id="533">533</span>
+<span id="534">534</span>
 </pre><pre class="rust"><code><span class="doccomment">//! A color scheme groups colors used for different map, dynamic, and UI elements in one place, to</span>
 <span class="doccomment">//! encourage deduplication. The player can also switch between different color schemes.</span>
 
@@ -547,9 +548,10 @@
 
 <span class="kw">use</span> <span class="ident">map_model::osm::RoadRank</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">LaneType</span>, <span class="ident">Map</span>};
+<span class="kw">use</span> <span class="ident">widgetry::tools::ColorScale</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">Fill</span>, <span class="ident">Style</span>, <span class="ident">Texture</span>};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::tools</span>::{<span class="ident">loading_tips</span>, <span class="ident">ColorScale</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::tools::loading_tips</span>;
 
 <span class="comment">// I&#39;ve gone back and forth how to organize color scheme code. I was previously against having one</span>
 <span class="comment">// centralized place with all definitions, because careful naming or comments are needed to explain</span>

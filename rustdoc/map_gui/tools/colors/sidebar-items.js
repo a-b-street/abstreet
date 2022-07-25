@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["ColorDiscrete",""],["ColorLegend",""],["ColorNetwork",""],["ColorScale",""],["DivergingScale",""]]});
+initSidebarItems({"struct":[["ColorDiscrete",""],["ColorNetwork",""]]});

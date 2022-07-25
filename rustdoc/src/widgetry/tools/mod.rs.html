@@ -93,7 +93,10 @@
 <span id="88">88</span>
 <span id="89">89</span>
 <span id="90">90</span>
+<span id="91">91</span>
+<span id="92">92</span>
 </pre><pre class="rust"><code><span class="kw">mod</span> <span class="ident">choose_something</span>;
+<span class="kw">mod</span> <span class="ident">colors</span>;
 <span class="kw">mod</span> <span class="ident">lasso</span>;
 <span class="kw">mod</span> <span class="ident">load</span>;
 <span class="kw">mod</span> <span class="ident">popup</span>;
@@ -103,6 +106,7 @@
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">warper</span>;
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">choose_something::ChooseSomething</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">colors</span>::{<span class="ident">ColorLegend</span>, <span class="ident">ColorScale</span>, <span class="ident">DivergingScale</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">lasso</span>::{<span class="ident">Lasso</span>, <span class="ident">PolyLineLasso</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">load</span>::{<span class="ident">FileLoader</span>, <span class="ident">FutureLoader</span>, <span class="ident">RawBytes</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">popup::PopupMsg</span>;
