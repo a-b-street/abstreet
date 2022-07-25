@@ -184,6 +184,20 @@ impl<T: Ord + PartialEq + Clone> Counter<T> {
         self.map.extend(other.map);
         self.sum += other.sum;
     }
+
+    /// Remove all entries that aren't in the specified set of keys
+    pub fn subset(&mut self, keys: BTreeSet<T>) {
+        let mut sum = 0;
+        self.map.retain(|k, v| {
+            if keys.contains(k) {
+                true
+            } else {
+                sum += *v;
+                false
+            }
+        });
+        self.sum -= sum;
+    }
 }
 
 pub fn wraparound_get<T>(vec: &[T], idx: isize) -> &T {
