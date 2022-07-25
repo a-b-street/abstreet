@@ -4551,6 +4551,7 @@ dependencies = [
  "abstio",
  "abstutil",
  "anyhow",
+ "colorous",
  "downcast-rs",
  "flate2",
  "fs-err",

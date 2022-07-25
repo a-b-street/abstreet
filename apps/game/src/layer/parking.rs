@@ -3,10 +3,11 @@ use std::collections::BTreeSet;
 use abstutil::{prettyprint_usize, Counter};
 use geom::{Circle, Distance, Duration, Pt2D, Time};
 use map_gui::render::unzoomed_agent_radius;
-use map_gui::tools::{ColorLegend, ColorNetwork};
+use map_gui::tools::ColorNetwork;
 use map_model::{BuildingID, OffstreetParking, ParkingLotID, PathRequest, RoadID};
 use sim::{ParkingSpot, VehicleType};
 use widgetry::mapspace::ToggleZoomed;
+use widgetry::tools::ColorLegend;
 use widgetry::{EventCtx, GfxCtx, Line, Outcome, Panel, Text, Toggle, Widget};
 
 use crate::app::App;

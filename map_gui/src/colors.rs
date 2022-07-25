@@ -9,9 +9,10 @@ use serde::{Deserialize, Serialize};
 
 use map_model::osm::RoadRank;
 use map_model::{LaneType, Map};
+use widgetry::tools::ColorScale;
 use widgetry::{Choice, Color, EventCtx, Fill, Style, Texture};
 
-use crate::tools::{loading_tips, ColorScale};
+use crate::tools::loading_tips;
 
 // I've gone back and forth how to organize color scheme code. I was previously against having one
 // centralized place with all definitions, because careful naming or comments are needed to explain

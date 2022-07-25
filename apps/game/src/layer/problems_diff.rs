@@ -2,11 +2,12 @@ use std::collections::HashSet;
 
 use abstutil::{prettyprint_usize, Counter};
 use geom::Time;
-use map_gui::tools::{ColorNetwork, DivergingScale};
+use map_gui::tools::ColorNetwork;
 use map_gui::ID;
 use map_model::{IntersectionID, RoadID, Traversable};
 use sim::{Problem, ProblemType};
 use widgetry::mapspace::ToggleZoomed;
+use widgetry::tools::DivergingScale;
 use widgetry::{Color, EventCtx, GfxCtx, Outcome, Panel, Text, Toggle, Widget};
 
 use crate::app::App;

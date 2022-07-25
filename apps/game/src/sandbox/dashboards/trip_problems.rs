@@ -3,9 +3,9 @@ use std::fmt::Display;
 
 use abstutil::{abbreviated_format, prettyprint_usize, CloneableAny};
 use geom::{Angle, Distance, Duration, Line, Polygon, Pt2D};
-use map_gui::tools::ColorScale;
 use sim::{ProblemType, TripID};
 use synthpop::TripMode;
+use widgetry::tools::ColorScale;
 use widgetry::{
     ClickOutcome, Color, DrawWithTooltips, GeomBatch, GeomBatchStack, StackAlignment, Text, Widget,
 };

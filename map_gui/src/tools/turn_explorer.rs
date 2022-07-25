@@ -1,12 +1,12 @@
 use geom::{ArrowCap, Distance};
 use map_model::{LaneID, PathConstraints, TurnType};
+use widgetry::tools::ColorLegend;
 use widgetry::{
     Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
     Panel, State, Text, TextExt, Transition, VerticalAlignment, Widget,
 };
 
 use crate::render::{DrawOptions, BIG_ARROW_THICKNESS};
-use crate::tools::ColorLegend;
 use crate::AppLike;
 
 /// A tool to explore all of the turns from a single lane.

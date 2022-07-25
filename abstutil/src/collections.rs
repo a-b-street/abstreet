@@ -186,7 +186,7 @@ impl<T: Ord + PartialEq + Clone> Counter<T> {
     }
 
     /// Remove all entries that aren't in the specified set of keys
-    pub fn subset(&mut self, keys: BTreeSet<T>) {
+    pub fn subset(&mut self, keys: &BTreeSet<T>) {
         let mut sum = 0;
         self.map.retain(|k, v| {
             if keys.contains(k) {

@@ -1,7 +1,7 @@
-use map_gui::tools::{draw_isochrone, ColorLegend};
+use map_gui::tools::draw_isochrone;
 use map_gui::ID;
 use map_model::AmenityType;
-use widgetry::tools::ChooseSomething;
+use widgetry::tools::{ChooseSomething, ColorLegend};
 use widgetry::{
     Cached, Choice, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Line, Panel,
     SimpleState, State, TextExt, Transition, VerticalAlignment, Widget,

@@ -3,9 +3,10 @@ use geom::{Distance, Histogram, Statistic};
 use map_model::{IntersectionID, RoadID};
 use synthpop::TrafficCounts;
 use widgetry::mapspace::{ObjectID, ToggleZoomed, ToggleZoomedBuilder, World, WorldOutcome};
+use widgetry::tools::DivergingScale;
 use widgetry::{Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Text, TextExt, Widget};
 
-use crate::tools::{cmp_count, ColorNetwork, DivergingScale};
+use crate::tools::{cmp_count, ColorNetwork};
 use crate::AppLike;
 
 pub struct CompareCounts {

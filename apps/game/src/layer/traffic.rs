@@ -6,13 +6,13 @@ use maplit::btreeset;
 use abstutil::{prettyprint_usize, Counter};
 use geom::{Circle, Distance, Duration, Percent, Polygon, Pt2D, Time};
 use map_gui::render::unzoomed_agent_radius;
-use map_gui::tools::{ColorLegend, ColorNetwork, DivergingScale};
+use map_gui::tools::ColorNetwork;
 use map_gui::ID;
 use map_model::{IntersectionID, Map, Traversable};
 use sim::{AgentType, VehicleType};
 use widgetry::mapspace::ToggleZoomed;
 use widgetry::mapspace::{DummyID, World};
-use widgetry::tools::PopupMsg;
+use widgetry::tools::{ColorLegend, DivergingScale, PopupMsg};
 use widgetry::{Color, EventCtx, GfxCtx, Line, Outcome, Panel, Text, TextExt, Toggle, Widget};
 
 use crate::app::{App, Transition};

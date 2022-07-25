@@ -14,6 +14,7 @@ abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
 anyhow = "1.0.38"
 # backtrace = "0.3.40"
+colorous = "1.0.3"
 downcast-rs = "1.2.0"
 flate2 = "1.0.20"
 fs-err = "2.6.0"

@@ -1,8 +1,9 @@
 use abstutil::Counter;
-use map_gui::tools::{ColorLegend, ColorNetwork};
+use map_gui::tools::ColorNetwork;
 use map_gui::ID;
 use map_model::{IntersectionID, PathStep, RoadID, Traversable};
 use widgetry::mapspace::ToggleZoomed;
+use widgetry::tools::ColorLegend;
 use widgetry::{
     Color, EventCtx, GfxCtx, HorizontalAlignment, Line, Outcome, Panel, State, Text,
     VerticalAlignment, Widget,

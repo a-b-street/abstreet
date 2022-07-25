@@ -9,7 +9,7 @@ use widgetry::{lctrl, EventCtx, GfxCtx, Key, Line, Text, Widget};
 
 pub use self::camera::{CameraState, DefaultMap};
 pub use self::city_picker::CityPicker;
-pub use self::colors::{ColorDiscrete, ColorLegend, ColorNetwork, ColorScale, DivergingScale};
+pub use self::colors::{ColorDiscrete, ColorNetwork};
 pub use self::draw_overlapping_paths::draw_overlapping_paths;
 pub use self::heatmap::{draw_isochrone, make_heatmap, Grid, HeatmapOptions};
 pub use self::icons::{goal_marker, start_marker};

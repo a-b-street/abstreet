@@ -1,4 +1,5 @@
 mod choose_something;
+mod colors;
 mod lasso;
 mod load;
 mod popup;
@@ -8,6 +9,7 @@ mod url;
 pub(crate) mod warper;
 
 pub use choose_something::ChooseSomething;
+pub use colors::{ColorLegend, ColorScale, DivergingScale};
 pub use lasso::{Lasso, PolyLineLasso};
 pub use load::{FileLoader, FutureLoader, RawBytes};
 pub use popup::PopupMsg;

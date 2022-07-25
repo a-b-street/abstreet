@@ -2,11 +2,10 @@ use std::collections::HashMap;
 
 use geom::{Bounds, Duration, Histogram, Polygon, Pt2D, Statistic};
 use map_model::{BuildingID, Map};
+use widgetry::tools::{ColorLegend, ColorScale};
 use widgetry::{
     Choice, Color, EventCtx, GeomBatch, Panel, RoundedF64, Spinner, TextExt, Toggle, Widget,
 };
-
-use crate::tools::{ColorLegend, ColorScale};
 
 const NEIGHBORS: [[isize; 2]; 9] = [
     [0, 0],

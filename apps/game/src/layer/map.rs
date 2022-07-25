@@ -2,11 +2,12 @@ use maplit::btreeset;
 
 use abstutil::{prettyprint_usize, Counter};
 use geom::{Distance, Time};
-use map_gui::tools::{ColorDiscrete, ColorLegend, ColorNetwork};
+use map_gui::tools::{ColorDiscrete, ColorNetwork};
 use map_gui::ID;
 use map_model::{AmenityType, Direction, LaneType};
 use sim::AgentType;
 use widgetry::mapspace::ToggleZoomed;
+use widgetry::tools::ColorLegend;
 use widgetry::{Color, EventCtx, GfxCtx, Line, Panel, Text, Widget};
 
 use crate::app::App;
