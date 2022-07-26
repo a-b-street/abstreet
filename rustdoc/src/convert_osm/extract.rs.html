@@ -381,6 +381,7 @@
 <span id="376">376</span>
 <span id="377">377</span>
 <span id="378">378</span>
+<span id="379">379</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">osm</span>::{<span class="ident">OsmID</span>, <span class="ident">RelationID</span>, <span class="ident">WayID</span>};
 
 <span class="kw">use</span> <span class="ident">abstio</span>::{<span class="ident">CityName</span>, <span class="ident">MapName</span>};
@@ -401,8 +402,9 @@
     <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">Options</span>,
     <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>,
 ) -&gt; (<span class="ident">OsmExtract</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Pt2D</span>, <span class="ident">Amenity</span>)<span class="op">&gt;</span>) {
+    <span class="kw">let</span> <span class="ident">osm_xml</span> <span class="op">=</span> <span class="ident">fs_err::read_to_string</span>(<span class="ident">osm_input_path</span>).<span class="ident">unwrap</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">doc</span> <span class="op">=</span>
-        <span class="ident">import_streets::osm_reader::read</span>(<span class="ident">osm_input_path</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">gps_bounds</span>, <span class="ident">timer</span>).<span class="ident">unwrap</span>();
+        <span class="ident">import_streets::osm_reader::read</span>(<span class="kw-2">&amp;</span><span class="ident">osm_xml</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">gps_bounds</span>, <span class="ident">timer</span>).<span class="ident">unwrap</span>();
 
     <span class="comment">// TODO Hacks to override OSM data. There&#39;s no problem upstream, but we want to accomplish</span>
     <span class="comment">// various things for A/B Street.</span>
