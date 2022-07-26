@@ -18,8 +18,9 @@ pub fn extract_osm(
     opts: &Options,
     timer: &mut Timer,
 ) -> (OsmExtract, Vec<(Pt2D, Amenity)>) {
+    let osm_xml = fs_err::read_to_string(osm_input_path).unwrap();
     let mut doc =
-        import_streets::osm_reader::read(osm_input_path, &map.streets.gps_bounds, timer).unwrap();
+        import_streets::osm_reader::read(&osm_xml, &map.streets.gps_bounds, timer).unwrap();
 
     // TODO Hacks to override OSM data. There's no problem upstream, but we want to accomplish
     // various things for A/B Street.

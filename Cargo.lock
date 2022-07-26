@@ -1904,7 +1904,7 @@ dependencies = [
 [[package]]
 name = "import_streets"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2streets#e15594194ed782b7099c4afebb0342255ef4e6fe"
+source = "git+https://github.com/a-b-street/osm2streets#71a186179bab5c675478edb9dda8a592646a39f1"
 dependencies = [
  "abstutil",
  "anyhow",
@@ -3723,14 +3723,12 @@ checksum = "ef5430c8e36b713e13b48a9f709cc21e046723fe44ce34587b73a830203b533e"
 [[package]]
 name = "street_network"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2streets#e15594194ed782b7099c4afebb0342255ef4e6fe"
+source = "git+https://github.com/a-b-street/osm2streets#71a186179bab5c675478edb9dda8a592646a39f1"
 dependencies = [
  "aabb-quadtree",
  "abstutil",
  "anyhow",
- "geojson",
  "geom",
- "kml",
  "log",
  "petgraph",
  "serde",
