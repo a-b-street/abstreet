@@ -211,4 +211,15 @@ impl GPSBounds {
     pub fn convert_back(&self, pts: &[Pt2D]) -> Vec<LonLat> {
         pts.iter().map(|pt| pt.to_gps(self)).collect()
     }
+
+    /// Returns points in order covering this boundary.
+    pub fn get_rectangle(&self) -> Vec<LonLat> {
+        vec![
+            LonLat::new(self.min_lon, self.min_lat),
+            LonLat::new(self.max_lon, self.min_lat),
+            LonLat::new(self.max_lon, self.max_lat),
+            LonLat::new(self.min_lon, self.max_lat),
+            LonLat::new(self.min_lon, self.min_lat),
+        ]
+    }
 }
