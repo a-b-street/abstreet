@@ -630,6 +630,21 @@
       "uncompressed_size_bytes": 4894228,
       "compressed_size_bytes": 666213
     },
+    "data/input/gb/brighton/osm/center.osm": {
+      "checksum": "f3b99b3ef8e79e1db43fb302914e316e",
+      "uncompressed_size_bytes": 51933759,
+      "compressed_size_bytes": 5098848
+    },
+    "data/input/gb/brighton/osm/west-sussex-latest.osm.pbf": {
+      "checksum": "9878fb2aebc99f72b8a063a77d61c9d2",
+      "uncompressed_size_bytes": 34051650,
+      "compressed_size_bytes": 34019424
+    },
+    "data/input/gb/brighton/raw_maps/center.bin": {
+      "checksum": "81603a4d59990929aa49eb0cf6f33d01",
+      "uncompressed_size_bytes": 14642226,
+      "compressed_size_bytes": 2739730
+    },
     "data/input/gb/bristol/osm/bristol-latest.osm.pbf": {
       "checksum": "7d5fa6d50e0500272e2cd700a3efef86",
       "uncompressed_size_bytes": 15305931,
@@ -3534,6 +3549,16 @@
       "checksum": "fb79ae09f3968b89b55e69da314bf117",
       "uncompressed_size_bytes": 9028579,
       "compressed_size_bytes": 2287919
+    },
+    "data/system/gb/brighton/maps/center.bin": {
+      "checksum": "b4fcd1b467d0ab8135588a1f25384476",
+      "uncompressed_size_bytes": 36474216,
+      "compressed_size_bytes": 13692824
+    },
+    "data/system/gb/brighton/scenarios/center/background.bin": {
+      "checksum": "6ee68ef12ec57631fe33f9a400fe925d",
+      "uncompressed_size_bytes": 9586168,
+      "compressed_size_bytes": 2492327
     },
     "data/system/gb/bristol/maps/east.bin": {
       "checksum": "1cb99a065b0fe4d4bd82acae393a4e18",

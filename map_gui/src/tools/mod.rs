@@ -161,6 +161,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("bath_riverside", "center") => "Bath Riverside",
             ("bicester", "center") => "Bicester",
             ("bradford", "center") => "Bradford",
+            ("brighton", "center") => "Brighton",
             ("bristol", "east") => "East Bristol",
             ("cambridge", "north") => "North Cambridge",
             ("castlemead", "center") => "Castlemead",
