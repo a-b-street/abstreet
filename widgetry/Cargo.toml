@@ -23,9 +23,9 @@ futures-channel = { version = "0.3.12"}
 geojson = { version = "0.22.2", features = ["geo-types"] }
 geom = { path = "../geom" }
 glow = "0.11.2"
-glutin = { version = "0.28.0", optional = true }
+glutin = { git = "https://github.com/rust-windowing/glutin", optional = true }
 htmlescape = "0.3.1"
-image = { version = "0.23.12", default-features = false, features=["png"] }
+image = { version = "0.24.3", default-features = false, features=["png"] }
 instant = "0.1.7"
 js-sys = { version = "0.3.47", optional = true }
 log = "0.4.14"
@@ -42,7 +42,7 @@ wasm-bindgen = { version = "0.2.70", optional = true }
 wasm-bindgen-futures = { version = "0.4.20", optional = true }
 wasm-streams = { version = "0.2.0", optional = true }
 webbrowser = "0.5.5"
-winit = "0.26.1"
+winit = "0.27.0"
 
 [dependencies.web-sys]
 version = "0.3.47"
