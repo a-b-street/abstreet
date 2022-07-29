@@ -425,7 +425,7 @@
     <span class="kw">use</span> <span class="ident">lyon::tessellation::geometry_builder</span>::{<span class="ident">BuffersBuilder</span>, <span class="ident">Positions</span>, <span class="ident">VertexBuffers</span>};
     <span class="kw">use</span> <span class="ident">lyon::tessellation</span>::{<span class="ident">StrokeOptions</span>, <span class="ident">StrokeTessellator</span>};
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">Path::builder</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">Path::builder</span>().<span class="ident">with_svg</span>();
     <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">pt</span>) <span class="kw">in</span> <span class="ident">pts</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
         <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">point</span>(<span class="ident">pt</span>.<span class="ident">x</span>() <span class="kw">as</span> <span class="ident">f32</span>, <span class="ident">pt</span>.<span class="ident">y</span>() <span class="kw">as</span> <span class="ident">f32</span>);
         <span class="kw">if</span> <span class="ident">idx</span> <span class="op">==</span> <span class="number">0</span> {

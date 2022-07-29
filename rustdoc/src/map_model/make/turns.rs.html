@@ -427,12 +427,10 @@
 <span id="422">422</span>
 <span id="423">423</span>
 <span id="424">424</span>
-<span id="425">425</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
-<span class="kw">use</span> <span class="ident">lyon_geom::math::F64Point</span>;
-<span class="kw">use</span> <span class="ident">lyon_geom</span>::{<span class="ident">CubicBezierSegment</span>, <span class="ident">QuadraticBezierSegment</span>};
+<span class="kw">use</span> <span class="ident">lyon::geom</span>::{<span class="ident">CubicBezierSegment</span>, <span class="ident">Point</span>, <span class="ident">QuadraticBezierSegment</span>};
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>};
 
@@ -647,11 +645,11 @@
 }
 
 <span class="kw">fn</span> <span class="ident">curvey_turn</span>(<span class="ident">src</span>: <span class="kw-2">&amp;</span><span class="ident">Lane</span>, <span class="ident">dst</span>: <span class="kw-2">&amp;</span><span class="ident">Lane</span>, <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PolyLine</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">to_pt</span>(<span class="ident">pt</span>: <span class="ident">Pt2D</span>) -&gt; <span class="ident">F64Point</span> {
-        <span class="ident">lyon_geom::math::point</span>(<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>())
+    <span class="kw">fn</span> <span class="ident">to_pt</span>(<span class="ident">pt</span>: <span class="ident">Pt2D</span>) -&gt; <span class="ident">Point</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> {
+        <span class="ident">Point::new</span>(<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>())
     }
 
-    <span class="kw">fn</span> <span class="ident">from_pt</span>(<span class="ident">pt</span>: <span class="ident">F64Point</span>) -&gt; <span class="ident">Pt2D</span> {
+    <span class="kw">fn</span> <span class="ident">from_pt</span>(<span class="ident">pt</span>: <span class="ident">Point</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>) -&gt; <span class="ident">Pt2D</span> {
         <span class="ident">Pt2D::new</span>(<span class="ident">pt</span>.<span class="ident">x</span>, <span class="ident">pt</span>.<span class="ident">y</span>)
     }
 
