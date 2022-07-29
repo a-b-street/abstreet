@@ -1275,7 +1275,7 @@
         <span class="self">self</span>.<span class="ident">recompute_layout</span>(<span class="ident">ctx</span>, <span class="bool-val">true</span>);
         <span class="comment">// TODO Since we just moved things around, let all widgets respond to the mouse being</span>
         <span class="comment">// somewhere? Maybe always do this in recompute_layout?</span>
-        <span class="comment">//ctx.no_op_event(true, |ctx| assert_eq!(self.event(ctx), Outcome::Nothing));</span>
+        <span class="comment">//ctx.no_op_event(true, |ctx| assert!(matches!(self.event(ctx), Outcome::Nothing)));</span>
     }
 
     <span class="doccomment">/// Removes a widget from the panel. Does not recalculate layout!</span>
