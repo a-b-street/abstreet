@@ -30,8 +30,7 @@ instant = "0.1.7"
 js-sys = { version = "0.3.47", optional = true }
 log = "0.4.14"
 lru = "0.7.1"
-# Don't upgrade until a crash with opening lane info panels is fixed
-lyon = "0.16.2"
+lyon = "1.0.0"
 serde = "1.0.123"
 serde_json = "1.0.61"
 taffy = "0.1.0"

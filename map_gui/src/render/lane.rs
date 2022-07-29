@@ -1,7 +1,6 @@
 use std::cell::RefCell;
 
-use lyon_geom::math::F64Point;
-use lyon_geom::{CubicBezierSegment, QuadraticBezierSegment};
+use lyon::geom::{CubicBezierSegment, Point, QuadraticBezierSegment};
 
 use geom::{Angle, ArrowCap, Circle, Distance, InfiniteLine, Line, PolyLine, Polygon, Pt2D};
 use map_model::{BufferType, Direction, DrivingSide, Lane, LaneID, LaneType, Map, Road, TurnID};
@@ -392,11 +391,11 @@ fn calculate_turn_markings(map: &Map, lane: &Lane) -> Vec<Polygon> {
                     },
             );
 
-        fn to_pt(pt: Pt2D) -> F64Point {
-            lyon_geom::math::point(pt.x(), pt.y())
+        fn to_pt(pt: Pt2D) -> Point<f64> {
+            Point::new(pt.x(), pt.y())
         }
 
-        fn from_pt(pt: F64Point) -> Pt2D {
+        fn from_pt(pt: Point<f64>) -> Pt2D {
             Pt2D::new(pt.x, pt.y)
         }
 

@@ -195,7 +195,7 @@ pub fn thick_lineseries(pts: Vec<Pt2D>, width: Distance) -> Polygon {
     use lyon::tessellation::geometry_builder::{BuffersBuilder, Positions, VertexBuffers};
     use lyon::tessellation::{StrokeOptions, StrokeTessellator};
 
-    let mut builder = Path::builder();
+    let mut builder = Path::builder().with_svg();
     for (idx, pt) in pts.into_iter().enumerate() {
         let pt = point(pt.x() as f32, pt.y() as f32);
         if idx == 0 {
