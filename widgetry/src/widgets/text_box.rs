@@ -13,7 +13,6 @@ pub struct TextBox {
     label: String,
     cursor_x: usize,
     has_focus: bool,
-    hovering: bool,
     autofocus: bool,
     padding: EdgeInsets,
 
@@ -27,6 +26,7 @@ impl TextBox {
         TextBox::widget(ctx, label, prefilled, true, 50)
     }
 
+    /// `autofocus` means the text box always has focus; it'll consume all key events.
     pub fn widget<I: Into<String>>(
         ctx: &EventCtx,
         label: I,
@@ -59,12 +59,11 @@ impl TextBox {
             right: 8.0,
         };
         let max_char_width = 25.0;
-        TextBox {
+        Self {
             label,
             cursor_x: prefilled.len(),
             line: prefilled,
             has_focus: false,
-            hovering: false,
             autofocus,
             padding,
             top_left: ScreenPt::new(0.0, 0.0),
@@ -105,24 +104,15 @@ impl WidgetImpl for TextBox {
     }
 
     fn event(&mut self, ctx: &mut EventCtx, output: &mut WidgetOutput) {
-        if ctx.redo_mouseover() {
+        if !self.autofocus && ctx.redo_mouseover() {
             if let Some(pt) = ctx.canvas.get_cursor_in_screen_space() {
-                self.hovering = ScreenRectangle::top_left(self.top_left, self.dims).contains(pt);
+                self.has_focus = ScreenRectangle::top_left(self.top_left, self.dims).contains(pt);
             } else {
-                self.hovering = false;
+                self.has_focus = false;
             }
         }
 
-        // TODO Revisit this, which was originally written for a panel containing multiple
-        // textboxes.
-        if ctx.normal_left_click() {
-            // Let all textboxes see this event, so they can deactivate their own focus.
-            // TODO But if a button is clicked before this textbox, that event isn't seen here...
-            ctx.input.unconsume_event();
-            self.has_focus = self.hovering;
-        }
-
-        if !self.has_focus && !self.autofocus {
+        if !self.autofocus && !self.has_focus {
             return;
         }
         if let Some(key) = ctx.input.any_pressed() {
@@ -158,7 +148,11 @@ impl WidgetImpl for TextBox {
     fn draw(&self, g: &mut GfxCtx) {
         // TODO Cache
         let mut batch = GeomBatch::from(vec![(
-            g.style().field_bg,
+            if self.autofocus || self.has_focus {
+                g.style().field_bg
+            } else {
+                g.style().field_bg.dull(0.5)
+            },
             Polygon::rounded_rectangle(self.dims.width, self.dims.height, 2.0),
         )]);
 

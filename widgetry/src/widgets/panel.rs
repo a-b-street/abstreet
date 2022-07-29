@@ -556,7 +556,7 @@ impl Panel {
         self.recompute_layout(ctx, true);
         // TODO Since we just moved things around, let all widgets respond to the mouse being
         // somewhere? Maybe always do this in recompute_layout?
-        //ctx.no_op_event(true, |ctx| assert_eq!(self.event(ctx), Outcome::Nothing));
+        //ctx.no_op_event(true, |ctx| assert!(matches!(self.event(ctx), Outcome::Nothing)));
     }
 
     /// Removes a widget from the panel. Does not recalculate layout!
