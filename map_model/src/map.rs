@@ -8,16 +8,16 @@ use petgraph::graphmap::{DiGraphMap, UnGraphMap};
 use abstio::{CityName, MapName};
 use abstutil::{prettyprint_usize, serialized_size_bytes, MultiMap, Tags, Timer};
 use geom::{Bounds, Distance, Duration, GPSBounds, Polygon, Pt2D, Ring, Time};
-use raw_map::{DrivingSide, MapConfig};
+use raw_map::RawMap;
 
-use crate::raw::{OriginalRoad, RawMap};
 use crate::{
     osm, Area, AreaID, AreaType, Building, BuildingID, BuildingType, CommonEndpoint,
     CompressedMovementID, ControlStopSign, ControlTrafficSignal, DirectedRoadID, Direction,
-    Intersection, IntersectionID, Lane, LaneID, LaneType, Map, MapEdits, Movement, MovementID,
-    OffstreetParking, ParkingLot, ParkingLotID, Path, PathConstraints, PathRequest, PathV2,
-    Pathfinder, PathfinderCaching, Position, Road, RoadID, RoutingParams, TransitRoute,
-    TransitRouteID, TransitStop, TransitStopID, Turn, TurnID, TurnType, Zone,
+    DrivingSide, Intersection, IntersectionID, Lane, LaneID, LaneType, Map, MapConfig, MapEdits,
+    Movement, MovementID, OffstreetParking, OriginalRoad, ParkingLot, ParkingLotID, Path,
+    PathConstraints, PathRequest, PathV2, Pathfinder, PathfinderCaching, Position, Road, RoadID,
+    RoutingParams, TransitRoute, TransitRouteID, TransitStop, TransitStopID, Turn, TurnID,
+    TurnType, Zone,
 };
 
 impl Map {

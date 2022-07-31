@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 
 use abstutil::Timer;
 use geom::{Distance, HashablePt2D, Line, Speed, Time};
-use raw_map::{get_lane_specs_ltr, InputRoad};
+use street_network::{get_lane_specs_ltr, InputRoad};
 
 pub use self::perma::PermanentMapEdits;
 use crate::make::{match_points_to_lanes, snap_driveway, trim_path};
@@ -635,7 +635,7 @@ fn recalculate_intersection_polygon(
         });
     }
 
-    let results = raw_map::intersection_polygon(
+    let results = street_network::intersection_polygon(
         intersection.orig_id,
         input_roads,
         // For consolidated intersections, it appears we don't need to pass in

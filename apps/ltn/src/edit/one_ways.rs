@@ -1,5 +1,5 @@
 use geom::Distance;
-use raw_map::LaneSpec;
+use street_network::LaneSpec;
 use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::{EventCtx, Text, TextExt, Transition, Widget};
 

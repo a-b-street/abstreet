@@ -9,15 +9,15 @@ use abstutil::{MultiMap, Timer};
 use geom::{
     Distance, FindClosest, HashablePt2D, Line, PolyLine, Polygon, Pt2D, Speed, EPSILON_DIST,
 };
-use raw_map::initial;
+use raw_map::RawMap;
+use street_network::{initial, Transformation};
 
 pub use self::parking_lots::snap_driveway;
 use crate::pathfind::{CreateEngine, Pathfinder};
-use crate::raw::{OriginalRoad, RawMap};
 use crate::{
     connectivity, osm, AccessRestrictions, Area, AreaID, ControlStopSign, ControlTrafficSignal,
-    Intersection, IntersectionID, IntersectionType, Lane, LaneID, Map, MapEdits, PathConstraints,
-    Position, Road, RoadID, RoutingParams, Zone,
+    Intersection, IntersectionID, IntersectionType, Lane, LaneID, Map, MapEdits, OriginalRoad,
+    PathConstraints, Position, Road, RoadID, RoutingParams, Zone,
 };
 
 mod bridges;
@@ -35,9 +35,6 @@ pub struct RawToMapOptions {
     /// them, pathfinding on the map later will be very slow.
     #[structopt(long)]
     pub skip_ch: bool,
-    /// Try to consolidate all short roads. Will likely break.
-    #[structopt(long)]
-    pub consolidate_all_intersections: bool,
     /// Preserve all OSM tags for buildings, increasing the final file size substantially.
     #[structopt(long)]
     pub keep_bldg_tags: bool,
@@ -46,12 +43,10 @@ pub struct RawToMapOptions {
 impl Map {
     pub fn create_from_raw(mut raw: RawMap, opts: RawToMapOptions, timer: &mut Timer) -> Map {
         raw.streets
-            .run_all_simplifications(opts.consolidate_all_intersections, true, timer);
+            .apply_transformations(Transformation::abstreet(), timer);
 
         timer.start("raw_map to InitialMap");
-        let gps_bounds = raw.streets.gps_bounds.clone();
-        let bounds = gps_bounds.to_bounds();
-        let initial_map = initial::InitialMap::new(&raw.streets, &bounds, timer);
+        let initial_map = initial::InitialMap::new(&raw.streets, timer);
         timer.stop("raw_map to InitialMap");
 
         let mut map = Map {
@@ -66,8 +61,8 @@ impl Map {
             boundary_polygon: raw.streets.boundary_polygon.clone(),
             stop_signs: BTreeMap::new(),
             traffic_signals: BTreeMap::new(),
-            gps_bounds,
-            bounds,
+            gps_bounds: raw.streets.gps_bounds.clone(),
+            bounds: raw.streets.gps_bounds.to_bounds(),
             config: raw.streets.config.clone(),
             pathfinder: Pathfinder::empty(),
             pathfinder_dirty: false,

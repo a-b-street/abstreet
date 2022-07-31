@@ -4,11 +4,10 @@ use std::fmt;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use geom::{Distance, Line, PolyLine, Polygon, Pt2D};
-use raw_map::LaneType;
 
 use crate::{
-    osm, DirectedRoadID, Direction, DrivingSide, IntersectionID, Map, MapConfig, Road, RoadID,
-    RoadSideID, SideOfRoad, TurnType,
+    osm, DirectedRoadID, Direction, DrivingSide, IntersectionID, LaneType, Map, MapConfig, Road,
+    RoadID, RoadSideID, SideOfRoad, TurnType,
 };
 
 /// From some manually audited cases in Seattle, the length of parallel street parking spots is a

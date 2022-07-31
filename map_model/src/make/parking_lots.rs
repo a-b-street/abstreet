@@ -4,9 +4,9 @@ use anyhow::Result;
 
 use abstutil::Timer;
 use geom::{Angle, Distance, FindClosest, HashablePt2D, Line, PolyLine, Polygon, Pt2D, Ring};
+use raw_map::RawParkingLot;
 
 use crate::make::{match_points_to_lanes, trim_path};
-use crate::raw::RawParkingLot;
 use crate::{
     osm, Map, ParkingLot, ParkingLotID, PathConstraints, Position, NORMAL_LANE_THICKNESS,
     PARKING_LOT_SPOT_LENGTH,

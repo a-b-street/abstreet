@@ -6,11 +6,10 @@ use serde::{Deserialize, Serialize};
 
 use abstutil::{deserialize_usize, serialize_usize};
 use geom::{Distance, Polygon};
-use raw_map::IntersectionType;
 
 use crate::{
-    osm, CompressedMovementID, DirectedRoadID, LaneID, Map, Movement, MovementID, PathConstraints,
-    Road, RoadID, RoadSideID, SideOfRoad, Turn, TurnID,
+    osm, CompressedMovementID, DirectedRoadID, IntersectionType, LaneID, Map, Movement, MovementID,
+    PathConstraints, Road, RoadID, RoadSideID, SideOfRoad, Turn, TurnID,
 };
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]

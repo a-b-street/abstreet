@@ -35,10 +35,11 @@ use serde::{Deserialize, Serialize};
 use abstio::MapName;
 use abstutil::{deserialize_btreemap, serialize_btreemap, MultiMap};
 use geom::{Bounds, GPSBounds, Polygon};
-pub use raw_map as raw;
-pub use raw_map::{
-    osm, Amenity, AmenityType, AreaType, BufferType, Direction, DrivingSide, IntersectionType,
-    LaneSpec, LaneType, MapConfig, NamePerLanguage, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS,
+// Re-export a bunch of things for convenience
+pub use raw_map::{Amenity, AmenityType, AreaType};
+pub use street_network::{
+    osm, BufferType, Direction, DrivingSide, IntersectionType, LaneSpec, LaneType, MapConfig,
+    NamePerLanguage, OriginalRoad, RestrictionType, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS,
 };
 
 pub use crate::city::City;

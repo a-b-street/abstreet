@@ -4,10 +4,9 @@ use serde::{Deserialize, Serialize};
 
 use geom::{Angle, Line, PolyLine};
 
-use crate::raw::RestrictionType;
 use crate::{
     DirectedRoadID, Direction, Intersection, IntersectionID, LaneID, Map, MovementID,
-    PathConstraints,
+    PathConstraints, RestrictionType,
 };
 
 /// Turns are uniquely identified by their (src, dst) lanes and their parent intersection.

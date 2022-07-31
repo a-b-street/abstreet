@@ -1963,7 +1963,7 @@ dependencies = [
 [[package]]
 name = "import_streets"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2streets#71a186179bab5c675478edb9dda8a592646a39f1"
+source = "git+https://github.com/a-b-street/osm2streets#cbff21efbf440064e0fd56c77feac8788cef1226"
 dependencies = [
  "abstutil",
  "anyhow",
@@ -1998,6 +1998,7 @@ dependencies = [
  "popdat",
  "rand",
  "rand_xorshift",
+ "raw_map",
  "serde",
  "serde_json",
  "sim",
@@ -2244,10 +2245,10 @@ dependencies = [
  "map_gui",
  "map_model",
  "maplit",
- "raw_map",
  "regex",
  "serde",
  "serde_json",
+ "street_network",
  "structopt",
  "synthpop",
  "wasm-bindgen",
@@ -2340,6 +2341,7 @@ dependencies = [
  "log",
  "raw_map",
  "serde",
+ "street_network",
  "structopt",
  "wasm-bindgen",
  "widgetry",
@@ -2400,6 +2402,7 @@ dependencies = [
  "raw_map",
  "serde",
  "serde_json",
+ "street_network",
  "structopt",
  "thread_local",
  "traffic_signal_data",
@@ -3834,7 +3837,7 @@ checksum = "ef5430c8e36b713e13b48a9f709cc21e046723fe44ce34587b73a830203b533e"
 [[package]]
 name = "street_network"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2streets#71a186179bab5c675478edb9dda8a592646a39f1"
+source = "git+https://github.com/a-b-street/osm2streets#cbff21efbf440064e0fd56c77feac8788cef1226"
 dependencies = [
  "aabb-quadtree",
  "abstutil",

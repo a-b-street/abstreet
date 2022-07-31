@@ -1,5 +1,5 @@
 use geom::{Distance, Line, Polygon, Pt2D};
-use raw_map::osm;
+use street_network::{osm, Transformation};
 use widgetry::mapspace::WorldOutcome;
 use widgetry::tools::{open_browser, URLManager};
 use widgetry::{
@@ -273,7 +273,7 @@ impl State<App> for MainState {
                                 app.model
                                     .map
                                     .streets
-                                    .run_all_simplifications(false, true, timer);
+                                    .apply_transformations(Transformation::abstreet(), timer);
                                 app.model.recreate_world(ctx, timer);
                             });
                         }

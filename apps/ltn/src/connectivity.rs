@@ -1,5 +1,5 @@
 use geom::{ArrowCap, Distance, PolyLine, Polygon};
-use raw_map::Direction;
+use street_network::Direction;
 use widgetry::mapspace::{DummyID, ToggleZoomed, World};
 use widgetry::tools::PopupMsg;
 use widgetry::{

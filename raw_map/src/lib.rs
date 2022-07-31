@@ -5,13 +5,11 @@
 use std::collections::BTreeMap;
 
 use serde::{Deserialize, Serialize};
+use street_network::{osm, StreetNetwork};
 
 use abstio::{CityName, MapName};
 use abstutil::{deserialize_btreemap, serialize_btreemap, Tags};
 use geom::{PolyLine, Polygon, Pt2D};
-
-// Re-export everything for refactoring convenience
-pub use street_network::*;
 
 pub use self::types::{Amenity, AmenityType, AreaType};
 

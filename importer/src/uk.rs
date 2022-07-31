@@ -9,9 +9,9 @@ use serde::Deserialize;
 use abstio::path_shared_input;
 use abstutil::{prettyprint_usize, Timer};
 use geom::{GPSBounds, Polygon};
-use map_model::raw::RawMap;
 use map_model::Map;
 use popdat::od::DesireLine;
+use raw_map::RawMap;
 use synthpop::{Scenario, TrafficCounts, TripEndpoint, TripMode};
 
 use crate::configuration::ImporterConfiguration;

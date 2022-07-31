@@ -27,8 +27,8 @@ use regex::Regex;
 use serde_json::Value;
 
 use map_model::{IntersectionID, Map, RoadID};
-use raw_map::osm::NodeID;
-use raw_map::OriginalRoad;
+use street_network::osm::NodeID;
+use street_network::OriginalRoad;
 
 use super::Proposal;
 

@@ -4,9 +4,8 @@ use serde::{Deserialize, Serialize};
 
 use abstutil::{deserialize_usize, serialize_usize, Tags};
 use geom::Polygon;
-use raw_map::AreaType;
 
-use crate::osm;
+use crate::{osm, AreaType};
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct AreaID(

@@ -3,8 +3,8 @@ use std::process::Command;
 
 use abstio::{CityName, MapName};
 use abstutil::{must_run_cmd, Timer};
-use map_model::raw::RawMap;
 use map_model::RawToMapOptions;
+use raw_map::RawMap;
 
 use crate::configuration::ImporterConfiguration;
 

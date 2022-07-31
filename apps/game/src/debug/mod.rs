@@ -807,7 +807,7 @@ impl ContextualActions for Actions {
             #[cfg(not(target_arch = "wasm32"))]
             (ID::Lane(l), "merge short segment") => {
                 let mut timer = Timer::throwaway();
-                let mut ways: Vec<map_model::raw::OriginalRoad> =
+                let mut ways: Vec<map_model::OriginalRoad> =
                     abstio::maybe_read_json("merge_osm_ways.json".to_string(), &mut timer)
                         .unwrap_or_else(|_| Vec::new());
                 let orig_ways = ways.clone();
@@ -1044,7 +1044,7 @@ fn draw_arterial_crosswalks(ctx: &mut EventCtx, app: &App) -> Drawable {
 fn reimport_map(
     ctx: &mut EventCtx,
     app: &App,
-    rollback: Option<Vec<map_model::raw::OriginalRoad>>,
+    rollback: Option<Vec<map_model::OriginalRoad>>,
 ) -> Box<dyn State<App>> {
     map_gui::tools::RunCommand::new_state(
         ctx,

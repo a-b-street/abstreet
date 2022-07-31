@@ -8,8 +8,7 @@ use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::Time;
 
 use crate::edits::{EditCmd, EditCrosswalks, EditIntersection, EditRoad, MapEdits};
-use crate::raw::OriginalRoad;
-use crate::{osm, ControlStopSign, IntersectionID, Map, MovementID, TurnType};
+use crate::{osm, ControlStopSign, IntersectionID, Map, MovementID, OriginalRoad, TurnType};
 
 // Manually change this to attempt to preserve edits after major OSM updates.
 const IGNORE_OLD_LANES: bool = false;

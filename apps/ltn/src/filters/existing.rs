@@ -21,7 +21,7 @@ pub fn transform_existing_filters(ctx: &EventCtx, app: &mut App, timer: &mut Tim
             tags.insert("highway", "residential");
             tags.insert("lanes", "2");
             tags.insert("sidewalk", "both");
-            new.lanes_ltr = raw_map::get_lane_specs_ltr(&tags, app.map.get_config());
+            new.lanes_ltr = street_network::get_lane_specs_ltr(&tags, app.map.get_config());
         }));
         filtered_roads.push(r.id);
     }

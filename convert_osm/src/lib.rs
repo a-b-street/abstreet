@@ -8,7 +8,8 @@ use anyhow::Result;
 use abstio::MapName;
 use abstutil::{Tags, Timer};
 use geom::{Distance, FindClosest, GPSBounds, LonLat, Polygon, Pt2D, Ring};
-use raw_map::{osm, Amenity, OriginalRoad, RawMap, RawRoad};
+use raw_map::{Amenity, RawMap};
+use street_network::{osm, OriginalRoad, RawRoad};
 
 pub use import_streets::{
     OnstreetParking, Options, PrivateOffstreetParking, PublicOffstreetParking,
@@ -166,7 +167,7 @@ fn bristol_hack(map: &mut RawMap) {
 }
 
 fn clip_map(map: &mut RawMap, timer: &mut Timer) {
-    import_streets::clip::clip_map(&mut map.streets, timer);
+    import_streets::clip::clip_map(&mut map.streets, timer).unwrap();
 
     let boundary_polygon = map.streets.boundary_polygon.clone();
 

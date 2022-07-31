@@ -5,9 +5,8 @@ use serde::{Deserialize, Serialize};
 
 use abstutil::{deserialize_usize, serialize_usize, Tags};
 use geom::{Distance, PolyLine, Polygon, Pt2D};
-use raw_map::{Amenity, AmenityType, NamePerLanguage};
 
-use crate::{osm, LaneID, Map, PathConstraints, Position};
+use crate::{osm, Amenity, AmenityType, LaneID, Map, NamePerLanguage, PathConstraints, Position};
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct BuildingID(

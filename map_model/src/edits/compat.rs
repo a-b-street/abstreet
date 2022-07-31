@@ -7,9 +7,8 @@ use serde_json::Value;
 use abstio::{CityName, MapName};
 use geom::Speed;
 
-use crate::raw::OriginalRoad;
 use crate::{
-    osm, AccessRestrictions, Direction, EditCmd, EditRoad, LaneSpec, LaneType, Map,
+    osm, AccessRestrictions, Direction, EditCmd, EditRoad, LaneSpec, LaneType, Map, OriginalRoad,
     PermanentMapEdits, RoadID,
 };
 

@@ -4,9 +4,9 @@ use anyhow::Result;
 
 use abstutil::Timer;
 use geom::{Distance, Duration, FindClosest, HashablePt2D, Time};
+use raw_map::{RawMap, RawTransitRoute, RawTransitStop, RawTransitType};
 
 use crate::make::match_points_to_lanes;
-use crate::raw::{RawMap, RawTransitRoute, RawTransitStop, RawTransitType};
 use crate::{
     LaneID, Map, PathConstraints, Position, TransitRoute, TransitRouteID, TransitStop,
     TransitStopID,

@@ -33,7 +33,8 @@ pub fn apply_parking(map: &mut RawMap, opts: &Options, timer: &mut Timer) {
                         r.osm_tags.insert(osm::PARKING_BOTH, "parallel");
                     }
 
-                    r.lane_specs_ltr = raw_map::get_lane_specs_ltr(&r.osm_tags, &opts.map_config);
+                    r.lane_specs_ltr =
+                        street_network::get_lane_specs_ltr(&r.osm_tags, &opts.map_config);
                 }
             }
         }
@@ -142,7 +143,7 @@ fn use_parking_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
                 tags.insert(osm::PARKING_BOTH, value);
             }
 
-            let lane_specs_ltr = raw_map::get_lane_specs_ltr(tags, &map.streets.config);
+            let lane_specs_ltr = street_network::get_lane_specs_ltr(tags, &map.streets.config);
             map.streets.roads.get_mut(&r).unwrap().lane_specs_ltr = lane_specs_ltr;
         }
     }

@@ -5,9 +5,9 @@ use rand_xorshift::XorShiftRng;
 
 use abstutil::{Tags, Timer};
 use geom::{Distance, HashablePt2D, Line};
+use raw_map::RawBuilding;
 
 use crate::make::{match_points_to_lanes, trim_path};
-use crate::raw::RawBuilding;
 use crate::{
     osm, Amenity, Building, BuildingID, BuildingType, LaneID, Map, NamePerLanguage,
     OffstreetParking,

@@ -5,9 +5,8 @@ use serde::{Deserialize, Serialize};
 
 use abstutil::MultiMap;
 use geom::{Angle, Distance, PolyLine, Pt2D};
-use raw_map::{osm, OriginalRoad};
 
-use crate::{DirectedRoadID, Direction, IntersectionID, Map, TurnID, TurnType};
+use crate::{osm, DirectedRoadID, Direction, IntersectionID, Map, OriginalRoad, TurnID, TurnType};
 
 /// A movement is like a turn, but with less detail -- it identifies a movement from one directed
 /// road to another.

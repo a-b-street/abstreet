@@ -1,5 +1,5 @@
 use geom::{ArrowCap, Distance};
-use raw_map::OriginalRoad;
+use street_network::OriginalRoad;
 use widgetry::{
     Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
     Line, Panel, SimpleState, Spinner, State, Text, TextExt, Transition, VerticalAlignment, Widget,
@@ -199,8 +199,10 @@ impl SimpleState<App> for EditRoad {
                     _ => unreachable!(),
                 }
 
-                road.lane_specs_ltr =
-                    raw_map::get_lane_specs_ltr(&road.osm_tags, &app.model.map.streets.config);
+                road.lane_specs_ltr = street_network::get_lane_specs_ltr(
+                    &road.osm_tags,
+                    &app.model.map.streets.config,
+                );
 
                 app.model.road_added(ctx, self.r);
                 Transition::Pop

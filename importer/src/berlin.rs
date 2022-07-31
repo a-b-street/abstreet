@@ -6,8 +6,8 @@ use serde::Deserialize;
 use abstutil::Timer;
 use geom::Ring;
 use kml::ExtraShapes;
-use map_model::raw::RawMap;
 use map_model::BuildingType;
+use raw_map::RawMap;
 
 use crate::configuration::ImporterConfiguration;
 use crate::utils::{download, download_kml};

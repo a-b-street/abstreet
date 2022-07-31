@@ -7,12 +7,10 @@ use serde::{Deserialize, Serialize};
 
 use abstutil::{deserialize_usize, serialize_usize, Tags};
 use geom::{Distance, PolyLine, Polygon, Speed};
-use raw_map::Direction;
 
-use crate::raw::{OriginalRoad, RestrictionType};
 use crate::{
-    osm, AccessRestrictions, CommonEndpoint, DrivingSide, IntersectionID, Lane, LaneID, LaneSpec,
-    LaneType, Map, PathConstraints, TransitStopID, Zone,
+    osm, AccessRestrictions, CommonEndpoint, Direction, DrivingSide, IntersectionID, Lane, LaneID,
+    LaneSpec, LaneType, Map, OriginalRoad, PathConstraints, RestrictionType, TransitStopID, Zone,
 };
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
