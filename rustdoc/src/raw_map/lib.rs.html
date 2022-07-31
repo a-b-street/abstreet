@@ -138,8 +138,6 @@
 <span id="133">133</span>
 <span id="134">134</span>
 <span id="135">135</span>
-<span id="136">136</span>
-<span id="137">137</span>
 </pre><pre class="rust"><code><span class="doccomment">//! The convert_osm crate produces a RawMap from OSM and other data. Storing this intermediate</span>
 <span class="doccomment">//! structure is useful to iterate quickly on parts of the map importing pipeline without having to</span>
 <span class="doccomment">//! constantly read .osm files, and to visualize the intermediate state with map_editor.</span>
@@ -147,13 +145,11 @@
 <span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use</span> <span class="ident">street_network</span>::{<span class="ident">osm</span>, <span class="ident">StreetNetwork</span>};
 
 <span class="kw">use</span> <span class="ident">abstio</span>::{<span class="ident">CityName</span>, <span class="ident">MapName</span>};
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_btreemap</span>, <span class="ident">serialize_btreemap</span>, <span class="ident">Tags</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
-
-<span class="comment">// Re-export everything for refactoring convenience</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">street_network</span>::<span class="kw-2">*</span>;
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::types</span>::{<span class="ident">Amenity</span>, <span class="ident">AmenityType</span>, <span class="ident">AreaType</span>};
 

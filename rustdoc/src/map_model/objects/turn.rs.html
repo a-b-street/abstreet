@@ -309,17 +309,15 @@
 <span id="304">304</span>
 <span id="305">305</span>
 <span id="306">306</span>
-<span id="307">307</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::fmt</span>;
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::raw::RestrictionType</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>, <span class="ident">Intersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">MovementID</span>,
-    <span class="ident">PathConstraints</span>,
+    <span class="ident">PathConstraints</span>, <span class="ident">RestrictionType</span>,
 };
 
 <span class="doccomment">/// Turns are uniquely identified by their (src, dst) lanes and their parent intersection.</span>

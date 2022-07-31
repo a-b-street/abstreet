@@ -37,16 +37,14 @@
 <span id="32">32</span>
 <span id="33">33</span>
 <span id="34">34</span>
-<span id="35">35</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::fmt</span>;
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_usize</span>, <span class="ident">serialize_usize</span>, <span class="ident">Tags</span>};
 <span class="kw">use</span> <span class="ident">geom::Polygon</span>;
-<span class="kw">use</span> <span class="ident">raw_map::AreaType</span>;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::osm</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">osm</span>, <span class="ident">AreaType</span>};
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AreaID</span>(

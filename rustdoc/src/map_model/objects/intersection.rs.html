@@ -267,7 +267,6 @@
 <span id="262">262</span>
 <span id="263">263</span>
 <span id="264">264</span>
-<span id="265">265</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 <span class="kw">use</span> <span class="ident">std::convert::TryFrom</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
@@ -276,11 +275,10 @@
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_usize</span>, <span class="ident">serialize_usize</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>};
-<span class="kw">use</span> <span class="ident">raw_map::IntersectionType</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">osm</span>, <span class="ident">CompressedMovementID</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">Movement</span>, <span class="ident">MovementID</span>, <span class="ident">PathConstraints</span>,
-    <span class="ident">Road</span>, <span class="ident">RoadID</span>, <span class="ident">RoadSideID</span>, <span class="ident">SideOfRoad</span>, <span class="ident">Turn</span>, <span class="ident">TurnID</span>,
+    <span class="ident">osm</span>, <span class="ident">CompressedMovementID</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">IntersectionType</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">Movement</span>, <span class="ident">MovementID</span>,
+    <span class="ident">PathConstraints</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>, <span class="ident">RoadSideID</span>, <span class="ident">SideOfRoad</span>, <span class="ident">Turn</span>, <span class="ident">TurnID</span>,
 };
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>

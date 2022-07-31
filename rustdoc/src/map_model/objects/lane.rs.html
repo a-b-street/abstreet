@@ -373,18 +373,16 @@
 <span id="368">368</span>
 <span id="369">369</span>
 <span id="370">370</span>
-<span id="371">371</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Deserializer</span>, <span class="ident">Serialize</span>, <span class="ident">Serializer</span>};
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
-<span class="kw">use</span> <span class="ident">raw_map::LaneType</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">osm</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>, <span class="ident">DrivingSide</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">MapConfig</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>,
-    <span class="ident">RoadSideID</span>, <span class="ident">SideOfRoad</span>, <span class="ident">TurnType</span>,
+    <span class="ident">osm</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>, <span class="ident">DrivingSide</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">MapConfig</span>, <span class="ident">Road</span>,
+    <span class="ident">RoadID</span>, <span class="ident">RoadSideID</span>, <span class="ident">SideOfRoad</span>, <span class="ident">TurnType</span>,
 };
 
 <span class="doccomment">/// From some manually audited cases in Seattle, the length of parallel street parking spots is a</span>

@@ -262,7 +262,6 @@
 <span id="257">257</span>
 <span id="258">258</span>
 <span id="259">259</span>
-<span id="260">260</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
@@ -270,9 +269,8 @@
 
 <span class="kw">use</span> <span class="ident">abstutil::MultiMap</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>};
-<span class="kw">use</span> <span class="ident">raw_map</span>::{<span class="ident">osm</span>, <span class="ident">OriginalRoad</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">TurnID</span>, <span class="ident">TurnType</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">osm</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">OriginalRoad</span>, <span class="ident">TurnID</span>, <span class="ident">TurnType</span>};
 
 <span class="doccomment">/// A movement is like a turn, but with less detail -- it identifies a movement from one directed</span>
 <span class="doccomment">/// road to another.</span>

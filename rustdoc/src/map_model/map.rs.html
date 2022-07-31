@@ -909,16 +909,16 @@
 <span class="kw">use</span> <span class="ident">abstio</span>::{<span class="ident">CityName</span>, <span class="ident">MapName</span>};
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">serialized_size_bytes</span>, <span class="ident">MultiMap</span>, <span class="ident">Tags</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">GPSBounds</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">raw_map</span>::{<span class="ident">DrivingSide</span>, <span class="ident">MapConfig</span>};
+<span class="kw">use</span> <span class="ident">raw_map::RawMap</span>;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::raw</span>::{<span class="ident">OriginalRoad</span>, <span class="ident">RawMap</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">osm</span>, <span class="ident">Area</span>, <span class="ident">AreaID</span>, <span class="ident">AreaType</span>, <span class="ident">Building</span>, <span class="ident">BuildingID</span>, <span class="ident">BuildingType</span>, <span class="ident">CommonEndpoint</span>,
     <span class="ident">CompressedMovementID</span>, <span class="ident">ControlStopSign</span>, <span class="ident">ControlTrafficSignal</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>,
-    <span class="ident">Intersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">MapEdits</span>, <span class="ident">Movement</span>, <span class="ident">MovementID</span>,
-    <span class="ident">OffstreetParking</span>, <span class="ident">ParkingLot</span>, <span class="ident">ParkingLotID</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">PathV2</span>,
-    <span class="ident">Pathfinder</span>, <span class="ident">PathfinderCaching</span>, <span class="ident">Position</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>, <span class="ident">RoutingParams</span>, <span class="ident">TransitRoute</span>,
-    <span class="ident">TransitRouteID</span>, <span class="ident">TransitStop</span>, <span class="ident">TransitStopID</span>, <span class="ident">Turn</span>, <span class="ident">TurnID</span>, <span class="ident">TurnType</span>, <span class="ident">Zone</span>,
+    <span class="ident">DrivingSide</span>, <span class="ident">Intersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">MapConfig</span>, <span class="ident">MapEdits</span>,
+    <span class="ident">Movement</span>, <span class="ident">MovementID</span>, <span class="ident">OffstreetParking</span>, <span class="ident">OriginalRoad</span>, <span class="ident">ParkingLot</span>, <span class="ident">ParkingLotID</span>, <span class="ident">Path</span>,
+    <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">PathV2</span>, <span class="ident">Pathfinder</span>, <span class="ident">PathfinderCaching</span>, <span class="ident">Position</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>,
+    <span class="ident">RoutingParams</span>, <span class="ident">TransitRoute</span>, <span class="ident">TransitRouteID</span>, <span class="ident">TransitStop</span>, <span class="ident">TransitStopID</span>, <span class="ident">Turn</span>, <span class="ident">TurnID</span>,
+    <span class="ident">TurnType</span>, <span class="ident">Zone</span>,
 };
 
 <span class="kw">impl</span> <span class="ident">Map</span> {
