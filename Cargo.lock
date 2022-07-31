@@ -1963,7 +1963,7 @@ dependencies = [
 [[package]]
 name = "import_streets"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2streets#cbff21efbf440064e0fd56c77feac8788cef1226"
+source = "git+https://github.com/a-b-street/osm2streets#025ce946a24e7cb36f2474bc4bae1730742e2d68"
 dependencies = [
  "abstutil",
  "anyhow",
@@ -3837,7 +3837,7 @@ checksum = "ef5430c8e36b713e13b48a9f709cc21e046723fe44ce34587b73a830203b533e"
 [[package]]
 name = "street_network"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2streets#cbff21efbf440064e0fd56c77feac8788cef1226"
+source = "git+https://github.com/a-b-street/osm2streets#025ce946a24e7cb36f2474bc4bae1730742e2d68"
 dependencies = [
  "aabb-quadtree",
  "abstutil",
