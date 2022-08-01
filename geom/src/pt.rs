@@ -142,6 +142,14 @@ impl Pt2D {
             .map(|pt| pt.into())
             .collect()
     }
+
+    pub fn to_geojson(self, gps: Option<&GPSBounds>) -> geojson::Geometry {
+        if let Some(gps) = gps {
+            self.to_gps(gps).to_geojson()
+        } else {
+            geojson::Geometry::new(geojson::Value::Point(vec![self.x(), self.y()]))
+        }
+    }
 }
 
 impl fmt::Display for Pt2D {

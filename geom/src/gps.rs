@@ -181,6 +181,10 @@ impl LonLat {
         }
         Ok(polygons)
     }
+
+    pub fn to_geojson(self) -> geojson::Geometry {
+        geojson::Geometry::new(geojson::Value::Point(vec![self.x(), self.y()]))
+    }
 }
 
 impl fmt::Display for LonLat {
