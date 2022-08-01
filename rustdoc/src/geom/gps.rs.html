@@ -199,6 +199,10 @@
 <span id="194">194</span>
 <span id="195">195</span>
 <span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::fmt</span>;
 <span class="kw">use</span> <span class="ident">std::io</span>::{<span class="ident">BufRead</span>, <span class="ident">BufReader</span>, <span class="ident">Write</span>};
 
@@ -381,6 +385,10 @@
             ));
         }
         <span class="prelude-val">Ok</span>(<span class="ident">polygons</span>)
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_geojson</span>(<span class="self">self</span>) -&gt; <span class="ident">geojson::Geometry</span> {
+        <span class="ident">geojson::Geometry::new</span>(<span class="ident">geojson::Value::Point</span>(<span class="macro">vec!</span>[<span class="self">self</span>.<span class="ident">x</span>(), <span class="self">self</span>.<span class="ident">y</span>()]))
     }
 }
 
