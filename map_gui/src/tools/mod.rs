@@ -13,7 +13,7 @@ pub use self::colors::{ColorDiscrete, ColorNetwork};
 pub use self::draw_overlapping_paths::draw_overlapping_paths;
 pub use self::heatmap::{draw_isochrone, make_heatmap, Grid, HeatmapOptions};
 pub use self::icons::{goal_marker, start_marker};
-pub use self::labels::DrawRoadLabels;
+pub use self::labels::{DrawRoadLabels, DrawSimpleRoadLabels};
 pub use self::minimap::{Minimap, MinimapControls};
 pub use self::navigate::Navigator;
 pub use self::polygon::EditPolygon;

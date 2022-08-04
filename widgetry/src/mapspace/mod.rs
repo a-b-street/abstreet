@@ -4,7 +4,7 @@ mod world;
 use geom::Polygon;
 
 use crate::{Drawable, EventCtx, Fill, GeomBatch, GfxCtx, RewriteColor};
-pub use unzoomed::DrawUnzoomedShapes;
+pub use unzoomed::{DrawCustomUnzoomedShapes, DrawUnzoomedShapes, PerZoom};
 pub use world::{DummyID, ObjectID, World, WorldOutcome};
 
 /// Draws one of two versions of something, based on whether the canvas is zoomed in past a threshold.

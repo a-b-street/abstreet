@@ -1,12 +1,11 @@
 use std::collections::HashSet;
 
 use abstutil::Counter;
-use geom::Distance;
-use map_gui::tools::{ColorNetwork, DrawRoadLabels};
-use widgetry::mapspace::{ToggleZoomed, World, WorldOutcome};
+use map_gui::tools::{ColorNetwork, DrawSimpleRoadLabels};
+use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::{
-    Choice, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, State,
-    TextExt, Toggle, Widget,
+    Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel,
+    State, TextExt, Toggle, Widget,
 };
 
 use crate::edit::EditMode;
@@ -17,9 +16,9 @@ pub struct BrowseNeighbourhoods {
     top_panel: Panel,
     left_panel: Panel,
     world: World<NeighbourhoodID>,
-    draw_over_roads: ToggleZoomed,
-    labels: DrawRoadLabels,
-    draw_boundary_roads: ToggleZoomed,
+    draw_over_roads: Drawable,
+    labels: DrawSimpleRoadLabels,
+    draw_boundary_roads: Drawable,
 }
 
 impl BrowseNeighbourhoods {
@@ -60,7 +59,7 @@ impl BrowseNeighbourhoods {
             left_panel,
             world,
             draw_over_roads,
-            labels: DrawRoadLabels::only_major_roads().light_background(),
+            labels: DrawSimpleRoadLabels::only_major_roads(colors::ROAD_LABEL),
             draw_boundary_roads: draw_boundary_roads(ctx, app),
         })
     }
@@ -158,10 +157,8 @@ impl State<App> for BrowseNeighbourhoods {
         self.top_panel.draw(g);
         self.left_panel.draw(g);
         self.draw_boundary_roads.draw(g);
+        self.labels.draw(g, app);
         app.session.draw_all_filters.draw(g);
-        if g.canvas.is_unzoomed() {
-            self.labels.draw(g, app);
-        }
     }
 }
 
@@ -212,7 +209,7 @@ fn make_world(ctx: &mut EventCtx, app: &App) -> World<NeighbourhoodID> {
                     .add(*id)
                     .hitbox(info.block.polygon.clone())
                     .draw_color(color.alpha(0.5))
-                    .hover_outline(colors::OUTLINE, Distance::meters(5.0))
+                    .hover_color(colors::HOVER)
                     .clickable()
                     .build(ctx);
             }
@@ -222,7 +219,7 @@ fn make_world(ctx: &mut EventCtx, app: &App) -> World<NeighbourhoodID> {
                     .hitbox(info.block.polygon.clone())
                     // Slight lie, because draw_over_roads has to be drawn after the World
                     .drawn_in_master_batch()
-                    .hover_outline(colors::OUTLINE, Distance::meters(5.0))
+                    .hover_color(colors::HOVER)
                     .clickable()
                     .build(ctx);
             }
@@ -231,9 +228,9 @@ fn make_world(ctx: &mut EventCtx, app: &App) -> World<NeighbourhoodID> {
     world
 }
 
-fn draw_over_roads(ctx: &mut EventCtx, app: &App) -> ToggleZoomed {
+fn draw_over_roads(ctx: &mut EventCtx, app: &App) -> Drawable {
     if app.session.draw_neighbourhood_style != Style::Shortcuts {
-        return ToggleZoomed::empty(ctx);
+        return Drawable::empty(ctx);
     }
 
     let mut count_per_road = Counter::new();
@@ -251,13 +248,13 @@ fn draw_over_roads(ctx: &mut EventCtx, app: &App) -> ToggleZoomed {
     let mut colorer = ColorNetwork::no_fading(app);
     colorer.ranked_roads(count_per_road, &app.cs.good_to_bad_red);
     colorer.ranked_intersections(count_per_intersection, &app.cs.good_to_bad_red);
-    colorer.build(ctx)
+    colorer.build(ctx).unzoomed
 }
 
-pub fn draw_boundary_roads(ctx: &EventCtx, app: &App) -> ToggleZoomed {
+pub fn draw_boundary_roads(ctx: &EventCtx, app: &App) -> Drawable {
     let mut seen_roads = HashSet::new();
     let mut seen_borders = HashSet::new();
-    let mut batch = ToggleZoomed::builder();
+    let mut batch = GeomBatch::new();
     for info in app.session.partitioning.all_neighbourhoods().values() {
         for id in &info.block.perimeter.roads {
             let r = id.road;
@@ -266,27 +263,14 @@ pub fn draw_boundary_roads(ctx: &EventCtx, app: &App) -> ToggleZoomed {
             }
             seen_roads.insert(r);
             let road = app.map.get_r(r);
-            batch.unzoomed.push(
-                colors::HIGHLIGHT_BOUNDARY_UNZOOMED,
-                road.get_thick_polygon(),
-            );
-            batch
-                .zoomed
-                .push(colors::HIGHLIGHT_BOUNDARY_ZOOMED, road.get_thick_polygon());
+            batch.push(colors::HIGHLIGHT_BOUNDARY, road.get_thick_polygon());
 
             for i in [road.src_i, road.dst_i] {
                 if seen_borders.contains(&i) {
                     continue;
                 }
                 seen_borders.insert(i);
-                batch.unzoomed.push(
-                    colors::HIGHLIGHT_BOUNDARY_UNZOOMED,
-                    app.map.get_i(i).polygon.clone(),
-                );
-                batch.zoomed.push(
-                    colors::HIGHLIGHT_BOUNDARY_ZOOMED,
-                    app.map.get_i(i).polygon.clone(),
-                );
+                batch.push(colors::HIGHLIGHT_BOUNDARY, app.map.get_i(i).polygon.clone());
             }
         }
     }

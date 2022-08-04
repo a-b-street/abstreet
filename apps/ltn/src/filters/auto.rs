@@ -189,13 +189,13 @@ fn only_one_border(app: &mut App, neighbourhood: &Neighbourhood) {
                         app.session
                             .modal_filters
                             .roads
-                            .insert(road.id, 0.1 * road.length());
+                            .insert(road.id, (0.1 * road.length(), app.session.filter_type));
                         break;
                     } else if road.dst_i == *i {
                         app.session
                             .modal_filters
                             .roads
-                            .insert(road.id, 0.9 * road.length());
+                            .insert(road.id, (0.9 * road.length(), app.session.filter_type));
                         break;
                     }
                 }
@@ -216,7 +216,7 @@ fn try_to_filter_road(
     app.session
         .modal_filters
         .roads
-        .insert(r, road.length() / 2.0);
+        .insert(r, (road.length() / 2.0, app.session.filter_type));
     // TODO This is expensive; can we just do the connectivity work and not drawing?
     let new_neighbourhood = Neighbourhood::new(ctx, app, neighbourhood.id);
     if new_neighbourhood.cells.iter().any(|c| c.is_disconnected()) {

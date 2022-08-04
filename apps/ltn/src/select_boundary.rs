@@ -3,12 +3,11 @@ use std::collections::BTreeSet;
 use anyhow::Result;
 
 use geom::Polygon;
-use map_gui::tools::DrawRoadLabels;
-use widgetry::mapspace::ToggleZoomed;
+use map_gui::tools::DrawSimpleRoadLabels;
 use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::tools::Lasso;
 use widgetry::{
-    EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, State, Text, TextExt, Widget,
+    Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, State, Text, TextExt, Widget,
 };
 
 use crate::browse::draw_boundary_roads;
@@ -21,7 +20,7 @@ pub struct SelectBoundary {
     left_panel: Panel,
     id: NeighbourhoodID,
     world: World<BlockID>,
-    draw_boundary_roads: ToggleZoomed,
+    draw_boundary_roads: Drawable,
     frontier: BTreeSet<BlockID>,
 
     orig_partitioning: Partitioning,
@@ -30,7 +29,7 @@ pub struct SelectBoundary {
     // whether the block is already included or not
     last_failed_change: Option<(BlockID, bool)>,
 
-    labels: DrawRoadLabels,
+    labels: DrawSimpleRoadLabels,
 
     lasso: Option<Lasso>,
 }
@@ -62,7 +61,7 @@ impl SelectBoundary {
             orig_partitioning: app.session.partitioning.clone(),
             last_failed_change: None,
 
-            labels: DrawRoadLabels::only_major_roads().light_background(),
+            labels: DrawSimpleRoadLabels::only_major_roads(colors::ROAD_LABEL),
 
             lasso: None,
         };
@@ -318,9 +317,7 @@ impl State<App> for SelectBoundary {
         self.draw_boundary_roads.draw(g);
         self.top_panel.draw(g);
         self.left_panel.draw(g);
-        if g.canvas.is_unzoomed() {
-            self.labels.draw(g, app);
-        }
+        self.labels.draw(g, app);
         if let Some(ref lasso) = self.lasso {
             lasso.draw(g);
         }

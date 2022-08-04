@@ -220,6 +220,13 @@ impl<'a, ID: ObjectID> ObjectBuilder<'a, ID> {
         self.draw_hovered(draw)
     }
 
+    /// Draw the object in a hovered state by coloring its hitbox. Useful when
+    /// `drawn_in_master_batch` is used and there's no normal drawn polygon.
+    pub fn hover_color(self, color: Color) -> Self {
+        let hitbox = self.hitbox.clone().expect("call hitbox first");
+        self.draw_hovered(GeomBatch::from(vec![(color, hitbox)]))
+    }
+
     /// Mark that an object is hoverable, but don't actually draw anything while hovering on it
     pub fn invisibly_hoverable(self) -> Self {
         self.draw_hovered(GeomBatch::new())

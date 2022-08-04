@@ -6,9 +6,12 @@ mod shortcuts;
 use map_model::{IntersectionID, RoadID};
 use widgetry::mapspace::{ObjectID, World};
 use widgetry::tools::{PolyLineLasso, PopupMsg};
-use widgetry::{lctrl, EventCtx, Key, Line, Panel, PanelBuilder, TextExt, Widget};
+use widgetry::{
+    lctrl, Color, ControlState, EventCtx, Key, Line, Panel, PanelBuilder, RewriteColor, TextExt,
+    Widget,
+};
 
-use crate::{after_edit, App, BrowseNeighbourhoods, Neighbourhood, Transition};
+use crate::{after_edit, App, BrowseNeighbourhoods, FilterType, Neighbourhood, Transition};
 
 pub enum EditMode {
     Filters,
@@ -81,7 +84,7 @@ impl EditNeighbourhood {
                 .small_heading()
                 .into_widget(ctx),
             Widget::col(vec![
-                edit_mode(ctx, &app.session.edit_mode),
+                edit_mode(ctx, app),
                 match app.session.edit_mode {
                     EditMode::Filters => filters::widget(ctx),
                     EditMode::FreehandFilters(_) => freehand_filters::widget(ctx),
@@ -183,7 +186,18 @@ impl EditNeighbourhood {
             "Plan a route" => EditOutcome::Transition(Transition::Push(
                 crate::route_planner::RoutePlanner::new_state(ctx, app),
             )),
-            "Filters" => {
+            "Modal filter" => {
+                app.session.filter_type = FilterType::NoEntry;
+                app.session.edit_mode = EditMode::Filters;
+                EditOutcome::UpdatePanelAndWorld
+            }
+            "Walk/cycle only filter" => {
+                app.session.filter_type = FilterType::WalkCycleOnly;
+                app.session.edit_mode = EditMode::Filters;
+                EditOutcome::UpdatePanelAndWorld
+            }
+            "Bus gate" => {
+                app.session.filter_type = FilterType::BusGate;
                 app.session.edit_mode = EditMode::Filters;
                 EditOutcome::UpdatePanelAndWorld
             }
@@ -227,42 +241,59 @@ impl EditNeighbourhood {
     }
 }
 
-fn edit_mode(ctx: &mut EventCtx, edit_mode: &EditMode) -> Widget {
-    let mut row = Vec::new();
-    for (label, key, icon, is_current) in [
-        (
-            "Filters",
-            Key::F1,
-            "system/assets/edit/construction.svg",
-            matches!(edit_mode, EditMode::Filters),
-        ),
-        (
-            "Freehand filters",
-            Key::F2,
-            "system/assets/tools/select.svg",
-            matches!(edit_mode, EditMode::FreehandFilters(_)),
-        ),
-        (
-            "One-ways",
-            Key::F3,
-            "system/assets/tools/one_ways.svg",
-            matches!(edit_mode, EditMode::Oneways),
-        ),
-        (
-            "Shortcuts",
-            Key::F4,
-            "system/assets/tools/shortcut.svg",
-            matches!(edit_mode, EditMode::Shortcuts(_)),
-        ),
-    ] {
-        row.push(
-            ctx.style()
-                .btn_solid_primary
-                .icon(icon)
-                .disabled(is_current)
-                .hotkey(key)
-                .build_widget(ctx, label),
-        );
-    }
-    Widget::row(row)
+fn edit_mode(ctx: &mut EventCtx, app: &App) -> Widget {
+    let edit_mode = &app.session.edit_mode;
+    let filter = |ft: FilterType, hide_color: Color, name: &str| {
+        let mut btn = ctx
+            .style()
+            .btn_solid_primary
+            .icon(ft.svg_path())
+            .image_color(
+                RewriteColor::Change(hide_color, Color::CLEAR),
+                ControlState::Default,
+            )
+            .image_color(
+                RewriteColor::Change(hide_color, Color::CLEAR),
+                ControlState::Disabled,
+            )
+            .disabled(matches!(edit_mode, EditMode::Filters) && app.session.filter_type == ft);
+        if app.session.filter_type == ft {
+            btn = btn.hotkey(Key::F1);
+        }
+        btn.build_widget(ctx, name)
+    };
+
+    Widget::row(vec![
+        Widget::row(vec![
+            filter(FilterType::NoEntry, Color::RED, "Modal filter"),
+            filter(
+                FilterType::WalkCycleOnly,
+                Color::hex("#0b793a"),
+                "Walk/cycle only filter",
+            ),
+            filter(FilterType::BusGate, Color::hex("#0672B9"), "Bus gate"),
+        ])
+        .section(ctx),
+        ctx.style()
+            .btn_solid_primary
+            .icon("system/assets/tools/select.svg")
+            .disabled(matches!(edit_mode, EditMode::FreehandFilters(_)))
+            .hotkey(Key::F2)
+            .build_widget(ctx, "Freehand filters")
+            .centered_vert(),
+        ctx.style()
+            .btn_solid_primary
+            .icon("system/assets/tools/one_ways.svg")
+            .disabled(matches!(edit_mode, EditMode::Oneways))
+            .hotkey(Key::F3)
+            .build_widget(ctx, "One-ways")
+            .centered_vert(),
+        ctx.style()
+            .btn_solid_primary
+            .icon("system/assets/tools/shortcut.svg")
+            .disabled(matches!(edit_mode, EditMode::Shortcuts(_)))
+            .hotkey(Key::F4)
+            .build_widget(ctx, "Shortcuts")
+            .centered_vert(),
+    ])
 }

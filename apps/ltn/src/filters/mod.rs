@@ -6,13 +6,13 @@ use std::collections::{BTreeMap, BTreeSet};
 use serde::{Deserialize, Serialize};
 
 use abstutil::{deserialize_btreemap, serialize_btreemap};
-use geom::{Circle, Distance, Line};
+use geom::{Angle, Distance, Line};
 use map_model::{IntersectionID, Map, PathConstraints, RoadID, RoutingParams, TurnID};
-use widgetry::mapspace::{DrawUnzoomedShapes, ToggleZoomed};
-use widgetry::{EventCtx, GeomBatch, GfxCtx};
+use widgetry::mapspace::{DrawCustomUnzoomedShapes, PerZoom};
+use widgetry::{Drawable, EventCtx, GeomBatch, GfxCtx};
 
 pub use self::existing::transform_existing_filters;
-use crate::{colors, App};
+use crate::App;
 
 /// Stored in App session state. Before making any changes, call `before_edit`.
 #[derive(Clone, Default, Serialize, Deserialize)]
@@ -23,7 +23,7 @@ pub struct ModalFilters {
         serialize_with = "serialize_btreemap",
         deserialize_with = "deserialize_btreemap"
     )]
-    pub roads: BTreeMap<RoadID, Distance>,
+    pub roads: BTreeMap<RoadID, (Distance, FilterType)>,
     #[serde(
         serialize_with = "serialize_btreemap",
         deserialize_with = "deserialize_btreemap"
@@ -35,10 +35,28 @@ pub struct ModalFilters {
     pub previous_version: Box<Option<ModalFilters>>,
 }
 
+/// Just determines the icon, has no semantics yet
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum FilterType {
+    NoEntry,
+    WalkCycleOnly,
+    BusGate,
+}
+
+impl FilterType {
+    pub fn svg_path(self) -> &'static str {
+        match self {
+            FilterType::NoEntry => "system/assets/tools/no_entry.svg",
+            FilterType::WalkCycleOnly => "system/assets/tools/modal_filter.svg",
+            FilterType::BusGate => "system/assets/tools/bus_gate.svg",
+        }
+    }
+}
+
 /// This logically changes every time an edit occurs. MapName isn't captured here.
 #[derive(Default, PartialEq)]
 pub struct ChangeKey {
-    roads: BTreeMap<RoadID, Distance>,
+    roads: BTreeMap<RoadID, (Distance, FilterType)>,
     intersections: BTreeMap<IntersectionID, DiagonalFilter>,
 }
 
@@ -54,6 +72,7 @@ pub struct DiagonalFilter {
     r1: RoadID,
     r2: RoadID,
     i: IntersectionID,
+    pub filter_type: FilterType,
 
     group1: BTreeSet<RoadID>,
     group2: BTreeSet<RoadID>,
@@ -100,92 +119,88 @@ impl ModalFilters {
 
     /// Draw all modal filters
     pub fn draw(&self, ctx: &EventCtx, map: &Map) -> Toggle3Zoomed {
-        let mut batch = ToggleZoomed::builder();
-        let mut low_zoom = DrawUnzoomedShapes::builder();
+        let mut batch = GeomBatch::new();
+        let mut low_zoom = DrawCustomUnzoomedShapes::builder();
 
-        let line_thickness = Distance::meters(7.0);
+        let mut icons = BTreeMap::new();
+        for ft in [
+            FilterType::NoEntry,
+            FilterType::WalkCycleOnly,
+            FilterType::BusGate,
+        ] {
+            icons.insert(ft, GeomBatch::load_svg(ctx, ft.svg_path()));
+        }
 
-        for (r, dist) in &self.roads {
+        for (r, (dist, filter_type)) in &self.roads {
+            let icon = &icons[&filter_type];
+
             let road = map.get_r(*r);
-            if let Ok((pt, angle)) = road.center_pts.dist_along(*dist) {
-                let road_width = road.get_width();
+            if let Ok((pt, road_angle)) = road.center_pts.dist_along(*dist) {
+                let angle = if *filter_type == FilterType::NoEntry {
+                    road_angle.rotate_degs(90.0)
+                } else {
+                    Angle::ZERO
+                };
 
-                low_zoom.add_circle(pt, road_width, *colors::FILTER_OUTER);
-                // Unzoomed lines aren't sufficient; they only vary the width. We need to stretch
-                // the line to cover the growing circle.
+                batch.append(
+                    icon.clone()
+                        .scale_to_fit_width(road.get_width().inner_meters())
+                        .centered_on(pt)
+                        .rotate(angle),
+                );
+
+                // TODO Memory intensive
+                let icon = icon.clone();
+                // TODO They can shrink a bit past their map size
                 low_zoom.add_custom(Box::new(move |batch, thickness| {
-                    batch.push(
-                        *colors::FILTER_INNER,
-                        Line::must_new(
-                            pt.project_away(0.8 * thickness * road_width, angle.rotate_degs(90.0)),
-                            pt.project_away(0.8 * thickness * road_width, angle.rotate_degs(-90.0)),
-                        )
-                        .to_polyline()
-                        .make_polygons(thickness * line_thickness),
+                    batch.append(
+                        icon.clone()
+                            .scale_to_fit_width(30.0 * thickness)
+                            .centered_on(pt)
+                            .rotate(angle),
                     );
                 }));
-
-                // TODO Ideally we get rid of Toggle3Zoomed and make DrawUnzoomedShapes handle this
-                // medium-zoom case.
-                batch.unzoomed.push(
-                    *colors::FILTER_OUTER,
-                    Circle::new(pt, road_width).to_polygon(),
-                );
-                batch.unzoomed.push(
-                    *colors::FILTER_INNER,
-                    Line::must_new(
-                        pt.project_away(0.8 * road_width, angle.rotate_degs(90.0)),
-                        pt.project_away(0.8 * road_width, angle.rotate_degs(-90.0)),
-                    )
-                    .make_polygons(line_thickness),
-                );
-
-                // TODO Only cover the driving/parking lanes (and center appropriately)
-                draw_zoomed_planters(
-                    ctx,
-                    &mut batch.zoomed,
-                    Line::must_new(
-                        pt.project_away(0.3 * road_width, angle.rotate_degs(90.0)),
-                        pt.project_away(0.3 * road_width, angle.rotate_degs(-90.0)),
-                    ),
-                );
             }
         }
 
         for (_, filter) in &self.intersections {
-            let line = filter.geometry(map);
+            let icon = &icons[&filter.filter_type];
 
-            let length = line.length();
-            let angle = line.angle();
+            let line = filter.geometry(map);
+            let angle = if filter.filter_type == FilterType::NoEntry {
+                line.angle()
+            } else {
+                Angle::ZERO
+            };
             let pt = line.middle().unwrap();
-            low_zoom.add_circle(pt, 0.7 * length, *colors::FILTER_OUTER);
+
+            batch.append(
+                icon.clone()
+                    .scale_to_fit_width(line.length().inner_meters())
+                    .centered_on(pt)
+                    .rotate(angle),
+            );
+
+            let icon = icon.clone();
             low_zoom.add_custom(Box::new(move |batch, thickness| {
-                batch.push(
-                    *colors::FILTER_INNER,
-                    Line::must_new(
-                        pt.project_away(thickness * length / 2.0, angle),
-                        pt.project_away(thickness * length / 2.0, angle.opposite()),
-                    )
-                    .to_polyline()
-                    .make_polygons(thickness * line_thickness),
+                // TODO Why is this magic value different than the one above?
+                batch.append(
+                    icon.clone()
+                        .scale(0.4 * thickness)
+                        .centered_on(pt)
+                        .rotate(angle),
                 );
             }));
-
-            batch.unzoomed.push(
-                *colors::FILTER_OUTER,
-                Circle::new(pt, 0.7 * length).to_polygon(),
-            );
-            batch
-                .unzoomed
-                .push(*colors::FILTER_INNER, line.make_polygons(line_thickness));
-
-            draw_zoomed_planters(
-                ctx,
-                &mut batch.zoomed,
-                line.percent_slice(0.3, 0.7).unwrap_or(line),
-            );
         }
-        Toggle3Zoomed::new(batch.build(ctx), low_zoom.build())
+
+        let min_zoom_for_detail = 5.0;
+        let step_size = 0.1;
+        // TODO Ideally we get rid of Toggle3Zoomed and make DrawCustomUnzoomedShapes handle this
+        // medium-zoom case.
+        Toggle3Zoomed::new(
+            batch.build(ctx),
+            low_zoom.build(PerZoom::new(min_zoom_for_detail, step_size)),
+        )
     }
 
     pub fn get_change_key(&self) -> ChangeKey {
@@ -204,8 +219,8 @@ impl DiagonalFilter {
 
         if roads.len() == 4 {
             // 4-way intersections are the only place where true diagonal filters can be placed
-            let alt1 = DiagonalFilter::new(map, i, roads[0], roads[1]);
-            let alt2 = DiagonalFilter::new(map, i, roads[1], roads[2]);
+            let alt1 = DiagonalFilter::new(app, i, roads[0], roads[1]);
+            let alt2 = DiagonalFilter::new(app, i, roads[1], roads[2]);
 
             match app.session.modal_filters.intersections.get(&i) {
                 Some(prev) => {
@@ -227,11 +242,11 @@ impl DiagonalFilter {
 
             // But skip roads that're aren't filterable
             roads.retain(|r| {
-                let road = app.map.get_r(*r);
+                let road = map.get_r(*r);
                 // Include non-driveable roads in this check, since we haven't filtered those out yet
                 road.oneway_for_driving().is_none()
-                    && !road.is_deadend_for_driving(&app.map)
-                    && PathConstraints::Car.can_use_road(road, &app.map)
+                    && !road.is_deadend_for_driving(map)
+                    && PathConstraints::Car.can_use_road(road, map)
             });
 
             let mut add_filter_to = None;
@@ -253,13 +268,19 @@ impl DiagonalFilter {
                 } else {
                     road.length()
                 };
-                app.session.modal_filters.roads.insert(r, dist);
+                app.session
+                    .modal_filters
+                    .roads
+                    .insert(r, (dist, app.session.filter_type));
             }
         }
     }
 
-    fn new(map: &Map, i: IntersectionID, r1: RoadID, r2: RoadID) -> DiagonalFilter {
-        let mut roads = map.get_i(i).get_roads_sorted_by_incoming_angle(map);
+    fn new(app: &App, i: IntersectionID, r1: RoadID, r2: RoadID) -> DiagonalFilter {
+        let mut roads = app
+            .map
+            .get_i(i)
+            .get_roads_sorted_by_incoming_angle(&app.map);
         // Make self.r1 be the first entry
         while roads[0] != r1 {
             roads.rotate_right(1);
@@ -282,6 +303,7 @@ impl DiagonalFilter {
             r1,
             r2,
             i,
+            filter_type: app.session.filter_type,
             group1,
             group2: roads.into_iter().collect(),
         }
@@ -319,46 +341,28 @@ impl DiagonalFilter {
     }
 }
 
-// Draw two planters on each end of a line. They'll be offset so that they don't exceed the
-// endpoints.
-fn draw_zoomed_planters(ctx: &EventCtx, batch: &mut GeomBatch, line: Line) {
-    let planter = GeomBatch::load_svg(ctx, "system/assets/map/planter.svg");
-    let planter_width = planter.get_dims().width;
-    let scaled_planter = planter.scale(0.3 * line.length().inner_meters() / planter_width);
-
-    batch.append(
-        scaled_planter
-            .clone()
-            .centered_on(line.must_dist_along(0.15 * line.length()))
-            .rotate(line.angle()),
-    );
-    batch.append(
-        scaled_planter
-            .centered_on(line.must_dist_along(0.85 * line.length()))
-            .rotate(line.angle()),
-    );
-}
-
-/// Depending on the canvas zoom level, draws one of 3 things.
+/// Depending on the canvas zoom level, draws one of 2 things.
+// TODO Rethink filter styles and do something better than this.
 pub struct Toggle3Zoomed {
-    draw: ToggleZoomed,
-    unzoomed: DrawUnzoomedShapes,
+    draw_zoomed: Drawable,
+    unzoomed: DrawCustomUnzoomedShapes,
 }
 
 impl Toggle3Zoomed {
-    fn new(draw: ToggleZoomed, unzoomed: DrawUnzoomedShapes) -> Self {
-        Self { draw, unzoomed }
+    fn new(draw_zoomed: Drawable, unzoomed: DrawCustomUnzoomedShapes) -> Self {
+        Self {
+            draw_zoomed,
+            unzoomed,
+        }
     }
 
     pub fn empty(ctx: &EventCtx) -> Self {
-        Self::new(ToggleZoomed::empty(ctx), DrawUnzoomedShapes::empty())
+        Self::new(Drawable::empty(ctx), DrawCustomUnzoomedShapes::empty())
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
-        if g.canvas.cam_zoom < 1.0 {
-            self.unzoomed.draw(g);
-        } else {
-            self.draw.draw(g);
+        if !self.unzoomed.maybe_draw(g) {
+            self.draw_zoomed.draw(g);
         }
     }
 }

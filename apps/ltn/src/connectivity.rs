@@ -1,6 +1,6 @@
 use geom::{ArrowCap, Distance, PolyLine, Polygon};
 use street_network::Direction;
-use widgetry::mapspace::{DummyID, ToggleZoomed, World};
+use widgetry::mapspace::{DummyID, World};
 use widgetry::tools::PopupMsg;
 use widgetry::{
     Color, ControlState, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome,
@@ -16,7 +16,7 @@ pub struct Viewer {
     top_panel: Panel,
     left_panel: Panel,
     neighbourhood: Neighbourhood,
-    draw_top_layer: ToggleZoomed,
+    draw_top_layer: Drawable,
     draw_under_roads_layer: Drawable,
     highlight_cell: World<DummyID>,
     edit: EditNeighbourhood,
@@ -32,7 +32,7 @@ impl Viewer {
             top_panel: crate::components::TopPanel::panel(ctx, app),
             left_panel: Panel::empty(ctx),
             neighbourhood,
-            draw_top_layer: ToggleZoomed::empty(ctx),
+            draw_top_layer: Drawable::empty(ctx),
             draw_under_roads_layer: Drawable::empty(ctx),
             highlight_cell: World::unbounded(),
             edit: EditNeighbourhood::temporary(),
@@ -239,13 +239,8 @@ impl State<App> for Viewer {
 
         self.top_panel.draw(g);
         self.left_panel.draw(g);
+        self.neighbourhood.labels.draw(g, app);
         app.session.draw_all_filters.draw(g);
-        // TODO Since we cover such a small area, treating multiple segments of one road as the
-        // same might be nice. And we should seed the quadtree with the locations of filters and
-        // arrows, possibly.
-        if g.canvas.is_unzoomed() {
-            self.neighbourhood.labels.draw(g, app);
-        }
 
         if self.left_panel.currently_hovering() == Some(&"warning".to_string()) {
             g.redraw(&self.show_error);
@@ -267,7 +262,7 @@ fn setup_editing(
     neighbourhood: &Neighbourhood,
 ) -> (
     EditNeighbourhood,
-    ToggleZoomed,
+    Drawable,
     Drawable,
     RenderCells,
     World<DummyID>,
@@ -276,7 +271,7 @@ fn setup_editing(
     let map = &app.map;
 
     // Draw some stuff under roads and other stuff on top
-    let mut draw_top_layer = ToggleZoomed::builder();
+    let mut draw_top_layer = GeomBatch::new();
     let mut draw_under_roads_layer = GeomBatch::new();
     // Use a separate world to highlight cells when hovering on them. This is separate from
     // edit.world so that we draw it even while hovering on roads/intersections in a cell
@@ -286,9 +281,7 @@ fn setup_editing(
     if app.session.draw_cells_as_areas {
         draw_under_roads_layer = render_cells.draw_colored_areas();
     } else {
-        draw_top_layer
-            .unzoomed
-            .append(render_cells.draw_island_outlines());
+        draw_top_layer.append(render_cells.draw_island_outlines());
 
         // Highlight cell areas and their border areas when hovered
         for (idx, polygons) in render_cells.polygons_per_cell.iter().enumerate() {
@@ -325,7 +318,7 @@ fn setup_editing(
             Color::BLACK
         };
         for arrow in cell.border_arrows(app) {
-            draw_top_layer = draw_top_layer.push(color, arrow);
+            draw_top_layer.push(color, arrow);
         }
     }
 
@@ -356,7 +349,7 @@ fn setup_editing(
                     .make_arrow(thickness * 2.0, ArrowCap::Triangle)
                     .to_outline(thickness / 2.0)
                 {
-                    draw_top_layer.unzoomed.push(colors::OUTLINE, poly);
+                    draw_top_layer.push(colors::ROAD_LABEL, poly);
                 }
             }
         }

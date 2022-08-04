@@ -10,9 +10,6 @@ lazy_static::lazy_static! {
         Color::ORANGE.alpha(0.5),
     ];
 
-    pub static ref FILTER_OUTER: Color = Color::RED;
-    pub static ref FILTER_INNER: Color = Color::WHITE;
-
     pub static ref PLAN_ROUTE_BEFORE: Color = Color::RED;
     pub static ref PLAN_ROUTE_AFTER: Color = Color::CYAN;
     pub static ref PLAN_ROUTE_BIKE: Color = Color::GREEN;
@@ -21,10 +18,10 @@ lazy_static::lazy_static! {
 
 pub const DISCONNECTED_CELL: Color = Color::RED.alpha(0.5);
 
-pub const OUTLINE: Color = Color::BLACK;
-
-pub const HIGHLIGHT_BOUNDARY_UNZOOMED: Color = Color::RED.alpha(0.6);
-pub const HIGHLIGHT_BOUNDARY_ZOOMED: Color = Color::RED.alpha(0.5);
+pub const HIGHLIGHT_BOUNDARY: Color = Color::RED.alpha(0.6);
 
 pub const BLOCK_IN_BOUNDARY: Color = Color::BLUE.alpha(0.5);
 pub const BLOCK_IN_FRONTIER: Color = Color::CYAN.alpha(0.2);
+
+pub const ROAD_LABEL: Color = Color::BLACK;
+pub const HOVER: Color = Color::CYAN.alpha(0.5);
