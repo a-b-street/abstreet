@@ -5,12 +5,12 @@
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
-use geom::Duration;
+use geom::{Duration, Polygon, Ring};
 
 use crate::pathfind::uber_turns::UberTurnV2;
 use crate::{
-    DirectedRoadID, IntersectionID, LaneID, Map, MovementID, Path, PathConstraints, PathRequest,
-    PathStep, RoadID, TurnID, UberTurn,
+    DirectedRoadID, Direction, IntersectionID, LaneID, Map, MovementID, Path, PathConstraints,
+    PathRequest, PathStep, RoadID, TurnID, UberTurn,
 };
 
 /// One step along a path.
@@ -264,6 +264,55 @@ impl PathV2 {
             PathStepV2::Along(dr) => dr.road == r,
             _ => false,
         })
+    }
+
+    /// Draws the thickened path, matching entire roads. Ignores the path's exact starting and
+    /// ending distance. Doesn't handle contraflow yet.
+    pub fn trace_v2(&self, map: &Map) -> Result<Polygon> {
+        let mut left_pts = Vec::new();
+        let mut right_pts = Vec::new();
+        for step in &self.steps {
+            match step {
+                PathStepV2::Along(dr) => {
+                    let road = map.get_r(dr.road);
+                    let width = road.get_half_width();
+                    if dr.dir == Direction::Fwd {
+                        left_pts.extend(road.center_pts.shift_left(width)?.into_points());
+                        right_pts.extend(road.center_pts.shift_right(width)?.into_points());
+                    } else {
+                        left_pts
+                            .extend(road.center_pts.shift_right(width)?.reversed().into_points());
+                        right_pts
+                            .extend(road.center_pts.shift_left(width)?.reversed().into_points());
+                    }
+                }
+                PathStepV2::Contraflow(_) => todo!(),
+                // Just make a straight line across the intersection. It'd be fancier to try and
+                // trace along.
+                PathStepV2::Movement(_) | PathStepV2::ContraflowMovement(_) => {}
+            }
+        }
+        right_pts.reverse();
+        left_pts.extend(right_pts);
+        left_pts.push(left_pts[0]);
+        Ok(Ring::deduping_new(left_pts)?.into_polygon())
+    }
+
+    /// Returns one unioned polygon covering the entire path. Ignores the path's exact starting and
+    /// ending distance. The result can't be used for outlines.
+    pub fn trace_all_polygons(&self, map: &Map) -> Polygon {
+        let mut polygons = Vec::new();
+        for step in &self.steps {
+            match step {
+                PathStepV2::Along(dr) | PathStepV2::Contraflow(dr) => {
+                    polygons.push(map.get_r(dr.road).get_thick_polygon());
+                }
+                PathStepV2::Movement(m) | PathStepV2::ContraflowMovement(m) => {
+                    polygons.push(map.get_i(m.parent).polygon.clone());
+                }
+            }
+        }
+        Polygon::union_all(polygons)
     }
 }
 

@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use abstutil::{Counter, Timer};
 use map_gui::tools::ColorNetwork;
 use map_model::{
-    DirectedRoadID, IntersectionID, LaneID, Map, Path, PathConstraints, PathRequest, PathStep,
+    DirectedRoadID, IntersectionID, LaneID, Map, PathConstraints, PathRequest, PathStepV2, PathV2,
     Pathfinder, Position, RoadID,
 };
 use widgetry::mapspace::ToggleZoomedBuilder;
@@ -11,7 +11,7 @@ use widgetry::mapspace::ToggleZoomedBuilder;
 use crate::{App, Cell, Neighbourhood};
 
 pub struct Shortcuts {
-    pub paths: Vec<Path>,
+    pub paths: Vec<PathV2>,
     pub count_per_road: Counter<RoadID>,
     pub count_per_intersection: Counter<IntersectionID>,
 }
@@ -26,21 +26,21 @@ impl Shortcuts {
         }
     }
 
-    pub fn from_paths(neighbourhood: &Neighbourhood, paths: Vec<Path>) -> Self {
+    pub fn from_paths(neighbourhood: &Neighbourhood, paths: Vec<PathV2>) -> Self {
         // How many shortcuts pass through each street?
         let mut count_per_road = Counter::new();
         let mut count_per_intersection = Counter::new();
         for path in &paths {
             for step in path.get_steps() {
                 match step {
-                    PathStep::Lane(l) => {
-                        if neighbourhood.orig_perimeter.interior.contains(&l.road) {
-                            count_per_road.inc(l.road);
+                    PathStepV2::Along(dr) => {
+                        if neighbourhood.orig_perimeter.interior.contains(&dr.road) {
+                            count_per_road.inc(dr.road);
                         }
                     }
-                    PathStep::Turn(t) => {
-                        if neighbourhood.interior_intersections.contains(&t.parent) {
-                            count_per_intersection.inc(t.parent);
+                    PathStepV2::Movement(m) => {
+                        if neighbourhood.interior_intersections.contains(&m.parent) {
+                            count_per_intersection.inc(m.parent);
                         }
                     }
                     // Car paths don't make contraflow movements
@@ -127,15 +127,11 @@ pub fn find_shortcuts(app: &App, neighbourhood: &Neighbourhood, timer: &mut Time
     // TODO Perf: when would it be worth creating a CH? Especially if we could subset just this
     // part of the graph, it'd probably be helpful.
     let pathfinder = Pathfinder::new_dijkstra(map, params, vec![PathConstraints::Car], timer);
-    let paths: Vec<Path> = timer
+    let paths: Vec<PathV2> = timer
         .parallelize(
             "calculate paths between entrances and exits",
             requests,
-            |req| {
-                pathfinder
-                    .pathfind_v2(req, map)
-                    .and_then(|path| path.into_v1(map).ok())
-            },
+            |req| pathfinder.pathfind_v2(req, map),
         )
         .into_iter()
         .flatten()
@@ -151,8 +147,8 @@ pub fn find_shortcuts(app: &App, neighbourhood: &Neighbourhood, timer: &mut Time
 }
 
 struct EntryExit {
-    // TODO Really this is a DirectedRoadID, but since pathfinding later needs to know lanes, just
-    // use this
+    // Really this is a DirectedRoadID, but since the pathfinding request later needs to know
+    // lanes, just use this
     lane: LaneID,
     major_road_name: String,
 }
