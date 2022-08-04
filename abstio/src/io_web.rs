@@ -137,9 +137,12 @@ pub fn write_raw(path: String, bytes: &[u8]) -> Result<()> {
     let storage = window.local_storage().unwrap().unwrap();
     // Local storage only supports strings, so base64 encoding needed
     let encoded = base64::encode(bytes);
-    storage
-        .set_item(&path, &encoded)
-        .map_err(|err| anyhow!(err.as_string().unwrap_or("set_item failed".to_string())))?;
+    storage.set_item(&path, &encoded).map_err(|err| {
+        anyhow!(err.as_string().unwrap_or_else(|| format!(
+            "set_item for {path} failed for encoded length {}",
+            encoded.len()
+        )))
+    })?;
     Ok(())
 }
 
