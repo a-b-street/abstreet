@@ -45,6 +45,10 @@ impl ShowResults {
                 );
             }
             ctx.loading_screen("synthesize travel demand model", |ctx, timer| {
+                // TODO Argh, this internally uses the map's pathfinder to estimate mode split.
+                // Just ignore any edits or pre-existing files.
+                app.map.keep_pathfinder_despite_edits();
+
                 let scenario = ScenarioGenerator::proletariat_robot(
                     &app.map,
                     &mut XorShiftRng::seed_from_u64(42),
