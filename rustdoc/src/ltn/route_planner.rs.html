@@ -374,16 +374,20 @@
 <span id="369">369</span>
 <span id="370">370</span>
 <span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom::Duration</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{
     <span class="ident">DrawRoadLabels</span>, <span class="ident">InputWaypoints</span>, <span class="ident">TripManagement</span>, <span class="ident">TripManagementState</span>, <span class="ident">WaypointID</span>,
 };
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">PathV2</span>, <span class="ident">PathfinderCache</span>};
 <span class="kw">use</span> <span class="ident">synthpop</span>::{<span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>};
-<span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ToggleZoomed</span>, <span class="ident">World</span>};
+<span class="kw">use</span> <span class="ident">widgetry::mapspace::World</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">ButtonBuilder</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
-    <span class="ident">RoundedF64</span>, <span class="ident">Spinner</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>,
+    <span class="ident">ButtonBuilder</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>,
+    <span class="ident">Panel</span>, <span class="ident">RoundedF64</span>, <span class="ident">Spinner</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">colors</span>, <span class="ident">App</span>, <span class="ident">BrowseNeighbourhoods</span>, <span class="ident">Transition</span>};
@@ -394,7 +398,7 @@
     <span class="ident">waypoints</span>: <span class="ident">InputWaypoints</span>,
     <span class="ident">files</span>: <span class="ident">TripManagement</span><span class="op">&lt;</span><span class="ident">App</span>, <span class="ident">RoutePlanner</span><span class="op">&gt;</span>,
     <span class="ident">world</span>: <span class="ident">World</span><span class="op">&lt;</span><span class="ident">WaypointID</span><span class="op">&gt;</span>,
-    <span class="ident">draw_routes</span>: <span class="ident">ToggleZoomed</span>,
+    <span class="ident">draw_routes</span>: <span class="ident">Drawable</span>,
     <span class="ident">labels</span>: <span class="ident">DrawRoadLabels</span>,
     <span class="comment">// TODO We could save the no-filter variations map-wide</span>
     <span class="ident">pathfinder_cache</span>: <span class="ident">PathfinderCache</span>,
@@ -424,7 +428,7 @@
             <span class="ident">waypoints</span>: <span class="ident">InputWaypoints::new_max_2</span>(<span class="ident">app</span>),
             <span class="ident">files</span>: <span class="ident">TripManagement::new</span>(<span class="ident">app</span>),
             <span class="ident">world</span>: <span class="ident">World::unbounded</span>(),
-            <span class="ident">draw_routes</span>: <span class="ident">ToggleZoomed::empty</span>(<span class="ident">ctx</span>),
+            <span class="ident">draw_routes</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
             <span class="ident">labels</span>: <span class="ident">DrawRoadLabels::only_major_roads</span>(),
             <span class="ident">pathfinder_cache</span>: <span class="ident">PathfinderCache::new</span>(),
         };
@@ -515,10 +519,9 @@
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">paths</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">PathV2</span>, <span class="ident">Color</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
-        <span class="comment">// The baseline is the one ignoring ALL filters (pre-existing and new)</span>
-        <span class="kw">let</span> <span class="ident">baseline_time</span> <span class="op">=</span> {
+        <span class="kw">let</span> <span class="ident">driving_before_changes_time</span> <span class="op">=</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_time</span> <span class="op">=</span> <span class="ident">Duration::ZERO</span>;
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">routing_params</span>().<span class="ident">clone</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">routing_params_before_changes</span>.<span class="ident">clone</span>();
             <span class="ident">params</span>.<span class="ident">main_road_penalty</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">main_road_penalty</span>;
 
             <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>().<span class="ident">windows</span>(<span class="number">2</span>) {
@@ -537,7 +540,7 @@
         };
 
         <span class="comment">// The route respecting the filters</span>
-        <span class="kw">let</span> <span class="ident">drive_around_filters_time</span> <span class="op">=</span> {
+        <span class="kw">let</span> <span class="ident">driving_after_changes_time</span> <span class="op">=</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">routing_params</span>().<span class="ident">clone</span>();
             <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">update_routing_params</span>(<span class="kw-2">&amp;mut</span> <span class="ident">params</span>);
             <span class="ident">params</span>.<span class="ident">main_road_penalty</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">main_road_penalty</span>;
@@ -556,7 +559,7 @@
                 }
             }
             <span class="comment">// To simplify colors, don&#39;t draw this path when it&#39;s the same as the baseline</span>
-            <span class="kw">if</span> <span class="ident">total_time</span> <span class="op">!</span><span class="op">=</span> <span class="ident">baseline_time</span> {
+            <span class="kw">if</span> <span class="ident">total_time</span> <span class="op">!</span><span class="op">=</span> <span class="ident">driving_before_changes_time</span> {
                 <span class="ident">paths</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">paths_after</span>);
             }
 
@@ -605,20 +608,22 @@
             <span class="ident">total_time</span>
         };
 
-        <span class="self">self</span>.<span class="ident">draw_routes</span> <span class="op">=</span> <span class="ident">map_gui::tools::draw_overlapping_paths</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">paths</span>);
+        <span class="self">self</span>.<span class="ident">draw_routes</span> <span class="op">=</span> <span class="ident">map_gui::tools::draw_overlapping_paths</span>(<span class="ident">app</span>, <span class="ident">paths</span>)
+            .<span class="ident">unzoomed</span>
+            .<span class="ident">upload</span>(<span class="ident">ctx</span>);
 
         <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
             <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                 <span class="ident">card</span>(
                     <span class="ident">ctx</span>,
-                    <span class="string">&quot;Driving without any filters&quot;</span>,
-                    <span class="string">&quot;This route drives through pre-existing and new filters&quot;</span>,
-                    <span class="ident">baseline_time</span>,
+                    <span class="string">&quot;Driving before any changes&quot;</span>,
+                    <span class="string">&quot;&quot;</span>,
+                    <span class="ident">driving_before_changes_time</span>,
                     <span class="kw-2">*</span><span class="ident">colors::PLAN_ROUTE_BEFORE</span>,
                 ),
-                <span class="kw">if</span> <span class="ident">baseline_time</span> <span class="op">==</span> <span class="ident">drive_around_filters_time</span> {
+                <span class="kw">if</span> <span class="ident">driving_before_changes_time</span> <span class="op">==</span> <span class="ident">driving_after_changes_time</span> {
                     <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                        <span class="ident">Line</span>(<span class="string">&quot;Driving around filters&quot;</span>)
+                        <span class="ident">Line</span>(<span class="string">&quot;Driving after changes&quot;</span>)
                             .<span class="ident">fg</span>(<span class="ident">colors::PLAN_ROUTE_BEFORE</span>.<span class="ident">invert</span>())
                             .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                         <span class="ident">Line</span>(<span class="string">&quot;No difference&quot;</span>)
@@ -630,9 +635,9 @@
                 } <span class="kw">else</span> {
                     <span class="ident">card</span>(
                         <span class="ident">ctx</span>,
-                        <span class="string">&quot;Driving around filters&quot;</span>,
-                        <span class="string">&quot;This route drives around all filters&quot;</span>,
-                        <span class="ident">drive_around_filters_time</span>,
+                        <span class="string">&quot;Driving after changes&quot;</span>,
+                        <span class="string">&quot;&quot;</span>,
+                        <span class="ident">driving_after_changes_time</span>,
                         <span class="kw-2">*</span><span class="ident">colors::PLAN_ROUTE_AFTER</span>,
                     )
                 },
@@ -739,11 +744,14 @@
         .<span class="ident">bg</span>(<span class="ident">color</span>)
         .<span class="ident">padding</span>(<span class="number">16</span>)
         .<span class="ident">into_geom</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>);
-    <span class="ident">ButtonBuilder::new</span>()
+    <span class="kw">let</span> <span class="ident">btn</span> <span class="op">=</span> <span class="ident">ButtonBuilder::new</span>()
         .<span class="ident">custom_batch</span>(<span class="ident">batch</span>, <span class="ident">ControlState::Default</span>)
-        .<span class="ident">disabled</span>(<span class="bool-val">true</span>)
-        .<span class="ident">disabled_tooltip</span>(<span class="ident">tooltip</span>)
-        .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="ident">label</span>)
+        .<span class="ident">disabled</span>(<span class="bool-val">true</span>);
+    <span class="kw">if</span> <span class="ident">tooltip</span>.<span class="ident">is_empty</span>() {
+        <span class="ident">btn</span>.<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="ident">label</span>)
+    } <span class="kw">else</span> {
+        <span class="ident">btn</span>.<span class="ident">disabled_tooltip</span>(<span class="ident">tooltip</span>).<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="ident">label</span>)
+    }
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ltn" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.1 (e092d0b6b 2022-07-16)" ></div>

@@ -433,7 +433,7 @@
 <span class="kw">impl</span> <span class="ident">Pathfinder</span> {
     <span class="doccomment">/// Quickly create an invalid pathfinder, just to make borrow checking / initialization order</span>
     <span class="doccomment">/// work.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">empty</span>() -&gt; <span class="ident">Pathfinder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>() -&gt; <span class="ident">Pathfinder</span> {
         <span class="ident">Pathfinder</span> {
             <span class="ident">car_graph</span>: <span class="ident">VehiclePathfinder::empty</span>(),
             <span class="ident">bike_graph</span>: <span class="ident">VehiclePathfinder::empty</span>(),

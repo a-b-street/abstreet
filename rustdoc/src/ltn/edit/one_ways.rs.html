@@ -147,7 +147,7 @@
                 }
 
                 <span class="comment">// See the argument in filters/existing.rs about not recalculating the pathfinder.</span>
-                <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">keep_pathfinder_despite_edits</span>();
+                <span class="comment">// We always create it from-scratch when needed.</span>
             });
 
             <span class="ident">EditOutcome::Transition</span>(<span class="ident">Transition::Recreate</span>)

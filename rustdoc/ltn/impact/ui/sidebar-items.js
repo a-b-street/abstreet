@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["help",""]],"struct":[["ChangedRoutes",""],["ShowResults",""]]});
+initSidebarItems({"fn":[["export_csv",""],["help",""]],"struct":[["ChangedRoutes",""],["ExportRow",""],["ShowResults",""]]});

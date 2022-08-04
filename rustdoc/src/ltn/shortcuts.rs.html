@@ -218,14 +218,12 @@
 <span id="213">213</span>
 <span id="214">214</span>
 <span id="215">215</span>
-<span id="216">216</span>
-<span id="217">217</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Counter</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">map_gui::tools::ColorNetwork</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{
-    <span class="ident">DirectedRoadID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">PathStep</span>,
+    <span class="ident">DirectedRoadID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">PathStepV2</span>, <span class="ident">PathV2</span>,
     <span class="ident">Pathfinder</span>, <span class="ident">Position</span>, <span class="ident">RoadID</span>,
 };
 <span class="kw">use</span> <span class="ident">widgetry::mapspace::ToggleZoomedBuilder</span>;
@@ -233,7 +231,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">App</span>, <span class="ident">Cell</span>, <span class="ident">Neighbourhood</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Shortcuts</span> {
-    <span class="kw">pub</span> <span class="ident">paths</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">paths</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PathV2</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">count_per_road</span>: <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">count_per_intersection</span>: <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
 }
@@ -248,21 +246,21 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_paths</span>(<span class="ident">neighbourhood</span>: <span class="kw-2">&amp;</span><span class="ident">Neighbourhood</span>, <span class="ident">paths</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_paths</span>(<span class="ident">neighbourhood</span>: <span class="kw-2">&amp;</span><span class="ident">Neighbourhood</span>, <span class="ident">paths</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PathV2</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="comment">// How many shortcuts pass through each street?</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">count_per_road</span> <span class="op">=</span> <span class="ident">Counter::new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">count_per_intersection</span> <span class="op">=</span> <span class="ident">Counter::new</span>();
         <span class="kw">for</span> <span class="ident">path</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">paths</span> {
             <span class="kw">for</span> <span class="ident">step</span> <span class="kw">in</span> <span class="ident">path</span>.<span class="ident">get_steps</span>() {
                 <span class="kw">match</span> <span class="ident">step</span> {
-                    <span class="ident">PathStep::Lane</span>(<span class="ident">l</span>) =&gt; {
-                        <span class="kw">if</span> <span class="ident">neighbourhood</span>.<span class="ident">orig_perimeter</span>.<span class="ident">interior</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">l</span>.<span class="ident">road</span>) {
-                            <span class="ident">count_per_road</span>.<span class="ident">inc</span>(<span class="ident">l</span>.<span class="ident">road</span>);
+                    <span class="ident">PathStepV2::Along</span>(<span class="ident">dr</span>) =&gt; {
+                        <span class="kw">if</span> <span class="ident">neighbourhood</span>.<span class="ident">orig_perimeter</span>.<span class="ident">interior</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">dr</span>.<span class="ident">road</span>) {
+                            <span class="ident">count_per_road</span>.<span class="ident">inc</span>(<span class="ident">dr</span>.<span class="ident">road</span>);
                         }
                     }
-                    <span class="ident">PathStep::Turn</span>(<span class="ident">t</span>) =&gt; {
-                        <span class="kw">if</span> <span class="ident">neighbourhood</span>.<span class="ident">interior_intersections</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">t</span>.<span class="ident">parent</span>) {
-                            <span class="ident">count_per_intersection</span>.<span class="ident">inc</span>(<span class="ident">t</span>.<span class="ident">parent</span>);
+                    <span class="ident">PathStepV2::Movement</span>(<span class="ident">m</span>) =&gt; {
+                        <span class="kw">if</span> <span class="ident">neighbourhood</span>.<span class="ident">interior_intersections</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">m</span>.<span class="ident">parent</span>) {
+                            <span class="ident">count_per_intersection</span>.<span class="ident">inc</span>(<span class="ident">m</span>.<span class="ident">parent</span>);
                         }
                     }
                     <span class="comment">// Car paths don&#39;t make contraflow movements</span>
@@ -346,16 +344,14 @@
     <span class="comment">// regards for the larger path somebody actually wants to take.</span>
     <span class="ident">params</span>.<span class="ident">avoid_roads</span>.<span class="ident">extend</span>(<span class="ident">neighbourhood</span>.<span class="ident">perimeter</span>.<span class="ident">clone</span>());
 
+    <span class="comment">// TODO Perf: when would it be worth creating a CH? Especially if we could subset just this</span>
+    <span class="comment">// part of the graph, it&#39;d probably be helpful.</span>
     <span class="kw">let</span> <span class="ident">pathfinder</span> <span class="op">=</span> <span class="ident">Pathfinder::new_dijkstra</span>(<span class="ident">map</span>, <span class="ident">params</span>, <span class="macro">vec!</span>[<span class="ident">PathConstraints::Car</span>], <span class="ident">timer</span>);
-    <span class="kw">let</span> <span class="ident">paths</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">timer</span>
+    <span class="kw">let</span> <span class="ident">paths</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PathV2</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">timer</span>
         .<span class="ident">parallelize</span>(
             <span class="string">&quot;calculate paths between entrances and exits&quot;</span>,
             <span class="ident">requests</span>,
-            <span class="op">|</span><span class="ident">req</span><span class="op">|</span> {
-                <span class="ident">pathfinder</span>
-                    .<span class="ident">pathfind_v2</span>(<span class="ident">req</span>, <span class="ident">map</span>)
-                    .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> <span class="ident">path</span>.<span class="ident">into_v1</span>(<span class="ident">map</span>).<span class="ident">ok</span>())
-            },
+            <span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">pathfinder</span>.<span class="ident">pathfind_v2</span>(<span class="ident">req</span>, <span class="ident">map</span>),
         )
         .<span class="ident">into_iter</span>()
         .<span class="ident">flatten</span>()
@@ -371,8 +367,8 @@
 }
 
 <span class="kw">struct</span> <span class="ident">EntryExit</span> {
-    <span class="comment">// TODO Really this is a DirectedRoadID, but since pathfinding later needs to know lanes, just</span>
-    <span class="comment">// use this</span>
+    <span class="comment">// Really this is a DirectedRoadID, but since the pathfinding request later needs to know</span>
+    <span class="comment">// lanes, just use this</span>
     <span class="ident">lane</span>: <span class="ident">LaneID</span>,
     <span class="ident">major_road_name</span>: <span class="ident">String</span>,
 }

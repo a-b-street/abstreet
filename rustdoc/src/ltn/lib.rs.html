@@ -280,12 +280,20 @@
 <span id="275">275</span>
 <span id="276">276</span>
 <span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::type_complexity</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">structopt::StructOpt</span>;
 
 <span class="kw">use</span> <span class="ident">abstio::MapName</span>;
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
+<span class="kw">use</span> <span class="ident">map_model::RoutingParams</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Settings</span>};
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">browse::BrowseNeighbourhoods</span>;
@@ -361,6 +369,7 @@
             <span class="ident">proposal_name</span>: <span class="prelude-val">None</span>,
             <span class="ident">partitioning</span>: <span class="ident">Partitioning::empty</span>(),
             <span class="ident">modal_filters</span>: <span class="ident">ModalFilters::default</span>(),
+            <span class="ident">routing_params_before_changes</span>: <span class="ident">RoutingParams::default</span>(),
 
             <span class="ident">alt_proposals</span>: <span class="ident">save::AltProposals::new</span>(),
             <span class="ident">draw_all_filters</span>: <span class="ident">Toggle3Zoomed::empty</span>(<span class="ident">ctx</span>),
@@ -482,6 +491,10 @@
     <span class="kw">pub</span> <span class="ident">proposal_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">partitioning</span>: <span class="ident">Partitioning</span>,
     <span class="kw">pub</span> <span class="ident">modal_filters</span>: <span class="ident">ModalFilters</span>,
+    <span class="comment">// These capture modal filters that exist in the map already. Whenever we pathfind in this app</span>
+    <span class="comment">// in the &quot;before changes&quot; case, we have to use these. Do NOT use the map&#39;s built-in</span>
+    <span class="comment">// pathfinder. (https://github.com/a-b-street/abstreet/issues/852 would make this more clear)</span>
+    <span class="kw">pub</span> <span class="ident">routing_params_before_changes</span>: <span class="ident">RoutingParams</span>,
 
     <span class="kw">pub</span> <span class="ident">alt_proposals</span>: <span class="ident">save::AltProposals</span>,
     <span class="kw">pub</span> <span class="ident">draw_all_filters</span>: <span class="ident">Toggle3Zoomed</span>,
@@ -552,6 +565,7 @@
 
     <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">proposal_name</span> <span class="op">=</span> <span class="prelude-val">None</span>;
     <span class="comment">// Reset this first. transform_existing_filters will fill some out.</span>
+    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">routing_params_before_changes</span> <span class="op">=</span> <span class="ident">RoutingParams::default</span>();
     <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span> <span class="op">=</span> <span class="ident">ModalFilters::default</span>();
     <span class="ident"><span class="kw">crate</span>::filters::transform_existing_filters</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">timer</span>);
     <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span> <span class="op">=</span> <span class="ident">Partitioning::seed_using_heuristics</span>(<span class="ident">app</span>, <span class="ident">timer</span>);

@@ -92,21 +92,19 @@
 <span id="87">87</span>
 <span id="88">88</span>
 <span id="89">89</span>
-<span id="90">90</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">CommonEndpoint</span>, <span class="ident">PathStepV2</span>, <span class="ident">PathV2</span>, <span class="ident">RoadID</span>};
-<span class="kw">use</span> <span class="ident">widgetry::mapspace::ToggleZoomed</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">EventCtx</span>};
+<span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ToggleZoomed</span>, <span class="ident">ToggleZoomedBuilder</span>};
+<span class="kw">use</span> <span class="ident">widgetry::Color</span>;
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::AppLike</span>;
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw_overlapping_paths</span>(
-    <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
     <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>,
     <span class="ident">paths</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">PathV2</span>, <span class="ident">Color</span>)<span class="op">&gt;</span>,
-) -&gt; <span class="ident">ToggleZoomed</span> {
+) -&gt; <span class="ident">ToggleZoomedBuilder</span> {
     <span class="comment">// Per road, just figure out what colors we need</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">colors_per_road</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">RoadID</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Color</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">colors_per_movement</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">RoadID</span>, <span class="ident">RoadID</span>, <span class="ident">Color</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
@@ -181,7 +179,7 @@
             }
         }
     }
-    <span class="ident">draw</span>.<span class="ident">build</span>(<span class="ident">ctx</span>)
+    <span class="ident">draw</span>
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_gui" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.1 (e092d0b6b 2022-07-16)" ></div>
