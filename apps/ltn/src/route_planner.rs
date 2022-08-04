@@ -4,10 +4,10 @@ use map_gui::tools::{
 };
 use map_model::{PathV2, PathfinderCache};
 use synthpop::{TripEndpoint, TripMode};
-use widgetry::mapspace::{ToggleZoomed, World};
+use widgetry::mapspace::World;
 use widgetry::{
-    ButtonBuilder, Color, ControlState, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel,
-    RoundedF64, Spinner, State, Text, Widget,
+    ButtonBuilder, Color, ControlState, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome,
+    Panel, RoundedF64, Spinner, State, Text, Widget,
 };
 
 use crate::{colors, App, BrowseNeighbourhoods, Transition};
@@ -18,7 +18,7 @@ pub struct RoutePlanner {
     waypoints: InputWaypoints,
     files: TripManagement<App, RoutePlanner>,
     world: World<WaypointID>,
-    draw_routes: ToggleZoomed,
+    draw_routes: Drawable,
     labels: DrawRoadLabels,
     // TODO We could save the no-filter variations map-wide
     pathfinder_cache: PathfinderCache,
@@ -48,7 +48,7 @@ impl RoutePlanner {
             waypoints: InputWaypoints::new_max_2(app),
             files: TripManagement::new(app),
             world: World::unbounded(),
-            draw_routes: ToggleZoomed::empty(ctx),
+            draw_routes: Drawable::empty(ctx),
             labels: DrawRoadLabels::only_major_roads(),
             pathfinder_cache: PathfinderCache::new(),
         };
@@ -229,7 +229,9 @@ impl RoutePlanner {
             total_time
         };
 
-        self.draw_routes = map_gui::tools::draw_overlapping_paths(ctx, app, paths);
+        self.draw_routes = map_gui::tools::draw_overlapping_paths(app, paths)
+            .unzoomed
+            .upload(ctx);
 
         Widget::col(vec![
             Widget::row(vec![
