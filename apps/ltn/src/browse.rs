@@ -3,7 +3,6 @@ use std::collections::HashSet;
 use abstutil::Counter;
 use geom::Distance;
 use map_gui::tools::{ColorNetwork, DrawRoadLabels};
-use synthpop::Scenario;
 use widgetry::mapspace::{ToggleZoomed, World, WorldOutcome};
 use widgetry::{
     Choice, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, State,
@@ -307,19 +306,10 @@ fn impact_widget(ctx: &EventCtx, app: &App) -> Widget {
 
     if &app.session.impact.map != map_name {
         // Starting from scratch
-        let scenario_name = Scenario::default_scenario_for_map(map_name);
-        if scenario_name == "home_to_work" {
-            return "This city doesn't have travel demand model data available".text_widget(ctx);
-        }
-        let size = abstio::Manifest::load()
-            .get_entry(&abstio::path_scenario(map_name, &scenario_name))
-            .map(|entry| abstutil::prettyprint_bytes(entry.compressed_size_bytes))
-            .unwrap_or_else(|| "???".to_string());
         return Widget::col(vec![
             Text::from_multiline(vec![
                 Line("This will take a moment.").small(),
                 Line("The app may freeze while calculating.").small(),
-                Line(format!("We need to load a {} file", size)).small(),
             ])
             .into_widget(ctx),
             ctx.style().btn_outline.text("Calculate").build_def(ctx),

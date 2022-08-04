@@ -2245,6 +2245,8 @@ dependencies = [
  "map_gui",
  "map_model",
  "maplit",
+ "rand",
+ "rand_xorshift",
  "regex",
  "serde",
  "serde_json",

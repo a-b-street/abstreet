@@ -1,7 +1,11 @@
 use std::collections::BTreeSet;
 
+use rand::SeedableRng;
+use rand_xorshift::XorShiftRng;
+
 use map_gui::tools::checkbox_per_mode;
 use map_model::{Path, NORMAL_LANE_THICKNESS};
+use synthpop::make::ScenarioGenerator;
 use synthpop::{Scenario, TripMode};
 use widgetry::tools::{FileLoader, PopupMsg};
 use widgetry::{
@@ -25,16 +29,27 @@ impl ShowResults {
         let map_name = app.map.get_name().clone();
         if app.session.impact.map != map_name {
             let scenario_name = Scenario::default_scenario_for_map(&map_name);
-            return FileLoader::<App, Scenario>::new_state(
-                ctx,
-                abstio::path_scenario(&map_name, &scenario_name),
-                Box::new(move |ctx, app, timer, maybe_scenario| {
-                    // TODO Handle corrupt files
-                    let scenario = maybe_scenario.unwrap();
-                    app.session.impact = Impact::from_scenario(ctx, app, scenario, timer);
-                    Transition::Replace(ShowResults::new_state(ctx, app))
-                }),
-            );
+
+            if scenario_name != "home_to_work" {
+                return FileLoader::<App, Scenario>::new_state(
+                    ctx,
+                    abstio::path_scenario(&map_name, &scenario_name),
+                    Box::new(move |ctx, app, timer, maybe_scenario| {
+                        // TODO Handle corrupt files
+                        let scenario = maybe_scenario.unwrap();
+                        app.session.impact = Impact::from_scenario(ctx, app, scenario, timer);
+                        Transition::Replace(ShowResults::new_state(ctx, app))
+                    }),
+                );
+            }
+            ctx.loading_screen("synthesize travel demand model", |ctx, timer| {
+                let scenario = ScenarioGenerator::proletariat_robot(
+                    &app.map,
+                    &mut XorShiftRng::seed_from_u64(42),
+                    timer,
+                );
+                app.session.impact = Impact::from_scenario(ctx, app, scenario, timer);
+            });
         }
 
         if app.session.impact.change_key != app.session.modal_filters.get_change_key() {

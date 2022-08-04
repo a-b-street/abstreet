@@ -7,9 +7,9 @@ use rand_xorshift::XorShiftRng;
 use abstutil::{prettyprint_usize, Counter, Timer};
 use geom::{Distance, Speed};
 use map_model::{BuildingID, Map, OffstreetParking, RoadID};
+use synthpop::make::fork_rng;
 use synthpop::{PersonSpec, Scenario, TripEndpoint, TripMode};
 
-use crate::make::fork_rng;
 use crate::{
     ParkingSpot, Sim, StartTripArgs, TripInfo, Vehicle, VehicleSpec, VehicleType, BIKE_LENGTH,
     MAX_CAR_LENGTH, MIN_CAR_LENGTH,

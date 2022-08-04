@@ -11,10 +11,10 @@ use rand_xorshift::XorShiftRng;
 use abstutil::{prettyprint_usize, Timer};
 use geom::{Distance, Duration, Time};
 use map_model::{BuildingID, BuildingType, Map, PathConstraints, PathRequest};
-use synthpop::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
 
-use crate::make::fork_rng;
-use crate::ScenarioGenerator;
+use crate::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
+
+use crate::make::{fork_rng, ScenarioGenerator};
 
 impl ScenarioGenerator {
     /// Designed in https://github.com/a-b-street/abstreet/issues/154
