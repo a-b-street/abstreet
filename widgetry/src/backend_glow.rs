@@ -4,7 +4,7 @@ use std::rc::Rc;
 use glow::HasContext;
 
 use crate::drawing::Uniforms;
-use crate::{Canvas, Color, EventCtx, GeomBatch, ScreenDims, ScreenRectangle};
+use crate::{Canvas, Color, EventCtx, GeomBatch, GfxCtx, ScreenDims, ScreenRectangle};
 
 #[cfg(feature = "native-backend")]
 pub use crate::backend_glow_native::setup;
@@ -187,6 +187,10 @@ impl Drawable {
     /// This has no effect when drawn.
     pub fn empty(ctx: &EventCtx) -> Drawable {
         ctx.upload(GeomBatch::new())
+    }
+
+    pub fn draw(&self, g: &mut GfxCtx) {
+        g.redraw(self);
     }
 }
 

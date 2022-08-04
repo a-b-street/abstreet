@@ -2,16 +2,15 @@ use std::collections::BTreeMap;
 
 use geom::{Pt2D, Ring};
 use map_model::{CommonEndpoint, PathStepV2, PathV2, RoadID};
-use widgetry::mapspace::ToggleZoomed;
-use widgetry::{Color, EventCtx};
+use widgetry::mapspace::{ToggleZoomed, ToggleZoomedBuilder};
+use widgetry::Color;
 
 use crate::AppLike;
 
 pub fn draw_overlapping_paths(
-    ctx: &mut EventCtx,
     app: &dyn AppLike,
     paths: Vec<(PathV2, Color)>,
-) -> ToggleZoomed {
+) -> ToggleZoomedBuilder {
     // Per road, just figure out what colors we need
     let mut colors_per_road: BTreeMap<RoadID, Vec<Color>> = BTreeMap::new();
     let mut colors_per_movement: Vec<(RoadID, RoadID, Color)> = Vec::new();
@@ -86,5 +85,5 @@ pub fn draw_overlapping_paths(
             }
         }
     }
-    draw.build(ctx)
+    draw
 }

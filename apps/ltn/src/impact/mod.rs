@@ -6,7 +6,7 @@ use abstio::MapName;
 use abstutil::Timer;
 use geom::{Duration, Time};
 use map_gui::tools::compare_counts::CompareCounts;
-use map_model::{Path, PathConstraints, PathRequest, Pathfinder, RoadID};
+use map_model::{PathConstraints, PathRequest, PathV2, Pathfinder, RoadID};
 use synthpop::{Scenario, TrafficCounts, TripEndpoint, TripMode};
 use widgetry::EventCtx;
 
@@ -47,7 +47,7 @@ pub struct Filters {
 impl Impact {
     pub fn empty(ctx: &EventCtx) -> Self {
         Self {
-            map: MapName::new("zz", "place", "holder"),
+            map: MapName::blank(),
             filters: Filters {
                 modes: vec![TripMode::Drive].into_iter().collect(),
                 include_borders: true,
@@ -185,7 +185,7 @@ impl Impact {
         app: &App,
         r: RoadID,
         timer: &mut Timer,
-    ) -> Vec<(Path, Path)> {
+    ) -> Vec<(PathV2, PathV2)> {
         let map = &app.map;
         // TODO Cache the pathfinder. It depends both on the change_key and modes belonging to
         // filtered_trips.
@@ -215,9 +215,7 @@ impl Impact {
                 }
 
                 if path1.crosses_road(r) != path2.crosses_road(r) {
-                    if let (Ok(path1), Ok(path2)) = (path1.into_v1(map), path2.into_v1(map)) {
-                        changed.push((path1, path2));
-                    }
+                    changed.push((path1, path2));
                 }
             }
         }

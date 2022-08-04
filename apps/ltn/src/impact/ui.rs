@@ -4,13 +4,13 @@ use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
 
 use map_gui::tools::checkbox_per_mode;
-use map_model::{Path, NORMAL_LANE_THICKNESS};
+use map_model::PathV2;
 use synthpop::make::ScenarioGenerator;
 use synthpop::{Scenario, TripMode};
 use widgetry::tools::{FileLoader, PopupMsg};
 use widgetry::{
-    Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Panel, Slider, State, Text, TextExt, Toggle, VerticalAlignment, Widget,
+    Color, DrawBaselayer, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+    Panel, Slider, State, Text, TextExt, Toggle, VerticalAlignment, Widget,
 };
 
 use crate::impact::{end_of_day, Filters, Impact};
@@ -236,13 +236,17 @@ fn help() -> Vec<&'static str> {
 struct ChangedRoutes {
     panel: Panel,
     // TODO Not sure what to precompute. Smallest memory would be the PathRequest.
-    paths: Vec<(Path, Path)>,
+    paths: Vec<(PathV2, PathV2)>,
     current: usize,
     draw_paths: Drawable,
 }
 
 impl ChangedRoutes {
-    fn new_state(ctx: &mut EventCtx, app: &App, paths: Vec<(Path, Path)>) -> Box<dyn State<App>> {
+    fn new_state(
+        ctx: &mut EventCtx,
+        app: &App,
+        paths: Vec<(PathV2, PathV2)>,
+    ) -> Box<dyn State<App>> {
         if paths.is_empty() {
             return PopupMsg::new_state(
                 ctx,
@@ -274,10 +278,10 @@ impl ChangedRoutes {
                         .build_widget(ctx, "next"),
                 ])
                 .evenly_spaced(),
-                Line("Route before any modal filters")
+                Line("Route before changes")
                     .fg(*colors::PLAN_ROUTE_BEFORE)
                     .into_widget(ctx),
-                Line("Route after modal filters")
+                Line("Route after changes")
                     .fg(*colors::PLAN_ROUTE_AFTER)
                     .into_widget(ctx),
             ]))
@@ -298,21 +302,27 @@ impl ChangedRoutes {
             format!("route {}/{}", self.current + 1, self.paths.len()).text_widget(ctx),
         );
 
-        let mut batch = GeomBatch::new();
-        if let Some(pl) = self.paths[self.current].0.trace(&app.map) {
-            batch.push(
-                *colors::PLAN_ROUTE_BEFORE,
-                pl.make_polygons(5.0 * NORMAL_LANE_THICKNESS),
-            );
-        }
-        if let Some(pl) = self.paths[self.current].1.trace(&app.map) {
-            batch.push(
-                *colors::PLAN_ROUTE_AFTER,
-                pl.make_polygons(5.0 * NORMAL_LANE_THICKNESS),
-            );
-            batch.append(map_gui::tools::start_marker(ctx, pl.first_pt(), 2.0));
-            batch.append(map_gui::tools::goal_marker(ctx, pl.last_pt(), 2.0));
-        }
+        let mut batch = map_gui::tools::draw_overlapping_paths(
+            app,
+            vec![
+                (
+                    self.paths[self.current].0.clone(),
+                    *colors::PLAN_ROUTE_BEFORE,
+                ),
+                (
+                    self.paths[self.current].1.clone(),
+                    *colors::PLAN_ROUTE_AFTER,
+                ),
+            ],
+        )
+        .unzoomed;
+        let req = self.paths[self.current].0.get_req();
+        batch.append(map_gui::tools::start_marker(
+            ctx,
+            req.start.pt(&app.map),
+            2.0,
+        ));
+        batch.append(map_gui::tools::goal_marker(ctx, req.end.pt(&app.map), 2.0));
         self.draw_paths = ctx.upload(batch);
     }
 }
