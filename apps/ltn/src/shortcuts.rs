@@ -124,6 +124,8 @@ pub fn find_shortcuts(app: &App, neighbourhood: &Neighbourhood, timer: &mut Time
     // regards for the larger path somebody actually wants to take.
     params.avoid_roads.extend(neighbourhood.perimeter.clone());
 
+    // TODO Perf: when would it be worth creating a CH? Especially if we could subset just this
+    // part of the graph, it'd probably be helpful.
     let pathfinder = Pathfinder::new_dijkstra(map, params, vec![PathConstraints::Car], timer);
     let paths: Vec<Path> = timer
         .parallelize(

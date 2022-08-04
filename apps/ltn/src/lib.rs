@@ -4,6 +4,7 @@ use structopt::StructOpt;
 
 use abstio::MapName;
 use abstutil::Timer;
+use map_model::RoutingParams;
 use widgetry::{EventCtx, GfxCtx, Settings};
 
 pub use browse::BrowseNeighbourhoods;
@@ -79,6 +80,7 @@ fn run(mut settings: Settings) {
             proposal_name: None,
             partitioning: Partitioning::empty(),
             modal_filters: ModalFilters::default(),
+            routing_params_before_changes: RoutingParams::default(),
 
             alt_proposals: save::AltProposals::new(),
             draw_all_filters: Toggle3Zoomed::empty(ctx),
@@ -200,6 +202,10 @@ pub struct Session {
     pub proposal_name: Option<String>,
     pub partitioning: Partitioning,
     pub modal_filters: ModalFilters,
+    // These capture modal filters that exist in the map already. Whenever we pathfind in this app
+    // in the "before changes" case, we have to use these. Do NOT use the map's built-in
+    // pathfinder. (https://github.com/a-b-street/abstreet/issues/852 would make this more clear)
+    pub routing_params_before_changes: RoutingParams,
 
     pub alt_proposals: save::AltProposals,
     pub draw_all_filters: Toggle3Zoomed,
@@ -270,6 +276,7 @@ pub fn clear_current_proposal(ctx: &mut EventCtx, app: &mut App, timer: &mut Tim
 
     app.session.proposal_name = None;
     // Reset this first. transform_existing_filters will fill some out.
+    app.session.routing_params_before_changes = RoutingParams::default();
     app.session.modal_filters = ModalFilters::default();
     crate::filters::transform_existing_filters(ctx, app, timer);
     app.session.partitioning = Partitioning::seed_using_heuristics(app, timer);
