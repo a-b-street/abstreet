@@ -169,6 +169,13 @@ impl Polygon {
         })
     }
 
+    pub fn centered_on(&self, center: Pt2D) -> Polygon {
+        let bounds = self.get_bounds();
+        let dx = center.x() - bounds.width() / 2.0;
+        let dy = center.y() - bounds.height() / 2.0;
+        self.translate(dx, dy)
+    }
+
     /// Equivalent to `self.strip_rings().scale(scale).translate(translate_x, translate_y).rotate_around(rotate,
     /// pivot)`, but modifies the polygon in-place and is faster.
     pub fn inplace_multi_transform(

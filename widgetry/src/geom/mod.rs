@@ -258,6 +258,12 @@ impl GeomBatch {
         self
     }
 
+    /// Scales the batch so that the width matches something, preserving aspect ratio.
+    pub fn scale_to_fit_width(self, width: f64) -> GeomBatch {
+        let ratio = width / self.get_bounds().width();
+        self.scale(ratio)
+    }
+
     /// Overrides the Z-ordering offset for the batch. Must be in (-1, 0], with values closer to -1
     /// rendering on top.
     pub fn set_z_offset(mut self, offset: f64) -> GeomBatch {
@@ -289,6 +295,10 @@ impl GeomBatch {
             }
         }
         features
+    }
+
+    pub fn build(self, ctx: &EventCtx) -> Drawable {
+        ctx.upload(self)
     }
 }
 

@@ -51,7 +51,10 @@ fn make_filters_along_path(
                 .dist_along_of_point(pt)
                 .map(|pair| pair.0)
                 .unwrap_or(road.center_pts.length() / 2.0);
-            app.session.modal_filters.roads.insert(*r, dist);
+            app.session
+                .modal_filters
+                .roads
+                .insert(*r, (dist, app.session.filter_type));
         }
     }
     for i in &neighbourhood.interior_intersections {

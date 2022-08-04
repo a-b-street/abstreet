@@ -9,7 +9,7 @@ use widgetry::{EventCtx, GfxCtx, Settings};
 
 pub use browse::BrowseNeighbourhoods;
 use filters::Toggle3Zoomed;
-pub use filters::{DiagonalFilter, ModalFilters};
+pub use filters::{DiagonalFilter, FilterType, ModalFilters};
 pub use neighbourhood::{Cell, DistanceInterval, Neighbourhood};
 pub use partition::{NeighbourhoodID, Partitioning};
 
@@ -67,6 +67,7 @@ fn run(mut settings: Settings) {
     opts.show_crosswalks = false;
     opts.show_traffic_signal_icon = true;
     opts.simplify_basemap = true;
+    opts.canvas_settings.min_zoom_for_detail = std::f64::MAX;
 
     let args = Args::from_iter(abstutil::cli_args());
     args.app_args.override_options(&mut opts);
@@ -87,6 +88,7 @@ fn run(mut settings: Settings) {
             impact: impact::Impact::empty(ctx),
 
             edit_mode: edit::EditMode::Filters,
+            filter_type: FilterType::NoEntry,
 
             draw_neighbourhood_style: browse::Style::Simple,
             draw_cells_as_areas: false,
@@ -212,6 +214,7 @@ pub struct Session {
     pub impact: impact::Impact,
 
     pub edit_mode: edit::EditMode,
+    pub filter_type: FilterType,
 
     // Remember form settings in different tabs.
     // Browse neighbourhoods:
@@ -229,37 +232,17 @@ pub struct Session {
     consultation_proposal_path: Option<String>,
 }
 
-/// Do the equivalent of `SimpleApp::draw_unzoomed` or `draw_zoomed`, but after the water/park
-/// areas layer, draw something custom.
+/// Do the equivalent of `SimpleApp::draw_unzoomed`, but after the water/park areas layer, draw
+/// something custom.
 fn draw_with_layering<F: Fn(&mut GfxCtx)>(g: &mut GfxCtx, app: &App, custom: F) {
     g.clear(app.cs.void_background);
     g.redraw(&app.draw_map.boundary_polygon);
     g.redraw(&app.draw_map.draw_all_areas);
     custom(g);
-
-    if g.canvas.is_unzoomed() {
-        g.redraw(&app.draw_map.draw_all_unzoomed_parking_lots);
-        g.redraw(&app.draw_map.draw_all_unzoomed_roads_and_intersections);
-        g.redraw(&app.draw_map.draw_all_buildings);
-        g.redraw(&app.draw_map.draw_all_building_outlines);
-    } else {
-        let options = map_gui::render::DrawOptions::new();
-        let objects = app
-            .draw_map
-            .get_renderables_back_to_front(g.get_screen_bounds(), &app.map);
-
-        let mut drawn_all_buildings = false;
-
-        for obj in objects {
-            obj.draw(g, app, &options);
-
-            if matches!(obj.get_id(), map_gui::ID::Building(_)) && !drawn_all_buildings {
-                g.redraw(&app.draw_map.draw_all_buildings);
-                g.redraw(&app.draw_map.draw_all_building_outlines);
-                drawn_all_buildings = true;
-            }
-        }
-    }
+    g.redraw(&app.draw_map.draw_all_unzoomed_parking_lots);
+    g.redraw(&app.draw_map.draw_all_unzoomed_roads_and_intersections);
+    g.redraw(&app.draw_map.draw_all_buildings);
+    g.redraw(&app.draw_map.draw_all_building_outlines);
 }
 
 pub fn after_edit(ctx: &EventCtx, app: &mut App) {

@@ -1,4 +1,3 @@
-use geom::Distance;
 use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::tools::open_browser;
 use widgetry::{lctrl, EventCtx, Key, Line, Text, Transition, Widget};
@@ -26,7 +25,7 @@ pub fn make_world(ctx: &mut EventCtx, app: &App, neighbourhood: &Neighbourhood) 
             .add(Obj::InteriorRoad(*r))
             .hitbox(road.get_thick_polygon())
             .drawn_in_master_batch()
-            .hover_outline(colors::OUTLINE, Distance::meters(5.0))
+            .hover_color(colors::HOVER)
             .tooltip(Text::from(format!(
                 "{} possible shortcuts cross {}",
                 neighbourhood.shortcuts.count_per_road.get(*r),
@@ -42,7 +41,7 @@ pub fn make_world(ctx: &mut EventCtx, app: &App, neighbourhood: &Neighbourhood) 
             .add(Obj::InteriorIntersection(*i))
             .hitbox(map.get_i(*i).polygon.clone())
             .drawn_in_master_batch()
-            .hover_outline(colors::OUTLINE, Distance::meters(5.0))
+            .hover_color(colors::HOVER)
             .tooltip(Text::from(format!(
                 "{} possible shortcuts cross this intersection",
                 neighbourhood.shortcuts.count_per_intersection.get(*i)
@@ -83,7 +82,10 @@ pub fn handle_world_outcome(
                 let pt_on_line = road.center_pts.project_pt(cursor_pt);
                 let (distance, _) = road.center_pts.dist_along_of_point(pt_on_line).unwrap();
 
-                app.session.modal_filters.roads.insert(r, distance);
+                app.session
+                    .modal_filters
+                    .roads
+                    .insert(r, (distance, app.session.filter_type));
             }
             after_edit(ctx, app);
             EditOutcome::Transition(Transition::Recreate)

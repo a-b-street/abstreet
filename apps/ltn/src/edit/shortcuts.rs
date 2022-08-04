@@ -1,10 +1,10 @@
 use geom::Distance;
 use map_model::{PathV2, RoadID};
-use widgetry::mapspace::{ToggleZoomed, World, WorldOutcome};
+use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::{Color, EventCtx, GeomBatch, Key, Line, Text, TextExt, Widget};
 
 use super::{EditMode, EditOutcome, Obj};
-use crate::{App, Neighbourhood};
+use crate::{colors, App, Neighbourhood};
 
 pub struct FocusedRoad {
     pub r: RoadID,
@@ -73,7 +73,7 @@ pub fn make_world(
                 .add(Obj::InteriorRoad(*r))
                 .hitbox(road.get_thick_polygon())
                 .drawn_in_master_batch()
-                .hover_outline(Color::RED, Distance::meters(3.0))
+                .hover_color(colors::HOVER)
                 .tooltip(Text::from(format!(
                     "{} possible shortcuts cross {}",
                     neighbourhood.shortcuts.count_per_road.get(*r),
@@ -85,31 +85,19 @@ pub fn make_world(
     }
 
     if let Some(ref focus) = focus {
-        let mut draw_path = ToggleZoomed::builder();
+        let mut draw_path = GeomBatch::new();
         let path = &focus.paths[focus.current_idx];
         let poly = path
             .trace_v2(&app.map)
             .unwrap_or_else(|_| path.trace_all_polygons(&app.map));
 
         let color = *app.cs.good_to_bad_red.0.last().unwrap();
-        draw_path.unzoomed.push(color.alpha(0.8), poly.clone());
-        draw_path.zoomed.push(color.alpha(0.5), poly);
+        draw_path.push(color.alpha(0.8), poly);
 
         let first_pt = path.get_req().start.pt(&app.map);
         let last_pt = path.get_req().end.pt(&app.map);
-        draw_path
-            .unzoomed
-            .append(map_gui::tools::start_marker(ctx, first_pt, 2.0));
-        draw_path
-            .zoomed
-            .append(map_gui::tools::start_marker(ctx, first_pt, 0.5));
-
-        draw_path
-            .unzoomed
-            .append(map_gui::tools::goal_marker(ctx, last_pt, 2.0));
-        draw_path
-            .zoomed
-            .append(map_gui::tools::goal_marker(ctx, last_pt, 0.5));
+        draw_path.append(map_gui::tools::start_marker(ctx, first_pt, 2.0));
+        draw_path.append(map_gui::tools::goal_marker(ctx, last_pt, 2.0));
 
         world.draw_master_batch(ctx, draw_path);
     } else {

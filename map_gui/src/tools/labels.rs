@@ -6,6 +6,7 @@ use regex::Regex;
 
 use geom::{Angle, Bounds, Distance, Polygon, Pt2D};
 use map_model::{osm, Road};
+use widgetry::mapspace::PerZoom;
 use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Line, Text};
 
 use crate::AppLike;
@@ -18,35 +19,6 @@ pub struct DrawRoadLabels {
     include_roads: Box<dyn Fn(&Road) -> bool>,
     fg_color: Color,
     outline_color: Color,
-}
-
-// TODO There may be an off-by-one floating around here. Watch what this does at extremely low zoom
-// levels near 0.
-struct PerZoom {
-    draw_per_zoom: Vec<Option<Drawable>>,
-    step_size: f64,
-}
-
-impl PerZoom {
-    // We assume min_zoom_for_detail doesn't change over the lifetime of this
-    fn new(min_zoom_for_detail: f64) -> Self {
-        let step_size = 0.1;
-        let num_buckets = (min_zoom_for_detail / step_size) as usize;
-        Self {
-            draw_per_zoom: std::iter::repeat_with(|| None).take(num_buckets).collect(),
-            step_size,
-        }
-    }
-
-    // Takes the current canvas zoom, rounds it to the nearest step_size, and returns the index of
-    // the bucket to fill out
-    fn discretize_zoom(&self, zoom: f64) -> (f64, usize) {
-        let bucket = (zoom / self.step_size).floor() as usize;
-        // It's a bit weird to have the same zoom behavior for < 0.1 and 0.1 to 0.2, but unclear
-        // what to do otherwise -- an effective zoom of 0 is broken
-        let rounded = (bucket.max(1) as f64) * self.step_size;
-        (rounded, bucket)
-    }
 }
 
 impl DrawRoadLabels {
@@ -76,7 +48,7 @@ impl DrawRoadLabels {
     pub fn draw(&self, g: &mut GfxCtx, app: &dyn AppLike) {
         let mut per_zoom = self.per_zoom.borrow_mut();
         if per_zoom.is_none() {
-            *per_zoom = Some(PerZoom::new(g.canvas.settings.min_zoom_for_detail));
+            *per_zoom = Some(PerZoom::new(g.canvas.settings.min_zoom_for_detail, 0.1));
         }
         let per_zoom = per_zoom.as_mut().unwrap();
 
@@ -231,4 +203,97 @@ fn cheaply_overestimate_bounds(text: &str, text_scale: f64, center: Pt2D, angle:
     )
     .rotate(angle.reorient())
     .get_bounds()
+}
+
+/// Draws labels in map-space that roughly fit on the roads and change screen-space size while
+/// zooming.
+pub struct DrawSimpleRoadLabels {
+    draw: RefCell<Option<Drawable>>,
+    include_roads: Box<dyn Fn(&Road) -> bool>,
+    fg_color: Color,
+}
+
+impl DrawSimpleRoadLabels {
+    /// Label roads that the predicate approves
+    pub fn new(fg_color: Color, include_roads: Box<dyn Fn(&Road) -> bool>) -> Self {
+        Self {
+            draw: RefCell::new(None),
+            include_roads,
+            fg_color,
+        }
+    }
+
+    /// Only label major roads
+    pub fn only_major_roads(fg_color: Color) -> Self {
+        Self::new(
+            fg_color,
+            Box::new(|r| r.get_rank() != osm::RoadRank::Local && !r.is_light_rail()),
+        )
+    }
+
+    pub fn all_roads(fg_color: Color) -> Self {
+        Self::new(fg_color, Box::new(|_| true))
+    }
+
+    pub fn draw(&self, g: &mut GfxCtx, app: &dyn AppLike) {
+        let mut draw = self.draw.borrow_mut();
+        if draw.is_none() {
+            *draw = Some(self.render(g, app));
+        }
+        g.redraw(draw.as_ref().unwrap());
+    }
+
+    fn render(&self, g: &mut GfxCtx, app: &dyn AppLike) -> Drawable {
+        let mut batch = GeomBatch::new();
+        let map = app.map();
+
+        let mut hitboxes = Vec::new();
+
+        'ROAD: for r in map.all_roads() {
+            if !(self.include_roads)(r) || r.length() < Distance::meters(30.0) {
+                continue;
+            }
+
+            let name = if let Some(x) = simplify_name(r.get_name(app.opts().language.as_ref())) {
+                x
+            } else {
+                continue;
+            };
+            let (pt, angle) = r.center_pts.must_dist_along(r.length() / 2.0);
+
+            // TODO Ideally we make the text height always be a bit less than the road width. I'm
+            // having lots of trouble relating the two, so do something manually tuned for the
+            // moment.
+            let width = r.get_width();
+            let scale = if width < Distance::meters(8.0) {
+                0.3
+            } else if width < Distance::meters(6.0) {
+                0.2
+            } else {
+                0.5
+            };
+
+            let txt = Text::from(Line(&name).fg(self.fg_color));
+            let txt_batch = txt.render_autocropped(g).scale(scale);
+            let rect = txt_batch
+                .get_bounds()
+                .get_rectangle()
+                .centered_on(pt)
+                .rotate_around(angle.reorient(), pt);
+            for x in &hitboxes {
+                if rect.intersects(x) {
+                    continue 'ROAD;
+                }
+            }
+            hitboxes.push(rect);
+
+            batch.append(
+                txt_batch
+                    .centered_on(pt)
+                    .rotate_around_batch_center(angle.reorient()),
+            );
+        }
+
+        g.upload(batch)
+    }
 }

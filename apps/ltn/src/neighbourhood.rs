@@ -3,12 +3,12 @@ use std::collections::{BTreeMap, BTreeSet};
 use maplit::btreeset;
 
 use geom::{ArrowCap, Distance, PolyLine, Polygon};
-use map_gui::tools::DrawRoadLabels;
+use map_gui::tools::DrawSimpleRoadLabels;
 use map_model::{Direction, IntersectionID, Map, PathConstraints, Perimeter, RoadID};
 use widgetry::{Drawable, EventCtx, GeomBatch};
 
 use crate::shortcuts::Shortcuts;
-use crate::{App, ModalFilters, NeighbourhoodID};
+use crate::{colors, App, ModalFilters, NeighbourhoodID};
 
 // Once constructed, a Neighbourhood is immutable
 pub struct Neighbourhood {
@@ -23,7 +23,7 @@ pub struct Neighbourhood {
     pub shortcuts: Shortcuts,
 
     pub fade_irrelevant: Drawable,
-    pub labels: DrawRoadLabels,
+    pub labels: DrawSimpleRoadLabels,
 }
 
 /// A partitioning of the interior of a neighbourhood based on driving connectivity
@@ -125,7 +125,7 @@ impl Neighbourhood {
 
             fade_irrelevant: Drawable::empty(ctx),
             // Temporary value
-            labels: DrawRoadLabels::only_major_roads(),
+            labels: DrawSimpleRoadLabels::only_major_roads(colors::ROAD_LABEL),
         };
 
         for id in &n.orig_perimeter.roads {
@@ -162,8 +162,10 @@ impl Neighbourhood {
 
         let mut label_roads = n.perimeter.clone();
         label_roads.extend(n.orig_perimeter.interior.clone());
-        n.labels =
-            DrawRoadLabels::new(Box::new(move |r| label_roads.contains(&r.id))).light_background();
+        n.labels = DrawSimpleRoadLabels::new(
+            colors::ROAD_LABEL,
+            Box::new(move |r| label_roads.contains(&r.id)),
+        );
 
         // TODO The timer could be nice for large areas. But plumbing through one everywhere is
         // tedious, and would hit a nested start_iter bug anyway.
@@ -199,7 +201,7 @@ fn find_cells(
     }
 
     // Filtered roads right along the perimeter have a tiny cell
-    for (r, filter_dist) in &modal_filters.roads {
+    for (r, (filter_dist, _)) in &modal_filters.roads {
         let road = map.get_r(*r);
         if borders.contains(&road.src_i) {
             let mut cell = Cell {
@@ -278,7 +280,7 @@ fn floodfill(
                         continue;
                     }
                 }
-                if let Some(filter_dist) = modal_filters.roads.get(next) {
+                if let Some((filter_dist, _)) = modal_filters.roads.get(next) {
                     // Which ends of the filtered road have we reached?
                     let mut visited_start = next_road.src_i == i;
                     let mut visited_end = next_road.dst_i == i;

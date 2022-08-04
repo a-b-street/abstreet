@@ -1,4 +1,3 @@
-use geom::Distance;
 use street_network::LaneSpec;
 use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::{EventCtx, Text, TextExt, Transition, Widget};
@@ -20,7 +19,7 @@ pub fn make_world(ctx: &mut EventCtx, app: &App, neighbourhood: &Neighbourhood) 
             .add(Obj::InteriorRoad(*r))
             .hitbox(road.get_thick_polygon())
             .drawn_in_master_batch()
-            .hover_outline(colors::OUTLINE, Distance::meters(5.0))
+            .hover_color(colors::HOVER)
             .tooltip(Text::from(format!(
                 "Click to flip direction of {}",
                 road.get_name(app.opts.language.as_ref()),
@@ -54,16 +53,9 @@ pub fn handle_world_outcome(
             }));
 
             ctx.loading_screen("apply edits", |_, timer| {
-                let effects = app.map.must_apply_edits(edits, timer);
+                app.map.must_apply_edits(edits, timer);
                 // We don't need to regenerate_unzoomed_layer for one-ways; no widths or styling
                 // has changed
-                for r in effects.changed_roads {
-                    let road = app.map.get_r(r);
-                    app.draw_map.recreate_road(road, &app.map);
-                }
-                for i in effects.changed_intersections {
-                    app.draw_map.recreate_intersection(i, &app.map);
-                }
 
                 // See the argument in filters/existing.rs about not recalculating the pathfinder.
                 // We always create it from-scratch when needed.

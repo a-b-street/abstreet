@@ -41,6 +41,8 @@ impl<'a, 'c> ButtonStyle {
         self.btn().label_text(text)
     }
 
+    /// Note this usually removes color from the icon. Use `image_color(RewriteColor::NoOp,
+    /// ControlState::Default)` or similar to retain color.
     pub fn icon(&self, image_path: &'a str) -> ButtonBuilder<'a, 'c> {
         icon_button(self.btn().image_path(image_path))
     }

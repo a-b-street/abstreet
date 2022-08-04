@@ -6,7 +6,7 @@ use map_model::{
     DirectedRoadID, IntersectionID, LaneID, Map, PathConstraints, PathRequest, PathStepV2, PathV2,
     Pathfinder, Position, RoadID,
 };
-use widgetry::mapspace::ToggleZoomedBuilder;
+use widgetry::GeomBatch;
 
 use crate::{App, Cell, Neighbourhood};
 
@@ -77,12 +77,12 @@ impl Shortcuts {
         Self::from_paths(neighbourhood, paths)
     }
 
-    pub fn draw_heatmap(&self, app: &App) -> ToggleZoomedBuilder {
+    pub fn draw_heatmap(&self, app: &App) -> GeomBatch {
         let mut colorer = ColorNetwork::no_fading(app);
         colorer.ranked_roads(self.count_per_road.clone(), &app.cs.good_to_bad_red);
         // TODO These two will be on different scales, which may look weird
         colorer.ranked_intersections(self.count_per_intersection.clone(), &app.cs.good_to_bad_red);
-        colorer.draw
+        colorer.draw.unzoomed
     }
 }
 

@@ -1,6 +1,6 @@
 use geom::Duration;
 use map_gui::tools::{
-    DrawRoadLabels, InputWaypoints, TripManagement, TripManagementState, WaypointID,
+    DrawSimpleRoadLabels, InputWaypoints, TripManagement, TripManagementState, WaypointID,
 };
 use map_model::{PathV2, PathfinderCache};
 use synthpop::{TripEndpoint, TripMode};
@@ -19,7 +19,7 @@ pub struct RoutePlanner {
     files: TripManagement<App, RoutePlanner>,
     world: World<WaypointID>,
     draw_routes: Drawable,
-    labels: DrawRoadLabels,
+    labels: DrawSimpleRoadLabels,
     // TODO We could save the no-filter variations map-wide
     pathfinder_cache: PathfinderCache,
 }
@@ -49,7 +49,7 @@ impl RoutePlanner {
             files: TripManagement::new(app),
             world: World::unbounded(),
             draw_routes: Drawable::empty(ctx),
-            labels: DrawRoadLabels::only_major_roads(),
+            labels: DrawSimpleRoadLabels::all_roads(colors::ROAD_LABEL),
             pathfinder_cache: PathfinderCache::new(),
         };
 
@@ -331,9 +331,7 @@ impl State<App> for RoutePlanner {
         self.world.draw(g);
         self.draw_routes.draw(g);
         app.session.draw_all_filters.draw(g);
-        if g.canvas.is_unzoomed() {
-            self.labels.draw(g, app);
-        }
+        self.labels.draw(g, app);
     }
 }
 
