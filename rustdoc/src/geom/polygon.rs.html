@@ -698,6 +698,13 @@
 <span id="693">693</span>
 <span id="694">694</span>
 <span id="695">695</span>
+<span id="696">696</span>
+<span id="697">697</span>
+<span id="698">698</span>
+<span id="699">699</span>
+<span id="700">700</span>
+<span id="701">701</span>
+<span id="702">702</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::convert::TryFrom</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
@@ -867,6 +874,13 @@
                 <span class="ident">pivot</span>.<span class="ident">y</span>() <span class="op">+</span> <span class="ident">origin_pt</span>.<span class="ident">y</span>() <span class="op">*</span> <span class="ident">cos</span> <span class="op">+</span> <span class="ident">origin_pt</span>.<span class="ident">x</span>() <span class="op">*</span> <span class="ident">sin</span>,
             )
         })
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">centered_on</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">center</span>: <span class="ident">Pt2D</span>) -&gt; <span class="ident">Polygon</span> {
+        <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_bounds</span>();
+        <span class="kw">let</span> <span class="ident">dx</span> <span class="op">=</span> <span class="ident">center</span>.<span class="ident">x</span>() <span class="op">-</span> <span class="ident">bounds</span>.<span class="ident">width</span>() <span class="op">/</span> <span class="number">2.0</span>;
+        <span class="kw">let</span> <span class="ident">dy</span> <span class="op">=</span> <span class="ident">center</span>.<span class="ident">y</span>() <span class="op">-</span> <span class="ident">bounds</span>.<span class="ident">height</span>() <span class="op">/</span> <span class="number">2.0</span>;
+        <span class="self">self</span>.<span class="ident">translate</span>(<span class="ident">dx</span>, <span class="ident">dy</span>)
     }
 
     <span class="doccomment">/// Equivalent to `self.strip_rings().scale(scale).translate(translate_x, translate_y).rotate_around(rotate,</span>

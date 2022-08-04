@@ -666,6 +666,13 @@
 <span id="661">661</span>
 <span id="662">662</span>
 <span id="663">663</span>
+<span id="664">664</span>
+<span id="665">665</span>
+<span id="666">666</span>
+<span id="667">667</span>
+<span id="668">668</span>
+<span id="669">669</span>
+<span id="670">670</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 <span class="kw">use</span> <span class="ident">std::fmt::Debug</span>;
 <span class="kw">use</span> <span class="ident">std::hash::Hash</span>;
@@ -886,6 +893,13 @@
             .<span class="ident">into</span>();
         }
         <span class="self">self</span>.<span class="ident">draw_hovered</span>(<span class="ident">draw</span>)
+    }
+
+    <span class="doccomment">/// Draw the object in a hovered state by coloring its hitbox. Useful when</span>
+    <span class="doccomment">/// `drawn_in_master_batch` is used and there&#39;s no normal drawn polygon.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hover_color</span>(<span class="self">self</span>, <span class="ident">color</span>: <span class="ident">Color</span>) -&gt; <span class="self">Self</span> {
+        <span class="kw">let</span> <span class="ident">hitbox</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">hitbox</span>.<span class="ident">clone</span>().<span class="ident">expect</span>(<span class="string">&quot;call hitbox first&quot;</span>);
+        <span class="self">self</span>.<span class="ident">draw_hovered</span>(<span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(<span class="ident">color</span>, <span class="ident">hitbox</span>)]))
     }
 
     <span class="doccomment">/// Mark that an object is hoverable, but don&#39;t actually draw anything while hovering on it</span>

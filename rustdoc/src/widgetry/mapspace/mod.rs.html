@@ -126,7 +126,7 @@
 <span class="kw">use</span> <span class="ident">geom::Polygon</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">Fill</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">RewriteColor</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">unzoomed::DrawUnzoomedShapes</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">unzoomed</span>::{<span class="ident">DrawCustomUnzoomedShapes</span>, <span class="ident">DrawUnzoomedShapes</span>, <span class="ident">PerZoom</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">world</span>::{<span class="ident">DummyID</span>, <span class="ident">ObjectID</span>, <span class="ident">World</span>, <span class="ident">WorldOutcome</span>};
 
 <span class="doccomment">/// Draws one of two versions of something, based on whether the canvas is zoomed in past a threshold.</span>

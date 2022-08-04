@@ -422,13 +422,13 @@
                         <span class="ident">app</span>.<span class="ident">session</span>
                             .<span class="ident">modal_filters</span>
                             .<span class="ident">roads</span>
-                            .<span class="ident">insert</span>(<span class="ident">road</span>.<span class="ident">id</span>, <span class="number">0.1</span> <span class="op">*</span> <span class="ident">road</span>.<span class="ident">length</span>());
+                            .<span class="ident">insert</span>(<span class="ident">road</span>.<span class="ident">id</span>, (<span class="number">0.1</span> <span class="op">*</span> <span class="ident">road</span>.<span class="ident">length</span>(), <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">filter_type</span>));
                         <span class="kw">break</span>;
                     } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">dst_i</span> <span class="op">==</span> <span class="kw-2">*</span><span class="ident">i</span> {
                         <span class="ident">app</span>.<span class="ident">session</span>
                             .<span class="ident">modal_filters</span>
                             .<span class="ident">roads</span>
-                            .<span class="ident">insert</span>(<span class="ident">road</span>.<span class="ident">id</span>, <span class="number">0.9</span> <span class="op">*</span> <span class="ident">road</span>.<span class="ident">length</span>());
+                            .<span class="ident">insert</span>(<span class="ident">road</span>.<span class="ident">id</span>, (<span class="number">0.9</span> <span class="op">*</span> <span class="ident">road</span>.<span class="ident">length</span>(), <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">filter_type</span>));
                         <span class="kw">break</span>;
                     }
                 }
@@ -449,7 +449,7 @@
     <span class="ident">app</span>.<span class="ident">session</span>
         .<span class="ident">modal_filters</span>
         .<span class="ident">roads</span>
-        .<span class="ident">insert</span>(<span class="ident">r</span>, <span class="ident">road</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="number">2.0</span>);
+        .<span class="ident">insert</span>(<span class="ident">r</span>, (<span class="ident">road</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">filter_type</span>));
     <span class="comment">// TODO This is expensive; can we just do the connectivity work and not drawing?</span>
     <span class="kw">let</span> <span class="ident">new_neighbourhood</span> <span class="op">=</span> <span class="ident">Neighbourhood::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">neighbourhood</span>.<span class="ident">id</span>);
     <span class="kw">if</span> <span class="ident">new_neighbourhood</span>.<span class="ident">cells</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">is_disconnected</span>()) {

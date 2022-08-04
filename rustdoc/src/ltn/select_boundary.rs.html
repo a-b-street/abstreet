@@ -410,20 +410,16 @@
 <span id="405">405</span>
 <span id="406">406</span>
 <span id="407">407</span>
-<span id="408">408</span>
-<span id="409">409</span>
-<span id="410">410</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 
 <span class="kw">use</span> <span class="ident">geom::Polygon</span>;
-<span class="kw">use</span> <span class="ident">map_gui::tools::DrawRoadLabels</span>;
-<span class="kw">use</span> <span class="ident">widgetry::mapspace::ToggleZoomed</span>;
+<span class="kw">use</span> <span class="ident">map_gui::tools::DrawSimpleRoadLabels</span>;
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">World</span>, <span class="ident">WorldOutcome</span>};
 <span class="kw">use</span> <span class="ident">widgetry::tools::Lasso</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>,
+    <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::browse::draw_boundary_roads</span>;
@@ -436,7 +432,7 @@
     <span class="ident">left_panel</span>: <span class="ident">Panel</span>,
     <span class="ident">id</span>: <span class="ident">NeighbourhoodID</span>,
     <span class="ident">world</span>: <span class="ident">World</span><span class="op">&lt;</span><span class="ident">BlockID</span><span class="op">&gt;</span>,
-    <span class="ident">draw_boundary_roads</span>: <span class="ident">ToggleZoomed</span>,
+    <span class="ident">draw_boundary_roads</span>: <span class="ident">Drawable</span>,
     <span class="ident">frontier</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">BlockID</span><span class="op">&gt;</span>,
 
     <span class="ident">orig_partitioning</span>: <span class="ident">Partitioning</span>,
@@ -445,7 +441,7 @@
     <span class="comment">// whether the block is already included or not</span>
     <span class="ident">last_failed_change</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">BlockID</span>, <span class="ident">bool</span>)<span class="op">&gt;</span>,
 
-    <span class="ident">labels</span>: <span class="ident">DrawRoadLabels</span>,
+    <span class="ident">labels</span>: <span class="ident">DrawSimpleRoadLabels</span>,
 
     <span class="ident">lasso</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Lasso</span><span class="op">&gt;</span>,
 }
@@ -477,7 +473,7 @@
             <span class="ident">orig_partitioning</span>: <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">clone</span>(),
             <span class="ident">last_failed_change</span>: <span class="prelude-val">None</span>,
 
-            <span class="ident">labels</span>: <span class="ident">DrawRoadLabels::only_major_roads</span>().<span class="ident">light_background</span>(),
+            <span class="ident">labels</span>: <span class="ident">DrawSimpleRoadLabels::only_major_roads</span>(<span class="ident">colors::ROAD_LABEL</span>),
 
             <span class="ident">lasso</span>: <span class="prelude-val">None</span>,
         };
@@ -733,9 +729,7 @@
         <span class="self">self</span>.<span class="ident">draw_boundary_roads</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="kw">if</span> <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">is_unzoomed</span>() {
-            <span class="self">self</span>.<span class="ident">labels</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
-        }
+        <span class="self">self</span>.<span class="ident">labels</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">lasso</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">lasso</span> {
             <span class="ident">lasso</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         }

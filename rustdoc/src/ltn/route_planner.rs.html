@@ -376,11 +376,9 @@
 <span id="371">371</span>
 <span id="372">372</span>
 <span id="373">373</span>
-<span id="374">374</span>
-<span id="375">375</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom::Duration</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{
-    <span class="ident">DrawRoadLabels</span>, <span class="ident">InputWaypoints</span>, <span class="ident">TripManagement</span>, <span class="ident">TripManagementState</span>, <span class="ident">WaypointID</span>,
+    <span class="ident">DrawSimpleRoadLabels</span>, <span class="ident">InputWaypoints</span>, <span class="ident">TripManagement</span>, <span class="ident">TripManagementState</span>, <span class="ident">WaypointID</span>,
 };
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">PathV2</span>, <span class="ident">PathfinderCache</span>};
 <span class="kw">use</span> <span class="ident">synthpop</span>::{<span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>};
@@ -399,7 +397,7 @@
     <span class="ident">files</span>: <span class="ident">TripManagement</span><span class="op">&lt;</span><span class="ident">App</span>, <span class="ident">RoutePlanner</span><span class="op">&gt;</span>,
     <span class="ident">world</span>: <span class="ident">World</span><span class="op">&lt;</span><span class="ident">WaypointID</span><span class="op">&gt;</span>,
     <span class="ident">draw_routes</span>: <span class="ident">Drawable</span>,
-    <span class="ident">labels</span>: <span class="ident">DrawRoadLabels</span>,
+    <span class="ident">labels</span>: <span class="ident">DrawSimpleRoadLabels</span>,
     <span class="comment">// TODO We could save the no-filter variations map-wide</span>
     <span class="ident">pathfinder_cache</span>: <span class="ident">PathfinderCache</span>,
 }
@@ -429,7 +427,7 @@
             <span class="ident">files</span>: <span class="ident">TripManagement::new</span>(<span class="ident">app</span>),
             <span class="ident">world</span>: <span class="ident">World::unbounded</span>(),
             <span class="ident">draw_routes</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
-            <span class="ident">labels</span>: <span class="ident">DrawRoadLabels::only_major_roads</span>(),
+            <span class="ident">labels</span>: <span class="ident">DrawSimpleRoadLabels::all_roads</span>(<span class="ident">colors::ROAD_LABEL</span>),
             <span class="ident">pathfinder_cache</span>: <span class="ident">PathfinderCache::new</span>(),
         };
 
@@ -711,9 +709,7 @@
         <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="self">self</span>.<span class="ident">draw_routes</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_all_filters</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="kw">if</span> <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">is_unzoomed</span>() {
-            <span class="self">self</span>.<span class="ident">labels</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
-        }
+        <span class="self">self</span>.<span class="ident">labels</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
     }
 }
 
