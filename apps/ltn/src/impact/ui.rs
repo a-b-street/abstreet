@@ -1,7 +1,9 @@
 use std::collections::BTreeSet;
 
+use anyhow::Result;
 use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
+use serde::Serialize;
 
 use map_gui::tools::checkbox_per_mode;
 use map_model::PathV2;
@@ -75,7 +77,8 @@ impl ShowResults {
             // TODO Dropdown for the scenario, and explain its source/limitations
             app.session.impact.filters.to_panel(ctx, app),
             app.session.impact.compare_counts.get_panel_widget(ctx).named("compare counts"),
-            ctx.style().btn_outline.text("Save before/after counts to files").build_def(ctx),
+            ctx.style().btn_outline.text("Save before/after counts to files (JSON)").build_def(ctx),
+            ctx.style().btn_outline.text("Save before/after counts to files (CSV)").build_def(ctx),
         ]);
         let top_panel = crate::components::TopPanel::panel(ctx, app);
         let left_panel =
@@ -99,7 +102,7 @@ impl State<App> for ShowResults {
                     // loading
                     return Transition::Replace(BrowseNeighbourhoods::new_state(ctx, app));
                 }
-                "Save before/after counts to files" => {
+                "Save before/after counts to files (JSON)" => {
                     let path1 = "counts_a.json";
                     let path2 = "counts_b.json";
                     abstio::write_json(
@@ -115,6 +118,16 @@ impl State<App> for ShowResults {
                         "Saved",
                         vec![format!("Saved {} and {}", path1, path2)],
                     ));
+                }
+                "Save before/after counts to files (CSV)" => {
+                    let path = "before_after_counts.csv";
+                    let msg = match export_csv(app)
+                        .and_then(|contents| abstio::write_file(path.to_string(), contents))
+                    {
+                        Ok(_) => format!("Saved {path}"),
+                        Err(err) => format!("Failed to export: {err}"),
+                    };
+                    return Transition::Push(PopupMsg::new_state(ctx, "CSV export", vec![msg]));
                 }
                 x => {
                     // Avoid a double borrow
@@ -360,4 +373,46 @@ impl State<App> for ChangedRoutes {
         g.redraw(&self.draw_paths);
         app.session.draw_all_filters.draw(g);
     }
+}
+
+fn export_csv(app: &App) -> Result<String> {
+    let mut out = Vec::new();
+    {
+        let mut writer = csv::Writer::from_writer(&mut out);
+        for r in app.map.all_roads() {
+            writer.serialize(ExportRow {
+                road_name: r.get_name(None),
+                osm_way_id: r.orig_id.osm_way_id.0,
+                osm_intersection1: r.orig_id.i1.0,
+                osm_intersection2: r.orig_id.i2.0,
+                total_count_before: app
+                    .session
+                    .impact
+                    .compare_counts
+                    .counts_a
+                    .per_road
+                    .get(r.id),
+                total_count_after: app
+                    .session
+                    .impact
+                    .compare_counts
+                    .counts_b
+                    .per_road
+                    .get(r.id),
+            })?;
+        }
+        writer.flush()?;
+    }
+    let out = String::from_utf8(out)?;
+    Ok(out)
+}
+
+#[derive(Serialize)]
+struct ExportRow {
+    road_name: String,
+    osm_way_id: i64,
+    osm_intersection1: i64,
+    osm_intersection2: i64,
+    total_count_before: usize,
+    total_count_after: usize,
 }

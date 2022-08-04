@@ -2235,6 +2235,7 @@ dependencies = [
  "abstutil",
  "anyhow",
  "contour",
+ "csv",
  "flate2",
  "geo",
  "geojson",
