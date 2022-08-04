@@ -1,5 +1,5 @@
-use geom::{Distance, Pt2D};
-use map_model::{Path, RoadID, NORMAL_LANE_THICKNESS};
+use geom::Distance;
+use map_model::{PathV2, RoadID};
 use widgetry::mapspace::{ToggleZoomed, World, WorldOutcome};
 use widgetry::{Color, EventCtx, GeomBatch, Key, Line, Text, TextExt, Widget};
 
@@ -8,7 +8,7 @@ use crate::{App, Neighbourhood};
 
 pub struct FocusedRoad {
     pub r: RoadID,
-    pub paths: Vec<Path>,
+    pub paths: Vec<PathV2>,
     pub current_idx: usize,
 }
 
@@ -87,23 +87,16 @@ pub fn make_world(
     if let Some(ref focus) = focus {
         let mut draw_path = ToggleZoomed::builder();
         let path = &focus.paths[focus.current_idx];
+        let poly = path
+            .trace_v2(&app.map)
+            .unwrap_or_else(|_| path.trace_all_polygons(&app.map));
+
         let color = *app.cs.good_to_bad_red.0.last().unwrap();
-        let (first_pt, last_pt) = if let Ok(poly) = path.trace_v2(&app.map) {
-            draw_path.unzoomed.push(color.alpha(0.8), poly.clone());
-            draw_path.zoomed.push(color.alpha(0.5), poly);
-            (
-                path.get_req().start.pt(&app.map),
-                path.get_req().end.pt(&app.map),
-            )
-        } else if let Some(pl) = path.trace(&app.map) {
-            let poly = pl.make_polygons(5.0 * NORMAL_LANE_THICKNESS);
-            draw_path.unzoomed.push(color.alpha(0.8), poly.clone());
-            draw_path.zoomed.push(color.alpha(0.5), poly);
-            (pl.first_pt(), pl.last_pt())
-        } else {
-            // Should be unreachable, but don't crash
-            (Pt2D::zero(), Pt2D::zero())
-        };
+        draw_path.unzoomed.push(color.alpha(0.8), poly.clone());
+        draw_path.zoomed.push(color.alpha(0.5), poly);
+
+        let first_pt = path.get_req().start.pt(&app.map);
+        let last_pt = path.get_req().end.pt(&app.map);
         draw_path
             .unzoomed
             .append(map_gui::tools::start_marker(ctx, first_pt, 2.0));
