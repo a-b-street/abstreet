@@ -37,7 +37,7 @@ pub use crate::render::{
 pub use self::analytics::{Analytics, Problem, ProblemType, SlidingWindow, TripPhase};
 pub(crate) use self::events::Event;
 pub use self::events::{AlertLocation, TripPhaseType};
-pub use self::make::{fork_rng, BorderSpawnOverTime, ScenarioGenerator, SimFlags, SpawnOverTime};
+pub use self::make::SimFlags;
 pub(crate) use self::make::{StartTripArgs, TripSpec};
 pub(crate) use self::mechanics::{
     DrivingSimState, IntersectionSimState, ParkingSim, ParkingSimState, WalkingSimState,
@@ -54,6 +54,7 @@ pub use self::sim::{
 pub(crate) use self::transit::TransitSimState;
 pub use self::trips::{CommutersVehiclesCounts, Person, PersonState, TripInfo, TripResult};
 pub(crate) use self::trips::{TripLeg, TripManager};
+pub use synthpop::make::{fork_rng, BorderSpawnOverTime, ScenarioGenerator, SpawnOverTime};
 
 mod analytics;
 mod events;
