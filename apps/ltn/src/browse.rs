@@ -6,7 +6,7 @@ use map_gui::tools::{ColorNetwork, DrawRoadLabels};
 use widgetry::mapspace::{ToggleZoomed, World, WorldOutcome};
 use widgetry::{
     Choice, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, State,
-    Text, TextExt, Toggle, Widget,
+    TextExt, Toggle, Widget,
 };
 
 use crate::edit::EditMode;
@@ -302,32 +302,17 @@ pub enum Style {
 }
 
 fn impact_widget(ctx: &EventCtx, app: &App) -> Widget {
-    let map_name = app.map.get_name();
-
-    if &app.session.impact.map != map_name {
-        // Starting from scratch
-        return Widget::col(vec![
-            Text::from_multiline(vec![
-                Line("This will take a moment.").small(),
-                Line("The app may freeze while calculating.").small(),
-            ])
-            .into_widget(ctx),
-            ctx.style().btn_outline.text("Calculate").build_def(ctx),
-        ]);
-    }
-
-    if app.session.impact.change_key == app.session.modal_filters.get_change_key() {
+    if &app.session.impact.map == app.map.get_name()
+        && app.session.impact.change_key == app.session.modal_filters.get_change_key()
+    {
         // Nothing to calculate!
         return ctx.style().btn_outline.text("Show impact").build_def(ctx);
     }
 
-    // We'll need to do some pathfinding
     Widget::col(vec![
-        Text::from_multiline(vec![
-            Line("Predicting impact of your proposal may take a moment."),
-            Line("The application may freeze up during that time."),
-        ])
-        .into_widget(ctx),
+        Line("The app may freeze while calculating this.")
+            .small()
+            .into_widget(ctx),
         ctx.style().btn_outline.text("Calculate").build_def(ctx),
     ])
 }

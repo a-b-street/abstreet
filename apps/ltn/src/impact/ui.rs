@@ -68,17 +68,28 @@ impl ShowResults {
             Line("Impact prediction").small_heading().into_widget(ctx),
             Text::from(Line("This tool starts with a travel demand model, calculates the route every trip takes before and after changes, and displays volumes along roads")).wrap_to_pct(ctx, 20).into_widget(ctx),
             Text::from_all(vec![
-                Line("Red").fg(Color::RED),
-                Line(" roads have increased volume, and "),
-                Line("green").fg(Color::GREEN),
-                Line(" roads have less. Width of the road shows how much baseline traffic it has."),
-            ]).wrap_to_pct(ctx, 20).into_widget(ctx),
-            "Click a road to see changed routes through it.".text_widget(ctx),
+                    Line("Red").fg(Color::RED),
+                    Line(" roads have increased volume, and "),
+                    Line("green").fg(Color::GREEN),
+                    Line(" roads have less. Width of the road shows how much baseline traffic it has."),
+                ]).wrap_to_pct(ctx, 20).into_widget(ctx),
+                Text::from(Line("Click a road to see changed routes through it.")).wrap_to_pct(ctx, 20).into_widget(ctx),
+                Text::from(Line("Results may be wrong for various reasons. Interpret carefully.")).wrap_to_pct(ctx, 20).into_widget(ctx),
             // TODO Dropdown for the scenario, and explain its source/limitations
             app.session.impact.filters.to_panel(ctx, app),
-            app.session.impact.compare_counts.get_panel_widget(ctx).named("compare counts"),
-            ctx.style().btn_outline.text("Save before/after counts to files (JSON)").build_def(ctx),
-            ctx.style().btn_outline.text("Save before/after counts to files (CSV)").build_def(ctx),
+            app.session
+                .impact
+                .compare_counts
+                .get_panel_widget(ctx)
+                .named("compare counts"),
+            ctx.style()
+                .btn_outline
+                .text("Save before/after counts to files (JSON)")
+                .build_def(ctx),
+            ctx.style()
+                .btn_outline
+                .text("Save before/after counts to files (CSV)")
+                .build_def(ctx),
         ]);
         let top_panel = crate::components::TopPanel::panel(ctx, app);
         let left_panel =
