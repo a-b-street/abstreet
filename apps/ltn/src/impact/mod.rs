@@ -27,6 +27,10 @@ pub struct Impact {
     pub map: MapName,
     pub filters: Filters,
 
+    // Handles all modes
+    // TODO Maybe try to use this app-wide
+    pathfinder_before_changes: Pathfinder,
+
     all_trips: Vec<PathRequest>,
     // A subset of all_trips, and the number of times somebody takes the same trip
     filtered_trips: Vec<(PathRequest, usize)>,
@@ -54,6 +58,8 @@ impl Impact {
                 departure_time: (Time::START_OF_DAY, end_of_day()),
             },
 
+            pathfinder_before_changes: Pathfinder::empty(),
+
             all_trips: Vec::new(),
             filtered_trips: Vec::new(),
 
@@ -71,6 +77,13 @@ impl Impact {
         let mut impact = Impact::empty(ctx);
         let map = &app.map;
 
+        impact.pathfinder_before_changes = Pathfinder::new_ch(
+            map,
+            app.session.routing_params_before_changes.clone(),
+            PathConstraints::all(),
+            timer,
+        );
+
         impact.map = app.map.get_name().clone();
         impact.change_key = app.session.modal_filters.get_change_key();
         impact.all_trips = timer
@@ -83,6 +96,19 @@ impl Impact {
         impact.trips_changed(ctx, app, timer);
         impact.compare_counts.autoselect_layer();
         impact
+    }
+
+    // TODO Cache? It depends both on the change_key and modes belonging to filtered_trips.
+    fn pathfinder_after(&self, app: &App, timer: &mut Timer) -> Pathfinder {
+        let constraints: BTreeSet<PathConstraints> = self
+            .filters
+            .modes
+            .iter()
+            .map(|m| m.to_constraints())
+            .collect();
+        let mut params = app.map.routing_params().clone();
+        app.session.modal_filters.update_routing_params(&mut params);
+        Pathfinder::new_ch(&app.map, params, constraints.into_iter().collect(), timer)
     }
 
     fn trips_changed(&mut self, ctx: &mut EventCtx, app: &App, timer: &mut Timer) {
@@ -107,7 +133,7 @@ impl Impact {
             // Don't bother describing all the trip filtering
             "before filters".to_string(),
             &self.filtered_trips,
-            map.get_pathfinder(),
+            &self.pathfinder_before_changes,
             timer,
         );
 
@@ -131,20 +157,8 @@ impl Impact {
     }
 
     fn counts_b(&self, app: &App, timer: &mut Timer) -> TrafficCounts {
-        let constraints: BTreeSet<PathConstraints> = self
-            .filters
-            .modes
-            .iter()
-            .map(|m| m.to_constraints())
-            .collect();
-
         let map = &app.map;
-        let mut params = map.routing_params().clone();
-        app.session.modal_filters.update_routing_params(&mut params);
-        // Since we're making so many requests, it's worth it to rebuild a contraction hierarchy.
-        // This depends on the current map edits, so no need to cache
-        let pathfinder_after =
-            Pathfinder::new_ch(map, params, constraints.into_iter().collect(), timer);
+        let pathfinder_after = self.pathfinder_after(app, timer);
 
         // We can't simply use TrafficCounts::from_path_requests. Due to spurious diffs with paths,
         // we need to skip cases where the path before and after have the same cost. It's easiest
@@ -162,7 +176,7 @@ impl Impact {
         for (req, count) in &self.filtered_trips {
             timer.next();
             if let (Some(path1), Some(path2)) = (
-                map.get_pathfinder().pathfind_v2(req.clone(), map),
+                self.pathfinder_before_changes.pathfind_v2(req.clone(), map),
                 pathfinder_after.pathfind_v2(req.clone(), map),
             ) {
                 if path1.get_cost() == path2.get_cost() {
@@ -187,26 +201,14 @@ impl Impact {
         timer: &mut Timer,
     ) -> Vec<(PathV2, PathV2)> {
         let map = &app.map;
-        // TODO Cache the pathfinder. It depends both on the change_key and modes belonging to
-        // filtered_trips.
-        let pathfinder_after = {
-            let constraints: BTreeSet<PathConstraints> = self
-                .filters
-                .modes
-                .iter()
-                .map(|m| m.to_constraints())
-                .collect();
-            let mut params = map.routing_params().clone();
-            app.session.modal_filters.update_routing_params(&mut params);
-            Pathfinder::new_ch(map, params, constraints.into_iter().collect(), timer)
-        };
+        let pathfinder_after = self.pathfinder_after(app, timer);
 
         let mut changed = Vec::new();
         timer.start_iter("find changed routes", self.filtered_trips.len());
         for (req, _) in &self.filtered_trips {
             timer.next();
             if let (Some(path1), Some(path2)) = (
-                map.get_pathfinder().pathfind_v2(req.clone(), map),
+                self.pathfinder_before_changes.pathfind_v2(req.clone(), map),
                 pathfinder_after.pathfind_v2(req.clone(), map),
             ) {
                 // Skip spurious changes where the cost matches.

@@ -139,10 +139,9 @@ impl RoutePlanner {
 
         let mut paths: Vec<(PathV2, Color)> = Vec::new();
 
-        // The baseline is the one ignoring ALL filters (pre-existing and new)
-        let baseline_time = {
+        let driving_before_changes_time = {
             let mut total_time = Duration::ZERO;
-            let mut params = map.routing_params().clone();
+            let mut params = app.session.routing_params_before_changes.clone();
             params.main_road_penalty = app.session.main_road_penalty;
 
             for pair in self.waypoints.get_waypoints().windows(2) {
@@ -161,7 +160,7 @@ impl RoutePlanner {
         };
 
         // The route respecting the filters
-        let drive_around_filters_time = {
+        let driving_after_changes_time = {
             let mut params = map.routing_params().clone();
             app.session.modal_filters.update_routing_params(&mut params);
             params.main_road_penalty = app.session.main_road_penalty;
@@ -180,7 +179,7 @@ impl RoutePlanner {
                 }
             }
             // To simplify colors, don't draw this path when it's the same as the baseline
-            if total_time != baseline_time {
+            if total_time != driving_before_changes_time {
                 paths.append(&mut paths_after);
             }
 
@@ -237,14 +236,14 @@ impl RoutePlanner {
             Widget::row(vec![
                 card(
                     ctx,
-                    "Driving without any filters",
-                    "This route drives through pre-existing and new filters",
-                    baseline_time,
+                    "Driving before any changes",
+                    "",
+                    driving_before_changes_time,
                     *colors::PLAN_ROUTE_BEFORE,
                 ),
-                if baseline_time == drive_around_filters_time {
+                if driving_before_changes_time == driving_after_changes_time {
                     Widget::col(vec![
-                        Line("Driving around filters")
+                        Line("Driving after changes")
                             .fg(colors::PLAN_ROUTE_BEFORE.invert())
                             .into_widget(ctx),
                         Line("No difference")
@@ -256,9 +255,9 @@ impl RoutePlanner {
                 } else {
                     card(
                         ctx,
-                        "Driving around filters",
-                        "This route drives around all filters",
-                        drive_around_filters_time,
+                        "Driving after changes",
+                        "",
+                        driving_after_changes_time,
                         *colors::PLAN_ROUTE_AFTER,
                     )
                 },
@@ -365,9 +364,12 @@ fn card(
         .bg(color)
         .padding(16)
         .into_geom(ctx, None);
-    ButtonBuilder::new()
+    let btn = ButtonBuilder::new()
         .custom_batch(batch, ControlState::Default)
-        .disabled(true)
-        .disabled_tooltip(tooltip)
-        .build_widget(ctx, label)
+        .disabled(true);
+    if tooltip.is_empty() {
+        btn.build_widget(ctx, label)
+    } else {
+        btn.disabled_tooltip(tooltip).build_widget(ctx, label)
+    }
 }

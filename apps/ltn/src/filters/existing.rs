@@ -9,6 +9,8 @@ use crate::App;
 /// Detect roads that're modelled in OSM as cycleways, but really are regular roads with modal
 /// filters. Transform them into normal roads, and instead use this tool's explicit representation
 /// for filters.
+///
+/// Also detect modal filters defined in OSM as points.
 pub fn transform_existing_filters(ctx: &EventCtx, app: &mut App, timer: &mut Timer) {
     let mut edits = app.map.get_edits().clone();
     let mut filtered_roads = Vec::new();
@@ -25,48 +27,49 @@ pub fn transform_existing_filters(ctx: &EventCtx, app: &mut App, timer: &mut Tim
         }));
         filtered_roads.push(r.id);
     }
-    if edits.commands.is_empty() {
-        return;
+
+    if !edits.commands.is_empty() {
+        // TODO This is some of game's apply_map_edits
+        let effects = app.map.must_apply_edits(edits, timer);
+        app.draw_map.draw_all_unzoomed_roads_and_intersections =
+            DrawMap::regenerate_unzoomed_layer(ctx, &app.map, &app.cs, &app.opts, timer);
+        for r in effects.changed_roads {
+            let road = app.map.get_r(r);
+            app.draw_map.recreate_road(road, &app.map);
+        }
+
+        for i in effects.changed_intersections {
+            app.draw_map.recreate_intersection(i, &app.map);
+        }
+
+        // Create the filters after applying edits, since road length may change.
+        //
+        // (And don't call before_edit; this transformation happens before the user starts editing
+        // anything)
+        for r in filtered_roads {
+            app.session
+                .modal_filters
+                .roads
+                .insert(r, app.map.get_r(r).length() / 2.0);
+        }
     }
 
-    // TODO This is some of game's apply_map_edits
-    let effects = app.map.must_apply_edits(edits, timer);
-    app.draw_map.draw_all_unzoomed_roads_and_intersections =
-        DrawMap::regenerate_unzoomed_layer(ctx, &app.map, &app.cs, &app.opts, timer);
-    for r in effects.changed_roads {
-        let road = app.map.get_r(r);
-        app.draw_map.recreate_road(road, &app.map);
-    }
-
-    for i in effects.changed_intersections {
-        app.draw_map.recreate_intersection(i, &app.map);
-    }
-
-    // The old pathfinder will not let driving paths cross the roads we just transformed. Why is it
-    // valid to avoid recalculating? Look at all places where pathfinding is called:
-    //
-    // 1) In the pathfinding UI tool, both the 'before' and 'after' explicitly override
-    //    RoutingParams, so we weren't using the built-in pathfinder anyway.
-    // 2) The shortcut detector also overrides RoutingParams with the current set of filters
-    // 3) The impact tool does use the contraction hierarchy for the "before" count. This should be
-    //    fine -- the situation represented before the roads are transformed is what we want.
-    app.map.keep_pathfinder_despite_edits();
-
-    // Create the filters after applying edits. Road length may change.
-    // (And don't call before_edit; this transformation happens before the user starts editing)
-    for r in filtered_roads {
-        app.session
-            .modal_filters
-            .roads
-            .insert(r, app.map.get_r(r).length() / 2.0);
-    }
-
-    // The new, kind of simpler case
+    // Now handle modal filters defined as points in OSM
     for r in app.map.all_roads() {
         for dist in &r.barrier_nodes {
+            // The road might also be marked as non-driving. This'll move the filter position from
+            // the center.
             app.session.modal_filters.roads.insert(r.id, *dist);
         }
     }
+
+    // Now that we've applied all pre-existing filters, calculate the RoutingParams.
+    let mut params = app.map.routing_params().clone();
+    app.session.modal_filters.update_routing_params(&mut params);
+    app.session.routing_params_before_changes = params;
+
+    // Do not call map.keep_pathfinder_despite_edits or recalculate_pathfinding_after_edits. We
+    // should NEVER use the map's built-in pathfinder in this app. If we do, crash.
 }
 
 fn detect_filters(map: &Map) -> Vec<&Road> {

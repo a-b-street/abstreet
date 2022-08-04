@@ -65,7 +65,7 @@ impl Clone for Pathfinder {
 impl Pathfinder {
     /// Quickly create an invalid pathfinder, just to make borrow checking / initialization order
     /// work.
-    pub(crate) fn empty() -> Pathfinder {
+    pub fn empty() -> Pathfinder {
         Pathfinder {
             car_graph: VehiclePathfinder::empty(),
             bike_graph: VehiclePathfinder::empty(),

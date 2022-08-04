@@ -66,7 +66,7 @@ pub fn handle_world_outcome(
                 }
 
                 // See the argument in filters/existing.rs about not recalculating the pathfinder.
-                app.map.keep_pathfinder_despite_edits();
+                // We always create it from-scratch when needed.
             });
 
             EditOutcome::Transition(Transition::Recreate)
