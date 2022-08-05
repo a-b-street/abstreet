@@ -72,26 +72,8 @@ impl DrawMap {
         let draw_all_unzoomed_roads_and_intersections =
             DrawMap::regenerate_unzoomed_layer(ctx, map, cs, opts, timer);
 
-        let mut buildings: Vec<DrawBuilding> = Vec::new();
-        let mut all_buildings = GeomBatch::new();
-        let mut all_building_outlines = GeomBatch::new();
-        timer.start_iter("make DrawBuildings", map.all_buildings().len());
-        for b in map.all_buildings() {
-            timer.next();
-            buildings.push(DrawBuilding::new(
-                ctx,
-                b,
-                map,
-                cs,
-                opts,
-                &mut all_buildings,
-                &mut all_building_outlines,
-            ));
-        }
-        timer.start("upload all buildings");
-        let draw_all_buildings = all_buildings.upload(ctx);
-        let draw_all_building_outlines = all_building_outlines.upload(ctx);
-        timer.stop("upload all buildings");
+        let (buildings, draw_all_buildings, draw_all_building_outlines) =
+            DrawMap::regenerate_buildings(ctx, map, cs, opts, timer);
 
         timer.start("make DrawParkingLot");
         let mut parking_lots: Vec<DrawParkingLot> = Vec::new();
@@ -185,6 +167,36 @@ impl DrawMap {
             zorder_range: (low_z, high_z),
             show_zorder: high_z,
         }
+    }
+
+    pub fn regenerate_buildings(
+        ctx: &EventCtx,
+        map: &Map,
+        cs: &ColorScheme,
+        opts: &Options,
+        timer: &mut Timer,
+    ) -> (Vec<DrawBuilding>, Drawable, Drawable) {
+        let mut buildings: Vec<DrawBuilding> = Vec::new();
+        let mut all_buildings = GeomBatch::new();
+        let mut all_building_outlines = GeomBatch::new();
+        timer.start_iter("make DrawBuildings", map.all_buildings().len());
+        for b in map.all_buildings() {
+            timer.next();
+            buildings.push(DrawBuilding::new(
+                ctx,
+                b,
+                map,
+                cs,
+                opts,
+                &mut all_buildings,
+                &mut all_building_outlines,
+            ));
+        }
+        timer.start("upload all buildings");
+        let draw_all_buildings = all_buildings.upload(ctx);
+        let draw_all_building_outlines = all_building_outlines.upload(ctx);
+        timer.stop("upload all buildings");
+        (buildings, draw_all_buildings, draw_all_building_outlines)
     }
 
     pub fn regenerate_unzoomed_layer(

@@ -1,4 +1,7 @@
+use abstutil::Timer;
 use geom::{ArrowCap, Distance, PolyLine, Polygon};
+use map_gui::colors::{ColorScheme, ColorSchemeChoice};
+use map_gui::render::DrawMap;
 use street_network::Direction;
 use widgetry::mapspace::{DummyID, World};
 use widgetry::tools::PopupMsg;
@@ -197,6 +200,26 @@ impl State<App> for Viewer {
                 }
                 "areas" | "outlines" => {
                     app.session.draw_cells_as_areas = self.left_panel.is_checked("draw cells");
+
+                    app.cs = ColorScheme::new(
+                        ctx,
+                        if app.session.draw_cells_as_areas {
+                            ColorSchemeChoice::ClassicLTN
+                        } else {
+                            ColorSchemeChoice::LTN
+                        },
+                    );
+                    let (buildings, draw_all_buildings, draw_all_building_outlines) =
+                        DrawMap::regenerate_buildings(
+                            ctx,
+                            &app.map,
+                            &app.cs,
+                            &app.opts,
+                            &mut Timer::throwaway(),
+                        );
+                    app.draw_map.buildings = buildings;
+                    app.draw_map.draw_all_buildings = draw_all_buildings;
+                    app.draw_map.draw_all_building_outlines = draw_all_building_outlines;
 
                     let (edit, draw_top_layer, draw_under_roads_layer, _, highlight_cell) =
                         setup_editing(ctx, app, &self.neighbourhood);
