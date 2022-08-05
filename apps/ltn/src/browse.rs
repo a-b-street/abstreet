@@ -59,7 +59,7 @@ impl BrowseNeighbourhoods {
             left_panel,
             world,
             draw_over_roads,
-            labels: DrawSimpleRoadLabels::only_major_roads(colors::ROAD_LABEL),
+            labels: DrawSimpleRoadLabels::only_major_roads(ctx, app, colors::ROAD_LABEL),
             draw_boundary_roads: draw_boundary_roads(ctx, app),
         })
     }
@@ -157,7 +157,7 @@ impl State<App> for BrowseNeighbourhoods {
         self.top_panel.draw(g);
         self.left_panel.draw(g);
         self.draw_boundary_roads.draw(g);
-        self.labels.draw(g, app);
+        self.labels.draw(g);
         app.session.draw_all_filters.draw(g);
     }
 }

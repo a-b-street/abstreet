@@ -104,7 +104,7 @@ pub struct DistanceInterval {
 }
 
 impl Neighbourhood {
-    pub fn new(ctx: &EventCtx, app: &App, id: NeighbourhoodID) -> Neighbourhood {
+    pub fn new(ctx: &mut EventCtx, app: &App, id: NeighbourhoodID) -> Neighbourhood {
         let map = &app.map;
         let orig_perimeter = app
             .session
@@ -124,8 +124,7 @@ impl Neighbourhood {
             shortcuts: Shortcuts::empty(),
 
             fade_irrelevant: Drawable::empty(ctx),
-            // Temporary value
-            labels: DrawSimpleRoadLabels::only_major_roads(colors::ROAD_LABEL),
+            labels: DrawSimpleRoadLabels::empty(ctx),
         };
 
         for id in &n.orig_perimeter.roads {
@@ -163,6 +162,8 @@ impl Neighbourhood {
         let mut label_roads = n.perimeter.clone();
         label_roads.extend(n.orig_perimeter.interior.clone());
         n.labels = DrawSimpleRoadLabels::new(
+            ctx,
+            app,
             colors::ROAD_LABEL,
             Box::new(move |r| label_roads.contains(&r.id)),
         );

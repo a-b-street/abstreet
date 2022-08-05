@@ -49,7 +49,7 @@ impl RoutePlanner {
             files: TripManagement::new(app),
             world: World::unbounded(),
             draw_routes: Drawable::empty(ctx),
-            labels: DrawSimpleRoadLabels::all_roads(colors::ROAD_LABEL),
+            labels: DrawSimpleRoadLabels::all_roads(ctx, app, colors::ROAD_LABEL),
             pathfinder_cache: PathfinderCache::new(),
         };
 
@@ -331,7 +331,7 @@ impl State<App> for RoutePlanner {
         self.world.draw(g);
         self.draw_routes.draw(g);
         app.session.draw_all_filters.draw(g);
-        self.labels.draw(g, app);
+        self.labels.draw(g);
     }
 }
 

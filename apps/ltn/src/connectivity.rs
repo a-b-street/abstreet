@@ -239,7 +239,7 @@ impl State<App> for Viewer {
 
         self.top_panel.draw(g);
         self.left_panel.draw(g);
-        self.neighbourhood.labels.draw(g, app);
+        self.neighbourhood.labels.draw(g);
         app.session.draw_all_filters.draw(g);
 
         if self.left_panel.currently_hovering() == Some(&"warning".to_string()) {

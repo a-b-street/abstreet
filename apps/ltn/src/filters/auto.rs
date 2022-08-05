@@ -45,7 +45,7 @@ impl Heuristic {
 
     pub fn apply(
         self,
-        ctx: &EventCtx,
+        ctx: &mut EventCtx,
         app: &mut App,
         neighbourhood: &Neighbourhood,
         timer: &mut Timer,
@@ -81,7 +81,7 @@ impl Heuristic {
     }
 }
 
-fn greedy(ctx: &EventCtx, app: &mut App, neighbourhood: &Neighbourhood) {
+fn greedy(ctx: &mut EventCtx, app: &mut App, neighbourhood: &Neighbourhood) {
     // TODO How should we break ties? Some shortcuts are worse than others; use that weight?
     // TODO Should this operation be per cell instead? We could hover on a road belonging to that
     // cell to select it
@@ -99,7 +99,12 @@ fn greedy(ctx: &EventCtx, app: &mut App, neighbourhood: &Neighbourhood) {
     }
 }
 
-fn brute_force(ctx: &EventCtx, app: &mut App, neighbourhood: &Neighbourhood, timer: &mut Timer) {
+fn brute_force(
+    ctx: &mut EventCtx,
+    app: &mut App,
+    neighbourhood: &Neighbourhood,
+    timer: &mut Timer,
+) {
     // Which road leads to the fewest shortcuts?
     let mut best: Option<(RoadID, usize)> = None;
 
@@ -131,7 +136,12 @@ fn brute_force(ctx: &EventCtx, app: &mut App, neighbourhood: &Neighbourhood, tim
     }
 }
 
-fn split_cells(ctx: &EventCtx, app: &mut App, neighbourhood: &Neighbourhood, timer: &mut Timer) {
+fn split_cells(
+    ctx: &mut EventCtx,
+    app: &mut App,
+    neighbourhood: &Neighbourhood,
+    timer: &mut Timer,
+) {
     // Filtering which road leads to new cells with the MOST streets in the smaller cell?
     let mut best: Option<(RoadID, usize)> = None;
 
@@ -207,7 +217,7 @@ fn only_one_border(app: &mut App, neighbourhood: &Neighbourhood) {
 // If successful, returns a Neighbourhood and leaves the new filter in place. If it disconncts a
 // cell, reverts the change and returns None
 fn try_to_filter_road(
-    ctx: &EventCtx,
+    ctx: &mut EventCtx,
     app: &mut App,
     neighbourhood: &Neighbourhood,
     r: RoadID,

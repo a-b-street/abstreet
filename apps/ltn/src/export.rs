@@ -6,13 +6,13 @@ use widgetry::EventCtx;
 use crate::{App, Neighbourhood};
 
 /// Returns the path where the file was written
-pub fn write_geojson_file(ctx: &EventCtx, app: &App) -> Result<String> {
+pub fn write_geojson_file(ctx: &mut EventCtx, app: &App) -> Result<String> {
     let contents = geojson_string(ctx, app)?;
     let path = format!("ltn_{}.geojson", app.map.get_name().map);
     abstio::write_file(path, contents)
 }
 
-fn geojson_string(ctx: &EventCtx, app: &App) -> Result<String> {
+fn geojson_string(ctx: &mut EventCtx, app: &App) -> Result<String> {
     use geo::MapCoordsInPlace;
     use geojson::{Feature, FeatureCollection, GeoJson, Geometry, Value};
 

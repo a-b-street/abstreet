@@ -72,7 +72,7 @@ impl SelectBoundary {
             orig_partitioning: app.session.partitioning.clone(),
             last_failed_change: None,
 
-            labels: DrawSimpleRoadLabels::only_major_roads(colors::ROAD_LABEL),
+            labels: DrawSimpleRoadLabels::only_major_roads(ctx, app, colors::ROAD_LABEL),
 
             lasso: None,
         };
@@ -323,12 +323,12 @@ impl State<App> for SelectBoundary {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.world.draw(g);
         self.draw_boundary_roads.draw(g);
         self.top_panel.draw(g);
         self.left_panel.draw(g);
-        self.labels.draw(g, app);
+        self.labels.draw(g);
         if let Some(ref lasso) = self.lasso {
             lasso.draw(g);
         }

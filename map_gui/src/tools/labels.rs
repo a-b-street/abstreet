@@ -4,10 +4,11 @@ use aabb_quadtree::QuadTree;
 use lazy_static::lazy_static;
 use regex::Regex;
 
+use abstutil::Timer;
 use geom::{Angle, Bounds, Distance, Polygon, Pt2D};
 use map_model::{osm, Road};
 use widgetry::mapspace::PerZoom;
-use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Line, Text};
+use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Text};
 
 use crate::AppLike;
 
@@ -208,48 +209,65 @@ fn cheaply_overestimate_bounds(text: &str, text_scale: f64, center: Pt2D, angle:
 /// Draws labels in map-space that roughly fit on the roads and change screen-space size while
 /// zooming.
 pub struct DrawSimpleRoadLabels {
-    draw: RefCell<Option<Drawable>>,
+    draw: Drawable,
     include_roads: Box<dyn Fn(&Road) -> bool>,
     fg_color: Color,
 }
 
 impl DrawSimpleRoadLabels {
     /// Label roads that the predicate approves
-    pub fn new(fg_color: Color, include_roads: Box<dyn Fn(&Road) -> bool>) -> Self {
-        Self {
-            draw: RefCell::new(None),
+    pub fn new(
+        ctx: &mut EventCtx,
+        app: &dyn AppLike,
+        fg_color: Color,
+        include_roads: Box<dyn Fn(&Road) -> bool>,
+    ) -> Self {
+        let mut labels = Self {
+            draw: Drawable::empty(ctx),
             include_roads,
             fg_color,
+        };
+        ctx.loading_screen("label roads", |ctx, timer| {
+            labels.draw = labels.render(ctx, app, timer);
+        });
+        labels
+    }
+
+    pub fn empty(ctx: &EventCtx) -> Self {
+        Self {
+            draw: Drawable::empty(ctx),
+            include_roads: Box::new(|_| false),
+            fg_color: Color::CLEAR,
         }
     }
 
     /// Only label major roads
-    pub fn only_major_roads(fg_color: Color) -> Self {
+    pub fn only_major_roads(ctx: &mut EventCtx, app: &dyn AppLike, fg_color: Color) -> Self {
         Self::new(
+            ctx,
+            app,
             fg_color,
             Box::new(|r| r.get_rank() != osm::RoadRank::Local && !r.is_light_rail()),
         )
     }
 
-    pub fn all_roads(fg_color: Color) -> Self {
-        Self::new(fg_color, Box::new(|_| true))
+    pub fn all_roads(ctx: &mut EventCtx, app: &dyn AppLike, fg_color: Color) -> Self {
+        Self::new(ctx, app, fg_color, Box::new(|_| true))
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, app: &dyn AppLike) {
-        let mut draw = self.draw.borrow_mut();
-        if draw.is_none() {
-            *draw = Some(self.render(g, app));
-        }
-        g.redraw(draw.as_ref().unwrap());
+    pub fn draw(&self, g: &mut GfxCtx) {
+        g.redraw(&self.draw);
     }
 
-    fn render(&self, g: &mut GfxCtx, app: &dyn AppLike) -> Drawable {
+    fn render(&self, ctx: &mut EventCtx, app: &dyn AppLike, timer: &mut Timer) -> Drawable {
         let mut batch = GeomBatch::new();
         let map = app.map();
 
         let mut hitboxes = Vec::new();
 
+        timer.start_iter("render roads", map.all_roads().len());
         'ROAD: for r in map.all_roads() {
+            timer.next();
             if !(self.include_roads)(r) || r.length() < Distance::meters(30.0) {
                 continue;
             }
@@ -274,7 +292,7 @@ impl DrawSimpleRoadLabels {
             };
 
             let txt = Text::from(Line(&name).fg(self.fg_color));
-            let txt_batch = txt.render_autocropped(g).scale(scale);
+            let txt_batch = txt.render_autocropped(ctx).scale(scale);
             let rect = txt_batch
                 .get_bounds()
                 .get_rectangle()
@@ -294,6 +312,6 @@ impl DrawSimpleRoadLabels {
             );
         }
 
-        g.upload(batch)
+        ctx.upload(batch)
     }
 }
