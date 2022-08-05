@@ -4,6 +4,7 @@ use structopt::StructOpt;
 
 use abstio::MapName;
 use abstutil::Timer;
+use map_gui::tools::DrawSimpleRoadLabels;
 use map_model::RoutingParams;
 use widgetry::{EventCtx, GfxCtx, Settings};
 
@@ -82,6 +83,7 @@ fn run(mut settings: Settings) {
             partitioning: Partitioning::empty(),
             modal_filters: ModalFilters::default(),
             routing_params_before_changes: RoutingParams::default(),
+            draw_all_road_labels: None,
 
             alt_proposals: save::AltProposals::new(),
             draw_all_filters: Toggle3Zoomed::empty(ctx),
@@ -208,6 +210,7 @@ pub struct Session {
     // in the "before changes" case, we have to use these. Do NOT use the map's built-in
     // pathfinder. (https://github.com/a-b-street/abstreet/issues/852 would make this more clear)
     pub routing_params_before_changes: RoutingParams,
+    pub draw_all_road_labels: Option<DrawSimpleRoadLabels>,
 
     pub alt_proposals: save::AltProposals,
     pub draw_all_filters: Toggle3Zoomed,
@@ -264,4 +267,5 @@ pub fn clear_current_proposal(ctx: &mut EventCtx, app: &mut App, timer: &mut Tim
     crate::filters::transform_existing_filters(ctx, app, timer);
     app.session.partitioning = Partitioning::seed_using_heuristics(app, timer);
     app.session.draw_all_filters = app.session.modal_filters.draw(ctx, &app.map);
+    app.session.draw_all_road_labels = None;
 }

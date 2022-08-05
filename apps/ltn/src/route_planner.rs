@@ -19,7 +19,6 @@ pub struct RoutePlanner {
     files: TripManagement<App, RoutePlanner>,
     world: World<WaypointID>,
     draw_routes: Drawable,
-    labels: DrawSimpleRoadLabels,
     // TODO We could save the no-filter variations map-wide
     pathfinder_cache: PathfinderCache,
 }
@@ -42,6 +41,14 @@ impl TripManagementState<App> for RoutePlanner {
 
 impl RoutePlanner {
     pub fn new_state(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
+        if app.session.draw_all_road_labels.is_none() {
+            app.session.draw_all_road_labels = Some(DrawSimpleRoadLabels::all_roads(
+                ctx,
+                app,
+                colors::ROAD_LABEL,
+            ));
+        }
+
         let mut rp = RoutePlanner {
             top_panel: crate::components::TopPanel::panel(ctx, app),
             left_panel: Panel::empty(ctx),
@@ -49,7 +56,6 @@ impl RoutePlanner {
             files: TripManagement::new(app),
             world: World::unbounded(),
             draw_routes: Drawable::empty(ctx),
-            labels: DrawSimpleRoadLabels::all_roads(ctx, app, colors::ROAD_LABEL),
             pathfinder_cache: PathfinderCache::new(),
         };
 
@@ -331,7 +337,7 @@ impl State<App> for RoutePlanner {
         self.world.draw(g);
         self.draw_routes.draw(g);
         app.session.draw_all_filters.draw(g);
-        self.labels.draw(g);
+        app.session.draw_all_road_labels.as_ref().unwrap().draw(g);
     }
 }
 
