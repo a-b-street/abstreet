@@ -444,6 +444,10 @@
 <span id="439">439</span>
 <span id="440">440</span>
 <span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
@@ -482,6 +486,7 @@
     <span class="ident">block_to_neighbourhood</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">BlockID</span>, <span class="ident">NeighbourhoodID</span><span class="op">&gt;</span>,
 
     <span class="ident">use_expensive_blockfinding</span>: <span class="ident">bool</span>,
+    <span class="kw">pub</span> <span class="ident">broken</span>: <span class="ident">bool</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
@@ -514,6 +519,7 @@
             <span class="ident">block_to_neighbourhood</span>: <span class="ident">BTreeMap::new</span>(),
 
             <span class="ident">use_expensive_blockfinding</span>: <span class="bool-val">false</span>,
+            <span class="ident">broken</span>: <span class="bool-val">false</span>,
         }
     }
 
@@ -589,6 +595,7 @@
                 <span class="ident">neighbourhood_id_counter</span>,
                 <span class="ident">block_to_neighbourhood</span>: <span class="ident">BTreeMap::new</span>(),
                 <span class="ident">use_expensive_blockfinding</span>,
+                <span class="ident">broken</span>: <span class="bool-val">false</span>,
             };
 
             <span class="comment">// TODO We could probably build this up as we go</span>
@@ -605,10 +612,11 @@
                         <span class="kw">continue</span> <span class="lifetime">&#39;METHOD</span>;
                     }
                     <span class="comment">// This will break everything downstream, so bail out immediately</span>
-                    <span class="macro">panic!</span>(
-                        <span class="string">&quot;Block doesn&#39;t belong to any neighbourhood?! {:?}&quot;</span>,
+                    <span class="macro">error!</span>(
+                        <span class="string">&quot;Block still doesn&#39;t belong to any neighbourhood, even with expensive checks. Continuing without boundary adjustment. {:?}&quot;</span>,
                         <span class="ident">p</span>.<span class="ident">get_block</span>(<span class="ident">id</span>).<span class="ident">perimeter</span>
                     );
+                    <span class="ident">p</span>.<span class="ident">broken</span> <span class="op">=</span> <span class="bool-val">true</span>;
                 }
             }
 
