@@ -408,7 +408,33 @@
 <span id="403">403</span>
 <span id="404">404</span>
 <span id="405">405</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>};
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>};
+<span class="kw">use</span> <span class="ident">map_gui::colors</span>::{<span class="ident">ColorScheme</span>, <span class="ident">ColorSchemeChoice</span>};
+<span class="kw">use</span> <span class="ident">map_gui::render::DrawMap</span>;
 <span class="kw">use</span> <span class="ident">street_network::Direction</span>;
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">DummyID</span>, <span class="ident">World</span>};
 <span class="kw">use</span> <span class="ident">widgetry::tools::PopupMsg</span>;
@@ -607,6 +633,26 @@
                 }
                 <span class="string">&quot;areas&quot;</span> <span class="op">|</span> <span class="string">&quot;outlines&quot;</span> =&gt; {
                     <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_cells_as_areas</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;draw cells&quot;</span>);
+
+                    <span class="ident">app</span>.<span class="ident">cs</span> <span class="op">=</span> <span class="ident">ColorScheme::new</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_cells_as_areas</span> {
+                            <span class="ident">ColorSchemeChoice::ClassicLTN</span>
+                        } <span class="kw">else</span> {
+                            <span class="ident">ColorSchemeChoice::LTN</span>
+                        },
+                    );
+                    <span class="kw">let</span> (<span class="ident">buildings</span>, <span class="ident">draw_all_buildings</span>, <span class="ident">draw_all_building_outlines</span>) <span class="op">=</span>
+                        <span class="ident">DrawMap::regenerate_buildings</span>(
+                            <span class="ident">ctx</span>,
+                            <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>,
+                            <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>,
+                            <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>,
+                            <span class="kw-2">&amp;mut</span> <span class="ident">Timer::throwaway</span>(),
+                        );
+                    <span class="ident">app</span>.<span class="ident">draw_map</span>.<span class="ident">buildings</span> <span class="op">=</span> <span class="ident">buildings</span>;
+                    <span class="ident">app</span>.<span class="ident">draw_map</span>.<span class="ident">draw_all_buildings</span> <span class="op">=</span> <span class="ident">draw_all_buildings</span>;
+                    <span class="ident">app</span>.<span class="ident">draw_map</span>.<span class="ident">draw_all_building_outlines</span> <span class="op">=</span> <span class="ident">draw_all_building_outlines</span>;
 
                     <span class="kw">let</span> (<span class="ident">edit</span>, <span class="ident">draw_top_layer</span>, <span class="ident">draw_under_roads_layer</span>, <span class="kw">_</span>, <span class="ident">highlight_cell</span>) <span class="op">=</span>
                         <span class="ident">setup_editing</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">neighbourhood</span>);
