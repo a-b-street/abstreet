@@ -159,6 +159,7 @@ impl State<App> for BrowseNeighbourhoods {
         self.draw_boundary_roads.draw(g);
         self.labels.draw(g);
         app.session.draw_all_filters.draw(g);
+        app.session.draw_poi_icons.draw(g);
     }
 }
 

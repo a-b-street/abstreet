@@ -336,8 +336,9 @@ impl State<App> for RoutePlanner {
 
         self.world.draw(g);
         self.draw_routes.draw(g);
-        app.session.draw_all_filters.draw(g);
         app.session.draw_all_road_labels.as_ref().unwrap().draw(g);
+        app.session.draw_all_filters.draw(g);
+        app.session.draw_poi_icons.draw(g);
     }
 }
 

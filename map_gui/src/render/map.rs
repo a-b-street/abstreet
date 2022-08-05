@@ -76,18 +76,8 @@ impl DrawMap {
             DrawMap::regenerate_buildings(ctx, map, cs, opts, timer);
 
         timer.start("make DrawParkingLot");
-        let mut parking_lots: Vec<DrawParkingLot> = Vec::new();
-        let mut all_unzoomed_parking_lots = GeomBatch::new();
-        for pl in map.all_parking_lots() {
-            parking_lots.push(DrawParkingLot::new(
-                ctx,
-                pl,
-                cs,
-                opts,
-                &mut all_unzoomed_parking_lots,
-            ));
-        }
-        let draw_all_unzoomed_parking_lots = all_unzoomed_parking_lots.upload(ctx);
+        let (parking_lots, draw_all_unzoomed_parking_lots) =
+            DrawMap::regenerate_parking_lots(ctx, map, cs, opts);
         timer.stop("make DrawParkingLot");
 
         timer.start_iter("make DrawTransitStop", map.all_transit_stops().len());
@@ -197,6 +187,26 @@ impl DrawMap {
         let draw_all_building_outlines = all_building_outlines.upload(ctx);
         timer.stop("upload all buildings");
         (buildings, draw_all_buildings, draw_all_building_outlines)
+    }
+
+    pub fn regenerate_parking_lots(
+        ctx: &EventCtx,
+        map: &Map,
+        cs: &ColorScheme,
+        opts: &Options,
+    ) -> (Vec<DrawParkingLot>, Drawable) {
+        let mut parking_lots: Vec<DrawParkingLot> = Vec::new();
+        let mut all_unzoomed_parking_lots = GeomBatch::new();
+        for pl in map.all_parking_lots() {
+            parking_lots.push(DrawParkingLot::new(
+                ctx,
+                pl,
+                cs,
+                opts,
+                &mut all_unzoomed_parking_lots,
+            ));
+        }
+        (parking_lots, all_unzoomed_parking_lots.upload(ctx))
     }
 
     pub fn regenerate_unzoomed_layer(

@@ -221,6 +221,11 @@ impl State<App> for Viewer {
                     app.draw_map.draw_all_buildings = draw_all_buildings;
                     app.draw_map.draw_all_building_outlines = draw_all_building_outlines;
 
+                    let (parking_lots, draw_all_unzoomed_parking_lots) =
+                        DrawMap::regenerate_parking_lots(ctx, &app.map, &app.cs, &app.opts);
+                    app.draw_map.parking_lots = parking_lots;
+                    app.draw_map.draw_all_unzoomed_parking_lots = draw_all_unzoomed_parking_lots;
+
                     let (edit, draw_top_layer, draw_under_roads_layer, _, highlight_cell) =
                         setup_editing(ctx, app, &self.neighbourhood);
                     self.edit = edit;
@@ -264,6 +269,7 @@ impl State<App> for Viewer {
         self.left_panel.draw(g);
         self.neighbourhood.labels.draw(g);
         app.session.draw_all_filters.draw(g);
+        app.session.draw_poi_icons.draw(g);
 
         if self.left_panel.currently_hovering() == Some(&"warning".to_string()) {
             g.redraw(&self.show_error);

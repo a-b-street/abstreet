@@ -393,6 +393,8 @@ impl ColorScheme {
     fn classic_ltn() -> Self {
         let mut cs = Self::ltn();
         cs.scheme = ColorSchemeChoice::ClassicLTN;
+        // The colors of cells will show through these, de-emphasizing them
+        cs.parking_lot = Color::BLACK.alpha(0.2);
         cs.residential_building = Color::BLACK.alpha(0.3);
         cs.commercial_building = Color::BLACK.alpha(0.5);
         cs

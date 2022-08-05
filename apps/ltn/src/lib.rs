@@ -5,8 +5,8 @@ use structopt::StructOpt;
 use abstio::MapName;
 use abstutil::Timer;
 use map_gui::tools::DrawSimpleRoadLabels;
-use map_model::RoutingParams;
-use widgetry::{EventCtx, GfxCtx, Settings};
+use map_model::{AmenityType, RoutingParams};
+use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, RewriteColor, Settings};
 
 pub use browse::BrowseNeighbourhoods;
 use filters::Toggle3Zoomed;
@@ -84,6 +84,7 @@ fn run(mut settings: Settings) {
             modal_filters: ModalFilters::default(),
             routing_params_before_changes: RoutingParams::default(),
             draw_all_road_labels: None,
+            draw_poi_icons: Drawable::empty(ctx),
 
             alt_proposals: save::AltProposals::new(),
             draw_all_filters: Toggle3Zoomed::empty(ctx),
@@ -211,6 +212,7 @@ pub struct Session {
     // pathfinder. (https://github.com/a-b-street/abstreet/issues/852 would make this more clear)
     pub routing_params_before_changes: RoutingParams,
     pub draw_all_road_labels: Option<DrawSimpleRoadLabels>,
+    pub draw_poi_icons: Drawable,
 
     pub alt_proposals: save::AltProposals,
     pub draw_all_filters: Toggle3Zoomed,
@@ -268,4 +270,23 @@ pub fn clear_current_proposal(ctx: &mut EventCtx, app: &mut App, timer: &mut Tim
     app.session.partitioning = Partitioning::seed_using_heuristics(app, timer);
     app.session.draw_all_filters = app.session.modal_filters.draw(ctx, &app.map);
     app.session.draw_all_road_labels = None;
+    app.session.draw_poi_icons = render_poi_icons(ctx, app);
+}
+
+fn render_poi_icons(ctx: &EventCtx, app: &App) -> Drawable {
+    let mut batch = GeomBatch::new();
+    let school = GeomBatch::load_svg(ctx, "system/assets/map/school.svg")
+        .scale(0.2)
+        .color(RewriteColor::ChangeAll(Color::WHITE));
+
+    for b in app.map.all_buildings() {
+        if b.amenities.iter().any(|a| {
+            let at = AmenityType::categorize(&a.amenity_type);
+            at == Some(AmenityType::School) || at == Some(AmenityType::University)
+        }) {
+            batch.append(school.clone().centered_on(b.polygon.polylabel()));
+        }
+    }
+
+    ctx.upload(batch)
 }

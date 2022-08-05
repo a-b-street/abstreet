@@ -387,6 +387,7 @@ impl State<App> for ChangedRoutes {
         self.panel.draw(g);
         g.redraw(&self.draw_paths);
         app.session.draw_all_filters.draw(g);
+        app.session.draw_poi_icons.draw(g);
     }
 }
 
