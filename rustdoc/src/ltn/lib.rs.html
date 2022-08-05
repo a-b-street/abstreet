@@ -270,12 +270,17 @@
 <span id="265">265</span>
 <span id="266">266</span>
 <span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::type_complexity</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">structopt::StructOpt</span>;
 
 <span class="kw">use</span> <span class="ident">abstio::MapName</span>;
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
+<span class="kw">use</span> <span class="ident">map_gui::tools::DrawSimpleRoadLabels</span>;
 <span class="kw">use</span> <span class="ident">map_model::RoutingParams</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Settings</span>};
 
@@ -354,6 +359,7 @@
             <span class="ident">partitioning</span>: <span class="ident">Partitioning::empty</span>(),
             <span class="ident">modal_filters</span>: <span class="ident">ModalFilters::default</span>(),
             <span class="ident">routing_params_before_changes</span>: <span class="ident">RoutingParams::default</span>(),
+            <span class="ident">draw_all_road_labels</span>: <span class="prelude-val">None</span>,
 
             <span class="ident">alt_proposals</span>: <span class="ident">save::AltProposals::new</span>(),
             <span class="ident">draw_all_filters</span>: <span class="ident">Toggle3Zoomed::empty</span>(<span class="ident">ctx</span>),
@@ -480,6 +486,7 @@
     <span class="comment">// in the &quot;before changes&quot; case, we have to use these. Do NOT use the map&#39;s built-in</span>
     <span class="comment">// pathfinder. (https://github.com/a-b-street/abstreet/issues/852 would make this more clear)</span>
     <span class="kw">pub</span> <span class="ident">routing_params_before_changes</span>: <span class="ident">RoutingParams</span>,
+    <span class="kw">pub</span> <span class="ident">draw_all_road_labels</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DrawSimpleRoadLabels</span><span class="op">&gt;</span>,
 
     <span class="kw">pub</span> <span class="ident">alt_proposals</span>: <span class="ident">save::AltProposals</span>,
     <span class="kw">pub</span> <span class="ident">draw_all_filters</span>: <span class="ident">Toggle3Zoomed</span>,
@@ -536,6 +543,7 @@
     <span class="ident"><span class="kw">crate</span>::filters::transform_existing_filters</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">timer</span>);
     <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span> <span class="op">=</span> <span class="ident">Partitioning::seed_using_heuristics</span>(<span class="ident">app</span>, <span class="ident">timer</span>);
     <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_all_filters</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>);
+    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_all_road_labels</span> <span class="op">=</span> <span class="prelude-val">None</span>;
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ltn" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.1 (e092d0b6b 2022-07-16)" ></div>

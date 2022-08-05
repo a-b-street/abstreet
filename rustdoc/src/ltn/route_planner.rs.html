@@ -376,6 +376,12 @@
 <span id="371">371</span>
 <span id="372">372</span>
 <span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom::Duration</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{
     <span class="ident">DrawSimpleRoadLabels</span>, <span class="ident">InputWaypoints</span>, <span class="ident">TripManagement</span>, <span class="ident">TripManagementState</span>, <span class="ident">WaypointID</span>,
@@ -397,7 +403,6 @@
     <span class="ident">files</span>: <span class="ident">TripManagement</span><span class="op">&lt;</span><span class="ident">App</span>, <span class="ident">RoutePlanner</span><span class="op">&gt;</span>,
     <span class="ident">world</span>: <span class="ident">World</span><span class="op">&lt;</span><span class="ident">WaypointID</span><span class="op">&gt;</span>,
     <span class="ident">draw_routes</span>: <span class="ident">Drawable</span>,
-    <span class="ident">labels</span>: <span class="ident">DrawSimpleRoadLabels</span>,
     <span class="comment">// TODO We could save the no-filter variations map-wide</span>
     <span class="ident">pathfinder_cache</span>: <span class="ident">PathfinderCache</span>,
 }
@@ -420,6 +425,14 @@
 
 <span class="kw">impl</span> <span class="ident">RoutePlanner</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_all_road_labels</span>.<span class="ident">is_none</span>() {
+            <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_all_road_labels</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">DrawSimpleRoadLabels::all_roads</span>(
+                <span class="ident">ctx</span>,
+                <span class="ident">app</span>,
+                <span class="ident">colors::ROAD_LABEL</span>,
+            ));
+        }
+
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rp</span> <span class="op">=</span> <span class="ident">RoutePlanner</span> {
             <span class="ident">top_panel</span>: <span class="ident"><span class="kw">crate</span>::components::TopPanel::panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
             <span class="ident">left_panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
@@ -427,7 +440,6 @@
             <span class="ident">files</span>: <span class="ident">TripManagement::new</span>(<span class="ident">app</span>),
             <span class="ident">world</span>: <span class="ident">World::unbounded</span>(),
             <span class="ident">draw_routes</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
-            <span class="ident">labels</span>: <span class="ident">DrawSimpleRoadLabels::all_roads</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">colors::ROAD_LABEL</span>),
             <span class="ident">pathfinder_cache</span>: <span class="ident">PathfinderCache::new</span>(),
         };
 
@@ -709,7 +721,7 @@
         <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="self">self</span>.<span class="ident">draw_routes</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_all_filters</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="self">self</span>.<span class="ident">labels</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_all_road_labels</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">draw</span>(<span class="ident">g</span>);
     }
 }
 
