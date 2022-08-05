@@ -165,66 +165,71 @@ impl State<App> for BrowseNeighbourhoods {
 fn make_world(ctx: &mut EventCtx, app: &App) -> World<NeighbourhoodID> {
     let mut world = World::bounded(app.map.get_bounds());
     let map = &app.map;
-    for (id, info) in app.session.partitioning.all_neighbourhoods() {
-        match app.session.draw_neighbourhood_style {
-            Style::Simple => {
-                world
-                    .add(*id)
-                    .hitbox(info.block.polygon.clone())
-                    // Don't draw anything normally
-                    .drawn_in_master_batch()
-                    .draw_hovered(GeomBatch::from(vec![(
-                        Color::YELLOW.alpha(0.5),
-                        info.block.polygon.clone(),
-                    )]))
-                    .clickable()
-                    .build(ctx);
-            }
-            Style::Cells => {
-                // TODO The cell colors are confusing alongside the other neighbourhood colors. I
-                // tried greying out everything else, but then the view is too jumpy.
-                let neighbourhood = Neighbourhood::new(ctx, app, *id);
-                let render_cells = crate::draw_cells::RenderCells::new(map, &neighbourhood);
-                let hovered_batch = render_cells.draw_colored_areas();
-                world
-                    .add(*id)
-                    .hitbox(info.block.polygon.clone())
-                    .drawn_in_master_batch()
-                    .draw_hovered(hovered_batch)
-                    .clickable()
-                    .build(ctx);
-            }
-            Style::Quietness => {
-                let neighbourhood = Neighbourhood::new(ctx, app, *id);
-                let (quiet_streets, total_streets) = neighbourhood
-                    .shortcuts
-                    .quiet_and_total_streets(&neighbourhood);
-                let pct = if total_streets == 0 {
-                    0.0
-                } else {
-                    1.0 - (quiet_streets as f64 / total_streets as f64)
-                };
-                let color = app.cs.good_to_bad_red.eval(pct);
-                world
-                    .add(*id)
-                    .hitbox(info.block.polygon.clone())
-                    .draw_color(color.alpha(0.5))
-                    .hover_color(colors::HOVER)
-                    .clickable()
-                    .build(ctx);
-            }
-            Style::Shortcuts => {
-                world
-                    .add(*id)
-                    .hitbox(info.block.polygon.clone())
-                    // Slight lie, because draw_over_roads has to be drawn after the World
-                    .drawn_in_master_batch()
-                    .hover_color(colors::HOVER)
-                    .clickable()
-                    .build(ctx);
+    ctx.loading_screen("render neighbourhoods", |ctx, timer| {
+        timer.start_iter(
+            "render neighbourhoods",
+            app.session.partitioning.all_neighbourhoods().len(),
+        );
+        for (id, info) in app.session.partitioning.all_neighbourhoods() {
+            timer.next();
+            match app.session.draw_neighbourhood_style {
+                Style::Simple => {
+                    world
+                        .add(*id)
+                        .hitbox(info.block.polygon.clone())
+                        // Don't draw anything normally
+                        .drawn_in_master_batch()
+                        .draw_hovered(GeomBatch::from(vec![(
+                            Color::YELLOW.alpha(0.5),
+                            info.block.polygon.clone(),
+                        )]))
+                        .clickable()
+                        .build(ctx);
+                }
+                Style::Cells => {
+                    let neighbourhood = Neighbourhood::new(ctx, app, *id);
+                    let render_cells = crate::draw_cells::RenderCells::new(map, &neighbourhood);
+                    let hovered_batch = render_cells.draw_colored_areas();
+                    world
+                        .add(*id)
+                        .hitbox(info.block.polygon.clone())
+                        .drawn_in_master_batch()
+                        .draw_hovered(hovered_batch)
+                        .clickable()
+                        .build(ctx);
+                }
+                Style::Quietness => {
+                    let neighbourhood = Neighbourhood::new(ctx, app, *id);
+                    let (quiet_streets, total_streets) = neighbourhood
+                        .shortcuts
+                        .quiet_and_total_streets(&neighbourhood);
+                    let pct = if total_streets == 0 {
+                        0.0
+                    } else {
+                        1.0 - (quiet_streets as f64 / total_streets as f64)
+                    };
+                    let color = app.cs.good_to_bad_red.eval(pct);
+                    world
+                        .add(*id)
+                        .hitbox(info.block.polygon.clone())
+                        .draw_color(color.alpha(0.5))
+                        .hover_color(colors::HOVER)
+                        .clickable()
+                        .build(ctx);
+                }
+                Style::Shortcuts => {
+                    world
+                        .add(*id)
+                        .hitbox(info.block.polygon.clone())
+                        // Slight lie, because draw_over_roads has to be drawn after the World
+                        .drawn_in_master_batch()
+                        .hover_color(colors::HOVER)
+                        .clickable()
+                        .build(ctx);
+                }
             }
         }
-    }
+    });
     world
 }
 
