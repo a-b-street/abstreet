@@ -416,7 +416,7 @@
             <span class="ident">left_panel</span>,
             <span class="ident">world</span>,
             <span class="ident">draw_over_roads</span>,
-            <span class="ident">labels</span>: <span class="ident">DrawSimpleRoadLabels::only_major_roads</span>(<span class="ident">colors::ROAD_LABEL</span>),
+            <span class="ident">labels</span>: <span class="ident">DrawSimpleRoadLabels::only_major_roads</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">colors::ROAD_LABEL</span>),
             <span class="ident">draw_boundary_roads</span>: <span class="ident">draw_boundary_roads</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
         })
     }
@@ -514,7 +514,7 @@
         <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="self">self</span>.<span class="ident">draw_boundary_roads</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="self">self</span>.<span class="ident">labels</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
+        <span class="self">self</span>.<span class="ident">labels</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_all_filters</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
     }
 }

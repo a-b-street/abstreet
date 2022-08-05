@@ -495,7 +495,7 @@
             <span class="ident">orig_partitioning</span>: <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">clone</span>(),
             <span class="ident">last_failed_change</span>: <span class="prelude-val">None</span>,
 
-            <span class="ident">labels</span>: <span class="ident">DrawSimpleRoadLabels::only_major_roads</span>(<span class="ident">colors::ROAD_LABEL</span>),
+            <span class="ident">labels</span>: <span class="ident">DrawSimpleRoadLabels::only_major_roads</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">colors::ROAD_LABEL</span>),
 
             <span class="ident">lasso</span>: <span class="prelude-val">None</span>,
         };
@@ -746,12 +746,12 @@
         <span class="ident">Transition::Keep</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
+    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
         <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="self">self</span>.<span class="ident">draw_boundary_roads</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="self">self</span>.<span class="ident">labels</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
+        <span class="self">self</span>.<span class="ident">labels</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">lasso</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">lasso</span> {
             <span class="ident">lasso</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         }
