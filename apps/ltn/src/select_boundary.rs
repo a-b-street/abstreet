@@ -5,7 +5,7 @@ use anyhow::Result;
 use geom::Polygon;
 use map_gui::tools::DrawSimpleRoadLabels;
 use widgetry::mapspace::{World, WorldOutcome};
-use widgetry::tools::Lasso;
+use widgetry::tools::{Lasso, PopupMsg};
 use widgetry::{
     Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, State, Text, TextExt, Widget,
 };
@@ -40,6 +40,17 @@ impl SelectBoundary {
         app: &mut App,
         id: NeighbourhoodID,
     ) -> Box<dyn State<App>> {
+        if app.session.partitioning.broken {
+            return PopupMsg::new_state(
+                ctx,
+                "Error",
+                vec![
+                    "Sorry, you can't adjust any boundaries on this map.",
+                    "This is a known problem without any workaround yet.",
+                ],
+            );
+        }
+
         // Make sure we clear this state if we ever modify neighbourhood boundaries
         if let EditMode::Shortcuts(ref mut maybe_focus) = app.session.edit_mode {
             *maybe_focus = None;

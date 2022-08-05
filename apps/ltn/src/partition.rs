@@ -36,6 +36,7 @@ pub struct Partitioning {
     block_to_neighbourhood: BTreeMap<BlockID, NeighbourhoodID>,
 
     use_expensive_blockfinding: bool,
+    pub broken: bool,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -68,6 +69,7 @@ impl Partitioning {
             block_to_neighbourhood: BTreeMap::new(),
 
             use_expensive_blockfinding: false,
+            broken: false,
         }
     }
 
@@ -143,6 +145,7 @@ impl Partitioning {
                 neighbourhood_id_counter,
                 block_to_neighbourhood: BTreeMap::new(),
                 use_expensive_blockfinding,
+                broken: false,
             };
 
             // TODO We could probably build this up as we go
@@ -159,10 +162,11 @@ impl Partitioning {
                         continue 'METHOD;
                     }
                     // This will break everything downstream, so bail out immediately
-                    panic!(
-                        "Block doesn't belong to any neighbourhood?! {:?}",
+                    error!(
+                        "Block still doesn't belong to any neighbourhood, even with expensive checks. Continuing without boundary adjustment. {:?}",
                         p.get_block(id).perimeter
                     );
+                    p.broken = true;
                 }
             }
 
