@@ -572,6 +572,16 @@
 <span id="567">567</span>
 <span id="568">568</span>
 <span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">aabb_quadtree::QuadTree</span>;
@@ -650,18 +660,8 @@
             <span class="ident">DrawMap::regenerate_buildings</span>(<span class="ident">ctx</span>, <span class="ident">map</span>, <span class="ident">cs</span>, <span class="ident">opts</span>, <span class="ident">timer</span>);
 
         <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;make DrawParkingLot&quot;</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parking_lots</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawParkingLot</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all_unzoomed_parking_lots</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="kw">for</span> <span class="ident">pl</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_parking_lots</span>() {
-            <span class="ident">parking_lots</span>.<span class="ident">push</span>(<span class="ident">DrawParkingLot::new</span>(
-                <span class="ident">ctx</span>,
-                <span class="ident">pl</span>,
-                <span class="ident">cs</span>,
-                <span class="ident">opts</span>,
-                <span class="kw-2">&amp;mut</span> <span class="ident">all_unzoomed_parking_lots</span>,
-            ));
-        }
-        <span class="kw">let</span> <span class="ident">draw_all_unzoomed_parking_lots</span> <span class="op">=</span> <span class="ident">all_unzoomed_parking_lots</span>.<span class="ident">upload</span>(<span class="ident">ctx</span>);
+        <span class="kw">let</span> (<span class="ident">parking_lots</span>, <span class="ident">draw_all_unzoomed_parking_lots</span>) <span class="op">=</span>
+            <span class="ident">DrawMap::regenerate_parking_lots</span>(<span class="ident">ctx</span>, <span class="ident">map</span>, <span class="ident">cs</span>, <span class="ident">opts</span>);
         <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;make DrawParkingLot&quot;</span>);
 
         <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;make DrawTransitStop&quot;</span>, <span class="ident">map</span>.<span class="ident">all_transit_stops</span>().<span class="ident">len</span>());
@@ -771,6 +771,26 @@
         <span class="kw">let</span> <span class="ident">draw_all_building_outlines</span> <span class="op">=</span> <span class="ident">all_building_outlines</span>.<span class="ident">upload</span>(<span class="ident">ctx</span>);
         <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;upload all buildings&quot;</span>);
         (<span class="ident">buildings</span>, <span class="ident">draw_all_buildings</span>, <span class="ident">draw_all_building_outlines</span>)
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">regenerate_parking_lots</span>(
+        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
+        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
+        <span class="ident">cs</span>: <span class="kw-2">&amp;</span><span class="ident">ColorScheme</span>,
+        <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">Options</span>,
+    ) -&gt; (<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawParkingLot</span><span class="op">&gt;</span>, <span class="ident">Drawable</span>) {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parking_lots</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawParkingLot</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all_unzoomed_parking_lots</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
+        <span class="kw">for</span> <span class="ident">pl</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_parking_lots</span>() {
+            <span class="ident">parking_lots</span>.<span class="ident">push</span>(<span class="ident">DrawParkingLot::new</span>(
+                <span class="ident">ctx</span>,
+                <span class="ident">pl</span>,
+                <span class="ident">cs</span>,
+                <span class="ident">opts</span>,
+                <span class="kw-2">&amp;mut</span> <span class="ident">all_unzoomed_parking_lots</span>,
+            ));
+        }
+        (<span class="ident">parking_lots</span>, <span class="ident">all_unzoomed_parking_lots</span>.<span class="ident">upload</span>(<span class="ident">ctx</span>))
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">regenerate_unzoomed_layer</span>(

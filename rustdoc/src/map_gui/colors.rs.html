@@ -549,6 +549,8 @@
 <span id="544">544</span>
 <span id="545">545</span>
 <span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
 </pre><pre class="rust"><code><span class="doccomment">//! A color scheme groups colors used for different map, dynamic, and UI elements in one place, to</span>
 <span class="doccomment">//! encourage deduplication. The player can also switch between different color schemes.</span>
 
@@ -944,6 +946,8 @@
     <span class="kw">fn</span> <span class="ident">classic_ltn</span>() -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cs</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::ltn</span>();
         <span class="ident">cs</span>.<span class="ident">scheme</span> <span class="op">=</span> <span class="ident">ColorSchemeChoice::ClassicLTN</span>;
+        <span class="comment">// The colors of cells will show through these, de-emphasizing them</span>
+        <span class="ident">cs</span>.<span class="ident">parking_lot</span> <span class="op">=</span> <span class="ident">Color::BLACK</span>.<span class="ident">alpha</span>(<span class="number">0.2</span>);
         <span class="ident">cs</span>.<span class="ident">residential_building</span> <span class="op">=</span> <span class="ident">Color::BLACK</span>.<span class="ident">alpha</span>(<span class="number">0.3</span>);
         <span class="ident">cs</span>.<span class="ident">commercial_building</span> <span class="op">=</span> <span class="ident">Color::BLACK</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>);
         <span class="ident">cs</span>

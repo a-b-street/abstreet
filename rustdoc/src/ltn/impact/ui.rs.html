@@ -436,6 +436,7 @@
 <span id="431">431</span>
 <span id="432">432</span>
 <span id="433">433</span>
+<span id="434">434</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
@@ -825,6 +826,7 @@
         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw_paths</span>);
         <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_all_filters</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_poi_icons</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
     }
 }
 
