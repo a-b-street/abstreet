@@ -43,11 +43,12 @@ impl EditPolygon {
                 .build(ctx);
         }
 
+        // Scale the circle as we zoom out
+        let circle = Circle::new(Pt2D::zero(), Distance::meters(10.0) / ctx.canvas.cam_zoom).to_polygon();
         for (idx, pt) in self.points.iter().enumerate() {
             world
                 .add(Obj::Point(idx))
-                // Scale the circle as we zoom out
-                .hitbox(Circle::new(*pt, Distance::meters(10.0) / ctx.canvas.cam_zoom).to_polygon())
+                .hitbox(circle.translate(pt.x(), pt.y()))
                 .zorder(1)
                 .draw_color(Color::RED)
                 .hover_alpha(0.8)
