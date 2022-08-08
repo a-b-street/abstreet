@@ -30,16 +30,28 @@
 <span id="25">25</span>
 <span id="26">26</span>
 <span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">widgetry::Color</span>;
 
 <span class="macro">lazy_static::lazy_static!</span> {
-    <span class="kw">pub</span> <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">CELLS</span>: [<span class="ident">Color</span>; <span class="number">6</span>] <span class="op">=</span> [
-        <span class="ident">Color::BLUE</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>),
-        <span class="ident">Color::YELLOW</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>),
-        <span class="ident">Color::hex</span>(<span class="string">&quot;#3CAEA3&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.5</span>),
-        <span class="ident">Color::PURPLE</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>),
-        <span class="ident">Color::PINK</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>),
-        <span class="ident">Color::ORANGE</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>),
+    <span class="comment">// A qualitative palette from colorbrewer2.org, skipping the red hue (used for levels of</span>
+    <span class="comment">// shortcutting) and grey (too close to the basemap)</span>
+    <span class="kw">pub</span> <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">CELLS</span>: [<span class="ident">Color</span>; <span class="number">10</span>] <span class="op">=</span> [
+        <span class="ident">Color::hex</span>(<span class="string">&quot;#8dd3c7&quot;</span>),
+        <span class="ident">Color::hex</span>(<span class="string">&quot;#ffffb3&quot;</span>),
+        <span class="ident">Color::hex</span>(<span class="string">&quot;#bebada&quot;</span>),
+        <span class="ident">Color::hex</span>(<span class="string">&quot;#80b1d3&quot;</span>),
+        <span class="ident">Color::hex</span>(<span class="string">&quot;#fdb462&quot;</span>),
+        <span class="ident">Color::hex</span>(<span class="string">&quot;#b3de69&quot;</span>),
+        <span class="ident">Color::hex</span>(<span class="string">&quot;#fccde5&quot;</span>),
+        <span class="ident">Color::hex</span>(<span class="string">&quot;#bc80bd&quot;</span>),
+        <span class="ident">Color::hex</span>(<span class="string">&quot;#ccebc5&quot;</span>),
+        <span class="ident">Color::hex</span>(<span class="string">&quot;#ffed6f&quot;</span>),
     ];
 
     <span class="kw">pub</span> <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">PLAN_ROUTE_BEFORE</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::RED</span>;

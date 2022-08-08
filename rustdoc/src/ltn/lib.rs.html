@@ -355,7 +355,7 @@
 
 <span class="kw">fn</span> <span class="ident">run</span>(<span class="kw-2">mut</span> <span class="ident">settings</span>: <span class="ident">Settings</span>) {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">map_gui::options::Options::load_or_default</span>();
-    <span class="ident">opts</span>.<span class="ident">color_scheme</span> <span class="op">=</span> <span class="ident">map_gui::colors::ColorSchemeChoice::LTN</span>;
+    <span class="ident">opts</span>.<span class="ident">color_scheme</span> <span class="op">=</span> <span class="ident">map_gui::colors::ColorSchemeChoice::ClassicLTN</span>;
     <span class="ident">opts</span>.<span class="ident">show_building_driveways</span> <span class="op">=</span> <span class="bool-val">false</span>;
     <span class="comment">// TODO Ideally we would have a better map model in the first place. The next best thing would</span>
     <span class="comment">// be to change these settings based on the map&#39;s country, but that&#39;s a bit tricky to do early</span>
@@ -391,7 +391,7 @@
             <span class="ident">filter_type</span>: <span class="ident">FilterType::NoEntry</span>,
 
             <span class="ident">draw_neighbourhood_style</span>: <span class="ident">browse::Style::Simple</span>,
-            <span class="ident">draw_cells_as_areas</span>: <span class="bool-val">false</span>,
+            <span class="ident">draw_cells_as_areas</span>: <span class="bool-val">true</span>,
             <span class="ident">heuristic</span>: <span class="ident">filters::auto::Heuristic::SplitCells</span>,
             <span class="ident">main_road_penalty</span>: <span class="number">1.0</span>,
 

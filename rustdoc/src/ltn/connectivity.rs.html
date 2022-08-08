@@ -437,6 +437,32 @@
 <span id="432">432</span>
 <span id="433">433</span>
 <span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>};
 <span class="kw">use</span> <span class="ident">map_gui::colors</span>::{<span class="ident">ColorScheme</span>, <span class="ident">ColorSchemeChoice</span>};
@@ -748,10 +774,33 @@
     <span class="kw">let</span> <span class="ident">render_cells</span> <span class="op">=</span> <span class="ident">RenderCells::new</span>(<span class="ident">map</span>, <span class="ident">neighbourhood</span>);
     <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_cells_as_areas</span> {
         <span class="ident">draw_under_roads_layer</span> <span class="op">=</span> <span class="ident">render_cells</span>.<span class="ident">draw_colored_areas</span>();
-    } <span class="kw">else</span> {
-        <span class="ident">draw_top_layer</span>.<span class="ident">append</span>(<span class="ident">render_cells</span>.<span class="ident">draw_island_outlines</span>());
+        <span class="ident">draw_top_layer</span>.<span class="ident">append</span>(<span class="ident">render_cells</span>.<span class="ident">draw_island_outlines</span>(<span class="bool-val">true</span>));
 
-        <span class="comment">// Highlight cell areas and their border areas when hovered</span>
+        <span class="comment">// Highlight border arrows when hovered</span>
+        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">polygons</span>) <span class="kw">in</span> <span class="ident">render_cells</span>.<span class="ident">polygons_per_cell</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
+            <span class="comment">// Edge case happening near https://www.openstreetmap.org/way/106879596</span>
+            <span class="kw">if</span> <span class="ident">polygons</span>.<span class="ident">is_empty</span>() {
+                <span class="kw">continue</span>;
+            }
+
+            <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident">render_cells</span>.<span class="ident">colors</span>[<span class="ident">idx</span>].<span class="ident">alpha</span>(<span class="number">1.0</span>);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
+            <span class="kw">for</span> <span class="ident">arrow</span> <span class="kw">in</span> <span class="ident">neighbourhood</span>.<span class="ident">cells</span>[<span class="ident">idx</span>].<span class="ident">border_arrows</span>(<span class="ident">app</span>) {
+                <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">arrow</span>);
+            }
+
+            <span class="ident">highlight_cell</span>
+                .<span class="ident">add_unnamed</span>()
+                .<span class="ident">hitbox</span>(<span class="ident">Polygon::union_all</span>(<span class="ident">polygons</span>.<span class="ident">clone</span>()))
+                <span class="comment">// Don&#39;t draw cells by default</span>
+                .<span class="ident">drawn_in_master_batch</span>()
+                .<span class="ident">draw_hovered</span>(<span class="ident">batch</span>)
+                .<span class="ident">build</span>(<span class="ident">ctx</span>);
+        }
+    } <span class="kw">else</span> {
+        <span class="ident">draw_top_layer</span>.<span class="ident">append</span>(<span class="ident">render_cells</span>.<span class="ident">draw_island_outlines</span>(<span class="bool-val">false</span>));
+
+        <span class="comment">// Highlight cell areas and their border arrows when hovered</span>
         <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">polygons</span>) <span class="kw">in</span> <span class="ident">render_cells</span>.<span class="ident">polygons_per_cell</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
             <span class="comment">// Edge case happening near https://www.openstreetmap.org/way/106879596</span>
             <span class="kw">if</span> <span class="ident">polygons</span>.<span class="ident">is_empty</span>() {
@@ -786,7 +835,10 @@
             <span class="ident">Color::BLACK</span>
         };
         <span class="kw">for</span> <span class="ident">arrow</span> <span class="kw">in</span> <span class="ident">cell</span>.<span class="ident">border_arrows</span>(<span class="ident">app</span>) {
-            <span class="ident">draw_top_layer</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">arrow</span>);
+            <span class="ident">draw_top_layer</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">arrow</span>.<span class="ident">clone</span>());
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">outline</span>) <span class="op">=</span> <span class="ident">arrow</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">1.0</span>)) {
+                <span class="ident">draw_top_layer</span>.<span class="ident">push</span>(<span class="ident">Color::BLACK</span>, <span class="ident">outline</span>);
+            }
         }
     }
 
