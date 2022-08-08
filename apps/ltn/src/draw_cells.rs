@@ -51,7 +51,7 @@ impl RenderCells {
 
     /// Draw the boundary between cells as a thick outline. It's meant to look like the
     /// neighbourhood is split into disconnected islands.
-    pub fn draw_island_outlines(&self) -> GeomBatch {
+    pub fn draw_island_outlines(&self, use_color: bool) -> GeomBatch {
         let neighbourhood_boundary = self
             .boundary_polygon
             .to_outline(Distance::meters(25.0))
@@ -68,13 +68,18 @@ impl RenderCells {
                 }
 
                 let boundary = PolyLine::unchecked_new(poly.clone().into_points())
-                    .make_polygons(Distance::meters(10.0));
+                    .make_polygons(Distance::meters(5.0));
 
+                let color = if use_color {
+                    cell_color.alpha(1.0).shade(0.2)
+                } else {
+                    Color::BLACK
+                };
                 // If possible, try to erase where the cell boundary touches the perimeter road.
                 if let Some(ref neighbourhood_boundary) = neighbourhood_boundary {
-                    batch.extend(Color::BLACK, boundary.difference(neighbourhood_boundary));
+                    batch.extend(color, boundary.difference(neighbourhood_boundary));
                 } else {
-                    batch.push(Color::BLACK, boundary);
+                    batch.push(color, boundary);
                 }
             }
         }
@@ -320,15 +325,32 @@ fn color_cells(num_cells: usize, adjacencies: HashSet<(usize, usize)>) -> Vec<Co
                 }
             }
         }
-        if let Some(color) = available_colors.iter().position(|x| *x) {
-            assigned_colors.push(color);
-        } else {
-            warn!("color_cells ran out of colors");
-            assigned_colors.push(0);
+
+        // If there are multiple colors available, prefer one that hasn't been used anywhere yet.
+        // Cells far apart shouldn't seem related to the user.
+        let mut choice = None;
+        let mut backup = None;
+        for (idx, available) in available_colors.into_iter().enumerate() {
+            if !available {
+                continue;
+            }
+            if assigned_colors.iter().any(|x| *x == idx) {
+                if backup.is_none() {
+                    backup = Some(idx);
+                }
+            } else {
+                choice = Some(idx);
+                break;
+            }
         }
+        assigned_colors.push(
+            choice
+                .or(backup)
+                .unwrap_or_else(|| assigned_colors.len() % colors::CELLS.len()),
+        );
     }
     assigned_colors
         .into_iter()
-        .map(|idx| colors::CELLS[idx])
+        .map(|idx| colors::CELLS[idx].alpha(0.8))
         .collect()
 }
