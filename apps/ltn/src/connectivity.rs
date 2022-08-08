@@ -309,10 +309,33 @@ fn setup_editing(
     let render_cells = RenderCells::new(map, neighbourhood);
     if app.session.draw_cells_as_areas {
         draw_under_roads_layer = render_cells.draw_colored_areas();
-    } else {
-        draw_top_layer.append(render_cells.draw_island_outlines());
+        draw_top_layer.append(render_cells.draw_island_outlines(true));
 
-        // Highlight cell areas and their border areas when hovered
+        // Highlight border arrows when hovered
+        for (idx, polygons) in render_cells.polygons_per_cell.iter().enumerate() {
+            // Edge case happening near https://www.openstreetmap.org/way/106879596
+            if polygons.is_empty() {
+                continue;
+            }
+
+            let color = render_cells.colors[idx].alpha(1.0);
+            let mut batch = GeomBatch::new();
+            for arrow in neighbourhood.cells[idx].border_arrows(app) {
+                batch.push(color, arrow);
+            }
+
+            highlight_cell
+                .add_unnamed()
+                .hitbox(Polygon::union_all(polygons.clone()))
+                // Don't draw cells by default
+                .drawn_in_master_batch()
+                .draw_hovered(batch)
+                .build(ctx);
+        }
+    } else {
+        draw_top_layer.append(render_cells.draw_island_outlines(false));
+
+        // Highlight cell areas and their border arrows when hovered
         for (idx, polygons) in render_cells.polygons_per_cell.iter().enumerate() {
             // Edge case happening near https://www.openstreetmap.org/way/106879596
             if polygons.is_empty() {
@@ -347,7 +370,10 @@ fn setup_editing(
             Color::BLACK
         };
         for arrow in cell.border_arrows(app) {
-            draw_top_layer.push(color, arrow);
+            draw_top_layer.push(color, arrow.clone());
+            if let Ok(outline) = arrow.to_outline(Distance::meters(1.0)) {
+                draw_top_layer.push(Color::BLACK, outline);
+            }
         }
     }
 

@@ -1,13 +1,19 @@
 use widgetry::Color;
 
 lazy_static::lazy_static! {
-    pub static ref CELLS: [Color; 6] = [
-        Color::BLUE.alpha(0.5),
-        Color::YELLOW.alpha(0.5),
-        Color::hex("#3CAEA3").alpha(0.5),
-        Color::PURPLE.alpha(0.5),
-        Color::PINK.alpha(0.5),
-        Color::ORANGE.alpha(0.5),
+    // A qualitative palette from colorbrewer2.org, skipping the red hue (used for levels of
+    // shortcutting) and grey (too close to the basemap)
+    pub static ref CELLS: [Color; 10] = [
+        Color::hex("#8dd3c7"),
+        Color::hex("#ffffb3"),
+        Color::hex("#bebada"),
+        Color::hex("#80b1d3"),
+        Color::hex("#fdb462"),
+        Color::hex("#b3de69"),
+        Color::hex("#fccde5"),
+        Color::hex("#bc80bd"),
+        Color::hex("#ccebc5"),
+        Color::hex("#ffed6f"),
     ];
 
     pub static ref PLAN_ROUTE_BEFORE: Color = Color::RED;
