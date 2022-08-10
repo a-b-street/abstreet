@@ -2394,6 +2394,7 @@ dependencies = [
  "anyhow",
  "enumset",
  "fast_paths",
+ "geojson",
  "geom",
  "kml",
  "log",

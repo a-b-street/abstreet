@@ -44,7 +44,8 @@ impl EditPolygon {
         }
 
         // Scale the circle as we zoom out
-        let circle = Circle::new(Pt2D::zero(), Distance::meters(10.0) / ctx.canvas.cam_zoom).to_polygon();
+        let circle =
+            Circle::new(Pt2D::zero(), Distance::meters(10.0) / ctx.canvas.cam_zoom).to_polygon();
         for (idx, pt) in self.points.iter().enumerate() {
             world
                 .add(Obj::Point(idx))

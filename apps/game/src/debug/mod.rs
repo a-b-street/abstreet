@@ -140,6 +140,10 @@ impl DebugMode {
                         .build_def(ctx),
                     ctx.style()
                         .btn_outline
+                        .text("export geometry to GeoJSON")
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_outline
                         .text("draw banned turns")
                         .hotkey(Key::T)
                         .build_def(ctx),
@@ -363,6 +367,12 @@ impl State<App> for DebugMode {
                         abstio::write_json("rendered_map.json".to_string(), &geojson);
                         timer.stop("render");
                     });
+                }
+                "export geometry to GeoJSON" => {
+                    abstio::write_json(
+                        "map_geometry.json".to_string(),
+                        &app.primary.map.export_geometry(),
+                    );
                 }
                 "draw banned turns" => {
                     // Abuse this just to draw

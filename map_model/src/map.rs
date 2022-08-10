@@ -893,4 +893,30 @@ impl Map {
             r.transit_stops.clear();
         }
     }
+
+    /// Export all road and intersection geometry to GeoJSON, transforming to WGS84
+    pub fn export_geometry(&self) -> geojson::GeoJson {
+        let mut pairs = Vec::new();
+        let gps_bounds = Some(self.get_gps_bounds());
+
+        for i in self.all_intersections() {
+            let mut props = serde_json::Map::new();
+            props.insert("type".to_string(), "intersection".into());
+            props.insert("id".to_string(), i.orig_id.to_string().into());
+            pairs.push((i.polygon.clone().into_ring().to_geojson(gps_bounds), props));
+        }
+        for r in self.all_roads() {
+            let mut props = serde_json::Map::new();
+            props.insert("type".to_string(), "road".into());
+            props.insert("id".to_string(), r.orig_id.osm_way_id.to_string().into());
+            pairs.push((
+                r.center_pts
+                    .to_thick_ring(r.get_width())
+                    .to_geojson(gps_bounds),
+                props,
+            ));
+        }
+
+        geom::geometries_with_properties_to_geojson(pairs)
+    }
 }

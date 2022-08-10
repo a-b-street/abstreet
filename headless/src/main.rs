@@ -392,7 +392,7 @@ fn handle_command(
             let i = IntersectionID(get("id")?.parse::<usize>()?);
             Ok(abstutil::to_json(&export_geometry(map, i)))
         }
-        "/map/get-all-geometry" => Ok(abstutil::to_json(&export_all_geometry(map))),
+        "/map/get-all-geometry" => Ok(abstutil::to_json(&map.export_geometry())),
         "/map/get-nearest-road" => {
             let pt = LonLat::new(get("lon")?.parse::<f64>()?, get("lat")?.parse::<f64>()?);
             let mut closest = FindClosest::new(map.get_bounds());
@@ -552,31 +552,6 @@ fn export_geometry(map: &Map, i: IntersectionID) -> geojson::GeoJson {
                 .to_thick_ring(r.get_width())
                 .translate(-center.x(), -center.y())
                 .to_geojson(None),
-            props,
-        ));
-    }
-
-    geom::geometries_with_properties_to_geojson(pairs)
-}
-
-fn export_all_geometry(map: &Map) -> geojson::GeoJson {
-    let mut pairs = Vec::new();
-    let gps_bounds = Some(map.get_gps_bounds());
-
-    for i in map.all_intersections() {
-        let mut props = serde_json::Map::new();
-        props.insert("type".to_string(), "intersection".into());
-        props.insert("id".to_string(), i.orig_id.to_string().into());
-        pairs.push((i.polygon.clone().into_ring().to_geojson(gps_bounds), props));
-    }
-    for r in map.all_roads() {
-        let mut props = serde_json::Map::new();
-        props.insert("type".to_string(), "road".into());
-        props.insert("id".to_string(), r.orig_id.osm_way_id.to_string().into());
-        pairs.push((
-            r.center_pts
-                .to_thick_ring(r.get_width())
-                .to_geojson(gps_bounds),
             props,
         ));
     }
