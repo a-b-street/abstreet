@@ -371,6 +371,15 @@
 <span id="366">366</span>
 <span id="367">367</span>
 <span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
 </pre><pre class="rust"><code><span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">auto</span>;
 <span class="kw">mod</span> <span class="ident">existing</span>;
 
@@ -438,8 +447,7 @@
 <span class="doccomment">/// roads splits the ordering into two groups. Turns in each group are still possible, but not</span>
 <span class="doccomment">/// across groups.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// TODO Be careful with PartialEq! At a 4-way intersection, the same filter can be expressed as a</span>
-<span class="doccomment">/// different pair of two roads. And the (r1, r2) ordering is also arbitrary.</span>
+<span class="doccomment">/// Be careful with `PartialEq` -- see `approx_eq`.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DiagonalFilter</span> {
     <span class="ident">r1</span>: <span class="ident">RoadID</span>,
@@ -597,9 +605,9 @@
 
             <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">intersections</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>) {
                 <span class="prelude-val">Some</span>(<span class="ident">prev</span>) =&gt; {
-                    <span class="kw">if</span> <span class="ident">prev</span> <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident">alt1</span> {
+                    <span class="kw">if</span> <span class="ident">alt1</span>.<span class="ident">approx_eq</span>(<span class="ident">prev</span>) {
                         <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">intersections</span>.<span class="ident">insert</span>(<span class="ident">i</span>, <span class="ident">alt2</span>);
-                    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">prev</span> <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident">alt2</span> {
+                    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">alt2</span>.<span class="ident">approx_eq</span>(<span class="ident">prev</span>) {
                         <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">intersections</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>);
                     } <span class="kw">else</span> {
                         <span class="macro">unreachable!</span>()
@@ -711,6 +719,16 @@
             }
         }
         <span class="ident">pairs</span>
+    }
+
+    <span class="kw">fn</span> <span class="ident">approx_eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">DiagonalFilter</span>) -&gt; <span class="ident">bool</span> {
+        <span class="comment">// Careful. At a 4-way intersection, the same filter can be expressed as a different pair of two</span>
+        <span class="comment">// roads. The (r1, r2) ordering is also arbitrary. cycle_through_alternatives is</span>
+        <span class="comment">// consistent, though.</span>
+        <span class="comment">//</span>
+        <span class="comment">// Note this ignores filter_type.</span>
+        (<span class="self">self</span>.<span class="ident">r1</span>, <span class="self">self</span>.<span class="ident">r2</span>, <span class="self">self</span>.<span class="ident">i</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">group1</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">group2</span>)
+            <span class="op">==</span> (<span class="ident">other</span>.<span class="ident">r1</span>, <span class="ident">other</span>.<span class="ident">r2</span>, <span class="ident">other</span>.<span class="ident">i</span>, <span class="kw-2">&amp;</span><span class="ident">other</span>.<span class="ident">group1</span>, <span class="kw-2">&amp;</span><span class="ident">other</span>.<span class="ident">group2</span>)
     }
 }
 
