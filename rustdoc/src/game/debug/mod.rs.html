@@ -1094,6 +1094,16 @@
 <span id="1089">1089</span>
 <span id="1090">1090</span>
 <span id="1091">1091</span>
+<span id="1092">1092</span>
+<span id="1093">1093</span>
+<span id="1094">1094</span>
+<span id="1095">1095</span>
+<span id="1096">1096</span>
+<span id="1097">1097</span>
+<span id="1098">1098</span>
+<span id="1099">1099</span>
+<span id="1100">1100</span>
+<span id="1101">1101</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
 <span class="kw">use</span> <span class="ident">abstio::MapName</span>;
@@ -1233,6 +1243,10 @@
                         .<span class="ident">btn_outline</span>
                         .<span class="ident">text</span>(<span class="string">&quot;render to GeoJSON&quot;</span>)
                         .<span class="ident">hotkey</span>(<span class="ident">Key::G</span>)
+                        .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                    <span class="ident">ctx</span>.<span class="ident">style</span>()
+                        .<span class="ident">btn_outline</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;export geometry to GeoJSON&quot;</span>)
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
                         .<span class="ident">btn_outline</span>
@@ -1459,6 +1473,12 @@
                         <span class="ident">abstio::write_json</span>(<span class="string">&quot;rendered_map.json&quot;</span>.<span class="ident">to_string</span>(), <span class="kw-2">&amp;</span><span class="ident">geojson</span>);
                         <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;render&quot;</span>);
                     });
+                }
+                <span class="string">&quot;export geometry to GeoJSON&quot;</span> =&gt; {
+                    <span class="ident">abstio::write_json</span>(
+                        <span class="string">&quot;map_geometry.json&quot;</span>.<span class="ident">to_string</span>(),
+                        <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">export_geometry</span>(),
+                    );
                 }
                 <span class="string">&quot;draw banned turns&quot;</span> =&gt; {
                     <span class="comment">// Abuse this just to draw</span>

@@ -128,6 +128,7 @@
 <span id="123">123</span>
 <span id="124">124</span>
 <span id="125">125</span>
+<span id="126">126</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::AppLike</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ObjectID</span>, <span class="ident">World</span>, <span class="ident">WorldOutcome</span>};
@@ -174,7 +175,8 @@
         }
 
         <span class="comment">// Scale the circle as we zoom out</span>
-        <span class="kw">let</span> <span class="ident">circle</span> <span class="op">=</span> <span class="ident">Circle::new</span>(<span class="ident">Pt2D::zero</span>(), <span class="ident">Distance::meters</span>(<span class="number">10.0</span>) <span class="op">/</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span>).<span class="ident">to_polygon</span>();
+        <span class="kw">let</span> <span class="ident">circle</span> <span class="op">=</span>
+            <span class="ident">Circle::new</span>(<span class="ident">Pt2D::zero</span>(), <span class="ident">Distance::meters</span>(<span class="number">10.0</span>) <span class="op">/</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span>).<span class="ident">to_polygon</span>();
         <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">pt</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">points</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
             <span class="ident">world</span>
                 .<span class="ident">add</span>(<span class="ident">Obj::Point</span>(<span class="ident">idx</span>))

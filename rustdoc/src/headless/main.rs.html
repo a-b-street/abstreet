@@ -563,31 +563,6 @@
 <span id="558">558</span>
 <span id="559">559</span>
 <span id="560">560</span>
-<span id="561">561</span>
-<span id="562">562</span>
-<span id="563">563</span>
-<span id="564">564</span>
-<span id="565">565</span>
-<span id="566">566</span>
-<span id="567">567</span>
-<span id="568">568</span>
-<span id="569">569</span>
-<span id="570">570</span>
-<span id="571">571</span>
-<span id="572">572</span>
-<span id="573">573</span>
-<span id="574">574</span>
-<span id="575">575</span>
-<span id="576">576</span>
-<span id="577">577</span>
-<span id="578">578</span>
-<span id="579">579</span>
-<span id="580">580</span>
-<span id="581">581</span>
-<span id="582">582</span>
-<span id="583">583</span>
-<span id="584">584</span>
-<span id="585">585</span>
 </pre><pre class="rust"><code><span class="doccomment">//! This runs a simulation without any graphics and serves a very basic API to control things. See</span>
 <span class="doccomment">//! https://a-b-street.github.io/docs/tech/dev/api.html for documentation. To run this:</span>
 <span class="doccomment">//!</span>
@@ -982,7 +957,7 @@
             <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">IntersectionID</span>(<span class="ident">get</span>(<span class="string">&quot;id&quot;</span>)<span class="question-mark">?</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>()<span class="question-mark">?</span>);
             <span class="prelude-val">Ok</span>(<span class="ident">abstutil::to_json</span>(<span class="kw-2">&amp;</span><span class="ident">export_geometry</span>(<span class="ident">map</span>, <span class="ident">i</span>)))
         }
-        <span class="string">&quot;/map/get-all-geometry&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">abstutil::to_json</span>(<span class="kw-2">&amp;</span><span class="ident">export_all_geometry</span>(<span class="ident">map</span>))),
+        <span class="string">&quot;/map/get-all-geometry&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">abstutil::to_json</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">export_geometry</span>())),
         <span class="string">&quot;/map/get-nearest-road&quot;</span> =&gt; {
             <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">LonLat::new</span>(<span class="ident">get</span>(<span class="string">&quot;lon&quot;</span>)<span class="question-mark">?</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>()<span class="question-mark">?</span>, <span class="ident">get</span>(<span class="string">&quot;lat&quot;</span>)<span class="question-mark">?</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>()<span class="question-mark">?</span>);
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">closest</span> <span class="op">=</span> <span class="ident">FindClosest::new</span>(<span class="ident">map</span>.<span class="ident">get_bounds</span>());
@@ -1142,31 +1117,6 @@
                 .<span class="ident">to_thick_ring</span>(<span class="ident">r</span>.<span class="ident">get_width</span>())
                 .<span class="ident">translate</span>(<span class="op">-</span><span class="ident">center</span>.<span class="ident">x</span>(), <span class="op">-</span><span class="ident">center</span>.<span class="ident">y</span>())
                 .<span class="ident">to_geojson</span>(<span class="prelude-val">None</span>),
-            <span class="ident">props</span>,
-        ));
-    }
-
-    <span class="ident">geom::geometries_with_properties_to_geojson</span>(<span class="ident">pairs</span>)
-}
-
-<span class="kw">fn</span> <span class="ident">export_all_geometry</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">geojson::GeoJson</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pairs</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">let</span> <span class="ident">gps_bounds</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">map</span>.<span class="ident">get_gps_bounds</span>());
-
-    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_intersections</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">props</span> <span class="op">=</span> <span class="ident">serde_json::Map::new</span>();
-        <span class="ident">props</span>.<span class="ident">insert</span>(<span class="string">&quot;type&quot;</span>.<span class="ident">to_string</span>(), <span class="string">&quot;intersection&quot;</span>.<span class="ident">into</span>());
-        <span class="ident">props</span>.<span class="ident">insert</span>(<span class="string">&quot;id&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">i</span>.<span class="ident">orig_id</span>.<span class="ident">to_string</span>().<span class="ident">into</span>());
-        <span class="ident">pairs</span>.<span class="ident">push</span>((<span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>().<span class="ident">into_ring</span>().<span class="ident">to_geojson</span>(<span class="ident">gps_bounds</span>), <span class="ident">props</span>));
-    }
-    <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">props</span> <span class="op">=</span> <span class="ident">serde_json::Map::new</span>();
-        <span class="ident">props</span>.<span class="ident">insert</span>(<span class="string">&quot;type&quot;</span>.<span class="ident">to_string</span>(), <span class="string">&quot;road&quot;</span>.<span class="ident">into</span>());
-        <span class="ident">props</span>.<span class="ident">insert</span>(<span class="string">&quot;id&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">r</span>.<span class="ident">orig_id</span>.<span class="ident">osm_way_id</span>.<span class="ident">to_string</span>().<span class="ident">into</span>());
-        <span class="ident">pairs</span>.<span class="ident">push</span>((
-            <span class="ident">r</span>.<span class="ident">center_pts</span>
-                .<span class="ident">to_thick_ring</span>(<span class="ident">r</span>.<span class="ident">get_width</span>())
-                .<span class="ident">to_geojson</span>(<span class="ident">gps_bounds</span>),
             <span class="ident">props</span>,
         ));
     }
