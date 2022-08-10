@@ -65,8 +65,7 @@ pub struct ChangeKey {
 /// roads splits the ordering into two groups. Turns in each group are still possible, but not
 /// across groups.
 ///
-/// TODO Be careful with PartialEq! At a 4-way intersection, the same filter can be expressed as a
-/// different pair of two roads. And the (r1, r2) ordering is also arbitrary.
+/// Be careful with `PartialEq` -- see `approx_eq`.
 #[derive(Clone, PartialEq, Serialize, Deserialize)]
 pub struct DiagonalFilter {
     r1: RoadID,
@@ -224,9 +223,9 @@ impl DiagonalFilter {
 
             match app.session.modal_filters.intersections.get(&i) {
                 Some(prev) => {
-                    if prev == &alt1 {
+                    if alt1.approx_eq(prev) {
                         app.session.modal_filters.intersections.insert(i, alt2);
-                    } else if prev == &alt2 {
+                    } else if alt2.approx_eq(prev) {
                         app.session.modal_filters.intersections.remove(&i);
                     } else {
                         unreachable!()
@@ -338,6 +337,16 @@ impl DiagonalFilter {
             }
         }
         pairs
+    }
+
+    fn approx_eq(&self, other: &DiagonalFilter) -> bool {
+        // Careful. At a 4-way intersection, the same filter can be expressed as a different pair of two
+        // roads. The (r1, r2) ordering is also arbitrary. cycle_through_alternatives is
+        // consistent, though.
+        //
+        // Note this ignores filter_type.
+        (self.r1, self.r2, self.i, &self.group1, &self.group2)
+            == (other.r1, other.r2, other.i, &other.group1, &other.group2)
     }
 }
 
