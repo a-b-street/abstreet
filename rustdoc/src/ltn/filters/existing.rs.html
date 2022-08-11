@@ -158,10 +158,10 @@
         <span class="comment">// (And don&#39;t call before_edit; this transformation happens before the user starts editing</span>
         <span class="comment">// anything)</span>
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">filtered_roads</span> {
-            <span class="ident">app</span>.<span class="ident">session</span>
-                .<span class="ident">modal_filters</span>
-                .<span class="ident">roads</span>
-                .<span class="ident">insert</span>(<span class="ident">r</span>, (<span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">length</span>() <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">FilterType::NoEntry</span>));
+            <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">roads</span>.<span class="ident">insert</span>(
+                <span class="ident">r</span>,
+                (<span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">length</span>() <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">FilterType::WalkCycleOnly</span>),
+            );
         }
     }
 
@@ -173,7 +173,7 @@
             <span class="ident">app</span>.<span class="ident">session</span>
                 .<span class="ident">modal_filters</span>
                 .<span class="ident">roads</span>
-                .<span class="ident">insert</span>(<span class="ident">r</span>.<span class="ident">id</span>, (<span class="kw-2">*</span><span class="ident">dist</span>, <span class="ident">FilterType::NoEntry</span>));
+                .<span class="ident">insert</span>(<span class="ident">r</span>.<span class="ident">id</span>, (<span class="kw-2">*</span><span class="ident">dist</span>, <span class="ident">FilterType::WalkCycleOnly</span>));
         }
     }
 
