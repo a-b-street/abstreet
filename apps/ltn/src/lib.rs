@@ -91,7 +91,7 @@ fn run(mut settings: Settings) {
             impact: impact::Impact::empty(ctx),
 
             edit_mode: edit::EditMode::Filters,
-            filter_type: FilterType::NoEntry,
+            filter_type: FilterType::WalkCycleOnly,
 
             draw_neighbourhood_style: browse::Style::Simple,
             draw_cells_as_areas: true,

@@ -186,12 +186,12 @@ impl EditNeighbourhood {
             "Plan a route" => EditOutcome::Transition(Transition::Push(
                 crate::route_planner::RoutePlanner::new_state(ctx, app),
             )),
-            "Modal filter" => {
+            "Modal filter - no entry" => {
                 app.session.filter_type = FilterType::NoEntry;
                 app.session.edit_mode = EditMode::Filters;
                 EditOutcome::UpdatePanelAndWorld
             }
-            "Walk/cycle only filter" => {
+            "Modal filter -- walking/cycling only" => {
                 app.session.filter_type = FilterType::WalkCycleOnly;
                 app.session.edit_mode = EditMode::Filters;
                 EditOutcome::UpdatePanelAndWorld
@@ -265,12 +265,12 @@ fn edit_mode(ctx: &mut EventCtx, app: &App) -> Widget {
 
     Widget::row(vec![
         Widget::row(vec![
-            filter(FilterType::NoEntry, Color::RED, "Modal filter"),
             filter(
                 FilterType::WalkCycleOnly,
                 Color::hex("#0b793a"),
-                "Walk/cycle only filter",
+                "Modal filter -- walking/cycling only",
             ),
+            filter(FilterType::NoEntry, Color::RED, "Modal filter - no entry"),
             filter(FilterType::BusGate, Color::hex("#0672B9"), "Bus gate"),
         ])
         .section(ctx),

@@ -40,10 +40,10 @@ pub fn transform_existing_filters(ctx: &EventCtx, app: &mut App, timer: &mut Tim
         // (And don't call before_edit; this transformation happens before the user starts editing
         // anything)
         for r in filtered_roads {
-            app.session
-                .modal_filters
-                .roads
-                .insert(r, (app.map.get_r(r).length() / 2.0, FilterType::NoEntry));
+            app.session.modal_filters.roads.insert(
+                r,
+                (app.map.get_r(r).length() / 2.0, FilterType::WalkCycleOnly),
+            );
         }
     }
 
@@ -55,7 +55,7 @@ pub fn transform_existing_filters(ctx: &EventCtx, app: &mut App, timer: &mut Tim
             app.session
                 .modal_filters
                 .roads
-                .insert(r.id, (*dist, FilterType::NoEntry));
+                .insert(r.id, (*dist, FilterType::WalkCycleOnly));
         }
     }
 
