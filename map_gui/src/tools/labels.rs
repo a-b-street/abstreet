@@ -293,6 +293,10 @@ impl DrawSimpleRoadLabels {
 
             let txt = Text::from(Line(&name).fg(self.fg_color));
             let txt_batch = txt.render_autocropped(ctx).scale(scale);
+            if txt_batch.is_empty() {
+                // This happens when we don't have a font loaded with the right characters
+                continue;
+            }
             let rect = txt_batch
                 .get_bounds()
                 .get_rectangle()
