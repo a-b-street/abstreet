@@ -2,7 +2,6 @@ use std::collections::BTreeMap;
 
 use geom::{Duration, Percent};
 use synthpop::OrigPersonID;
-use widgetry::tools::PopupMsg;
 use widgetry::{EventCtx, Key, Line, Panel, SimpleState, State, Text, TextExt, Widget};
 
 use crate::app::App;
@@ -264,7 +263,7 @@ impl SimpleState<App> for ChallengesPicker {
                             ctx,
                             map_name,
                             Box::new(|ctx, _| {
-                                Transition::Replace(PopupMsg::new_state(
+                                Transition::Replace(widgetry::tools::PopupMsg::new_state(
                                     ctx,
                                     "Download complete",
                                     vec!["Download complete. Click 'Start!' again"],
