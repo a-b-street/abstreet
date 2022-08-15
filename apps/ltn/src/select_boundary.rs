@@ -29,8 +29,6 @@ pub struct SelectBoundary {
     // whether the block is already included or not
     last_failed_change: Option<(BlockID, bool)>,
 
-    labels: DrawSimpleRoadLabels,
-
     lasso: Option<Lasso>,
 }
 
@@ -49,6 +47,14 @@ impl SelectBoundary {
                     "This is a known problem without any workaround yet.",
                 ],
             );
+        }
+
+        if app.session.draw_all_road_labels.is_none() {
+            app.session.draw_all_road_labels = Some(DrawSimpleRoadLabels::all_roads(
+                ctx,
+                app,
+                colors::ROAD_LABEL,
+            ));
         }
 
         // Make sure we clear this state if we ever modify neighbourhood boundaries
@@ -71,8 +77,6 @@ impl SelectBoundary {
 
             orig_partitioning: app.session.partitioning.clone(),
             last_failed_change: None,
-
-            labels: DrawSimpleRoadLabels::only_major_roads(ctx, app, colors::ROAD_LABEL),
 
             lasso: None,
         };
@@ -323,12 +327,12 @@ impl State<App> for SelectBoundary {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &App) {
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.world.draw(g);
         self.draw_boundary_roads.draw(g);
         self.top_panel.draw(g);
         self.left_panel.draw(g);
-        self.labels.draw(g);
+        app.session.draw_all_road_labels.as_ref().unwrap().draw(g);
         if let Some(ref lasso) = self.lasso {
             lasso.draw(g);
         }

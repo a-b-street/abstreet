@@ -1290,6 +1290,11 @@
       "uncompressed_size_bytes": 75183633,
       "compressed_size_bytes": 7398436
     },
+    "data/input/gb/london/osm/newham_waltham_forest.osm": {
+      "checksum": "6d6fed27c3bfd63a886aa3309edff42b",
+      "uncompressed_size_bytes": 36134886,
+      "compressed_size_bytes": 3340858
+    },
     "data/input/gb/london/osm/redbridge.osm": {
       "checksum": "c2b6f74b9cd8c1d1a9642decc03e016f",
       "uncompressed_size_bytes": 23717679,
@@ -1439,6 +1444,11 @@
       "checksum": "b5e97f54d9bd3debcb36c331fe5798d9",
       "uncompressed_size_bytes": 22018415,
       "compressed_size_bytes": 4277573
+    },
+    "data/input/gb/london/raw_maps/newham_waltham_forest.bin": {
+      "checksum": "7f148aeda9f41ee5f229e94ea74c59f6",
+      "uncompressed_size_bytes": 10517712,
+      "compressed_size_bytes": 2162553
     },
     "data/input/gb/london/raw_maps/redbridge.bin": {
       "checksum": "cd8bac5d210ea9e8da280d4a82168594",
@@ -4116,9 +4126,9 @@
       "compressed_size_bytes": 4458550
     },
     "data/system/gb/london/city.bin": {
-      "checksum": "32884e4c58bd00892b5930c8f2885c39",
-      "uncompressed_size_bytes": 3402058,
-      "compressed_size_bytes": 1649114
+      "checksum": "3c8fb3e58e96128838b748a0cff4793d",
+      "uncompressed_size_bytes": 3571562,
+      "compressed_size_bytes": 1716989
     },
     "data/system/gb/london/maps/barking_and_dagenham.bin": {
       "checksum": "15598b3bfef17e70ae760e9792feec88",
@@ -4239,6 +4249,11 @@
       "checksum": "86abdf6a8626d125847405a24bed2751",
       "uncompressed_size_bytes": 43349418,
       "compressed_size_bytes": 16205103
+    },
+    "data/system/gb/london/maps/newham_waltham_forest.bin": {
+      "checksum": "30cae2494456e92999c62fc9cfc12985",
+      "uncompressed_size_bytes": 12911623,
+      "compressed_size_bytes": 4821987
     },
     "data/system/gb/london/maps/redbridge.bin": {
       "checksum": "a0a75eb2cb498c395f0b762eef9b565e",
@@ -4384,6 +4399,11 @@
       "checksum": "4be116f2788da06c7618b47b521c604c",
       "uncompressed_size_bytes": 23230571,
       "compressed_size_bytes": 5977197
+    },
+    "data/system/gb/london/scenarios/newham_waltham_forest/background.bin": {
+      "checksum": "cf1defed93b75b852f1e9be67a8634ec",
+      "uncompressed_size_bytes": 11342921,
+      "compressed_size_bytes": 2901347
     },
     "data/system/gb/london/scenarios/redbridge/background.bin": {
       "checksum": "3fb315a86e87701bb6dd86e343e9f006",
