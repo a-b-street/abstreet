@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["DEFAULT_FONT",""],["DEFAULT_FONT_SIZE",""],["SCALE_LINE_HEIGHT",""]],"enum":[["Font",""]],"fn":[["Line",""],["render_line",""]],"struct":[["Text",""],["TextSpan",""]],"trait":[["TextExt",""]]});
+window.SIDEBAR_ITEMS = {"constant":[["DEFAULT_FONT",""],["DEFAULT_FONT_SIZE",""],["SCALE_LINE_HEIGHT",""]],"enum":[["Font",""]],"fn":[["Line",""],["render_line",""]],"struct":[["Text",""],["TextSpan",""]],"trait":[["TextExt",""]]};

@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["is_counter_clockwise",""]],"struct":[["InfiniteLine",""],["Line","A line segment."]]});
+window.SIDEBAR_ITEMS = {"fn":[["is_counter_clockwise",""]],"struct":[["InfiniteLine",""],["Line","A line segment."]]};

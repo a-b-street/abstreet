@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["LonLat","Represents a (longitude, latitude) point."]]});
+window.SIDEBAR_ITEMS = {"struct":[["LonLat","Represents a (longitude, latitude) point."]]};

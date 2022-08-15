@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["ZOOM",""]],"struct":[["RecordPath",""],["Results",""],["Strategize",""]]});
+window.SIDEBAR_ITEMS = {"constant":[["ZOOM",""]],"struct":[["RecordPath",""],["Results",""],["Strategize",""]]};

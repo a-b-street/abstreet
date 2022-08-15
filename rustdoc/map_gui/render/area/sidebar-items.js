@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["DrawArea",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["DrawArea",""]]};

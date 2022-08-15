@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["draw_zone",""],["make_instructions",""]],"struct":[["ZoneEditor",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["draw_zone",""],["make_instructions",""]],"struct":[["ZoneEditor",""]]};

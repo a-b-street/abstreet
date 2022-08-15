@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["HACK",""]],"fn":[["angle_from_arrow_keys",""]],"struct":[["InstantController",""]]});
+window.SIDEBAR_ITEMS = {"constant":[["HACK",""]],"fn":[["angle_from_arrow_keys",""]],"struct":[["InstantController",""]]};

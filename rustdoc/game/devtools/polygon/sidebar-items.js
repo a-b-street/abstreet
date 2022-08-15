@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["PolygonEditor",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["PolygonEditor",""]]};

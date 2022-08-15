@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["ActionAtEnd",""],["Goal",""]],"struct":[["Router",""]]});
+window.SIDEBAR_ITEMS = {"enum":[["ActionAtEnd",""],["Goal",""]],"struct":[["Router",""]]};

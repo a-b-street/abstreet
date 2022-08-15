@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["icon_button",""]],"struct":[["ButtonStyle",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["icon_button",""]],"struct":[["ButtonStyle",""]]};

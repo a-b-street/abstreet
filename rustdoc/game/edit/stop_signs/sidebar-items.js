@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["StopSignEditor",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["StopSignEditor",""]]};

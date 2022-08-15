@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Autocomplete",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["Autocomplete",""]]};

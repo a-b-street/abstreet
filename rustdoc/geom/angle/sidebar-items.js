@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Angle","An angle, stored in radians."]]});
+window.SIDEBAR_ITEMS = {"struct":[["Angle","An angle, stored in radians."]]};

@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Cmd",""]],"struct":[["PandemicModel",""],["SharedSpace",""]]});
+window.SIDEBAR_ITEMS = {"enum":[["Cmd",""]],"struct":[["PandemicModel",""],["SharedSpace",""]]};

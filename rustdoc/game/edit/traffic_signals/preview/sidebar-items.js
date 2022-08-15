@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["make_previewer",""]],"struct":[["PreviewTrafficSignal",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["make_previewer",""]],"struct":[["PreviewTrafficSignal",""]]};

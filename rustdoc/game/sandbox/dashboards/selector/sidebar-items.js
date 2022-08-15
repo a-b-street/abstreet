@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["RectangularSelector",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["RectangularSelector",""]]};

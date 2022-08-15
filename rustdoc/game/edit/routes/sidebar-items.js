@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["RouteEditor",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["RouteEditor",""]]};

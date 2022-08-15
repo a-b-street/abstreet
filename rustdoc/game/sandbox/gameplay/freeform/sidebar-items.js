@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["actions",""],["execute",""],["spawn_agents_around",""]],"mod":[["area_spawner",""],["importers",""],["spawner",""]],"struct":[["ChangeScenario",""],["Freeform",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["actions",""],["execute",""],["spawn_agents_around",""]],"mod":[["area_spawner",""],["importers",""],["spawner",""]],"struct":[["ChangeScenario",""],["Freeform",""]]};

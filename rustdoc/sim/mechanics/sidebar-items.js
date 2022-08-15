@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["car",""],["driving",""],["intersection",""],["parking",""],["queue",""],["walking",""]]});
+window.SIDEBAR_ITEMS = {"mod":[["car",""],["driving",""],["intersection",""],["parking",""],["queue",""],["walking",""]]};

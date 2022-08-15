@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["advanced_panel",""],["help",""],["setup_editing",""]],"struct":[["Viewer",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["advanced_panel",""],["help",""],["setup_editing",""]],"struct":[["Viewer",""]]};

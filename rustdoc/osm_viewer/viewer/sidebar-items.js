@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["BusinessSearch",""],["MinimapController",""],["Viewer",""]],"type":[["App",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["BusinessSearch",""],["MinimapController",""],["Viewer",""]],"type":[["App",""]]};

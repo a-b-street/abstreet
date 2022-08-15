@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["geojson_string",""],["write_geojson_file","Returns the path where the file was written"]]});
+window.SIDEBAR_ITEMS = {"fn":[["geojson_string",""],["write_geojson_file","Returns the path where the file was written"]]};

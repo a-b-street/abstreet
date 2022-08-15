@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Style",""]],"fn":[["advanced_panel",""],["draw_boundary_roads",""],["draw_over_roads",""],["help",""],["impact_widget",""],["make_world",""]],"struct":[["BrowseNeighbourhoods",""]]});
+window.SIDEBAR_ITEMS = {"enum":[["Style",""]],"fn":[["advanced_panel",""],["draw_boundary_roads",""],["draw_over_roads",""],["help",""],["impact_widget",""],["make_world",""]],"struct":[["BrowseNeighbourhoods",""]]};

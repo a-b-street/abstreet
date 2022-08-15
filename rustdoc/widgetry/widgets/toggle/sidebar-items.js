@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Toggle",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["Toggle",""]]};

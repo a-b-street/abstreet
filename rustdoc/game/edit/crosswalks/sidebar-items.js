@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["CrosswalkEditor",""],["ID",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["CrosswalkEditor",""],["ID",""]]};

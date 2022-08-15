@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["get_mode",""],["get_purpose",""],["import_data",""],["import_parcels",""],["import_trips",""]],"struct":[["Endpoint",""],["OrigTrip",""],["PopDat",""],["RawParcel",""],["RawTrip",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["get_mode",""],["get_purpose",""],["import_data",""],["import_parcels",""],["import_trips",""]],"struct":[["Endpoint",""],["OrigTrip",""],["PopDat",""],["RawParcel",""],["RawTrip",""]]};

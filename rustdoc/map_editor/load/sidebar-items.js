@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["load_map",""]],"struct":[["PickMap",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["load_map",""]],"struct":[["PickMap",""]]};

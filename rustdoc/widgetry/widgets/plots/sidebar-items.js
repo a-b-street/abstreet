@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["make_legend",""],["thick_lineseries",""]],"struct":[["PlotOptions",""],["Series",""]],"trait":[["Axis",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["make_legend",""],["thick_lineseries",""]],"struct":[["PlotOptions",""],["Series",""]],"trait":[["Axis",""]]};

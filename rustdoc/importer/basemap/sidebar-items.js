@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["override_sidewalk_widths",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["override_sidewalk_widths",""]]};

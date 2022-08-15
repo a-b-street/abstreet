@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["make_btn",""]],"struct":[["Dropdown",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["make_btn",""]],"struct":[["Dropdown",""]]};

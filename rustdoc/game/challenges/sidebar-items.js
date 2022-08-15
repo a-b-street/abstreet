@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["cutscene",""],["prebake",""]],"struct":[["Challenge",""],["ChallengesPicker",""],["HighScore",""]]});
+window.SIDEBAR_ITEMS = {"mod":[["cutscene",""],["prebake",""]],"struct":[["Challenge",""],["ChallengesPicker",""],["HighScore",""]]};

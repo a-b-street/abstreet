@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["downsize",""],["from_multi",""]],"struct":[["Polygon",""],["Triangle",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["downsize",""],["from_multi",""]],"struct":[["Polygon",""],["Triangle",""]]};

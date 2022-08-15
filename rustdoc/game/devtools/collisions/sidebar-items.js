@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["aggregated",""],["individual",""],["pct",""]],"struct":[["CollisionsViewer",""],["Filters",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["aggregated",""],["individual",""],["pct",""]],"struct":[["CollisionsViewer",""],["Filters",""]]};

@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["run",""]],"struct":[["Input",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["run",""]],"struct":[["Input",""]]};

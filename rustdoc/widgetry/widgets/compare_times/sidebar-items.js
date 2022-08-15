@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["CompareTimes",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["CompareTimes",""]]};

@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["TEXT_WIDTH",""]],"struct":[["RoundedF64","An f64 rounded to 4 decimal places. Useful with Spinners, to avoid values accumulating small drift."],["Spinner",""]],"trait":[["SpinnerValue",""]]});
+window.SIDEBAR_ITEMS = {"constant":[["TEXT_WIDTH",""]],"struct":[["RoundedF64","An f64 rounded to 4 decimal places. Useful with Spinners, to avoid values accumulating small drift."],["Spinner",""]],"trait":[["SpinnerValue",""]]};

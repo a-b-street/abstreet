@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["DrawParkingLot",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["DrawParkingLot",""]]};

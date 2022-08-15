@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["ZOOM",""]],"enum":[["On",""]],"struct":[["BuildingsAlongRoad",""],["Player",""]]});
+window.SIDEBAR_ITEMS = {"constant":[["ZOOM",""]],"enum":[["On",""]],"struct":[["BuildingsAlongRoad",""],["Player",""]]};

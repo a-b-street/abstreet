@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["is_greenway",""]],"struct":[["DEDICATED_TRAIL",""],["DrawNetworkLayer","Shows the bike network while unzoomed. Handles thickening the roads at low zoom levels."],["GREENWAY",""],["PAINTED_BIKE_LANE",""],["PROTECTED_BIKE_LANE",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["is_greenway",""]],"struct":[["DEDICATED_TRAIL",""],["DrawNetworkLayer","Shows the bike network while unzoomed. Handles thickening the roads at low zoom levels."],["GREENWAY",""],["PAINTED_BIKE_LANE",""],["PROTECTED_BIKE_LANE",""]]};

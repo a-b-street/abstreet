@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["AmenityType","Businesses are categorized into one of these types."],["AreaType",""]],"struct":[["Amenity","A business located inside a building."],["AmenityTypeIter",""]]});
+window.SIDEBAR_ITEMS = {"enum":[["AmenityType","Businesses are categorized into one of these types."],["AreaType",""]],"struct":[["Amenity","A business located inside a building."],["AmenityTypeIter",""]]};

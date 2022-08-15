@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["DrawPedCrowd",""],["DrawPedestrian",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["DrawPedCrowd",""],["DrawPedestrian",""]]};

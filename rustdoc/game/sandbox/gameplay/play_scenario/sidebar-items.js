@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["ChangeMode",""],["CountTrips",""],["DepartureSummary",""],["EditScenarioModifiers",""],["PlayScenario",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["ChangeMode",""],["CountTrips",""],["DepartureSummary",""],["EditScenarioModifiers",""],["PlayScenario",""]]};

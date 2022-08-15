@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["setup","On native: uses env_log"]]});
+window.SIDEBAR_ITEMS = {"fn":[["setup","On native: uses env_log"]]};

@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Source",""]],"struct":[["Floodfiller",""]]});
+window.SIDEBAR_ITEMS = {"enum":[["Source",""]],"struct":[["Floodfiller",""]]};

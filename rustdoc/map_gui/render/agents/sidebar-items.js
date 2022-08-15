@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["AgentCache",""],["UnzoomedAgents",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["AgentCache",""],["UnzoomedAgents",""]]};

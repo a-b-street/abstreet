@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["ColorSchemeChoice",""]],"fn":[["hex",""],["modulo_color",""]],"struct":[["ColorScheme",""]]});
+window.SIDEBAR_ITEMS = {"enum":[["ColorSchemeChoice",""]],"fn":[["hex",""],["modulo_color",""]],"struct":[["ColorScheme",""]]};

@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["header",""],["info",""],["info_body",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["header",""],["info",""],["info_body",""]]};

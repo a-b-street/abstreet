@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["AgentSpawner",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["AgentSpawner",""]]};

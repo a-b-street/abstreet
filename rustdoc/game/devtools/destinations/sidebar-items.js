@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["PopularDestinations",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["PopularDestinations",""]]};

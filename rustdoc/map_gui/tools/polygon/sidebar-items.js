@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Obj",""]],"struct":[["EditPolygon",""]]});
+window.SIDEBAR_ITEMS = {"enum":[["Obj",""]],"struct":[["EditPolygon",""]]};

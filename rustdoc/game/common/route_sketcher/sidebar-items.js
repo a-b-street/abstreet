@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["INTERSECTON_RADIUS",""]],"enum":[["Mode",""]],"struct":[["Route",""],["RouteSketcher",""]]});
+window.SIDEBAR_ITEMS = {"constant":[["INTERSECTON_RADIUS",""]],"enum":[["Mode",""]],"struct":[["Route",""],["RouteSketcher",""]]};

@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["export_csv",""],["help",""]],"struct":[["ChangedRoutes",""],["ExportRow",""],["ShowResults",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["export_csv",""],["help",""]],"struct":[["ChangedRoutes",""],["ExportRow",""],["ShowResults",""]]};

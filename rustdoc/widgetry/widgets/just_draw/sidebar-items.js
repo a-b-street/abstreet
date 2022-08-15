@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["DeferDraw",""],["DrawWithTooltips",""],["JustDraw",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["DeferDraw",""],["DrawWithTooltips",""],["JustDraw",""]]};

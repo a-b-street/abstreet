@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Level",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["Level",""]]};

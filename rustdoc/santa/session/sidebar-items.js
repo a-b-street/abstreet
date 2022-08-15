@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["ColorScheme",""],["Session","Persistent state that lasts across levels."]]});
+window.SIDEBAR_ITEMS = {"struct":[["ColorScheme",""],["Session","Persistent state that lasts across levels."]]};

@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["http_get","Performs an HTTP GET request and returns the raw response. Unlike the variations in download.rs, no progress – but it works on native and web."],["http_post","Performs an HTTP POST request and returns the response."]]});
+window.SIDEBAR_ITEMS = {"fn":[["http_get","Performs an HTTP GET request and returns the raw response. Unlike the variations in download.rs, no progress – but it works on native and web."],["http_post","Performs an HTTP POST request and returns the response."]]};

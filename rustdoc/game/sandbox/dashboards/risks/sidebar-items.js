@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["export_problems",""]],"struct":[["Filter",""],["RiskSummaries",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["export_problems",""]],"struct":[["Filter",""],["RiskSummaries",""]]};

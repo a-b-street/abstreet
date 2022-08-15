@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["UpdateType",""]],"struct":[["EventCtx",""],["LoadingScreen",""]]});
+window.SIDEBAR_ITEMS = {"enum":[["UpdateType",""]],"struct":[["EventCtx",""],["LoadingScreen",""]]};

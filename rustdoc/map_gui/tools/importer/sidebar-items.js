@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["generate_new_map_name",""],["grab_geojson_from_clipboard",""],["sanitize_name",""]],"struct":[["ImportCity",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["generate_new_map_name",""],["grab_geojson_from_clipboard",""],["sanitize_name",""]],"struct":[["ImportCity",""]]};

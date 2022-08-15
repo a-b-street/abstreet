@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["handle_world_outcome",""],["make_world",""],["widget",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["handle_world_outcome",""],["make_world",""],["widget",""]]};

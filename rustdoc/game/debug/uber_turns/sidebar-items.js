@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["UberTurnPicker",""],["UberTurnViewer",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["UberTurnPicker",""],["UberTurnViewer",""]]};

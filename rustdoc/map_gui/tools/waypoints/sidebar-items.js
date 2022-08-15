@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["get_waypoint_text",""]],"struct":[["InputWaypoints","Click to add waypoints, drag them, see the list on a panel and delete them. The caller owns the Panel and the World, since there’s probably more stuff there too."],["Waypoint",""],["WaypointID",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["get_waypoint_text",""]],"struct":[["InputWaypoints","Click to add waypoints, drag them, see the list on a panel and delete them. The caller owns the Panel and the World, since there’s probably more stuff there too."],["Waypoint",""],["WaypointID",""]]};

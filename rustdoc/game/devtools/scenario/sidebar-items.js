@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["ScenarioManager",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["ScenarioManager",""]]};

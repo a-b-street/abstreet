@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Alignment",""],["Axis",""]],"struct":[["GeomBatchStack","Similar to [`Widget::row`]/[`Widget::column`], but for [`GeomBatch`]s instead of [`Widget`]s, and follows a builder pattern"]]});
+window.SIDEBAR_ITEMS = {"enum":[["Alignment",""],["Axis",""]],"struct":[["GeomBatchStack","Similar to [`Widget::row`]/[`Widget::column`], but for [`GeomBatch`]s instead of [`Widget`]s, and follows a builder pattern"]]};

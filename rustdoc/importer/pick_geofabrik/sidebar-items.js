@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["find_matching_regions",""],["load_remote_geojson",""],["pick_geofabrik","Given the path to an Osmosis boundary polygon, return the URL of a Geofabrik osm.pbf file that best covers the boundary."]]});
+window.SIDEBAR_ITEMS = {"fn":[["find_matching_regions",""],["load_remote_geojson",""],["pick_geofabrik","Given the path to an Osmosis boundary polygon, return the URL of a Geofabrik osm.pbf file that best covers the boundary."]]};

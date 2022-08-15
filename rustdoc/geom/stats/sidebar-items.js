@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Statistic",""]],"struct":[["Histogram",""]],"trait":[["HgramValue",""]]});
+window.SIDEBAR_ITEMS = {"enum":[["Statistic",""]],"struct":[["Histogram",""]],"trait":[["HgramValue",""]]};

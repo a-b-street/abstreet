@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["downsample",""]],"struct":[["ActiveTraffic",""],["TransitRoutes",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["downsample",""]],"struct":[["ActiveTraffic",""],["TransitRoutes",""]]};

@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["ScatterPlot",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["ScatterPlot",""]]};

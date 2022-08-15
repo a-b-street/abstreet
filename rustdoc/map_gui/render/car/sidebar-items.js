@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["CAR_WIDTH",""]],"fn":[["thick_line_from_angle",""],["zoomed_color_car",""]],"struct":[["DrawCar",""]]});
+window.SIDEBAR_ITEMS = {"constant":[["CAR_WIDTH",""]],"fn":[["thick_line_from_angle",""],["zoomed_color_car",""]],"struct":[["DrawCar",""]]};

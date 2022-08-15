@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["DrawMap",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["DrawMap",""]]};

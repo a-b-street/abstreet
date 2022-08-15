@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["compare_routes",""],["make_detail_widget",""]],"struct":[["BuiltRoute","A temporary structure that the caller should unpack and use as needed."],["RouteDetails",""],["RouteStats",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["compare_routes",""],["make_detail_widget",""]],"struct":[["BuiltRoute","A temporary structure that the caller should unpack and use as needed."],["RouteDetails",""],["RouteStats",""]]};

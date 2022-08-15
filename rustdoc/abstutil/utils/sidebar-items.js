@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["abbreviated_format",""],["basename",""],["parent_path",""],["plain_list_names",""],["prettyprint_bytes",""],["prettyprint_usize",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["abbreviated_format",""],["basename",""],["parent_path",""],["plain_list_names",""],["prettyprint_bytes",""],["prettyprint_usize",""]]};

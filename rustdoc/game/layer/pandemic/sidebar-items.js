@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Seir",""]],"fn":[["make_controls",""]],"struct":[["Options",""],["Pandemic",""]]});
+window.SIDEBAR_ITEMS = {"enum":[["Seir",""]],"fn":[["make_controls",""]],"struct":[["Options",""],["Pandemic",""]]};

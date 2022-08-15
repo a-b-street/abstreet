@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["ID",""]],"fn":[["before_after_button",""]],"mod":[["results",""]],"struct":[["RoutingPreferences",""],["TripPlanner",""]]});
+window.SIDEBAR_ITEMS = {"enum":[["ID",""]],"fn":[["before_after_button",""]],"mod":[["results",""]],"struct":[["RoutingPreferences",""],["TripPlanner",""]]};

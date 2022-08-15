@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Area","Areas are just used for drawing."],["AreaID",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["Area","Areas are just used for drawing."],["AreaID",""]]};

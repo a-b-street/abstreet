@@ -1,1 +1,1 @@
-initSidebarItems({});
+window.SIDEBAR_ITEMS = {};

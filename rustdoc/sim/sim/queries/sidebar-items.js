@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["DelayCause","Why is an agent delayed? If there are multiple reasons, arbitrarily pick one – ie, somebody could be blocked by two conflicting turns."]],"struct":[["AgentProperties",""]]});
+window.SIDEBAR_ITEMS = {"enum":[["DelayCause","Why is an agent delayed? If there are multiple reasons, arbitrarily pick one – ie, somebody could be blocked by two conflicting turns."]],"struct":[["AgentProperties",""]]};

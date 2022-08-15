@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["PopupMsg","Display a message dialog."]]});
+window.SIDEBAR_ITEMS = {"struct":[["PopupMsg","Display a message dialog."]]};

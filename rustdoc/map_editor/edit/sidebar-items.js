@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["EditRoad",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["EditRoad",""]]};

@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["CustomizeBoundary",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["CustomizeBoundary",""]]};

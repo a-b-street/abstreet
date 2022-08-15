@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Ring","Maybe a misnomer, but like a PolyLine, but closed."]]});
+window.SIDEBAR_ITEMS = {"struct":[["Ring","Maybe a misnomer, but like a PolyLine, but closed."]]};

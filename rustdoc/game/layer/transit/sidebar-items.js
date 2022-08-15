@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["TransitNetwork",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["TransitNetwork",""]]};

@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["help",""],["make_panel",""],["make_panel_for_lasso",""]],"struct":[["SelectBoundary",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["help",""],["make_panel",""],["make_panel_for_lasso",""]],"struct":[["SelectBoundary",""]]};
