@@ -296,6 +296,33 @@
 <span id="290">290</span>
 <span id="291">291</span>
 <span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
 <span class="kw">use</span> <span class="ident">map_model::RoadID</span>;
@@ -310,11 +337,21 @@
 <span class="comment">// TODO Canonicalize names, handling abbreviations like east/e and street/st</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Navigator</span> {
     <span class="ident">panel</span>: <span class="ident">Panel</span>,
+    <span class="ident">target_zoom</span>: <span class="ident">f64</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Navigator</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="ident"><span class="self">Self</span>::new_state_with_target_zoom</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">settings</span>.<span class="ident">min_zoom_for_detail</span>)
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state_with_target_zoom</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(
+        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
+        <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>,
+        <span class="ident">target_zoom</span>: <span class="ident">f64</span>,
+    ) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident">Box::new</span>(<span class="ident">Navigator</span> {
+            <span class="ident">target_zoom</span>,
             <span class="ident">panel</span>: <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
                 <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                     <span class="ident">Line</span>(<span class="string">&quot;Enter a street name&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
@@ -349,7 +386,11 @@
                     <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
                 }
                 <span class="string">&quot;Search by business name or address&quot;</span> =&gt; {
-                    <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">SearchBuildings::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+                    <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">SearchBuildings::new_state</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="ident">app</span>,
+                        <span class="self">self</span>.<span class="ident">target_zoom</span>,
+                    ));
                 }
                 <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
             }
@@ -358,7 +399,7 @@
             <span class="kw">if</span> <span class="ident">roads</span>.<span class="ident">is_empty</span>() {
                 <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
             }
-            <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">CrossStreet::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">roads</span>));
+            <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">CrossStreet::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">roads</span>, <span class="self">self</span>.<span class="ident">target_zoom</span>));
         }
 
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">clicked_outside</span>(<span class="ident">ctx</span>) {
@@ -378,6 +419,7 @@
     <span class="ident">first</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>,
     <span class="ident">panel</span>: <span class="ident">Panel</span>,
     <span class="ident">draw</span>: <span class="ident">Drawable</span>,
+    <span class="ident">target_zoom</span>: <span class="ident">f64</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">CrossStreet</span> {
@@ -385,6 +427,7 @@
         <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
         <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>,
         <span class="ident">first</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>,
+        <span class="ident">target_zoom</span>: <span class="ident">f64</span>,
     ) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cross_streets</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
@@ -430,6 +473,7 @@
             .<span class="ident">build</span>(<span class="ident">ctx</span>),
             <span class="ident">first</span>,
             <span class="ident">draw</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>),
+            <span class="ident">target_zoom</span>,
         })
     }
 }
@@ -446,7 +490,7 @@
                     <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">app</span>.<span class="ident">make_warper</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">pt</span>,
-                        <span class="prelude-val">Some</span>(<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">settings</span>.<span class="ident">min_zoom_for_detail</span>),
+                        <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">target_zoom</span>),
                         <span class="prelude-val">None</span>,
                     ));
                 }
@@ -470,7 +514,7 @@
                 <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">app</span>.<span class="ident">make_warper</span>(
                     <span class="ident">ctx</span>,
                     <span class="ident">pt</span>,
-                    <span class="prelude-val">Some</span>(<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">settings</span>.<span class="ident">min_zoom_for_detail</span>),
+                    <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">target_zoom</span>),
                     <span class="prelude-val">Some</span>(<span class="ident">ID::Intersection</span>(<span class="ident">i</span>)),
                 ));
             } <span class="kw">else</span> {
@@ -494,11 +538,17 @@
 
 <span class="kw">struct</span> <span class="ident">SearchBuildings</span> {
     <span class="ident">panel</span>: <span class="ident">Panel</span>,
+    <span class="ident">target_zoom</span>: <span class="ident">f64</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">SearchBuildings</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">new_state</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(
+        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
+        <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>,
+        <span class="ident">target_zoom</span>: <span class="ident">f64</span>,
+    ) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident">Box::new</span>(<span class="ident">SearchBuildings</span> {
+            <span class="ident">target_zoom</span>,
             <span class="ident">panel</span>: <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
                 <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                     <span class="ident">Line</span>(<span class="string">&quot;Enter a business name or address&quot;</span>)
@@ -557,7 +607,11 @@
                     <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
                 }
                 <span class="string">&quot;Search for streets&quot;</span> =&gt; {
-                    <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">Navigator::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+                    <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">Navigator::new_state_with_target_zoom</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="ident">app</span>,
+                        <span class="self">self</span>.<span class="ident">target_zoom</span>,
+                    ));
                 }
                 <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
             }
@@ -571,7 +625,7 @@
             <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">app</span>.<span class="ident">make_warper</span>(
                 <span class="ident">ctx</span>,
                 <span class="ident">pt</span>,
-                <span class="prelude-val">Some</span>(<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">settings</span>.<span class="ident">min_zoom_for_detail</span>),
+                <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">target_zoom</span>),
                 <span class="prelude-val">Some</span>(<span class="ident">ID::Building</span>(<span class="ident">bldgs</span>[<span class="number">0</span>])),
             ));
         }

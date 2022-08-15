@@ -223,9 +223,9 @@
                         <span class="ident">Transition::Replace</span>(<span class="ident">BrowseNeighbourhoods::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))
                     }),
                 ))),
-                <span class="string">&quot;search&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">map_gui::tools::Navigator::new_state</span>(
-                    <span class="ident">ctx</span>, <span class="ident">app</span>,
-                ))),
+                <span class="string">&quot;search&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(
+                    <span class="ident">map_gui::tools::Navigator::new_state_with_target_zoom</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="number">4.0</span>),
+                )),
                 <span class="string">&quot;help&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;Help&quot;</span>, <span class="ident">help</span>()))),
                 <span class="string">&quot;about this tool&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident"><span class="kw">super</span>::about::About::new_state</span>(<span class="ident">ctx</span>))),
                 <span class="string">&quot;Export to GeoJSON&quot;</span> =&gt; {
