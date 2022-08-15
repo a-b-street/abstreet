@@ -12,11 +12,21 @@ use crate::{AppLike, ID};
 // TODO Canonicalize names, handling abbreviations like east/e and street/st
 pub struct Navigator {
     panel: Panel,
+    target_zoom: f64,
 }
 
 impl Navigator {
     pub fn new_state<A: AppLike + 'static>(ctx: &mut EventCtx, app: &A) -> Box<dyn State<A>> {
+        Self::new_state_with_target_zoom(ctx, app, ctx.canvas.settings.min_zoom_for_detail)
+    }
+
+    pub fn new_state_with_target_zoom<A: AppLike + 'static>(
+        ctx: &mut EventCtx,
+        app: &A,
+        target_zoom: f64,
+    ) -> Box<dyn State<A>> {
         Box::new(Navigator {
+            target_zoom,
             panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     Line("Enter a street name").small_heading().into_widget(ctx),
@@ -51,7 +61,11 @@ impl<A: AppLike + 'static> State<A> for Navigator {
                     return Transition::Pop;
                 }
                 "Search by business name or address" => {
-                    return Transition::Replace(SearchBuildings::new_state(ctx, app));
+                    return Transition::Replace(SearchBuildings::new_state(
+                        ctx,
+                        app,
+                        self.target_zoom,
+                    ));
                 }
                 _ => unreachable!(),
             }
@@ -60,7 +74,7 @@ impl<A: AppLike + 'static> State<A> for Navigator {
             if roads.is_empty() {
                 return Transition::Pop;
             }
-            return Transition::Replace(CrossStreet::new_state(ctx, app, roads));
+            return Transition::Replace(CrossStreet::new_state(ctx, app, roads, self.target_zoom));
         }
 
         if self.panel.clicked_outside(ctx) {
@@ -80,6 +94,7 @@ struct CrossStreet {
     first: Vec<RoadID>,
     panel: Panel,
     draw: Drawable,
+    target_zoom: f64,
 }
 
 impl CrossStreet {
@@ -87,6 +102,7 @@ impl CrossStreet {
         ctx: &mut EventCtx,
         app: &A,
         first: Vec<RoadID>,
+        target_zoom: f64,
     ) -> Box<dyn State<A>> {
         let map = app.map();
         let mut cross_streets = HashSet::new();
@@ -132,6 +148,7 @@ impl CrossStreet {
             .build(ctx),
             first,
             draw: ctx.upload(batch),
+            target_zoom,
         })
     }
 }
@@ -148,7 +165,7 @@ impl<A: AppLike + 'static> State<A> for CrossStreet {
                     return Transition::Replace(app.make_warper(
                         ctx,
                         pt,
-                        Some(ctx.canvas.settings.min_zoom_for_detail),
+                        Some(self.target_zoom),
                         None,
                     ));
                 }
@@ -172,7 +189,7 @@ impl<A: AppLike + 'static> State<A> for CrossStreet {
                 return Transition::Replace(app.make_warper(
                     ctx,
                     pt,
-                    Some(ctx.canvas.settings.min_zoom_for_detail),
+                    Some(self.target_zoom),
                     Some(ID::Intersection(i)),
                 ));
             } else {
@@ -196,11 +213,17 @@ impl<A: AppLike + 'static> State<A> for CrossStreet {
 
 struct SearchBuildings {
     panel: Panel,
+    target_zoom: f64,
 }
 
 impl SearchBuildings {
-    pub fn new_state<A: AppLike + 'static>(ctx: &mut EventCtx, app: &A) -> Box<dyn State<A>> {
+    fn new_state<A: AppLike + 'static>(
+        ctx: &mut EventCtx,
+        app: &A,
+        target_zoom: f64,
+    ) -> Box<dyn State<A>> {
         Box::new(SearchBuildings {
+            target_zoom,
             panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
                     Line("Enter a business name or address")
@@ -259,7 +282,11 @@ impl<A: AppLike + 'static> State<A> for SearchBuildings {
                     return Transition::Pop;
                 }
                 "Search for streets" => {
-                    return Transition::Replace(Navigator::new_state(ctx, app));
+                    return Transition::Replace(Navigator::new_state_with_target_zoom(
+                        ctx,
+                        app,
+                        self.target_zoom,
+                    ));
                 }
                 _ => unreachable!(),
             }
@@ -273,7 +300,7 @@ impl<A: AppLike + 'static> State<A> for SearchBuildings {
             return Transition::Replace(app.make_warper(
                 ctx,
                 pt,
-                Some(ctx.canvas.settings.min_zoom_for_detail),
+                Some(self.target_zoom),
                 Some(ID::Building(bldgs[0])),
             ));
         }

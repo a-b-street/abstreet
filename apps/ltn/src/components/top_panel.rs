@@ -95,9 +95,9 @@ impl TopPanel {
                         Transition::Replace(BrowseNeighbourhoods::new_state(ctx, app))
                     }),
                 ))),
-                "search" => Some(Transition::Push(map_gui::tools::Navigator::new_state(
-                    ctx, app,
-                ))),
+                "search" => Some(Transition::Push(
+                    map_gui::tools::Navigator::new_state_with_target_zoom(ctx, app, 4.0),
+                )),
                 "help" => Some(Transition::Push(PopupMsg::new_state(ctx, "Help", help()))),
                 "about this tool" => Some(Transition::Push(super::about::About::new_state(ctx))),
                 "Export to GeoJSON" => {
