@@ -15,10 +15,10 @@ and educate the public about
 The project works anywhere in the world, thanks to
 [OpenStreetMap](https://www.openstreetmap.org/about).
 
-- Run it on [your web browser](http://play.abstreet.org/0.3.29/abstreet.html),
-  [Windows](https://github.com/a-b-street/abstreet/releases/download/v0.3.29/abstreet_windows_v0_3_29.zip),
-  [Mac](https://github.com/a-b-street/abstreet/releases/download/v0.3.29/abstreet_mac_v0_3_29.zip),
-  [Linux](https://github.com/a-b-street/abstreet/releases/download/v0.3.29/abstreet_linux_v0_3_29.zip),
+- Run it on [your web browser](http://play.abstreet.org/0.3.30/abstreet.html),
+  [Windows](https://github.com/a-b-street/abstreet/releases/download/v0.3.30/abstreet_windows_v0_3_30.zip),
+  [Mac](https://github.com/a-b-street/abstreet/releases/download/v0.3.30/abstreet_mac_v0_3_30.zip),
+  [Linux](https://github.com/a-b-street/abstreet/releases/download/v0.3.30/abstreet_linux_v0_3_30.zip),
   [FreeBSD](https://www.freshports.org/games/abstreet/), or
   [read all instructions](https://a-b-street.github.io/docs/user/index.html)
 - [build from source](https://a-b-street.github.io/docs/tech/dev/index.html)
