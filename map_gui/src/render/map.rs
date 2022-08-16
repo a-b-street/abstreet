@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use aabb_quadtree::QuadTree;
 
 use abstutil::Timer;
-use geom::{Bounds, Distance, Polygon};
+use geom::{Bounds, Distance, Tessellation};
 use map_model::{
     AreaID, BuildingID, IntersectionID, LaneID, Map, ParkingLotID, Road, RoadID, TransitStopID,
 };
@@ -224,7 +224,7 @@ impl DrawMap {
         // We want the outlines slightly above the equivalent layer. z-order is an isize, and f64
         // makes sort_by_key annoying, so just multiply the existing z-orders by 10.
         let outline_z_offset = 5;
-        let mut unzoomed_pieces: Vec<(isize, Fill, Polygon)> = Vec::new();
+        let mut unzoomed_pieces: Vec<(isize, Fill, Tessellation)> = Vec::new();
 
         for r in map.all_roads() {
             let width = r.get_width();
@@ -240,7 +240,7 @@ impl DrawMap {
                 } else {
                     cs.unzoomed_road_surface(r.get_rank())
                 }),
-                r.center_pts.make_polygons(width),
+                r.center_pts.make_polygons(width).into(),
             ));
 
             if cs.road_outlines {
@@ -261,14 +261,14 @@ impl DrawMap {
                             unzoomed_pieces.push((
                                 10 * r.zorder + outline_z_offset,
                                 outline_color.into(),
-                                p,
+                                p.into(),
                             ));
                         }
                     } else {
                         unzoomed_pieces.push((
                             10 * r.zorder + outline_z_offset,
                             outline_color.into(),
-                            pl.make_polygons(outline_thickness),
+                            pl.make_polygons(outline_thickness).into(),
                         ));
                     }
                 }
@@ -300,14 +300,14 @@ impl DrawMap {
             } else {
                 cs.unzoomed_interesting_intersection
             };
-            unzoomed_pieces.push((zorder, intersection_color.into(), i.polygon.clone()));
+            unzoomed_pieces.push((zorder, intersection_color.into(), i.polygon.clone().into()));
 
             if cs.road_outlines {
                 for pl in DrawIntersection::get_unzoomed_outline(i, map) {
                     unzoomed_pieces.push((
                         zorder + outline_z_offset,
                         outline_color.into(),
-                        pl.make_polygons(outline_thickness),
+                        pl.make_polygons(outline_thickness).into(),
                     ));
                 }
             }

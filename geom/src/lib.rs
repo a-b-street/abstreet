@@ -14,12 +14,13 @@ pub use crate::find_closest::FindClosest;
 pub use crate::gps::LonLat;
 pub use crate::line::{InfiniteLine, Line};
 pub use crate::percent::Percent;
-pub use crate::polygon::{Polygon, Triangle};
+pub use crate::polygon::Polygon;
 pub use crate::polyline::{ArrowCap, PolyLine};
 pub use crate::pt::{HashablePt2D, Pt2D};
 pub use crate::ring::Ring;
 pub use crate::speed::Speed;
 pub use crate::stats::{HgramValue, Histogram, Statistic};
+pub use crate::tessellation::{Tessellation, Triangle};
 pub use crate::time::Time;
 
 mod angle;
@@ -38,6 +39,7 @@ mod pt;
 mod ring;
 mod speed;
 mod stats;
+mod tessellation;
 mod time;
 
 // About 0.4 inches... which is quite tiny on the scale of things. :)

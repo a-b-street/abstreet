@@ -292,9 +292,9 @@ impl PrerenderInnards {
 
         for (color, poly, z) in batch.consume() {
             let idx_offset = vertices.len() as u32;
-            let (pts, raw_indices) = poly.raw_for_rendering();
+            let (pts, raw_indices) = poly.consume();
             for pt in pts {
-                let style = color.shader_style(*pt);
+                let style = color.shader_style(pt);
                 vertices.push([
                     pt.x() as f32,
                     pt.y() as f32,
@@ -307,7 +307,7 @@ impl PrerenderInnards {
                 ]);
             }
             for idx in raw_indices {
-                indices.push(idx_offset + (*idx as u32));
+                indices.push(idx_offset + (idx as u32));
             }
         }
 

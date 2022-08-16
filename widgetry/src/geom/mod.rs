@@ -1,4 +1,4 @@
-use geom::{Angle, Bounds, GPSBounds, Polygon, Pt2D};
+use geom::{Angle, Bounds, GPSBounds, Polygon, Pt2D, Tessellation};
 
 use crate::{
     svg, Color, DeferDraw, Drawable, EventCtx, Fill, GfxCtx, JustDraw, Prerender, ScreenDims,
@@ -7,12 +7,12 @@ use crate::{
 
 pub mod geom_batch_stack;
 
-/// A mutable builder for a group of colored polygons.
+/// A mutable builder for a group of colored tessellated polygons.
 #[derive(Clone)]
 pub struct GeomBatch {
     // f64 is the z-value offset. This must be in (-1, 0], with values closer to -1.0
     // rendering above values closer to 0.0.
-    pub(crate) list: Vec<(Fill, Polygon, f64)>,
+    pub(crate) list: Vec<(Fill, Tessellation, f64)>,
     pub autocrop_dims: bool,
 }
 
@@ -35,23 +35,28 @@ impl GeomBatch {
         }
     }
 
-    /// Adds a single polygon, painted according to `Fill`
-    pub fn push<F: Into<Fill>>(&mut self, fill: F, p: Polygon) {
+    /// Adds a single tessellated polygon, painted according to `Fill`
+    pub fn push<F: Into<Fill>, T: Into<Tessellation>>(&mut self, fill: F, p: T) {
         self.push_with_z(fill, p, 0.0);
     }
 
     /// Offset z value to render above/below other polygons.
     /// z must be in (-1, 0] to ensure we don't traverse layers of the UI - to make
     /// sure we don't inadvertently render something *above* a tooltip, etc.
-    pub fn push_with_z<F: Into<Fill>>(&mut self, fill: F, p: Polygon, z_offset: f64) {
+    pub fn push_with_z<F: Into<Fill>, T: Into<Tessellation>>(
+        &mut self,
+        fill: F,
+        p: T,
+        z_offset: f64,
+    ) {
         debug_assert!(z_offset > -1.0);
         debug_assert!(z_offset <= 0.0);
-        self.list.push((fill.into(), p, z_offset));
+        self.list.push((fill.into(), p.into(), z_offset));
     }
 
     /// Adds a single polygon to the front of the batch, painted according to `Fill`
-    pub fn unshift<F: Into<Fill>>(&mut self, fill: F, p: Polygon) {
-        self.list.insert(0, (fill.into(), p, 0.0));
+    pub fn unshift<F: Into<Fill>, T: Into<Tessellation>>(&mut self, fill: F, p: T) {
+        self.list.insert(0, (fill.into(), p.into(), 0.0));
     }
 
     /// Removes the first polygon in the batch.
@@ -60,10 +65,10 @@ impl GeomBatch {
     }
 
     /// Applies one Fill to many polygons.
-    pub fn extend<F: Into<Fill>>(&mut self, fill: F, polys: Vec<Polygon>) {
+    pub fn extend<F: Into<Fill>, T: Into<Tessellation>>(&mut self, fill: F, polys: Vec<T>) {
         let fill = fill.into();
         for p in polys {
-            self.list.push((fill.clone(), p, 0.0));
+            self.list.push((fill.clone(), p.into(), 0.0));
         }
     }
 
@@ -73,7 +78,7 @@ impl GeomBatch {
     }
 
     /// Returns the colored polygons in this batch, destroying the batch.
-    pub fn consume(self) -> Vec<(Fill, Polygon, f64)> {
+    pub fn consume(self) -> Vec<(Fill, Tessellation, f64)> {
         self.list
     }
 
@@ -118,7 +123,7 @@ impl GeomBatch {
             return self;
         }
         for (_, poly, _) in &mut self.list {
-            *poly = poly.translate(-bounds.min_x, -bounds.min_y);
+            poly.translate(-bounds.min_x, -bounds.min_y);
         }
         self
     }
@@ -184,7 +189,7 @@ impl GeomBatch {
     /// Translates the batch by some offset.
     pub fn translate(mut self, dx: f64, dy: f64) -> GeomBatch {
         for (_, poly, _) in &mut self.list {
-            *poly = poly.translate(dx, dy);
+            poly.translate(dx, dy);
         }
         self
     }
@@ -192,7 +197,7 @@ impl GeomBatch {
     /// Rotates each polygon in the batch relative to the center of that polygon.
     pub fn rotate(mut self, angle: Angle) -> GeomBatch {
         for (_, poly, _) in &mut self.list {
-            *poly = poly.rotate(angle);
+            poly.rotate(angle);
         }
         self
     }
@@ -206,7 +211,7 @@ impl GeomBatch {
 
         let center = self.get_bounds().center();
         for (_, poly, _) in &mut self.list {
-            *poly = poly.rotate_around(angle, center);
+            poly.rotate_around(angle, center);
         }
         self
     }
@@ -242,9 +247,7 @@ impl GeomBatch {
         }
 
         for (_, poly, _) in &mut self.list {
-            // strip_rings first -- sometimes when scaling down, the original rings collapse. Since
-            // this polygon is part of a GeomBatch anyway, not calling to_outline on it.
-            *poly = poly.strip_rings().scale_xy(x_factor, y_factor);
+            poly.scale_xy(x_factor, y_factor);
         }
         self
     }
@@ -267,22 +270,26 @@ impl GeomBatch {
         self
     }
 
-    /// Exports the batch to a list of GeoJSON features, labeling each colored polygon. Z-values,
-    /// alpha values from the color, and non-RGB fill patterns are lost. If the polygon isn't a
-    /// ring, it's skipped. The world-space coordinates are optionally translated back to GPS.
+    /// Exports the batch to a list of GeoJSON features, labeling each colored triangle. Note the
+    /// result will be very large and kind of meaningless -- individual triangles are returned; any
+    /// original polygons are lost. Z-values, alpha values from the color, and non-RGB fill
+    /// patterns are lost. The world-space coordinates are optionally translated back to GPS.
     pub fn into_geojson(self, gps_bounds: Option<&GPSBounds>) -> Vec<geojson::Feature> {
         let mut features = Vec::new();
         for (fill, polygon, _) in self.list {
             if let Fill::Color(color) = fill {
                 let mut properties = serde_json::Map::new();
                 properties.insert("color".to_string(), color.as_hex().into());
-                features.push(geojson::Feature {
-                    bbox: None,
-                    geometry: Some(polygon.to_geojson(gps_bounds)),
-                    id: None,
-                    properties: Some(properties),
-                    foreign_members: None,
-                });
+                for triangle in polygon.triangles() {
+                    features.push(geojson::Feature {
+                        bbox: None,
+                        // TODO We could do a bit better and at least emit a MultiPolygon
+                        geometry: Some(Polygon::from_triangle(&triangle).to_geojson(gps_bounds)),
+                        id: None,
+                        properties: Some(properties.clone()),
+                        foreign_members: None,
+                    });
+                }
             }
         }
         features
@@ -299,11 +306,14 @@ impl Default for GeomBatch {
     }
 }
 
-impl<F: Into<Fill>> From<Vec<(F, Polygon)>> for GeomBatch {
+impl<F: Into<Fill>, T: Into<Tessellation>> From<Vec<(F, T)>> for GeomBatch {
     /// Creates a batch of filled polygons.
-    fn from(list: Vec<(F, Polygon)>) -> GeomBatch {
+    fn from(list: Vec<(F, T)>) -> GeomBatch {
         GeomBatch {
-            list: list.into_iter().map(|(c, p)| (c.into(), p, 0.0)).collect(),
+            list: list
+                .into_iter()
+                .map(|(c, p)| (c.into(), p.into(), 0.0))
+                .collect(),
             autocrop_dims: true,
         }
     }

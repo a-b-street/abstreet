@@ -199,10 +199,10 @@ impl State<App> for TripTable {
         self.panel.draw(g);
         let mut batch = GeomBatch::new();
         if self.panel.has_widget("starts_in") {
-            if let Some(p) = self.panel.clone_stashed("starts_in") {
+            if let Some(p) = self.panel.clone_stashed::<Option<Polygon>>("starts_in") {
                 batch.push(Color::RED.alpha(0.5), p);
             }
-            if let Some(p) = self.panel.clone_stashed("ends_in") {
+            if let Some(p) = self.panel.clone_stashed::<Option<Polygon>>("ends_in") {
                 batch.push(Color::BLUE.alpha(0.5), p);
             }
         }
