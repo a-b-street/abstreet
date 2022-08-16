@@ -666,7 +666,6 @@
 <span id="660">660</span>
 <span id="661">661</span>
 <span id="662">662</span>
-<span id="663">663</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>, <span class="ident">Time</span>, <span class="ident">EPSILON_DIST</span>};
@@ -1010,8 +1009,7 @@
                     <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">l1</span>.<span class="ident">end_line</span>(<span class="ident">i</span>.<span class="ident">id</span>).<span class="ident">shift_either_direction</span>(<span class="ident">shift</span>).<span class="ident">pt2</span>());
                     <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">l1</span>.<span class="ident">end_line</span>(<span class="ident">i</span>.<span class="ident">id</span>).<span class="ident">shift_either_direction</span>(<span class="op">-</span><span class="ident">shift</span>).<span class="ident">pt2</span>());
                     <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">pts</span>[<span class="number">0</span>]);
-                    <span class="comment">// Many resulting shapes aren&#39;t valid rings, but we can still triangulate them.</span>
-                    <span class="prelude-val">Some</span>(<span class="ident">Polygon::buggy_new</span>(<span class="ident">pts</span>))
+                    <span class="prelude-val">Some</span>(<span class="ident">Ring::deduping_new</span>(<span class="ident">pts</span>).<span class="ident">ok</span>()<span class="question-mark">?</span>.<span class="ident">into_polygon</span>())
                 })() {
                     <span class="ident">corners</span>.<span class="ident">push</span>(<span class="ident">poly</span>);
                 }
