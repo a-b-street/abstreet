@@ -36,7 +36,7 @@ impl DrawMovement {
             let hitbox = if stage.protected_movements.contains(&movement.id) {
                 if movement.id.crosswalk {
                     batch = traffic_signal::walk_icon(movement, prerender);
-                    batch.unioned_polygon()
+                    batch.get_bounds().to_circle().to_polygon()
                 } else {
                     let arrow = movement
                         .geom
@@ -98,7 +98,7 @@ impl DrawMovement {
                     .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle)
             } else if movement.id.crosswalk {
                 batch = traffic_signal::dont_walk_icon(movement, prerender);
-                batch.unioned_polygon()
+                batch.get_bounds().to_circle().to_polygon()
             } else {
                 // Use circular icons for banned turns
                 let offset = movement

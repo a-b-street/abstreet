@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use aabb_quadtree::geom::{Point, Rect};
 
-use crate::{Distance, LonLat, Polygon, Pt2D, Ring};
+use crate::{Circle, Distance, LonLat, Polygon, Pt2D, Ring};
 
 /// Represents a rectangular boundary of `Pt2D` points.
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
@@ -102,6 +102,12 @@ impl Bounds {
             Pt2D::new(self.min_x, self.min_y),
         ])
         .into_polygon()
+    }
+
+    /// Creates a circle centered in the middle of this boundary. Always uses the half width as a
+    /// radius, so if the width and height don't match, this is pretty meaningless.
+    pub fn to_circle(&self) -> Circle {
+        Circle::new(self.center(), Distance::meters(self.width() / 2.0))
     }
 
     /// The width of this boundary.

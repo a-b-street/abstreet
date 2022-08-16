@@ -103,7 +103,7 @@ impl StoryMapEditor {
                     .scale(0.5)
                     .centered_on(label_center),
             );
-            let hitbox = draw_normal.unioned_polygon();
+            let hitbox = draw_normal.get_bounds().to_circle().to_polygon();
             draw_hovered.append(
                 Text::from(&marker.label)
                     .bg(Color::CYAN)
