@@ -5,7 +5,7 @@ use abstio::{CityName, MapName};
 use abstutil::{Tags, Timer};
 use geom::{Bounds, Circle, Distance, FindClosest, GPSBounds, HashablePt2D, LonLat, Polygon, Pt2D};
 use raw_map::{RawBuilding, RawMap};
-use street_network::{osm, IntersectionType, OriginalRoad, RawIntersection, RawRoad};
+use street_network::{osm, ControlType, Intersection, IntersectionComplexity, OriginalRoad, Road};
 use widgetry::mapspace::{ObjectID, World};
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, Key, Line, Text};
 
@@ -162,11 +162,11 @@ impl Model {
 impl Model {
     fn intersection_added(&mut self, ctx: &EventCtx, id: osm::NodeID) {
         let i = &self.map.streets.intersections[&id];
-        let color = match i.intersection_type {
-            IntersectionType::TrafficSignal => Color::GREEN,
-            IntersectionType::StopSign => Color::RED,
-            IntersectionType::Border => Color::BLUE,
-            IntersectionType::Construction => Color::ORANGE,
+        let color = match i.control {
+            ControlType::TrafficSignal => Color::GREEN,
+            ControlType::StopSign | ControlType::Uncontrolled => Color::RED,
+            ControlType::Border => Color::BLUE,
+            ControlType::Construction => Color::ORANGE,
         };
 
         let poly =
@@ -199,10 +199,15 @@ impl Model {
 
     pub fn create_i(&mut self, ctx: &EventCtx, point: Pt2D) {
         let id = self.map.streets.new_osm_node_id(time_to_id());
-        self.map
-            .streets
-            .intersections
-            .insert(id, RawIntersection::new(point, IntersectionType::StopSign));
+        // The complexity will change as we connect things to this intersection
+        self.map.streets.intersections.insert(
+            id,
+            Intersection::new(
+                point,
+                IntersectionComplexity::Crossing,
+                ControlType::StopSign,
+            ),
+        );
         self.intersection_added(ctx, id);
     }
 
@@ -228,10 +233,10 @@ impl Model {
         self.world.delete_before_replacement(ID::Intersection(id));
 
         let i = self.map.streets.intersections.get_mut(&id).unwrap();
-        if i.intersection_type == IntersectionType::TrafficSignal {
-            i.intersection_type = IntersectionType::StopSign;
-        } else if i.intersection_type == IntersectionType::StopSign {
-            i.intersection_type = IntersectionType::TrafficSignal;
+        if i.control == ControlType::TrafficSignal {
+            i.control = ControlType::StopSign;
+        } else if i.control == ControlType::StopSign {
+            i.control = ControlType::TrafficSignal;
         }
 
         self.intersection_added(ctx, id);
@@ -353,7 +358,7 @@ impl Model {
         osm_tags.insert(osm::NAME, "Streety McStreetFace");
         osm_tags.insert(osm::MAXSPEED, "25 mph");
 
-        let road = match RawRoad::new(
+        let road = match Road::new(
             vec![
                 self.map.streets.intersections[&i1].point,
                 self.map.streets.intersections[&i2].point,

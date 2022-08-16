@@ -527,7 +527,7 @@ fn recalculate_turns(id: IntersectionID, map: &mut Map, effects: &mut EditEffect
     i.movements = movements;
 
     match i.intersection_type {
-        IntersectionType::StopSign => {
+        IntersectionType::StopSign | IntersectionType::Uncontrolled => {
             // Stop sign policy usually doesn't depend on incoming lane types, except when changing
             // to/from construction. To be safe, always regenerate. Edits to stop signs are rare
             // anyway. And when we're smarter about preserving traffic signal changes in the face
@@ -782,7 +782,9 @@ impl Map {
     /// Panics on borders
     pub fn get_i_edit(&self, i: IntersectionID) -> EditIntersection {
         match self.get_i(i).intersection_type {
-            IntersectionType::StopSign => EditIntersection::StopSign(self.get_stop_sign(i).clone()),
+            IntersectionType::StopSign | IntersectionType::Uncontrolled => {
+                EditIntersection::StopSign(self.get_stop_sign(i).clone())
+            }
             IntersectionType::TrafficSignal => {
                 EditIntersection::TrafficSignal(self.get_traffic_signal(i).export(self))
             }

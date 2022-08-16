@@ -291,6 +291,7 @@ impl From<Ring> for geo::LineString {
     }
 }
 
+// TODO This could crash. Should be TryFrom?
 impl From<geo::LineString> for Ring {
     fn from(line_string: geo::LineString) -> Self {
         // Dedupe adjacent points. Only needed for results from concave hull.

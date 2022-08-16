@@ -174,17 +174,19 @@ pub fn extract_osm(
             }
         } else if is_bldg(&rel.tags) {
             match multipoly_geometry(id, rel, &doc) {
-                Ok(polygon) => {
-                    map.buildings.insert(
-                        OsmID::Relation(id),
-                        RawBuilding {
-                            polygon,
-                            public_garage_name: None,
-                            num_parking_spots: 0,
-                            amenities: get_bldg_amenities(&rel.tags),
-                            osm_tags: rel.tags.clone(),
-                        },
-                    );
+                Ok(polygons) => {
+                    for polygon in polygons {
+                        map.buildings.insert(
+                            OsmID::Relation(id),
+                            RawBuilding {
+                                polygon,
+                                public_garage_name: None,
+                                num_parking_spots: 0,
+                                amenities: get_bldg_amenities(&rel.tags),
+                                osm_tags: rel.tags.clone(),
+                            },
+                        );
+                    }
                 }
                 Err(err) => println!("Skipping building {}: {}", id, err),
             }

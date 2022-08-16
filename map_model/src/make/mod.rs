@@ -90,7 +90,11 @@ impl Map {
                 movements: BTreeMap::new(),
                 elevation: i.elevation,
                 // Might change later
-                intersection_type: i.intersection_type,
+                intersection_type: match i.control {
+                    // Nothing in A/B Street handles uncontrolled intersections yet
+                    IntersectionType::Uncontrolled => IntersectionType::StopSign,
+                    x => x,
+                },
                 orig_id: i.id,
                 incoming_lanes: Vec::new(),
                 outgoing_lanes: Vec::new(),
@@ -260,7 +264,7 @@ impl Map {
         let mut traffic_signals: BTreeMap<IntersectionID, ControlTrafficSignal> = BTreeMap::new();
         for i in &map.intersections {
             match i.intersection_type {
-                IntersectionType::StopSign => {
+                IntersectionType::StopSign | IntersectionType::Uncontrolled => {
                     stop_signs.insert(i.id, ControlStopSign::new(&map, i.id));
                 }
                 IntersectionType::TrafficSignal => {

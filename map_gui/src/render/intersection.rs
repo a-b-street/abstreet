@@ -77,7 +77,7 @@ impl DrawIntersection {
                     calculate_border_arrows(i, r, map),
                 );
             }
-            IntersectionType::StopSign => {
+            IntersectionType::StopSign | IntersectionType::Uncontrolled => {
                 for ss in map.get_stop_sign(i.id).roads.values() {
                     if !app.opts().show_stop_signs {
                         break;

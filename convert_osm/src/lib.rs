@@ -9,7 +9,7 @@ use abstio::MapName;
 use abstutil::{Tags, Timer};
 use geom::{Distance, FindClosest, GPSBounds, LonLat, Polygon, Pt2D, Ring};
 use raw_map::{Amenity, RawMap};
-use street_network::{osm, OriginalRoad, RawRoad};
+use street_network::{osm, OriginalRoad, Road};
 
 pub use import_streets::{
     OnstreetParking, Options, PrivateOffstreetParking, PublicOffstreetParking,
@@ -29,7 +29,7 @@ pub fn convert(
     timer: &mut Timer,
 ) -> RawMap {
     let mut map = RawMap::blank(name);
-    // Do this early. Calculating RawRoads uses DrivingSide, for example!
+    // Do this early. Calculating Roads uses DrivingSide, for example!
     map.streets.config = opts.map_config.clone();
 
     if let Some(ref path) = clip_path {
@@ -154,7 +154,7 @@ fn bristol_hack(map: &mut RawMap) {
 
     map.streets.roads.insert(
         id,
-        RawRoad::new(
+        Road::new(
             vec![
                 map.streets.intersections[&i1].point,
                 map.streets.intersections[&i2].point,

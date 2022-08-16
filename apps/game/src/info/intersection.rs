@@ -490,7 +490,9 @@ fn header(
     let i = app.primary.map.get_i(id);
 
     let label = match i.intersection_type {
-        IntersectionType::StopSign => format!("{} (Stop signs)", id),
+        IntersectionType::StopSign | IntersectionType::Uncontrolled => {
+            format!("{} (Stop signs)", id)
+        }
         IntersectionType::TrafficSignal => format!("{} (Traffic signals)", id),
         IntersectionType::Border => format!("Border #{}", id.0),
         IntersectionType::Construction => format!("{} (under construction)", id),

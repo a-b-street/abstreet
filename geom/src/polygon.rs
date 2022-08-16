@@ -642,6 +642,7 @@ pub struct Triangle {
     pub pt3: Pt2D,
 }
 
+// Note that this could crash on invalid rings
 impl From<geo::Polygon> for Polygon {
     fn from(poly: geo::Polygon) -> Self {
         let (exterior, interiors) = poly.into_inner();
