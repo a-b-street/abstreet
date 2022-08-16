@@ -746,7 +746,7 @@
                     <span class="ident">calculate_border_arrows</span>(<span class="ident">i</span>, <span class="ident">r</span>, <span class="ident">map</span>),
                 );
             }
-            <span class="ident">IntersectionType::StopSign</span> =&gt; {
+            <span class="ident">IntersectionType::StopSign</span> <span class="op">|</span> <span class="ident">IntersectionType::Uncontrolled</span> =&gt; {
                 <span class="kw">for</span> <span class="ident">ss</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">get_stop_sign</span>(<span class="ident">i</span>.<span class="ident">id</span>).<span class="ident">roads</span>.<span class="ident">values</span>() {
                     <span class="kw">if</span> <span class="op">!</span><span class="ident">app</span>.<span class="ident">opts</span>().<span class="ident">show_stop_signs</span> {
                         <span class="kw">break</span>;

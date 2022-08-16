@@ -305,6 +305,7 @@
 <span id="299">299</span>
 <span id="300">300</span>
 <span id="301">301</span>
+<span id="302">302</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 <span class="kw">use</span> <span class="ident">std::fmt::Write</span>;
@@ -598,6 +599,7 @@
     }
 }
 
+<span class="comment">// TODO This could crash. Should be TryFrom?</span>
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">geo::LineString</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Ring</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">line_string</span>: <span class="ident">geo::LineString</span>) -&gt; <span class="self">Self</span> {
         <span class="comment">// Dedupe adjacent points. Only needed for results from concave hull.</span>

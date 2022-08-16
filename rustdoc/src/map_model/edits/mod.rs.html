@@ -1006,6 +1006,8 @@
 <span id="1000">1000</span>
 <span id="1001">1001</span>
 <span id="1002">1002</span>
+<span id="1003">1003</span>
+<span id="1004">1004</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Once a Map exists, the player can edit it in the UI (producing `MapEdits` in-memory), then save</span>
 <span class="doccomment">//! the changes to a file (as `PermanentMapEdits`). See</span>
 <span class="doccomment">//! &lt;https://a-b-street.github.io/docs/tech/map/edits.html&gt;.</span>
@@ -1535,7 +1537,7 @@
     <span class="ident">i</span>.<span class="ident">movements</span> <span class="op">=</span> <span class="ident">movements</span>;
 
     <span class="kw">match</span> <span class="ident">i</span>.<span class="ident">intersection_type</span> {
-        <span class="ident">IntersectionType::StopSign</span> =&gt; {
+        <span class="ident">IntersectionType::StopSign</span> <span class="op">|</span> <span class="ident">IntersectionType::Uncontrolled</span> =&gt; {
             <span class="comment">// Stop sign policy usually doesn&#39;t depend on incoming lane types, except when changing</span>
             <span class="comment">// to/from construction. To be safe, always regenerate. Edits to stop signs are rare</span>
             <span class="comment">// anyway. And when we&#39;re smarter about preserving traffic signal changes in the face</span>
@@ -1790,7 +1792,9 @@
     <span class="doccomment">/// Panics on borders</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_i_edit</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>) -&gt; <span class="ident">EditIntersection</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">intersection_type</span> {
-            <span class="ident">IntersectionType::StopSign</span> =&gt; <span class="ident">EditIntersection::StopSign</span>(<span class="self">self</span>.<span class="ident">get_stop_sign</span>(<span class="ident">i</span>).<span class="ident">clone</span>()),
+            <span class="ident">IntersectionType::StopSign</span> <span class="op">|</span> <span class="ident">IntersectionType::Uncontrolled</span> =&gt; {
+                <span class="ident">EditIntersection::StopSign</span>(<span class="self">self</span>.<span class="ident">get_stop_sign</span>(<span class="ident">i</span>).<span class="ident">clone</span>())
+            }
             <span class="ident">IntersectionType::TrafficSignal</span> =&gt; {
                 <span class="ident">EditIntersection::TrafficSignal</span>(<span class="self">self</span>.<span class="ident">get_traffic_signal</span>(<span class="ident">i</span>).<span class="ident">export</span>(<span class="self">self</span>))
             }
