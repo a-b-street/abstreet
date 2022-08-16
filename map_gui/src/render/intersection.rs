@@ -341,8 +341,7 @@ pub fn calculate_corners(i: &Intersection, map: &Map) -> Vec<Polygon> {
                     pts.push(l1.end_line(i.id).shift_either_direction(shift).pt2());
                     pts.push(l1.end_line(i.id).shift_either_direction(-shift).pt2());
                     pts.push(pts[0]);
-                    // Many resulting shapes aren't valid rings, but we can still triangulate them.
-                    Some(Polygon::buggy_new(pts))
+                    Some(Ring::deduping_new(pts).ok()?.into_polygon())
                 })() {
                     corners.push(poly);
                 }
