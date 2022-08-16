@@ -9,13 +9,14 @@ use abstutil::Tags;
 
 use crate::{
     Angle, Bounds, CornerRadii, Distance, GPSBounds, HashablePt2D, LonLat, PolyLine, Pt2D, Ring,
+    Tessellation, Triangle,
 };
 
 #[derive(PartialEq, Serialize, Deserialize, Clone, Debug)]
 pub struct Polygon {
-    points: Vec<Pt2D>,
+    pub(crate) points: Vec<Pt2D>,
     /// Groups of three indices make up the triangles
-    indices: Vec<u16>,
+    pub(crate) indices: Vec<u16>,
 
     /// If the polygon has holes, explicitly store all the rings (the one outer and all of the
     /// inner) so they can later be used to generate outlines and such. If the polygon has no
@@ -103,19 +104,7 @@ impl Polygon {
     }
 
     pub fn triangles(&self) -> Vec<Triangle> {
-        let mut triangles: Vec<Triangle> = Vec::new();
-        for slice in self.indices.chunks_exact(3) {
-            triangles.push(Triangle {
-                pt1: self.points[slice[0] as usize],
-                pt2: self.points[slice[1] as usize],
-                pt3: self.points[slice[2] as usize],
-            });
-        }
-        triangles
-    }
-
-    pub fn raw_for_rendering(&self) -> (&Vec<Pt2D>, &Vec<u16>) {
-        (&self.points, &self.indices)
+        Tessellation::from(self.clone()).triangles()
     }
 
     /// Does this polygon contain the point in its interior?
@@ -633,13 +622,6 @@ impl fmt::Display for Polygon {
         }
         writeln!(f, "]")
     }
-}
-
-#[derive(Clone, Debug)]
-pub struct Triangle {
-    pub pt1: Pt2D,
-    pub pt2: Pt2D,
-    pub pt3: Pt2D,
 }
 
 // Note that this could crash on invalid rings
