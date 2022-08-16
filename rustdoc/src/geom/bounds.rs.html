@@ -229,11 +229,17 @@
 <span id="223">223</span>
 <span id="224">224</span>
 <span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="ident">aabb_quadtree::geom</span>::{<span class="ident">Point</span>, <span class="ident">Rect</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Distance</span>, <span class="ident">LonLat</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">LonLat</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
 
 <span class="doccomment">/// Represents a rectangular boundary of `Pt2D` points.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
@@ -333,6 +339,12 @@
             <span class="ident">Pt2D::new</span>(<span class="self">self</span>.<span class="ident">min_x</span>, <span class="self">self</span>.<span class="ident">min_y</span>),
         ])
         .<span class="ident">into_polygon</span>()
+    }
+
+    <span class="doccomment">/// Creates a circle centered in the middle of this boundary. Always uses the half width as a</span>
+    <span class="doccomment">/// radius, so if the width and height don&#39;t match, this is pretty meaningless.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_circle</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Circle</span> {
+        <span class="ident">Circle::new</span>(<span class="self">self</span>.<span class="ident">center</span>(), <span class="ident">Distance::meters</span>(<span class="self">self</span>.<span class="ident">width</span>() <span class="op">/</span> <span class="number">2.0</span>))
     }
 
     <span class="doccomment">/// The width of this boundary.</span>
