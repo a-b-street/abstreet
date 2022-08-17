@@ -168,7 +168,7 @@ impl RoutePlanner {
         // The route respecting the filters
         let driving_after_changes_time = {
             let mut params = map.routing_params().clone();
-            app.session.modal_filters.update_routing_params(&mut params);
+            app.session.edits.update_routing_params(&mut params);
             params.main_road_penalty = app.session.main_road_penalty;
 
             let mut total_time = Duration::ZERO;

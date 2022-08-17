@@ -11,7 +11,7 @@ use widgetry::{Choice, EventCtx, Key, Line, State, Widget};
 
 use crate::edit::EditMode;
 use crate::partition::BlockID;
-use crate::{App, BrowseNeighbourhoods, ModalFilters, Partitioning, Transition};
+use crate::{App, BrowseNeighbourhoods, Edits, Partitioning, Transition};
 
 /// Captures all of the edits somebody makes to a map in the LTN tool. Note this is separate from
 /// `map_model::MapEdits`.
@@ -22,7 +22,7 @@ pub struct Proposal {
     pub abst_version: String,
 
     pub partitioning: Partitioning,
-    pub modal_filters: ModalFilters,
+    pub edits: Edits,
 }
 
 impl Proposal {
@@ -37,14 +37,14 @@ impl Proposal {
             abst_version: map_gui::tools::version().to_string(),
 
             partitioning: app.session.partitioning.clone(),
-            modal_filters: app.session.modal_filters.clone(),
+            edits: app.session.edits.clone(),
         }
     }
 
     fn make_active(self, ctx: &EventCtx, app: &mut App) {
         // First undo any one-way changes
         let mut edits = app.map.new_edits();
-        for r in app.session.modal_filters.one_ways.keys().cloned() {
+        for r in app.session.edits.one_ways.keys().cloned() {
             // Just revert to the original state
             edits.commands.push(app.map.edit_road_cmd(r, |new| {
                 *new = EditRoad::get_orig_from_osm(app.map.get_r(r), app.map.get_config());
@@ -53,12 +53,12 @@ impl Proposal {
 
         app.session.proposal_name = Some(self.name);
         app.session.partitioning = self.partitioning;
-        app.session.modal_filters = self.modal_filters;
-        app.session.draw_all_filters = app.session.modal_filters.draw(ctx, &app.map);
+        app.session.edits = self.edits;
+        app.session.draw_all_filters = app.session.edits.draw(ctx, &app.map);
 
         // Then append any new one-way changes. Edits are applied in order, so the net effect
         // should be correct.
-        for (r, r_edit) in &app.session.modal_filters.one_ways {
+        for (r, r_edit) in &app.session.edits.one_ways {
             edits.commands.push(app.map.edit_road_cmd(*r, move |new| {
                 *new = r_edit.clone();
             }));
@@ -285,7 +285,7 @@ impl AltProposals {
                     // First undo any one-way changes. This is messy to repeat here, but it's not
                     // straightforward to use make_active.
                     let mut edits = app.map.new_edits();
-                    for r in app.session.modal_filters.one_ways.keys().cloned() {
+                    for r in app.session.edits.one_ways.keys().cloned() {
                         edits.commands.push(app.map.edit_road_cmd(r, |new| {
                             *new =
                                 EditRoad::get_orig_from_osm(app.map.get_r(r), app.map.get_config());

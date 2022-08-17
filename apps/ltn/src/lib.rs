@@ -10,7 +10,7 @@ use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, RewriteColor, Setti
 
 pub use browse::BrowseNeighbourhoods;
 use filters::Toggle3Zoomed;
-pub use filters::{DiagonalFilter, FilterType, ModalFilters};
+pub use filters::{DiagonalFilter, Edits, FilterType};
 pub use neighbourhood::{Cell, DistanceInterval, Neighbourhood};
 pub use partition::{NeighbourhoodID, Partitioning};
 
@@ -81,7 +81,7 @@ fn run(mut settings: Settings) {
         let session = Session {
             proposal_name: None,
             partitioning: Partitioning::empty(),
-            modal_filters: ModalFilters::default(),
+            edits: Edits::default(),
             routing_params_before_changes: RoutingParams::default(),
             draw_all_road_labels: None,
             draw_poi_icons: Drawable::empty(ctx),
@@ -206,7 +206,7 @@ pub struct Session {
     // These come from a save::Proposal
     pub proposal_name: Option<String>,
     pub partitioning: Partitioning,
-    pub modal_filters: ModalFilters,
+    pub edits: Edits,
     // These capture modal filters that exist in the map already. Whenever we pathfind in this app
     // in the "before changes" case, we have to use these. Do NOT use the map's built-in
     // pathfinder. (https://github.com/a-b-street/abstreet/issues/852 would make this more clear)
@@ -251,7 +251,7 @@ fn draw_with_layering<F: Fn(&mut GfxCtx)>(g: &mut GfxCtx, app: &App, custom: F) 
 }
 
 pub fn after_edit(ctx: &EventCtx, app: &mut App) {
-    app.session.draw_all_filters = app.session.modal_filters.draw(ctx, &app.map);
+    app.session.draw_all_filters = app.session.edits.draw(ctx, &app.map);
 }
 
 pub fn clear_current_proposal(ctx: &mut EventCtx, app: &mut App, timer: &mut Timer) {
@@ -265,10 +265,10 @@ pub fn clear_current_proposal(ctx: &mut EventCtx, app: &mut App, timer: &mut Tim
     app.session.proposal_name = None;
     // Reset this first. transform_existing_filters will fill some out.
     app.session.routing_params_before_changes = RoutingParams::default();
-    app.session.modal_filters = ModalFilters::default();
+    app.session.edits = Edits::default();
     crate::filters::transform_existing_filters(ctx, app, timer);
     app.session.partitioning = Partitioning::seed_using_heuristics(app, timer);
-    app.session.draw_all_filters = app.session.modal_filters.draw(ctx, &app.map);
+    app.session.draw_all_filters = app.session.edits.draw(ctx, &app.map);
     app.session.draw_all_road_labels = None;
     app.session.draw_poi_icons = render_poi_icons(ctx, app);
 }

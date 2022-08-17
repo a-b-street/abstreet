@@ -88,7 +88,7 @@ impl Shortcuts {
 
 pub fn find_shortcuts(app: &App, neighbourhood: &Neighbourhood, timer: &mut Timer) -> Shortcuts {
     let map = &app.map;
-    let modal_filters = &app.session.modal_filters;
+    let edits = &app.session.edits;
     // The overall approach: look for all possible paths from an entrance to an exit, only if they
     // connect to different major roads.
     //
@@ -116,7 +116,7 @@ pub fn find_shortcuts(app: &App, neighbourhood: &Neighbourhood, timer: &mut Time
     }
 
     let mut params = map.routing_params().clone();
-    modal_filters.update_routing_params(&mut params);
+    edits.update_routing_params(&mut params);
     // Don't allow leaving the neighbourhood and using perimeter roads at all. Even if the optimal
     // path is to leave and re-enter, don't do that. The point of this view is to show possible
     // detours people might try to take in response to one filter. Note the original "demand model"

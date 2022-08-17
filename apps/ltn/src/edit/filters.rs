@@ -72,8 +72,8 @@ pub fn handle_world_outcome(
                 return EditOutcome::error(ctx, "You can't filter a dead-end");
             }
 
-            app.session.modal_filters.before_edit();
-            if app.session.modal_filters.roads.remove(&r).is_none() {
+            app.session.edits.before_edit();
+            if app.session.edits.roads.remove(&r).is_none() {
                 // Place the filter on the part of the road that was clicked
                 // These calls shouldn't fail -- since we clicked a road, the cursor must be in
                 // map-space. And project_pt returns a point that's guaranteed to be on the
@@ -83,7 +83,7 @@ pub fn handle_world_outcome(
                 let (distance, _) = road.center_pts.dist_along_of_point(pt_on_line).unwrap();
 
                 app.session
-                    .modal_filters
+                    .edits
                     .roads
                     .insert(r, (distance, app.session.filter_type));
             }
@@ -91,7 +91,7 @@ pub fn handle_world_outcome(
             EditOutcome::Transition(Transition::Recreate)
         }
         WorldOutcome::ClickedObject(Obj::InteriorIntersection(i)) => {
-            app.session.modal_filters.before_edit();
+            app.session.edits.before_edit();
             DiagonalFilter::cycle_through_alternatives(app, i);
             after_edit(ctx, app);
             EditOutcome::Transition(Transition::Recreate)

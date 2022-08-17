@@ -35,9 +35,9 @@ fn make_filters_along_path(
     neighbourhood: &Neighbourhood,
     path: PolyLine,
 ) {
-    app.session.modal_filters.before_edit();
+    app.session.edits.before_edit();
     for r in &neighbourhood.orig_perimeter.interior {
-        if app.session.modal_filters.roads.contains_key(r) {
+        if app.session.edits.roads.contains_key(r) {
             continue;
         }
         let road = app.map.get_r(*r);
@@ -52,7 +52,7 @@ fn make_filters_along_path(
                 .map(|pair| pair.0)
                 .unwrap_or(road.center_pts.length() / 2.0);
             app.session
-                .modal_filters
+                .edits
                 .roads
                 .insert(*r, (dist, app.session.filter_type));
         }

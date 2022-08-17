@@ -16,7 +16,7 @@ use crate::App;
 
 /// Stored in App session state. Before making any changes, call `before_edit`.
 #[derive(Clone, Default, Serialize, Deserialize)]
-pub struct ModalFilters {
+pub struct Edits {
     // We use serialize_btreemap so that save::perma can detect and transform IDs
     /// For filters placed along a road, where is the filter located?
     #[serde(
@@ -38,7 +38,7 @@ pub struct ModalFilters {
 
     /// Edit history is preserved recursively
     #[serde(skip_serializing, skip_deserializing)]
-    pub previous_version: Box<Option<ModalFilters>>,
+    pub previous_version: Box<Option<Edits>>,
 }
 
 /// Just determines the icon, has no semantics yet
@@ -84,7 +84,7 @@ pub struct DiagonalFilter {
     group2: BTreeSet<RoadID>,
 }
 
-impl ModalFilters {
+impl Edits {
     /// Call before making any changes to preserve edit history
     pub fn before_edit(&mut self) {
         let copy = self.clone();
@@ -232,18 +232,18 @@ impl DiagonalFilter {
             let alt1 = DiagonalFilter::new(app, i, roads[0], roads[1]);
             let alt2 = DiagonalFilter::new(app, i, roads[1], roads[2]);
 
-            match app.session.modal_filters.intersections.get(&i) {
+            match app.session.edits.intersections.get(&i) {
                 Some(prev) => {
                     if alt1.approx_eq(prev) {
-                        app.session.modal_filters.intersections.insert(i, alt2);
+                        app.session.edits.intersections.insert(i, alt2);
                     } else if alt2.approx_eq(prev) {
-                        app.session.modal_filters.intersections.remove(&i);
+                        app.session.edits.intersections.remove(&i);
                     } else {
                         unreachable!()
                     }
                 }
                 None => {
-                    app.session.modal_filters.intersections.insert(i, alt1);
+                    app.session.edits.intersections.insert(i, alt1);
                 }
             }
         } else if roads.len() > 1 {
@@ -262,9 +262,9 @@ impl DiagonalFilter {
             let mut add_filter_to = None;
             if let Some(idx) = roads
                 .iter()
-                .position(|r| app.session.modal_filters.roads.contains_key(r))
+                .position(|r| app.session.edits.roads.contains_key(r))
             {
-                app.session.modal_filters.roads.remove(&roads[idx]);
+                app.session.edits.roads.remove(&roads[idx]);
                 if idx != roads.len() - 1 {
                     add_filter_to = Some(roads[idx + 1]);
                 }
@@ -279,7 +279,7 @@ impl DiagonalFilter {
                     road.length()
                 };
                 app.session
-                    .modal_filters
+                    .edits
                     .roads
                     .insert(r, (dist, app.session.filter_type));
             }
