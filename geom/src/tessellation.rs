@@ -20,13 +20,34 @@ pub struct Triangle {
 
 impl From<Polygon> for Tessellation {
     fn from(polygon: Polygon) -> Self {
-        Self::new(polygon.points, polygon.indices)
+        Self {
+            points: polygon.points,
+            indices: polygon.indices,
+        }
     }
 }
 
 impl Tessellation {
-    pub fn new(points: Vec<Pt2D>, indices: Vec<u16>) -> Self {
-        Tessellation { points, indices }
+    pub fn new(points: Vec<Pt2D>, indices: Vec<usize>) -> Self {
+        Tessellation {
+            points,
+            indices: downsize(indices),
+        }
+    }
+
+    /// The `points` are not necessarily a `Ring`, which has strict requirements about no duplicate
+    /// points. We can render various types of invalid polygon.
+    pub fn from_ring(points: Vec<Pt2D>) -> Self {
+        assert!(points.len() >= 3);
+
+        let mut vertices = Vec::new();
+        for pt in &points {
+            vertices.push(pt.x());
+            vertices.push(pt.y());
+        }
+        let indices = downsize(earcutr::earcut(&vertices, &Vec::new(), 2));
+
+        Self { points, indices }
     }
 
     /// Returns (points, indices) for rendering
@@ -114,4 +135,16 @@ impl Tessellation {
             );
         }
     }
+}
+
+pub fn downsize(input: Vec<usize>) -> Vec<u16> {
+    let mut output = Vec::new();
+    for x in input {
+        if let Ok(x) = u16::try_from(x) {
+            output.push(x);
+        } else {
+            panic!("{} can't fit in u16, some polygon is too huge", x);
+        }
+    }
+    output
 }
