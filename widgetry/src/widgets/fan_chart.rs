@@ -1,8 +1,8 @@
 use std::collections::VecDeque;
 
 use geom::{
-    Angle, Distance, Duration, HgramValue, Histogram, PolyLine, Polygon, Pt2D, Statistic, Time,
-    UnitFmt,
+    Angle, Distance, Duration, HgramValue, Histogram, PolyLine, Pt2D, Statistic, Tessellation,
+    Time, UnitFmt,
 };
 
 use crate::widgets::plots::{make_legend, thick_lineseries, Axis, PlotOptions};
@@ -133,7 +133,7 @@ impl FanChart {
             p99.reverse();
             band.extend(transform(p99));
             band.push(band[0]);
-            batch.push(s.color.alpha(0.5), Polygon::buggy_new(band));
+            batch.push(s.color.alpha(0.5), Tessellation::from_ring(band));
 
             batch.push(
                 s.color,

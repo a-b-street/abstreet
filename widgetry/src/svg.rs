@@ -4,7 +4,7 @@ use lyon::tessellation;
 use lyon::tessellation::geometry_builder::{simple_builder, VertexBuffers};
 
 use abstutil::VecMap;
-use geom::{Bounds, Polygon, Pt2D};
+use geom::{Bounds, Pt2D, Tessellation};
 
 use crate::{Color, Fill, GeomBatch, LinearGradient, Prerender};
 
@@ -99,7 +99,7 @@ pub(crate) fn add_svg_inner(
     for (color, mesh) in mesh_per_color.consume() {
         batch.push(
             color,
-            Polygon::precomputed(
+            Tessellation::new(
                 mesh.vertices
                     .into_iter()
                     .map(|v| Pt2D::new(f64::from(v.x), f64::from(v.y)))

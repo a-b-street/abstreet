@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 use abstutil::prettyprint_usize;
-use geom::{Circle, Distance, Duration, Percent, Polygon, Pt2D, Time, UnitFmt};
+use geom::{Circle, Distance, Duration, Percent, Pt2D, Tessellation, Time, UnitFmt};
 
 use crate::{Color, EventCtx, GeomBatch, ScreenDims, TextExt, Toggle, Widget};
 
@@ -189,7 +189,7 @@ pub fn make_legend<X: Axis<X>, Y: Axis<Y>>(
 }
 
 // TODO If this proves useful, lift to geom
-pub fn thick_lineseries(pts: Vec<Pt2D>, width: Distance) -> Polygon {
+pub fn thick_lineseries(pts: Vec<Pt2D>, width: Distance) -> Tessellation {
     use lyon::math::{point, Point};
     use lyon::path::Path;
     use lyon::tessellation::geometry_builder::{BuffersBuilder, Positions, VertexBuffers};
@@ -215,7 +215,7 @@ pub fn thick_lineseries(pts: Vec<Pt2D>, width: Distance) -> Polygon {
             &mut buffer,
         )
         .unwrap();
-    Polygon::precomputed(
+    Tessellation::new(
         geom.vertices
             .into_iter()
             .map(|v| Pt2D::new(f64::from(v.x), f64::from(v.y)))

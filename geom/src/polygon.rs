@@ -1,4 +1,3 @@
-use std::convert::TryFrom;
 use std::fmt;
 
 use anyhow::Result;
@@ -35,7 +34,7 @@ impl Polygon {
             vertices.push(pt.x());
             vertices.push(pt.y());
         }
-        let indices = downsize(earcutr::earcut(&vertices, &Vec::new(), 2));
+        let indices = crate::tessellation::downsize(earcutr::earcut(&vertices, &Vec::new(), 2));
 
         Polygon {
             points: orig_pts,
@@ -56,7 +55,7 @@ impl Polygon {
             })
             .collect();
         let (vertices, holes, dims) = earcutr::flatten(&geojson_style);
-        let indices = downsize(earcutr::earcut(&vertices, &holes, dims));
+        let indices = crate::tessellation::downsize(earcutr::earcut(&vertices, &holes, dims));
 
         Polygon {
             points: vertices
@@ -90,7 +89,7 @@ impl Polygon {
         assert!(indices.len() % 3 == 0);
         Polygon {
             points,
-            indices: downsize(indices),
+            indices: crate::tessellation::downsize(indices),
             rings: None,
         }
     }
@@ -670,16 +669,4 @@ fn from_multi(multi: geo::MultiPolygon) -> Vec<Polygon> {
             Polygon::buggy_new(pts)
         })
         .collect()
-}
-
-fn downsize(input: Vec<usize>) -> Vec<u16> {
-    let mut output = Vec::new();
-    for x in input {
-        if let Ok(x) = u16::try_from(x) {
-            output.push(x);
-        } else {
-            panic!("{} can't fit in u16, some polygon is too huge", x);
-        }
-    }
-    output
 }

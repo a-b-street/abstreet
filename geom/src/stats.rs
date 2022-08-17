@@ -1,5 +1,3 @@
-use std::convert::TryFrom;
-
 use serde::{Deserialize, Serialize};
 
 use crate::{Distance, Duration};
