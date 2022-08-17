@@ -74,6 +74,7 @@ fn is_road_id(path: &str) -> bool {
             Regex::new(r"^/modal_filters/intersections/\d+/1/r2$").unwrap(),
             Regex::new(r"^/modal_filters/intersections/\d+/1/group1/y$").unwrap(),
             Regex::new(r"^/modal_filters/intersections/\d+/1/group2/y$").unwrap(),
+            Regex::new(r"^/modal_filters/one_ways/\d+/0$").unwrap(),
             // First place a Block is stored
             Regex::new(r"^/partitioning/single_blocks/\d+/perimeter/interior/\d+$").unwrap(),
             Regex::new(r"^/partitioning/single_blocks/\d+/perimeter/roads/\d+/road$").unwrap(),

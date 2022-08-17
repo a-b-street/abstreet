@@ -11,7 +11,7 @@ use widgetry::{
     Widget,
 };
 
-use crate::{after_edit, App, BrowseNeighbourhoods, FilterType, Neighbourhood, Transition};
+use crate::{App, BrowseNeighbourhoods, FilterType, Neighbourhood, Transition};
 
 pub enum EditMode {
     Filters,
@@ -101,10 +101,12 @@ impl EditNeighbourhood {
                     .disabled(app.session.modal_filters.previous_version.is_none())
                     .hotkey(lctrl(Key::Z))
                     .build_widget(ctx, "undo"),
+                // TODO Only count new filters, not existing
                 format!(
-                    "{} filters added",
+                    "{} filters added, {} road directions changed",
                     app.session.modal_filters.roads.len()
-                        + app.session.modal_filters.intersections.len()
+                        + app.session.modal_filters.intersections.len(),
+                    app.session.modal_filters.one_ways.len()
                 )
                 .text_widget(ctx)
                 .centered_vert(),
@@ -171,9 +173,7 @@ impl EditNeighbourhood {
                 crate::select_boundary::SelectBoundary::new_state(ctx, app, id),
             )),
             "undo" => {
-                let prev = app.session.modal_filters.previous_version.take().unwrap();
-                app.session.modal_filters = prev;
-                after_edit(ctx, app);
+                one_ways::undo_proposal(ctx, app);
                 // TODO Ideally, preserve panel state (checkboxes and dropdowns)
                 if let EditMode::Shortcuts(ref mut maybe_focus) = app.session.edit_mode {
                     *maybe_focus = None;

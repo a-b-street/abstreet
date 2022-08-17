@@ -4,7 +4,8 @@ use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
 use abstio::MapName;
-use abstutil::Counter;
+use abstutil::{Counter, Timer};
+use map_model::EditRoad;
 use widgetry::tools::{ChooseSomething, PopupMsg, PromptInput};
 use widgetry::{Choice, EventCtx, Key, Line, State, Widget};
 
@@ -41,10 +42,28 @@ impl Proposal {
     }
 
     fn make_active(self, ctx: &EventCtx, app: &mut App) {
+        // First undo any one-way changes
+        let mut edits = app.map.new_edits();
+        for r in app.session.modal_filters.one_ways.keys().cloned() {
+            // Just revert to the original state
+            edits.commands.push(app.map.edit_road_cmd(r, |new| {
+                *new = EditRoad::get_orig_from_osm(app.map.get_r(r), app.map.get_config());
+            }));
+        }
+
         app.session.proposal_name = Some(self.name);
         app.session.partitioning = self.partitioning;
         app.session.modal_filters = self.modal_filters;
         app.session.draw_all_filters = app.session.modal_filters.draw(ctx, &app.map);
+
+        // Then append any new one-way changes. Edits are applied in order, so the net effect
+        // should be correct.
+        for (r, r_edit) in &app.session.modal_filters.one_ways {
+            edits.commands.push(app.map.edit_road_cmd(*r, move |new| {
+                *new = r_edit.clone();
+            }));
+        }
+        app.map.must_apply_edits(edits, &mut Timer::throwaway());
     }
 
     /// Try to load a proposal. If it fails, returns a popup message state.
@@ -263,6 +282,17 @@ impl AltProposals {
                 // This is expensive -- maybe we should just calculate this once and keep a copy
                 // forever
                 ctx.loading_screen("create new proposal", |ctx, timer| {
+                    // First undo any one-way changes. This is messy to repeat here, but it's not
+                    // straightforward to use make_active.
+                    let mut edits = app.map.new_edits();
+                    for r in app.session.modal_filters.one_ways.keys().cloned() {
+                        edits.commands.push(app.map.edit_road_cmd(r, |new| {
+                            *new =
+                                EditRoad::get_orig_from_osm(app.map.get_r(r), app.map.get_config());
+                        }));
+                    }
+                    app.map.must_apply_edits(edits, timer);
+
                     crate::clear_current_proposal(ctx, app, timer);
                 });
 
