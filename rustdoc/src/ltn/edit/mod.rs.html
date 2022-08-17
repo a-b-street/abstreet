@@ -302,7 +302,6 @@
 <span id="296">296</span>
 <span id="297">297</span>
 <span id="298">298</span>
-<span id="299">299</span>
 </pre><pre class="rust"><code><span class="kw">mod</span> <span class="ident">filters</span>;
 <span class="kw">mod</span> <span class="ident">freehand_filters</span>;
 <span class="kw">mod</span> <span class="ident">one_ways</span>;
@@ -316,7 +315,7 @@
     <span class="ident">Widget</span>,
 };
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">after_edit</span>, <span class="ident">App</span>, <span class="ident">BrowseNeighbourhoods</span>, <span class="ident">FilterType</span>, <span class="ident">Neighbourhood</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">App</span>, <span class="ident">BrowseNeighbourhoods</span>, <span class="ident">FilterType</span>, <span class="ident">Neighbourhood</span>, <span class="ident">Transition</span>};
 
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">EditMode</span> {
     <span class="ident">Filters</span>,
@@ -403,13 +402,14 @@
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_plain</span>
                     .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/undo.svg&quot;</span>)
-                    .<span class="ident">disabled</span>(<span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">previous_version</span>.<span class="ident">is_none</span>())
+                    .<span class="ident">disabled</span>(<span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edits</span>.<span class="ident">previous_version</span>.<span class="ident">is_none</span>())
                     .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::Z</span>))
                     .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;undo&quot;</span>),
+                <span class="comment">// TODO Only count new filters, not existing</span>
                 <span class="macro">format!</span>(
-                    <span class="string">&quot;{} filters added&quot;</span>,
-                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">roads</span>.<span class="ident">len</span>()
-                        <span class="op">+</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">intersections</span>.<span class="ident">len</span>()
+                    <span class="string">&quot;{} filters added, {} road directions changed&quot;</span>,
+                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edits</span>.<span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edits</span>.<span class="ident">intersections</span>.<span class="ident">len</span>(),
+                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edits</span>.<span class="ident">one_ways</span>.<span class="ident">len</span>()
                 )
                 .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
                 .<span class="ident">centered_vert</span>(),
@@ -476,9 +476,7 @@
                 <span class="ident"><span class="kw">crate</span>::select_boundary::SelectBoundary::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>),
             )),
             <span class="string">&quot;undo&quot;</span> =&gt; {
-                <span class="kw">let</span> <span class="ident">prev</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">previous_version</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
-                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span> <span class="op">=</span> <span class="ident">prev</span>;
-                <span class="ident">after_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                <span class="ident">one_ways::undo_proposal</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 <span class="comment">// TODO Ideally, preserve panel state (checkboxes and dropdowns)</span>
                 <span class="kw">if</span> <span class="kw">let</span> <span class="ident">EditMode::Shortcuts</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">maybe_focus</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> {
                     <span class="kw-2">*</span><span class="ident">maybe_focus</span> <span class="op">=</span> <span class="prelude-val">None</span>;

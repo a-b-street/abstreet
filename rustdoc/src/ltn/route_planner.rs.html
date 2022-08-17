@@ -554,7 +554,7 @@
         <span class="comment">// The route respecting the filters</span>
         <span class="kw">let</span> <span class="ident">driving_after_changes_time</span> <span class="op">=</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">routing_params</span>().<span class="ident">clone</span>();
-            <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">update_routing_params</span>(<span class="kw-2">&amp;mut</span> <span class="ident">params</span>);
+            <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edits</span>.<span class="ident">update_routing_params</span>(<span class="kw-2">&amp;mut</span> <span class="ident">params</span>);
             <span class="ident">params</span>.<span class="ident">main_road_penalty</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">main_road_penalty</span>;
 
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_time</span> <span class="op">=</span> <span class="ident">Duration::ZERO</span>;

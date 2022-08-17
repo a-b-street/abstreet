@@ -328,11 +328,6 @@
 <span id="322">322</span>
 <span id="323">323</span>
 <span id="324">324</span>
-<span id="325">325</span>
-<span id="326">326</span>
-<span id="327">327</span>
-<span id="328">328</span>
-<span id="329">329</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">maplit::btreeset</span>;
@@ -343,7 +338,7 @@
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::shortcuts::Shortcuts</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">colors</span>, <span class="ident">App</span>, <span class="ident">ModalFilters</span>, <span class="ident">NeighbourhoodID</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">colors</span>, <span class="ident">App</span>, <span class="ident">Edits</span>, <span class="ident">NeighbourhoodID</span>};
 
 <span class="comment">// Once constructed, a Neighbourhood is immutable</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Neighbourhood</span> {
@@ -389,7 +384,7 @@
                 <span class="comment">// Design choice: when we have a filter right at the entrance of a neighbourhood, it</span>
                 <span class="comment">// creates its own little cell allowing access to just the very beginning of the</span>
                 <span class="comment">// road. Let&#39;s not draw anything for that.</span>
-                <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>.<span class="ident">roads</span>.<span class="ident">contains_key</span>(<span class="ident">r</span>) {
+                <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edits</span>.<span class="ident">roads</span>.<span class="ident">contains_key</span>(<span class="ident">r</span>) {
                     <span class="kw">continue</span>;
                 }
 
@@ -487,12 +482,7 @@
             }
         }
 
-        <span class="ident">n</span>.<span class="ident">cells</span> <span class="op">=</span> <span class="ident">find_cells</span>(
-            <span class="ident">map</span>,
-            <span class="kw-2">&amp;</span><span class="ident">n</span>.<span class="ident">orig_perimeter</span>,
-            <span class="kw-2">&amp;</span><span class="ident">n</span>.<span class="ident">borders</span>,
-            <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">modal_filters</span>,
-        );
+        <span class="ident">n</span>.<span class="ident">cells</span> <span class="op">=</span> <span class="ident">find_cells</span>(<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">n</span>.<span class="ident">orig_perimeter</span>, <span class="kw-2">&amp;</span><span class="ident">n</span>.<span class="ident">borders</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edits</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">label_roads</span> <span class="op">=</span> <span class="ident">n</span>.<span class="ident">perimeter</span>.<span class="ident">clone</span>();
         <span class="ident">label_roads</span>.<span class="ident">extend</span>(<span class="ident">n</span>.<span class="ident">orig_perimeter</span>.<span class="ident">interior</span>.<span class="ident">clone</span>());
@@ -517,13 +507,13 @@
     <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
     <span class="ident">perimeter</span>: <span class="kw-2">&amp;</span><span class="ident">Perimeter</span>,
     <span class="ident">borders</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
-    <span class="ident">modal_filters</span>: <span class="kw-2">&amp;</span><span class="ident">ModalFilters</span>,
+    <span class="ident">edits</span>: <span class="kw-2">&amp;</span><span class="ident">Edits</span>,
 ) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Cell</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cells</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">visited</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
 
     <span class="kw">for</span> <span class="ident">start</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">perimeter</span>.<span class="ident">interior</span> {
-        <span class="kw">if</span> <span class="ident">visited</span>.<span class="ident">contains</span>(<span class="ident">start</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">modal_filters</span>.<span class="ident">roads</span>.<span class="ident">contains_key</span>(<span class="ident">start</span>) {
+        <span class="kw">if</span> <span class="ident">visited</span>.<span class="ident">contains</span>(<span class="ident">start</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">edits</span>.<span class="ident">roads</span>.<span class="ident">contains_key</span>(<span class="ident">start</span>) {
             <span class="kw">continue</span>;
         }
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">start</span>;
@@ -531,13 +521,13 @@
         <span class="kw">if</span> <span class="op">!</span><span class="ident">PathConstraints::Car</span>.<span class="ident">can_use_road</span>(<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">start</span>), <span class="ident">map</span>) {
             <span class="kw">continue</span>;
         }
-        <span class="kw">let</span> <span class="ident">cell</span> <span class="op">=</span> <span class="ident">floodfill</span>(<span class="ident">map</span>, <span class="ident">start</span>, <span class="ident">borders</span>, <span class="kw-2">&amp;</span><span class="ident">modal_filters</span>);
+        <span class="kw">let</span> <span class="ident">cell</span> <span class="op">=</span> <span class="ident">floodfill</span>(<span class="ident">map</span>, <span class="ident">start</span>, <span class="ident">borders</span>, <span class="kw-2">&amp;</span><span class="ident">edits</span>);
         <span class="ident">visited</span>.<span class="ident">extend</span>(<span class="ident">cell</span>.<span class="ident">roads</span>.<span class="ident">keys</span>().<span class="ident">cloned</span>());
         <span class="ident">cells</span>.<span class="ident">push</span>(<span class="ident">cell</span>);
     }
 
     <span class="comment">// Filtered roads right along the perimeter have a tiny cell</span>
-    <span class="kw">for</span> (<span class="ident">r</span>, (<span class="ident">filter_dist</span>, <span class="kw">_</span>)) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">modal_filters</span>.<span class="ident">roads</span> {
+    <span class="kw">for</span> (<span class="ident">r</span>, (<span class="ident">filter_dist</span>, <span class="kw">_</span>)) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">edits</span>.<span class="ident">roads</span> {
         <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
         <span class="kw">if</span> <span class="ident">borders</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">road</span>.<span class="ident">src_i</span>) {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cell</span> <span class="op">=</span> <span class="ident">Cell</span> {
@@ -576,7 +566,7 @@
     <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
     <span class="ident">start</span>: <span class="ident">RoadID</span>,
     <span class="ident">neighbourhood_borders</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
-    <span class="ident">modal_filters</span>: <span class="kw-2">&amp;</span><span class="ident">ModalFilters</span>,
+    <span class="ident">edits</span>: <span class="kw-2">&amp;</span><span class="ident">Edits</span>,
 ) -&gt; <span class="ident">Cell</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">visited_roads</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">RoadID</span>, <span class="ident">DistanceInterval</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cell_borders</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
@@ -584,7 +574,7 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">queue</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">start</span>];
 
     <span class="comment">// The caller should handle this case</span>
-    <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">modal_filters</span>.<span class="ident">roads</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">start</span>));
+    <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">edits</span>.<span class="ident">roads</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">start</span>));
     <span class="macro">assert!</span>(<span class="ident">PathConstraints::Car</span>.<span class="ident">can_use_road</span>(<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">start</span>), <span class="ident">map</span>));
 
     <span class="kw">while</span> <span class="op">!</span><span class="ident">queue</span>.<span class="ident">is_empty</span>() {
@@ -611,12 +601,12 @@
 
             <span class="kw">for</span> <span class="ident">next</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">roads</span> {
                 <span class="kw">let</span> <span class="ident">next_road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">next</span>);
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">filter</span>) <span class="op">=</span> <span class="ident">modal_filters</span>.<span class="ident">intersections</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>) {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">filter</span>) <span class="op">=</span> <span class="ident">edits</span>.<span class="ident">intersections</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>) {
                     <span class="kw">if</span> <span class="op">!</span><span class="ident">filter</span>.<span class="ident">allows_turn</span>(<span class="ident">current</span>.<span class="ident">id</span>, <span class="kw-2">*</span><span class="ident">next</span>) {
                         <span class="kw">continue</span>;
                     }
                 }
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">filter_dist</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">modal_filters</span>.<span class="ident">roads</span>.<span class="ident">get</span>(<span class="ident">next</span>) {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">filter_dist</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">edits</span>.<span class="ident">roads</span>.<span class="ident">get</span>(<span class="ident">next</span>) {
                     <span class="comment">// Which ends of the filtered road have we reached?</span>
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">visited_start</span> <span class="op">=</span> <span class="ident">next_road</span>.<span class="ident">src_i</span> <span class="op">==</span> <span class="ident">i</span>;
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">visited_end</span> <span class="op">=</span> <span class="ident">next_road</span>.<span class="ident">dst_i</span> <span class="op">==</span> <span class="ident">i</span>;
