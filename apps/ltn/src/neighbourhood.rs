@@ -8,7 +8,7 @@ use map_model::{Direction, IntersectionID, Map, PathConstraints, Perimeter, Road
 use widgetry::{Drawable, EventCtx, GeomBatch};
 
 use crate::shortcuts::Shortcuts;
-use crate::{colors, App, ModalFilters, NeighbourhoodID};
+use crate::{colors, App, Edits, NeighbourhoodID};
 
 // Once constructed, a Neighbourhood is immutable
 pub struct Neighbourhood {
@@ -54,7 +54,7 @@ impl Cell {
                 // Design choice: when we have a filter right at the entrance of a neighbourhood, it
                 // creates its own little cell allowing access to just the very beginning of the
                 // road. Let's not draw anything for that.
-                if app.session.modal_filters.roads.contains_key(r) {
+                if app.session.edits.roads.contains_key(r) {
                     continue;
                 }
 
@@ -152,12 +152,7 @@ impl Neighbourhood {
             }
         }
 
-        n.cells = find_cells(
-            map,
-            &n.orig_perimeter,
-            &n.borders,
-            &app.session.modal_filters,
-        );
+        n.cells = find_cells(map, &n.orig_perimeter, &n.borders, &app.session.edits);
 
         let mut label_roads = n.perimeter.clone();
         label_roads.extend(n.orig_perimeter.interior.clone());
@@ -182,13 +177,13 @@ fn find_cells(
     map: &Map,
     perimeter: &Perimeter,
     borders: &BTreeSet<IntersectionID>,
-    modal_filters: &ModalFilters,
+    edits: &Edits,
 ) -> Vec<Cell> {
     let mut cells = Vec::new();
     let mut visited = BTreeSet::new();
 
     for start in &perimeter.interior {
-        if visited.contains(start) || modal_filters.roads.contains_key(start) {
+        if visited.contains(start) || edits.roads.contains_key(start) {
             continue;
         }
         let start = *start;
@@ -196,13 +191,13 @@ fn find_cells(
         if !PathConstraints::Car.can_use_road(map.get_r(start), map) {
             continue;
         }
-        let cell = floodfill(map, start, borders, &modal_filters);
+        let cell = floodfill(map, start, borders, &edits);
         visited.extend(cell.roads.keys().cloned());
         cells.push(cell);
     }
 
     // Filtered roads right along the perimeter have a tiny cell
-    for (r, (filter_dist, _)) in &modal_filters.roads {
+    for (r, (filter_dist, _)) in &edits.roads {
         let road = map.get_r(*r);
         if borders.contains(&road.src_i) {
             let mut cell = Cell {
@@ -241,7 +236,7 @@ fn floodfill(
     map: &Map,
     start: RoadID,
     neighbourhood_borders: &BTreeSet<IntersectionID>,
-    modal_filters: &ModalFilters,
+    edits: &Edits,
 ) -> Cell {
     let mut visited_roads: BTreeMap<RoadID, DistanceInterval> = BTreeMap::new();
     let mut cell_borders = BTreeSet::new();
@@ -249,7 +244,7 @@ fn floodfill(
     let mut queue = vec![start];
 
     // The caller should handle this case
-    assert!(!modal_filters.roads.contains_key(&start));
+    assert!(!edits.roads.contains_key(&start));
     assert!(PathConstraints::Car.can_use_road(map.get_r(start), map));
 
     while !queue.is_empty() {
@@ -276,12 +271,12 @@ fn floodfill(
 
             for next in &map.get_i(i).roads {
                 let next_road = map.get_r(*next);
-                if let Some(filter) = modal_filters.intersections.get(&i) {
+                if let Some(filter) = edits.intersections.get(&i) {
                     if !filter.allows_turn(current.id, *next) {
                         continue;
                     }
                 }
-                if let Some((filter_dist, _)) = modal_filters.roads.get(next) {
+                if let Some((filter_dist, _)) = edits.roads.get(next) {
                     // Which ends of the filtered road have we reached?
                     let mut visited_start = next_road.src_i == i;
                     let mut visited_end = next_road.dst_i == i;

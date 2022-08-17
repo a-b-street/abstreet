@@ -58,7 +58,7 @@ impl ShowResults {
             });
         }
 
-        if app.session.impact.change_key != app.session.modal_filters.get_change_key() {
+        if app.session.impact.change_key != app.session.edits.get_change_key() {
             ctx.loading_screen("recalculate impact", |ctx, timer| {
                 // Avoid a double borrow
                 let mut impact = std::mem::replace(&mut app.session.impact, Impact::empty(ctx));

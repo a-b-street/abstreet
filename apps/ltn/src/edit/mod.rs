@@ -98,15 +98,14 @@ impl EditNeighbourhood {
                 ctx.style()
                     .btn_plain
                     .icon("system/assets/tools/undo.svg")
-                    .disabled(app.session.modal_filters.previous_version.is_none())
+                    .disabled(app.session.edits.previous_version.is_none())
                     .hotkey(lctrl(Key::Z))
                     .build_widget(ctx, "undo"),
                 // TODO Only count new filters, not existing
                 format!(
                     "{} filters added, {} road directions changed",
-                    app.session.modal_filters.roads.len()
-                        + app.session.modal_filters.intersections.len(),
-                    app.session.modal_filters.one_ways.len()
+                    app.session.edits.roads.len() + app.session.edits.intersections.len(),
+                    app.session.edits.one_ways.len()
                 )
                 .text_widget(ctx)
                 .centered_vert(),

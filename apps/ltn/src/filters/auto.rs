@@ -62,7 +62,7 @@ impl Heuristic {
 
         // TODO If we already have no shortcuts, stop
 
-        app.session.modal_filters.before_edit();
+        app.session.edits.before_edit();
 
         match self {
             Heuristic::Greedy => greedy(ctx, app, neighbourhood),
@@ -71,7 +71,7 @@ impl Heuristic {
             Heuristic::OnlyOneBorder => only_one_border(app, neighbourhood),
         }
 
-        let empty = app.session.modal_filters.cancel_empty_edit();
+        let empty = app.session.edits.cancel_empty_edit();
         after_edit(ctx, app);
         if empty {
             bail!("No new filters created");
@@ -108,14 +108,14 @@ fn brute_force(
     // Which road leads to the fewest shortcuts?
     let mut best: Option<(RoadID, usize)> = None;
 
-    let orig_filters = app.session.modal_filters.roads.len();
+    let orig_filters = app.session.edits.roads.len();
     timer.start_iter(
         "evaluate candidate filters",
         neighbourhood.orig_perimeter.interior.len(),
     );
     for r in &neighbourhood.orig_perimeter.interior {
         timer.next();
-        if app.session.modal_filters.roads.contains_key(r) {
+        if app.session.edits.roads.contains_key(r) {
             continue;
         }
         if let Some(new) = try_to_filter_road(ctx, app, neighbourhood, *r) {
@@ -125,10 +125,10 @@ fn brute_force(
                 best = Some((*r, num_shortcuts));
             }
             // Always undo the new filter between each test
-            app.session.modal_filters.roads.remove(r).unwrap();
+            app.session.edits.roads.remove(r).unwrap();
         }
 
-        assert_eq!(orig_filters, app.session.modal_filters.roads.len());
+        assert_eq!(orig_filters, app.session.edits.roads.len());
     }
 
     if let Some((r, _)) = best {
@@ -145,14 +145,14 @@ fn split_cells(
     // Filtering which road leads to new cells with the MOST streets in the smaller cell?
     let mut best: Option<(RoadID, usize)> = None;
 
-    let orig_filters = app.session.modal_filters.roads.len();
+    let orig_filters = app.session.edits.roads.len();
     timer.start_iter(
         "evaluate candidate filters",
         neighbourhood.orig_perimeter.interior.len(),
     );
     for r in &neighbourhood.orig_perimeter.interior {
         timer.next();
-        if app.session.modal_filters.roads.contains_key(r) {
+        if app.session.edits.roads.contains_key(r) {
             continue;
         }
         if let Some(new) = try_to_filter_road(ctx, app, neighbourhood, *r) {
@@ -176,10 +176,10 @@ fn split_cells(
                 }
             }
             // Always undo the new filter between each test
-            app.session.modal_filters.roads.remove(r).unwrap();
+            app.session.edits.roads.remove(r).unwrap();
         }
 
-        assert_eq!(orig_filters, app.session.modal_filters.roads.len());
+        assert_eq!(orig_filters, app.session.edits.roads.len());
     }
 
     if let Some((r, _)) = best {
@@ -197,13 +197,13 @@ fn only_one_border(app: &mut App, neighbourhood: &Neighbourhood) {
                     let road = app.map.get_r(*r);
                     if road.src_i == *i {
                         app.session
-                            .modal_filters
+                            .edits
                             .roads
                             .insert(road.id, (0.1 * road.length(), app.session.filter_type));
                         break;
                     } else if road.dst_i == *i {
                         app.session
-                            .modal_filters
+                            .edits
                             .roads
                             .insert(road.id, (0.9 * road.length(), app.session.filter_type));
                         break;
@@ -224,13 +224,13 @@ fn try_to_filter_road(
 ) -> Option<Neighbourhood> {
     let road = app.map.get_r(r);
     app.session
-        .modal_filters
+        .edits
         .roads
         .insert(r, (road.length() / 2.0, app.session.filter_type));
     // TODO This is expensive; can we just do the connectivity work and not drawing?
     let new_neighbourhood = Neighbourhood::new(ctx, app, neighbourhood.id);
     if new_neighbourhood.cells.iter().any(|c| c.is_disconnected()) {
-        app.session.modal_filters.roads.remove(&r).unwrap();
+        app.session.edits.roads.remove(&r).unwrap();
         None
     } else {
         Some(new_neighbourhood)

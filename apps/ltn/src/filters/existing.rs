@@ -40,7 +40,7 @@ pub fn transform_existing_filters(ctx: &EventCtx, app: &mut App, timer: &mut Tim
         // (And don't call before_edit; this transformation happens before the user starts editing
         // anything)
         for r in filtered_roads {
-            app.session.modal_filters.roads.insert(
+            app.session.edits.roads.insert(
                 r,
                 (app.map.get_r(r).length() / 2.0, FilterType::WalkCycleOnly),
             );
@@ -53,7 +53,7 @@ pub fn transform_existing_filters(ctx: &EventCtx, app: &mut App, timer: &mut Tim
             // The road might also be marked as non-driving. This'll move the filter position from
             // the center.
             app.session
-                .modal_filters
+                .edits
                 .roads
                 .insert(r.id, (*dist, FilterType::WalkCycleOnly));
         }
@@ -61,7 +61,7 @@ pub fn transform_existing_filters(ctx: &EventCtx, app: &mut App, timer: &mut Tim
 
     // Now that we've applied all pre-existing filters, calculate the RoutingParams.
     let mut params = app.map.routing_params().clone();
-    app.session.modal_filters.update_routing_params(&mut params);
+    app.session.edits.update_routing_params(&mut params);
     app.session.routing_params_before_changes = params;
 
     // Do not call map.keep_pathfinder_despite_edits or recalculate_pathfinding_after_edits. We

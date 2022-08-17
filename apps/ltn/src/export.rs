@@ -53,7 +53,7 @@ fn geojson_string(ctx: &mut EventCtx, app: &App) -> Result<String> {
     }
 
     // All modal filters
-    for (r, (dist, filter_type)) in &app.session.modal_filters.roads {
+    for (r, (dist, filter_type)) in &app.session.edits.roads {
         let road = map.get_r(*r);
         if let Ok((pt, angle)) = road.center_pts.dist_along(*dist) {
             let road_width = road.get_width();
@@ -74,7 +74,7 @@ fn geojson_string(ctx: &mut EventCtx, app: &App) -> Result<String> {
             features.push(feature);
         }
     }
-    for (_, filter) in &app.session.modal_filters.intersections {
+    for (_, filter) in &app.session.edits.intersections {
         let pl = filter.geometry(map).to_polyline();
         let mut feature = Feature {
             bbox: None,

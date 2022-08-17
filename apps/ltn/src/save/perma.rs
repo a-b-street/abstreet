@@ -69,12 +69,12 @@ pub fn from_permanent(map: &Map, mut proposal_value: Value) -> Result<Proposal> 
 fn is_road_id(path: &str) -> bool {
     lazy_static! {
         static ref PATTERNS: Vec<Regex> = vec![
-            Regex::new(r"^/modal_filters/roads/\d+/0$").unwrap(),
-            Regex::new(r"^/modal_filters/intersections/\d+/1/r1$").unwrap(),
-            Regex::new(r"^/modal_filters/intersections/\d+/1/r2$").unwrap(),
-            Regex::new(r"^/modal_filters/intersections/\d+/1/group1/y$").unwrap(),
-            Regex::new(r"^/modal_filters/intersections/\d+/1/group2/y$").unwrap(),
-            Regex::new(r"^/modal_filters/one_ways/\d+/0$").unwrap(),
+            Regex::new(r"^/edits/roads/\d+/0$").unwrap(),
+            Regex::new(r"^/edits/intersections/\d+/1/r1$").unwrap(),
+            Regex::new(r"^/edits/intersections/\d+/1/r2$").unwrap(),
+            Regex::new(r"^/edits/intersections/\d+/1/group1/y$").unwrap(),
+            Regex::new(r"^/edits/intersections/\d+/1/group2/y$").unwrap(),
+            Regex::new(r"^/edits/one_ways/\d+/0$").unwrap(),
             // First place a Block is stored
             Regex::new(r"^/partitioning/single_blocks/\d+/perimeter/interior/\d+$").unwrap(),
             Regex::new(r"^/partitioning/single_blocks/\d+/perimeter/roads/\d+/road$").unwrap(),
@@ -90,8 +90,8 @@ fn is_road_id(path: &str) -> bool {
 fn is_intersection_id(path: &str) -> bool {
     lazy_static! {
         static ref PATTERNS: Vec<Regex> = vec![
-            Regex::new(r"^/modal_filters/intersections/\d+/0$").unwrap(),
-            Regex::new(r"^/modal_filters/intersections/\d+/1/i$").unwrap(),
+            Regex::new(r"^/edits/intersections/\d+/0$").unwrap(),
+            Regex::new(r"^/edits/intersections/\d+/1/i$").unwrap(),
         ];
     }
 

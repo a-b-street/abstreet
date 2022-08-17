@@ -293,7 +293,7 @@ pub enum Style {
 
 fn impact_widget(ctx: &EventCtx, app: &App) -> Widget {
     if &app.session.impact.map == app.map.get_name()
-        && app.session.impact.change_key == app.session.modal_filters.get_change_key()
+        && app.session.impact.change_key == app.session.edits.get_change_key()
     {
         // Nothing to calculate!
         return ctx.style().btn_outline.text("Show impact").build_def(ctx);
