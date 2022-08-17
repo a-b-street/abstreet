@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Angle, Distance, Line};
-use map_model::{IntersectionID, Map, PathConstraints, RoadID, RoutingParams, TurnID};
+use map_model::{EditRoad, IntersectionID, Map, PathConstraints, RoadID, RoutingParams, TurnID};
 use widgetry::mapspace::{DrawCustomUnzoomedShapes, PerZoom};
 use widgetry::{Drawable, EventCtx, GeomBatch, GfxCtx};
 
@@ -29,6 +29,12 @@ pub struct ModalFilters {
         deserialize_with = "deserialize_btreemap"
     )]
     pub intersections: BTreeMap<IntersectionID, DiagonalFilter>,
+    /// For roads with modified directions, what's their current state?
+    #[serde(
+        serialize_with = "serialize_btreemap",
+        deserialize_with = "deserialize_btreemap"
+    )]
+    pub one_ways: BTreeMap<RoadID, EditRoad>,
 
     /// Edit history is preserved recursively
     #[serde(skip_serializing, skip_deserializing)]
@@ -58,6 +64,7 @@ impl FilterType {
 pub struct ChangeKey {
     roads: BTreeMap<RoadID, (Distance, FilterType)>,
     intersections: BTreeMap<IntersectionID, DiagonalFilter>,
+    one_ways: BTreeMap<RoadID, EditRoad>,
 }
 
 /// A diagonal filter exists in an intersection. It's defined by two roads (the order is
@@ -88,7 +95,10 @@ impl ModalFilters {
     /// the redundant piece of history. Returns true if the edit was indeed empty.
     pub fn cancel_empty_edit(&mut self) -> bool {
         if let Some(prev) = self.previous_version.take() {
-            if self.roads == prev.roads && self.intersections == prev.intersections {
+            if self.roads == prev.roads
+                && self.intersections == prev.intersections
+                && self.one_ways == prev.one_ways
+            {
                 self.previous_version = prev.previous_version;
                 return true;
             } else {
@@ -206,6 +216,7 @@ impl ModalFilters {
         ChangeKey {
             roads: self.roads.clone(),
             intersections: self.intersections.clone(),
+            one_ways: self.one_ways.clone(),
         }
     }
 }
