@@ -198,6 +198,8 @@
 <span id="192">192</span>
 <span id="193">193</span>
 <span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::new_without_default</span>)]</span>
 
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
@@ -214,12 +216,13 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::gps::LonLat</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::line</span>::{<span class="ident">InfiniteLine</span>, <span class="ident">Line</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::percent::Percent</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::polygon</span>::{<span class="ident">Polygon</span>, <span class="ident">Triangle</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::polygon::Polygon</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::polyline</span>::{<span class="ident">ArrowCap</span>, <span class="ident">PolyLine</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pt</span>::{<span class="ident">HashablePt2D</span>, <span class="ident">Pt2D</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ring::Ring</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::speed::Speed</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::stats</span>::{<span class="ident">HgramValue</span>, <span class="ident">Histogram</span>, <span class="ident">Statistic</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::tessellation</span>::{<span class="ident">Tessellation</span>, <span class="ident">Triangle</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::time::Time</span>;
 
 <span class="kw">mod</span> <span class="ident">angle</span>;
@@ -238,6 +241,7 @@
 <span class="kw">mod</span> <span class="ident">ring</span>;
 <span class="kw">mod</span> <span class="ident">speed</span>;
 <span class="kw">mod</span> <span class="ident">stats</span>;
+<span class="kw">mod</span> <span class="ident">tessellation</span>;
 <span class="kw">mod</span> <span class="ident">time</span>;
 
 <span class="comment">// About 0.4 inches... which is quite tiny on the scale of things. :)</span>

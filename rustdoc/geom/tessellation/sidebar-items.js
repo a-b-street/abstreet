@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":[["downsize",""]],"struct":[["Tessellation","A tessellated polygon, ready for rendering."],["Triangle",""]]};

@@ -363,7 +363,17 @@
 <span id="357">357</span>
 <span id="358">358</span>
 <span id="359">359</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Bounds</span>, <span class="ident">GPSBounds</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Bounds</span>, <span class="ident">GPSBounds</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Tessellation</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">svg</span>, <span class="ident">Color</span>, <span class="ident">DeferDraw</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">Fill</span>, <span class="ident">GfxCtx</span>, <span class="ident">JustDraw</span>, <span class="ident">Prerender</span>, <span class="ident">ScreenDims</span>,
@@ -372,12 +382,12 @@
 
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">geom_batch_stack</span>;
 
-<span class="doccomment">/// A mutable builder for a group of colored polygons.</span>
+<span class="doccomment">/// A mutable builder for a group of colored tessellated polygons.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GeomBatch</span> {
     <span class="comment">// f64 is the z-value offset. This must be in (-1, 0], with values closer to -1.0</span>
     <span class="comment">// rendering above values closer to 0.0.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">list</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Fill</span>, <span class="ident">Polygon</span>, <span class="ident">f64</span>)<span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">list</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Fill</span>, <span class="ident">Tessellation</span>, <span class="ident">f64</span>)<span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">autocrop_dims</span>: <span class="ident">bool</span>,
 }
 
@@ -400,23 +410,28 @@
         }
     }
 
-    <span class="doccomment">/// Adds a single polygon, painted according to `Fill`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Fill</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">fill</span>: <span class="ident">F</span>, <span class="ident">p</span>: <span class="ident">Polygon</span>) {
+    <span class="doccomment">/// Adds a single tessellated polygon, painted according to `Fill`</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Fill</span><span class="op">&gt;</span>, <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Tessellation</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">fill</span>: <span class="ident">F</span>, <span class="ident">p</span>: <span class="ident">T</span>) {
         <span class="self">self</span>.<span class="ident">push_with_z</span>(<span class="ident">fill</span>, <span class="ident">p</span>, <span class="number">0.0</span>);
     }
 
     <span class="doccomment">/// Offset z value to render above/below other polygons.</span>
     <span class="doccomment">/// z must be in (-1, 0] to ensure we don&#39;t traverse layers of the UI - to make</span>
     <span class="doccomment">/// sure we don&#39;t inadvertently render something *above* a tooltip, etc.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push_with_z</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Fill</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">fill</span>: <span class="ident">F</span>, <span class="ident">p</span>: <span class="ident">Polygon</span>, <span class="ident">z_offset</span>: <span class="ident">f64</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push_with_z</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Fill</span><span class="op">&gt;</span>, <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Tessellation</span><span class="op">&gt;</span><span class="op">&gt;</span>(
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
+        <span class="ident">fill</span>: <span class="ident">F</span>,
+        <span class="ident">p</span>: <span class="ident">T</span>,
+        <span class="ident">z_offset</span>: <span class="ident">f64</span>,
+    ) {
         <span class="macro">debug_assert!</span>(<span class="ident">z_offset</span> <span class="op">&gt;</span> <span class="op">-</span><span class="number">1.0</span>);
         <span class="macro">debug_assert!</span>(<span class="ident">z_offset</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">0.0</span>);
-        <span class="self">self</span>.<span class="ident">list</span>.<span class="ident">push</span>((<span class="ident">fill</span>.<span class="ident">into</span>(), <span class="ident">p</span>, <span class="ident">z_offset</span>));
+        <span class="self">self</span>.<span class="ident">list</span>.<span class="ident">push</span>((<span class="ident">fill</span>.<span class="ident">into</span>(), <span class="ident">p</span>.<span class="ident">into</span>(), <span class="ident">z_offset</span>));
     }
 
     <span class="doccomment">/// Adds a single polygon to the front of the batch, painted according to `Fill`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unshift</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Fill</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">fill</span>: <span class="ident">F</span>, <span class="ident">p</span>: <span class="ident">Polygon</span>) {
-        <span class="self">self</span>.<span class="ident">list</span>.<span class="ident">insert</span>(<span class="number">0</span>, (<span class="ident">fill</span>.<span class="ident">into</span>(), <span class="ident">p</span>, <span class="number">0.0</span>));
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unshift</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Fill</span><span class="op">&gt;</span>, <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Tessellation</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">fill</span>: <span class="ident">F</span>, <span class="ident">p</span>: <span class="ident">T</span>) {
+        <span class="self">self</span>.<span class="ident">list</span>.<span class="ident">insert</span>(<span class="number">0</span>, (<span class="ident">fill</span>.<span class="ident">into</span>(), <span class="ident">p</span>.<span class="ident">into</span>(), <span class="number">0.0</span>));
     }
 
     <span class="doccomment">/// Removes the first polygon in the batch.</span>
@@ -425,10 +440,10 @@
     }
 
     <span class="doccomment">/// Applies one Fill to many polygons.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extend</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Fill</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">fill</span>: <span class="ident">F</span>, <span class="ident">polys</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extend</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Fill</span><span class="op">&gt;</span>, <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Tessellation</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">fill</span>: <span class="ident">F</span>, <span class="ident">polys</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) {
         <span class="kw">let</span> <span class="ident">fill</span> <span class="op">=</span> <span class="ident">fill</span>.<span class="ident">into</span>();
         <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="ident">polys</span> {
-            <span class="self">self</span>.<span class="ident">list</span>.<span class="ident">push</span>((<span class="ident">fill</span>.<span class="ident">clone</span>(), <span class="ident">p</span>, <span class="number">0.0</span>));
+            <span class="self">self</span>.<span class="ident">list</span>.<span class="ident">push</span>((<span class="ident">fill</span>.<span class="ident">clone</span>(), <span class="ident">p</span>.<span class="ident">into</span>(), <span class="number">0.0</span>));
         }
     }
 
@@ -438,7 +453,7 @@
     }
 
     <span class="doccomment">/// Returns the colored polygons in this batch, destroying the batch.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">consume</span>(<span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Fill</span>, <span class="ident">Polygon</span>, <span class="ident">f64</span>)<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">consume</span>(<span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Fill</span>, <span class="ident">Tessellation</span>, <span class="ident">f64</span>)<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">list</span>
     }
 
@@ -483,7 +498,7 @@
             <span class="kw">return</span> <span class="self">self</span>;
         }
         <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">poly</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">list</span> {
-            <span class="kw-2">*</span><span class="ident">poly</span> <span class="op">=</span> <span class="ident">poly</span>.<span class="ident">translate</span>(<span class="op">-</span><span class="ident">bounds</span>.<span class="ident">min_x</span>, <span class="op">-</span><span class="ident">bounds</span>.<span class="ident">min_y</span>);
+            <span class="ident">poly</span>.<span class="ident">translate</span>(<span class="op">-</span><span class="ident">bounds</span>.<span class="ident">min_x</span>, <span class="op">-</span><span class="ident">bounds</span>.<span class="ident">min_y</span>);
         }
         <span class="self">self</span>
     }
@@ -549,7 +564,7 @@
     <span class="doccomment">/// Translates the batch by some offset.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">translate</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">dx</span>: <span class="ident">f64</span>, <span class="ident">dy</span>: <span class="ident">f64</span>) -&gt; <span class="ident">GeomBatch</span> {
         <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">poly</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">list</span> {
-            <span class="kw-2">*</span><span class="ident">poly</span> <span class="op">=</span> <span class="ident">poly</span>.<span class="ident">translate</span>(<span class="ident">dx</span>, <span class="ident">dy</span>);
+            <span class="ident">poly</span>.<span class="ident">translate</span>(<span class="ident">dx</span>, <span class="ident">dy</span>);
         }
         <span class="self">self</span>
     }
@@ -557,7 +572,7 @@
     <span class="doccomment">/// Rotates each polygon in the batch relative to the center of that polygon.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rotate</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">angle</span>: <span class="ident">Angle</span>) -&gt; <span class="ident">GeomBatch</span> {
         <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">poly</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">list</span> {
-            <span class="kw-2">*</span><span class="ident">poly</span> <span class="op">=</span> <span class="ident">poly</span>.<span class="ident">rotate</span>(<span class="ident">angle</span>);
+            <span class="ident">poly</span>.<span class="ident">rotate</span>(<span class="ident">angle</span>);
         }
         <span class="self">self</span>
     }
@@ -571,7 +586,7 @@
 
         <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_bounds</span>().<span class="ident">center</span>();
         <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">poly</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">list</span> {
-            <span class="kw-2">*</span><span class="ident">poly</span> <span class="op">=</span> <span class="ident">poly</span>.<span class="ident">rotate_around</span>(<span class="ident">angle</span>, <span class="ident">center</span>);
+            <span class="ident">poly</span>.<span class="ident">rotate_around</span>(<span class="ident">angle</span>, <span class="ident">center</span>);
         }
         <span class="self">self</span>
     }
@@ -607,9 +622,7 @@
         }
 
         <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">poly</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">list</span> {
-            <span class="comment">// strip_rings first -- sometimes when scaling down, the original rings collapse. Since</span>
-            <span class="comment">// this polygon is part of a GeomBatch anyway, not calling to_outline on it.</span>
-            <span class="kw-2">*</span><span class="ident">poly</span> <span class="op">=</span> <span class="ident">poly</span>.<span class="ident">strip_rings</span>().<span class="ident">scale_xy</span>(<span class="ident">x_factor</span>, <span class="ident">y_factor</span>);
+            <span class="ident">poly</span>.<span class="ident">scale_xy</span>(<span class="ident">x_factor</span>, <span class="ident">y_factor</span>);
         }
         <span class="self">self</span>
     }
@@ -632,22 +645,26 @@
         <span class="self">self</span>
     }
 
-    <span class="doccomment">/// Exports the batch to a list of GeoJSON features, labeling each colored polygon. Z-values,</span>
-    <span class="doccomment">/// alpha values from the color, and non-RGB fill patterns are lost. If the polygon isn&#39;t a</span>
-    <span class="doccomment">/// ring, it&#39;s skipped. The world-space coordinates are optionally translated back to GPS.</span>
+    <span class="doccomment">/// Exports the batch to a list of GeoJSON features, labeling each colored triangle. Note the</span>
+    <span class="doccomment">/// result will be very large and kind of meaningless -- individual triangles are returned; any</span>
+    <span class="doccomment">/// original polygons are lost. Z-values, alpha values from the color, and non-RGB fill</span>
+    <span class="doccomment">/// patterns are lost. The world-space coordinates are optionally translated back to GPS.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_geojson</span>(<span class="self">self</span>, <span class="ident">gps_bounds</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">GPSBounds</span><span class="op">&gt;</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">geojson::Feature</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">features</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">for</span> (<span class="ident">fill</span>, <span class="ident">polygon</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">list</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Fill::Color</span>(<span class="ident">color</span>) <span class="op">=</span> <span class="ident">fill</span> {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">properties</span> <span class="op">=</span> <span class="ident">serde_json::Map::new</span>();
                 <span class="ident">properties</span>.<span class="ident">insert</span>(<span class="string">&quot;color&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">color</span>.<span class="ident">as_hex</span>().<span class="ident">into</span>());
-                <span class="ident">features</span>.<span class="ident">push</span>(<span class="ident">geojson::Feature</span> {
-                    <span class="ident">bbox</span>: <span class="prelude-val">None</span>,
-                    <span class="ident">geometry</span>: <span class="prelude-val">Some</span>(<span class="ident">polygon</span>.<span class="ident">to_geojson</span>(<span class="ident">gps_bounds</span>)),
-                    <span class="ident">id</span>: <span class="prelude-val">None</span>,
-                    <span class="ident">properties</span>: <span class="prelude-val">Some</span>(<span class="ident">properties</span>),
-                    <span class="ident">foreign_members</span>: <span class="prelude-val">None</span>,
-                });
+                <span class="kw">for</span> <span class="ident">triangle</span> <span class="kw">in</span> <span class="ident">polygon</span>.<span class="ident">triangles</span>() {
+                    <span class="ident">features</span>.<span class="ident">push</span>(<span class="ident">geojson::Feature</span> {
+                        <span class="ident">bbox</span>: <span class="prelude-val">None</span>,
+                        <span class="comment">// TODO We could do a bit better and at least emit a MultiPolygon</span>
+                        <span class="ident">geometry</span>: <span class="prelude-val">Some</span>(<span class="ident">Polygon::from_triangle</span>(<span class="kw-2">&amp;</span><span class="ident">triangle</span>).<span class="ident">to_geojson</span>(<span class="ident">gps_bounds</span>)),
+                        <span class="ident">id</span>: <span class="prelude-val">None</span>,
+                        <span class="ident">properties</span>: <span class="prelude-val">Some</span>(<span class="ident">properties</span>.<span class="ident">clone</span>()),
+                        <span class="ident">foreign_members</span>: <span class="prelude-val">None</span>,
+                    });
+                }
             }
         }
         <span class="ident">features</span>
@@ -664,11 +681,14 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Fill</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">F</span>, <span class="ident">Polygon</span>)<span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">GeomBatch</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Fill</span><span class="op">&gt;</span>, <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Tessellation</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">F</span>, <span class="ident">T</span>)<span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">GeomBatch</span> {
     <span class="doccomment">/// Creates a batch of filled polygons.</span>
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">list</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">F</span>, <span class="ident">Polygon</span>)<span class="op">&gt;</span>) -&gt; <span class="ident">GeomBatch</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">list</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">F</span>, <span class="ident">T</span>)<span class="op">&gt;</span>) -&gt; <span class="ident">GeomBatch</span> {
         <span class="ident">GeomBatch</span> {
-            <span class="ident">list</span>: <span class="ident">list</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">c</span>, <span class="ident">p</span>)<span class="op">|</span> (<span class="ident">c</span>.<span class="ident">into</span>(), <span class="ident">p</span>, <span class="number">0.0</span>)).<span class="ident">collect</span>(),
+            <span class="ident">list</span>: <span class="ident">list</span>
+                .<span class="ident">into_iter</span>()
+                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">c</span>, <span class="ident">p</span>)<span class="op">|</span> (<span class="ident">c</span>.<span class="ident">into</span>(), <span class="ident">p</span>.<span class="ident">into</span>(), <span class="number">0.0</span>))
+                .<span class="ident">collect</span>(),
             <span class="ident">autocrop_dims</span>: <span class="bool-val">true</span>,
         }
     }

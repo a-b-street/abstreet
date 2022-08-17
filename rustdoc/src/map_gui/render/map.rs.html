@@ -588,7 +588,7 @@
 <span class="kw">use</span> <span class="ident">aabb_quadtree::QuadTree</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">Polygon</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">Tessellation</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{
     <span class="ident">AreaID</span>, <span class="ident">BuildingID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">ParkingLotID</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>, <span class="ident">TransitStopID</span>,
 };
@@ -809,7 +809,7 @@
         <span class="comment">// We want the outlines slightly above the equivalent layer. z-order is an isize, and f64</span>
         <span class="comment">// makes sort_by_key annoying, so just multiply the existing z-orders by 10.</span>
         <span class="kw">let</span> <span class="ident">outline_z_offset</span> <span class="op">=</span> <span class="number">5</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">unzoomed_pieces</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">isize</span>, <span class="ident">Fill</span>, <span class="ident">Polygon</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">unzoomed_pieces</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">isize</span>, <span class="ident">Fill</span>, <span class="ident">Tessellation</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
             <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">get_width</span>();
@@ -825,7 +825,7 @@
                 } <span class="kw">else</span> {
                     <span class="ident">cs</span>.<span class="ident">unzoomed_road_surface</span>(<span class="ident">r</span>.<span class="ident">get_rank</span>())
                 }),
-                <span class="ident">r</span>.<span class="ident">center_pts</span>.<span class="ident">make_polygons</span>(<span class="ident">width</span>),
+                <span class="ident">r</span>.<span class="ident">center_pts</span>.<span class="ident">make_polygons</span>(<span class="ident">width</span>).<span class="ident">into</span>(),
             ));
 
             <span class="kw">if</span> <span class="ident">cs</span>.<span class="ident">road_outlines</span> {
@@ -846,14 +846,14 @@
                             <span class="ident">unzoomed_pieces</span>.<span class="ident">push</span>((
                                 <span class="number">10</span> <span class="op">*</span> <span class="ident">r</span>.<span class="ident">zorder</span> <span class="op">+</span> <span class="ident">outline_z_offset</span>,
                                 <span class="ident">outline_color</span>.<span class="ident">into</span>(),
-                                <span class="ident">p</span>,
+                                <span class="ident">p</span>.<span class="ident">into</span>(),
                             ));
                         }
                     } <span class="kw">else</span> {
                         <span class="ident">unzoomed_pieces</span>.<span class="ident">push</span>((
                             <span class="number">10</span> <span class="op">*</span> <span class="ident">r</span>.<span class="ident">zorder</span> <span class="op">+</span> <span class="ident">outline_z_offset</span>,
                             <span class="ident">outline_color</span>.<span class="ident">into</span>(),
-                            <span class="ident">pl</span>.<span class="ident">make_polygons</span>(<span class="ident">outline_thickness</span>),
+                            <span class="ident">pl</span>.<span class="ident">make_polygons</span>(<span class="ident">outline_thickness</span>).<span class="ident">into</span>(),
                         ));
                     }
                 }
@@ -885,14 +885,14 @@
             } <span class="kw">else</span> {
                 <span class="ident">cs</span>.<span class="ident">unzoomed_interesting_intersection</span>
             };
-            <span class="ident">unzoomed_pieces</span>.<span class="ident">push</span>((<span class="ident">zorder</span>, <span class="ident">intersection_color</span>.<span class="ident">into</span>(), <span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>()));
+            <span class="ident">unzoomed_pieces</span>.<span class="ident">push</span>((<span class="ident">zorder</span>, <span class="ident">intersection_color</span>.<span class="ident">into</span>(), <span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>().<span class="ident">into</span>()));
 
             <span class="kw">if</span> <span class="ident">cs</span>.<span class="ident">road_outlines</span> {
                 <span class="kw">for</span> <span class="ident">pl</span> <span class="kw">in</span> <span class="ident">DrawIntersection::get_unzoomed_outline</span>(<span class="ident">i</span>, <span class="ident">map</span>) {
                     <span class="ident">unzoomed_pieces</span>.<span class="ident">push</span>((
                         <span class="ident">zorder</span> <span class="op">+</span> <span class="ident">outline_z_offset</span>,
                         <span class="ident">outline_color</span>.<span class="ident">into</span>(),
-                        <span class="ident">pl</span>.<span class="ident">make_polygons</span>(<span class="ident">outline_thickness</span>),
+                        <span class="ident">pl</span>.<span class="ident">make_polygons</span>(<span class="ident">outline_thickness</span>).<span class="ident">into</span>(),
                     ));
                 }
             }

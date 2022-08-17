@@ -232,7 +232,7 @@
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil::prettyprint_usize</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Percent</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>, <span class="ident">UnitFmt</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Percent</span>, <span class="ident">Pt2D</span>, <span class="ident">Tessellation</span>, <span class="ident">Time</span>, <span class="ident">UnitFmt</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">ScreenDims</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">Widget</span>};
 
@@ -420,7 +420,7 @@
 }
 
 <span class="comment">// TODO If this proves useful, lift to geom</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">thick_lineseries</span>(<span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>, <span class="ident">width</span>: <span class="ident">Distance</span>) -&gt; <span class="ident">Polygon</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">thick_lineseries</span>(<span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>, <span class="ident">width</span>: <span class="ident">Distance</span>) -&gt; <span class="ident">Tessellation</span> {
     <span class="kw">use</span> <span class="ident">lyon::math</span>::{<span class="ident">point</span>, <span class="ident">Point</span>};
     <span class="kw">use</span> <span class="ident">lyon::path::Path</span>;
     <span class="kw">use</span> <span class="ident">lyon::tessellation::geometry_builder</span>::{<span class="ident">BuffersBuilder</span>, <span class="ident">Positions</span>, <span class="ident">VertexBuffers</span>};
@@ -446,7 +446,7 @@
             <span class="kw-2">&amp;mut</span> <span class="ident">buffer</span>,
         )
         .<span class="ident">unwrap</span>();
-    <span class="ident">Polygon::precomputed</span>(
+    <span class="ident">Tessellation::new</span>(
         <span class="ident">geom</span>.<span class="ident">vertices</span>
             .<span class="ident">into_iter</span>()
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="ident">Pt2D::new</span>(<span class="ident">f64::from</span>(<span class="ident">v</span>.<span class="ident">x</span>), <span class="ident">f64::from</span>(<span class="ident">v</span>.<span class="ident">y</span>)))

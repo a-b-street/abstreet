@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["RewriteColor","A way to transform all colors in a GeomBatch."]],"mod":[["geom_batch_stack",""]],"struct":[["GeomBatch","A mutable builder for a group of colored polygons."]]};
+window.SIDEBAR_ITEMS = {"enum":[["RewriteColor","A way to transform all colors in a GeomBatch."]],"mod":[["geom_batch_stack",""]],"struct":[["GeomBatch","A mutable builder for a group of colored tessellated polygons."]]};
