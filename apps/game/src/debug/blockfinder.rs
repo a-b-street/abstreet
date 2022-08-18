@@ -255,6 +255,21 @@ impl State<App> for Blockfinder {
                         }
                     }
                 }
+                "Merge all holes" => {
+                    let perimeters: Vec<Perimeter> = std::mem::take(&mut self.blocks)
+                        .into_iter()
+                        .map(|(_, b)| b.perimeter)
+                        .collect();
+                    let perimeters = Perimeter::merge_holes(&app.primary.map, perimeters);
+
+                    // Reset pretty much all of our state
+                    self.id_counter = 0;
+                    self.world = World::bounded(app.primary.map.get_bounds());
+                    self.to_merge.clear();
+                    self.partitions = Vec::new();
+
+                    self.add_blocks_with_coloring(ctx, app, perimeters, &mut Timer::throwaway());
+                }
                 "Reset" => {
                     return Transition::Replace(Blockfinder::new_state(ctx, app));
                 }
@@ -465,8 +480,14 @@ fn make_panel(ctx: &mut EventCtx) -> Panel {
             .hotkey(Key::A)
             .build_def(ctx),
         ctx.style()
+            .btn_outline
+            .text("Merge all holes")
+            .hotkey(Key::H)
+            .build_def(ctx),
+        ctx.style()
             .btn_solid_destructive
             .text("Reset")
+            .hotkey(Key::R)
             .build_def(ctx),
     ]))
     .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)

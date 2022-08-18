@@ -84,7 +84,12 @@ impl Partitioning {
             timer.start("find single blocks");
             let mut single_blocks = Vec::new();
             let mut single_block_perims = Vec::new();
-            for mut perim in Perimeter::find_all_single_blocks(map) {
+
+            // Merge holes upfront. Otherwise, it's usually impossible to expand a boundary with a
+            // block containing a hole. Plus, there's no known scenario when somebody would want to
+            // make a neighbourhood boundary involve a hole.
+            let input = Perimeter::merge_holes(map, Perimeter::find_all_single_blocks(map));
+            for mut perim in input {
                 // TODO Some perimeters don't blockify after collapsing dead-ends. So do this
                 // upfront, and separately work on any blocks that don't show up.
                 // https://github.com/a-b-street/abstreet/issues/841
