@@ -47,6 +47,7 @@ pub fn main() {
 #[derive(StructOpt)]
 struct Args {
     /// Load a previously saved proposal with this name. Note this takes a name, not a full path.
+    /// Or `remote/<ID>`.
     #[structopt(long)]
     proposal: Option<String>,
     /// Lock the user into one fixed neighbourhood, and remove many controls
