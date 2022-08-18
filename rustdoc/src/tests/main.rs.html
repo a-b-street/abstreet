@@ -384,6 +384,7 @@
 <span id="378">378</span>
 <span id="379">379</span>
 <span id="380">380</span>
+<span id="381">381</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Integration tests</span>
 
 <span class="kw">use</span> <span class="ident">std::io::Write</span>;
@@ -605,7 +606,8 @@
         <span class="ident">MapName::new</span>(<span class="string">&quot;us&quot;</span>, <span class="string">&quot;seattle&quot;</span>, <span class="string">&quot;north_seattle&quot;</span>),
     ] {
         <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">map_model::Map::load_synchronously</span>(<span class="ident">name</span>.<span class="ident">path</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">single_blocks</span> <span class="op">=</span> <span class="ident">Perimeter::find_all_single_blocks</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">single_blocks</span> <span class="op">=</span>
+            <span class="ident">Perimeter::merge_holes</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">Perimeter::find_all_single_blocks</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>));
         <span class="kw">let</span> <span class="ident">num_singles_originally</span> <span class="op">=</span> <span class="ident">single_blocks</span>.<span class="ident">len</span>();
         <span class="comment">// Collapse dead-ends first, so results match the LTN tool and blockfinder</span>
         <span class="ident">single_blocks</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> {

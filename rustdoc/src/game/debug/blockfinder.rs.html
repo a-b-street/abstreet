@@ -478,6 +478,27 @@
 <span id="472">472</span>
 <span id="473">473</span>
 <span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
@@ -735,6 +756,21 @@
                         }
                     }
                 }
+                <span class="string">&quot;Merge all holes&quot;</span> =&gt; {
+                    <span class="kw">let</span> <span class="ident">perimeters</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Perimeter</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">std::mem::take</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">blocks</span>)
+                        .<span class="ident">into_iter</span>()
+                        .<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">b</span>)<span class="op">|</span> <span class="ident">b</span>.<span class="ident">perimeter</span>)
+                        .<span class="ident">collect</span>();
+                    <span class="kw">let</span> <span class="ident">perimeters</span> <span class="op">=</span> <span class="ident">Perimeter::merge_holes</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>, <span class="ident">perimeters</span>);
+
+                    <span class="comment">// Reset pretty much all of our state</span>
+                    <span class="self">self</span>.<span class="ident">id_counter</span> <span class="op">=</span> <span class="number">0</span>;
+                    <span class="self">self</span>.<span class="ident">world</span> <span class="op">=</span> <span class="ident">World::bounded</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>());
+                    <span class="self">self</span>.<span class="ident">to_merge</span>.<span class="ident">clear</span>();
+                    <span class="self">self</span>.<span class="ident">partitions</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+
+                    <span class="self">self</span>.<span class="ident">add_blocks_with_coloring</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">perimeters</span>, <span class="kw-2">&amp;mut</span> <span class="ident">Timer::throwaway</span>());
+                }
                 <span class="string">&quot;Reset&quot;</span> =&gt; {
                     <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">Blockfinder::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
                 }
@@ -945,8 +981,14 @@
             .<span class="ident">hotkey</span>(<span class="ident">Key::A</span>)
             .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         <span class="ident">ctx</span>.<span class="ident">style</span>()
+            .<span class="ident">btn_outline</span>
+            .<span class="ident">text</span>(<span class="string">&quot;Merge all holes&quot;</span>)
+            .<span class="ident">hotkey</span>(<span class="ident">Key::H</span>)
+            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+        <span class="ident">ctx</span>.<span class="ident">style</span>()
             .<span class="ident">btn_solid_destructive</span>
             .<span class="ident">text</span>(<span class="string">&quot;Reset&quot;</span>)
+            .<span class="ident">hotkey</span>(<span class="ident">Key::R</span>)
             .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
     ]))
     .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Left</span>, <span class="ident">VerticalAlignment::Top</span>)

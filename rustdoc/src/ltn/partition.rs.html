@@ -449,6 +449,11 @@
 <span id="443">443</span>
 <span id="444">444</span>
 <span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
@@ -535,7 +540,12 @@
             <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;find single blocks&quot;</span>);
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">single_blocks</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">single_block_perims</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-            <span class="kw">for</span> <span class="kw-2">mut</span> <span class="ident">perim</span> <span class="kw">in</span> <span class="ident">Perimeter::find_all_single_blocks</span>(<span class="ident">map</span>) {
+
+            <span class="comment">// Merge holes upfront. Otherwise, it&#39;s usually impossible to expand a boundary with a</span>
+            <span class="comment">// block containing a hole. Plus, there&#39;s no known scenario when somebody would want to</span>
+            <span class="comment">// make a neighbourhood boundary involve a hole.</span>
+            <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">Perimeter::merge_holes</span>(<span class="ident">map</span>, <span class="ident">Perimeter::find_all_single_blocks</span>(<span class="ident">map</span>));
+            <span class="kw">for</span> <span class="kw-2">mut</span> <span class="ident">perim</span> <span class="kw">in</span> <span class="ident">input</span> {
                 <span class="comment">// TODO Some perimeters don&#39;t blockify after collapsing dead-ends. So do this</span>
                 <span class="comment">// upfront, and separately work on any blocks that don&#39;t show up.</span>
                 <span class="comment">// https://github.com/a-b-street/abstreet/issues/841</span>
