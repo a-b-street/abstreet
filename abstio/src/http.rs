@@ -1,7 +1,7 @@
 use anyhow::{Context, Result};
 
 /// Performs an HTTP POST request and returns the response.
-pub async fn http_post<I: AsRef<str>>(url: I, body: String) -> Result<String> {
+pub async fn http_post<U: AsRef<str>, B: Into<reqwest::Body>>(url: U, body: B) -> Result<String> {
     let url = url.as_ref();
     info!("HTTP POST to {}", url);
     let resp = reqwest::Client::new()

@@ -1,4 +1,5 @@
 mod perma;
+mod share;
 
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
@@ -106,6 +107,23 @@ impl Proposal {
 
         Ok(())
     }
+
+    fn to_gzipped_bytes(&self, app: &App) -> Result<Vec<u8>> {
+        let json_value = perma::to_permanent(&app.map, self)?;
+        let mut output_buffer = Vec::new();
+        let mut encoder =
+            flate2::write::GzEncoder::new(&mut output_buffer, flate2::Compression::best());
+        serde_json::to_writer(&mut encoder, &json_value)?;
+        encoder.finish()?;
+        Ok(output_buffer)
+    }
+
+    fn checksum(&self, app: &App) -> Result<String> {
+        let bytes = self.to_gzipped_bytes(app)?;
+        let mut context = md5::Context::new();
+        context.consume(&bytes);
+        Ok(format!("{:x}", context.compute()))
+    }
 }
 
 fn stash_current_proposal(app: &mut App) {
@@ -166,13 +184,7 @@ fn save_ui(ctx: &mut EventCtx, app: &App, preserve_state: PreserveState) -> Box<
 fn inner_save(app: &App) -> Result<()> {
     let proposal = Proposal::from_app(app);
     let path = abstio::path_ltn_proposals(app.map.get_name(), &proposal.name);
-
-    let json_value = perma::to_permanent(&app.map, &proposal)?;
-    let mut output_buffer = Vec::new();
-    let mut encoder =
-        flate2::write::GzEncoder::new(&mut output_buffer, flate2::Compression::best());
-    serde_json::to_writer(&mut encoder, &json_value)?;
-    encoder.finish()?;
+    let output_buffer = proposal.to_gzipped_bytes(app)?;
     abstio::write_raw(path, &output_buffer)
 }
 
@@ -231,6 +243,7 @@ impl AltProposals {
                 ctx.style().btn_outline.text("New").build_def(ctx),
                 ctx.style().btn_outline.text("Load").build_def(ctx),
                 ctx.style().btn_outline.text("Save").build_def(ctx),
+                ctx.style().btn_outline.text("Share").build_def(ctx),
             ]),
         ];
         for (idx, proposal) in self.list.iter().enumerate() {
@@ -305,6 +318,9 @@ impl AltProposals {
             }
             "Save" => {
                 return Some(Transition::Push(save_ui(ctx, app, preserve_state)));
+            }
+            "Share" => {
+                return Some(Transition::Push(share::ShareProposal::new_state(ctx, app)));
             }
             _ => {
                 if let Some(x) = action.strip_prefix("switch to proposal ") {
