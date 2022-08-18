@@ -219,7 +219,8 @@ fn test_blockfinding() -> Result<()> {
         MapName::new("us", "seattle", "north_seattle"),
     ] {
         let map = map_model::Map::load_synchronously(name.path(), &mut timer);
-        let mut single_blocks = Perimeter::find_all_single_blocks(&map);
+        let mut single_blocks =
+            Perimeter::merge_holes(&map, Perimeter::find_all_single_blocks(&map));
         let num_singles_originally = single_blocks.len();
         // Collapse dead-ends first, so results match the LTN tool and blockfinder
         single_blocks.retain(|x| {

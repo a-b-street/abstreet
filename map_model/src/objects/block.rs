@@ -664,6 +664,59 @@ impl Perimeter {
         }
         self
     }
+
+    /// Looks for perimeters that're completely surrounded by other perimeters, aka, holes.
+    /// Attempts to merge them with the surrounding perimeter. This can be useful for applications
+    /// trying to incrementally merge adjacent blocks without creating splits, because it's often
+    /// impossible to do this in one merge when there are holes.
+    ///
+    /// This should never "lose" any of the input. It may not be fast or guaranteed to find and fix
+    /// every hole.
+    pub fn merge_holes(map: &Map, mut perims: Vec<Perimeter>) -> Vec<Perimeter> {
+        // Fixed-point for now -- find and fix one hole at a time. Slow, but simple.
+        loop {
+            let num_before = perims.len();
+
+            // Look for one hole
+            let mut hole = None;
+            for (idx, perim) in perims.iter().enumerate() {
+                let copy = perim.clone().flip_side_of_road();
+                // Now that we've "expanded" the perimeter to the other side of the road, is there
+                // another perimeter that completely contins it?
+                if let Some(surrounding) = perims.iter().position(|p| p.contains(&copy)) {
+                    hole = Some((idx, surrounding));
+                    // TODO If the first hole found doesn't merge for some reason, then we'll get
+                    // stuck and just give up, even if there are other holes that might be fixed
+                    // later. The indices just get too tricky.
+                    break;
+                }
+            }
+            if let Some((mut idx1, mut idx2)) = hole {
+                // Merge these two
+                if idx2 < idx1 {
+                    std::mem::swap(&mut idx1, &mut idx2);
+                }
+                let perim1 = perims.remove(idx2);
+                let perim2 = perims.remove(idx1);
+
+                let stepwise_debug = false;
+                let use_expensive_blockfinding = false;
+                perims.extend(Self::merge_all(
+                    map,
+                    vec![perim1, perim2],
+                    stepwise_debug,
+                    use_expensive_blockfinding,
+                ));
+            }
+
+            if perims.len() == num_before {
+                // We didn't change anything, so stop
+                break;
+            }
+        }
+
+        perims
+    }
 }
 
 impl fmt::Debug for Perimeter {
