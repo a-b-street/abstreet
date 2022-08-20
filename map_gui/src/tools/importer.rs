@@ -1,7 +1,6 @@
 use std::io::Write;
 
 use anyhow::Result;
-use clipboard::{ClipboardContext, ClipboardProvider};
 
 use abstio::MapName;
 use widgetry::tools::{open_browser, PopupMsg};
@@ -181,15 +180,7 @@ impl<A: AppLike + 'static> State<A> for ImportCity<A> {
 }
 
 fn grab_geojson_from_clipboard() -> Result<()> {
-    // TODO The clipboard crate uses old nightly Errors. Converting to anyhow is weird.
-    let mut ctx: ClipboardContext = match ClipboardProvider::new() {
-        Ok(ctx) => ctx,
-        Err(err) => bail!("{}", err),
-    };
-    let contents = match ctx.get_contents() {
-        Ok(contents) => contents,
-        Err(err) => bail!("{}", err),
-    };
+    let contents = widgetry::tools::get_clipboard()?;
     if contents.parse::<geojson::GeoJson>().is_err() {
         bail!(
             "Your clipboard doesn't seem to have GeoJSON. Got: {}",

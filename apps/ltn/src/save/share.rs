@@ -148,7 +148,7 @@ impl SimpleState<App> for ShareProposal {
                 ));
             }
             "Copy URL to clipboard" => {
-                set_clipboard(self.url.clone().unwrap());
+                widgetry::tools::set_clipboard(self.url.clone().unwrap());
                 Transition::Keep
             }
             "open in browser" => {
@@ -187,21 +187,5 @@ impl UploadedProposals {
             abstio::path_player("uploaded_ltn_proposals.json"),
             &uploaded,
         );
-    }
-}
-
-fn set_clipboard(x: String) {
-    #[cfg(not(target_arch = "wasm32"))]
-    {
-        use clipboard::{ClipboardContext, ClipboardProvider};
-        if let Err(err) =
-            ClipboardProvider::new().and_then(|mut ctx: ClipboardContext| ctx.set_contents(x))
-        {
-            error!("Copying to clipboard broke: {}", err);
-        }
-    }
-    #[cfg(target_arch = "wasm32")]
-    {
-        let _ = x;
     }
 }

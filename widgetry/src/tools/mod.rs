@@ -8,6 +8,8 @@ pub(crate) mod screenshot;
 mod url;
 pub(crate) mod warper;
 
+use anyhow::Result;
+
 pub use choose_something::ChooseSomething;
 pub use colors::{ColorLegend, ColorScale, DivergingScale};
 pub use lasso::{Lasso, PolyLineLasso};
@@ -89,4 +91,44 @@ fn grey_out_map(g: &mut GfxCtx) {
         Polygon::rectangle(g.canvas.window_width, g.canvas.window_height),
     );
     g.unfork();
+}
+
+/// Only works on native
+pub fn set_clipboard(x: String) {
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        use clipboard::{ClipboardContext, ClipboardProvider};
+        if let Err(err) =
+            ClipboardProvider::new().and_then(|mut ctx: ClipboardContext| ctx.set_contents(x))
+        {
+            error!("Copying to clipboard broke: {}", err);
+        }
+    }
+
+    #[cfg(target_arch = "wasm32")]
+    {
+        let _ = x;
+    }
+}
+
+pub fn get_clipboard() -> Result<String> {
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        use clipboard::{ClipboardContext, ClipboardProvider};
+        // TODO The clipboard crate uses old nightly Errors. Converting to anyhow is weird.
+        let mut ctx: ClipboardContext = match ClipboardProvider::new() {
+            Ok(ctx) => ctx,
+            Err(err) => bail!("{}", err),
+        };
+        let contents = match ctx.get_contents() {
+            Ok(contents) => contents,
+            Err(err) => bail!("{}", err),
+        };
+        Ok(contents)
+    }
+
+    #[cfg(target_arch = "wasm32")]
+    {
+        bail!("Unsupported on web");
+    }
 }
