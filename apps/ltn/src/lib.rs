@@ -6,7 +6,8 @@ use abstio::MapName;
 use abstutil::Timer;
 use map_gui::tools::DrawSimpleRoadLabels;
 use map_model::{AmenityType, RoutingParams};
-use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, RewriteColor, Settings};
+use widgetry::tools::FutureLoader;
+use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, RewriteColor, Settings, State};
 
 pub use browse::BrowseNeighbourhoods;
 use filters::Toggle3Zoomed;
@@ -118,80 +119,128 @@ fn run(mut settings: Settings) {
                     .layers
                     .event(ctx, &app.cs, components::Mode::BrowseNeighbourhoods);
 
-                // Restore the partitioning from a file before calling BrowseNeighbourhoods
-                let popup_state = args.proposal.as_ref().and_then(|name| {
-                    crate::save::Proposal::load(
-                        ctx,
-                        app,
-                        abstio::path_ltn_proposals(app.map.get_name(), name),
-                    )
-                });
-
-                let mut states = Vec::new();
-                if let Some(ref consultation) = args.consultation {
-                    if app.map.get_name() != &MapName::new("gb", "bristol", "east") {
-                        panic!("Consultation mode not supported on this map");
+                // Load a proposal first?
+                if let Some(ref name) = args.proposal {
+                    // Remote edits require another intermediate state to load
+                    if let Some(id) = name.strip_prefix("remote/") {
+                        vec![load_remote(ctx, id.to_string(), args.consultation.clone())]
+                    } else {
+                        let popup_state = crate::save::Proposal::load_from_path(
+                            ctx,
+                            app,
+                            abstio::path_ltn_proposals(app.map.get_name(), name),
+                        );
+                        setup_initial_states(ctx, app, args.consultation.as_ref(), popup_state)
                     }
-
-                    let focus_on_street = match consultation.as_ref() {
-                        "pt1" => "Gregory Street",
-                        "pt2" => {
-                            // Start from a baked-in proposal with special boundaries
-                            app.session.consultation_proposal_path = Some(abstio::path(
-                                "system/ltn_proposals/bristol_beaufort_road.json.gz",
-                            ));
-                            "Jubilee Road"
-                        }
-                        _ => panic!("Unknown Bristol consultation mode {consultation}"),
-                    };
-
-                    app.session.alt_proposals = crate::save::AltProposals::new();
-                    ctx.loading_screen("initialize", |ctx, timer| {
-                        crate::clear_current_proposal(ctx, app, timer);
-                    });
-
-                    // Look for the neighbourhood containing one small street
-                    let r = app
-                        .map
-                        .all_roads()
-                        .iter()
-                        .find(|r| r.get_name(None) == focus_on_street)
-                        .expect(&format!("Can't find {focus_on_street}"))
-                        .id;
-                    let (neighbourhood, _) = app
-                        .session
-                        .partitioning
-                        .all_neighbourhoods()
-                        .iter()
-                        .find(|(_, info)| info.block.perimeter.interior.contains(&r))
-                        .expect(&format!(
-                            "Can't find neighbourhood containing {focus_on_street}"
-                        ));
-                    app.session.consultation = Some(*neighbourhood);
-
-                    // TODO Maybe center the camera, ignoring any saved values
-
-                    states.push(connectivity::Viewer::new_state(
-                        ctx,
-                        app,
-                        app.session.consultation.unwrap(),
-                    ));
                 } else {
-                    states.push(map_gui::tools::TitleScreen::new_state(
-                        ctx,
-                        app,
-                        map_gui::tools::Executable::LTN,
-                        Box::new(|ctx, app, _| BrowseNeighbourhoods::new_state(ctx, app)),
-                    ));
-                    states.push(BrowseNeighbourhoods::new_state(ctx, app));
+                    setup_initial_states(ctx, app, args.consultation.as_ref(), None)
                 }
-                if let Some(state) = popup_state {
-                    states.push(state);
-                }
-                states
             },
         )
     });
+}
+
+// Proposal should already be loaded by now
+fn setup_initial_states(
+    ctx: &mut EventCtx,
+    app: &mut App,
+    consultation: Option<&String>,
+    popup_state: Option<Box<dyn State<App>>>,
+) -> Vec<Box<dyn State<App>>> {
+    let mut states = Vec::new();
+    if let Some(ref consultation) = consultation {
+        if app.map.get_name() != &MapName::new("gb", "bristol", "east") {
+            panic!("Consultation mode not supported on this map");
+        }
+
+        let focus_on_street = match consultation.as_ref() {
+            "pt1" => "Gregory Street",
+            "pt2" => {
+                // Start from a baked-in proposal with special boundaries
+                app.session.consultation_proposal_path = Some(abstio::path(
+                    "system/ltn_proposals/bristol_beaufort_road.json.gz",
+                ));
+                "Jubilee Road"
+            }
+            _ => panic!("Unknown Bristol consultation mode {consultation}"),
+        };
+
+        app.session.alt_proposals = crate::save::AltProposals::new();
+        ctx.loading_screen("initialize", |ctx, timer| {
+            crate::clear_current_proposal(ctx, app, timer);
+        });
+
+        // Look for the neighbourhood containing one small street
+        let r = app
+            .map
+            .all_roads()
+            .iter()
+            .find(|r| r.get_name(None) == focus_on_street)
+            .expect(&format!("Can't find {focus_on_street}"))
+            .id;
+        let (neighbourhood, _) = app
+            .session
+            .partitioning
+            .all_neighbourhoods()
+            .iter()
+            .find(|(_, info)| info.block.perimeter.interior.contains(&r))
+            .expect(&format!(
+                "Can't find neighbourhood containing {focus_on_street}"
+            ));
+        app.session.consultation = Some(*neighbourhood);
+
+        // TODO Maybe center the camera, ignoring any saved values
+
+        states.push(connectivity::Viewer::new_state(
+            ctx,
+            app,
+            app.session.consultation.unwrap(),
+        ));
+    } else {
+        states.push(map_gui::tools::TitleScreen::new_state(
+            ctx,
+            app,
+            map_gui::tools::Executable::LTN,
+            Box::new(|ctx, app, _| BrowseNeighbourhoods::new_state(ctx, app)),
+        ));
+        states.push(BrowseNeighbourhoods::new_state(ctx, app));
+    }
+    // Restore the partitioning from a file before calling BrowseNeighbourhoods
+    // TODO Correct now? Comment OK? What about clear_current_proposal above?
+    if let Some(state) = popup_state {
+        states.push(state);
+    }
+    states
+}
+
+fn load_remote(
+    ctx: &mut EventCtx,
+    id: String,
+    consultation: Option<String>,
+) -> Box<dyn State<App>> {
+    let (_, outer_progress_rx) = futures_channel::mpsc::channel(1);
+    let (_, inner_progress_rx) = futures_channel::mpsc::channel(1);
+    let url = format!("{}/get-ltn?id={}", crate::save::PROPOSAL_HOST_URL, id);
+    FutureLoader::<App, Vec<u8>>::new_state(
+        ctx,
+        Box::pin(async move {
+            let bytes = abstio::http_get(url).await?;
+            let wrapper: Box<dyn Send + FnOnce(&App) -> Vec<u8>> = Box::new(move |_| bytes);
+            Ok(wrapper)
+        }),
+        outer_progress_rx,
+        inner_progress_rx,
+        "Downloading proposal",
+        Box::new(move |ctx, app, result| {
+            let popup_state = crate::save::Proposal::load_from_bytes(ctx, app, &id, result);
+            Transition::Clear(setup_initial_states(
+                ctx,
+                app,
+                consultation.as_ref(),
+                popup_state,
+            ))
+        }),
+    )
 }
 
 #[cfg(target_arch = "wasm32")]
@@ -267,7 +316,7 @@ pub fn after_edit(ctx: &EventCtx, app: &mut App) {
 
 pub fn clear_current_proposal(ctx: &mut EventCtx, app: &mut App, timer: &mut Timer) {
     if let Some(path) = app.session.consultation_proposal_path.clone() {
-        if crate::save::Proposal::load(ctx, app, path.clone()).is_some() {
+        if crate::save::Proposal::load_from_path(ctx, app, path.clone()).is_some() {
             panic!("Consultation mode broken; go fix {path} manually");
         }
         return;

@@ -11,7 +11,7 @@ use widgetry::{EventCtx, GfxCtx, Key, Line, Panel, SimpleState, State, Text, Tex
 use super::Proposal;
 use crate::{App, Transition};
 
-const PROPOSAL_HOST_URL: &str = "https://aorta-routes.appspot.com/v1";
+pub const PROPOSAL_HOST_URL: &str = "https://aorta-routes.appspot.com/v1";
 
 pub struct ShareProposal {
     url: Option<String>,

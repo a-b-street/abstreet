@@ -14,6 +14,8 @@ use crate::edit::EditMode;
 use crate::partition::BlockID;
 use crate::{App, BrowseNeighbourhoods, Edits, Partitioning, Transition};
 
+pub use share::PROPOSAL_HOST_URL;
+
 /// Captures all of the edits somebody makes to a map in the LTN tool. Note this is separate from
 /// `map_model::MapEdits`.
 #[derive(Serialize, Deserialize)]
@@ -68,14 +70,27 @@ impl Proposal {
     }
 
     /// Try to load a proposal. If it fails, returns a popup message state.
-    pub fn load(ctx: &mut EventCtx, app: &mut App, path: String) -> Option<Box<dyn State<App>>> {
-        match Self::inner_load(ctx, app, &path) {
+    pub fn load_from_path(
+        ctx: &mut EventCtx,
+        app: &mut App,
+        path: String,
+    ) -> Option<Box<dyn State<App>>> {
+        Self::load_from_bytes(ctx, app, &path, abstio::slurp_file(path.clone()))
+    }
+
+    pub fn load_from_bytes(
+        ctx: &mut EventCtx,
+        app: &mut App,
+        name: &str,
+        bytes: Result<Vec<u8>>,
+    ) -> Option<Box<dyn State<App>>> {
+        match bytes.and_then(|bytes| Self::inner_load(ctx, app, bytes)) {
             Ok(()) => None,
             Err(err) => Some(PopupMsg::new_state(
                 ctx,
                 "Error",
                 vec![
-                    format!("Couldn't load proposal {}", path),
+                    format!("Couldn't load proposal {}", name),
                     err.to_string(),
                     "The format of saved proposals recently changed.".to_string(),
                     "Contact dabreegster@gmail.com if you need help restoring a file.".to_string(),
@@ -84,8 +99,7 @@ impl Proposal {
         }
     }
 
-    fn inner_load(ctx: &mut EventCtx, app: &mut App, path: &str) -> Result<()> {
-        let bytes = abstio::slurp_file(path)?;
+    fn inner_load(ctx: &mut EventCtx, app: &mut App, bytes: Vec<u8>) -> Result<()> {
         let decoder = flate2::read::GzDecoder::new(&bytes[..]);
         let value = serde_json::from_reader(decoder)?;
         let proposal = perma::from_permanent(&app.map, value)?;
@@ -208,7 +222,7 @@ fn load_picker_ui(
                 .collect(),
         ),
         Box::new(|name, ctx, app| {
-            match Proposal::load(
+            match Proposal::load_from_path(
                 ctx,
                 app,
                 abstio::path_ltn_proposals(app.map.get_name(), &name),
