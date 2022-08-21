@@ -358,10 +358,6 @@
 <span id="352">352</span>
 <span id="353">353</span>
 <span id="354">354</span>
-<span id="355">355</span>
-<span id="356">356</span>
-<span id="357">357</span>
-<span id="358">358</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil::Counter</span>;
@@ -542,12 +538,8 @@
                     <span class="ident">world</span>
                         .<span class="ident">add</span>(<span class="kw-2">*</span><span class="ident">id</span>)
                         .<span class="ident">hitbox</span>(<span class="ident">info</span>.<span class="ident">block</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>())
-                        <span class="comment">// Don&#39;t draw anything normally</span>
-                        .<span class="ident">drawn_in_master_batch</span>()
-                        .<span class="ident">draw_hovered</span>(<span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(
-                            <span class="ident">Color::YELLOW</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>),
-                            <span class="ident">info</span>.<span class="ident">block</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>(),
-                        )]))
+                        .<span class="ident">draw_color</span>(<span class="ident">Color::YELLOW</span>.<span class="ident">alpha</span>(<span class="number">0.1</span>))
+                        .<span class="ident">hover_alpha</span>(<span class="number">0.5</span>)
                         .<span class="ident">clickable</span>()
                         .<span class="ident">build</span>(<span class="ident">ctx</span>);
                 }
