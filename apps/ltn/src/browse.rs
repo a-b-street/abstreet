@@ -178,12 +178,8 @@ fn make_world(ctx: &mut EventCtx, app: &App) -> World<NeighbourhoodID> {
                     world
                         .add(*id)
                         .hitbox(info.block.polygon.clone())
-                        // Don't draw anything normally
-                        .drawn_in_master_batch()
-                        .draw_hovered(GeomBatch::from(vec![(
-                            Color::YELLOW.alpha(0.5),
-                            info.block.polygon.clone(),
-                        )]))
+                        .draw_color(Color::YELLOW.alpha(0.1))
+                        .hover_alpha(0.5)
                         .clickable()
                         .build(ctx);
                 }
