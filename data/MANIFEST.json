@@ -1215,6 +1215,16 @@
       "uncompressed_size_bytes": 47889389,
       "compressed_size_bytes": 4809086
     },
+    "data/input/gb/london/osm/enfield-latest.osm.pbf": {
+      "checksum": "82e6f94382f0a219e0510a0057760cd3",
+      "uncompressed_size_bytes": 3368410,
+      "compressed_size_bytes": 3365589
+    },
+    "data/input/gb/london/osm/enfield.osm": {
+      "checksum": "1c8bf476b233a7087a7efb9010d3b405",
+      "uncompressed_size_bytes": 61156037,
+      "compressed_size_bytes": 6137221
+    },
     "data/input/gb/london/osm/greater-london-latest.osm.pbf": {
       "checksum": "97d9d04491ec22e754d6189ae944964b",
       "uncompressed_size_bytes": 81639486,
@@ -1280,10 +1290,20 @@
       "uncompressed_size_bytes": 35512778,
       "compressed_size_bytes": 3541002
     },
+    "data/input/gb/london/osm/lambeth.osm": {
+      "checksum": "3b6b899b548f1b7df5cbfb5447d8738e",
+      "uncompressed_size_bytes": 53188642,
+      "compressed_size_bytes": 5440929
+    },
     "data/input/gb/london/osm/lewisham.osm": {
       "checksum": "3b9f00f6480d783a7796db65372a708c",
       "uncompressed_size_bytes": 43953391,
       "compressed_size_bytes": 4401808
+    },
+    "data/input/gb/london/osm/merton.osm": {
+      "checksum": "881428c760bc32ad908885d4db916478",
+      "uncompressed_size_bytes": 42843176,
+      "compressed_size_bytes": 4096999
     },
     "data/input/gb/london/osm/newham.osm": {
       "checksum": "489bbfe8dee0fa44f7c9316f7ef90953",
@@ -1319,6 +1339,16 @@
       "checksum": "07419ac8518b69df16594742ad8ed034",
       "uncompressed_size_bytes": 46147867,
       "compressed_size_bytes": 5233948
+    },
+    "data/input/gb/london/osm/waltham_forest.osm": {
+      "checksum": "447ee5d8e803cf21f4330ea5db131ec2",
+      "uncompressed_size_bytes": 84706433,
+      "compressed_size_bytes": 7783852
+    },
+    "data/input/gb/london/osm/wandsworth.osm": {
+      "checksum": "190821053936e62195ad88f6cd3b8d47",
+      "uncompressed_size_bytes": 63244800,
+      "compressed_size_bytes": 6282412
     },
     "data/input/gb/london/osm/westminster.osm": {
       "checksum": "29844268c1cab43bc0ad66dee6549602",
@@ -1374,6 +1404,11 @@
       "checksum": "ff811210d5c1fb52a3b848fe3159df55",
       "uncompressed_size_bytes": 14537606,
       "compressed_size_bytes": 2355233
+    },
+    "data/input/gb/london/raw_maps/enfield.bin": {
+      "checksum": "bad6ac42de953fbafdc1e4facb5a1319",
+      "uncompressed_size_bytes": 17299435,
+      "compressed_size_bytes": 3173798
     },
     "data/input/gb/london/raw_maps/greenwich.bin": {
       "checksum": "0c85b4eea36c980dbd8cc394f8a1b1df",
@@ -1435,10 +1470,20 @@
       "uncompressed_size_bytes": 10335142,
       "compressed_size_bytes": 1875110
     },
+    "data/input/gb/london/raw_maps/lambeth.bin": {
+      "checksum": "4a551a7915cfee72f37726b5987bdf02",
+      "uncompressed_size_bytes": 13421896,
+      "compressed_size_bytes": 2504876
+    },
     "data/input/gb/london/raw_maps/lewisham.bin": {
       "checksum": "022e47500e6bec5f53be2b33352eb70d",
       "uncompressed_size_bytes": 13286390,
       "compressed_size_bytes": 2332368
+    },
+    "data/input/gb/london/raw_maps/merton.bin": {
+      "checksum": "42ccb924a27565822210565a521760f0",
+      "uncompressed_size_bytes": 13560176,
+      "compressed_size_bytes": 2117782
     },
     "data/input/gb/london/raw_maps/newham.bin": {
       "checksum": "92deb3679485962312d48263bd2b6f35",
@@ -1474,6 +1519,16 @@
       "checksum": "a9ea84df43c9a681e6685b1e4d6bdfb3",
       "uncompressed_size_bytes": 13950662,
       "compressed_size_bytes": 2492410
+    },
+    "data/input/gb/london/raw_maps/waltham_forest.bin": {
+      "checksum": "9feea2c8da64f51c70c3842a4a03ff50",
+      "uncompressed_size_bytes": 27077090,
+      "compressed_size_bytes": 4924537
+    },
+    "data/input/gb/london/raw_maps/wandsworth.bin": {
+      "checksum": "5aadc52a8c8243183e8ecba18dcbed76",
+      "uncompressed_size_bytes": 18706442,
+      "compressed_size_bytes": 3220028
     },
     "data/input/gb/london/raw_maps/westminster.bin": {
       "checksum": "a8cb6dceb3e653fe7aff9d47c6438fd8",
@@ -4126,9 +4181,9 @@
       "compressed_size_bytes": 4458616
     },
     "data/system/gb/london/city.bin": {
-      "checksum": "3c8fb3e58e96128838b748a0cff4793d",
-      "uncompressed_size_bytes": 3571562,
-      "compressed_size_bytes": 1716989
+      "checksum": "cafd9e13860e5a31755faca53c1214c4",
+      "uncompressed_size_bytes": 3953000,
+      "compressed_size_bytes": 1896557
     },
     "data/system/gb/london/maps/barking_and_dagenham.bin": {
       "checksum": "80f71f80d36aa858b0990e9e924e7ffd",
@@ -4240,10 +4295,20 @@
       "uncompressed_size_bytes": 26657513,
       "compressed_size_bytes": 10021082
     },
+    "data/system/gb/london/maps/lambeth.bin": {
+      "checksum": "71a74d9a59957b81dc666f8a38968299",
+      "uncompressed_size_bytes": 35261851,
+      "compressed_size_bytes": 13027239
+    },
     "data/system/gb/london/maps/lewisham.bin": {
       "checksum": "34d18856d91c0cb99eda79466de1702a",
       "uncompressed_size_bytes": 33930141,
       "compressed_size_bytes": 12534410
+    },
+    "data/system/gb/london/maps/merton.bin": {
+      "checksum": "bae446d7c20d5c8ef6122ac747a7be12",
+      "uncompressed_size_bytes": 29698728,
+      "compressed_size_bytes": 11027471
     },
     "data/system/gb/london/maps/newham.bin": {
       "checksum": "aa06a6389cceca17f76c5f99f0ac58bd",
@@ -4279,6 +4344,16 @@
       "checksum": "60b4afd53cd85d06cfe0db63fbfabad3",
       "uncompressed_size_bytes": 31019633,
       "compressed_size_bytes": 11642201
+    },
+    "data/system/gb/london/maps/waltham_forest.bin": {
+      "checksum": "a65460f46bbc9102f38d7bce1864fa9b",
+      "uncompressed_size_bytes": 47955183,
+      "compressed_size_bytes": 17402273
+    },
+    "data/system/gb/london/maps/wandsworth.bin": {
+      "checksum": "a1db680dd2cef6eed4728c7ddf0096da",
+      "uncompressed_size_bytes": 42573092,
+      "compressed_size_bytes": 15626287
     },
     "data/system/gb/london/maps/westminster.bin": {
       "checksum": "593070589eb3e18009b4c50f50001880",
@@ -4390,10 +4465,20 @@
       "uncompressed_size_bytes": 15259705,
       "compressed_size_bytes": 3926012
     },
+    "data/system/gb/london/scenarios/lambeth/background.bin": {
+      "checksum": "e88400a6ca960f539836095858729332",
+      "uncompressed_size_bytes": 45398685,
+      "compressed_size_bytes": 12100138
+    },
     "data/system/gb/london/scenarios/lewisham/background.bin": {
       "checksum": "4e50eb51b4174f6c9b13046a0f6b1eb8",
       "uncompressed_size_bytes": 23895526,
       "compressed_size_bytes": 6335560
+    },
+    "data/system/gb/london/scenarios/merton/background.bin": {
+      "checksum": "361eb223433f42e2349e35c2dcb95de1",
+      "uncompressed_size_bytes": 20051603,
+      "compressed_size_bytes": 5161556
     },
     "data/system/gb/london/scenarios/newham/background.bin": {
       "checksum": "33026d5fd9c6f6c318d21ec8e33b7c50",
@@ -4429,6 +4514,16 @@
       "checksum": "393b5310a1c53e3f9961dd909675c1b5",
       "uncompressed_size_bytes": 40237905,
       "compressed_size_bytes": 10294635
+    },
+    "data/system/gb/london/scenarios/waltham_forest/background.bin": {
+      "checksum": "944817da8061f9d1dc37b2ec0c414db4",
+      "uncompressed_size_bytes": 18684514,
+      "compressed_size_bytes": 4922724
+    },
+    "data/system/gb/london/scenarios/wandsworth/background.bin": {
+      "checksum": "93bd78694a06f2ae784fc97e55270519",
+      "uncompressed_size_bytes": 35251686,
+      "compressed_size_bytes": 9280650
     },
     "data/system/gb/london/scenarios/westminster/background.bin": {
       "checksum": "31376e0e31f1434f77e9e699e1521494",
