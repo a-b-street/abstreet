@@ -15,6 +15,7 @@ use widgetry::{
     Panel, Slider, State, Text, TextExt, Toggle, VerticalAlignment, Widget,
 };
 
+use crate::components::Mode;
 use crate::impact::{end_of_day, Filters, Impact};
 use crate::{colors, App, BrowseNeighbourhoods, Transition};
 
@@ -110,7 +111,7 @@ impl State<App> for ShowResults {
         if let Some(t) = crate::components::TopPanel::event(ctx, app, &mut self.top_panel, help) {
             return t;
         }
-        if let Some(t) = app.session.layers.event(ctx) {
+        if let Some(t) = app.session.layers.event(ctx, &app.cs, Mode::Impact) {
             return t;
         }
         match self.left_panel.event(ctx) {

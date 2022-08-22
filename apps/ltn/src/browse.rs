@@ -8,6 +8,7 @@ use widgetry::{
     State, TextExt, Toggle, Widget,
 };
 
+use crate::components::Mode;
 use crate::edit::EditMode;
 use crate::filters::auto::Heuristic;
 use crate::{colors, App, Neighbourhood, NeighbourhoodID, Transition};
@@ -78,7 +79,11 @@ impl State<App> for BrowseNeighbourhoods {
         if let Some(t) = crate::components::TopPanel::event(ctx, app, &mut self.top_panel, help) {
             return t;
         }
-        if let Some(t) = app.session.layers.event(ctx) {
+        if let Some(t) = app
+            .session
+            .layers
+            .event(ctx, &app.cs, Mode::BrowseNeighbourhoods)
+        {
             return t;
         }
         match self.left_panel.event(ctx) {

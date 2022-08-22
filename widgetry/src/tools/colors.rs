@@ -18,13 +18,13 @@ impl ColorLegend {
         ])
     }
 
-    pub fn gradient<I: Into<String>>(
+    pub fn gradient_with_width<I: Into<String>>(
         ctx: &mut EventCtx,
         scale: &ColorScale,
         labels: Vec<I>,
+        width: f64,
     ) -> Widget {
         assert!(scale.0.len() >= 2);
-        let width = 300.0;
         let n = scale.0.len();
         let mut batch = GeomBatch::new();
         let width_each = width / ((n - 1) as f64);
@@ -59,6 +59,14 @@ impl ColorLegend {
             .evenly_spaced(),
         ])
         .container()
+    }
+
+    pub fn gradient<I: Into<String>>(
+        ctx: &mut EventCtx,
+        scale: &ColorScale,
+        labels: Vec<I>,
+    ) -> Widget {
+        Self::gradient_with_width(ctx, scale, labels, 300.0)
     }
 
     pub fn categories(ctx: &mut EventCtx, pairs: Vec<(Color, &str)>) -> Widget {
