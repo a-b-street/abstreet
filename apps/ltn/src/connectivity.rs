@@ -10,6 +10,7 @@ use widgetry::{
     Panel, State, TextExt, Toggle, Widget,
 };
 
+use crate::components::Mode;
 use crate::draw_cells::RenderCells;
 use crate::edit::{EditMode, EditNeighbourhood, EditOutcome};
 use crate::filters::auto::Heuristic;
@@ -120,7 +121,11 @@ impl State<App> for Viewer {
         if let Some(t) = crate::components::TopPanel::event(ctx, app, &mut self.top_panel, help) {
             return t;
         }
-        if let Some(t) = app.session.layers.event(ctx) {
+        if let Some(t) = app
+            .session
+            .layers
+            .event(ctx, &app.cs, Mode::ModifyNeighbourhood)
+        {
             return t;
         }
         match self.left_panel.event(ctx) {

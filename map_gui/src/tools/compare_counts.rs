@@ -207,6 +207,11 @@ impl CompareCounts {
         };
         Some(self.get_panel_widget(ctx))
     }
+
+    pub fn relative_scale() -> DivergingScale {
+        // TODO This is still a bit arbitrary
+        DivergingScale::new(Color::GREEN, Color::grey(0.2), Color::RED).range(0.0, 2.0)
+    }
 }
 
 fn calculate_heatmap(ctx: &EventCtx, app: &dyn AppLike, counts: TrafficCounts) -> ToggleZoomed {
@@ -243,13 +248,12 @@ fn calculate_relative_heatmap(
     }
     info!("Physical road widths: {}", hgram_width.describe());
 
-    // TODO This is still a bit arbitrary
-    let scale = DivergingScale::new(Color::GREEN, Color::grey(0.2), Color::RED).range(0.0, 2.0);
-
     // Draw road width based on the count before
     // TODO unwrap will crash on an empty demand model
     let min_count = hgram_before.select(Statistic::Min).unwrap();
     let max_count = hgram_before.select(Statistic::Max).unwrap();
+
+    let scale = CompareCounts::relative_scale();
 
     let mut draw_roads = GeomBatch::new();
     for (r, before, after) in counts_a.per_road.clone().compare(counts_b.per_road.clone()) {

@@ -11,6 +11,7 @@ use widgetry::{
 };
 
 use crate::browse::draw_boundary_roads;
+use crate::components::Mode;
 use crate::edit::EditMode;
 use crate::partition::BlockID;
 use crate::{colors, App, NeighbourhoodID, Partitioning, Transition};
@@ -279,7 +280,7 @@ impl State<App> for SelectBoundary {
         if let Some(t) = crate::components::TopPanel::event(ctx, app, &mut self.top_panel, help) {
             return t;
         }
-        if let Some(t) = app.session.layers.event(ctx) {
+        if let Some(t) = app.session.layers.event(ctx, &app.cs, Mode::SelectBoundary) {
             return t;
         }
         if let Outcome::Clicked(x) = self.left_panel.event(ctx) {

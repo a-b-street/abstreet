@@ -112,6 +112,11 @@ fn run(mut settings: Settings) {
             args.app_args.cam,
             session,
             move |ctx, app| {
+                // We need app to fully initialize this
+                app.session
+                    .layers
+                    .event(ctx, &app.cs, components::Mode::BrowseNeighbourhoods);
+
                 // Restore the partitioning from a file before calling BrowseNeighbourhoods
                 let popup_state = args.proposal.as_ref().and_then(|name| {
                     crate::save::Proposal::load(

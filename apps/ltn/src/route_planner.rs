@@ -10,6 +10,7 @@ use widgetry::{
     Panel, RoundedF64, Spinner, State, Text, Widget,
 };
 
+use crate::components::Mode;
 use crate::{colors, App, BrowseNeighbourhoods, Transition};
 
 pub struct RoutePlanner {
@@ -270,7 +271,7 @@ impl RoutePlanner {
             ])
             .evenly_spaced(),
             Widget::row(vec![
-                card(ctx, "Biking", "This cycling route doesn't avoid high-stress roads or hills, and assumes an average 10mph pace", biking_time, *colors::PLAN_ROUTE_BIKE),
+                card(ctx, "Cycling", "This cycling route doesn't avoid high-stress roads or hills, and assumes an average 10mph pace", biking_time, *colors::PLAN_ROUTE_BIKE),
                 card(ctx, "Walking", "This walking route doesn't avoid high-stress roads or hills, and assumes an average 3 mph pace", walking_time, *colors::PLAN_ROUTE_WALK),
             ])
             .evenly_spaced(),
@@ -283,7 +284,7 @@ impl State<App> for RoutePlanner {
         if let Some(t) = crate::components::TopPanel::event(ctx, app, &mut self.top_panel, help) {
             return t;
         }
-        if let Some(t) = app.session.layers.event(ctx) {
+        if let Some(t) = app.session.layers.event(ctx, &app.cs, Mode::RoutePlanner) {
             return t;
         }
 
