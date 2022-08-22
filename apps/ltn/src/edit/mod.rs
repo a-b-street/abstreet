@@ -80,6 +80,20 @@ impl EditNeighbourhood {
         let contents = Widget::col(vec![
             app.session.alt_proposals.to_widget(ctx, app),
             BrowseNeighbourhoods::button(ctx, app),
+            {
+                let mut row = Vec::new();
+                if app.session.consultation.is_none() {
+                    row.push(
+                        ctx.style()
+                            .btn_outline
+                            .text("Adjust boundary")
+                            .hotkey(Key::B)
+                            .build_def(ctx),
+                    );
+                }
+                row.push(crate::route_planner::RoutePlanner::button(ctx));
+                Widget::row(row)
+            },
             Line("Editing neighbourhood")
                 .small_heading()
                 .into_widget(ctx),
@@ -110,20 +124,6 @@ impl EditNeighbourhood {
                 .text_widget(ctx)
                 .centered_vert(),
             ]),
-            {
-                let mut row = Vec::new();
-                if app.session.consultation.is_none() {
-                    row.push(
-                        ctx.style()
-                            .btn_outline
-                            .text("Adjust boundary")
-                            .hotkey(Key::B)
-                            .build_def(ctx),
-                    );
-                }
-                row.push(crate::route_planner::RoutePlanner::button(ctx));
-                Widget::row(row)
-            },
             per_tab_contents,
         ]);
         crate::components::LeftPanel::builder(ctx, top_panel, contents)
