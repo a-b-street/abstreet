@@ -42,10 +42,10 @@ jobs:
         run: if [[ `git log -1 --pretty=format:"%s"` == *"[release]"* ]]; then echo 'features=--features=map_gui/release_s3' >> $GITHUB_ENV; else echo 'features=' >> $GITHUB_ENV; fi
 
       - name: Install dependencies
-        if: matrix.os == 'ubuntu-18.04'
+        if: matrix.os == 'ubuntu-22.04'
         run: |
             sudo apt-get update
-            sudo apt-get install libasound2-dev libxcb-shape0-dev libxcb-xfixes0-dev libpango1.0-dev libgtk-3-dev libatk1.0-dev
+            sudo apt-get install libasound2-dev libxcb-shape0-dev libxcb-xfixes0-dev libpango1.0-dev libgtk-3-dev
 
       - name: Build game
         working-directory: apps/game
