@@ -283,6 +283,9 @@ impl State<App> for RoutePlanner {
         if let Some(t) = crate::components::TopPanel::event(ctx, app, &mut self.top_panel, help) {
             return t;
         }
+        if let Some(t) = app.session.layers.event(ctx) {
+            return t;
+        }
 
         let panel_outcome = self.left_panel.event(ctx);
         if let Outcome::Clicked(ref x) = panel_outcome {
@@ -333,6 +336,7 @@ impl State<App> for RoutePlanner {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.top_panel.draw(g);
         self.left_panel.draw(g);
+        app.session.layers.draw(g);
 
         self.world.draw(g);
         self.draw_routes.draw(g);

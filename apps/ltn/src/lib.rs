@@ -102,6 +102,8 @@ fn run(mut settings: Settings) {
 
             consultation: None,
             consultation_proposal_path: None,
+
+            layers: components::Layers::new(ctx),
         };
         map_gui::SimpleApp::new(
             ctx,
@@ -235,6 +237,9 @@ pub struct Session {
     consultation: Option<NeighbourhoodID>,
     // The current consultation should always be based off a built-in proposal
     consultation_proposal_path: Option<String>,
+
+    // Shared in all modes
+    pub layers: components::Layers,
 }
 
 /// Do the equivalent of `SimpleApp::draw_unzoomed`, but after the water/park areas layer, draw

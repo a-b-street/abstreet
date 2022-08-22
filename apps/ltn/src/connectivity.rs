@@ -120,6 +120,9 @@ impl State<App> for Viewer {
         if let Some(t) = crate::components::TopPanel::event(ctx, app, &mut self.top_panel, help) {
             return t;
         }
+        if let Some(t) = app.session.layers.event(ctx) {
+            return t;
+        }
         match self.left_panel.event(ctx) {
             Outcome::Clicked(x) => {
                 if x == "Automatically place filters" {
@@ -267,6 +270,7 @@ impl State<App> for Viewer {
 
         self.top_panel.draw(g);
         self.left_panel.draw(g);
+        app.session.layers.draw(g);
         self.neighbourhood.labels.draw(g);
         app.session.draw_all_filters.draw(g);
         app.session.draw_poi_icons.draw(g);
