@@ -259,6 +259,12 @@ impl DiagonalFilter {
                     && PathConstraints::Car.can_use_road(road, map)
             });
 
+            // TODO I triggered this case somewhere in Kennington when drawing free-hand. Look for
+            // the case and test this case more carefully. Maybe do the filtering earlier.
+            if roads.is_empty() {
+                return;
+            }
+
             let mut add_filter_to = None;
             if let Some(idx) = roads
                 .iter()
