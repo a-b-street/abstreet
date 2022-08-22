@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":[["Mode",""]],"fn":[["color_grid",""],["entry",""],["make_zoom_controls",""],["zoom_enabled_cache_key",""]],"struct":[["Layers",""]]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["about",""],["left_panel",""],["top_panel",""]]};
+window.SIDEBAR_ITEMS = {"mod":[["about",""],["layers",""],["left_panel",""],["top_panel",""]]};

@@ -384,6 +384,20 @@
         <span class="kw">let</span> <span class="ident">contents</span> <span class="op">=</span> <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
             <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">alt_proposals</span>.<span class="ident">to_widget</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
             <span class="ident">BrowseNeighbourhoods::button</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+            {
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+                <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">consultation</span>.<span class="ident">is_none</span>() {
+                    <span class="ident">row</span>.<span class="ident">push</span>(
+                        <span class="ident">ctx</span>.<span class="ident">style</span>()
+                            .<span class="ident">btn_outline</span>
+                            .<span class="ident">text</span>(<span class="string">&quot;Adjust boundary&quot;</span>)
+                            .<span class="ident">hotkey</span>(<span class="ident">Key::B</span>)
+                            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                    );
+                }
+                <span class="ident">row</span>.<span class="ident">push</span>(<span class="ident"><span class="kw">crate</span>::route_planner::RoutePlanner::button</span>(<span class="ident">ctx</span>));
+                <span class="ident">Widget::row</span>(<span class="ident">row</span>)
+            },
             <span class="ident">Line</span>(<span class="string">&quot;Editing neighbourhood&quot;</span>)
                 .<span class="ident">small_heading</span>()
                 .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
@@ -414,20 +428,6 @@
                 .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
                 .<span class="ident">centered_vert</span>(),
             ]),
-            {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-                <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">consultation</span>.<span class="ident">is_none</span>() {
-                    <span class="ident">row</span>.<span class="ident">push</span>(
-                        <span class="ident">ctx</span>.<span class="ident">style</span>()
-                            .<span class="ident">btn_outline</span>
-                            .<span class="ident">text</span>(<span class="string">&quot;Adjust boundary&quot;</span>)
-                            .<span class="ident">hotkey</span>(<span class="ident">Key::B</span>)
-                            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-                    );
-                }
-                <span class="ident">row</span>.<span class="ident">push</span>(<span class="ident"><span class="kw">crate</span>::route_planner::RoutePlanner::button</span>(<span class="ident">ctx</span>));
-                <span class="ident">Widget::row</span>(<span class="ident">row</span>)
-            },
             <span class="ident">per_tab_contents</span>,
         ]);
         <span class="ident"><span class="kw">crate</span>::components::LeftPanel::builder</span>(<span class="ident">ctx</span>, <span class="ident">top_panel</span>, <span class="ident">contents</span>)
