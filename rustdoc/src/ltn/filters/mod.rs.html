@@ -392,6 +392,12 @@
 <span id="386">386</span>
 <span id="387">387</span>
 <span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
 </pre><pre class="rust"><code><span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">auto</span>;
 <span class="kw">mod</span> <span class="ident">existing</span>;
 
@@ -652,6 +658,12 @@
                     <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">road</span>.<span class="ident">is_deadend_for_driving</span>(<span class="ident">map</span>)
                     <span class="op">&amp;&amp;</span> <span class="ident">PathConstraints::Car</span>.<span class="ident">can_use_road</span>(<span class="ident">road</span>, <span class="ident">map</span>)
             });
+
+            <span class="comment">// TODO I triggered this case somewhere in Kennington when drawing free-hand. Look for</span>
+            <span class="comment">// the case and test this case more carefully. Maybe do the filtering earlier.</span>
+            <span class="kw">if</span> <span class="ident">roads</span>.<span class="ident">is_empty</span>() {
+                <span class="kw">return</span>;
+            }
 
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">add_filter_to</span> <span class="op">=</span> <span class="prelude-val">None</span>;
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="ident">roads</span>
