@@ -18,7 +18,7 @@ jobs:
         build: [linux, macos, windows]
         include:
           - build: linux
-            os: ubuntu-20.04
+            os: ubuntu-22.04
           - build: macos
             os: macos-latest
           - build: windows
@@ -45,7 +45,7 @@ jobs:
         if: matrix.os == 'ubuntu-18.04'
         run: |
             sudo apt-get update
-            sudo apt-get install libasound2-dev libxcb-shape0-dev libxcb-xfixes0-dev libpango1.0-dev libgtk-3-dev
+            sudo apt-get install libasound2-dev libxcb-shape0-dev libxcb-xfixes0-dev libpango1.0-dev libgtk-3-dev libatk1.0-dev
 
       - name: Build game
         working-directory: apps/game
