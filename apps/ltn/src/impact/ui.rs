@@ -110,6 +110,9 @@ impl State<App> for ShowResults {
         if let Some(t) = crate::components::TopPanel::event(ctx, app, &mut self.top_panel, help) {
             return t;
         }
+        if let Some(t) = app.session.layers.event(ctx) {
+            return t;
+        }
         match self.left_panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "Browse neighbourhoods" => {
@@ -201,6 +204,7 @@ impl State<App> for ShowResults {
 
         self.top_panel.draw(g);
         self.left_panel.draw(g);
+        app.session.layers.draw(g);
     }
 }
 

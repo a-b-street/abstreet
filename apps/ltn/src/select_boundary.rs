@@ -279,6 +279,9 @@ impl State<App> for SelectBoundary {
         if let Some(t) = crate::components::TopPanel::event(ctx, app, &mut self.top_panel, help) {
             return t;
         }
+        if let Some(t) = app.session.layers.event(ctx) {
+            return t;
+        }
         if let Outcome::Clicked(x) = self.left_panel.event(ctx) {
             match x.as_ref() {
                 "Cancel" => {
@@ -332,6 +335,7 @@ impl State<App> for SelectBoundary {
         self.draw_boundary_roads.draw(g);
         self.top_panel.draw(g);
         self.left_panel.draw(g);
+        app.session.layers.draw(g);
         app.session.draw_all_road_labels.as_ref().unwrap().draw(g);
         if let Some(ref lasso) = self.lasso {
             lasso.draw(g);
