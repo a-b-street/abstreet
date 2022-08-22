@@ -212,19 +212,9 @@
 <span id="206">206</span>
 <span id="207">207</span>
 <span id="208">208</span>
-<span id="209">209</span>
-<span id="210">210</span>
-<span id="211">211</span>
-<span id="212">212</span>
-<span id="213">213</span>
-<span id="214">214</span>
-<span id="215">215</span>
-<span id="216">216</span>
-<span id="217">217</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::io::Write</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
-<span class="kw">use</span> <span class="ident">clipboard</span>::{<span class="ident">ClipboardContext</span>, <span class="ident">ClipboardProvider</span>};
 
 <span class="kw">use</span> <span class="ident">abstio::MapName</span>;
 <span class="kw">use</span> <span class="ident">widgetry::tools</span>::{<span class="ident">open_browser</span>, <span class="ident">PopupMsg</span>};
@@ -404,15 +394,7 @@
 }
 
 <span class="kw">fn</span> <span class="ident">grab_geojson_from_clipboard</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="comment">// TODO The clipboard crate uses old nightly Errors. Converting to anyhow is weird.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ctx</span>: <span class="ident">ClipboardContext</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">ClipboardProvider::new</span>() {
-        <span class="prelude-val">Ok</span>(<span class="ident">ctx</span>) =&gt; <span class="ident">ctx</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="macro">bail!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">err</span>),
-    };
-    <span class="kw">let</span> <span class="ident">contents</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">ctx</span>.<span class="ident">get_contents</span>() {
-        <span class="prelude-val">Ok</span>(<span class="ident">contents</span>) =&gt; <span class="ident">contents</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="macro">bail!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">err</span>),
-    };
+    <span class="kw">let</span> <span class="ident">contents</span> <span class="op">=</span> <span class="ident">widgetry::tools::get_clipboard</span>()<span class="question-mark">?</span>;
     <span class="kw">if</span> <span class="ident">contents</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">geojson::GeoJson</span><span class="op">&gt;</span>().<span class="ident">is_err</span>() {
         <span class="macro">bail!</span>(
             <span class="string">&quot;Your clipboard doesn&#39;t seem to have GeoJSON. Got: {}&quot;</span>,

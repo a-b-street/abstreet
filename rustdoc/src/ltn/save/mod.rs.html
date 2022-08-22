@@ -387,7 +387,38 @@
 <span id="381">381</span>
 <span id="382">382</span>
 <span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
 </pre><pre class="rust"><code><span class="kw">mod</span> <span class="ident">perma</span>;
+<span class="kw">mod</span> <span class="ident">share</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
@@ -401,6 +432,8 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::edit::EditMode</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::partition::BlockID</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">App</span>, <span class="ident">BrowseNeighbourhoods</span>, <span class="ident">Edits</span>, <span class="ident">Partitioning</span>, <span class="ident">Transition</span>};
+
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">share::PROPOSAL_HOST_URL</span>;
 
 <span class="doccomment">/// Captures all of the edits somebody makes to a map in the LTN tool. Note this is separate from</span>
 <span class="doccomment">/// `map_model::MapEdits`.</span>
@@ -456,14 +489,27 @@
     }
 
     <span class="doccomment">/// Try to load a proposal. If it fails, returns a popup message state.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>, <span class="ident">path</span>: <span class="ident">String</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident"><span class="self">Self</span>::inner_load</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">path</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_from_path</span>(
+        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
+        <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
+        <span class="ident">path</span>: <span class="ident">String</span>,
+    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="ident"><span class="self">Self</span>::load_from_bytes</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">path</span>, <span class="ident">abstio::slurp_file</span>(<span class="ident">path</span>.<span class="ident">clone</span>()))
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_from_bytes</span>(
+        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
+        <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
+        <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
+        <span class="ident">bytes</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">match</span> <span class="ident">bytes</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">bytes</span><span class="op">|</span> <span class="ident"><span class="self">Self</span>::inner_load</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">bytes</span>)) {
             <span class="prelude-val">Ok</span>(()) =&gt; <span class="prelude-val">None</span>,
             <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">PopupMsg::new_state</span>(
                 <span class="ident">ctx</span>,
                 <span class="string">&quot;Error&quot;</span>,
                 <span class="macro">vec!</span>[
-                    <span class="macro">format!</span>(<span class="string">&quot;Couldn&#39;t load proposal {}&quot;</span>, <span class="ident">path</span>),
+                    <span class="macro">format!</span>(<span class="string">&quot;Couldn&#39;t load proposal {}&quot;</span>, <span class="ident">name</span>),
                     <span class="ident">err</span>.<span class="ident">to_string</span>(),
                     <span class="string">&quot;The format of saved proposals recently changed.&quot;</span>.<span class="ident">to_string</span>(),
                     <span class="string">&quot;Contact dabreegster@gmail.com if you need help restoring a file.&quot;</span>.<span class="ident">to_string</span>(),
@@ -472,8 +518,7 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">inner_load</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">abstio::slurp_file</span>(<span class="ident">path</span>)<span class="question-mark">?</span>;
+    <span class="kw">fn</span> <span class="ident">inner_load</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>, <span class="ident">bytes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">decoder</span> <span class="op">=</span> <span class="ident">flate2::read::GzDecoder::new</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>[..]);
         <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">serde_json::from_reader</span>(<span class="ident">decoder</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">proposal</span> <span class="op">=</span> <span class="ident">perma::from_permanent</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>, <span class="ident">value</span>)<span class="question-mark">?</span>;
@@ -494,6 +539,23 @@
         <span class="ident">proposal</span>.<span class="ident">make_active</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
 
         <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="kw">fn</span> <span class="ident">to_gzipped_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">json_value</span> <span class="op">=</span> <span class="ident">perma::to_permanent</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>, <span class="self">self</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output_buffer</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">encoder</span> <span class="op">=</span>
+            <span class="ident">flate2::write::GzEncoder::new</span>(<span class="kw-2">&amp;mut</span> <span class="ident">output_buffer</span>, <span class="ident">flate2::Compression::best</span>());
+        <span class="ident">serde_json::to_writer</span>(<span class="kw-2">&amp;mut</span> <span class="ident">encoder</span>, <span class="kw-2">&amp;</span><span class="ident">json_value</span>)<span class="question-mark">?</span>;
+        <span class="ident">encoder</span>.<span class="ident">finish</span>()<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(<span class="ident">output_buffer</span>)
+    }
+
+    <span class="kw">fn</span> <span class="ident">checksum</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">to_gzipped_bytes</span>(<span class="ident">app</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">context</span> <span class="op">=</span> <span class="ident">md5::Context::new</span>();
+        <span class="ident">context</span>.<span class="ident">consume</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>);
+        <span class="prelude-val">Ok</span>(<span class="macro">format!</span>(<span class="string">&quot;{:x}&quot;</span>, <span class="ident">context</span>.<span class="ident">compute</span>()))
     }
 }
 
@@ -555,13 +617,7 @@
 <span class="kw">fn</span> <span class="ident">inner_save</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">proposal</span> <span class="op">=</span> <span class="ident">Proposal::from_app</span>(<span class="ident">app</span>);
     <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">abstio::path_ltn_proposals</span>(<span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_name</span>(), <span class="kw-2">&amp;</span><span class="ident">proposal</span>.<span class="ident">name</span>);
-
-    <span class="kw">let</span> <span class="ident">json_value</span> <span class="op">=</span> <span class="ident">perma::to_permanent</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">proposal</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output_buffer</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">encoder</span> <span class="op">=</span>
-        <span class="ident">flate2::write::GzEncoder::new</span>(<span class="kw-2">&amp;mut</span> <span class="ident">output_buffer</span>, <span class="ident">flate2::Compression::best</span>());
-    <span class="ident">serde_json::to_writer</span>(<span class="kw-2">&amp;mut</span> <span class="ident">encoder</span>, <span class="kw-2">&amp;</span><span class="ident">json_value</span>)<span class="question-mark">?</span>;
-    <span class="ident">encoder</span>.<span class="ident">finish</span>()<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">output_buffer</span> <span class="op">=</span> <span class="ident">proposal</span>.<span class="ident">to_gzipped_bytes</span>(<span class="ident">app</span>)<span class="question-mark">?</span>;
     <span class="ident">abstio::write_raw</span>(<span class="ident">path</span>, <span class="kw-2">&amp;</span><span class="ident">output_buffer</span>)
 }
 
@@ -585,7 +641,7 @@
                 .<span class="ident">collect</span>(),
         ),
         <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">name</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-            <span class="kw">match</span> <span class="ident">Proposal::load</span>(
+            <span class="kw">match</span> <span class="ident">Proposal::load_from_path</span>(
                 <span class="ident">ctx</span>,
                 <span class="ident">app</span>,
                 <span class="ident">abstio::path_ltn_proposals</span>(<span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_name</span>(), <span class="kw-2">&amp;</span><span class="ident">name</span>),
@@ -620,6 +676,7 @@
                 <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;New&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;Load&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;Save&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;Share&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             ]),
         ];
         <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">proposal</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">list</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
@@ -694,6 +751,9 @@
             }
             <span class="string">&quot;Save&quot;</span> =&gt; {
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">save_ui</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">preserve_state</span>)));
+            }
+            <span class="string">&quot;Share&quot;</span> =&gt; {
+                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">share::ShareProposal::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
             }
             <span class="kw">_</span> =&gt; {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">action</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;switch to proposal &quot;</span>) {

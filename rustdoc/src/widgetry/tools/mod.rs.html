@@ -96,6 +96,48 @@
 <span id="90">90</span>
 <span id="91">91</span>
 <span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
+<span id="97">97</span>
+<span id="98">98</span>
+<span id="99">99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
 </pre><pre class="rust"><code><span class="kw">mod</span> <span class="ident">choose_something</span>;
 <span class="kw">mod</span> <span class="ident">colors</span>;
 <span class="kw">mod</span> <span class="ident">lasso</span>;
@@ -105,6 +147,8 @@
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">screenshot</span>;
 <span class="kw">mod</span> <span class="ident">url</span>;
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">warper</span>;
+
+<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">choose_something::ChooseSomething</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">colors</span>::{<span class="ident">ColorLegend</span>, <span class="ident">ColorScale</span>, <span class="ident">DivergingScale</span>};
@@ -187,6 +231,46 @@
         <span class="ident">Polygon::rectangle</span>(<span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>, <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">window_height</span>),
     );
     <span class="ident">g</span>.<span class="ident">unfork</span>();
+}
+
+<span class="doccomment">/// Only works on native</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_clipboard</span>(<span class="ident">x</span>: <span class="ident">String</span>) {
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
+    {
+        <span class="kw">use</span> <span class="ident">clipboard</span>::{<span class="ident">ClipboardContext</span>, <span class="ident">ClipboardProvider</span>};
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span>
+            <span class="ident">ClipboardProvider::new</span>().<span class="ident">and_then</span>(<span class="op">|</span><span class="kw-2">mut</span> <span class="ident">ctx</span>: <span class="ident">ClipboardContext</span><span class="op">|</span> <span class="ident">ctx</span>.<span class="ident">set_contents</span>(<span class="ident">x</span>))
+        {
+            <span class="macro">error!</span>(<span class="string">&quot;Copying to clipboard broke: {}&quot;</span>, <span class="ident">err</span>);
+        }
+    }
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
+    {
+        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">x</span>;
+    }
+}
+
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_clipboard</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
+    {
+        <span class="kw">use</span> <span class="ident">clipboard</span>::{<span class="ident">ClipboardContext</span>, <span class="ident">ClipboardProvider</span>};
+        <span class="comment">// TODO The clipboard crate uses old nightly Errors. Converting to anyhow is weird.</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ctx</span>: <span class="ident">ClipboardContext</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">ClipboardProvider::new</span>() {
+            <span class="prelude-val">Ok</span>(<span class="ident">ctx</span>) =&gt; <span class="ident">ctx</span>,
+            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="macro">bail!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">err</span>),
+        };
+        <span class="kw">let</span> <span class="ident">contents</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">ctx</span>.<span class="ident">get_contents</span>() {
+            <span class="prelude-val">Ok</span>(<span class="ident">contents</span>) =&gt; <span class="ident">contents</span>,
+            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="macro">bail!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">err</span>),
+        };
+        <span class="prelude-val">Ok</span>(<span class="ident">contents</span>)
+    }
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
+    {
+        <span class="macro">bail!</span>(<span class="string">&quot;Unsupported on web&quot;</span>);
+    }
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0 (4b91a6ea7 2022-08-08)" ></div>

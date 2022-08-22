@@ -306,6 +306,56 @@
 <span id="300">300</span>
 <span id="301">301</span>
 <span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::type_complexity</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">structopt::StructOpt</span>;
@@ -314,7 +364,8 @@
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools::DrawSimpleRoadLabels</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">AmenityType</span>, <span class="ident">RoutingParams</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">RewriteColor</span>, <span class="ident">Settings</span>};
+<span class="kw">use</span> <span class="ident">widgetry::tools::FutureLoader</span>;
+<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">RewriteColor</span>, <span class="ident">Settings</span>, <span class="ident">State</span>};
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">browse::BrowseNeighbourhoods</span>;
 <span class="kw">use</span> <span class="ident">filters::Toggle3Zoomed</span>;
@@ -355,6 +406,7 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">StructOpt</span>)]</span>
 <span class="kw">struct</span> <span class="ident">Args</span> {
     <span class="doccomment">/// Load a previously saved proposal with this name. Note this takes a name, not a full path.</span>
+    <span class="doccomment">/// Or `remote/&lt;ID&gt;`.</span>
     <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
     <span class="ident">proposal</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="doccomment">/// Lock the user into one fixed neighbourhood, and remove many controls</span>
@@ -425,80 +477,128 @@
                     .<span class="ident">layers</span>
                     .<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>, <span class="ident">components::Mode::BrowseNeighbourhoods</span>);
 
-                <span class="comment">// Restore the partitioning from a file before calling BrowseNeighbourhoods</span>
-                <span class="kw">let</span> <span class="ident">popup_state</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">proposal</span>.<span class="ident">as_ref</span>().<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">name</span><span class="op">|</span> {
-                    <span class="ident"><span class="kw">crate</span>::save::Proposal::load</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">app</span>,
-                        <span class="ident">abstio::path_ltn_proposals</span>(<span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_name</span>(), <span class="ident">name</span>),
-                    )
-                });
-
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">states</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">consultation</span>) <span class="op">=</span> <span class="ident">args</span>.<span class="ident">consultation</span> {
-                    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_name</span>() <span class="op">!</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">MapName::new</span>(<span class="string">&quot;gb&quot;</span>, <span class="string">&quot;bristol&quot;</span>, <span class="string">&quot;east&quot;</span>) {
-                        <span class="macro">panic!</span>(<span class="string">&quot;Consultation mode not supported on this map&quot;</span>);
+                <span class="comment">// Load a proposal first?</span>
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">name</span>) <span class="op">=</span> <span class="ident">args</span>.<span class="ident">proposal</span> {
+                    <span class="comment">// Remote edits require another intermediate state to load</span>
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="ident">name</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;remote/&quot;</span>) {
+                        <span class="macro">vec!</span>[<span class="ident">load_remote</span>(<span class="ident">ctx</span>, <span class="ident">id</span>.<span class="ident">to_string</span>(), <span class="ident">args</span>.<span class="ident">consultation</span>.<span class="ident">clone</span>())]
+                    } <span class="kw">else</span> {
+                        <span class="kw">let</span> <span class="ident">popup_state</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::save::Proposal::load_from_path</span>(
+                            <span class="ident">ctx</span>,
+                            <span class="ident">app</span>,
+                            <span class="ident">abstio::path_ltn_proposals</span>(<span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_name</span>(), <span class="ident">name</span>),
+                        );
+                        <span class="ident">setup_initial_states</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">args</span>.<span class="ident">consultation</span>.<span class="ident">as_ref</span>(), <span class="ident">popup_state</span>)
                     }
-
-                    <span class="kw">let</span> <span class="ident">focus_on_street</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">consultation</span>.<span class="ident">as_ref</span>() {
-                        <span class="string">&quot;pt1&quot;</span> =&gt; <span class="string">&quot;Gregory Street&quot;</span>,
-                        <span class="string">&quot;pt2&quot;</span> =&gt; {
-                            <span class="comment">// Start from a baked-in proposal with special boundaries</span>
-                            <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">consultation_proposal_path</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">abstio::path</span>(
-                                <span class="string">&quot;system/ltn_proposals/bristol_beaufort_road.json.gz&quot;</span>,
-                            ));
-                            <span class="string">&quot;Jubilee Road&quot;</span>
-                        }
-                        <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unknown Bristol consultation mode {consultation}&quot;</span>),
-                    };
-
-                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">alt_proposals</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::save::AltProposals::new</span>();
-                    <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;initialize&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
-                        <span class="ident"><span class="kw">crate</span>::clear_current_proposal</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">timer</span>);
-                    });
-
-                    <span class="comment">// Look for the neighbourhood containing one small street</span>
-                    <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">app</span>
-                        .<span class="ident">map</span>
-                        .<span class="ident">all_roads</span>()
-                        .<span class="ident">iter</span>()
-                        .<span class="ident">find</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">get_name</span>(<span class="prelude-val">None</span>) <span class="op">==</span> <span class="ident">focus_on_street</span>)
-                        .<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;Can&#39;t find {focus_on_street}&quot;</span>))
-                        .<span class="ident">id</span>;
-                    <span class="kw">let</span> (<span class="ident">neighbourhood</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">app</span>
-                        .<span class="ident">session</span>
-                        .<span class="ident">partitioning</span>
-                        .<span class="ident">all_neighbourhoods</span>()
-                        .<span class="ident">iter</span>()
-                        .<span class="ident">find</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">info</span>)<span class="op">|</span> <span class="ident">info</span>.<span class="ident">block</span>.<span class="ident">perimeter</span>.<span class="ident">interior</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>))
-                        .<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
-                            <span class="string">&quot;Can&#39;t find neighbourhood containing {focus_on_street}&quot;</span>
-                        ));
-                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">consultation</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">neighbourhood</span>);
-
-                    <span class="comment">// TODO Maybe center the camera, ignoring any saved values</span>
-
-                    <span class="ident">states</span>.<span class="ident">push</span>(<span class="ident">connectivity::Viewer::new_state</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">app</span>,
-                        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">consultation</span>.<span class="ident">unwrap</span>(),
-                    ));
                 } <span class="kw">else</span> {
-                    <span class="ident">states</span>.<span class="ident">push</span>(<span class="ident">map_gui::tools::TitleScreen::new_state</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">app</span>,
-                        <span class="ident">map_gui::tools::Executable::LTN</span>,
-                        <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw">_</span><span class="op">|</span> <span class="ident">BrowseNeighbourhoods::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
-                    ));
-                    <span class="ident">states</span>.<span class="ident">push</span>(<span class="ident">BrowseNeighbourhoods::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+                    <span class="ident">setup_initial_states</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">args</span>.<span class="ident">consultation</span>.<span class="ident">as_ref</span>(), <span class="prelude-val">None</span>)
                 }
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">state</span>) <span class="op">=</span> <span class="ident">popup_state</span> {
-                    <span class="ident">states</span>.<span class="ident">push</span>(<span class="ident">state</span>);
-                }
-                <span class="ident">states</span>
             },
         )
     });
+}
+
+<span class="comment">// Proposal should already be loaded by now</span>
+<span class="kw">fn</span> <span class="ident">setup_initial_states</span>(
+    <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
+    <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
+    <span class="ident">consultation</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="ident">popup_state</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">states</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">consultation</span>) <span class="op">=</span> <span class="ident">consultation</span> {
+        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_name</span>() <span class="op">!</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">MapName::new</span>(<span class="string">&quot;gb&quot;</span>, <span class="string">&quot;bristol&quot;</span>, <span class="string">&quot;east&quot;</span>) {
+            <span class="macro">panic!</span>(<span class="string">&quot;Consultation mode not supported on this map&quot;</span>);
+        }
+
+        <span class="kw">let</span> <span class="ident">focus_on_street</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">consultation</span>.<span class="ident">as_ref</span>() {
+            <span class="string">&quot;pt1&quot;</span> =&gt; <span class="string">&quot;Gregory Street&quot;</span>,
+            <span class="string">&quot;pt2&quot;</span> =&gt; {
+                <span class="comment">// Start from a baked-in proposal with special boundaries</span>
+                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">consultation_proposal_path</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">abstio::path</span>(
+                    <span class="string">&quot;system/ltn_proposals/bristol_beaufort_road.json.gz&quot;</span>,
+                ));
+                <span class="string">&quot;Jubilee Road&quot;</span>
+            }
+            <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unknown Bristol consultation mode {consultation}&quot;</span>),
+        };
+
+        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">alt_proposals</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::save::AltProposals::new</span>();
+        <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;initialize&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
+            <span class="ident"><span class="kw">crate</span>::clear_current_proposal</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">timer</span>);
+        });
+
+        <span class="comment">// Look for the neighbourhood containing one small street</span>
+        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">app</span>
+            .<span class="ident">map</span>
+            .<span class="ident">all_roads</span>()
+            .<span class="ident">iter</span>()
+            .<span class="ident">find</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">get_name</span>(<span class="prelude-val">None</span>) <span class="op">==</span> <span class="ident">focus_on_street</span>)
+            .<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;Can&#39;t find {focus_on_street}&quot;</span>))
+            .<span class="ident">id</span>;
+        <span class="kw">let</span> (<span class="ident">neighbourhood</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">app</span>
+            .<span class="ident">session</span>
+            .<span class="ident">partitioning</span>
+            .<span class="ident">all_neighbourhoods</span>()
+            .<span class="ident">iter</span>()
+            .<span class="ident">find</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">info</span>)<span class="op">|</span> <span class="ident">info</span>.<span class="ident">block</span>.<span class="ident">perimeter</span>.<span class="ident">interior</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>))
+            .<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
+                <span class="string">&quot;Can&#39;t find neighbourhood containing {focus_on_street}&quot;</span>
+            ));
+        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">consultation</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">neighbourhood</span>);
+
+        <span class="comment">// TODO Maybe center the camera, ignoring any saved values</span>
+
+        <span class="ident">states</span>.<span class="ident">push</span>(<span class="ident">connectivity::Viewer::new_state</span>(
+            <span class="ident">ctx</span>,
+            <span class="ident">app</span>,
+            <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">consultation</span>.<span class="ident">unwrap</span>(),
+        ));
+    } <span class="kw">else</span> {
+        <span class="ident">states</span>.<span class="ident">push</span>(<span class="ident">map_gui::tools::TitleScreen::new_state</span>(
+            <span class="ident">ctx</span>,
+            <span class="ident">app</span>,
+            <span class="ident">map_gui::tools::Executable::LTN</span>,
+            <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw">_</span><span class="op">|</span> <span class="ident">BrowseNeighbourhoods::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
+        ));
+        <span class="ident">states</span>.<span class="ident">push</span>(<span class="ident">BrowseNeighbourhoods::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+    }
+    <span class="comment">// Restore the partitioning from a file before calling BrowseNeighbourhoods</span>
+    <span class="comment">// TODO Correct now? Comment OK? What about clear_current_proposal above?</span>
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">state</span>) <span class="op">=</span> <span class="ident">popup_state</span> {
+        <span class="ident">states</span>.<span class="ident">push</span>(<span class="ident">state</span>);
+    }
+    <span class="ident">states</span>
+}
+
+<span class="kw">fn</span> <span class="ident">load_remote</span>(
+    <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
+    <span class="ident">id</span>: <span class="ident">String</span>,
+    <span class="ident">consultation</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">outer_progress_rx</span>) <span class="op">=</span> <span class="ident">futures_channel::mpsc::channel</span>(<span class="number">1</span>);
+    <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">inner_progress_rx</span>) <span class="op">=</span> <span class="ident">futures_channel::mpsc::channel</span>(<span class="number">1</span>);
+    <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}/get-ltn?id={}&quot;</span>, <span class="ident"><span class="kw">crate</span>::save::PROPOSAL_HOST_URL</span>, <span class="ident">id</span>);
+    <span class="ident">FutureLoader</span>::<span class="op">&lt;</span><span class="ident">App</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new_state</span>(
+        <span class="ident">ctx</span>,
+        <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
+            <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">abstio::http_get</span>(<span class="ident">url</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">wrapper</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">bytes</span>);
+            <span class="prelude-val">Ok</span>(<span class="ident">wrapper</span>)
+        }),
+        <span class="ident">outer_progress_rx</span>,
+        <span class="ident">inner_progress_rx</span>,
+        <span class="string">&quot;Downloading proposal&quot;</span>,
+        <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">result</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">popup_state</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::save::Proposal::load_from_bytes</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">id</span>, <span class="ident">result</span>);
+            <span class="ident">Transition::Clear</span>(<span class="ident">setup_initial_states</span>(
+                <span class="ident">ctx</span>,
+                <span class="ident">app</span>,
+                <span class="ident">consultation</span>.<span class="ident">as_ref</span>(),
+                <span class="ident">popup_state</span>,
+            ))
+        }),
+    )
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
@@ -574,7 +674,7 @@
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_current_proposal</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) {
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">consultation_proposal_path</span>.<span class="ident">clone</span>() {
-        <span class="kw">if</span> <span class="ident"><span class="kw">crate</span>::save::Proposal::load</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">path</span>.<span class="ident">clone</span>()).<span class="ident">is_some</span>() {
+        <span class="kw">if</span> <span class="ident"><span class="kw">crate</span>::save::Proposal::load_from_path</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">path</span>.<span class="ident">clone</span>()).<span class="ident">is_some</span>() {
             <span class="macro">panic!</span>(<span class="string">&quot;Consultation mode broken; go fix {path} manually&quot;</span>);
         }
         <span class="kw">return</span>;
