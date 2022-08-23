@@ -225,7 +225,7 @@ impl State<App> for Viewer {
 
         self.top_panel.draw(g);
         self.left_panel.draw(g);
-        app.session.layers.draw(g);
+        app.session.layers.draw(g, app);
         self.neighbourhood.labels.draw(g);
         app.session.draw_all_filters.draw(g);
         app.session.draw_poi_icons.draw(g);

@@ -11,7 +11,7 @@ use widgetry::{
     Widget,
 };
 
-use crate::{App, BrowseNeighbourhoods, FilterType, Neighbourhood, Transition};
+use crate::{colors, App, BrowseNeighbourhoods, FilterType, Neighbourhood, Transition};
 
 pub enum EditMode {
     Filters,
@@ -270,7 +270,7 @@ fn edit_mode(ctx: &mut EventCtx, app: &App) -> Widget {
                 "Modal filter -- walking/cycling only",
             ),
             filter(FilterType::NoEntry, Color::RED, "Modal filter - no entry"),
-            filter(FilterType::BusGate, Color::hex("#0672B9"), "Bus gate"),
+            filter(FilterType::BusGate, *colors::BUS_ROUTE, "Bus gate"),
         ])
         .section(ctx),
         ctx.style()

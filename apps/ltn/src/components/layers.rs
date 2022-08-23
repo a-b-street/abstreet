@@ -3,10 +3,11 @@ use map_gui::colors::ColorScheme;
 use widgetry::tools::ColorLegend;
 use widgetry::{
     ButtonBuilder, Color, ControlState, EdgeInsets, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Image, Key, Line, Outcome, Panel, TextExt, VerticalAlignment, Widget,
+    HorizontalAlignment, Image, Key, Line, Outcome, Panel, TextExt, Toggle, VerticalAlignment,
+    Widget,
 };
 
-use crate::{colors, FilterType, Transition};
+use crate::{colors, App, FilterType, Transition};
 
 // Partly copied from ungap/layers.s
 
@@ -15,6 +16,7 @@ pub struct Layers {
     minimized: bool,
     mode_cache_key: Mode,
     zoom_enabled_cache_key: (bool, bool),
+    show_bus_routes: bool,
 }
 
 impl Layers {
@@ -25,6 +27,7 @@ impl Layers {
             minimized: true,
             mode_cache_key: Mode::Impact,
             zoom_enabled_cache_key: zoom_enabled_cache_key(ctx),
+            show_bus_routes: false,
         }
     }
 
@@ -54,6 +57,11 @@ impl Layers {
                 self.update_panel(ctx, cs);
                 return Some(Transition::Keep);
             }
+            Outcome::Changed(_) => {
+                self.show_bus_routes = self.panel.is_checked("show bus routes");
+                self.update_panel(ctx, cs);
+                return Some(Transition::Keep);
+            }
             _ => {}
         }
 
@@ -69,8 +77,11 @@ impl Layers {
         None
     }
 
-    pub fn draw(&self, g: &mut GfxCtx) {
+    pub fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
+        if self.show_bus_routes {
+            g.redraw(&app.session.draw_bus_routes);
+        }
     }
 
     fn update_panel(&mut self, ctx: &mut EventCtx, cs: &ColorScheme) {
@@ -111,6 +122,14 @@ impl Layers {
                     .align_right(),
             ]),
             self.mode_cache_key.legend(ctx, cs),
+            {
+                let checkbox = Toggle::checkbox(ctx, "show bus routes", None, self.show_bus_routes);
+                if self.show_bus_routes {
+                    checkbox.outline((1.0, *colors::BUS_ROUTE))
+                } else {
+                    checkbox
+                }
+            },
         ])
         .padding(16)
     }
