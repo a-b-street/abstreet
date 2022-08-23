@@ -337,7 +337,7 @@ impl State<App> for RoutePlanner {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.top_panel.draw(g);
         self.left_panel.draw(g);
-        app.session.layers.draw(g);
+        app.session.layers.draw(g, app);
 
         self.world.draw(g);
         self.draw_routes.draw(g);

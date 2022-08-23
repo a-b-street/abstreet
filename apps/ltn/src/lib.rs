@@ -4,6 +4,7 @@ use structopt::StructOpt;
 
 use abstio::MapName;
 use abstutil::Timer;
+use geom::Distance;
 use map_gui::tools::DrawSimpleRoadLabels;
 use map_model::{AmenityType, RoutingParams};
 use widgetry::tools::FutureLoader;
@@ -87,6 +88,7 @@ fn run(mut settings: Settings) {
             routing_params_before_changes: RoutingParams::default(),
             draw_all_road_labels: None,
             draw_poi_icons: Drawable::empty(ctx),
+            draw_bus_routes: Drawable::empty(ctx),
 
             alt_proposals: save::AltProposals::new(),
             draw_all_filters: Toggle3Zoomed::empty(ctx),
@@ -269,6 +271,7 @@ pub struct Session {
     pub routing_params_before_changes: RoutingParams,
     pub draw_all_road_labels: Option<DrawSimpleRoadLabels>,
     pub draw_poi_icons: Drawable,
+    pub draw_bus_routes: Drawable,
 
     pub alt_proposals: save::AltProposals,
     pub draw_all_filters: Toggle3Zoomed,
@@ -329,6 +332,7 @@ pub fn clear_current_proposal(ctx: &mut EventCtx, app: &mut App, timer: &mut Tim
     app.session.draw_all_filters = app.session.edits.draw(ctx, &app.map);
     app.session.draw_all_road_labels = None;
     app.session.draw_poi_icons = render_poi_icons(ctx, app);
+    app.session.draw_bus_routes = render_bus_routes(ctx, app);
 }
 
 fn render_poi_icons(ctx: &EventCtx, app: &App) -> Drawable {
@@ -346,5 +350,33 @@ fn render_poi_icons(ctx: &EventCtx, app: &App) -> Drawable {
         }
     }
 
+    ctx.upload(batch)
+}
+
+fn render_bus_routes(ctx: &EventCtx, app: &App) -> Drawable {
+    let mut batch = GeomBatch::new();
+    for r in app.map.all_roads() {
+        if app.map.get_bus_routes_on_road(r.id).is_empty() {
+            continue;
+        }
+        // Draw dashed outlines surrounding the road
+        let width = r.get_width();
+        for pl in [
+            r.center_pts.shift_left(width * 0.7),
+            r.center_pts.shift_right(width * 0.7),
+        ]
+        .into_iter()
+        .flatten()
+        {
+            batch.extend(
+                *colors::BUS_ROUTE,
+                pl.exact_dashed_polygons(
+                    Distance::meters(2.0),
+                    Distance::meters(5.0),
+                    Distance::meters(2.0),
+                ),
+            );
+        }
+    }
     ctx.upload(batch)
 }

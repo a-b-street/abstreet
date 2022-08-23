@@ -205,7 +205,7 @@ impl State<App> for ShowResults {
 
         self.top_panel.draw(g);
         self.left_panel.draw(g);
-        app.session.layers.draw(g);
+        app.session.layers.draw(g, app);
     }
 }
 

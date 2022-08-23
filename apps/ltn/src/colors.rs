@@ -20,6 +20,8 @@ lazy_static::lazy_static! {
     pub static ref PLAN_ROUTE_AFTER: Color = Color::CYAN;
     pub static ref PLAN_ROUTE_BIKE: Color = Color::GREEN;
     pub static ref PLAN_ROUTE_WALK: Color = Color::BLUE;
+
+    pub static ref BUS_ROUTE: Color = Color::hex("#0672B9");
 }
 
 pub const DISCONNECTED_CELL: Color = Color::RED.alpha(0.5);
