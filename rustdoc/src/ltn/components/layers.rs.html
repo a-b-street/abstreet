@@ -277,12 +277,13 @@
 <span id="271">271</span>
 <span id="272">272</span>
 <span id="273">273</span>
+<span id="274">274</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom::Polygon</span>;
 <span class="kw">use</span> <span class="ident">map_gui::colors::ColorScheme</span>;
 <span class="kw">use</span> <span class="ident">widgetry::tools::ColorLegend</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">ButtonBuilder</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
-    <span class="ident">HorizontalAlignment</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">HorizontalAlignment</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">colors</span>, <span class="ident">FilterType</span>, <span class="ident">Transition</span>};
@@ -480,6 +481,7 @@
                         .<span class="ident">dims</span>(<span class="number">30.0</span>)
                         .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 ]),
+                <span class="ident">Line</span>(<span class="string">&quot;Faded filters exist already&quot;</span>).<span class="ident">small</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="comment">// TODO Entry/exit arrows?</span>
             ],
             <span class="ident">Mode::SelectBoundary</span> =&gt; <span class="macro">vec!</span>[

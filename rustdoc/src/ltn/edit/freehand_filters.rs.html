@@ -75,7 +75,7 @@
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">EventCtx</span>, <span class="ident">Line</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::edit</span>::{<span class="ident">EditMode</span>, <span class="ident">EditOutcome</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">after_edit</span>, <span class="ident">App</span>, <span class="ident">DiagonalFilter</span>, <span class="ident">Neighbourhood</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">after_edit</span>, <span class="ident">App</span>, <span class="ident">DiagonalFilter</span>, <span class="ident">Neighbourhood</span>, <span class="ident">RoadFilter</span>, <span class="ident">Transition</span>};
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">widget</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">Widget</span> {
     <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[
@@ -127,7 +127,7 @@
             <span class="ident">app</span>.<span class="ident">session</span>
                 .<span class="ident">edits</span>
                 .<span class="ident">roads</span>
-                .<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">r</span>, (<span class="ident">dist</span>, <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">filter_type</span>));
+                .<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">r</span>, <span class="ident">RoadFilter::new_by_user</span>(<span class="ident">dist</span>, <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">filter_type</span>));
         }
     }
     <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">neighbourhood</span>.<span class="ident">interior_intersections</span> {

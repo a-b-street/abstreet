@@ -118,7 +118,7 @@
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">lctrl</span>, <span class="ident">EventCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Text</span>, <span class="ident">Transition</span>, <span class="ident">Widget</span>};
 
 <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">EditOutcome</span>, <span class="ident">Obj</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">after_edit</span>, <span class="ident">colors</span>, <span class="ident">App</span>, <span class="ident">DiagonalFilter</span>, <span class="ident">Neighbourhood</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">after_edit</span>, <span class="ident">colors</span>, <span class="ident">App</span>, <span class="ident">DiagonalFilter</span>, <span class="ident">Neighbourhood</span>, <span class="ident">RoadFilter</span>};
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">widget</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">Widget</span> {
     <span class="ident">Text::from</span>(<span class="ident">Line</span>(
@@ -197,10 +197,10 @@
                 <span class="kw">let</span> <span class="ident">pt_on_line</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">project_pt</span>(<span class="ident">cursor_pt</span>);
                 <span class="kw">let</span> (<span class="ident">distance</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">dist_along_of_point</span>(<span class="ident">pt_on_line</span>).<span class="ident">unwrap</span>();
 
-                <span class="ident">app</span>.<span class="ident">session</span>
-                    .<span class="ident">edits</span>
-                    .<span class="ident">roads</span>
-                    .<span class="ident">insert</span>(<span class="ident">r</span>, (<span class="ident">distance</span>, <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">filter_type</span>));
+                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edits</span>.<span class="ident">roads</span>.<span class="ident">insert</span>(
+                    <span class="ident">r</span>,
+                    <span class="ident">RoadFilter::new_by_user</span>(<span class="ident">distance</span>, <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">filter_type</span>),
+                );
             }
             <span class="ident">after_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
             <span class="ident">EditOutcome::Transition</span>(<span class="ident">Transition::Recreate</span>)
