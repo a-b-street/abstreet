@@ -53,9 +53,9 @@ fn geojson_string(ctx: &mut EventCtx, app: &App) -> Result<String> {
     }
 
     // All modal filters
-    for (r, (dist, filter_type)) in &app.session.edits.roads {
+    for (r, filter) in &app.session.edits.roads {
         let road = map.get_r(*r);
-        if let Ok((pt, angle)) = road.center_pts.dist_along(*dist) {
+        if let Ok((pt, angle)) = road.center_pts.dist_along(filter.dist) {
             let road_width = road.get_width();
             let pl = PolyLine::must_new(vec![
                 pt.project_away(0.8 * road_width, angle.rotate_degs(90.0)),
@@ -69,7 +69,8 @@ fn geojson_string(ctx: &mut EventCtx, app: &App) -> Result<String> {
                 foreign_members: None,
             };
             feature.set_property("type", "road filter");
-            feature.set_property("filter_type", format!("{:?}", filter_type));
+            feature.set_property("filter_type", format!("{:?}", filter.filter_type));
+            feature.set_property("user_modified", filter.user_modified);
             feature.set_property("stroke", "red");
             features.push(feature);
         }

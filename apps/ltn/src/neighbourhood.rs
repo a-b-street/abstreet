@@ -197,7 +197,7 @@ fn find_cells(
     }
 
     // Filtered roads right along the perimeter have a tiny cell
-    for (r, (filter_dist, _)) in &edits.roads {
+    for (r, filter) in &edits.roads {
         let road = map.get_r(*r);
         if borders.contains(&road.src_i) {
             let mut cell = Cell {
@@ -208,7 +208,7 @@ fn find_cells(
                 road.id,
                 DistanceInterval {
                     start: Distance::ZERO,
-                    end: *filter_dist,
+                    end: filter.dist,
                 },
             );
             cells.push(cell);
@@ -221,7 +221,7 @@ fn find_cells(
             cell.roads.insert(
                 road.id,
                 DistanceInterval {
-                    start: *filter_dist,
+                    start: filter.dist,
                     end: road.length(),
                 },
             );
@@ -276,7 +276,7 @@ fn floodfill(
                         continue;
                     }
                 }
-                if let Some((filter_dist, _)) = edits.roads.get(next) {
+                if let Some(filter) = edits.roads.get(next) {
                     // Which ends of the filtered road have we reached?
                     let mut visited_start = next_road.src_i == i;
                     let mut visited_end = next_road.dst_i == i;
@@ -295,12 +295,12 @@ fn floodfill(
                             start: if visited_start {
                                 Distance::ZERO
                             } else {
-                                *filter_dist
+                                filter.dist
                             },
                             end: if visited_end {
                                 next_road.length()
                             } else {
-                                *filter_dist
+                                filter.dist
                             },
                         },
                     );

@@ -3,7 +3,7 @@ use widgetry::tools::open_browser;
 use widgetry::{lctrl, EventCtx, Key, Line, Text, Transition, Widget};
 
 use super::{EditOutcome, Obj};
-use crate::{after_edit, colors, App, DiagonalFilter, Neighbourhood};
+use crate::{after_edit, colors, App, DiagonalFilter, Neighbourhood, RoadFilter};
 
 pub fn widget(ctx: &mut EventCtx) -> Widget {
     Text::from(Line(
@@ -82,10 +82,10 @@ pub fn handle_world_outcome(
                 let pt_on_line = road.center_pts.project_pt(cursor_pt);
                 let (distance, _) = road.center_pts.dist_along_of_point(pt_on_line).unwrap();
 
-                app.session
-                    .edits
-                    .roads
-                    .insert(r, (distance, app.session.filter_type));
+                app.session.edits.roads.insert(
+                    r,
+                    RoadFilter::new_by_user(distance, app.session.filter_type),
+                );
             }
             after_edit(ctx, app);
             EditOutcome::Transition(Transition::Recreate)

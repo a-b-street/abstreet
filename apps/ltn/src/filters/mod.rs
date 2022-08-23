@@ -18,12 +18,11 @@ use crate::App;
 #[derive(Clone, Default, Serialize, Deserialize)]
 pub struct Edits {
     // We use serialize_btreemap so that save::perma can detect and transform IDs
-    /// For filters placed along a road, where is the filter located?
     #[serde(
         serialize_with = "serialize_btreemap",
         deserialize_with = "deserialize_btreemap"
     )]
-    pub roads: BTreeMap<RoadID, (Distance, FilterType)>,
+    pub roads: BTreeMap<RoadID, RoadFilter>,
     #[serde(
         serialize_with = "serialize_btreemap",
         deserialize_with = "deserialize_btreemap"
@@ -39,6 +38,24 @@ pub struct Edits {
     /// Edit history is preserved recursively
     #[serde(skip_serializing, skip_deserializing)]
     pub previous_version: Box<Option<Edits>>,
+}
+
+/// A filter placed somewhere along a road
+#[derive(Clone, PartialEq, Serialize, Deserialize)]
+pub struct RoadFilter {
+    pub dist: Distance,
+    pub filter_type: FilterType,
+    pub user_modified: bool,
+}
+
+impl RoadFilter {
+    pub fn new_by_user(dist: Distance, filter_type: FilterType) -> Self {
+        Self {
+            dist,
+            filter_type,
+            user_modified: true,
+        }
+    }
 }
 
 /// Just determines the icon, has no semantics yet
@@ -62,7 +79,7 @@ impl FilterType {
 /// This logically changes every time an edit occurs. MapName isn't captured here.
 #[derive(Default, PartialEq)]
 pub struct ChangeKey {
-    roads: BTreeMap<RoadID, (Distance, FilterType)>,
+    roads: BTreeMap<RoadID, RoadFilter>,
     intersections: BTreeMap<IntersectionID, DiagonalFilter>,
     one_ways: BTreeMap<RoadID, EditRoad>,
 }
@@ -79,6 +96,7 @@ pub struct DiagonalFilter {
     r2: RoadID,
     i: IntersectionID,
     pub filter_type: FilterType,
+    user_modified: bool,
 
     group1: BTreeSet<RoadID>,
     group2: BTreeSet<RoadID>,
@@ -140,12 +158,12 @@ impl Edits {
             icons.insert(ft, GeomBatch::load_svg(ctx, ft.svg_path()));
         }
 
-        for (r, (dist, filter_type)) in &self.roads {
-            let icon = &icons[&filter_type];
+        for (r, filter) in &self.roads {
+            let icon = &icons[&filter.filter_type];
 
             let road = map.get_r(*r);
-            if let Ok((pt, road_angle)) = road.center_pts.dist_along(*dist) {
-                let angle = if *filter_type == FilterType::NoEntry {
+            if let Ok((pt, road_angle)) = road.center_pts.dist_along(filter.dist) {
+                let angle = if filter.filter_type == FilterType::NoEntry {
                     road_angle.rotate_degs(90.0)
                 } else {
                     Angle::ZERO
@@ -287,7 +305,7 @@ impl DiagonalFilter {
                 app.session
                     .edits
                     .roads
-                    .insert(r, (dist, app.session.filter_type));
+                    .insert(r, RoadFilter::new_by_user(dist, app.session.filter_type));
             }
         }
     }
@@ -322,6 +340,8 @@ impl DiagonalFilter {
             filter_type: app.session.filter_type,
             group1,
             group2: roads.into_iter().collect(),
+            // We don't detect existing diagonal filters right now
+            user_modified: true,
         }
     }
 

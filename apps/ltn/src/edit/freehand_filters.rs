@@ -2,7 +2,7 @@ use geom::PolyLine;
 use widgetry::{EventCtx, Line, Text, Widget};
 
 use crate::edit::{EditMode, EditOutcome};
-use crate::{after_edit, App, DiagonalFilter, Neighbourhood, Transition};
+use crate::{after_edit, App, DiagonalFilter, Neighbourhood, RoadFilter, Transition};
 
 pub fn widget(ctx: &mut EventCtx) -> Widget {
     Text::from_all(vec![
@@ -54,7 +54,7 @@ fn make_filters_along_path(
             app.session
                 .edits
                 .roads
-                .insert(*r, (dist, app.session.filter_type));
+                .insert(*r, RoadFilter::new_by_user(dist, app.session.filter_type));
         }
     }
     for i in &neighbourhood.interior_intersections {
