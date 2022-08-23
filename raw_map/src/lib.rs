@@ -8,14 +8,17 @@ use serde::{Deserialize, Serialize};
 use street_network::{osm, StreetNetwork};
 
 use abstio::{CityName, MapName};
-use abstutil::{deserialize_btreemap, serialize_btreemap, Tags};
+use abstutil::{
+    deserialize_btreemap, deserialize_multimap, serialize_btreemap, serialize_multimap, MultiMap,
+    Tags,
+};
 use geom::{PolyLine, Polygon, Pt2D};
 
 pub use self::types::{Amenity, AmenityType, AreaType};
 
 mod types;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct RawMap {
     pub name: MapName,
     pub streets: StreetNetwork,
@@ -33,6 +36,16 @@ pub struct RawMap {
         deserialize_with = "deserialize_btreemap"
     )]
     pub transit_stops: BTreeMap<String, RawTransitStop>,
+    /// Per road, what bus routes run along it?
+    ///
+    /// This is scraped from OSM relations for every map, unlike the more detailed `transit_routes`
+    /// above, which come from GTFS only for a few maps. This is used only to identify roads part
+    /// of bus routes. It's best-effort and not robust to edits or transformations.
+    #[serde(
+        serialize_with = "serialize_multimap",
+        deserialize_with = "deserialize_multimap"
+    )]
+    pub bus_routes_on_roads: MultiMap<osm::WayID, String>,
 }
 
 impl RawMap {
@@ -46,6 +59,7 @@ impl RawMap {
             parking_aisles: Vec::new(),
             transit_routes: Vec::new(),
             transit_stops: BTreeMap::new(),
+            bus_routes_on_roads: MultiMap::new(),
         }
     }
 
