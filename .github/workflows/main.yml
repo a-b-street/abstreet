@@ -100,7 +100,7 @@ jobs:
         run: ./release/build.sh ${{ matrix.os }}
 
       - name: Upload release for Linux
-        if: matrix.os == 'ubuntu-18.04'
+        if: matrix.os == 'ubuntu-22.04'
         uses: actions/upload-artifact@v2
         with:
           name: abst_linux
