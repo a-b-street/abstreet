@@ -315,7 +315,7 @@
     <span class="ident">Widget</span>,
 };
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">App</span>, <span class="ident">BrowseNeighbourhoods</span>, <span class="ident">FilterType</span>, <span class="ident">Neighbourhood</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">colors</span>, <span class="ident">App</span>, <span class="ident">BrowseNeighbourhoods</span>, <span class="ident">FilterType</span>, <span class="ident">Neighbourhood</span>, <span class="ident">Transition</span>};
 
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">EditMode</span> {
     <span class="ident">Filters</span>,
@@ -574,7 +574,7 @@
                 <span class="string">&quot;Modal filter -- walking/cycling only&quot;</span>,
             ),
             <span class="ident">filter</span>(<span class="ident">FilterType::NoEntry</span>, <span class="ident">Color::RED</span>, <span class="string">&quot;Modal filter - no entry&quot;</span>),
-            <span class="ident">filter</span>(<span class="ident">FilterType::BusGate</span>, <span class="ident">Color::hex</span>(<span class="string">&quot;#0672B9&quot;</span>), <span class="string">&quot;Bus gate&quot;</span>),
+            <span class="ident">filter</span>(<span class="ident">FilterType::BusGate</span>, <span class="kw-2">*</span><span class="ident">colors::BUS_ROUTE</span>, <span class="string">&quot;Bus gate&quot;</span>),
         ])
         .<span class="ident">section</span>(<span class="ident">ctx</span>),
         <span class="ident">ctx</span>.<span class="ident">style</span>()

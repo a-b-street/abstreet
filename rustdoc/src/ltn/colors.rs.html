@@ -37,6 +37,8 @@
 <span id="31">31</span>
 <span id="32">32</span>
 <span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">widgetry::Color</span>;
 
 <span class="macro">lazy_static::lazy_static!</span> {
@@ -59,6 +61,8 @@
     <span class="kw">pub</span> <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">PLAN_ROUTE_AFTER</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::CYAN</span>;
     <span class="kw">pub</span> <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">PLAN_ROUTE_BIKE</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::GREEN</span>;
     <span class="kw">pub</span> <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">PLAN_ROUTE_WALK</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::BLUE</span>;
+
+    <span class="kw">pub</span> <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">BUS_ROUTE</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::hex</span>(<span class="string">&quot;#0672B9&quot;</span>);
 }
 
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">DISCONNECTED_CELL</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::RED</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>);

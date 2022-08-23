@@ -201,6 +201,7 @@
 <span id="195">195</span>
 <span id="196">196</span>
 <span id="197">197</span>
+<span id="198">198</span>
 </pre><pre class="rust"><code><span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">anyhow</span>;
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
@@ -242,8 +243,9 @@
         <span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">gps_bounds</span> <span class="op">=</span> <span class="ident">gps_bounds</span>;
     }
 
-    <span class="kw">let</span> (<span class="ident">extract</span>, <span class="ident">amenity_points</span>) <span class="op">=</span>
+    <span class="kw">let</span> (<span class="ident">extract</span>, <span class="ident">amenity_points</span>, <span class="ident">bus_routes_on_roads</span>) <span class="op">=</span>
         <span class="ident">extract::extract_osm</span>(<span class="kw-2">&amp;mut</span> <span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">osm_input_path</span>, <span class="ident">clip_path</span>, <span class="kw-2">&amp;</span><span class="ident">opts</span>, <span class="ident">timer</span>);
+    <span class="ident">map</span>.<span class="ident">bus_routes_on_roads</span> <span class="op">=</span> <span class="ident">bus_routes_on_roads</span>;
     <span class="kw">let</span> <span class="ident">split_output</span> <span class="op">=</span> <span class="ident">import_streets::split_ways::split_up_roads</span>(<span class="kw-2">&amp;mut</span> <span class="ident">map</span>.<span class="ident">streets</span>, <span class="ident">extract</span>, <span class="ident">timer</span>);
     <span class="ident">clip_map</span>(<span class="kw-2">&amp;mut</span> <span class="ident">map</span>, <span class="ident">timer</span>);
 
