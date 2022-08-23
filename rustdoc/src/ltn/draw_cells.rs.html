@@ -356,10 +356,6 @@
 <span id="350">350</span>
 <span id="351">351</span>
 <span id="352">352</span>
-<span id="353">353</span>
-<span id="354">354</span>
-<span id="355">355</span>
-<span id="356">356</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>};
@@ -413,7 +409,7 @@
 
     <span class="doccomment">/// Draw the boundary between cells as a thick outline. It&#39;s meant to look like the</span>
     <span class="doccomment">/// neighbourhood is split into disconnected islands.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw_island_outlines</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">use_color</span>: <span class="ident">bool</span>) -&gt; <span class="ident">GeomBatch</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw_island_outlines</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">GeomBatch</span> {
         <span class="kw">let</span> <span class="ident">neighbourhood_boundary</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">boundary_polygon</span>
             .<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">25.0</span>))
@@ -432,11 +428,7 @@
                 <span class="kw">let</span> <span class="ident">boundary</span> <span class="op">=</span> <span class="ident">PolyLine::unchecked_new</span>(<span class="ident">poly</span>.<span class="ident">clone</span>().<span class="ident">into_points</span>())
                     .<span class="ident">make_polygons</span>(<span class="ident">Distance::meters</span>(<span class="number">5.0</span>));
 
-                <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">use_color</span> {
-                    <span class="ident">cell_color</span>.<span class="ident">alpha</span>(<span class="number">1.0</span>).<span class="ident">shade</span>(<span class="number">0.2</span>)
-                } <span class="kw">else</span> {
-                    <span class="ident">Color::BLACK</span>
-                };
+                <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident">cell_color</span>.<span class="ident">alpha</span>(<span class="number">1.0</span>).<span class="ident">shade</span>(<span class="number">0.2</span>);
                 <span class="comment">// If possible, try to erase where the cell boundary touches the perimeter road.</span>
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">neighbourhood_boundary</span>) <span class="op">=</span> <span class="ident">neighbourhood_boundary</span> {
                     <span class="ident">batch</span>.<span class="ident">extend</span>(<span class="ident">color</span>, <span class="ident">boundary</span>.<span class="ident">difference</span>(<span class="ident">neighbourhood_boundary</span>));
