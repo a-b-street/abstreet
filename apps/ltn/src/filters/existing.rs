@@ -44,7 +44,11 @@ pub fn transform_existing_filters(ctx: &EventCtx, app: &mut App, timer: &mut Tim
                 r,
                 RoadFilter {
                     dist: app.map.get_r(r).length() / 2.0,
-                    filter_type: FilterType::WalkCycleOnly,
+                    filter_type: if app.map.get_bus_routes_on_road(r).is_empty() {
+                        FilterType::WalkCycleOnly
+                    } else {
+                        FilterType::BusGate
+                    },
                     user_modified: false,
                 },
             );
@@ -60,7 +64,11 @@ pub fn transform_existing_filters(ctx: &EventCtx, app: &mut App, timer: &mut Tim
                 r.id,
                 RoadFilter {
                     dist: *dist,
-                    filter_type: FilterType::WalkCycleOnly,
+                    filter_type: if app.map.get_bus_routes_on_road(r.id).is_empty() {
+                        FilterType::WalkCycleOnly
+                    } else {
+                        FilterType::BusGate
+                    },
                     user_modified: false,
                 },
             );
