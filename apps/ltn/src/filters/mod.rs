@@ -9,7 +9,7 @@ use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Angle, Distance, Line};
 use map_model::{EditRoad, IntersectionID, Map, PathConstraints, RoadID, RoutingParams, TurnID};
 use widgetry::mapspace::{DrawCustomUnzoomedShapes, PerZoom};
-use widgetry::{Drawable, EventCtx, GeomBatch, GfxCtx};
+use widgetry::{Drawable, EventCtx, GeomBatch, GfxCtx, RewriteColor};
 
 pub use self::existing::transform_existing_filters;
 use crate::App;
@@ -160,6 +160,11 @@ impl Edits {
 
         for (r, filter) in &self.roads {
             let icon = &icons[&filter.filter_type];
+            let rewrite_color = if filter.user_modified {
+                RewriteColor::NoOp
+            } else {
+                RewriteColor::ChangeAlpha(0.8)
+            };
 
             let road = map.get_r(*r);
             if let Ok((pt, road_angle)) = road.center_pts.dist_along(filter.dist) {
@@ -173,7 +178,8 @@ impl Edits {
                     icon.clone()
                         .scale_to_fit_width(road.get_width().inner_meters())
                         .centered_on(pt)
-                        .rotate(angle),
+                        .rotate(angle)
+                        .color(rewrite_color),
                 );
 
                 // TODO Memory intensive
@@ -184,7 +190,8 @@ impl Edits {
                         icon.clone()
                             .scale_to_fit_width(30.0 * thickness)
                             .centered_on(pt)
-                            .rotate(angle),
+                            .rotate(angle)
+                            .color(rewrite_color),
                     );
                 }));
             }
@@ -192,6 +199,11 @@ impl Edits {
 
         for (_, filter) in &self.intersections {
             let icon = &icons[&filter.filter_type];
+            let rewrite_color = if filter.user_modified {
+                RewriteColor::NoOp
+            } else {
+                RewriteColor::ChangeAlpha(0.8)
+            };
 
             let line = filter.geometry(map);
             let angle = if filter.filter_type == FilterType::NoEntry {
@@ -205,7 +217,8 @@ impl Edits {
                 icon.clone()
                     .scale_to_fit_width(line.length().inner_meters())
                     .centered_on(pt)
-                    .rotate(angle),
+                    .rotate(angle)
+                    .color(rewrite_color),
             );
 
             let icon = icon.clone();
@@ -215,7 +228,8 @@ impl Edits {
                     icon.clone()
                         .scale(0.4 * thickness)
                         .centered_on(pt)
-                        .rotate(angle),
+                        .rotate(angle)
+                        .color(rewrite_color),
                 );
             }));
         }

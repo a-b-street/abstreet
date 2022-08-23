@@ -3,7 +3,7 @@ use map_gui::colors::ColorScheme;
 use widgetry::tools::ColorLegend;
 use widgetry::{
     ButtonBuilder, Color, ControlState, EdgeInsets, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Image, Key, Outcome, Panel, TextExt, VerticalAlignment, Widget,
+    HorizontalAlignment, Image, Key, Line, Outcome, Panel, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::{colors, FilterType, Transition};
@@ -201,6 +201,7 @@ impl Mode {
                         .dims(30.0)
                         .into_widget(ctx),
                 ]),
+                Line("Faded filters exist already").small().into_widget(ctx),
                 // TODO Entry/exit arrows?
             ],
             Mode::SelectBoundary => vec![
