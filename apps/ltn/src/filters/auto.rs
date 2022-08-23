@@ -7,7 +7,7 @@ use abstutil::Timer;
 use map_model::RoadID;
 use widgetry::{Choice, EventCtx};
 
-use crate::{after_edit, App, Neighbourhood};
+use crate::{after_edit, App, Neighbourhood, RoadFilter};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Heuristic {
@@ -196,16 +196,16 @@ fn only_one_border(app: &mut App, neighbourhood: &Neighbourhood) {
                 for r in cell.roads.keys() {
                     let road = app.map.get_r(*r);
                     if road.src_i == *i {
-                        app.session
-                            .edits
-                            .roads
-                            .insert(road.id, (0.1 * road.length(), app.session.filter_type));
+                        app.session.edits.roads.insert(
+                            road.id,
+                            RoadFilter::new_by_user(0.1 * road.length(), app.session.filter_type),
+                        );
                         break;
                     } else if road.dst_i == *i {
-                        app.session
-                            .edits
-                            .roads
-                            .insert(road.id, (0.9 * road.length(), app.session.filter_type));
+                        app.session.edits.roads.insert(
+                            road.id,
+                            RoadFilter::new_by_user(0.9 * road.length(), app.session.filter_type),
+                        );
                         break;
                     }
                 }
@@ -223,10 +223,10 @@ fn try_to_filter_road(
     r: RoadID,
 ) -> Option<Neighbourhood> {
     let road = app.map.get_r(r);
-    app.session
-        .edits
-        .roads
-        .insert(r, (road.length() / 2.0, app.session.filter_type));
+    app.session.edits.roads.insert(
+        r,
+        RoadFilter::new_by_user(road.length() / 2.0, app.session.filter_type),
+    );
     // TODO This is expensive; can we just do the connectivity work and not drawing?
     let new_neighbourhood = Neighbourhood::new(ctx, app, neighbourhood.id);
     if new_neighbourhood.cells.iter().any(|c| c.is_disconnected()) {

@@ -4,7 +4,7 @@ use map_gui::render::DrawMap;
 use map_model::{osm, Map, Road};
 use widgetry::EventCtx;
 
-use crate::{App, FilterType};
+use crate::{App, FilterType, RoadFilter};
 
 /// Detect roads that're modelled in OSM as cycleways, but really are regular roads with modal
 /// filters. Transform them into normal roads, and instead use this tool's explicit representation
@@ -42,7 +42,11 @@ pub fn transform_existing_filters(ctx: &EventCtx, app: &mut App, timer: &mut Tim
         for r in filtered_roads {
             app.session.edits.roads.insert(
                 r,
-                (app.map.get_r(r).length() / 2.0, FilterType::WalkCycleOnly),
+                RoadFilter {
+                    dist: app.map.get_r(r).length() / 2.0,
+                    filter_type: FilterType::WalkCycleOnly,
+                    user_modified: false,
+                },
             );
         }
     }
@@ -52,10 +56,14 @@ pub fn transform_existing_filters(ctx: &EventCtx, app: &mut App, timer: &mut Tim
         for dist in &r.barrier_nodes {
             // The road might also be marked as non-driving. This'll move the filter position from
             // the center.
-            app.session
-                .edits
-                .roads
-                .insert(r.id, (*dist, FilterType::WalkCycleOnly));
+            app.session.edits.roads.insert(
+                r.id,
+                RoadFilter {
+                    dist: *dist,
+                    filter_type: FilterType::WalkCycleOnly,
+                    user_modified: false,
+                },
+            );
         }
     }
 

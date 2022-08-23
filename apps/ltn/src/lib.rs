@@ -11,7 +11,7 @@ use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, RewriteColor, Setti
 
 pub use browse::BrowseNeighbourhoods;
 use filters::Toggle3Zoomed;
-pub use filters::{DiagonalFilter, Edits, FilterType};
+pub use filters::{DiagonalFilter, Edits, FilterType, RoadFilter};
 pub use neighbourhood::{Cell, DistanceInterval, Neighbourhood};
 pub use partition::{NeighbourhoodID, Partitioning};
 
