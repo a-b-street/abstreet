@@ -144,6 +144,7 @@ impl Map {
             .into_polygon(),
             stop_signs: BTreeMap::new(),
             traffic_signals: BTreeMap::new(),
+            bus_routes_on_roads: MultiMap::new(),
             gps_bounds: GPSBounds::new(),
             bounds: Bounds::new(),
             config: MapConfig::default_for_side(DrivingSide::Right),
@@ -918,5 +919,12 @@ impl Map {
         }
 
         geom::geometries_with_properties_to_geojson(pairs)
+    }
+
+    /// What're the names of bus routes along a road? Note this is best effort, not robust to edits
+    /// or transformations.
+    pub fn get_bus_routes_on_road(&self, r: RoadID) -> &BTreeSet<String> {
+        let way = self.get_r(r).orig_id.osm_way_id;
+        self.bus_routes_on_roads.get(way)
     }
 }

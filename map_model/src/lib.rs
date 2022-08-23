@@ -33,7 +33,9 @@ use std::collections::BTreeMap;
 use serde::{Deserialize, Serialize};
 
 use abstio::MapName;
-use abstutil::{deserialize_btreemap, serialize_btreemap, MultiMap};
+use abstutil::{
+    deserialize_btreemap, deserialize_multimap, serialize_btreemap, serialize_multimap, MultiMap,
+};
 use geom::{Bounds, GPSBounds, Polygon};
 // Re-export a bunch of things for convenience
 pub use raw_map::{Amenity, AmenityType, AreaType};
@@ -97,6 +99,12 @@ pub struct Map {
     // Note that border nodes belong in neither!
     stop_signs: BTreeMap<IntersectionID, ControlStopSign>,
     traffic_signals: BTreeMap<IntersectionID, ControlTrafficSignal>,
+
+    #[serde(
+        serialize_with = "serialize_multimap",
+        deserialize_with = "deserialize_multimap"
+    )]
+    bus_routes_on_roads: MultiMap<osm::WayID, String>,
 
     gps_bounds: GPSBounds,
     bounds: Bounds,

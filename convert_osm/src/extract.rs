@@ -1,7 +1,7 @@
 use osm::{OsmID, RelationID, WayID};
 
 use abstio::{CityName, MapName};
-use abstutil::{Tags, Timer};
+use abstutil::{MultiMap, Tags, Timer};
 use geom::{Distance, FindClosest, Polygon, Pt2D, Ring};
 use kml::{ExtraShape, ExtraShapes};
 use raw_map::{Amenity, AreaType, RawArea, RawBuilding, RawMap, RawParkingLot};
@@ -17,7 +17,11 @@ pub fn extract_osm(
     clip_path: Option<String>,
     opts: &Options,
     timer: &mut Timer,
-) -> (OsmExtract, Vec<(Pt2D, Amenity)>) {
+) -> (
+    OsmExtract,
+    Vec<(Pt2D, Amenity)>,
+    MultiMap<osm::WayID, String>,
+) {
     let osm_xml = fs_err::read_to_string(osm_input_path).unwrap();
     let mut doc =
         import_streets::osm_reader::read(&osm_xml, &map.streets.gps_bounds, timer).unwrap();
@@ -51,6 +55,7 @@ pub fn extract_osm(
 
     let mut out = OsmExtract::new();
     let mut amenity_points = Vec::new();
+    let mut bus_routes_on_roads: MultiMap<osm::WayID, String> = MultiMap::new();
 
     timer.start_iter("processing OSM nodes", doc.nodes.len());
     for (id, node) in &doc.nodes {
@@ -216,6 +221,16 @@ pub fn extract_osm(
                     }
                 }
             }
+        } else if rel.tags.is("type", "route") && rel.tags.is("route", "bus") {
+            for (role, member) in &rel.members {
+                if let OsmID::Way(w) = member {
+                    if role.is_empty() {
+                        if let Some(name) = doc.ways[w].tags.get("name") {
+                            bus_routes_on_roads.insert(*w, name.to_string());
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -266,7 +281,7 @@ pub fn extract_osm(
     find_parking_aisles(map, &mut out.roads);
     timer.stop("find service roads crossing parking lots");
 
-    (out, amenity_points)
+    (out, amenity_points, bus_routes_on_roads)
 }
 
 fn is_bldg(tags: &Tags) -> bool {

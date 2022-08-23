@@ -61,6 +61,7 @@ impl Map {
             boundary_polygon: raw.streets.boundary_polygon.clone(),
             stop_signs: BTreeMap::new(),
             traffic_signals: BTreeMap::new(),
+            bus_routes_on_roads: std::mem::take(&mut raw.bus_routes_on_roads),
             gps_bounds: raw.streets.gps_bounds.clone(),
             bounds: raw.streets.gps_bounds.to_bounds(),
             config: raw.streets.config.clone(),

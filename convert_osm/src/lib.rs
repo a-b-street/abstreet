@@ -39,8 +39,9 @@ pub fn convert(
         map.streets.gps_bounds = gps_bounds;
     }
 
-    let (extract, amenity_points) =
+    let (extract, amenity_points, bus_routes_on_roads) =
         extract::extract_osm(&mut map, &osm_input_path, clip_path, &opts, timer);
+    map.bus_routes_on_roads = bus_routes_on_roads;
     let split_output = import_streets::split_ways::split_up_roads(&mut map.streets, extract, timer);
     clip_map(&mut map, timer);
 
