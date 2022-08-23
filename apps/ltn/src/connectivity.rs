@@ -1,7 +1,4 @@
-use abstutil::Timer;
 use geom::{ArrowCap, Distance, PolyLine, Polygon};
-use map_gui::colors::{ColorScheme, ColorSchemeChoice};
-use map_gui::render::DrawMap;
 use street_network::Direction;
 use widgetry::mapspace::{DummyID, World};
 use widgetry::tools::PopupMsg;
@@ -97,17 +94,6 @@ impl Viewer {
                             .neighbourhood_area_km2(self.neighbourhood.id)
                     )
                     .text_widget(ctx),
-                    Widget::row(vec![
-                        "Draw traffic cells as".text_widget(ctx).centered_vert(),
-                        Toggle::choice(
-                            ctx,
-                            "draw cells",
-                            "areas",
-                            "outlines",
-                            Key::D,
-                            app.session.draw_cells_as_areas,
-                        ),
-                    ]),
                     warning,
                     advanced_panel(ctx, app),
                 ]),
@@ -206,42 +192,6 @@ impl State<App> for Viewer {
                     app.session.heuristic = self.left_panel.dropdown_value("heuristic");
                     return Transition::Keep;
                 }
-                "areas" | "outlines" => {
-                    app.session.draw_cells_as_areas = self.left_panel.is_checked("draw cells");
-
-                    app.cs = ColorScheme::new(
-                        ctx,
-                        if app.session.draw_cells_as_areas {
-                            ColorSchemeChoice::ClassicLTN
-                        } else {
-                            ColorSchemeChoice::LTN
-                        },
-                    );
-                    let (buildings, draw_all_buildings, draw_all_building_outlines) =
-                        DrawMap::regenerate_buildings(
-                            ctx,
-                            &app.map,
-                            &app.cs,
-                            &app.opts,
-                            &mut Timer::throwaway(),
-                        );
-                    app.draw_map.buildings = buildings;
-                    app.draw_map.draw_all_buildings = draw_all_buildings;
-                    app.draw_map.draw_all_building_outlines = draw_all_building_outlines;
-
-                    let (parking_lots, draw_all_unzoomed_parking_lots) =
-                        DrawMap::regenerate_parking_lots(ctx, &app.map, &app.cs, &app.opts);
-                    app.draw_map.parking_lots = parking_lots;
-                    app.draw_map.draw_all_unzoomed_parking_lots = draw_all_unzoomed_parking_lots;
-
-                    let (edit, draw_top_layer, draw_under_roads_layer, _, highlight_cell) =
-                        setup_editing(ctx, app, &self.neighbourhood);
-                    self.edit = edit;
-                    self.draw_top_layer = draw_top_layer;
-                    self.draw_under_roads_layer = draw_under_roads_layer;
-                    self.highlight_cell = highlight_cell;
-                    return Transition::Keep;
-                }
                 _ => unreachable!(),
             },
             _ => {}
@@ -310,61 +260,35 @@ fn setup_editing(
 
     // Draw some stuff under roads and other stuff on top
     let mut draw_top_layer = GeomBatch::new();
-    let mut draw_under_roads_layer = GeomBatch::new();
     // Use a separate world to highlight cells when hovering on them. This is separate from
     // edit.world so that we draw it even while hovering on roads/intersections in a cell
     let mut highlight_cell = World::bounded(app.map.get_bounds());
 
     let render_cells = RenderCells::new(map, neighbourhood);
-    if app.session.draw_cells_as_areas {
-        draw_under_roads_layer = render_cells.draw_colored_areas();
-        draw_top_layer.append(render_cells.draw_island_outlines(true));
 
-        // Highlight border arrows when hovered
-        for (idx, polygons) in render_cells.polygons_per_cell.iter().enumerate() {
-            // Edge case happening near https://www.openstreetmap.org/way/106879596
-            if polygons.is_empty() {
-                continue;
-            }
+    let draw_under_roads_layer = render_cells.draw_colored_areas();
+    draw_top_layer.append(render_cells.draw_island_outlines());
 
-            let color = render_cells.colors[idx].alpha(1.0);
-            let mut batch = GeomBatch::new();
-            for arrow in neighbourhood.cells[idx].border_arrows(app) {
-                batch.push(color, arrow);
-            }
-
-            highlight_cell
-                .add_unnamed()
-                .hitbox(Polygon::union_all(polygons.clone()))
-                // Don't draw cells by default
-                .drawn_in_master_batch()
-                .draw_hovered(batch)
-                .build(ctx);
+    // Highlight border arrows when hovered
+    for (idx, polygons) in render_cells.polygons_per_cell.iter().enumerate() {
+        // Edge case happening near https://www.openstreetmap.org/way/106879596
+        if polygons.is_empty() {
+            continue;
         }
-    } else {
-        draw_top_layer.append(render_cells.draw_island_outlines(false));
 
-        // Highlight cell areas and their border arrows when hovered
-        for (idx, polygons) in render_cells.polygons_per_cell.iter().enumerate() {
-            // Edge case happening near https://www.openstreetmap.org/way/106879596
-            if polygons.is_empty() {
-                continue;
-            }
-
-            let mut batch = GeomBatch::new();
-            batch.extend(Color::YELLOW.alpha(0.1), polygons.clone());
-            for arrow in neighbourhood.cells[idx].border_arrows(app) {
-                batch.push(Color::YELLOW, arrow);
-            }
-
-            highlight_cell
-                .add_unnamed()
-                .hitbox(Polygon::union_all(polygons.clone()))
-                // Don't draw cells by default
-                .drawn_in_master_batch()
-                .draw_hovered(batch)
-                .build(ctx);
+        let color = render_cells.colors[idx].alpha(1.0);
+        let mut batch = GeomBatch::new();
+        for arrow in neighbourhood.cells[idx].border_arrows(app) {
+            batch.push(color, arrow);
         }
+
+        highlight_cell
+            .add_unnamed()
+            .hitbox(Polygon::union_all(polygons.clone()))
+            // Don't draw cells by default
+            .drawn_in_master_batch()
+            .draw_hovered(batch)
+            .build(ctx);
     }
 
     if !matches!(app.session.edit_mode, EditMode::Shortcuts(_)) {
@@ -373,11 +297,7 @@ fn setup_editing(
 
     // Draw the borders of each cell
     for (idx, cell) in neighbourhood.cells.iter().enumerate() {
-        let color = if app.session.draw_cells_as_areas {
-            render_cells.colors[idx].alpha(1.0)
-        } else {
-            Color::BLACK
-        };
+        let color = render_cells.colors[idx].alpha(1.0);
         for arrow in cell.border_arrows(app) {
             draw_top_layer.push(color, arrow.clone());
             if let Ok(outline) = arrow.to_outline(Distance::meters(1.0)) {

@@ -60,7 +60,7 @@ struct Args {
 
 fn run(mut settings: Settings) {
     let mut opts = map_gui::options::Options::load_or_default();
-    opts.color_scheme = map_gui::colors::ColorSchemeChoice::ClassicLTN;
+    opts.color_scheme = map_gui::colors::ColorSchemeChoice::LTN;
     opts.show_building_driveways = false;
     // TODO Ideally we would have a better map model in the first place. The next best thing would
     // be to change these settings based on the map's country, but that's a bit tricky to do early
@@ -96,7 +96,6 @@ fn run(mut settings: Settings) {
             filter_type: FilterType::WalkCycleOnly,
 
             draw_neighbourhood_style: browse::Style::Simple,
-            draw_cells_as_areas: true,
             heuristic: filters::auto::Heuristic::SplitCells,
             main_road_penalty: 1.0,
 
@@ -281,8 +280,7 @@ pub struct Session {
     // Remember form settings in different tabs.
     // Browse neighbourhoods:
     pub draw_neighbourhood_style: browse::Style,
-    // Connectivity:
-    pub draw_cells_as_areas: bool,
+    // Editing:
     pub heuristic: filters::auto::Heuristic,
     // Pathfinding
     pub main_road_penalty: f64,

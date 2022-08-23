@@ -32,8 +32,6 @@ pub enum ColorSchemeChoice {
     Textured,
     ClassicDayMode,
     LTN,
-    // Cells as areas
-    ClassicLTN,
 }
 
 impl ColorSchemeChoice {
@@ -44,7 +42,6 @@ impl ColorSchemeChoice {
             Choice::new("textured", ColorSchemeChoice::Textured),
             Choice::new("classic", ColorSchemeChoice::ClassicDayMode),
             Choice::new("LTN", ColorSchemeChoice::LTN),
-            Choice::new("classic LTN", ColorSchemeChoice::ClassicLTN),
         ]
     }
 
@@ -173,7 +170,6 @@ impl ColorScheme {
             ColorSchemeChoice::Textured => ColorScheme::textured(),
             ColorSchemeChoice::ClassicDayMode => ColorScheme::classic(),
             ColorSchemeChoice::LTN => ColorScheme::ltn(),
-            ColorSchemeChoice::ClassicLTN => ColorScheme::classic_ltn(),
         };
         cs.scheme = scheme;
         ctx.set_style(cs.gui_style.clone());
@@ -373,9 +369,6 @@ impl ColorScheme {
 
         // Based on Mapbox light scheme: https://www.mapbox.com/maps/light
         cs.map_background = hex("#F6F6F4").into();
-        cs.residential_building = hex("#E9E9E7");
-        cs.commercial_building = hex("#D1D1CC");
-        cs.parking_lot = cs.commercial_building;
         cs.water = hex("#CAD2D3").into();
         cs.grass = hex("#ECEEED").into();
         cs.unzoomed_highway = Color::WHITE;
@@ -384,19 +377,14 @@ impl ColorScheme {
         cs.unzoomed_trail = Color::CLEAR;
         cs.light_rail_track = Color::CLEAR;
 
-        cs.gui_style.panel_bg = Color::WHITE;
-        cs.panel_bg = cs.gui_style.panel_bg;
-
-        cs
-    }
-
-    fn classic_ltn() -> Self {
-        let mut cs = Self::ltn();
-        cs.scheme = ColorSchemeChoice::ClassicLTN;
         // The colors of cells will show through these, de-emphasizing them
         cs.parking_lot = Color::BLACK.alpha(0.2);
         cs.residential_building = Color::BLACK.alpha(0.3);
         cs.commercial_building = Color::BLACK.alpha(0.5);
+
+        cs.gui_style.panel_bg = Color::WHITE;
+        cs.panel_bg = cs.gui_style.panel_bg;
+
         cs
     }
 }

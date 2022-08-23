@@ -51,7 +51,7 @@ impl RenderCells {
 
     /// Draw the boundary between cells as a thick outline. It's meant to look like the
     /// neighbourhood is split into disconnected islands.
-    pub fn draw_island_outlines(&self, use_color: bool) -> GeomBatch {
+    pub fn draw_island_outlines(&self) -> GeomBatch {
         let neighbourhood_boundary = self
             .boundary_polygon
             .to_outline(Distance::meters(25.0))
@@ -70,11 +70,7 @@ impl RenderCells {
                 let boundary = PolyLine::unchecked_new(poly.clone().into_points())
                     .make_polygons(Distance::meters(5.0));
 
-                let color = if use_color {
-                    cell_color.alpha(1.0).shade(0.2)
-                } else {
-                    Color::BLACK
-                };
+                let color = cell_color.alpha(1.0).shade(0.2);
                 // If possible, try to erase where the cell boundary touches the perimeter road.
                 if let Some(ref neighbourhood_boundary) = neighbourhood_boundary {
                     batch.extend(color, boundary.difference(neighbourhood_boundary));
