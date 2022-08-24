@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{BTreeSet, HashSet};
 
 use abstutil::{Counter, Timer};
 use map_gui::tools::ColorNetwork;
@@ -117,12 +117,21 @@ pub fn find_shortcuts(app: &App, neighbourhood: &Neighbourhood, timer: &mut Time
 
     let mut params = map.routing_params().clone();
     edits.update_routing_params(&mut params);
-    // Don't allow leaving the neighbourhood and using perimeter roads at all. Even if the optimal
-    // path is to leave and re-enter, don't do that. The point of this view is to show possible
-    // detours people might try to take in response to one filter. Note the original "demand model"
-    // input is bogus anyway; it's all possible entrances and exits to the neighbourhood, without
-    // regards for the larger path somebody actually wants to take.
-    params.avoid_roads.extend(neighbourhood.perimeter.clone());
+
+    // Restrict the pathfinding to the interior of the neighbourhood only. Don't allow using
+    // perimeter roads or leaving and re-entering at all.
+    //
+    // The point of this view is to show possible detours people might try to take in response to
+    // one filter. Note the original "demand model" input is bogus anyway; it's all possible
+    // entrances and exits to the neighbourhood, without regards for the larger path somebody
+    // actually wants to take.
+    params.avoid_roads.extend(
+        map.all_roads()
+            .iter()
+            .map(|r| r.id)
+            .collect::<BTreeSet<RoadID>>()
+            .difference(&neighbourhood.orig_perimeter.interior),
+    );
 
     // TODO Perf: when would it be worth creating a CH? Especially if we could subset just this
     // part of the graph, it'd probably be helpful.
