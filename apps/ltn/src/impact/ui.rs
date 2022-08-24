@@ -95,6 +95,10 @@ impl ShowResults {
                 .btn_outline
                 .text("Save before/after counts to files (CSV)")
                 .build_def(ctx),
+            ctx.style()
+                .btn_outline
+                .text("Save before/after counts to files (GeoJSON)")
+                .build_def(ctx),
         ]);
         let top_panel = crate::components::TopPanel::panel(ctx, app);
         let left_panel =
@@ -147,6 +151,14 @@ impl State<App> for ShowResults {
                         Err(err) => format!("Failed to export: {err}"),
                     };
                     return Transition::Push(PopupMsg::new_state(ctx, "CSV export", vec![msg]));
+                }
+                "Save before/after counts to files (GeoJSON)" => {
+                    let path = "before_after_counts.json";
+                    let msg = match abstio::write_file(path.to_string(), export_geojson(app)) {
+                        Ok(_) => format!("Saved {path}"),
+                        Err(err) => format!("Failed to export: {err}"),
+                    };
+                    return Transition::Push(PopupMsg::new_state(ctx, "GeoJSON export", vec![msg]));
                 }
                 x => {
                     // Avoid a double borrow
@@ -436,4 +448,40 @@ struct ExportRow {
     osm_intersection2: i64,
     total_count_before: usize,
     total_count_after: usize,
+}
+
+fn export_geojson(app: &App) -> String {
+    let mut pairs = Vec::new();
+    for r in app.map.all_roads() {
+        let mut props = serde_json::Map::new();
+        props.insert("road_name".to_string(), r.get_name(None).into());
+        props.insert("osm_way_id".to_string(), r.orig_id.osm_way_id.0.into());
+        props.insert("osm_intersection1".to_string(), r.orig_id.i1.0.into());
+        props.insert("osm_intersection2".to_string(), r.orig_id.i2.0.into());
+        props.insert(
+            "total_count_before".to_string(),
+            app.session
+                .impact
+                .compare_counts
+                .counts_a
+                .per_road
+                .get(r.id)
+                .into(),
+        );
+        props.insert(
+            "total_count_after".to_string(),
+            app.session
+                .impact
+                .compare_counts
+                .counts_b
+                .per_road
+                .get(r.id)
+                .into(),
+        );
+        pairs.push((
+            r.center_pts.to_geojson(Some(app.map.get_gps_bounds())),
+            props,
+        ));
+    }
+    abstutil::to_json(&geom::geometries_with_properties_to_geojson(pairs))
 }
