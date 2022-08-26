@@ -46,11 +46,12 @@ fn make_filters_along_path(
         if road.is_deadend_for_driving(&app.map) {
             continue;
         }
-        if road.oneway_for_driving().is_some() {
-            oneways.push(*r);
-            continue;
-        }
         if let Some((pt, _)) = road.center_pts.intersection(&path) {
+            if road.oneway_for_driving().is_some() {
+                oneways.push(*r);
+                continue;
+            }
+
             let dist = road
                 .center_pts
                 .dist_along_of_point(pt)
