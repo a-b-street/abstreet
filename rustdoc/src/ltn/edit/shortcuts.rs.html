@@ -145,7 +145,7 @@
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">World</span>, <span class="ident">WorldOutcome</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>};
 
-<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">EditMode</span>, <span class="ident">EditOutcome</span>, <span class="ident">Obj</span>};
+<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">road_name</span>, <span class="ident">EditMode</span>, <span class="ident">EditOutcome</span>, <span class="ident">Obj</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">colors</span>, <span class="ident">App</span>, <span class="ident">Neighbourhood</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FocusedRoad</span> {
@@ -219,7 +219,7 @@
                 .<span class="ident">tooltip</span>(<span class="ident">Text::from</span>(<span class="macro">format!</span>(
                     <span class="string">&quot;{} possible shortcuts cross {}&quot;</span>,
                     <span class="ident">neighbourhood</span>.<span class="ident">shortcuts</span>.<span class="ident">count_per_road</span>.<span class="ident">get</span>(<span class="kw-2">*</span><span class="ident">r</span>),
-                    <span class="ident">road</span>.<span class="ident">get_name</span>(<span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">language</span>.<span class="ident">as_ref</span>()),
+                    <span class="ident">road_name</span>(<span class="ident">app</span>, <span class="ident">road</span>)
                 )))
                 .<span class="ident">clickable</span>()
                 .<span class="ident">build</span>(<span class="ident">ctx</span>);

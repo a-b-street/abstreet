@@ -297,6 +297,14 @@
 <span id="291">291</span>
 <span id="292">292</span>
 <span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom::Polygon</span>;
 <span class="kw">use</span> <span class="ident">map_gui::colors::ColorScheme</span>;
 <span class="kw">use</span> <span class="ident">widgetry::tools::ColorLegend</span>;
@@ -520,7 +528,15 @@
                         .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 ]),
                 <span class="ident">Line</span>(<span class="string">&quot;Faded filters exist already&quot;</span>).<span class="ident">small</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+                <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+                    <span class="string">&quot;Private road:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
+                    <span class="ident">Image::from_path</span>(<span class="string">&quot;system/assets/map/private_road.svg&quot;</span>)
+                        .<span class="ident">untinted</span>()
+                        .<span class="ident">dims</span>(<span class="number">30.0</span>)
+                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+                ]),
                 <span class="comment">// TODO Entry/exit arrows?</span>
+                <span class="comment">// TODO Dashed roads are walk/bike</span>
             ],
             <span class="ident">Mode::SelectBoundary</span> =&gt; <span class="macro">vec!</span>[
                 <span class="ident">entry</span>(<span class="ident">ctx</span>, <span class="ident">colors::HIGHLIGHT_BOUNDARY</span>, <span class="string">&quot;boundary road&quot;</span>),

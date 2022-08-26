@@ -140,7 +140,7 @@
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">World</span>, <span class="ident">WorldOutcome</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">EventCtx</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Transition</span>, <span class="ident">Widget</span>};
 
-<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">EditOutcome</span>, <span class="ident">Obj</span>};
+<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">road_name</span>, <span class="ident">EditOutcome</span>, <span class="ident">Obj</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">colors</span>, <span class="ident">App</span>, <span class="ident">Neighbourhood</span>};
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">widget</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">Widget</span> {
@@ -160,7 +160,7 @@
             .<span class="ident">hover_color</span>(<span class="ident">colors::HOVER</span>)
             .<span class="ident">tooltip</span>(<span class="ident">Text::from</span>(<span class="macro">format!</span>(
                 <span class="string">&quot;Click to flip direction of {}&quot;</span>,
-                <span class="ident">road</span>.<span class="ident">get_name</span>(<span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">language</span>.<span class="ident">as_ref</span>()),
+                <span class="ident">road_name</span>(<span class="ident">app</span>, <span class="ident">road</span>)
             )))
             .<span class="ident">clickable</span>()
             .<span class="ident">build</span>(<span class="ident">ctx</span>);

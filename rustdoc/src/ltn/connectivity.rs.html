@@ -393,6 +393,26 @@
 <span id="387">387</span>
 <span id="388">388</span>
 <span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>};
 <span class="kw">use</span> <span class="ident">street_network::Direction</span>;
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">DummyID</span>, <span class="ident">World</span>};
@@ -406,7 +426,7 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::draw_cells::RenderCells</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::edit</span>::{<span class="ident">EditMode</span>, <span class="ident">EditNeighbourhood</span>, <span class="ident">EditOutcome</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::filters::auto::Heuristic</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">colors</span>, <span class="ident">App</span>, <span class="ident">Neighbourhood</span>, <span class="ident">NeighbourhoodID</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">colors</span>, <span class="ident">is_private</span>, <span class="ident">App</span>, <span class="ident">Neighbourhood</span>, <span class="ident">NeighbourhoodID</span>, <span class="ident">Transition</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Viewer</span> {
     <span class="ident">top_panel</span>: <span class="ident">Panel</span>,
@@ -701,7 +721,9 @@
         }
     }
 
-    <span class="comment">// Draw one-way arrows</span>
+    <span class="comment">// Draw one-way arrows and mark private roads</span>
+    <span class="kw">let</span> <span class="ident">private_road</span> <span class="op">=</span> <span class="ident">GeomBatch::load_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/map/private_road.svg&quot;</span>);
+
     <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">neighbourhood</span>
         .<span class="ident">orig_perimeter</span>
         .<span class="ident">interior</span>
@@ -729,6 +751,24 @@
                     .<span class="ident">to_outline</span>(<span class="ident">thickness</span> <span class="op">/</span> <span class="number">2.0</span>)
                 {
                     <span class="ident">draw_top_layer</span>.<span class="ident">push</span>(<span class="ident">colors::ROAD_LABEL</span>, <span class="ident">poly</span>);
+                }
+            }
+        }
+
+        <span class="comment">// Mimic the UK-style &quot;no entry&quot; / dead-end symbol at both ends of every private road</span>
+        <span class="comment">// segment</span>
+        <span class="kw">if</span> <span class="ident">is_private</span>(<span class="ident">road</span>) {
+            <span class="comment">// The outline is 1m on each side</span>
+            <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">get_width</span>() <span class="op">-</span> <span class="ident">Distance::meters</span>(<span class="number">2.0</span>);
+            <span class="kw">for</span> (<span class="ident">dist</span>, <span class="ident">rotate</span>) <span class="kw">in</span> [(<span class="ident">width</span>, <span class="number">90.0</span>), (<span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">width</span>, <span class="op">-</span><span class="number">90.0</span>)] {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>((<span class="ident">pt</span>, <span class="ident">angle</span>)) <span class="op">=</span> <span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">dist_along</span>(<span class="ident">dist</span>) {
+                    <span class="ident">draw_top_layer</span>.<span class="ident">append</span>(
+                        <span class="ident">private_road</span>
+                            .<span class="ident">clone</span>()
+                            .<span class="ident">scale_to_fit_width</span>(<span class="ident">width</span>.<span class="ident">inner_meters</span>())
+                            .<span class="ident">centered_on</span>(<span class="ident">pt</span>)
+                            .<span class="ident">rotate_around_batch_center</span>(<span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="ident">rotate</span>)),
+                    );
                 }
             }
         }
