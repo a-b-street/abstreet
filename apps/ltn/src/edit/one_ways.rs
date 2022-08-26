@@ -87,37 +87,24 @@ pub fn handle_world_outcome(
 pub fn undo_proposal(ctx: &mut EventCtx, app: &mut App) {
     let prev = app.session.edits.previous_version.take().unwrap();
 
-    // Generate edits to undo the one possible change to a one-way
+    // Generate edits to undo possible changes to a one-way. Note there may be multiple in one
+    // batch, from the freehand tool
     if prev.one_ways != app.session.edits.one_ways {
         let mut edits = app.map.get_edits().clone();
 
-        // Often the very last command in the edit stack is the one we need to undo. But when
-        // switching between different proposals, we accumulate more commands to sync map state, so
-        // this isn't true in general.
-
-        // So instead, look for the entry that's different
-        let mut found = false;
         for (r, r_edit1) in &prev.one_ways {
             if Some(r_edit1) != app.session.edits.one_ways.get(r) {
                 edits.commands.push(app.map.edit_road_cmd(*r, |new| {
                     *new = r_edit1.clone();
                 }));
-                found = true;
-                break;
             }
         }
-        if !found {
-            // Look for the entry that just appeared in the new version, and revert to the original
-            // thing
-            for r in app.session.edits.one_ways.keys() {
-                if !prev.one_ways.contains_key(r) {
-                    edits.commands.push(app.map.edit_road_cmd(*r, |new| {
-                        *new = EditRoad::get_orig_from_osm(app.map.get_r(*r), app.map.get_config());
-                    }));
-                    // We should be able to set `found = true` here and then assert it below, but
-                    // let's just... not crash, if something goes very awry
-                    break;
-                }
+        // Also look for newly introduced one-ways
+        for r in app.session.edits.one_ways.keys() {
+            if !prev.one_ways.contains_key(r) {
+                edits.commands.push(app.map.edit_road_cmd(*r, |new| {
+                    *new = EditRoad::get_orig_from_osm(app.map.get_r(*r), app.map.get_config());
+                }));
             }
         }
 
