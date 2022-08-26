@@ -66,7 +66,9 @@ pub fn handle_world_outcome(
             let road = map.get_r(r);
             // The world doesn't contain non-driveable roads, so no need to check for that error
             if road.oneway_for_driving().is_some() {
-                return EditOutcome::error(ctx, "A one-way street can't have a filter");
+                return EditOutcome::Transition(Transition::Push(
+                    super::ResolveOneWayAndFilter::new_state(ctx, r),
+                ));
             }
             if road.is_deadend_for_driving(&app.map) {
                 return EditOutcome::error(ctx, "You can't filter a dead-end");

@@ -3,15 +3,20 @@ mod freehand_filters;
 mod one_ways;
 mod shortcuts;
 
-use map_model::{IntersectionID, Road, RoadID};
+use map_gui::tools::grey_out_map;
+use map_model::{EditRoad, IntersectionID, Road, RoadID};
+use street_network::{Direction, LaneSpec};
 use widgetry::mapspace::{ObjectID, World};
 use widgetry::tools::{PolyLineLasso, PopupMsg};
 use widgetry::{
-    lctrl, Color, ControlState, EventCtx, Key, Line, Panel, PanelBuilder, RewriteColor, TextExt,
-    Widget,
+    lctrl, Color, ControlState, DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel,
+    PanelBuilder, RewriteColor, State, Text, TextExt, Widget,
 };
 
-use crate::{colors, is_private, App, BrowseNeighbourhoods, FilterType, Neighbourhood, Transition};
+use crate::{
+    after_edit, colors, is_private, App, BrowseNeighbourhoods, FilterType, Neighbourhood,
+    RoadFilter, Transition,
+};
 
 pub enum EditMode {
     Filters,
@@ -306,5 +311,88 @@ fn road_name(app: &App, road: &Road) -> String {
         format!("{name} (private)")
     } else {
         name
+    }
+}
+
+struct ResolveOneWayAndFilter {
+    panel: Panel,
+    r: RoadID,
+}
+
+impl ResolveOneWayAndFilter {
+    fn new_state(ctx: &mut EventCtx, r: RoadID) -> Box<dyn State<App>> {
+        let mut txt = Text::new();
+        txt.add_line(Line("Error").small_heading());
+        txt.add_line("A one-way street can't have a filter");
+
+        let panel = Panel::new_builder(Widget::col(vec![
+            txt.into_widget(ctx),
+            Widget::row(vec![
+                ctx.style().btn_solid.text("OK, do nothing").build_def(ctx),
+                ctx.style()
+                    .btn_solid_primary
+                    .text("Change to a two-way street and add a filter")
+                    .build_def(ctx),
+            ]),
+        ]))
+        .build(ctx);
+
+        Box::new(Self { panel, r })
+    }
+}
+
+impl State<App> for ResolveOneWayAndFilter {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            match x.as_ref() {
+                "OK, do nothing" => {
+                    return Transition::Pop;
+                }
+                "Change to a two-way street and add a filter" => {
+                    let driving_side = app.map.get_config().driving_side;
+                    let mut edits = app.map.get_edits().clone();
+                    edits.commands.push(app.map.edit_road_cmd(self.r, |new| {
+                        LaneSpec::toggle_road_direction(&mut new.lanes_ltr, driving_side);
+                        // Maybe we just flipped a one-way forwards to a one-way backwards. So one
+                        // more time to make it two-way
+                        if LaneSpec::oneway_for_driving(&new.lanes_ltr) == Some(Direction::Back) {
+                            LaneSpec::toggle_road_direction(&mut new.lanes_ltr, driving_side);
+                        }
+                    }));
+                    ctx.loading_screen("apply edits", |_, timer| {
+                        app.map.must_apply_edits(edits, timer);
+                    });
+
+                    app.session.edits.before_edit();
+
+                    let road = app.map.get_r(self.r);
+                    let r_edit = app.map.get_r_edit(self.r);
+                    if r_edit == EditRoad::get_orig_from_osm(road, app.map.get_config()) {
+                        app.session.edits.one_ways.remove(&self.r);
+                    } else {
+                        app.session.edits.one_ways.insert(self.r, r_edit);
+                    }
+
+                    app.session.edits.roads.insert(
+                        self.r,
+                        RoadFilter::new_by_user(road.length() / 2.0, app.session.filter_type),
+                    );
+                    after_edit(ctx, app);
+
+                    return Transition::Multi(vec![Transition::Pop, Transition::Recreate]);
+                }
+                _ => unreachable!(),
+            }
+        }
+        Transition::Keep
+    }
+
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::PreviousState
+    }
+
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        grey_out_map(g, app);
+        self.panel.draw(g);
     }
 }
