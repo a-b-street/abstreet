@@ -244,26 +244,32 @@ fn make_input_graph(
                         let ut = &uber_turns[*idx];
 
                         let mut sum_cost = Duration::ZERO;
+                        let mut ok = true;
                         for mvmnt in &ut.path {
                             if let Some(cost) =
                                 vehicle_cost(mvmnt.from, *mvmnt, constraints, params, map)
                             {
                                 sum_cost += cost;
                             } else {
-                                error!("A vehicle isn't allowed to cross {:?}, but it's part of an uber-turn and happening anyway", mvmnt);
+                                // A vehicle isn't allowed to do one of the steps inside the
+                                // uber-turn. So just toss out the entire uber-turn from the graph.
+                                ok = false;
+                                break;
                             }
                         }
-                        input_graph.add_edge(
-                            from,
-                            nodes.get(Node::UberTurn(*idx)),
-                            round(sum_cost),
-                        );
-                        input_graph.add_edge(
-                            nodes.get(Node::UberTurn(*idx)),
-                            nodes.get(Node::Road(ut.exit())),
-                            // The cost is already captured for entering the uber-turn
-                            1,
-                        );
+                        if ok {
+                            input_graph.add_edge(
+                                from,
+                                nodes.get(Node::UberTurn(*idx)),
+                                round(sum_cost),
+                            );
+                            input_graph.add_edge(
+                                nodes.get(Node::UberTurn(*idx)),
+                                nodes.get(Node::Road(ut.exit())),
+                                // The cost is already captured for entering the uber-turn
+                                1,
+                            );
+                        }
                     }
                 }
             }
