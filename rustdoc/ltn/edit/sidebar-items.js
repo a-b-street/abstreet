@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["EditMode",""],["EditOutcome",""],["Obj",""]],"fn":[["edit_mode",""],["road_name",""]],"mod":[["filters",""],["freehand_filters",""],["one_ways",""],["shortcuts",""]],"struct":[["EditNeighbourhood",""]]};
+window.SIDEBAR_ITEMS = {"enum":[["EditMode",""],["EditOutcome",""],["Obj",""]],"fn":[["edit_mode",""],["road_name",""]],"mod":[["filters",""],["freehand_filters",""],["one_ways",""],["shortcuts",""]],"struct":[["EditNeighbourhood",""],["ResolveOneWayAndFilter",""]]};

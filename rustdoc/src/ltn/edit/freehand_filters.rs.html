@@ -71,6 +71,18 @@
 <span id="65">65</span>
 <span id="66">66</span>
 <span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom::PolyLine</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">EventCtx</span>, <span class="ident">Line</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>};
 
@@ -89,10 +101,9 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">event</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>, <span class="ident">neighbourhood</span>: <span class="kw-2">&amp;</span><span class="ident">Neighbourhood</span>) -&gt; <span class="ident">EditOutcome</span> {
     <span class="kw">if</span> <span class="kw">let</span> <span class="ident">EditMode::FreehandFilters</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">lasso</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pl</span>) <span class="op">=</span> <span class="ident">lasso</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">make_filters_along_path</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">neighbourhood</span>, <span class="ident">pl</span>);
             <span class="comment">// Reset the tool</span>
             <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> <span class="op">=</span> <span class="ident">EditMode::Filters</span>;
-            <span class="ident">EditOutcome::Transition</span>(<span class="ident">Transition::Recreate</span>)
+            <span class="ident">EditOutcome::Transition</span>(<span class="ident">make_filters_along_path</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">neighbourhood</span>, <span class="ident">pl</span>))
         } <span class="kw">else</span> {
             <span class="comment">// Do this instead of EditOutcome::Nothing to interrupt other processing</span>
             <span class="ident">EditOutcome::Transition</span>(<span class="ident">Transition::Keep</span>)
@@ -107,7 +118,9 @@
     <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
     <span class="ident">neighbourhood</span>: <span class="kw-2">&amp;</span><span class="ident">Neighbourhood</span>,
     <span class="ident">path</span>: <span class="ident">PolyLine</span>,
-) {
+) -&gt; <span class="ident">Transition</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">oneways</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+
     <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edits</span>.<span class="ident">before_edit</span>();
     <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">neighbourhood</span>.<span class="ident">orig_perimeter</span>.<span class="ident">interior</span> {
         <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edits</span>.<span class="ident">roads</span>.<span class="ident">contains_key</span>(<span class="ident">r</span>) {
@@ -115,10 +128,15 @@
         }
         <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
         <span class="comment">// Don&#39;t show error messages</span>
-        <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">oneway_for_driving</span>().<span class="ident">is_some</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">road</span>.<span class="ident">is_deadend_for_driving</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>) {
+        <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">is_deadend_for_driving</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>) {
             <span class="kw">continue</span>;
         }
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">pt</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">intersection</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>) {
+            <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">oneway_for_driving</span>().<span class="ident">is_some</span>() {
+                <span class="ident">oneways</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">r</span>);
+                <span class="kw">continue</span>;
+            }
+
             <span class="kw">let</span> <span class="ident">dist</span> <span class="op">=</span> <span class="ident">road</span>
                 .<span class="ident">center_pts</span>
                 .<span class="ident">dist_along_of_point</span>(<span class="ident">pt</span>)
@@ -137,6 +155,12 @@
         }
     }
     <span class="ident">after_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+
+    <span class="kw">if</span> <span class="ident">oneways</span>.<span class="ident">is_empty</span>() {
+        <span class="ident">Transition::Recreate</span>
+    } <span class="kw">else</span> {
+        <span class="ident">Transition::Push</span>(<span class="ident"><span class="kw">super</span>::ResolveOneWayAndFilter::new_state</span>(<span class="ident">ctx</span>, <span class="ident">oneways</span>))
+    }
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ltn" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0 (4b91a6ea7 2022-08-08)" ></div>
