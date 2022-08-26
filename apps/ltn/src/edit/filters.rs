@@ -67,7 +67,7 @@ pub fn handle_world_outcome(
             // The world doesn't contain non-driveable roads, so no need to check for that error
             if road.oneway_for_driving().is_some() {
                 return EditOutcome::Transition(Transition::Push(
-                    super::ResolveOneWayAndFilter::new_state(ctx, r),
+                    super::ResolveOneWayAndFilter::new_state(ctx, vec![r]),
                 ));
             }
             if road.is_deadend_for_driving(&app.map) {

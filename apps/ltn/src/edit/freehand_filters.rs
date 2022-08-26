@@ -16,10 +16,9 @@ pub fn widget(ctx: &mut EventCtx) -> Widget {
 pub fn event(ctx: &mut EventCtx, app: &mut App, neighbourhood: &Neighbourhood) -> EditOutcome {
     if let EditMode::FreehandFilters(ref mut lasso) = app.session.edit_mode {
         if let Some(pl) = lasso.event(ctx) {
-            make_filters_along_path(ctx, app, neighbourhood, pl);
             // Reset the tool
             app.session.edit_mode = EditMode::Filters;
-            EditOutcome::Transition(Transition::Recreate)
+            EditOutcome::Transition(make_filters_along_path(ctx, app, neighbourhood, pl))
         } else {
             // Do this instead of EditOutcome::Nothing to interrupt other processing
             EditOutcome::Transition(Transition::Keep)
@@ -34,7 +33,9 @@ fn make_filters_along_path(
     app: &mut App,
     neighbourhood: &Neighbourhood,
     path: PolyLine,
-) {
+) -> Transition {
+    let mut oneways = Vec::new();
+
     app.session.edits.before_edit();
     for r in &neighbourhood.orig_perimeter.interior {
         if app.session.edits.roads.contains_key(r) {
@@ -42,7 +43,11 @@ fn make_filters_along_path(
         }
         let road = app.map.get_r(*r);
         // Don't show error messages
-        if road.oneway_for_driving().is_some() || road.is_deadend_for_driving(&app.map) {
+        if road.is_deadend_for_driving(&app.map) {
+            continue;
+        }
+        if road.oneway_for_driving().is_some() {
+            oneways.push(*r);
             continue;
         }
         if let Some((pt, _)) = road.center_pts.intersection(&path) {
@@ -64,4 +69,10 @@ fn make_filters_along_path(
         }
     }
     after_edit(ctx, app);
+
+    if oneways.is_empty() {
+        Transition::Recreate
+    } else {
+        Transition::Push(super::ResolveOneWayAndFilter::new_state(ctx, oneways))
+    }
 }
