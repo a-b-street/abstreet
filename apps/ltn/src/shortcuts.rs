@@ -133,6 +133,13 @@ pub fn find_shortcuts(app: &App, neighbourhood: &Neighbourhood, timer: &mut Time
             .difference(&neighbourhood.orig_perimeter.interior),
     );
 
+    // Also can't use private roads
+    for r in &neighbourhood.orig_perimeter.interior {
+        if !crate::is_driveable(map.get_r(*r), map) {
+            params.avoid_roads.insert(*r);
+        }
+    }
+
     // TODO Perf: when would it be worth creating a CH? Especially if we could subset just this
     // part of the graph, it'd probably be helpful.
     let pathfinder = Pathfinder::new_dijkstra(map, params, vec![PathConstraints::Car], timer);

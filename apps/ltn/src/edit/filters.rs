@@ -2,7 +2,7 @@ use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::tools::open_browser;
 use widgetry::{lctrl, EventCtx, Key, Line, Text, Transition, Widget};
 
-use super::{EditOutcome, Obj};
+use super::{road_name, EditOutcome, Obj};
 use crate::{after_edit, colors, App, DiagonalFilter, Neighbourhood, RoadFilter};
 
 pub fn widget(ctx: &mut EventCtx) -> Widget {
@@ -29,7 +29,7 @@ pub fn make_world(ctx: &mut EventCtx, app: &App, neighbourhood: &Neighbourhood) 
             .tooltip(Text::from(format!(
                 "{} possible shortcuts cross {}",
                 neighbourhood.shortcuts.count_per_road.get(*r),
-                road.get_name(app.opts.language.as_ref()),
+                road_name(app, road)
             )))
             .hotkey(lctrl(Key::D), "debug")
             .clickable()

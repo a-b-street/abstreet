@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Angle, Distance, Line};
-use map_model::{EditRoad, IntersectionID, Map, PathConstraints, RoadID, RoutingParams, TurnID};
+use map_model::{EditRoad, IntersectionID, Map, RoadID, RoutingParams, TurnID};
 use widgetry::mapspace::{DrawCustomUnzoomedShapes, PerZoom};
 use widgetry::{Drawable, EventCtx, GeomBatch, GfxCtx, RewriteColor};
 
@@ -288,7 +288,7 @@ impl DiagonalFilter {
                 // Include non-driveable roads in this check, since we haven't filtered those out yet
                 road.oneway_for_driving().is_none()
                     && !road.is_deadend_for_driving(map)
-                    && PathConstraints::Car.can_use_road(road, map)
+                    && crate::is_driveable(road, map)
             });
 
             // TODO I triggered this case somewhere in Kennington when drawing free-hand. Look for

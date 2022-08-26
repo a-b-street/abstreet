@@ -6,7 +6,7 @@ use abstio::MapName;
 use abstutil::Timer;
 use geom::Distance;
 use map_gui::tools::DrawSimpleRoadLabels;
-use map_model::{AmenityType, RoutingParams};
+use map_model::{AmenityType, Map, PathConstraints, Road, RoutingParams};
 use widgetry::tools::FutureLoader;
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, RewriteColor, Settings, State};
 
@@ -379,4 +379,13 @@ fn render_bus_routes(ctx: &EventCtx, app: &App) -> Drawable {
         }
     }
     ctx.upload(batch)
+}
+
+fn is_private(road: &Road) -> bool {
+    // See https://wiki.openstreetmap.org/wiki/Tag:access%3Dprivate#Relation_to_access=no
+    road.osm_tags.is_any("access", vec!["no", "private"])
+}
+
+fn is_driveable(road: &Road, map: &Map) -> bool {
+    PathConstraints::Car.can_use_road(road, map) && !is_private(road)
 }

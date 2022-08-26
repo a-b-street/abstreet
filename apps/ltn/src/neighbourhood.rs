@@ -4,11 +4,11 @@ use maplit::btreeset;
 
 use geom::{ArrowCap, Distance, PolyLine, Polygon};
 use map_gui::tools::DrawSimpleRoadLabels;
-use map_model::{Direction, IntersectionID, Map, PathConstraints, Perimeter, RoadID};
+use map_model::{Direction, IntersectionID, Map, Perimeter, RoadID};
 use widgetry::{Drawable, EventCtx, GeomBatch};
 
 use crate::shortcuts::Shortcuts;
-use crate::{colors, App, Edits, NeighbourhoodID};
+use crate::{colors, is_private, App, Edits, NeighbourhoodID};
 
 // Once constructed, a Neighbourhood is immutable
 pub struct Neighbourhood {
@@ -187,12 +187,26 @@ fn find_cells(
             continue;
         }
         let start = *start;
+        let road = map.get_r(start);
         // Just skip entirely; they're invisible for the purpose of dividing into cells
-        if !PathConstraints::Car.can_use_road(map.get_r(start), map) {
+        if !crate::is_driveable(road, map) {
             continue;
         }
+        // There are non-private roads connected only to private roads, like
+        // https://www.openstreetmap.org/way/725759378 and
+        // https://www.openstreetmap.org/way/27890699. Also skip these, to avoid creating a
+        // disconnected cell.
+        let connected_to_public_road = [road.src_i, road.dst_i]
+            .into_iter()
+            .flat_map(|i| &map.get_i(i).roads)
+            .any(|r| *r != start && !is_private(map.get_r(*r)));
+        if !connected_to_public_road {
+            continue;
+        }
+
         let cell = floodfill(map, start, borders, &edits);
         visited.extend(cell.roads.keys().cloned());
+
         cells.push(cell);
     }
 
@@ -245,7 +259,7 @@ fn floodfill(
 
     // The caller should handle this case
     assert!(!edits.roads.contains_key(&start));
-    assert!(PathConstraints::Car.can_use_road(map.get_r(start), map));
+    assert!(crate::is_driveable(map.get_r(start), map));
 
     while !queue.is_empty() {
         let current = map.get_r(queue.pop().unwrap());
@@ -256,9 +270,10 @@ fn floodfill(
             current.id,
             DistanceInterval {
                 start: Distance::ZERO,
-                end: map.get_r(current.id).length(),
+                end: current.length(),
             },
         );
+
         for i in [current.src_i, current.dst_i] {
             // It's possible for one border intersection to have two roads in the interior of the
             // neighbourhood. Don't consider a turn between those roads through this intersection as
@@ -307,8 +322,7 @@ fn floodfill(
                     continue;
                 }
 
-                if !PathConstraints::Car.can_use_road(next_road, map) {
-                    // The road is only for bikes/pedestrians to start with
+                if !crate::is_driveable(next_road, map) {
                     continue;
                 }
 
