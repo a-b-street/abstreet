@@ -3,7 +3,7 @@ use street_network::LaneSpec;
 use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::{EventCtx, Text, TextExt, Transition, Widget};
 
-use super::{EditOutcome, Obj};
+use super::{road_name, EditOutcome, Obj};
 use crate::{colors, App, Neighbourhood};
 
 pub fn widget(ctx: &mut EventCtx) -> Widget {
@@ -23,7 +23,7 @@ pub fn make_world(ctx: &mut EventCtx, app: &App, neighbourhood: &Neighbourhood) 
             .hover_color(colors::HOVER)
             .tooltip(Text::from(format!(
                 "Click to flip direction of {}",
-                road.get_name(app.opts.language.as_ref()),
+                road_name(app, road)
             )))
             .clickable()
             .build(ctx);

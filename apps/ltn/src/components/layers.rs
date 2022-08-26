@@ -221,7 +221,15 @@ impl Mode {
                         .into_widget(ctx),
                 ]),
                 Line("Faded filters exist already").small().into_widget(ctx),
+                Widget::row(vec![
+                    "Private road:".text_widget(ctx),
+                    Image::from_path("system/assets/map/private_road.svg")
+                        .untinted()
+                        .dims(30.0)
+                        .into_widget(ctx),
+                ]),
                 // TODO Entry/exit arrows?
+                // TODO Dashed roads are walk/bike
             ],
             Mode::SelectBoundary => vec![
                 entry(ctx, colors::HIGHLIGHT_BOUNDARY, "boundary road"),

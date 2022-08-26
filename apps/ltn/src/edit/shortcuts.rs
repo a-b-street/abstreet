@@ -3,7 +3,7 @@ use map_model::{PathV2, RoadID};
 use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::{Color, EventCtx, GeomBatch, Key, Line, Text, TextExt, Widget};
 
-use super::{EditMode, EditOutcome, Obj};
+use super::{road_name, EditMode, EditOutcome, Obj};
 use crate::{colors, App, Neighbourhood};
 
 pub struct FocusedRoad {
@@ -77,7 +77,7 @@ pub fn make_world(
                 .tooltip(Text::from(format!(
                     "{} possible shortcuts cross {}",
                     neighbourhood.shortcuts.count_per_road.get(*r),
-                    road.get_name(app.opts.language.as_ref()),
+                    road_name(app, road)
                 )))
                 .clickable()
                 .build(ctx);

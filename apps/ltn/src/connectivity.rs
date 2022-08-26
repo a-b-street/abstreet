@@ -11,7 +11,7 @@ use crate::components::Mode;
 use crate::draw_cells::RenderCells;
 use crate::edit::{EditMode, EditNeighbourhood, EditOutcome};
 use crate::filters::auto::Heuristic;
-use crate::{colors, App, Neighbourhood, NeighbourhoodID, Transition};
+use crate::{colors, is_private, App, Neighbourhood, NeighbourhoodID, Transition};
 
 pub struct Viewer {
     top_panel: Panel,
@@ -306,7 +306,9 @@ fn setup_editing(
         }
     }
 
-    // Draw one-way arrows
+    // Draw one-way arrows and mark private roads
+    let private_road = GeomBatch::load_svg(ctx, "system/assets/map/private_road.svg");
+
     for r in neighbourhood
         .orig_perimeter
         .interior
@@ -334,6 +336,24 @@ fn setup_editing(
                     .to_outline(thickness / 2.0)
                 {
                     draw_top_layer.push(colors::ROAD_LABEL, poly);
+                }
+            }
+        }
+
+        // Mimic the UK-style "no entry" / dead-end symbol at both ends of every private road
+        // segment
+        if is_private(road) {
+            // The outline is 1m on each side
+            let width = road.get_width() - Distance::meters(2.0);
+            for (dist, rotate) in [(width, 90.0), (road.center_pts.length() - width, -90.0)] {
+                if let Ok((pt, angle)) = road.center_pts.dist_along(dist) {
+                    draw_top_layer.append(
+                        private_road
+                            .clone()
+                            .scale_to_fit_width(width.inner_meters())
+                            .centered_on(pt)
+                            .rotate_around_batch_center(angle.rotate_degs(rotate)),
+                    );
                 }
             }
         }

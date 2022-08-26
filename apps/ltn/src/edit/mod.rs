@@ -3,7 +3,7 @@ mod freehand_filters;
 mod one_ways;
 mod shortcuts;
 
-use map_model::{IntersectionID, RoadID};
+use map_model::{IntersectionID, Road, RoadID};
 use widgetry::mapspace::{ObjectID, World};
 use widgetry::tools::{PolyLineLasso, PopupMsg};
 use widgetry::{
@@ -11,7 +11,7 @@ use widgetry::{
     Widget,
 };
 
-use crate::{colors, App, BrowseNeighbourhoods, FilterType, Neighbourhood, Transition};
+use crate::{colors, is_private, App, BrowseNeighbourhoods, FilterType, Neighbourhood, Transition};
 
 pub enum EditMode {
     Filters,
@@ -295,4 +295,16 @@ fn edit_mode(ctx: &mut EventCtx, app: &App) -> Widget {
             .build_widget(ctx, "Shortcuts")
             .centered_vert(),
     ])
+}
+
+fn road_name(app: &App, road: &Road) -> String {
+    let mut name = road.get_name(app.opts.language.as_ref());
+    if name == "???" {
+        name = "unnamed road".to_string();
+    }
+    if is_private(road) {
+        format!("{name} (private)")
+    } else {
+        name
+    }
 }
