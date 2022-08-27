@@ -4181,9 +4181,9 @@
       "compressed_size_bytes": 4458616
     },
     "data/system/gb/london/city.bin": {
-      "checksum": "cafd9e13860e5a31755faca53c1214c4",
-      "uncompressed_size_bytes": 3953000,
-      "compressed_size_bytes": 1896557
+      "checksum": "5b7d9739634a6c3cadc2299393036770",
+      "uncompressed_size_bytes": 4044630,
+      "compressed_size_bytes": 1946214
     },
     "data/system/gb/london/maps/barking_and_dagenham.bin": {
       "checksum": "9713cbd725e1b72d1c6dbe0950d952be",
@@ -4234,6 +4234,11 @@
       "checksum": "893878ce06c0565b922c3e53124644b4",
       "uncompressed_size_bytes": 42936834,
       "compressed_size_bytes": 16211298
+    },
+    "data/system/gb/london/maps/enfield.bin": {
+      "checksum": "d1e7efc8f8a0b60d12b2e8af176b3cf9",
+      "uncompressed_size_bytes": 48580683,
+      "compressed_size_bytes": 18593682
     },
     "data/system/gb/london/maps/greenwich.bin": {
       "checksum": "0eaa3872d89a081bc32bb6b31201a0ab",
@@ -4404,6 +4409,11 @@
       "checksum": "26f2f8dcb181ab237dd1728b24b53eb5",
       "uncompressed_size_bytes": 28106387,
       "compressed_size_bytes": 7401856
+    },
+    "data/system/gb/london/scenarios/enfield/background.bin": {
+      "checksum": "411fb7d923ab164b02ccf6ab3309cccb",
+      "uncompressed_size_bytes": 16986555,
+      "compressed_size_bytes": 4471444
     },
     "data/system/gb/london/scenarios/greenwich/background.bin": {
       "checksum": "9413c6a08e0ff9b516788b3f5f405e36",
