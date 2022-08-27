@@ -344,12 +344,12 @@ impl PolyLine {
         Ok(pl)
     }
 
-    pub fn first_half(&self) -> PolyLine {
-        self.exact_slice(Distance::ZERO, self.length() / 2.0)
+    pub fn first_half(&self) -> Result<PolyLine> {
+        self.maybe_exact_slice(Distance::ZERO, self.length() / 2.0)
     }
 
-    pub fn second_half(&self) -> PolyLine {
-        self.exact_slice(self.length() / 2.0, self.length())
+    pub fn second_half(&self) -> Result<PolyLine> {
+        self.maybe_exact_slice(self.length() / 2.0, self.length())
     }
 
     pub fn dist_along(&self, dist_along: Distance) -> Result<(Pt2D, Angle)> {
