@@ -1489,12 +1489,12 @@
         <span class="prelude-val">Ok</span>(<span class="ident">pl</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">first_half</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">PolyLine</span> {
-        <span class="self">self</span>.<span class="ident">exact_slice</span>(<span class="ident">Distance::ZERO</span>, <span class="self">self</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="number">2.0</span>)
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">first_half</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PolyLine</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">maybe_exact_slice</span>(<span class="ident">Distance::ZERO</span>, <span class="self">self</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="number">2.0</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">second_half</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">PolyLine</span> {
-        <span class="self">self</span>.<span class="ident">exact_slice</span>(<span class="self">self</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="number">2.0</span>, <span class="self">self</span>.<span class="ident">length</span>())
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">second_half</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PolyLine</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">maybe_exact_slice</span>(<span class="self">self</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="number">2.0</span>, <span class="self">self</span>.<span class="ident">length</span>())
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dist_along</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">dist_along</span>: <span class="ident">Distance</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Pt2D</span>, <span class="ident">Angle</span>)<span class="op">&gt;</span> {
