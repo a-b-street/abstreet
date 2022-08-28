@@ -395,6 +395,9 @@
 <span id="389">389</span>
 <span id="390">390</span>
 <span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::type_complexity</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">structopt::StructOpt</span>;
@@ -501,6 +504,7 @@
             <span class="ident">current_trip_name</span>: <span class="prelude-val">None</span>,
 
             <span class="ident">consultation</span>: <span class="prelude-val">None</span>,
+            <span class="ident">consultation_id</span>: <span class="prelude-val">None</span>,
             <span class="ident">consultation_proposal_path</span>: <span class="prelude-val">None</span>,
 
             <span class="ident">layers</span>: <span class="ident">components::Layers::new</span>(<span class="ident">ctx</span>),
@@ -586,6 +590,7 @@
                 <span class="string">&quot;Can&#39;t find neighbourhood containing {focus_on_street}&quot;</span>
             ));
         <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">consultation</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">neighbourhood</span>);
+        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">consultation_id</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">consultation</span>.<span class="ident">to_string</span>());
 
         <span class="comment">// TODO Maybe center the camera, ignoring any saved values</span>
 
@@ -688,6 +693,7 @@
     <span class="ident">current_trip_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 
     <span class="ident">consultation</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NeighbourhoodID</span><span class="op">&gt;</span>,
+    <span class="ident">consultation_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="comment">// The current consultation should always be based off a built-in proposal</span>
     <span class="ident">consultation_proposal_path</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 
