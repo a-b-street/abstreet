@@ -43,11 +43,17 @@ impl ShareProposal {
                 .strip_prefix(&abstio::path(""))
                 .unwrap()
                 .to_string();
+            let consultation = if let Some(ref x) = app.session.consultation_id {
+                format!("&--consultation={x}")
+            } else {
+                String::new()
+            };
             url = Some(format!(
-                "http://play.abstreet.org/{}/ltn.html?{}&--proposal=remote/{}",
+                "http://play.abstreet.org/{}/ltn.html?{}&--proposal=remote/{}{}",
                 map_gui::tools::version(),
                 map_path,
-                checksum
+                checksum,
+                consultation
             ));
 
             if cfg!(target_arch = "wasm32") {

@@ -104,6 +104,7 @@ fn run(mut settings: Settings) {
             current_trip_name: None,
 
             consultation: None,
+            consultation_id: None,
             consultation_proposal_path: None,
 
             layers: components::Layers::new(ctx),
@@ -189,6 +190,7 @@ fn setup_initial_states(
                 "Can't find neighbourhood containing {focus_on_street}"
             ));
         app.session.consultation = Some(*neighbourhood);
+        app.session.consultation_id = Some(consultation.to_string());
 
         // TODO Maybe center the camera, ignoring any saved values
 
@@ -291,6 +293,7 @@ pub struct Session {
     current_trip_name: Option<String>,
 
     consultation: Option<NeighbourhoodID>,
+    consultation_id: Option<String>,
     // The current consultation should always be based off a built-in proposal
     consultation_proposal_path: Option<String>,
 
