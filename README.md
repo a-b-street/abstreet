@@ -1,7 +1,7 @@
 # A/B Street
 
 [![DOI](https://zenodo.org/badge/135952436.svg)](https://zenodo.org/badge/latestdoi/135952436)
-[![](https://dcbadge.vercel.app/api/server/nCvMD4xj4K)](https://discord.gg/nCvMD4xj4K)
+[![](https://dcbadge.vercel.app/api/server/nCvMD4xj4K?style=flat)](https://discord.gg/nCvMD4xj4K)
 
 Ever been stuck in traffic on a bus, wondering why is there legal street parking
 instead of a dedicated bus lane? A/B Street is a project to plan, simulate, and
