@@ -121,7 +121,8 @@ fn run(mut settings: Settings) {
                     .layers
                     .event(ctx, &app.cs, components::Mode::BrowseNeighbourhoods);
 
-                // Load a proposal first?
+                // Load a proposal first? Make sure to restore the partitioning from a file before
+                // calling BrowseNeighbourhoods
                 if let Some(ref name) = args.proposal {
                     // Remote edits require another intermediate state to load
                     if let Some(id) = name.strip_prefix("remote/") {
@@ -167,10 +168,13 @@ fn setup_initial_states(
             _ => panic!("Unknown Bristol consultation mode {consultation}"),
         };
 
-        app.session.alt_proposals = crate::save::AltProposals::new();
-        ctx.loading_screen("initialize", |ctx, timer| {
-            crate::clear_current_proposal(ctx, app, timer);
-        });
+        // If we already loaded something from a saved proposal, then don't clear anything
+        if &app.session.partitioning.map != app.map.get_name() {
+            app.session.alt_proposals = crate::save::AltProposals::new();
+            ctx.loading_screen("initialize", |ctx, timer| {
+                crate::clear_current_proposal(ctx, app, timer);
+            });
+        }
 
         // Look for the neighbourhood containing one small street
         let r = app
@@ -208,8 +212,6 @@ fn setup_initial_states(
         ));
         states.push(BrowseNeighbourhoods::new_state(ctx, app));
     }
-    // Restore the partitioning from a file before calling BrowseNeighbourhoods
-    // TODO Correct now? Comment OK? What about clear_current_proposal above?
     if let Some(state) = popup_state {
         states.push(state);
     }
