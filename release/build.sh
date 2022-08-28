@@ -5,7 +5,7 @@ set -e;
 
 os=$1;
 case $os in
-    ubuntu-22.04)
+    ubuntu-20.04)
         output="abst_linux";
         suffix="";
         ext="sh";
@@ -48,7 +48,7 @@ cp -Rv data/system $output/data/system
 cp data/MANIFEST.json $output/data
 
 case $os in
-    ubuntu-22.04)
+    ubuntu-20.04)
         # TODO Github will double-zip this, but if we just pass the directory, then the
         # chmod +x bits get lost
         zip -r $output $output
