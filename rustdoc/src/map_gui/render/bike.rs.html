@@ -159,7 +159,9 @@
 <span id="153">153</span>
 <span id="154">154</span>
 <span id="155">155</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
+<span id="156">156</span>
+<span id="157">157</span>
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>, <span class="ident">Tessellation</span>};
 <span class="kw">use</span> <span class="ident">map_model::Map</span>;
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">CarID</span>, <span class="ident">DrawCarInput</span>, <span class="ident">Intent</span>, <span class="ident">Sim</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Drawable</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Prerender</span>};
@@ -300,10 +302,12 @@
         <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw_default</span>);
     }
 
-    <span class="kw">fn</span> <span class="ident">get_outline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">Polygon</span> {
-        <span class="ident">Circle::new</span>(<span class="self">self</span>.<span class="ident">body_circle</span>.<span class="ident">center</span>, <span class="ident">Distance::meters</span>(<span class="number">2.0</span>))
-            .<span class="ident">to_outline</span>(<span class="ident">OUTLINE_THICKNESS</span>)
-            .<span class="ident">unwrap</span>()
+    <span class="kw">fn</span> <span class="ident">get_outline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">Tessellation</span> {
+        <span class="ident">Tessellation::from</span>(
+            <span class="ident">Circle::new</span>(<span class="self">self</span>.<span class="ident">body_circle</span>.<span class="ident">center</span>, <span class="ident">Distance::meters</span>(<span class="number">2.0</span>))
+                .<span class="ident">to_outline</span>(<span class="ident">OUTLINE_THICKNESS</span>)
+                .<span class="ident">unwrap</span>(),
+        )
     }
 
     <span class="kw">fn</span> <span class="ident">contains_pt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">bool</span> {

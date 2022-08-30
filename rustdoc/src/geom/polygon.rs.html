@@ -658,24 +658,6 @@
 <span id="652">652</span>
 <span id="653">653</span>
 <span id="654">654</span>
-<span id="655">655</span>
-<span id="656">656</span>
-<span id="657">657</span>
-<span id="658">658</span>
-<span id="659">659</span>
-<span id="660">660</span>
-<span id="661">661</span>
-<span id="662">662</span>
-<span id="663">663</span>
-<span id="664">664</span>
-<span id="665">665</span>
-<span id="666">666</span>
-<span id="667">667</span>
-<span id="668">668</span>
-<span id="669">669</span>
-<span id="670">670</span>
-<span id="671">671</span>
-<span id="672">672</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::fmt</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
@@ -1018,30 +1000,6 @@
         <span class="ident">Polygon::maybe_rounded_rectangle</span>(<span class="ident">w</span>, <span class="ident">h</span>, <span class="ident">r</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">Polygon::rectangle</span>(<span class="ident">w</span>, <span class="ident">h</span>))
     }
 
-    <span class="comment">// TODO Result won&#39;t be a nice Ring</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">union</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Polygon</span>) -&gt; <span class="ident">Polygon</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">points</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">points</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">indices</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">indices</span>;
-        <span class="kw">let</span> <span class="ident">offset</span> <span class="op">=</span> <span class="ident">points</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u16</span>;
-        <span class="ident">points</span>.<span class="ident">extend</span>(<span class="ident">other</span>.<span class="ident">points</span>);
-        <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="ident">other</span>.<span class="ident">indices</span> {
-            <span class="ident">indices</span>.<span class="ident">push</span>(<span class="ident">offset</span> <span class="op">+</span> <span class="ident">idx</span>);
-        }
-        <span class="ident">Polygon</span> {
-            <span class="ident">points</span>,
-            <span class="ident">indices</span>,
-            <span class="ident">rings</span>: <span class="prelude-val">None</span>,
-        }
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">union_all</span>(<span class="kw-2">mut</span> <span class="ident">list</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span>) -&gt; <span class="ident">Polygon</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">list</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
-        <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="ident">list</span> {
-            <span class="ident">result</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">union</span>(<span class="ident">p</span>);
-        }
-        <span class="ident">result</span>
-    }
-
     <span class="doccomment">/// Union all of the polygons into one geo::MultiPolygon</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">union_all_into_multipolygon</span>(<span class="kw-2">mut</span> <span class="ident">list</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span>) -&gt; <span class="ident">geo::MultiPolygon</span> {
         <span class="comment">// TODO Not sure why this happened, or if this is really valid to construct...</span>
@@ -1092,16 +1050,22 @@
         <span class="self">self</span>.<span class="ident">to_geo</span>().<span class="ident">intersects</span>(<span class="kw-2">&amp;</span><span class="ident">pl</span>.<span class="ident">to_geo</span>())
     }
 
-    <span class="doccomment">/// Creates the outline around the polygon, with the thickness half straddling the polygon and</span>
-    <span class="doccomment">/// half of it just outside. Only works for polygons that&#39;re formed from rings. Those made from</span>
-    <span class="doccomment">/// PolyLines won&#39;t work, for example.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_outline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">thickness</span>: <span class="ident">Distance</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Creates the outline around the polygon (both the exterior and holes), with the thickness</span>
+    <span class="doccomment">/// half straddling the polygon and half of it just outside. Only works for polygons that&#39;re</span>
+    <span class="doccomment">/// formed from rings.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Returns a `Tessellation` that may union together the outline from the exterior and multiple</span>
+    <span class="doccomment">/// holes. Callers that need a `Polygon` must call `to_outline` on the individual `Rings`.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_outline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">thickness</span>: <span class="ident">Distance</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Tessellation</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">rings</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">rings</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">Polygon::union_all</span>(
-                <span class="ident">rings</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">to_outline</span>(<span class="ident">thickness</span>)).<span class="ident">collect</span>(),
+            <span class="prelude-val">Ok</span>(<span class="ident">Tessellation::union_all</span>(
+                <span class="ident">rings</span>
+                    .<span class="ident">iter</span>()
+                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">Tessellation::from</span>(<span class="ident">r</span>.<span class="ident">to_outline</span>(<span class="ident">thickness</span>)))
+                    .<span class="ident">collect</span>(),
             ))
         } <span class="kw">else</span> {
-            <span class="ident">Ring::new</span>(<span class="self">self</span>.<span class="ident">points</span>.<span class="ident">clone</span>()).<span class="ident">map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">to_outline</span>(<span class="ident">thickness</span>))
+            <span class="ident">Ring::new</span>(<span class="self">self</span>.<span class="ident">points</span>.<span class="ident">clone</span>()).<span class="ident">map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">Tessellation::from</span>(<span class="ident">r</span>.<span class="ident">to_outline</span>(<span class="ident">thickness</span>)))
         }
     }
 

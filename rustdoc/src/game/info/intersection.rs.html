@@ -776,11 +776,11 @@
                 <span class="ident">batch</span>,
                 <span class="ident">tooltips</span>,
                 <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">arrow</span><span class="op">|</span> {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="macro">vec!</span>[(<span class="ident">Color::hex</span>(<span class="string">&quot;#EE702E&quot;</span>), <span class="ident">arrow</span>.<span class="ident">clone</span>())];
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(<span class="ident">Color::hex</span>(<span class="string">&quot;#EE702E&quot;</span>), <span class="ident">arrow</span>.<span class="ident">clone</span>())]);
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">p</span>) <span class="op">=</span> <span class="ident">arrow</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">1.0</span>)) {
-                        <span class="ident">list</span>.<span class="ident">push</span>((<span class="ident">Color::WHITE</span>, <span class="ident">p</span>));
+                        <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::WHITE</span>, <span class="ident">p</span>);
                     }
-                    <span class="ident">GeomBatch::from</span>(<span class="ident">list</span>)
+                    <span class="ident">batch</span>
                 }),
             ),
         ])

@@ -341,6 +341,10 @@
 <span id="335">335</span>
 <span id="336">336</span>
 <span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">InputWaypoints</span>, <span class="ident">TripManagement</span>, <span class="ident">TripManagementState</span>, <span class="ident">WaypointID</span>};
 <span class="kw">use</span> <span class="ident">map_model::RoutingParams</span>;
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ObjectID</span>, <span class="ident">World</span>, <span class="ident">WorldOutcome</span>};
@@ -426,12 +430,14 @@
 
         <span class="kw">let</span> <span class="ident">main_route</span> <span class="op">=</span> <span class="ident">RouteDetails::main_route</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>());
         <span class="self">self</span>.<span class="ident">main_route</span> <span class="op">=</span> <span class="ident">main_route</span>.<span class="ident">details</span>;
-        <span class="ident">world</span>
-            .<span class="ident">add</span>(<span class="ident">ID::MainRoute</span>)
-            .<span class="ident">hitbox</span>(<span class="ident">main_route</span>.<span class="ident">hitbox</span>)
-            .<span class="ident">zorder</span>(<span class="number">1</span>)
-            .<span class="ident">draw</span>(<span class="ident">main_route</span>.<span class="ident">draw</span>)
-            .<span class="ident">build</span>(<span class="ident">ctx</span>);
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>().<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">1</span> {
+            <span class="ident">world</span>
+                .<span class="ident">add</span>(<span class="ident">ID::MainRoute</span>)
+                .<span class="ident">hitboxes</span>(<span class="ident">main_route</span>.<span class="ident">hitboxes</span>)
+                .<span class="ident">zorder</span>(<span class="number">1</span>)
+                .<span class="ident">draw</span>(<span class="ident">main_route</span>.<span class="ident">draw</span>)
+                .<span class="ident">build</span>(<span class="ident">ctx</span>);
+        }
 
         <span class="self">self</span>.<span class="ident">files</span>.<span class="ident">autosave</span>(<span class="ident">app</span>);
         <span class="comment">// This doesn&#39;t depend on the alt routes, so just do it here</span>
@@ -450,7 +456,9 @@
                 <span class="ident">avoid_stressful_roads</span>: <span class="bool-val">true</span>,
             },
         ] {
-            <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">routing_preferences</span> <span class="op">==</span> <span class="ident">preferences</span> {
+            <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">routing_preferences</span> <span class="op">==</span> <span class="ident">preferences</span>
+                <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>().<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">2</span>
+            {
                 <span class="kw">continue</span>;
             }
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">alt</span> <span class="op">=</span> <span class="ident">RouteDetails::alt_route</span>(
@@ -467,7 +475,7 @@
                 <span class="self">self</span>.<span class="ident">alt_routes</span>.<span class="ident">push</span>(<span class="ident">alt</span>.<span class="ident">details</span>);
                 <span class="ident">world</span>
                     .<span class="ident">add</span>(<span class="ident">ID::AltRoute</span>(<span class="self">self</span>.<span class="ident">alt_routes</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>))
-                    .<span class="ident">hitbox</span>(<span class="ident">alt</span>.<span class="ident">hitbox</span>)
+                    .<span class="ident">hitboxes</span>(<span class="ident">alt</span>.<span class="ident">hitboxes</span>)
                     .<span class="ident">zorder</span>(<span class="number">0</span>)
                     .<span class="ident">draw</span>(<span class="ident">alt</span>.<span class="ident">draw</span>)
                     .<span class="ident">hover_alpha</span>(<span class="number">0.8</span>)

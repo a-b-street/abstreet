@@ -413,7 +413,7 @@
 <span id="407">407</span>
 <span id="408">408</span>
 <span id="409">409</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>};
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>};
 <span class="kw">use</span> <span class="ident">street_network::Direction</span>;
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">DummyID</span>, <span class="ident">World</span>};
 <span class="kw">use</span> <span class="ident">widgetry::tools::PopupMsg</span>;
@@ -699,7 +699,7 @@
 
         <span class="ident">highlight_cell</span>
             .<span class="ident">add_unnamed</span>()
-            .<span class="ident">hitbox</span>(<span class="ident">Polygon::union_all</span>(<span class="ident">polygons</span>.<span class="ident">clone</span>()))
+            .<span class="ident">hitboxes</span>(<span class="ident">polygons</span>.<span class="ident">clone</span>())
             <span class="comment">// Don&#39;t draw cells by default</span>
             .<span class="ident">drawn_in_master_batch</span>()
             .<span class="ident">draw_hovered</span>(<span class="ident">batch</span>)

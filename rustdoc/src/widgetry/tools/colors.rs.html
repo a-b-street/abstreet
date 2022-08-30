@@ -228,7 +228,10 @@
 <span id="222">222</span>
 <span id="223">223</span>
 <span id="224">224</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Line</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Line</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Tessellation</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">Fill</span>, <span class="ident">GeomBatch</span>, <span class="ident">Line</span>, <span class="ident">LinearGradient</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>};
 
@@ -268,10 +271,13 @@
                     .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">idx</span>, <span class="ident">color</span>)<span class="op">|</span> ((<span class="ident">idx</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> ((<span class="ident">n</span> <span class="op">-</span> <span class="number">1</span>) <span class="kw">as</span> <span class="ident">f64</span>), <span class="kw-2">*</span><span class="ident">color</span>))
                     .<span class="ident">collect</span>(),
             }),
-            <span class="ident">Polygon::union_all</span>(
+            <span class="ident">Tessellation::union_all</span>(
                 (<span class="number">0</span>..<span class="ident">n</span> <span class="op">-</span> <span class="number">1</span>)
                     .<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> {
-                        <span class="ident">Polygon::rectangle</span>(<span class="ident">width_each</span>, <span class="number">32.0</span>).<span class="ident">translate</span>((<span class="ident">i</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="ident">width_each</span>, <span class="number">0.0</span>)
+                        <span class="ident">Tessellation::from</span>(
+                            <span class="ident">Polygon::rectangle</span>(<span class="ident">width_each</span>, <span class="number">32.0</span>)
+                                .<span class="ident">translate</span>((<span class="ident">i</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="ident">width_each</span>, <span class="number">0.0</span>),
+                        )
                     })
                     .<span class="ident">collect</span>(),
             ),

@@ -329,7 +329,7 @@
 <span id="323">323</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cell::Cell</span>;
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Tessellation</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::assets::Assets</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::backend</span>::{<span class="ident">GfxCtxInnards</span>, <span class="ident">PrerenderInnards</span>};
@@ -456,7 +456,7 @@
 
     <span class="comment">// Doesn&#39;t take &amp;Polygon, because this is inherently inefficient. If performance matters,</span>
     <span class="comment">// upload, cache, and redraw.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw_polygon</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">color</span>: <span class="ident">Color</span>, <span class="ident">poly</span>: <span class="ident">Polygon</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw_polygon</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Tessellation</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">color</span>: <span class="ident">Color</span>, <span class="ident">poly</span>: <span class="ident">T</span>) {
         <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(<span class="ident">color</span>, <span class="ident">poly</span>)]).<span class="ident">draw</span>(<span class="self">self</span>);
     }
 

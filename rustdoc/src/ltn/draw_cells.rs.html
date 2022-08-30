@@ -412,8 +412,8 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw_island_outlines</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">GeomBatch</span> {
         <span class="kw">let</span> <span class="ident">neighbourhood_boundary</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">boundary_polygon</span>
-            .<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">25.0</span>))
-            .<span class="ident">ok</span>();
+            .<span class="ident">get_outer_ring</span>()
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">25.0</span>)));
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
         <span class="kw">for</span> (<span class="ident">cell_color</span>, <span class="ident">polygons</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">colors</span>.<span class="ident">iter</span>().<span class="ident">zip</span>(<span class="self">self</span>.<span class="ident">polygons_per_cell</span>.<span class="ident">iter</span>()) {

@@ -523,11 +523,6 @@
 <span id="517">517</span>
 <span id="518">518</span>
 <span id="519">519</span>
-<span id="520">520</span>
-<span id="521">521</span>
-<span id="522">522</span>
-<span id="523">523</span>
-<span id="524">524</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cmp::Ordering</span>;
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">FindClosest</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>};
@@ -549,7 +544,7 @@
     <span class="kw">pub</span> <span class="ident">details</span>: <span class="ident">RouteDetails</span>,
     <span class="kw">pub</span> <span class="ident">details_widget</span>: <span class="ident">Widget</span>,
     <span class="kw">pub</span> <span class="ident">draw</span>: <span class="ident">ToggleZoomedBuilder</span>,
-    <span class="kw">pub</span> <span class="ident">hitbox</span>: <span class="ident">Polygon</span>,
+    <span class="kw">pub</span> <span class="ident">hitboxes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">tooltip_for_alt</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Text</span><span class="op">&gt;</span>,
 }
 
@@ -629,7 +624,7 @@
         <span class="ident">preferences</span>: <span class="ident">RoutingPreferences</span>,
     ) -&gt; <span class="ident">BuiltRoute</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw_route</span> <span class="op">=</span> <span class="ident">ToggleZoomed::builder</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hitbox_pieces</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hitboxes</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw_high_stress</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw_traffic_signals</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw_unprotected_turns</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
@@ -706,7 +701,7 @@
                         .<span class="ident">zoomed</span>
                         .<span class="ident">push</span>(<span class="ident">route_color</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="ident">shape</span>.<span class="ident">clone</span>());
 
-                    <span class="ident">hitbox_pieces</span>.<span class="ident">push</span>(<span class="ident">shape</span>);
+                    <span class="ident">hitboxes</span>.<span class="ident">push</span>(<span class="ident">shape</span>);
 
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">color</span>) <span class="op">=</span> <span class="ident">outline_color</span> {
                         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">outline</span>) <span class="op">=</span>
@@ -759,12 +754,7 @@
             },
             <span class="ident">details_widget</span>,
             <span class="ident">draw</span>: <span class="ident">draw_route</span>,
-            <span class="ident">hitbox</span>: <span class="kw">if</span> <span class="ident">hitbox_pieces</span>.<span class="ident">is_empty</span>() {
-                <span class="comment">// Dummy tiny hitbox</span>
-                <span class="ident">Polygon::rectangle</span>(<span class="number">0.0001</span>, <span class="number">0.0001</span>)
-            } <span class="kw">else</span> {
-                <span class="ident">Polygon::union_all</span>(<span class="ident">hitbox_pieces</span>)
-            },
+            <span class="ident">hitboxes</span>,
             <span class="ident">tooltip_for_alt</span>: <span class="prelude-val">None</span>,
         }
     }

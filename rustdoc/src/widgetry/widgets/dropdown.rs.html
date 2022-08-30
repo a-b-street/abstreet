@@ -211,6 +211,7 @@
 <span id="205">205</span>
 <span id="206">206</span>
 <span id="207">207</span>
+<span id="208">208</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">CornerRadii</span>, <span class="ident">Distance</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -352,13 +353,14 @@
             <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">m</span>.<span class="ident">get_dims</span>().<span class="ident">width</span> <span class="op">+</span> <span class="number">2.0</span> <span class="op">*</span> <span class="ident">pad</span>;
             <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> <span class="ident">m</span>.<span class="ident">get_dims</span>().<span class="ident">height</span> <span class="op">+</span> <span class="number">2.0</span> <span class="op">*</span> <span class="ident">pad</span>;
             <span class="kw">let</span> <span class="ident">rect</span> <span class="op">=</span> <span class="ident">Polygon::rounded_rectangle</span>(<span class="ident">width</span>, <span class="ident">height</span>, <span class="number">5.0</span>);
-            <span class="kw">let</span> <span class="ident">draw_bg</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">upload</span>(<span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[
-                (<span class="ident">g</span>.<span class="ident">style</span>().<span class="ident">field_bg</span>, <span class="ident">rect</span>.<span class="ident">clone</span>()),
-                (
-                    <span class="ident">g</span>.<span class="ident">style</span>().<span class="ident">dropdown_border</span>,
-                    <span class="ident">rect</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">1.0</span>)).<span class="ident">unwrap</span>(),
-                ),
-            ]));
+
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
+            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">g</span>.<span class="ident">style</span>().<span class="ident">field_bg</span>, <span class="ident">rect</span>.<span class="ident">clone</span>());
+            <span class="ident">batch</span>.<span class="ident">push</span>(
+                <span class="ident">g</span>.<span class="ident">style</span>().<span class="ident">dropdown_border</span>,
+                <span class="ident">rect</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">1.0</span>)).<span class="ident">unwrap</span>(),
+            );
+            <span class="kw">let</span> <span class="ident">draw_bg</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">upload</span>(<span class="ident">batch</span>);
             <span class="ident">g</span>.<span class="ident">fork</span>(
                 <span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),
                 <span class="ident">ScreenPt::new</span>(<span class="ident">m</span>.<span class="ident">top_left</span>.<span class="ident">x</span> <span class="op">-</span> <span class="ident">pad</span>, <span class="ident">m</span>.<span class="ident">top_left</span>.<span class="ident">y</span> <span class="op">-</span> <span class="ident">pad</span>),

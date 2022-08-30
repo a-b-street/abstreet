@@ -154,6 +154,25 @@
 <span id="148">148</span>
 <span id="149">149</span>
 <span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Angle</span>, <span class="ident">Bounds</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 
 <span class="comment">// Deliberately not serializable</span>
@@ -227,7 +246,7 @@
         <span class="ident">Bounds::from</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">points</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">center</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Pt2D</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">center</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Pt2D</span> {
         <span class="self">self</span>.<span class="ident">get_bounds</span>().<span class="ident">center</span>()
     }
 
@@ -290,6 +309,25 @@
                 <span class="ident">pivot</span>.<span class="ident">y</span>() <span class="op">+</span> <span class="ident">origin_pt</span>.<span class="ident">y</span>() <span class="op">*</span> <span class="ident">cos</span> <span class="op">+</span> <span class="ident">origin_pt</span>.<span class="ident">x</span>() <span class="op">*</span> <span class="ident">sin</span>,
             );
         }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">union</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="self">Self</span>) -&gt; <span class="self">Self</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">points</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">points</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">indices</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">indices</span>;
+        <span class="kw">let</span> <span class="ident">offset</span> <span class="op">=</span> <span class="ident">points</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u16</span>;
+        <span class="ident">points</span>.<span class="ident">extend</span>(<span class="ident">other</span>.<span class="ident">points</span>);
+        <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="ident">other</span>.<span class="ident">indices</span> {
+            <span class="ident">indices</span>.<span class="ident">push</span>(<span class="ident">offset</span> <span class="op">+</span> <span class="ident">idx</span>);
+        }
+        <span class="self">Self</span> { <span class="ident">points</span>, <span class="ident">indices</span> }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">union_all</span>(<span class="kw-2">mut</span> <span class="ident">list</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">list</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
+        <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="ident">list</span> {
+            <span class="ident">result</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">union</span>(<span class="ident">p</span>);
+        }
+        <span class="ident">result</span>
     }
 }
 
