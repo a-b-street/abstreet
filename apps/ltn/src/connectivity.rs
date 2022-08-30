@@ -282,15 +282,13 @@ fn setup_editing(
             batch.push(color, arrow);
         }
 
-        for polygon in polygons {
-            highlight_cell
-                .add_unnamed()
-                .hitbox(polygon.clone())
-                // Don't draw cells by default
-                .drawn_in_master_batch()
-                .draw_hovered(batch.clone())
-                .build(ctx);
-        }
+        highlight_cell
+            .add_unnamed()
+            .hitboxes(polygons.clone())
+            // Don't draw cells by default
+            .drawn_in_master_batch()
+            .draw_hovered(batch)
+            .build(ctx);
     }
 
     if !matches!(app.session.edit_mode, EditMode::Shortcuts(_)) {
