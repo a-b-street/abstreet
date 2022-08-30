@@ -298,9 +298,9 @@ impl PathV2 {
         Ok(Ring::deduping_new(left_pts)?.into_polygon())
     }
 
-    /// Returns one unioned polygon covering the entire path. Ignores the path's exact starting and
-    /// ending distance. The result can't be used for outlines.
-    pub fn trace_all_polygons(&self, map: &Map) -> Polygon {
+    /// Returns polygons covering the entire path. Ignores the path's exact starting and ending
+    /// distance.
+    pub fn trace_all_polygons(&self, map: &Map) -> Vec<Polygon> {
         let mut polygons = Vec::new();
         for step in &self.steps {
             match step {
@@ -312,7 +312,7 @@ impl PathV2 {
                 }
             }
         }
-        Polygon::union_all(polygons)
+        polygons
     }
 }
 

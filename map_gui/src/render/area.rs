@@ -1,4 +1,4 @@
-use geom::Polygon;
+use geom::{Pt2D, Tessellation};
 use map_model::{Area, AreaID, AreaType, Map};
 use widgetry::{Color, EventCtx, Fill, GeomBatch, GfxCtx, Line, Text};
 
@@ -54,8 +54,12 @@ impl Renderable for DrawArea {
 
     fn draw(&self, _: &mut GfxCtx, _: &dyn AppLike, _: &DrawOptions) {}
 
-    fn get_outline(&self, map: &Map) -> Polygon {
+    fn get_outline(&self, map: &Map) -> Tessellation {
         // Since areas are so big, don't just draw the outline
-        map.get_a(self.id).polygon.clone()
+        Tessellation::from(map.get_a(self.id).polygon.clone())
+    }
+
+    fn contains_pt(&self, pt: Pt2D, map: &Map) -> bool {
+        map.get_a(self.id).polygon.contains_pt(pt)
     }
 }

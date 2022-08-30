@@ -71,7 +71,7 @@ impl Tessellation {
         Bounds::from(&self.points)
     }
 
-    fn center(&self) -> Pt2D {
+    pub fn center(&self) -> Pt2D {
         self.get_bounds().center()
     }
 
@@ -134,6 +134,25 @@ impl Tessellation {
                 pivot.y() + origin_pt.y() * cos + origin_pt.x() * sin,
             );
         }
+    }
+
+    pub fn union(self, other: Self) -> Self {
+        let mut points = self.points;
+        let mut indices = self.indices;
+        let offset = points.len() as u16;
+        points.extend(other.points);
+        for idx in other.indices {
+            indices.push(offset + idx);
+        }
+        Self { points, indices }
+    }
+
+    pub fn union_all(mut list: Vec<Self>) -> Self {
+        let mut result = list.pop().unwrap();
+        for p in list {
+            result = result.union(p);
+        }
+        result
     }
 }
 

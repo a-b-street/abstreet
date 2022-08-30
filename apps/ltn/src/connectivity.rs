@@ -1,4 +1,4 @@
-use geom::{ArrowCap, Distance, PolyLine, Polygon};
+use geom::{ArrowCap, Distance, PolyLine};
 use street_network::Direction;
 use widgetry::mapspace::{DummyID, World};
 use widgetry::tools::PopupMsg;
@@ -284,7 +284,7 @@ fn setup_editing(
 
         highlight_cell
             .add_unnamed()
-            .hitbox(Polygon::union_all(polygons.clone()))
+            .hitboxes(polygons.clone())
             // Don't draw cells by default
             .drawn_in_master_batch()
             .draw_hovered(batch)

@@ -19,7 +19,7 @@ pub struct BuiltRoute {
     pub details: RouteDetails,
     pub details_widget: Widget,
     pub draw: ToggleZoomedBuilder,
-    pub hitbox: Polygon,
+    pub hitboxes: Vec<Polygon>,
     pub tooltip_for_alt: Option<Text>,
 }
 
@@ -99,7 +99,7 @@ impl RouteDetails {
         preferences: RoutingPreferences,
     ) -> BuiltRoute {
         let mut draw_route = ToggleZoomed::builder();
-        let mut hitbox_pieces = Vec::new();
+        let mut hitboxes = Vec::new();
         let mut draw_high_stress = GeomBatch::new();
         let mut draw_traffic_signals = GeomBatch::new();
         let mut draw_unprotected_turns = GeomBatch::new();
@@ -176,7 +176,7 @@ impl RouteDetails {
                         .zoomed
                         .push(route_color.alpha(0.5), shape.clone());
 
-                    hitbox_pieces.push(shape);
+                    hitboxes.push(shape);
 
                     if let Some(color) = outline_color {
                         if let Some(outline) =
@@ -229,12 +229,7 @@ impl RouteDetails {
             },
             details_widget,
             draw: draw_route,
-            hitbox: if hitbox_pieces.is_empty() {
-                // Dummy tiny hitbox
-                Polygon::rectangle(0.0001, 0.0001)
-            } else {
-                Polygon::union_all(hitbox_pieces)
-            },
+            hitboxes,
             tooltip_for_alt: None,
         }
     }

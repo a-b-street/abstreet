@@ -1,6 +1,6 @@
 //! Render static and dynamic map elements.
 
-use geom::{Distance, Polygon, Pt2D};
+use geom::{Distance, Pt2D, Tessellation};
 use map_model::{IntersectionID, Map, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS};
 use sim::{DrawCarInput, PersonID, Sim, VehicleType};
 use widgetry::{Color, GfxCtx, Prerender};
@@ -50,10 +50,8 @@ pub trait Renderable {
     }
     // This outline is drawn over the base object to show that it's selected. It also represents
     // the boundaries for quadtrees. This isn't called often; don't worry about caching.
-    fn get_outline(&self, map: &Map) -> Polygon;
-    fn contains_pt(&self, pt: Pt2D, map: &Map) -> bool {
-        self.get_outline(map).contains_pt(pt)
-    }
+    fn get_outline(&self, map: &Map) -> Tessellation;
+    fn contains_pt(&self, pt: Pt2D, map: &Map) -> bool;
 }
 
 fn draw_vehicle(

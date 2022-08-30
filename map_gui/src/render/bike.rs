@@ -1,4 +1,4 @@
-use geom::{ArrowCap, Circle, Distance, Line, PolyLine, Polygon, Pt2D};
+use geom::{ArrowCap, Circle, Distance, Line, PolyLine, Pt2D, Tessellation};
 use map_model::Map;
 use sim::{CarID, DrawCarInput, Intent, Sim};
 use widgetry::{Drawable, GeomBatch, GfxCtx, Prerender};
@@ -139,10 +139,12 @@ impl Renderable for DrawBike {
         g.redraw(&self.draw_default);
     }
 
-    fn get_outline(&self, _: &Map) -> Polygon {
-        Circle::new(self.body_circle.center, Distance::meters(2.0))
-            .to_outline(OUTLINE_THICKNESS)
-            .unwrap()
+    fn get_outline(&self, _: &Map) -> Tessellation {
+        Tessellation::from(
+            Circle::new(self.body_circle.center, Distance::meters(2.0))
+                .to_outline(OUTLINE_THICKNESS)
+                .unwrap(),
+        )
     }
 
     fn contains_pt(&self, pt: Pt2D, _: &Map) -> bool {

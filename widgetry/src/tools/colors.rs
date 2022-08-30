@@ -1,4 +1,4 @@
-use geom::{Circle, Distance, Line, Polygon, Pt2D};
+use geom::{Circle, Distance, Line, Polygon, Pt2D, Tessellation};
 
 use crate::{Color, EventCtx, Fill, GeomBatch, Line, LinearGradient, Text, Widget};
 
@@ -38,10 +38,13 @@ impl ColorLegend {
                     .map(|(idx, color)| ((idx as f64) / ((n - 1) as f64), *color))
                     .collect(),
             }),
-            Polygon::union_all(
+            Tessellation::union_all(
                 (0..n - 1)
                     .map(|i| {
-                        Polygon::rectangle(width_each, 32.0).translate((i as f64) * width_each, 0.0)
+                        Tessellation::from(
+                            Polygon::rectangle(width_each, 32.0)
+                                .translate((i as f64) * width_each, 0.0),
+                        )
                     })
                     .collect(),
             ),

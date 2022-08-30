@@ -83,12 +83,14 @@ impl TripPlanner {
 
         let main_route = RouteDetails::main_route(ctx, app, self.waypoints.get_waypoints());
         self.main_route = main_route.details;
-        world
-            .add(ID::MainRoute)
-            .hitbox(main_route.hitbox)
-            .zorder(1)
-            .draw(main_route.draw)
-            .build(ctx);
+        if self.waypoints.get_waypoints().len() > 1 {
+            world
+                .add(ID::MainRoute)
+                .hitboxes(main_route.hitboxes)
+                .zorder(1)
+                .draw(main_route.draw)
+                .build(ctx);
+        }
 
         self.files.autosave(app);
         // This doesn't depend on the alt routes, so just do it here
@@ -107,7 +109,9 @@ impl TripPlanner {
                 avoid_stressful_roads: true,
             },
         ] {
-            if app.session.routing_preferences == preferences {
+            if app.session.routing_preferences == preferences
+                || self.waypoints.get_waypoints().len() < 2
+            {
                 continue;
             }
             let mut alt = RouteDetails::alt_route(
@@ -124,7 +128,7 @@ impl TripPlanner {
                 self.alt_routes.push(alt.details);
                 world
                     .add(ID::AltRoute(self.alt_routes.len() - 1))
-                    .hitbox(alt.hitbox)
+                    .hitboxes(alt.hitboxes)
                     .zorder(0)
                     .draw(alt.draw)
                     .hover_alpha(0.8)

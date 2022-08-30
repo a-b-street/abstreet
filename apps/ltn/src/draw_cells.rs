@@ -54,8 +54,8 @@ impl RenderCells {
     pub fn draw_island_outlines(&self) -> GeomBatch {
         let neighbourhood_boundary = self
             .boundary_polygon
-            .to_outline(Distance::meters(25.0))
-            .ok();
+            .get_outer_ring()
+            .map(|r| r.to_outline(Distance::meters(25.0)));
 
         let mut batch = GeomBatch::new();
         for (cell_color, polygons) in self.colors.iter().zip(self.polygons_per_cell.iter()) {

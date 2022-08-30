@@ -1,6 +1,9 @@
 use std::cell::RefCell;
 
-use geom::{Angle, ArrowCap, Distance, Line, PolyLine, Polygon, Pt2D, Ring, Time, EPSILON_DIST};
+use geom::{
+    Angle, ArrowCap, Distance, Line, PolyLine, Polygon, Pt2D, Ring, Tessellation, Time,
+    EPSILON_DIST,
+};
 use map_model::{
     ControlTrafficSignal, Direction, DrivingSide, Intersection, IntersectionID, IntersectionType,
     LaneType, Map, Road, RoadWithStopSign, Turn, TurnType, SIDEWALK_THICKNESS,
@@ -276,10 +279,10 @@ impl Renderable for DrawIntersection {
         }
     }
 
-    fn get_outline(&self, map: &Map) -> Polygon {
+    fn get_outline(&self, map: &Map) -> Tessellation {
         let poly = &map.get_i(self.id).polygon;
         poly.to_outline(OUTLINE_THICKNESS)
-            .unwrap_or_else(|_| poly.clone())
+            .unwrap_or_else(|_| Tessellation::from(poly.clone()))
     }
 
     fn contains_pt(&self, pt: Pt2D, map: &Map) -> bool {

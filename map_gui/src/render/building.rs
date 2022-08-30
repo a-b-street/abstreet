@@ -1,6 +1,6 @@
 use std::cell::RefCell;
 
-use geom::{Angle, Distance, Line, Polygon, Pt2D, Ring};
+use geom::{Angle, Distance, Line, Polygon, Pt2D, Ring, Tessellation};
 use map_model::{Building, BuildingID, Map, OffstreetParking};
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Text};
 
@@ -237,12 +237,12 @@ impl Renderable for DrawBuilding {
         0
     }
 
-    fn get_outline(&self, map: &Map) -> Polygon {
+    fn get_outline(&self, map: &Map) -> Tessellation {
         let b = map.get_b(self.id);
         if let Ok(p) = b.polygon.to_outline(OUTLINE_THICKNESS) {
             p
         } else {
-            b.polygon.clone()
+            Tessellation::from(b.polygon.clone())
         }
     }
 

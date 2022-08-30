@@ -340,30 +340,6 @@ impl Polygon {
         Polygon::maybe_rounded_rectangle(w, h, r).unwrap_or_else(|| Polygon::rectangle(w, h))
     }
 
-    // TODO Result won't be a nice Ring
-    pub fn union(self, other: Polygon) -> Polygon {
-        let mut points = self.points;
-        let mut indices = self.indices;
-        let offset = points.len() as u16;
-        points.extend(other.points);
-        for idx in other.indices {
-            indices.push(offset + idx);
-        }
-        Polygon {
-            points,
-            indices,
-            rings: None,
-        }
-    }
-
-    pub fn union_all(mut list: Vec<Polygon>) -> Polygon {
-        let mut result = list.pop().unwrap();
-        for p in list {
-            result = result.union(p);
-        }
-        result
-    }
-
     /// Union all of the polygons into one geo::MultiPolygon
     pub fn union_all_into_multipolygon(mut list: Vec<Polygon>) -> geo::MultiPolygon {
         // TODO Not sure why this happened, or if this is really valid to construct...
@@ -414,16 +390,22 @@ impl Polygon {
         self.to_geo().intersects(&pl.to_geo())
     }
 
-    /// Creates the outline around the polygon, with the thickness half straddling the polygon and
-    /// half of it just outside. Only works for polygons that're formed from rings. Those made from
-    /// PolyLines won't work, for example.
-    pub fn to_outline(&self, thickness: Distance) -> Result<Polygon> {
+    /// Creates the outline around the polygon (both the exterior and holes), with the thickness
+    /// half straddling the polygon and half of it just outside. Only works for polygons that're
+    /// formed from rings.
+    ///
+    /// Returns a `Tessellation` that may union together the outline from the exterior and multiple
+    /// holes. Callers that need a `Polygon` must call `to_outline` on the individual `Rings`.
+    pub fn to_outline(&self, thickness: Distance) -> Result<Tessellation> {
         if let Some(ref rings) = self.rings {
-            Ok(Polygon::union_all(
-                rings.iter().map(|r| r.to_outline(thickness)).collect(),
+            Ok(Tessellation::union_all(
+                rings
+                    .iter()
+                    .map(|r| Tessellation::from(r.to_outline(thickness)))
+                    .collect(),
             ))
         } else {
-            Ring::new(self.points.clone()).map(|r| r.to_outline(thickness))
+            Ring::new(self.points.clone()).map(|r| Tessellation::from(r.to_outline(thickness)))
         }
     }
 

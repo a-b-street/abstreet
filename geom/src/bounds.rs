@@ -42,6 +42,17 @@ impl Bounds {
         b
     }
 
+    /// Create a boundary covering some polygons.
+    pub fn from_polygons(polygons: &[Polygon]) -> Bounds {
+        let mut b = Bounds::new();
+        for poly in polygons {
+            for pt in poly.points() {
+                b.update(*pt);
+            }
+        }
+        b
+    }
+
     /// Update the boundary to include this point.
     pub fn update(&mut self, pt: Pt2D) {
         self.min_x = self.min_x.min(pt.x());

@@ -1,4 +1,4 @@
-use geom::{Angle, Circle, Distance, Line, Polygon, Pt2D};
+use geom::{Angle, Circle, Distance, Line, Pt2D, Tessellation};
 use map_model::{Map, TransitStop, TransitStopID};
 use widgetry::{Drawable, EventCtx, GeomBatch, GfxCtx};
 
@@ -70,10 +70,12 @@ impl Renderable for DrawTransitStop {
         g.redraw(&self.draw_default);
     }
 
-    fn get_outline(&self, _: &Map) -> Polygon {
-        Circle::new(self.center, RADIUS)
-            .to_outline(OUTLINE_THICKNESS)
-            .expect("constants defined wrong")
+    fn get_outline(&self, _: &Map) -> Tessellation {
+        Tessellation::from(
+            Circle::new(self.center, RADIUS)
+                .to_outline(OUTLINE_THICKNESS)
+                .expect("constants defined wrong"),
+        )
     }
 
     fn contains_pt(&self, pt: Pt2D, _: &Map) -> bool {

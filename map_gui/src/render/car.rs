@@ -1,4 +1,4 @@
-use geom::{Angle, ArrowCap, Distance, PolyLine, Polygon, Pt2D, Ring};
+use geom::{Angle, ArrowCap, Distance, PolyLine, Polygon, Pt2D, Ring, Tessellation};
 use map_model::{Map, TurnType};
 use sim::{CarID, CarStatus, DrawCarInput, Intent, Sim, VehicleType};
 use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
@@ -55,15 +55,19 @@ impl DrawCar {
             );
         }
 
-        let body_polygon = if input.body.length() < Distance::meters(1.1) {
+        let body_polygon = input.body.make_polygons(CAR_WIDTH);
+
+        let draw_body = if input.body.length() < Distance::meters(1.1) {
             // Simpler shape while appearing from a border
-            input.body.make_polygons(CAR_WIDTH)
+            Tessellation::from(body_polygon.clone())
         } else {
             let front_corner = input.body.length() - Distance::meters(1.0);
-            let thick_line = input
-                .body
-                .exact_slice(Distance::ZERO, front_corner)
-                .make_polygons(CAR_WIDTH);
+            let thick_line = Tessellation::from(
+                input
+                    .body
+                    .exact_slice(Distance::ZERO, front_corner)
+                    .make_polygons(CAR_WIDTH),
+            );
 
             let (corner_pt, corner_angle) = input.body.must_dist_along(front_corner);
             let tip_pt = input.body.last_pt();
@@ -76,12 +80,12 @@ impl DrawCar {
                 tip_pt.project_away(CAR_WIDTH / 4.0, tip_angle.rotate_degs(90.0)),
                 corner_pt.project_away(CAR_WIDTH / 2.0, corner_angle.rotate_degs(90.0)),
             ]) {
-                Ok(front) => front.into_polygon().union(thick_line),
+                Ok(front) => Tessellation::from(front.into_polygon()).union(thick_line),
                 Err(_) => thick_line,
             }
         };
+        draw_default.push(zoomed_color_car(&input, sim, cs), draw_body);
 
-        draw_default.push(zoomed_color_car(&input, sim, cs), body_polygon.clone());
         if input.status == CarStatus::Parked {
             draw_default.append(
                 GeomBatch::load_svg(prerender, "system/assets/map/parked_car.svg")
@@ -216,10 +220,12 @@ impl Renderable for DrawCar {
         g.redraw(&self.draw_default);
     }
 
-    fn get_outline(&self, _: &Map) -> Polygon {
-        self.body
-            .to_thick_boundary(CAR_WIDTH, OUTLINE_THICKNESS)
-            .unwrap_or_else(|| self.body_polygon.clone())
+    fn get_outline(&self, _: &Map) -> Tessellation {
+        Tessellation::from(
+            self.body
+                .to_thick_boundary(CAR_WIDTH, OUTLINE_THICKNESS)
+                .unwrap_or_else(|| self.body_polygon.clone()),
+        )
     }
 
     fn contains_pt(&self, pt: Pt2D, _: &Map) -> bool {
