@@ -105,7 +105,7 @@ pub struct ObjectBuilder<'a, ID: ObjectID> {
     world: &'a mut World<ID>,
 
     id: ID,
-    hitbox: Option<Polygon>,
+    hitboxes: Vec<Polygon>,
     zorder: usize,
     draw_normal: Option<ToggleZoomedBuilder>,
     draw_hover: Option<ToggleZoomedBuilder>,
@@ -118,8 +118,15 @@ pub struct ObjectBuilder<'a, ID: ObjectID> {
 impl<'a, ID: ObjectID> ObjectBuilder<'a, ID> {
     /// Specifies the geometry of the object. Required.
     pub fn hitbox(mut self, polygon: Polygon) -> Self {
-        assert!(self.hitbox.is_none(), "called hitbox twice");
-        self.hitbox = Some(polygon);
+        assert!(self.hitboxes.is_empty(), "called hitbox twice");
+        self.hitboxes = vec![polygon];
+        self
+    }
+
+    /// Specifies the geometry of the object as a multipolygon.
+    pub fn hitboxes(mut self, polygons: Vec<Polygon>) -> Self {
+        assert!(self.hitboxes.is_empty(), "called hitbox twice");
+        self.hitboxes = polygons;
         self
     }
 
@@ -142,15 +149,17 @@ impl<'a, ID: ObjectID> ObjectBuilder<'a, ID> {
 
     /// Draw the object by coloring its hitbox
     pub fn draw_color(self, color: Color) -> Self {
-        let hitbox = self.hitbox.clone().expect("call hitbox first");
-        self.draw(GeomBatch::from(vec![(color, hitbox)]))
+        assert!(!self.hitboxes.is_empty(), "call hitbox first");
+        let mut batch = GeomBatch::new();
+        batch.extend(color, self.hitboxes.clone());
+        self.draw(batch)
     }
 
     /// Draw the object by coloring its hitbox, only when unzoomed. Show nothing when zoomed.
     pub fn draw_color_unzoomed(self, color: Color) -> Self {
-        let hitbox = self.hitbox.clone().expect("call hitbox first");
+        assert!(!self.hitboxes.is_empty(), "call hitbox first");
         let mut draw = ToggleZoomed::builder();
-        draw.unzoomed.push(color, hitbox);
+        draw.unzoomed.extend(color, self.hitboxes.clone());
         self.draw(draw)
     }
 
@@ -199,23 +208,24 @@ impl<'a, ID: ObjectID> ObjectBuilder<'a, ID> {
             .clone()
             .expect("first specify how to draw normally")
             .draw_differently_zoomed();
-        let hitbox = self.hitbox.as_ref().expect("call hitbox first");
-        if let (Ok(unzoomed), Ok(zoomed)) = (
-            hitbox.to_outline(thickness),
-            hitbox.to_outline(thickness / 2.0),
-        ) {
-            draw.unzoomed.push(color, unzoomed);
-            draw.zoomed.push(color.multiply_alpha(0.5), zoomed);
+        let mut unzoomed = Vec::new();
+        let mut zoomed = Vec::new();
+        assert!(!self.hitboxes.is_empty(), "call hitbox first");
+        for polygon in &self.hitboxes {
+            unzoomed.extend(polygon.to_outline(thickness).ok());
+            zoomed.extend(polygon.to_outline(thickness / 2.0).ok());
+        }
+        if unzoomed.len() == zoomed.len() && unzoomed.len() == self.hitboxes.len() {
+            draw.unzoomed.extend(color, unzoomed);
+            draw.zoomed.extend(color.multiply_alpha(0.5), zoomed);
         } else {
             warn!(
                 "Can't hover_outline for {:?}. Falling back to a colored polygon",
                 self.id
             );
-            draw = GeomBatch::from(vec![(
-                color.multiply_alpha(0.5),
-                self.hitbox.clone().unwrap(),
-            )])
-            .into();
+            let mut batch = GeomBatch::new();
+            batch.extend(color.multiply_alpha(0.5), self.hitboxes.clone());
+            draw = batch.into();
         }
         self.draw_hovered(draw)
     }
@@ -223,8 +233,10 @@ impl<'a, ID: ObjectID> ObjectBuilder<'a, ID> {
     /// Draw the object in a hovered state by coloring its hitbox. Useful when
     /// `drawn_in_master_batch` is used and there's no normal drawn polygon.
     pub fn hover_color(self, color: Color) -> Self {
-        let hitbox = self.hitbox.clone().expect("call hitbox first");
-        self.draw_hovered(GeomBatch::from(vec![(color, hitbox)]))
+        assert!(!self.hitboxes.is_empty(), "call hitbox first");
+        let mut batch = GeomBatch::new();
+        batch.extend(color, self.hitboxes.clone());
+        self.draw_hovered(batch)
     }
 
     /// Mark that an object is hoverable, but don't actually draw anything while hovering on it
@@ -279,8 +291,8 @@ impl<'a, ID: ObjectID> ObjectBuilder<'a, ID> {
 
     /// Finalize the object, adding it to the `World`.
     pub fn build(mut self, ctx: &EventCtx) {
-        let hitbox = self.hitbox.take().expect("didn't specify hitbox");
-        let bounds = hitbox.get_bounds();
+        assert!(!self.hitboxes.is_empty(), "didn't specify hitbox");
+        let bounds = Bounds::from_polygons(&self.hitboxes);
         let quadtree_id = self
             .world
             .quadtree
@@ -291,7 +303,7 @@ impl<'a, ID: ObjectID> ObjectBuilder<'a, ID> {
             Object {
                 _id: self.id,
                 quadtree_id,
-                hitbox,
+                hitboxes: self.hitboxes,
                 zorder: self.zorder,
                 draw_normal: self
                     .draw_normal
@@ -310,7 +322,7 @@ impl<'a, ID: ObjectID> ObjectBuilder<'a, ID> {
 struct Object<ID: ObjectID> {
     _id: ID,
     quadtree_id: ItemId,
-    hitbox: Polygon,
+    hitboxes: Vec<Polygon>,
     zorder: usize,
     draw_normal: ToggleZoomed,
     draw_hover: Option<ToggleZoomed>,
@@ -360,7 +372,7 @@ impl<ID: ObjectID> World<ID> {
             world: self,
 
             id,
-            hitbox: None,
+            hitboxes: Vec::new(),
             zorder: 0,
             draw_normal: None,
             draw_hover: None,
@@ -581,7 +593,8 @@ impl<ID: ObjectID> World<ID> {
 
         for id in objects {
             let obj = &self.objects[&id];
-            if obj.draw_hover.is_some() && obj.hitbox.contains_pt(cursor) {
+            if obj.draw_hover.is_some() && obj.hitboxes.iter().any(|poly| poly.contains_pt(cursor))
+            {
                 return Some(id);
             }
         }

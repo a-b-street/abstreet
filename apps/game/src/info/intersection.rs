@@ -238,11 +238,11 @@ fn current_demand_body(ctx: &mut EventCtx, app: &App, id: IntersectionID) -> Wid
                 batch,
                 tooltips,
                 Box::new(|arrow| {
-                    let mut list = vec![(Color::hex("#EE702E"), arrow.clone())];
+                    let mut batch = GeomBatch::from(vec![(Color::hex("#EE702E"), arrow.clone())]);
                     if let Ok(p) = arrow.to_outline(Distance::meters(1.0)) {
-                        list.push((Color::WHITE, p));
+                        batch.push(Color::WHITE, p);
                     }
-                    GeomBatch::from(list)
+                    batch
                 }),
             ),
         ])

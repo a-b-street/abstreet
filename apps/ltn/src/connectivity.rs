@@ -1,4 +1,4 @@
-use geom::{ArrowCap, Distance, PolyLine, Polygon};
+use geom::{ArrowCap, Distance, PolyLine};
 use street_network::Direction;
 use widgetry::mapspace::{DummyID, World};
 use widgetry::tools::PopupMsg;
@@ -282,13 +282,15 @@ fn setup_editing(
             batch.push(color, arrow);
         }
 
-        highlight_cell
-            .add_unnamed()
-            .hitbox(Polygon::union_all(polygons.clone()))
-            // Don't draw cells by default
-            .drawn_in_master_batch()
-            .draw_hovered(batch)
-            .build(ctx);
+        for polygon in polygons {
+            highlight_cell
+                .add_unnamed()
+                .hitbox(polygon.clone())
+                // Don't draw cells by default
+                .drawn_in_master_batch()
+                .draw_hovered(batch.clone())
+                .build(ctx);
+        }
     }
 
     if !matches!(app.session.edit_mode, EditMode::Shortcuts(_)) {

@@ -1,4 +1,4 @@
-use geom::{ArrowCap, Circle, Distance, PolyLine, Polygon, Pt2D};
+use geom::{ArrowCap, Circle, Distance, PolyLine, Polygon, Pt2D, Tessellation};
 use map_model::{DrivingSide, Map};
 use sim::{DrawPedCrowdInput, DrawPedestrianInput, Intent, PedCrowdLocation, PedestrianID, Sim};
 use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
@@ -201,10 +201,12 @@ impl Renderable for DrawPedestrian {
         g.redraw(&self.draw_default);
     }
 
-    fn get_outline(&self, _: &Map) -> Polygon {
-        Circle::new(self.body_circle.center, Distance::meters(2.0))
-            .to_outline(OUTLINE_THICKNESS)
-            .unwrap()
+    fn get_outline(&self, _: &Map) -> Tessellation {
+        Tessellation::from(
+            Circle::new(self.body_circle.center, Distance::meters(2.0))
+                .to_outline(OUTLINE_THICKNESS)
+                .unwrap(),
+        )
     }
 
     fn contains_pt(&self, pt: Pt2D, _: &Map) -> bool {
@@ -288,13 +290,19 @@ impl Renderable for DrawPedCrowd {
         g.redraw(&self.draw_default);
     }
 
-    fn get_outline(&self, _: &Map) -> Polygon {
-        self.blob_pl
-            .to_thick_boundary(sim::pedestrian_body_radius() * 2.0, OUTLINE_THICKNESS)
-            .unwrap_or_else(|| self.blob.clone())
+    fn get_outline(&self, _: &Map) -> Tessellation {
+        Tessellation::from(
+            self.blob_pl
+                .to_thick_boundary(sim::pedestrian_body_radius() * 2.0, OUTLINE_THICKNESS)
+                .unwrap_or_else(|| self.blob.clone()),
+        )
     }
 
     fn get_zorder(&self) -> isize {
         self.zorder
+    }
+
+    fn contains_pt(&self, pt: Pt2D, _: &Map) -> bool {
+        self.blob.contains_pt(pt)
     }
 }

@@ -139,13 +139,14 @@ impl<T: 'static + Clone> WidgetImpl for Dropdown<T> {
             let width = m.get_dims().width + 2.0 * pad;
             let height = m.get_dims().height + 2.0 * pad;
             let rect = Polygon::rounded_rectangle(width, height, 5.0);
-            let draw_bg = g.upload(GeomBatch::from(vec![
-                (g.style().field_bg, rect.clone()),
-                (
-                    g.style().dropdown_border,
-                    rect.to_outline(Distance::meters(1.0)).unwrap(),
-                ),
-            ]));
+
+            let mut batch = GeomBatch::new();
+            batch.push(g.style().field_bg, rect.clone());
+            batch.push(
+                g.style().dropdown_border,
+                rect.to_outline(Distance::meters(1.0)).unwrap(),
+            );
+            let draw_bg = g.upload(batch);
             g.fork(
                 Pt2D::new(0.0, 0.0),
                 ScreenPt::new(m.top_left.x - pad, m.top_left.y - pad),

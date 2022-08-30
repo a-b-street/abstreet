@@ -1,6 +1,6 @@
 use std::cell::RefCell;
 
-use geom::{Distance, Polygon, Pt2D};
+use geom::{Distance, Pt2D, Tessellation};
 use map_model::{Building, LaneType, Map, Road, RoadID, NORMAL_LANE_THICKNESS};
 use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 
@@ -114,9 +114,9 @@ impl Renderable for DrawRoad {
         g.redraw(draw.as_ref().unwrap());
     }
 
-    fn get_outline(&self, map: &Map) -> Polygon {
+    fn get_outline(&self, map: &Map) -> Tessellation {
         // Highlight the entire thing, not just an outline
-        map.get_r(self.id).get_thick_polygon()
+        Tessellation::from(map.get_r(self.id).get_thick_polygon())
     }
 
     fn contains_pt(&self, pt: Pt2D, map: &Map) -> bool {

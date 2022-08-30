@@ -1,6 +1,6 @@
 use std::cell::Cell;
 
-use geom::{Bounds, Polygon, Pt2D};
+use geom::{Bounds, Polygon, Pt2D, Tessellation};
 
 use crate::assets::Assets;
 use crate::backend::{GfxCtxInnards, PrerenderInnards};
@@ -127,7 +127,7 @@ impl<'a> GfxCtx<'a> {
 
     // Doesn't take &Polygon, because this is inherently inefficient. If performance matters,
     // upload, cache, and redraw.
-    pub fn draw_polygon(&mut self, color: Color, poly: Polygon) {
+    pub fn draw_polygon<T: Into<Tessellation>>(&mut self, color: Color, poly: T) {
         GeomBatch::from(vec![(color, poly)]).draw(self);
     }
 

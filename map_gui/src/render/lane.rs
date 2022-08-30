@@ -2,7 +2,9 @@ use std::cell::RefCell;
 
 use lyon::geom::{CubicBezierSegment, Point, QuadraticBezierSegment};
 
-use geom::{Angle, ArrowCap, Circle, Distance, InfiniteLine, Line, PolyLine, Polygon, Pt2D};
+use geom::{
+    Angle, ArrowCap, Circle, Distance, InfiniteLine, Line, PolyLine, Polygon, Pt2D, Tessellation,
+};
 use map_model::{BufferType, Direction, DrivingSide, Lane, LaneID, LaneType, Map, Road, TurnID};
 use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Prerender, RewriteColor};
 
@@ -207,11 +209,13 @@ impl Renderable for DrawLane {
         g.redraw(draw.as_ref().unwrap());
     }
 
-    fn get_outline(&self, map: &Map) -> Polygon {
+    fn get_outline(&self, map: &Map) -> Tessellation {
         let lane = map.get_l(self.id);
-        lane.lane_center_pts
-            .to_thick_boundary(lane.width, OUTLINE_THICKNESS)
-            .unwrap_or_else(|| self.polygon.clone())
+        Tessellation::from(
+            lane.lane_center_pts
+                .to_thick_boundary(lane.width, OUTLINE_THICKNESS)
+                .unwrap_or_else(|| self.polygon.clone()),
+        )
     }
 
     fn contains_pt(&self, pt: Pt2D, _: &Map) -> bool {
@@ -450,7 +454,7 @@ fn calculate_turn_markings(map: &Map, lane: &Lane) -> Vec<Polygon> {
     results
 }
 
-fn calculate_one_way_markings(lane: &Lane, road: &Road) -> Vec<Polygon> {
+fn calculate_one_way_markings(lane: &Lane, road: &Road) -> Vec<Tessellation> {
     let mut results = Vec::new();
     if road
         .lanes

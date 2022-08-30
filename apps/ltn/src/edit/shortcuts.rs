@@ -87,12 +87,16 @@ pub fn make_world(
     if let Some(ref focus) = focus {
         let mut draw_path = GeomBatch::new();
         let path = &focus.paths[focus.current_idx];
-        let poly = path
-            .trace_v2(&app.map)
-            .unwrap_or_else(|_| path.trace_all_polygons(&app.map));
+        let color = app.cs.good_to_bad_red.0.last().unwrap().alpha(0.8);
 
-        let color = *app.cs.good_to_bad_red.0.last().unwrap();
-        draw_path.push(color.alpha(0.8), poly);
+        match path.trace_v2(&app.map) {
+            Ok(poly) => {
+                draw_path.push(color, poly);
+            }
+            Err(_) => {
+                draw_path.extend(color, path.trace_all_polygons(&app.map));
+            }
+        }
 
         let first_pt = path.get_req().start.pt(&app.map);
         let last_pt = path.get_req().end.pt(&app.map);
