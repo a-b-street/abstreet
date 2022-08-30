@@ -550,8 +550,12 @@ impl Polygon {
         Ok(results)
     }
 
-    pub fn simplify(&self, epsilon: f64) -> Result<Polygon> {
-        self.to_geo().simplifyvw_preserve(&epsilon).try_into()
+    /// If simplification fails, just keep the original polygon
+    pub fn simplify(&self, epsilon: f64) -> Polygon {
+        self.to_geo()
+            .simplifyvw_preserve(&epsilon)
+            .try_into()
+            .unwrap_or_else(|_| self.clone())
     }
 
     /// An arbitrary placeholder value, when Option types aren't worthwhile

@@ -1,5 +1,6 @@
 use std::collections::{BTreeSet, HashMap, HashSet};
 
+use anyhow::Result;
 use maplit::hashset;
 
 use abstutil::{prettyprint_usize, Counter, MultiMap, Timer};
@@ -8,7 +9,7 @@ use map_gui::tools::checkbox_per_mode;
 use map_model::{osm, BuildingID, BuildingType, IntersectionID, LaneID, Map, RoadID, TurnType};
 use sim::TripInfo;
 use synthpop::{TripEndpoint, TripMode};
-use widgetry::tools::ColorLegend;
+use widgetry::tools::{ColorLegend, PopupMsg};
 use widgetry::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
     RewriteColor, Slider, State, Text, TextExt, Toggle, VerticalAlignment, Widget,
@@ -73,10 +74,23 @@ type BlockID = usize;
 
 impl CommuterPatterns {
     pub fn new_state(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
-        let (bldg_to_block, border_to_block, blocks) = ctx
-            .loading_screen("group buildings into blocks", |_, timer| {
-                group_bldgs(app, timer)
-            });
+        let maybe_groups = ctx.loading_screen("group buildings into blocks", |_, timer| {
+            group_bldgs(app, timer)
+        });
+        let (bldg_to_block, border_to_block, blocks) = match maybe_groups {
+            Ok(result) => result,
+            Err(_) => {
+                // TODO If concave hull fails anywhere, give up on this tool entirely. This is
+                // pretty harsh. Revisit this tool anyway and consider 2 bigger changes -- using
+                // the LTN-style blockfinding and using World. Find a way to create simpler
+                // fallback geometry that's still selectable.
+                return PopupMsg::new_state(
+                    ctx,
+                    "Error",
+                    vec!["Problem rendering the grouped buildings; this tool won't work"],
+                );
+            }
+        };
 
         let mut trips_from_block: Vec<Vec<TripInfo>> = std::iter::repeat_with(Vec::new)
             .take(blocks.len())
@@ -458,16 +472,16 @@ impl State<App> for CommuterPatterns {
 fn group_bldgs(
     app: &App,
     timer: &mut Timer,
-) -> (
+) -> Result<(
     HashMap<BuildingID, BlockID>,
     HashMap<IntersectionID, BlockID>,
     Vec<Block>,
-) {
+)> {
     let mut bldg_to_block = HashMap::new();
     let mut blocks = Vec::new();
 
     let map = &app.primary.map;
-    for block in timer.parallelize(
+    for maybe_block in timer.parallelize(
         "draw neighborhoods",
         partition_sidewalk_loops(app)
             .into_iter()
@@ -493,14 +507,15 @@ fn group_bldgs(
                     hull_points.append(&mut lane_line.points().clone());
                 }
             }
-            Block {
+            Polygon::concave_hull(hull_points, 10).map(|shape| Block {
                 id: block_id,
                 bldgs: group.bldgs,
                 borders: HashSet::new(),
-                shape: Polygon::concave_hull(hull_points, 10),
-            }
+                shape,
+            })
         },
     ) {
+        let block = maybe_block?;
         for b in &block.bldgs {
             bldg_to_block.insert(*b, block.id);
         }
@@ -535,7 +550,7 @@ fn group_bldgs(
         });
     }
 
-    (bldg_to_block, border_to_block, blocks)
+    Ok((bldg_to_block, border_to_block, blocks))
 }
 
 enum BorderType {

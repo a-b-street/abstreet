@@ -1013,11 +1013,19 @@ fn fade_irrelevant(app: &App, r: RoadID) -> GeomBatch {
     }
 
     // The convex hull illuminates a bit more of the surrounding area, looks better
-    let fade_area = Polygon::with_holes(
-        map.get_boundary_polygon().clone().into_ring(),
-        vec![Polygon::convex_hull(holes).into_ring()],
-    );
-    GeomBatch::from(vec![(app.cs.fade_map_dark, fade_area)])
+    match Polygon::convex_hull(holes) {
+        Ok(hole) => {
+            let fade_area = Polygon::with_holes(
+                map.get_boundary_polygon().clone().into_ring(),
+                vec![hole.into_ring()],
+            );
+            GeomBatch::from(vec![(app.cs.fade_map_dark, fade_area)])
+        }
+        Err(_) => {
+            // Just give up and don't fade anything
+            GeomBatch::new()
+        }
+    }
 }
 
 fn draw_drop_position(app: &App, r: RoadID, from: usize, to: usize) -> GeomBatch {

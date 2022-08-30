@@ -944,11 +944,13 @@ fn squish_polygons_together(mut polygons: Vec<Polygon>) -> Vec<(f64, f64)> {
 
         // Do we hit anything if we move this way?
         let translated = polygons[idx].translate(pt.x(), pt.y());
-        if polygons
-            .iter()
-            .enumerate()
-            .any(|(i, p)| i != idx && !translated.intersection(p).is_empty())
-        {
+        if polygons.iter().enumerate().any(|(i, p)| {
+            i != idx
+                && !translated
+                    .intersection(p)
+                    .map(|list| list.is_empty())
+                    .unwrap_or(true)
+        }) {
             // Stop moving this polygon
         } else {
             translations[idx].0 += pt.x();
@@ -976,9 +978,17 @@ pub fn fade_irrelevant(app: &App, members: &BTreeSet<IntersectionID>) -> GeomBat
         }
     }
     // The convex hull illuminates a bit more of the surrounding area, looks better
-    let fade_area = Polygon::with_holes(
-        app.primary.map.get_boundary_polygon().clone().into_ring(),
-        vec![Polygon::convex_hull(holes).into_ring()],
-    );
-    GeomBatch::from(vec![(app.cs.fade_map_dark, fade_area)])
+    match Polygon::convex_hull(holes) {
+        Ok(hole) => {
+            let fade_area = Polygon::with_holes(
+                app.primary.map.get_boundary_polygon().clone().into_ring(),
+                vec![hole.into_ring()],
+            );
+            GeomBatch::from(vec![(app.cs.fade_map_dark, fade_area)])
+        }
+        Err(_) => {
+            // Just give up and don't fade anything
+            GeomBatch::new()
+        }
+    }
 }
