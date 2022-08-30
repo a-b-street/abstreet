@@ -24,25 +24,6 @@ pub struct Polygon {
 }
 
 impl Polygon {
-    // TODO Last result when we've got something that isn't a valid Ring, but want to draw it
-    // anyway. Fix the root cause of those cases instead.
-    pub fn buggy_new(orig_pts: Vec<Pt2D>) -> Polygon {
-        assert!(orig_pts.len() >= 3);
-
-        let mut vertices = Vec::new();
-        for pt in &orig_pts {
-            vertices.push(pt.x());
-            vertices.push(pt.y());
-        }
-        let indices = crate::tessellation::downsize(earcutr::earcut(&vertices, &Vec::new(), 2));
-
-        Polygon {
-            points: orig_pts,
-            indices,
-            rings: None,
-        }
-    }
-
     pub fn with_holes(outer: Ring, mut inner: Vec<Ring>) -> Polygon {
         inner.insert(0, outer);
         let geojson_style: Vec<Vec<Vec<f64>>> = inner
@@ -354,23 +335,23 @@ impl Polygon {
         result
     }
 
-    pub fn intersection(&self, other: &Polygon) -> Vec<Polygon> {
+    pub fn intersection(&self, other: &Polygon) -> Result<Vec<Polygon>> {
         from_multi(self.to_geo().intersection(&other.to_geo()))
     }
 
-    pub fn difference(&self, other: &Polygon) -> Vec<Polygon> {
+    pub fn difference(&self, other: &Polygon) -> Result<Vec<Polygon>> {
         from_multi(self.to_geo().difference(&other.to_geo()))
     }
 
-    pub fn convex_hull(list: Vec<Polygon>) -> Polygon {
+    pub fn convex_hull(list: Vec<Polygon>) -> Result<Polygon> {
         let mp: geo::MultiPolygon = list.into_iter().map(|p| p.to_geo()).collect();
-        mp.convex_hull().into()
+        mp.convex_hull().try_into()
     }
 
-    pub fn concave_hull(points: Vec<Pt2D>, concavity: u32) -> Polygon {
+    pub fn concave_hull(points: Vec<Pt2D>, concavity: u32) -> Result<Polygon> {
         use geo::k_nearest_concave_hull::KNearestConcaveHull;
         let points: Vec<geo::Point> = points.iter().map(|p| geo::Point::from(*p)).collect();
-        points.k_nearest_concave_hull(concavity).into()
+        points.k_nearest_concave_hull(concavity).try_into()
     }
 
     /// Find the "pole of inaccessibility" -- the most distant internal point from the polygon
@@ -569,8 +550,8 @@ impl Polygon {
         Ok(results)
     }
 
-    pub fn simplify(&self, epsilon: f64) -> Polygon {
-        self.to_geo().simplifyvw_preserve(&epsilon).into()
+    pub fn simplify(&self, epsilon: f64) -> Result<Polygon> {
+        self.to_geo().simplifyvw_preserve(&epsilon).try_into()
     }
 
     /// An arbitrary placeholder value, when Option types aren't worthwhile
@@ -605,14 +586,16 @@ impl fmt::Display for Polygon {
     }
 }
 
-// Note that this could crash on invalid rings
-impl From<geo::Polygon> for Polygon {
-    fn from(poly: geo::Polygon) -> Self {
+impl TryFrom<geo::Polygon> for Polygon {
+    type Error = anyhow::Error;
+
+    fn try_from(poly: geo::Polygon) -> Result<Self> {
         let (exterior, interiors) = poly.into_inner();
-        Polygon::with_holes(
-            Ring::from(exterior),
-            interiors.into_iter().map(Ring::from).collect(),
-        )
+        let mut holes = Vec::new();
+        for linestring in interiors {
+            holes.push(Ring::try_from(linestring)?);
+        }
+        Ok(Polygon::with_holes(Ring::try_from(exterior)?, holes))
     }
 }
 
@@ -635,20 +618,10 @@ impl From<Polygon> for geo::Polygon {
     }
 }
 
-fn from_multi(multi: geo::MultiPolygon) -> Vec<Polygon> {
-    // TODO This should just call Polygon::from, but while importing maps, it seems like
-    // intersection() is hitting non-Ring cases that crash. So keep using buggy_new for now.
-    multi
-        .into_iter()
-        .map(|p| {
-            let pts = p
-                .into_inner()
-                .0
-                .into_points()
-                .into_iter()
-                .map(|pt| Pt2D::new(pt.x(), pt.y()))
-                .collect();
-            Polygon::buggy_new(pts)
-        })
-        .collect()
+fn from_multi(multi: geo::MultiPolygon) -> Result<Vec<Polygon>> {
+    let mut result = Vec::new();
+    for polygon in multi {
+        result.push(Polygon::try_from(polygon)?);
+    }
+    Ok(result)
 }
