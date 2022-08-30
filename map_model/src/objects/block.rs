@@ -639,9 +639,8 @@ impl Perimeter {
         pts.push(pts[0]);
         pts.dedup();
         let polygon = Ring::new(pts)?.into_polygon();
-        // TODO To debug anyway, can use buggy_new, but there's pretty much always a root problem
-        // in the map geometry that should be properly fixed.
-        //let polygon = Polygon::buggy_new(pts);
+        // TODO To debug anyway, we could plumb through a Tessellation, but there's pretty much
+        // always a root problem in the map geometry that should be properly fixed.
 
         Ok(Block {
             perimeter: self,

@@ -291,12 +291,11 @@ impl From<Ring> for geo::LineString {
     }
 }
 
-// TODO This could crash. Should be TryFrom?
-impl From<geo::LineString> for Ring {
-    fn from(line_string: geo::LineString) -> Self {
-        // Dedupe adjacent points. Only needed for results from concave hull.
-        let mut pts: Vec<Pt2D> = line_string.0.into_iter().map(Pt2D::from).collect();
-        pts.dedup();
-        Self::must_new(pts)
+impl TryFrom<geo::LineString> for Ring {
+    type Error = anyhow::Error;
+
+    fn try_from(line_string: geo::LineString) -> Result<Self, Self::Error> {
+        let pts: Vec<Pt2D> = line_string.0.into_iter().map(Pt2D::from).collect();
+        Self::deduping_new(pts)
     }
 }
