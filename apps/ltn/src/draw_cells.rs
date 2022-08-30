@@ -73,10 +73,12 @@ impl RenderCells {
                 let color = cell_color.alpha(1.0).shade(0.2);
                 // If possible, try to erase where the cell boundary touches the perimeter road.
                 if let Some(ref neighbourhood_boundary) = neighbourhood_boundary {
-                    batch.extend(color, boundary.difference(neighbourhood_boundary));
-                } else {
-                    batch.push(color, boundary);
+                    if let Ok(list) = boundary.difference(neighbourhood_boundary) {
+                        batch.extend(color, list);
+                    }
+                    continue;
                 }
+                batch.push(color, boundary);
             }
         }
         batch
@@ -245,7 +247,12 @@ impl RenderCellsBuilder {
             // can just clip the result.
             let mut clipped = Vec::new();
             for p in cell_polygons {
-                clipped.extend(p.intersection(&result.boundary_polygon));
+                // If clipping fails, just use the original polygon.
+                if let Ok(list) = p.intersection(&result.boundary_polygon) {
+                    clipped.extend(list);
+                } else {
+                    clipped.push(p);
+                }
             }
 
             result.polygons_per_cell.push(clipped);

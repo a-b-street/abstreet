@@ -219,8 +219,10 @@ fn create_zones(
             input.into_iter().collect(),
             |(name, polygon)| {
                 let mut overlapping_area = 0.0;
-                for p in polygon.intersection(map.get_boundary_polygon()) {
-                    overlapping_area += p.area();
+                if let Ok(list) = polygon.intersection(map.get_boundary_polygon()) {
+                    for p in list {
+                        overlapping_area += p.area();
+                    }
                 }
                 // Sometimes this is slightly over 100%, because funky things happen with the polygon
                 // intersection.

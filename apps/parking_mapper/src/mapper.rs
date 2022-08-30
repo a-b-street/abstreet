@@ -645,7 +645,8 @@ fn find_overlapping_stuff(app: &App, timer: &mut Timer) -> Vec<Polygon> {
             if !b
                 .polygon
                 .intersection(&map.get_r(r).get_thick_polygon())
-                .is_empty()
+                .map(|list| list.is_empty())
+                .unwrap_or(true)
             {
                 polygons.push(b.polygon.clone());
             }
@@ -659,7 +660,8 @@ fn find_overlapping_stuff(app: &App, timer: &mut Timer) -> Vec<Polygon> {
             if !pl
                 .polygon
                 .intersection(&map.get_r(r).get_thick_polygon())
-                .is_empty()
+                .map(|list| list.is_empty())
+                .unwrap_or(true)
             {
                 polygons.push(pl.polygon.clone());
             }

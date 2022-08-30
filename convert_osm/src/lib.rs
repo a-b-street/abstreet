@@ -181,14 +181,17 @@ fn clip_map(map: &mut RawMap, timer: &mut Timer) {
 
     let mut result_areas = Vec::new();
     for orig_area in map.areas.drain(..) {
-        for polygon in map
+        // If clipping fails, giving up on some areas is fine
+        if let Ok(list) = map
             .streets
             .boundary_polygon
             .intersection(&orig_area.polygon)
         {
-            let mut area = orig_area.clone();
-            area.polygon = polygon;
-            result_areas.push(area);
+            for polygon in list {
+                let mut area = orig_area.clone();
+                area.polygon = polygon;
+                result_areas.push(area);
+            }
         }
     }
     map.areas = result_areas;

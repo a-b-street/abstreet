@@ -509,12 +509,14 @@ fn cluster_jams(map: &Map, problems: Vec<(IntersectionID, Time)>) -> Vec<(Polygo
         }
     }
 
+    // TODO This silently hides jams where we can't calculate the convex hull. The caller just
+    // needs a Tessellation, so should we have a less strict version of convex_hull?
     jams.into_iter()
-        .map(|jam| {
-            (
-                map.get_i(jam.epicenter).polygon.clone(),
-                Polygon::convex_hull(jam.all_polygons(map)),
-            )
+        .filter_map(|jam| {
+            let epicenter = map.get_i(jam.epicenter).polygon.clone();
+            Polygon::convex_hull(jam.all_polygons(map))
+                .ok()
+                .map(move |entire_shape| (epicenter, entire_shape))
         })
         .collect()
 }
