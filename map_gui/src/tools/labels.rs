@@ -288,10 +288,12 @@ impl DrawSimpleRoadLabels {
             }
 
             // The road has an outline, so leave a slight buffer
-            let road_width = 0.9 * r.get_width();
+            let road_width = (0.9 * r.get_width()).inner_meters();
+            // Also a buffer from both ends of the road
+            let road_length = (0.9 * r.length()).inner_meters();
 
             // Fit the text height in the road width perfectly
-            let scale = (road_width / txt_bounds.height()).inner_meters();
+            let mut scale = road_width / txt_bounds.height();
 
             info!(
                 "{name}: txt height {}, road width {}, so scale {}",
@@ -299,8 +301,17 @@ impl DrawSimpleRoadLabels {
                 road_width,
                 scale
             );
+
+            // If the road is short and we'll overflow, then scale down even more.
+            if txt_bounds.width() * scale > road_length {
+                scale = road_length / txt_bounds.width();
+                info!("  overflowing width, so actually scale {scale}");
+            }
+
             let txt_batch = txt_batch.scale(scale);
 
+            // TODO If the labels fit in the road polygon by construction, then we can scrap hitbox
+            // testing entirely
             let rect = txt_batch
                 .get_bounds()
                 .get_rectangle()
