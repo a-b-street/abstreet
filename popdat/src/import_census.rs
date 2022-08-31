@@ -19,20 +19,20 @@ impl CensusArea {
             (projected.x(), projected.y()).into()
         });
 
-        // See the import handbook for how to prepare this file.
-        let mut fgb =
-            HttpFgbReader::open("https://abstreet.s3.amazonaws.com/population_areas.fgb").await?;
-
         let bounding_rect = geo_map_area
             .bounding_rect()
             .ok_or_else(|| anyhow!("missing bound rect"))?;
-        fgb.select_bbox(
-            bounding_rect.min().x,
-            bounding_rect.min().y,
-            bounding_rect.max().x,
-            bounding_rect.max().y,
-        )
-        .await?;
+
+        // See the import handbook for how to prepare this file.
+        let mut fgb = HttpFgbReader::open("https://abstreet.s3.amazonaws.com/population_areas.fgb")
+            .await?
+            .select_bbox(
+                bounding_rect.min().x,
+                bounding_rect.min().y,
+                bounding_rect.max().x,
+                bounding_rect.max().y,
+            )
+            .await?;
 
         let mut results = vec![];
         while let Some(feature) = fgb.next().await? {
@@ -53,7 +53,7 @@ impl CensusArea {
             };
             let mut geo = GeoWriter::new();
             geometry.process(&mut geo, flatgeobuf::GeometryType::MultiPolygon)?;
-            if let geo::Geometry::MultiPolygon(multi_poly) = geo.geometry() {
+            if let Some(geo::Geometry::MultiPolygon(multi_poly)) = geo.take_geometry() {
                 let geo_polygon = multi_poly
                     .0
                     .first()

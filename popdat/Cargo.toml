@@ -8,12 +8,12 @@ edition = "2021"
 abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
 anyhow = "1.0.38"
-flatgeobuf = { version = "0.5" }
+flatgeobuf = { version = "0.8.0" }
 futures = "0.3.12"
 geo = "0.22.0"
-geojson = { version = "0.22.2", features = ["geo-types"] }
+geojson = { version = "0.23.0", features = ["geo-types"] }
 geom = { path = "../geom" }
-geozero = "0.7"
+geozero = "0.9.5"
 log = "0.4.14"
 map_model = { path = "../map_model" }
 rand = "0.8.3"
