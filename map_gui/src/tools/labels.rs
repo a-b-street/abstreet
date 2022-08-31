@@ -263,10 +263,8 @@ impl DrawSimpleRoadLabels {
         let mut batch = GeomBatch::new();
         let map = app.map();
 
-        let mut hitboxes = Vec::new();
-
         timer.start_iter("render roads", map.all_roads().len());
-        'ROAD: for r in map.all_roads() {
+        for r in map.all_roads() {
             timer.next();
             if !(self.include_roads)(r) || r.length() < Distance::meters(30.0) {
                 continue;
@@ -309,20 +307,6 @@ impl DrawSimpleRoadLabels {
             }
 
             let txt_batch = txt_batch.scale(scale);
-
-            // TODO If the labels fit in the road polygon by construction, then we can scrap hitbox
-            // testing entirely
-            let rect = txt_batch
-                .get_bounds()
-                .get_rectangle()
-                .centered_on(pt)
-                .rotate_around(angle.reorient(), pt);
-            for x in &hitboxes {
-                if rect.intersects(x) {
-                    continue 'ROAD;
-                }
-            }
-            hitboxes.push(rect);
 
             batch.append(
                 txt_batch
