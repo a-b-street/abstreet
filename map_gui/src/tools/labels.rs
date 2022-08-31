@@ -286,7 +286,8 @@ impl DrawSimpleRoadLabels {
             }
 
             // The road has an outline, so leave a slight buffer
-            let road_width = (0.9 * r.get_width()).inner_meters();
+            let outline_thickness = Distance::meters(1.0);
+            let road_width = (r.get_width() - 2.0 * outline_thickness).inner_meters();
             // Also a buffer from both ends of the road
             let road_length = (0.9 * r.length()).inner_meters();
 
@@ -304,14 +305,38 @@ impl DrawSimpleRoadLabels {
             if txt_bounds.width() * scale > road_length {
                 scale = road_length / txt_bounds.width();
                 info!("  overflowing width, so actually scale {scale}");
+                // TODO in this case, the vertical centering is off
             }
 
-            let txt_batch = txt_batch.scale(scale);
+            /*let txt_batch = txt_batch.scale(scale);
 
             batch.append(
                 txt_batch
                     .centered_on(pt)
                     .rotate_around_batch_center(angle.reorient()),
+            );*/
+
+            // Pass in the bottom of the road, not the center. usvg doesn't support
+            // alignmnet-baseline from SVG 1.1, which could otherwise correct for this
+            let quadrant = r.center_pts.quadrant();
+            let shift_dir = if quadrant == 2 || quadrant == 3 {
+                -1.0
+            } else {
+                1.0
+            };
+            let mut curve = r
+                .center_pts
+                .shift_either_direction(Distance::meters(shift_dir * road_width / 2.0))
+                .unwrap();
+            if quadrant == 2 || quadrant == 3 {
+                curve = curve.reversed();
+            }
+
+            // Now let's curve the label to fit the road. But use that scale assuming a rectangle.
+            batch.append(
+                Line(&name)
+                    .fg(self.fg_color)
+                    .render_curvey(ctx, &curve, scale),
             );
         }
 
