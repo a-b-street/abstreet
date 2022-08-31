@@ -206,8 +206,8 @@ fn cheaply_overestimate_bounds(text: &str, text_scale: f64, center: Pt2D, angle:
     .get_bounds()
 }
 
-/// Draws labels in map-space that roughly fit on the roads and change screen-space size while
-/// zooming.
+/// Draws labels in map-space that roughly fit on the roads. Don't change behavior during zooming;
+/// labels are only meant to be legible when zoomed in.
 pub struct DrawSimpleRoadLabels {
     draw: Drawable,
     include_roads: Box<dyn Fn(&Road) -> bool>,
@@ -279,24 +279,28 @@ impl DrawSimpleRoadLabels {
             };
             let (pt, angle) = r.center_pts.must_dist_along(r.length() / 2.0);
 
-            // TODO Ideally we make the text height always be a bit less than the road width. I'm
-            // having lots of trouble relating the two, so do something manually tuned for the
-            // moment.
-            let width = r.get_width();
-            let scale = if width < Distance::meters(8.0) {
-                0.3
-            } else if width < Distance::meters(6.0) {
-                0.2
-            } else {
-                0.5
-            };
-
             let txt = Text::from(Line(&name).fg(self.fg_color));
-            let txt_batch = txt.render_autocropped(ctx).scale(scale);
+            let txt_batch = txt.render_autocropped(ctx);
+            let txt_bounds = txt_batch.get_bounds();
             if txt_batch.is_empty() {
                 // This happens when we don't have a font loaded with the right characters
                 continue;
             }
+
+            // The road has an outline, so leave a slight buffer
+            let road_width = 0.9 * r.get_width();
+
+            // Fit the text height in the road width perfectly
+            let scale = (road_width / txt_bounds.height()).inner_meters();
+
+            info!(
+                "{name}: txt height {}, road width {}, so scale {}",
+                txt_bounds.height(),
+                road_width,
+                scale
+            );
+            let txt_batch = txt_batch.scale(scale);
+
             let rect = txt_batch
                 .get_bounds()
                 .get_rectangle()
