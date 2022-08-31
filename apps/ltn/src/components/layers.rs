@@ -84,6 +84,12 @@ impl Layers {
         }
     }
 
+    pub fn show_bus_routes(&mut self, ctx: &mut EventCtx, cs: &ColorScheme) {
+        self.minimized = false;
+        self.show_bus_routes = true;
+        self.update_panel(ctx, cs);
+    }
+
     fn update_panel(&mut self, ctx: &mut EventCtx, cs: &ColorScheme) {
         self.panel = Panel::new_builder(
             Widget::col(vec![

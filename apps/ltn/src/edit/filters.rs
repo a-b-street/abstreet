@@ -3,7 +3,7 @@ use widgetry::tools::open_browser;
 use widgetry::{lctrl, EventCtx, Key, Line, Text, Transition, Widget};
 
 use super::{road_name, EditOutcome, Obj};
-use crate::{after_edit, colors, App, DiagonalFilter, Neighbourhood, RoadFilter};
+use crate::{after_edit, colors, App, DiagonalFilter, FilterType, Neighbourhood, RoadFilter};
 
 pub fn widget(ctx: &mut EventCtx) -> Widget {
     Text::from(Line(
@@ -83,6 +83,17 @@ pub fn handle_world_outcome(
                 let cursor_pt = ctx.canvas.get_cursor_in_map_space().unwrap();
                 let pt_on_line = road.center_pts.project_pt(cursor_pt);
                 let (distance, _) = road.center_pts.dist_along_of_point(pt_on_line).unwrap();
+
+                // If we have a one-way bus route, the one-way resolver will win and we won't warn
+                // about bus gates. Oh well.
+                if app.session.filter_type != FilterType::BusGate
+                    && !app.map.get_bus_routes_on_road(r).is_empty()
+                {
+                    app.session.edits.cancel_empty_edit();
+                    return EditOutcome::Transition(Transition::Push(
+                        super::ResolveBusGate::new_state(ctx, app, vec![(r, distance)]),
+                    ));
+                }
 
                 app.session.edits.roads.insert(
                     r,

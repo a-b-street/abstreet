@@ -2,7 +2,7 @@ use geom::PolyLine;
 use widgetry::{EventCtx, Line, Text, Widget};
 
 use crate::edit::{EditMode, EditOutcome};
-use crate::{after_edit, App, DiagonalFilter, Neighbourhood, RoadFilter, Transition};
+use crate::{after_edit, App, DiagonalFilter, FilterType, Neighbourhood, RoadFilter, Transition};
 
 pub fn widget(ctx: &mut EventCtx) -> Widget {
     Text::from_all(vec![
@@ -35,6 +35,7 @@ fn make_filters_along_path(
     path: PolyLine,
 ) -> Transition {
     let mut oneways = Vec::new();
+    let mut bus_roads = Vec::new();
 
     app.session.edits.before_edit();
     for r in &neighbourhood.orig_perimeter.interior {
@@ -57,6 +58,14 @@ fn make_filters_along_path(
                 .dist_along_of_point(pt)
                 .map(|pair| pair.0)
                 .unwrap_or(road.center_pts.length() / 2.0);
+
+            if app.session.filter_type != FilterType::BusGate
+                && !app.map.get_bus_routes_on_road(*r).is_empty()
+            {
+                bus_roads.push((*r, dist));
+                continue;
+            }
+
             app.session
                 .edits
                 .roads
@@ -71,9 +80,11 @@ fn make_filters_along_path(
     }
     after_edit(ctx, app);
 
-    if oneways.is_empty() {
-        Transition::Recreate
-    } else {
+    if !oneways.is_empty() {
         Transition::Push(super::ResolveOneWayAndFilter::new_state(ctx, oneways))
+    } else if !bus_roads.is_empty() {
+        Transition::Push(super::ResolveBusGate::new_state(ctx, app, bus_roads))
+    } else {
+        Transition::Recreate
     }
 }

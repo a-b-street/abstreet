@@ -222,10 +222,10 @@ pub fn extract_osm(
                 }
             }
         } else if rel.tags.is("type", "route") && rel.tags.is("route", "bus") {
-            for (role, member) in &rel.members {
-                if let OsmID::Way(w) = member {
-                    if role.is_empty() {
-                        if let Some(name) = doc.ways[w].tags.get("name") {
+            if let Some(name) = rel.tags.get("name") {
+                for (role, member) in &rel.members {
+                    if let OsmID::Way(w) = member {
+                        if role.is_empty() {
                             bus_routes_on_roads.insert(*w, name.to_string());
                         }
                     }

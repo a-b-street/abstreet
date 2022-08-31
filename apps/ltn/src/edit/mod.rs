@@ -3,6 +3,9 @@ mod freehand_filters;
 mod one_ways;
 mod shortcuts;
 
+use std::collections::BTreeSet;
+
+use geom::Distance;
 use map_gui::tools::grey_out_map;
 use map_model::{EditRoad, IntersectionID, Road, RoadID};
 use street_network::{Direction, LaneSpec};
@@ -387,6 +390,91 @@ impl State<App> for ResolveOneWayAndFilter {
                     r,
                     RoadFilter::new_by_user(road.length() / 2.0, app.session.filter_type),
                 );
+            }
+
+            after_edit(ctx, app);
+
+            return Transition::Multi(vec![Transition::Pop, Transition::Recreate]);
+        }
+        Transition::Keep
+    }
+
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::PreviousState
+    }
+
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        grey_out_map(g, app);
+        self.panel.draw(g);
+    }
+}
+
+struct ResolveBusGate {
+    panel: Panel,
+    roads: Vec<(RoadID, Distance)>,
+}
+
+impl ResolveBusGate {
+    fn new_state(
+        ctx: &mut EventCtx,
+        app: &mut App,
+        roads: Vec<(RoadID, Distance)>,
+    ) -> Box<dyn State<App>> {
+        app.session.layers.show_bus_routes(ctx, &app.cs);
+
+        let mut txt = Text::new();
+        txt.add_line(Line("Warning").small_heading());
+        txt.add_line("A regular modal filter would impact bus routes here.");
+        txt.add_line("A bus gate uses signage and camera enforcement to only allow buses");
+        // TODO Enable after regenerating maps with correct route names
+        if false {
+            txt.add_line("");
+            txt.add_line("The following bus routes cross this road:");
+
+            let mut routes = BTreeSet::new();
+            for (r, _) in &roads {
+                routes.extend(app.map.get_bus_routes_on_road(*r));
+            }
+            for route in routes {
+                txt.add_line(format!("- {route}"));
+            }
+        }
+
+        let panel = Panel::new_builder(Widget::col(vec![
+            txt.into_widget(ctx),
+            Widget::row(vec![
+                // TODO Just have pictures?
+                ctx.style()
+                    .btn_solid
+                    .text("Place a regular modal filter here")
+                    .build_def(ctx),
+                ctx.style()
+                    .btn_solid_primary
+                    .text("Place bus gates")
+                    .build_def(ctx),
+            ]),
+        ]))
+        .build(ctx);
+
+        Box::new(Self { panel, roads })
+    }
+}
+
+impl State<App> for ResolveBusGate {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            app.session.edits.before_edit();
+            let filter_type = if x == "Place bus gates" {
+                FilterType::BusGate
+            } else {
+                app.session.filter_type
+            };
+
+            for (r, dist) in self.roads.drain(..) {
+                app.session
+                    .edits
+                    .roads
+                    .insert(r, RoadFilter::new_by_user(dist, filter_type));
             }
 
             after_edit(ctx, app);
