@@ -290,6 +290,9 @@ impl DrawSimpleRoadLabels {
             // the text, accounting for the outline around the road polygon and a buffer. If the
             // road's length is short, the text could overflow into the intersections, so scale it
             // down further.
+            //
+            // Since the text fits inside the road polygon, we don't need to do any kind of hitbox
+            // testing and make sure multiple labels don't overlap!
 
             // The road has an outline of 1m, but also leave a slight buffer
             let outline_thickness = Distance::meters(2.0);
