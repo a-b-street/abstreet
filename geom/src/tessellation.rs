@@ -27,6 +27,32 @@ impl From<Polygon> for Tessellation {
     }
 }
 
+impl From<geo::Polygon> for Tessellation {
+    fn from(poly: geo::Polygon) -> Self {
+        let (exterior, mut interiors) = poly.into_inner();
+        interiors.insert(0, exterior);
+
+        let geojson_style: Vec<Vec<Vec<f64>>> = interiors
+            .into_iter()
+            .map(|ring| {
+                ring.into_inner()
+                    .into_iter()
+                    .map(|pt| vec![pt.x, pt.y])
+                    .collect()
+            })
+            .collect();
+        let (vertices, holes, dims) = earcutr::flatten(&geojson_style);
+        let indices = earcutr::earcut(&vertices, &holes, dims);
+
+        let points = vertices
+            .chunks(2)
+            .map(|pair| Pt2D::new(pair[0], pair[1]))
+            .collect();
+
+        Self::new(points, indices)
+    }
+}
+
 impl Tessellation {
     pub fn new(points: Vec<Pt2D>, indices: Vec<usize>) -> Self {
         Tessellation {
