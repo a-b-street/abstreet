@@ -325,6 +325,35 @@
 <span id="319">319</span>
 <span id="320">320</span>
 <span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 
 <span class="kw">use</span> <span class="ident">aabb_quadtree::QuadTree</span>;
@@ -533,8 +562,8 @@
     .<span class="ident">get_bounds</span>()
 }
 
-<span class="doccomment">/// Draws labels in map-space that roughly fit on the roads and change screen-space size while</span>
-<span class="doccomment">/// zooming.</span>
+<span class="doccomment">/// Draws labels in map-space that roughly fit on the roads. Don&#39;t change behavior during zooming;</span>
+<span class="doccomment">/// labels are only meant to be legible when zoomed in.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DrawSimpleRoadLabels</span> {
     <span class="ident">draw</span>: <span class="ident">Drawable</span>,
     <span class="ident">include_roads</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">Road</span>) -&gt; <span class="ident">bool</span><span class="op">&gt;</span>,
@@ -590,12 +619,11 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
         <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hitboxes</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-
         <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;render roads&quot;</span>, <span class="ident">map</span>.<span class="ident">all_roads</span>().<span class="ident">len</span>());
-        <span class="lifetime">&#39;ROAD</span>: <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
+        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
             <span class="ident">timer</span>.<span class="ident">next</span>();
-            <span class="kw">if</span> <span class="op">!</span>(<span class="self">self</span>.<span class="ident">include_roads</span>)(<span class="ident">r</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">length</span>() <span class="op">&lt;</span> <span class="ident">Distance::meters</span>(<span class="number">30.0</span>) {
+            <span class="comment">// Skip very short roads and tunnels</span>
+            <span class="kw">if</span> <span class="op">!</span>(<span class="self">self</span>.<span class="ident">include_roads</span>)(<span class="ident">r</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">length</span>() <span class="op">&lt;</span> <span class="ident">Distance::meters</span>(<span class="number">30.0</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">zorder</span> <span class="op">&lt;</span> <span class="number">0</span> {
                 <span class="kw">continue</span>;
             }
 
@@ -604,42 +632,72 @@
             } <span class="kw">else</span> {
                 <span class="kw">continue</span>;
             };
-            <span class="kw">let</span> (<span class="ident">pt</span>, <span class="ident">angle</span>) <span class="op">=</span> <span class="ident">r</span>.<span class="ident">center_pts</span>.<span class="ident">must_dist_along</span>(<span class="ident">r</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="number">2.0</span>);
 
-            <span class="comment">// TODO Ideally we make the text height always be a bit less than the road width. I&#39;m</span>
-            <span class="comment">// having lots of trouble relating the two, so do something manually tuned for the</span>
-            <span class="comment">// moment.</span>
-            <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">get_width</span>();
-            <span class="kw">let</span> <span class="ident">scale</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">width</span> <span class="op">&lt;</span> <span class="ident">Distance::meters</span>(<span class="number">8.0</span>) {
-                <span class="number">0.3</span>
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">width</span> <span class="op">&lt;</span> <span class="ident">Distance::meters</span>(<span class="number">6.0</span>) {
-                <span class="number">0.2</span>
-            } <span class="kw">else</span> {
-                <span class="number">0.5</span>
-            };
-
-            <span class="kw">let</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>).<span class="ident">fg</span>(<span class="self">self</span>.<span class="ident">fg_color</span>));
-            <span class="kw">let</span> <span class="ident">txt_batch</span> <span class="op">=</span> <span class="ident">txt</span>.<span class="ident">render_autocropped</span>(<span class="ident">ctx</span>).<span class="ident">scale</span>(<span class="ident">scale</span>);
+            <span class="kw">let</span> <span class="ident">txt_batch</span> <span class="op">=</span> <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>)).<span class="ident">render_autocropped</span>(<span class="ident">ctx</span>);
             <span class="kw">if</span> <span class="ident">txt_batch</span>.<span class="ident">is_empty</span>() {
                 <span class="comment">// This happens when we don&#39;t have a font loaded with the right characters</span>
                 <span class="kw">continue</span>;
             }
-            <span class="kw">let</span> <span class="ident">rect</span> <span class="op">=</span> <span class="ident">txt_batch</span>
-                .<span class="ident">get_bounds</span>()
-                .<span class="ident">get_rectangle</span>()
-                .<span class="ident">centered_on</span>(<span class="ident">pt</span>)
-                .<span class="ident">rotate_around</span>(<span class="ident">angle</span>.<span class="ident">reorient</span>(), <span class="ident">pt</span>);
-            <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">hitboxes</span> {
-                <span class="kw">if</span> <span class="ident">rect</span>.<span class="ident">intersects</span>(<span class="ident">x</span>) {
-                    <span class="kw">continue</span> <span class="lifetime">&#39;ROAD</span>;
-                }
+            <span class="kw">let</span> <span class="ident">txt_bounds</span> <span class="op">=</span> <span class="ident">txt_batch</span>.<span class="ident">get_bounds</span>();
+
+            <span class="comment">// The approach, part 1:</span>
+            <span class="comment">//</span>
+            <span class="comment">// We need to make the text fit in the road polygon. road_width gives us the height of</span>
+            <span class="comment">// the text, accounting for the outline around the road polygon and a buffer. If the</span>
+            <span class="comment">// road&#39;s length is short, the text could overflow into the intersections, so scale it</span>
+            <span class="comment">// down further.</span>
+            <span class="comment">//</span>
+            <span class="comment">// Since the text fits inside the road polygon, we don&#39;t need to do any kind of hitbox</span>
+            <span class="comment">// testing and make sure multiple labels don&#39;t overlap!</span>
+
+            <span class="comment">// The road has an outline of 1m, but also leave a slight buffer</span>
+            <span class="kw">let</span> <span class="ident">outline_thickness</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">2.0</span>);
+            <span class="kw">let</span> <span class="ident">road_width</span> <span class="op">=</span> (<span class="ident">r</span>.<span class="ident">get_width</span>() <span class="op">-</span> <span class="number">2.0</span> <span class="op">*</span> <span class="ident">outline_thickness</span>).<span class="ident">inner_meters</span>();
+            <span class="comment">// Also a buffer from both ends of the road</span>
+            <span class="kw">let</span> <span class="ident">road_length</span> <span class="op">=</span> (<span class="number">0.9</span> <span class="op">*</span> <span class="ident">r</span>.<span class="ident">length</span>()).<span class="ident">inner_meters</span>();
+
+            <span class="comment">// Fit the text height in the road width perfectly</span>
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scale</span> <span class="op">=</span> <span class="ident">road_width</span> <span class="op">/</span> <span class="ident">txt_bounds</span>.<span class="ident">height</span>();
+
+            <span class="comment">// If the road is short and we&#39;ll overflow, then scale down even more.</span>
+            <span class="kw">if</span> <span class="ident">txt_bounds</span>.<span class="ident">width</span>() <span class="op">*</span> <span class="ident">scale</span> <span class="op">&gt;</span> <span class="ident">road_length</span> {
+                <span class="ident">scale</span> <span class="op">=</span> <span class="ident">road_length</span> <span class="op">/</span> <span class="ident">txt_bounds</span>.<span class="ident">width</span>();
+                <span class="comment">// TODO In this case, the vertical centering in the road polygon is wrong</span>
             }
-            <span class="ident">hitboxes</span>.<span class="ident">push</span>(<span class="ident">rect</span>);
+
+            <span class="comment">// The approach, part 2:</span>
+            <span class="comment">//</span>
+            <span class="comment">// But many roads are curved. We can use the SVG renderer to make text follow a curve.</span>
+            <span class="comment">// But use the scale / text size calculated assuming rectangles.</span>
+            <span class="comment">//</span>
+            <span class="comment">// Note we render the text twice here, and once again in render_curvey. This seems</span>
+            <span class="comment">// cheap enough so far. There&#39;s internal SVG caching in widgetry, but we could also</span>
+            <span class="comment">// consider caching a &quot;road name -&gt; txt_bounds&quot; mapping through the whole app.</span>
+
+            <span class="comment">// The orientation of the text and the direction we vertically center depends on the</span>
+            <span class="comment">// direction the road points</span>
+            <span class="kw">let</span> <span class="ident">quadrant</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">center_pts</span>.<span class="ident">quadrant</span>();
+            <span class="kw">let</span> <span class="ident">shift_dir</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">quadrant</span> <span class="op">==</span> <span class="number">2</span> <span class="op">|</span><span class="op">|</span> <span class="ident">quadrant</span> <span class="op">==</span> <span class="number">3</span> {
+                <span class="op">-</span><span class="number">1.0</span>
+            } <span class="kw">else</span> {
+                <span class="number">1.0</span>
+            };
+            <span class="comment">// The polyline passed to render_curvey will be used as the bottom of the text</span>
+            <span class="comment">// (glossing over whether or not this is a &quot;baseline&quot; or something else). We want to</span>
+            <span class="comment">// vertically center. SVG 1.1 has alignment-baseline, but usvg doesn&#39;t support this. So</span>
+            <span class="comment">// shift the road polyline.</span>
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">curve</span> <span class="op">=</span> <span class="ident">r</span>
+                .<span class="ident">center_pts</span>
+                .<span class="ident">shift_either_direction</span>(<span class="ident">Distance::meters</span>(<span class="ident">shift_dir</span> <span class="op">*</span> <span class="ident">road_width</span> <span class="op">/</span> <span class="number">2.0</span>))
+                .<span class="ident">unwrap</span>();
+            <span class="kw">if</span> <span class="ident">quadrant</span> <span class="op">==</span> <span class="number">2</span> <span class="op">|</span><span class="op">|</span> <span class="ident">quadrant</span> <span class="op">==</span> <span class="number">3</span> {
+                <span class="ident">curve</span> <span class="op">=</span> <span class="ident">curve</span>.<span class="ident">reversed</span>();
+            }
 
             <span class="ident">batch</span>.<span class="ident">append</span>(
-                <span class="ident">txt_batch</span>
-                    .<span class="ident">centered_on</span>(<span class="ident">pt</span>)
-                    .<span class="ident">rotate_around_batch_center</span>(<span class="ident">angle</span>.<span class="ident">reorient</span>()),
+                <span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>)
+                    .<span class="ident">fg</span>(<span class="self">self</span>.<span class="ident">fg_color</span>)
+                    .<span class="ident">render_curvey</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">curve</span>, <span class="ident">scale</span>),
             );
         }
 

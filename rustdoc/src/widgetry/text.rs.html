@@ -1225,7 +1225,7 @@
         <span class="macro">write!</span>(
             <span class="kw-2">&amp;mut</span> <span class="ident">svg</span>,
             <span class="string">r##&quot;&lt;textPath href=&quot;#txtpath&quot;&gt;{}&lt;/textPath&gt;&lt;/text&gt;&lt;/svg&gt;&quot;##</span>,
-            <span class="self">self</span>.<span class="ident">text</span>
+            <span class="ident">htmlescape::encode_minimal</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">text</span>)
         )
         .<span class="ident">unwrap</span>();
 
