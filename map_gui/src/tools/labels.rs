@@ -206,8 +206,8 @@ fn cheaply_overestimate_bounds(text: &str, text_scale: f64, center: Pt2D, angle:
     .get_bounds()
 }
 
-/// Draws labels in map-space that roughly fit on the roads and change screen-space size while
-/// zooming.
+/// Draws labels in map-space that roughly fit on the roads. Don't change behavior during zooming;
+/// labels are only meant to be legible when zoomed in.
 pub struct DrawSimpleRoadLabels {
     draw: Drawable,
     include_roads: Box<dyn Fn(&Road) -> bool>,
@@ -263,12 +263,11 @@ impl DrawSimpleRoadLabels {
         let mut batch = GeomBatch::new();
         let map = app.map();
 
-        let mut hitboxes = Vec::new();
-
         timer.start_iter("render roads", map.all_roads().len());
-        'ROAD: for r in map.all_roads() {
+        for r in map.all_roads() {
             timer.next();
-            if !(self.include_roads)(r) || r.length() < Distance::meters(30.0) {
+            // Skip very short roads and tunnels
+            if !(self.include_roads)(r) || r.length() < Distance::meters(30.0) || r.zorder < 0 {
                 continue;
             }
 
@@ -277,42 +276,72 @@ impl DrawSimpleRoadLabels {
             } else {
                 continue;
             };
-            let (pt, angle) = r.center_pts.must_dist_along(r.length() / 2.0);
 
-            // TODO Ideally we make the text height always be a bit less than the road width. I'm
-            // having lots of trouble relating the two, so do something manually tuned for the
-            // moment.
-            let width = r.get_width();
-            let scale = if width < Distance::meters(8.0) {
-                0.3
-            } else if width < Distance::meters(6.0) {
-                0.2
-            } else {
-                0.5
-            };
-
-            let txt = Text::from(Line(&name).fg(self.fg_color));
-            let txt_batch = txt.render_autocropped(ctx).scale(scale);
+            let txt_batch = Text::from(Line(&name)).render_autocropped(ctx);
             if txt_batch.is_empty() {
                 // This happens when we don't have a font loaded with the right characters
                 continue;
             }
-            let rect = txt_batch
-                .get_bounds()
-                .get_rectangle()
-                .centered_on(pt)
-                .rotate_around(angle.reorient(), pt);
-            for x in &hitboxes {
-                if rect.intersects(x) {
-                    continue 'ROAD;
-                }
+            let txt_bounds = txt_batch.get_bounds();
+
+            // The approach, part 1:
+            //
+            // We need to make the text fit in the road polygon. road_width gives us the height of
+            // the text, accounting for the outline around the road polygon and a buffer. If the
+            // road's length is short, the text could overflow into the intersections, so scale it
+            // down further.
+            //
+            // Since the text fits inside the road polygon, we don't need to do any kind of hitbox
+            // testing and make sure multiple labels don't overlap!
+
+            // The road has an outline of 1m, but also leave a slight buffer
+            let outline_thickness = Distance::meters(2.0);
+            let road_width = (r.get_width() - 2.0 * outline_thickness).inner_meters();
+            // Also a buffer from both ends of the road
+            let road_length = (0.9 * r.length()).inner_meters();
+
+            // Fit the text height in the road width perfectly
+            let mut scale = road_width / txt_bounds.height();
+
+            // If the road is short and we'll overflow, then scale down even more.
+            if txt_bounds.width() * scale > road_length {
+                scale = road_length / txt_bounds.width();
+                // TODO In this case, the vertical centering in the road polygon is wrong
             }
-            hitboxes.push(rect);
+
+            // The approach, part 2:
+            //
+            // But many roads are curved. We can use the SVG renderer to make text follow a curve.
+            // But use the scale / text size calculated assuming rectangles.
+            //
+            // Note we render the text twice here, and once again in render_curvey. This seems
+            // cheap enough so far. There's internal SVG caching in widgetry, but we could also
+            // consider caching a "road name -> txt_bounds" mapping through the whole app.
+
+            // The orientation of the text and the direction we vertically center depends on the
+            // direction the road points
+            let quadrant = r.center_pts.quadrant();
+            let shift_dir = if quadrant == 2 || quadrant == 3 {
+                -1.0
+            } else {
+                1.0
+            };
+            // The polyline passed to render_curvey will be used as the bottom of the text
+            // (glossing over whether or not this is a "baseline" or something else). We want to
+            // vertically center. SVG 1.1 has alignment-baseline, but usvg doesn't support this. So
+            // shift the road polyline.
+            let mut curve = r
+                .center_pts
+                .shift_either_direction(Distance::meters(shift_dir * road_width / 2.0))
+                .unwrap();
+            if quadrant == 2 || quadrant == 3 {
+                curve = curve.reversed();
+            }
 
             batch.append(
-                txt_batch
-                    .centered_on(pt)
-                    .rotate_around_batch_center(angle.reorient()),
+                Line(&name)
+                    .fg(self.fg_color)
+                    .render_curvey(ctx, &curve, scale),
             );
         }
 

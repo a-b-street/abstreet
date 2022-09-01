@@ -601,7 +601,7 @@ impl TextSpan {
         write!(
             &mut svg,
             r##"<textPath href="#txtpath">{}</textPath></text></svg>"##,
-            self.text
+            htmlescape::encode_minimal(&self.text)
         )
         .unwrap();
 
