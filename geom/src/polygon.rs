@@ -24,7 +24,7 @@ pub struct Polygon {
 }
 
 impl Polygon {
-    pub fn with_holes(outer: Ring, mut inner: Vec<Ring>) -> Polygon {
+    pub fn with_holes(outer: Ring, mut inner: Vec<Ring>) -> Self {
         inner.insert(0, outer);
         let geojson_style: Vec<Vec<Vec<f64>>> = inner
             .iter()
@@ -38,7 +38,7 @@ impl Polygon {
         let (vertices, holes, dims) = earcutr::flatten(&geojson_style);
         let indices = crate::tessellation::downsize(earcutr::earcut(&vertices, &holes, dims));
 
-        Polygon {
+        Self {
             points: vertices
                 .chunks(2)
                 .map(|pair| Pt2D::new(pair[0], pair[1]))
@@ -48,39 +48,35 @@ impl Polygon {
         }
     }
 
-    pub fn from_rings(mut rings: Vec<Ring>) -> Polygon {
+    pub fn from_rings(mut rings: Vec<Ring>) -> Self {
         assert!(!rings.is_empty());
         let outer = rings.remove(0);
-        Polygon::with_holes(outer, rings)
+        Self::with_holes(outer, rings)
     }
 
-    pub fn from_geojson(raw: &[Vec<Vec<f64>>]) -> Result<Polygon> {
+    pub fn from_geojson(raw: &[Vec<Vec<f64>>]) -> Result<Self> {
         let mut rings = Vec::new();
         for pts in raw {
             let transformed: Vec<Pt2D> =
                 pts.iter().map(|pair| Pt2D::new(pair[0], pair[1])).collect();
             rings.push(Ring::new(transformed)?);
         }
-        Ok(Polygon::from_rings(rings))
+        Ok(Self::from_rings(rings))
     }
 
     // TODO No guarantee points forms a ring. In fact, the main caller is from SVG->lyon parsing,
     // and it's NOT true there yet.
-    pub fn precomputed(points: Vec<Pt2D>, indices: Vec<usize>) -> Polygon {
+    pub fn precomputed(points: Vec<Pt2D>, indices: Vec<usize>) -> Self {
         assert!(indices.len() % 3 == 0);
-        Polygon {
+        Self {
             points,
             indices: crate::tessellation::downsize(indices),
             rings: None,
         }
     }
 
-    pub fn from_triangle(tri: &Triangle) -> Polygon {
-        Polygon {
-            points: vec![tri.pt1, tri.pt2, tri.pt3, tri.pt1],
-            indices: vec![0, 1, 2],
-            rings: None,
-        }
+    pub fn from_triangle(tri: &Triangle) -> Self {
+        Ring::must_new(vec![tri.pt1, tri.pt2, tri.pt3, tri.pt1]).into_polygon()
     }
 
     pub fn triangles(&self) -> Vec<Triangle> {
@@ -96,8 +92,8 @@ impl Polygon {
         Bounds::from(&self.points)
     }
 
-    fn transform<F: Fn(&Pt2D) -> Pt2D>(&self, f: F) -> Polygon {
-        Polygon {
+    fn transform<F: Fn(&Pt2D) -> Pt2D>(&self, f: F) -> Self {
+        Self {
             points: self.points.iter().map(&f).collect(),
             indices: self.indices.clone(),
             rings: self.rings.as_ref().map(|rings| {
@@ -111,23 +107,23 @@ impl Polygon {
         }
     }
 
-    pub fn translate(&self, dx: f64, dy: f64) -> Polygon {
+    pub fn translate(&self, dx: f64, dy: f64) -> Self {
         self.transform(|pt| pt.offset(dx, dy))
     }
 
-    pub fn scale(&self, factor: f64) -> Polygon {
+    pub fn scale(&self, factor: f64) -> Self {
         self.transform(|pt| Pt2D::new(pt.x() * factor, pt.y() * factor))
     }
 
-    pub fn scale_xy(&self, x_factor: f64, y_factor: f64) -> Polygon {
+    pub fn scale_xy(&self, x_factor: f64, y_factor: f64) -> Self {
         self.transform(|pt| Pt2D::new(pt.x() * x_factor, pt.y() * y_factor))
     }
 
-    pub fn rotate(&self, angle: Angle) -> Polygon {
+    pub fn rotate(&self, angle: Angle) -> Self {
         self.rotate_around(angle, self.center())
     }
 
-    pub fn rotate_around(&self, angle: Angle, pivot: Pt2D) -> Polygon {
+    pub fn rotate_around(&self, angle: Angle, pivot: Pt2D) -> Self {
         self.transform(|pt| {
             let origin_pt = Pt2D::new(pt.x() - pivot.x(), pt.y() - pivot.y());
             let (sin, cos) = angle.normalized_radians().sin_cos();
@@ -138,43 +134,11 @@ impl Polygon {
         })
     }
 
-    pub fn centered_on(&self, center: Pt2D) -> Polygon {
+    pub fn centered_on(&self, center: Pt2D) -> Self {
         let bounds = self.get_bounds();
         let dx = center.x() - bounds.width() / 2.0;
         let dy = center.y() - bounds.height() / 2.0;
         self.translate(dx, dy)
-    }
-
-    /// Equivalent to `self.strip_rings().scale(scale).translate(translate_x, translate_y).rotate_around(rotate,
-    /// pivot)`, but modifies the polygon in-place and is faster.
-    pub fn inplace_multi_transform(
-        &mut self,
-        scale: f64,
-        translate_x: f64,
-        translate_y: f64,
-        rotate: Angle,
-        pivot: Pt2D,
-    ) {
-        // Give up on preserving rings; they might collapse down during transformation. It's a
-        // waste of performance anyway; this method is useful mainly for tesselations.
-        self.rings = None;
-
-        let (sin, cos) = rotate.normalized_radians().sin_cos();
-
-        for pt in &mut self.points {
-            // Scale
-            let x = scale * pt.x();
-            let y = scale * pt.y();
-            // Translate
-            let x = x + translate_x;
-            let y = y + translate_y;
-            // Rotate
-            let origin_pt = Pt2D::new(x - pivot.x(), y - pivot.y());
-            *pt = Pt2D::new(
-                pivot.x() + origin_pt.x() * cos - origin_pt.y() * sin,
-                pivot.y() + origin_pt.y() * cos + origin_pt.x() * sin,
-            );
-        }
     }
 
     /// The order of these points depends on the constructor! The first and last point may or may
@@ -216,28 +180,25 @@ impl Polygon {
     }
 
     /// Top-left at the origin. Doesn't take Distance, because this is usually pixels, actually.
-    pub fn rectangle(width: f64, height: f64) -> Polygon {
-        Polygon {
-            points: vec![
-                Pt2D::new(0.0, 0.0),
-                Pt2D::new(width, 0.0),
-                Pt2D::new(width, height),
-                Pt2D::new(0.0, height),
-                Pt2D::new(0.0, 0.0),
-            ],
-            indices: vec![0, 1, 2, 0, 2, 3],
-            rings: None,
-        }
+    pub fn rectangle(width: f64, height: f64) -> Self {
+        Ring::must_new(vec![
+            Pt2D::new(0.0, 0.0),
+            Pt2D::new(width, 0.0),
+            Pt2D::new(width, height),
+            Pt2D::new(0.0, height),
+            Pt2D::new(0.0, 0.0),
+        ])
+        .into_polygon()
     }
 
-    pub fn rectangle_centered(center: Pt2D, width: Distance, height: Distance) -> Polygon {
-        Polygon::rectangle(width.inner_meters(), height.inner_meters()).translate(
+    pub fn rectangle_centered(center: Pt2D, width: Distance, height: Distance) -> Self {
+        Self::rectangle(width.inner_meters(), height.inner_meters()).translate(
             center.x() - width.inner_meters() / 2.0,
             center.y() - height.inner_meters() / 2.0,
         )
     }
 
-    pub fn rectangle_two_corners(pt1: Pt2D, pt2: Pt2D) -> Option<Polygon> {
+    pub fn rectangle_two_corners(pt1: Pt2D, pt2: Pt2D) -> Option<Self> {
         if Pt2D::new(pt1.x(), 0.0) == Pt2D::new(pt2.x(), 0.0)
             || Pt2D::new(0.0, pt1.y()) == Pt2D::new(0.0, pt2.y())
         {
@@ -254,11 +215,11 @@ impl Polygon {
         } else {
             (pt2.y(), pt1.y() - pt2.y())
         };
-        Some(Polygon::rectangle(width, height).translate(x1, y1))
+        Some(Self::rectangle(width, height).translate(x1, y1))
     }
 
     /// Top-left at the origin. Doesn't take Distance, because this is usually pixels, actually.
-    pub fn maybe_rounded_rectangle<R: Into<CornerRadii>>(w: f64, h: f64, r: R) -> Option<Polygon> {
+    pub fn maybe_rounded_rectangle<R: Into<CornerRadii>>(w: f64, h: f64, r: R) -> Option<Self> {
         let r = r.into();
         let max_r = r
             .top_left
@@ -310,19 +271,19 @@ impl Polygon {
     }
 
     /// A rectangle, two sides of which are fully rounded half-circles.
-    pub fn pill(w: f64, h: f64) -> Polygon {
+    pub fn pill(w: f64, h: f64) -> Self {
         let r = w.min(h) / 2.0;
-        Polygon::maybe_rounded_rectangle(w, h, r).unwrap()
+        Self::maybe_rounded_rectangle(w, h, r).unwrap()
     }
 
     /// Top-left at the origin. Doesn't take Distance, because this is usually pixels, actually.
     /// If it's not possible to apply the specified radius, fallback to a regular rectangle.
-    pub fn rounded_rectangle<R: Into<CornerRadii>>(w: f64, h: f64, r: R) -> Polygon {
-        Polygon::maybe_rounded_rectangle(w, h, r).unwrap_or_else(|| Polygon::rectangle(w, h))
+    pub fn rounded_rectangle<R: Into<CornerRadii>>(w: f64, h: f64, r: R) -> Self {
+        Self::maybe_rounded_rectangle(w, h, r).unwrap_or_else(|| Self::rectangle(w, h))
     }
 
     /// Union all of the polygons into one geo::MultiPolygon
-    pub fn union_all_into_multipolygon(mut list: Vec<Polygon>) -> geo::MultiPolygon {
+    pub fn union_all_into_multipolygon(mut list: Vec<Self>) -> geo::MultiPolygon {
         // TODO Not sure why this happened, or if this is really valid to construct...
         if list.is_empty() {
             return geo::MultiPolygon(Vec::new());
@@ -335,20 +296,20 @@ impl Polygon {
         result
     }
 
-    pub fn intersection(&self, other: &Polygon) -> Result<Vec<Polygon>> {
+    pub fn intersection(&self, other: &Self) -> Result<Vec<Self>> {
         from_multi(self.to_geo().intersection(&other.to_geo()))
     }
 
-    pub fn difference(&self, other: &Polygon) -> Result<Vec<Polygon>> {
+    pub fn difference(&self, other: &Self) -> Result<Vec<Self>> {
         from_multi(self.to_geo().difference(&other.to_geo()))
     }
 
-    pub fn convex_hull(list: Vec<Polygon>) -> Result<Polygon> {
+    pub fn convex_hull(list: Vec<Self>) -> Result<Self> {
         let mp: geo::MultiPolygon = list.into_iter().map(|p| p.to_geo()).collect();
         mp.convex_hull().try_into()
     }
 
-    pub fn concave_hull(points: Vec<Pt2D>, concavity: u32) -> Result<Polygon> {
+    pub fn concave_hull(points: Vec<Pt2D>, concavity: u32) -> Result<Self> {
         use geo::k_nearest_concave_hull::KNearestConcaveHull;
         let points: Vec<geo::Point> = points.iter().map(|p| geo::Point::from(*p)).collect();
         points.k_nearest_concave_hull(concavity).try_into()
@@ -362,7 +323,7 @@ impl Polygon {
     }
 
     /// Do two polygons intersect at all?
-    pub fn intersects(&self, other: &Polygon) -> bool {
+    pub fn intersects(&self, other: &Self) -> bool {
         self.to_geo().intersects(&other.to_geo())
     }
 
@@ -388,14 +349,6 @@ impl Polygon {
         } else {
             Ring::new(self.points.clone()).map(|r| Tessellation::from(r.to_outline(thickness)))
         }
-    }
-
-    /// Remove the internal rings used for to_outline. This is fine to do if the polygon is being
-    /// added to some larger piece of geometry that won't need an outline.
-    pub fn strip_rings(&self) -> Polygon {
-        let mut p = self.clone();
-        p.rings = None;
-        p
     }
 
     /// Usually m^2, unless the polygon is in screen-space
@@ -504,7 +457,7 @@ impl Polygon {
         raw_bytes: &[u8],
         gps_bounds: &GPSBounds,
         require_in_bounds: bool,
-    ) -> Result<Vec<(Polygon, Tags)>> {
+    ) -> Result<Vec<(Self, Tags)>> {
         let raw_string = std::str::from_utf8(raw_bytes)?;
         let geojson = raw_string.parse::<geojson::GeoJson>()?;
         let features = match geojson {
@@ -551,7 +504,7 @@ impl Polygon {
     }
 
     /// If simplification fails, just keep the original polygon
-    pub fn simplify(&self, epsilon: f64) -> Polygon {
+    pub fn simplify(&self, epsilon: f64) -> Self {
         self.to_geo()
             .simplifyvw_preserve(&epsilon)
             .try_into()
@@ -560,7 +513,7 @@ impl Polygon {
 
     /// An arbitrary placeholder value, when Option types aren't worthwhile
     pub fn dummy() -> Self {
-        Polygon::rectangle(0.1, 0.1)
+        Self::rectangle(0.1, 0.1)
     }
 
     // A less verbose way of invoking the From/Into impl. Note this hides a potentially expensive
