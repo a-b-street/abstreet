@@ -64,16 +64,17 @@ impl<A: AppLike + 'static> CityPicker<A> {
                     let mut tooltips = Vec::new();
                     for (name, polygon) in city.districts {
                         if &name != app.map().get_name() {
-                            batch.push(
-                                outline_color,
-                                polygon.to_outline(Distance::meters(200.0)).unwrap(),
-                            );
-                            let polygon = polygon.scale(zoom);
-                            tooltips.push((
-                                polygon.clone(),
-                                Text::from(nice_map_name(&name)),
-                                Some(ClickOutcome::Custom(Box::new(name))),
-                            ));
+                            if let Ok(zoomed_polygon) = polygon.scale(zoom) {
+                                batch.push(
+                                    outline_color,
+                                    polygon.to_outline(Distance::meters(200.0)).unwrap(),
+                                );
+                                tooltips.push((
+                                    zoomed_polygon,
+                                    Text::from(nice_map_name(&name)),
+                                    Some(ClickOutcome::Custom(Box::new(name))),
+                                ));
+                            }
                         }
                     }
                     DrawWithTooltips::new_widget(

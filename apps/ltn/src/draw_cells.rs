@@ -233,7 +233,7 @@ impl RenderCellsBuilder {
                         for p in polygons {
                             if let Ok(poly) = Polygon::from_geojson(&p) {
                                 cell_polygons.push(
-                                    poly.scale(RESOLUTION_M)
+                                    poly.must_scale(RESOLUTION_M)
                                         .translate(self.bounds.min_x, self.bounds.min_y),
                                 );
                             }

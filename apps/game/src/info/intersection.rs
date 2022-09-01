@@ -1,7 +1,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use abstutil::prettyprint_usize;
-use geom::{ArrowCap, Distance, Duration, PolyLine, Polygon, Time};
+use geom::{ArrowCap, Distance, Duration, PolyLine, Polygon, Tessellation, Time};
 use map_gui::options::TrafficSignalStyle;
 use map_gui::render::traffic_signal::draw_signal_stage;
 use map_model::{IntersectionID, IntersectionType, StageType};
@@ -193,28 +193,29 @@ fn current_demand_body(ctx: &mut EventCtx, app: &App, id: IntersectionID) -> Wid
     }
 
     let mut batch = GeomBatch::new();
-    let polygon = app.primary.map.get_i(id).polygon.clone();
+    let mut polygon = Tessellation::from(app.primary.map.get_i(id).polygon.clone());
     let bounds = polygon.get_bounds();
     // Pick a zoom so that we fit a fixed width in pixels
     let zoom = (0.25 * ctx.canvas.window_width) / bounds.width();
-    batch.push(
-        app.cs.normal_intersection,
-        polygon.translate(-bounds.min_x, -bounds.min_y).scale(zoom),
-    );
+    polygon.translate(-bounds.min_x, -bounds.min_y);
+    polygon.scale(zoom);
+    batch.push(app.cs.normal_intersection, polygon);
 
     let mut tooltips = Vec::new();
     let mut outlines = Vec::new();
     for (pl, demand) in demand_per_movement {
         let percent = (demand as f64) / (total_demand as f64);
-        let arrow = pl
+        if let Ok(arrow) = pl
             .make_arrow(percent * Distance::meters(3.0), ArrowCap::Triangle)
             .translate(-bounds.min_x, -bounds.min_y)
-            .scale(zoom);
-        if let Ok(p) = arrow.to_outline(Distance::meters(1.0)) {
-            outlines.push(p);
+            .scale(zoom)
+        {
+            if let Ok(p) = arrow.to_outline(Distance::meters(1.0)) {
+                outlines.push(p);
+            }
+            batch.push(Color::hex("#A3A3A3"), arrow.clone());
+            tooltips.push((arrow, Text::from(prettyprint_usize(demand)), None));
         }
-        batch.push(Color::hex("#A3A3A3"), arrow.clone());
-        tooltips.push((arrow, Text::from(prettyprint_usize(demand)), None));
     }
     batch.extend(Color::WHITE, outlines);
 

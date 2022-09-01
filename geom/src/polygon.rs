@@ -92,31 +92,40 @@ impl Polygon {
         Bounds::from(&self.points)
     }
 
-    fn transform<F: Fn(&Pt2D) -> Pt2D>(&self, f: F) -> Self {
-        Self {
+    /// Transformations must preserve Rings.
+    fn transform<F: Fn(&Pt2D) -> Pt2D>(&self, f: F) -> Result<Self> {
+        let mut rings = None;
+        if let Some(ref existing_rings) = self.rings {
+            let mut transformed = Vec::new();
+            for ring in existing_rings {
+                transformed.push(Ring::new(ring.points().iter().map(&f).collect())?);
+            }
+            rings = Some(transformed);
+        }
+        Ok(Self {
             points: self.points.iter().map(&f).collect(),
             indices: self.indices.clone(),
-            rings: self.rings.as_ref().map(|rings| {
-                rings
-                    .iter()
-                    // When scaling, rings may collapse entirely; just give up on preserving in
-                    // that case.
-                    .filter_map(|ring| Ring::new(ring.points().iter().map(&f).collect()).ok())
-                    .collect()
-            }),
-        }
+            rings,
+        })
     }
 
     pub fn translate(&self, dx: f64, dy: f64) -> Self {
         self.transform(|pt| pt.offset(dx, dy))
+            .expect("translate shouldn't collapse Rings")
     }
 
-    pub fn scale(&self, factor: f64) -> Self {
+    /// When `factor` is small, this may collapse Rings and thus fail.
+    pub fn scale(&self, factor: f64) -> Result<Self> {
         self.transform(|pt| Pt2D::new(pt.x() * factor, pt.y() * factor))
     }
 
-    pub fn scale_xy(&self, x_factor: f64, y_factor: f64) -> Self {
-        self.transform(|pt| Pt2D::new(pt.x() * x_factor, pt.y() * y_factor))
+    /// When `factor` is known to be over 1, then scaling can't fail.
+    pub fn must_scale(&self, factor: f64) -> Self {
+        if factor < 1.0 {
+            panic!("must_scale({factor}) might collapse Rings. Use scale()");
+        }
+        self.transform(|pt| Pt2D::new(pt.x() * factor, pt.y() * factor))
+            .expect("must_scale collapsed a Ring")
     }
 
     pub fn rotate(&self, angle: Angle) -> Self {
@@ -132,6 +141,7 @@ impl Polygon {
                 pivot.y() + origin_pt.y() * cos + origin_pt.x() * sin,
             )
         })
+        .expect("rotate_around shouldn't collapse Rings")
     }
 
     pub fn centered_on(&self, center: Pt2D) -> Self {
@@ -180,15 +190,21 @@ impl Polygon {
     }
 
     /// Top-left at the origin. Doesn't take Distance, because this is usually pixels, actually.
-    pub fn rectangle(width: f64, height: f64) -> Self {
-        Ring::must_new(vec![
+    pub fn maybe_rectangle(width: f64, height: f64) -> Result<Self> {
+        Ring::new(vec![
             Pt2D::new(0.0, 0.0),
             Pt2D::new(width, 0.0),
             Pt2D::new(width, height),
             Pt2D::new(0.0, height),
             Pt2D::new(0.0, 0.0),
         ])
-        .into_polygon()
+        .map(|ring| ring.into_polygon())
+    }
+
+    /// Top-left at the origin. Doesn't take Distance, because this is usually pixels, actually.
+    /// Note this will panic if `width` or `height` is 0.
+    pub fn rectangle(width: f64, height: f64) -> Self {
+        Self::maybe_rectangle(width, height).unwrap()
     }
 
     pub fn rectangle_centered(center: Pt2D, width: Distance, height: Distance) -> Self {

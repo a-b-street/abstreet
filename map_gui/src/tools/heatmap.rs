@@ -212,7 +212,7 @@ pub fn make_heatmap(
                     let color = Color::rgb(c.r as usize, c.g as usize, c.b as usize).alpha(0.6);
                     for p in polygons {
                         if let Ok(poly) = Polygon::from_geojson(&p) {
-                            batch.push(color, poly.scale(opts.resolution));
+                            batch.push(color, poly.must_scale(opts.resolution));
                         }
                     }
                 }
@@ -348,7 +348,7 @@ pub fn draw_isochrone(
             geojson::Value::MultiPolygon(polygons) => {
                 for p in polygons {
                     if let Ok(poly) = Polygon::from_geojson(&p) {
-                        batch.push(*color, poly.scale(resolution_m));
+                        batch.push(*color, poly.must_scale(resolution_m));
                     }
                 }
             }
