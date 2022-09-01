@@ -568,6 +568,8 @@
 <span id="562">562</span>
 <span id="563">563</span>
 <span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">abstutil::prettyprint_usize</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_gui::ID</span>;
@@ -784,7 +786,9 @@
             <span class="comment">// on the right, except at the very end (for the last &#39;radius&#39; pixels). And</span>
             <span class="comment">// when the width is too small for the radius, this messes up.</span>
             <span class="ident">progress_bar</span>.<span class="ident">push</span>(<span class="ident">bar_bg</span>, <span class="ident">Polygon::rectangle</span>(<span class="ident">bar_width</span>, <span class="ident">bar_height</span>));
-            <span class="ident">progress_bar</span>.<span class="ident">push</span>(<span class="ident">bar_fg</span>, <span class="ident">Polygon::rectangle</span>(<span class="ident">finished_width</span>, <span class="ident">bar_height</span>));
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">p</span>) <span class="op">=</span> <span class="ident">Polygon::maybe_rectangle</span>(<span class="ident">finished_width</span>, <span class="ident">bar_height</span>) {
+                <span class="ident">progress_bar</span>.<span class="ident">push</span>(<span class="ident">bar_fg</span>, <span class="ident">p</span>);
+            }
 
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">baseline_finished_width</span>) <span class="op">=</span> <span class="ident">baseline_finished_width</span> {
                 <span class="kw">if</span> <span class="ident">baseline_finished_width</span> <span class="op">&gt;</span> <span class="number">0.0</span> {

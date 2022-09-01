@@ -598,7 +598,7 @@
                         <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="ident">polygons</span> {
                             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">poly</span>) <span class="op">=</span> <span class="ident">Polygon::from_geojson</span>(<span class="kw-2">&amp;</span><span class="ident">p</span>) {
                                 <span class="ident">cell_polygons</span>.<span class="ident">push</span>(
-                                    <span class="ident">poly</span>.<span class="ident">scale</span>(<span class="ident">RESOLUTION_M</span>)
+                                    <span class="ident">poly</span>.<span class="ident">must_scale</span>(<span class="ident">RESOLUTION_M</span>)
                                         .<span class="ident">translate</span>(<span class="self">self</span>.<span class="ident">bounds</span>.<span class="ident">min_x</span>, <span class="self">self</span>.<span class="ident">bounds</span>.<span class="ident">min_y</span>),
                                 );
                             }
