@@ -266,7 +266,8 @@ impl DrawSimpleRoadLabels {
         timer.start_iter("render roads", map.all_roads().len());
         for r in map.all_roads() {
             timer.next();
-            if !(self.include_roads)(r) || r.length() < Distance::meters(30.0) {
+            // Skip very short roads and tunnels
+            if !(self.include_roads)(r) || r.length() < Distance::meters(30.0) || r.zorder < 0 {
                 continue;
             }
 
@@ -283,6 +284,13 @@ impl DrawSimpleRoadLabels {
             }
             let txt_bounds = txt_batch.get_bounds();
 
+            // The approach, part 1:
+            //
+            // We need to make the text fit in the road polygon. road_width gives us the height of
+            // the text, accounting for the outline around the road polygon and a buffer. If the
+            // road's length is short, the text could overflow into the intersections, so scale it
+            // down further.
+
             // The road has an outline of 1m, but also leave a slight buffer
             let outline_thickness = Distance::meters(2.0);
             let road_width = (r.get_width() - 2.0 * outline_thickness).inner_meters();
@@ -295,17 +303,30 @@ impl DrawSimpleRoadLabels {
             // If the road is short and we'll overflow, then scale down even more.
             if txt_bounds.width() * scale > road_length {
                 scale = road_length / txt_bounds.width();
-                // TODO in this case, the vertical centering is off
+                // TODO In this case, the vertical centering in the road polygon is wrong
             }
 
-            // Pass in the bottom of the road, not the center. usvg doesn't support
-            // alignmnet-baseline from SVG 1.1, which could otherwise correct for this
+            // The approach, part 2:
+            //
+            // But many roads are curved. We can use the SVG renderer to make text follow a curve.
+            // But use the scale / text size calculated assuming rectangles.
+            //
+            // Note we render the text twice. This seems cheap enough so far. There's internal SVG
+            // caching in widgetry, but we could also consider caching a "road name -> txt_bounds"
+            // mapping through the whole app.
+
+            // The orientation of the text and the direction we vertically center depends on the
+            // direction the road points
             let quadrant = r.center_pts.quadrant();
             let shift_dir = if quadrant == 2 || quadrant == 3 {
                 -1.0
             } else {
                 1.0
             };
+            // The polyline passed to render_curvey will be used as the bottom of the text
+            // (glossing over whether or not this is a "baseline" or something else). We want to
+            // vertically center. SVG 1.1 has alignment-baseline, but usvg doesn't support this. So
+            // shift the road polyline.
             let mut curve = r
                 .center_pts
                 .shift_either_direction(Distance::meters(shift_dir * road_width / 2.0))
@@ -314,7 +335,6 @@ impl DrawSimpleRoadLabels {
                 curve = curve.reversed();
             }
 
-            // Now let's curve the label to fit the road. But use that scale assuming a rectangle.
             batch.append(
                 Line(&name)
                     .fg(self.fg_color)
