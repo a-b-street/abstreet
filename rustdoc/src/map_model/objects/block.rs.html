@@ -733,7 +733,6 @@
 <span id="727">727</span>
 <span id="728">728</span>
 <span id="729">729</span>
-<span id="730">730</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
@@ -1375,9 +1374,8 @@
         <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">pts</span>[<span class="number">0</span>]);
         <span class="ident">pts</span>.<span class="ident">dedup</span>();
         <span class="kw">let</span> <span class="ident">polygon</span> <span class="op">=</span> <span class="ident">Ring::new</span>(<span class="ident">pts</span>)<span class="question-mark">?</span>.<span class="ident">into_polygon</span>();
-        <span class="comment">// TODO To debug anyway, can use buggy_new, but there&#39;s pretty much always a root problem</span>
-        <span class="comment">// in the map geometry that should be properly fixed.</span>
-        <span class="comment">//let polygon = Polygon::buggy_new(pts);</span>
+        <span class="comment">// TODO To debug anyway, we could plumb through a Tessellation, but there&#39;s pretty much</span>
+        <span class="comment">// always a root problem in the map geometry that should be properly fixed.</span>
 
         <span class="prelude-val">Ok</span>(<span class="ident">Block</span> {
             <span class="ident">perimeter</span>: <span class="self">self</span>,

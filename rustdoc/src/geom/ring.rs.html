@@ -305,7 +305,6 @@
 <span id="299">299</span>
 <span id="300">300</span>
 <span id="301">301</span>
-<span id="302">302</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 <span class="kw">use</span> <span class="ident">std::fmt::Write</span>;
@@ -599,13 +598,12 @@
     }
 }
 
-<span class="comment">// TODO This could crash. Should be TryFrom?</span>
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">geo::LineString</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Ring</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">line_string</span>: <span class="ident">geo::LineString</span>) -&gt; <span class="self">Self</span> {
-        <span class="comment">// Dedupe adjacent points. Only needed for results from concave hull.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">line_string</span>.<span class="number">0</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="ident">Pt2D::from</span>).<span class="ident">collect</span>();
-        <span class="ident">pts</span>.<span class="ident">dedup</span>();
-        <span class="ident"><span class="self">Self</span>::must_new</span>(<span class="ident">pts</span>)
+<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">geo::LineString</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Ring</span> {
+    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">anyhow::Error</span>;
+
+    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">line_string</span>: <span class="ident">geo::LineString</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">line_string</span>.<span class="number">0</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="ident">Pt2D::from</span>).<span class="ident">collect</span>();
+        <span class="ident"><span class="self">Self</span>::deduping_new</span>(<span class="ident">pts</span>)
     }
 }
 </code></pre></div>

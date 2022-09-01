@@ -173,6 +173,32 @@
 <span id="167">167</span>
 <span id="168">168</span>
 <span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Angle</span>, <span class="ident">Bounds</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 
 <span class="comment">// Deliberately not serializable</span>
@@ -199,6 +225,32 @@
             <span class="ident">points</span>: <span class="ident">polygon</span>.<span class="ident">points</span>,
             <span class="ident">indices</span>: <span class="ident">polygon</span>.<span class="ident">indices</span>,
         }
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">geo::Polygon</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Tessellation</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">poly</span>: <span class="ident">geo::Polygon</span>) -&gt; <span class="self">Self</span> {
+        <span class="kw">let</span> (<span class="ident">exterior</span>, <span class="kw-2">mut</span> <span class="ident">interiors</span>) <span class="op">=</span> <span class="ident">poly</span>.<span class="ident">into_inner</span>();
+        <span class="ident">interiors</span>.<span class="ident">insert</span>(<span class="number">0</span>, <span class="ident">exterior</span>);
+
+        <span class="kw">let</span> <span class="ident">geojson_style</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">interiors</span>
+            .<span class="ident">into_iter</span>()
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">ring</span><span class="op">|</span> {
+                <span class="ident">ring</span>.<span class="ident">into_inner</span>()
+                    .<span class="ident">into_iter</span>()
+                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="macro">vec!</span>[<span class="ident">pt</span>.<span class="ident">x</span>, <span class="ident">pt</span>.<span class="ident">y</span>])
+                    .<span class="ident">collect</span>()
+            })
+            .<span class="ident">collect</span>();
+        <span class="kw">let</span> (<span class="ident">vertices</span>, <span class="ident">holes</span>, <span class="ident">dims</span>) <span class="op">=</span> <span class="ident">earcutr::flatten</span>(<span class="kw-2">&amp;</span><span class="ident">geojson_style</span>);
+        <span class="kw">let</span> <span class="ident">indices</span> <span class="op">=</span> <span class="ident">earcutr::earcut</span>(<span class="kw-2">&amp;</span><span class="ident">vertices</span>, <span class="kw-2">&amp;</span><span class="ident">holes</span>, <span class="ident">dims</span>);
+
+        <span class="kw">let</span> <span class="ident">points</span> <span class="op">=</span> <span class="ident">vertices</span>
+            .<span class="ident">chunks</span>(<span class="number">2</span>)
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="ident">Pt2D::new</span>(<span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>]))
+            .<span class="ident">collect</span>();
+
+        <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">points</span>, <span class="ident">indices</span>)
     }
 }
 

@@ -410,6 +410,8 @@
 <span id="404">404</span>
 <span id="405">405</span>
 <span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
 </pre><pre class="rust"><code><span class="doccomment">//! This is a standalone pipeline for generating a Scenario, starting from origin-destination data</span>
 <span class="doccomment">//! (also called desire lines), which gives a count of commuters between two zones, breaking down</span>
 <span class="doccomment">//! by mode.</span>
@@ -631,8 +633,10 @@
             <span class="ident">input</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>(),
             <span class="op">|</span>(<span class="ident">name</span>, <span class="ident">polygon</span>)<span class="op">|</span> {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">overlapping_area</span> <span class="op">=</span> <span class="number">0.0</span>;
-                <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="ident">polygon</span>.<span class="ident">intersection</span>(<span class="ident">map</span>.<span class="ident">get_boundary_polygon</span>()) {
-                    <span class="ident">overlapping_area</span> <span class="op">+</span><span class="op">=</span> <span class="ident">p</span>.<span class="ident">area</span>();
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">list</span>) <span class="op">=</span> <span class="ident">polygon</span>.<span class="ident">intersection</span>(<span class="ident">map</span>.<span class="ident">get_boundary_polygon</span>()) {
+                    <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="ident">list</span> {
+                        <span class="ident">overlapping_area</span> <span class="op">+</span><span class="op">=</span> <span class="ident">p</span>.<span class="ident">area</span>();
+                    }
                 }
                 <span class="comment">// Sometimes this is slightly over 100%, because funky things happen with the polygon</span>
                 <span class="comment">// intersection.</span>

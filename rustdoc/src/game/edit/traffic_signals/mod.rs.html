@@ -988,6 +988,16 @@
 <span id="982">982</span>
 <span id="983">983</span>
 <span id="984">984</span>
+<span id="985">985</span>
+<span id="986">986</span>
+<span id="987">987</span>
+<span id="988">988</span>
+<span id="989">989</span>
+<span id="990">990</span>
+<span id="991">991</span>
+<span id="992">992</span>
+<span id="993">993</span>
+<span id="994">994</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">VecDeque</span>};
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
@@ -1934,11 +1944,13 @@
 
         <span class="comment">// Do we hit anything if we move this way?</span>
         <span class="kw">let</span> <span class="ident">translated</span> <span class="op">=</span> <span class="ident">polygons</span>[<span class="ident">idx</span>].<span class="ident">translate</span>(<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>());
-        <span class="kw">if</span> <span class="ident">polygons</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">enumerate</span>()
-            .<span class="ident">any</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="ident">p</span>)<span class="op">|</span> <span class="ident">i</span> <span class="op">!</span><span class="op">=</span> <span class="ident">idx</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">translated</span>.<span class="ident">intersection</span>(<span class="ident">p</span>).<span class="ident">is_empty</span>())
-        {
+        <span class="kw">if</span> <span class="ident">polygons</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>().<span class="ident">any</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="ident">p</span>)<span class="op">|</span> {
+            <span class="ident">i</span> <span class="op">!</span><span class="op">=</span> <span class="ident">idx</span>
+                <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">translated</span>
+                    .<span class="ident">intersection</span>(<span class="ident">p</span>)
+                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">list</span><span class="op">|</span> <span class="ident">list</span>.<span class="ident">is_empty</span>())
+                    .<span class="ident">unwrap_or</span>(<span class="bool-val">true</span>)
+        }) {
             <span class="comment">// Stop moving this polygon</span>
         } <span class="kw">else</span> {
             <span class="ident">translations</span>[<span class="ident">idx</span>].<span class="number">0</span> <span class="op">+</span><span class="op">=</span> <span class="ident">pt</span>.<span class="ident">x</span>();
@@ -1966,11 +1978,19 @@
         }
     }
     <span class="comment">// The convex hull illuminates a bit more of the surrounding area, looks better</span>
-    <span class="kw">let</span> <span class="ident">fade_area</span> <span class="op">=</span> <span class="ident">Polygon::with_holes</span>(
-        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_boundary_polygon</span>().<span class="ident">clone</span>().<span class="ident">into_ring</span>(),
-        <span class="macro">vec!</span>[<span class="ident">Polygon::convex_hull</span>(<span class="ident">holes</span>).<span class="ident">into_ring</span>()],
-    );
-    <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">fade_map_dark</span>, <span class="ident">fade_area</span>)])
+    <span class="kw">match</span> <span class="ident">Polygon::convex_hull</span>(<span class="ident">holes</span>) {
+        <span class="prelude-val">Ok</span>(<span class="ident">hole</span>) =&gt; {
+            <span class="kw">let</span> <span class="ident">fade_area</span> <span class="op">=</span> <span class="ident">Polygon::with_holes</span>(
+                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_boundary_polygon</span>().<span class="ident">clone</span>().<span class="ident">into_ring</span>(),
+                <span class="macro">vec!</span>[<span class="ident">hole</span>.<span class="ident">into_ring</span>()],
+            );
+            <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">fade_map_dark</span>, <span class="ident">fade_area</span>)])
+        }
+        <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
+            <span class="comment">// Just give up and don&#39;t fade anything</span>
+            <span class="ident">GeomBatch::new</span>()
+        }
+    }
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0 (4b91a6ea7 2022-08-08)" ></div>
