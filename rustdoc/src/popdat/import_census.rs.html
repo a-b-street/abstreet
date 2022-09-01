@@ -116,20 +116,20 @@
             (<span class="ident">projected</span>.<span class="ident">x</span>(), <span class="ident">projected</span>.<span class="ident">y</span>()).<span class="ident">into</span>()
         });
 
-        <span class="comment">// See the import handbook for how to prepare this file.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fgb</span> <span class="op">=</span>
-            <span class="ident">HttpFgbReader::open</span>(<span class="string">&quot;https://abstreet.s3.amazonaws.com/population_areas.fgb&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-
         <span class="kw">let</span> <span class="ident">bounding_rect</span> <span class="op">=</span> <span class="ident">geo_map_area</span>
             .<span class="ident">bounding_rect</span>()
             .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">anyhow!</span>(<span class="string">&quot;missing bound rect&quot;</span>))<span class="question-mark">?</span>;
-        <span class="ident">fgb</span>.<span class="ident">select_bbox</span>(
-            <span class="ident">bounding_rect</span>.<span class="ident">min</span>().<span class="ident">x</span>,
-            <span class="ident">bounding_rect</span>.<span class="ident">min</span>().<span class="ident">y</span>,
-            <span class="ident">bounding_rect</span>.<span class="ident">max</span>().<span class="ident">x</span>,
-            <span class="ident">bounding_rect</span>.<span class="ident">max</span>().<span class="ident">y</span>,
-        )
-        .<span class="kw">await</span><span class="question-mark">?</span>;
+
+        <span class="comment">// See the import handbook for how to prepare this file.</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fgb</span> <span class="op">=</span> <span class="ident">HttpFgbReader::open</span>(<span class="string">&quot;https://abstreet.s3.amazonaws.com/population_areas.fgb&quot;</span>)
+            .<span class="kw">await</span><span class="question-mark">?</span>
+            .<span class="ident">select_bbox</span>(
+                <span class="ident">bounding_rect</span>.<span class="ident">min</span>().<span class="ident">x</span>,
+                <span class="ident">bounding_rect</span>.<span class="ident">min</span>().<span class="ident">y</span>,
+                <span class="ident">bounding_rect</span>.<span class="ident">max</span>().<span class="ident">x</span>,
+                <span class="ident">bounding_rect</span>.<span class="ident">max</span>().<span class="ident">y</span>,
+            )
+            .<span class="kw">await</span><span class="question-mark">?</span>;
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span> <span class="op">=</span> <span class="macro">vec!</span>[];
         <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">feature</span>) <span class="op">=</span> <span class="ident">fgb</span>.<span class="ident">next</span>().<span class="kw">await</span><span class="question-mark">?</span> {
@@ -150,7 +150,7 @@
             };
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">geo</span> <span class="op">=</span> <span class="ident">GeoWriter::new</span>();
             <span class="ident">geometry</span>.<span class="ident">process</span>(<span class="kw-2">&amp;mut</span> <span class="ident">geo</span>, <span class="ident">flatgeobuf::GeometryType::MultiPolygon</span>)<span class="question-mark">?</span>;
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">geo::Geometry::MultiPolygon</span>(<span class="ident">multi_poly</span>) <span class="op">=</span> <span class="ident">geo</span>.<span class="ident">geometry</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">geo::Geometry::MultiPolygon</span>(<span class="ident">multi_poly</span>)) <span class="op">=</span> <span class="ident">geo</span>.<span class="ident">take_geometry</span>() {
                 <span class="kw">let</span> <span class="ident">geo_polygon</span> <span class="op">=</span> <span class="ident">multi_poly</span>
                     .<span class="number">0</span>
                     .<span class="ident">first</span>()
