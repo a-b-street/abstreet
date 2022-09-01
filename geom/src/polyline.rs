@@ -1146,3 +1146,14 @@ fn to_set(pts: &[Pt2D]) -> (HashSet<HashablePt2D>, HashSet<HashablePt2D>) {
     }
     (deduped, dupes)
 }
+
+impl From<&PolyLine> for geo::LineString {
+    fn from(poly_line: &PolyLine) -> Self {
+        let coords: Vec<geo::Coordinate> = poly_line
+            .pts
+            .iter()
+            .map(|pt| geo::coord! { x: pt.x(), y: pt.y() })
+            .collect();
+        geo::LineString::new(coords)
+    }
+}

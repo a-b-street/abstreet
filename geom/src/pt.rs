@@ -49,13 +49,7 @@ impl Pt2D {
 
     /// Can go out of bounds.
     pub fn to_gps(self, b: &GPSBounds) -> LonLat {
-        let (width, height) = {
-            let pt = b.get_max_world_pt();
-            (pt.x(), pt.y())
-        };
-        let lon = (self.x() / width * (b.max_lon - b.min_lon)) + b.min_lon;
-        let lat = b.min_lat + ((b.max_lat - b.min_lat) * (height - self.y()) / height);
-        LonLat::new(lon, lat)
+        b.convert_back_xy(self.x(), self.y())
     }
 
     pub fn x(self) -> f64 {

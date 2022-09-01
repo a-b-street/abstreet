@@ -231,6 +231,17 @@ impl GPSBounds {
         pts.iter().map(|pt| pt.to_gps(self)).collect()
     }
 
+    pub fn convert_back_xy(&self, x: f64, y: f64) -> LonLat {
+        let (width, height) = {
+            let pt = self.get_max_world_pt();
+            (pt.x(), pt.y())
+        };
+
+        let lon = (x / width * (self.max_lon - self.min_lon)) + self.min_lon;
+        let lat = self.min_lat + ((self.max_lat - self.min_lat) * (height - y) / height);
+        LonLat::new(lon, lat)
+    }
+
     /// Returns points in order covering this boundary.
     pub fn get_rectangle(&self) -> Vec<LonLat> {
         vec![
