@@ -314,9 +314,9 @@ impl DrawSimpleRoadLabels {
             // But many roads are curved. We can use the SVG renderer to make text follow a curve.
             // But use the scale / text size calculated assuming rectangles.
             //
-            // Note we render the text twice. This seems cheap enough so far. There's internal SVG
-            // caching in widgetry, but we could also consider caching a "road name -> txt_bounds"
-            // mapping through the whole app.
+            // Note we render the text twice here, and once again in render_curvey. This seems
+            // cheap enough so far. There's internal SVG caching in widgetry, but we could also
+            // consider caching a "road name -> txt_bounds" mapping through the whole app.
 
             // The orientation of the text and the direction we vertically center depends on the
             // direction the road points
