@@ -157,11 +157,11 @@ impl WidgetImpl for TextBox {
         )]);
 
         let outline_style = g.style().btn_outline.outline;
-        if let Ok(outline) = Polygon::rounded_rectangle(self.dims.width, self.dims.height, 2.0)
-            .to_outline(Distance::meters(outline_style.0))
-        {
-            batch.push(outline_style.1, outline);
-        }
+        batch.push(
+            outline_style.1,
+            Polygon::rounded_rectangle(self.dims.width, self.dims.height, 2.0)
+                .to_outline(Distance::meters(outline_style.0)),
+        );
 
         batch.append(
             self.calculate_text(g.style())

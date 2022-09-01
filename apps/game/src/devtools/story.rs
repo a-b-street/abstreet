@@ -88,9 +88,7 @@ impl StoryMapEditor {
             } else {
                 let poly = Ring::must_new(marker.pts.clone()).into_polygon();
                 draw_normal.push(Color::RED.alpha(0.8), poly.clone());
-                if let Ok(o) = poly.to_outline(Distance::meters(1.0)) {
-                    draw_normal.push(Color::RED, o);
-                }
+                draw_normal.push(Color::RED, poly.to_outline(Distance::meters(1.0)));
                 poly.polylabel()
             };
 

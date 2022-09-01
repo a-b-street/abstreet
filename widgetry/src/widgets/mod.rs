@@ -669,8 +669,7 @@ impl Widget {
                         }
                         CornerRounding::FullyRounded => Polygon::pill(width, height),
                     }
-                    .to_outline(Distance::meters(thickness))
-                    .unwrap(),
+                    .to_outline(Distance::meters(thickness)),
                 );
             }
             if defer_draw {

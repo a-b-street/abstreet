@@ -59,9 +59,10 @@ pub fn make_world(
         let road = map.get_r(*r);
         if focused_road == Some(*r) {
             let mut batch = GeomBatch::new();
-            if let Ok(p) = road.get_thick_polygon().to_outline(Distance::meters(3.0)) {
-                batch.push(Color::RED, p);
-            }
+            batch.push(
+                Color::RED,
+                road.get_thick_polygon().to_outline(Distance::meters(3.0)),
+            );
 
             world
                 .add(Obj::InteriorRoad(*r))

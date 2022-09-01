@@ -238,9 +238,11 @@ impl CommuterPatterns {
 
                 // Draw outline for Locked Selection
                 if let BlockSelection::Locked { .. } = block_selection {
-                    let outline = base_block.shape.to_outline(Distance::meters(10.0)).unwrap();
-                    batch.push(Color::BLACK, outline);
-                };
+                    batch.push(
+                        Color::BLACK,
+                        base_block.shape.to_outline(Distance::meters(10.0)),
+                    );
+                }
 
                 {
                     // Indicate direction over current block
@@ -284,10 +286,7 @@ impl CommuterPatterns {
                 {
                     let compare_to_block = &self.blocks[compare_to];
 
-                    let border = compare_to_block
-                        .shape
-                        .to_outline(Distance::meters(10.0))
-                        .unwrap();
+                    let border = compare_to_block.shape.to_outline(Distance::meters(10.0));
                     batch.push(Color::WHITE.alpha(0.8), border);
 
                     let count = others

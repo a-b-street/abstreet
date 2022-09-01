@@ -212,8 +212,8 @@ impl<'a, ID: ObjectID> ObjectBuilder<'a, ID> {
         let mut zoomed = Vec::new();
         assert!(!self.hitboxes.is_empty(), "call hitbox first");
         for polygon in &self.hitboxes {
-            unzoomed.extend(polygon.to_outline(thickness).ok());
-            zoomed.extend(polygon.to_outline(thickness / 2.0).ok());
+            unzoomed.push(polygon.to_outline(thickness));
+            zoomed.push(polygon.to_outline(thickness / 2.0));
         }
         if unzoomed.len() == zoomed.len() && unzoomed.len() == self.hitboxes.len() {
             draw.unzoomed.extend(color, unzoomed);

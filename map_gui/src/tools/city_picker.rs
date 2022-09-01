@@ -67,7 +67,7 @@ impl<A: AppLike + 'static> CityPicker<A> {
                             if let Ok(zoomed_polygon) = polygon.scale(zoom) {
                                 batch.push(
                                     outline_color,
-                                    polygon.to_outline(Distance::meters(200.0)).unwrap(),
+                                    polygon.to_outline(Distance::meters(200.0)),
                                 );
                                 tooltips.push((
                                     zoomed_polygon,

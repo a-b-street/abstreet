@@ -123,12 +123,7 @@ impl Renderable for DrawParkingLot {
     }
 
     fn get_outline(&self, map: &Map) -> Tessellation {
-        let pl = map.get_pl(self.id);
-        if let Ok(p) = pl.polygon.to_outline(OUTLINE_THICKNESS) {
-            p
-        } else {
-            Tessellation::from(pl.polygon.clone())
-        }
+        map.get_pl(self.id).polygon.to_outline(OUTLINE_THICKNESS)
     }
 
     fn contains_pt(&self, pt: Pt2D, map: &Map) -> bool {

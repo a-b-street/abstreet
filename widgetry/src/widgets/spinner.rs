@@ -203,8 +203,7 @@ impl<T: 'static + SpinnerValue> Spinner<T> {
         batch.push(
             self.outline.1,
             Polygon::rounded_rectangle(self.dims.width, self.dims.height, 5.0)
-                .to_outline(Distance::meters(self.outline.0))
-                .unwrap(),
+                .to_outline(Distance::meters(self.outline.0)),
         );
         prerender.upload(batch)
     }

@@ -306,9 +306,10 @@ impl ElevationContours {
                         for p in polygons {
                             if let Ok(p) = Polygon::from_geojson(&p) {
                                 let poly = p.must_scale(resolution_m);
-                                if let Ok(x) = poly.to_outline(Distance::meters(5.0)) {
-                                    draw.unzoomed.push(Color::BLACK.alpha(0.5), x);
-                                }
+                                draw.unzoomed.push(
+                                    Color::BLACK.alpha(0.5),
+                                    poly.to_outline(Distance::meters(5.0)),
+                                );
                                 draw.unzoomed.push(color.alpha(0.1), poly);
                             }
                         }
