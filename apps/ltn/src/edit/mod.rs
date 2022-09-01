@@ -426,18 +426,15 @@ impl ResolveBusGate {
         txt.add_line(Line("Warning").small_heading());
         txt.add_line("A regular modal filter would impact bus routes here.");
         txt.add_line("A bus gate uses signage and camera enforcement to only allow buses");
-        // TODO Enable after regenerating maps with correct route names
-        if false {
-            txt.add_line("");
-            txt.add_line("The following bus routes cross this road:");
+        txt.add_line("");
+        txt.add_line("The following bus routes cross this road:");
 
-            let mut routes = BTreeSet::new();
-            for (r, _) in &roads {
-                routes.extend(app.map.get_bus_routes_on_road(*r));
-            }
-            for route in routes {
-                txt.add_line(format!("- {route}"));
-            }
+        let mut routes = BTreeSet::new();
+        for (r, _) in &roads {
+            routes.extend(app.map.get_bus_routes_on_road(*r));
+        }
+        for route in routes {
+            txt.add_line(format!("- {route}"));
         }
 
         let panel = Panel::new_builder(Widget::col(vec![
