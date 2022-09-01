@@ -435,9 +435,7 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
         if num_savings > 0 {
             let height = ((total_savings / intervals.0) * max_bar_height).max(min_bar_height);
             let rect = Polygon::rectangle(bar_width, height).translate(x1, max_bar_height - height);
-            if let Ok(o) = rect.to_outline(line_thickness) {
-                bar_outlines.push(o);
-            }
+            bar_outlines.push(rect.to_outline(line_thickness));
             batch.push(Color::GREEN, rect.clone());
             tooltips.push((
                 rect,
@@ -473,9 +471,7 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
             let height = ((total_loss / intervals.0) * max_bar_height).max(min_bar_height);
             let rect =
                 Polygon::rectangle(bar_width, height).translate(x1, total_height - max_bar_height);
-            if let Ok(o) = rect.to_outline(line_thickness) {
-                bar_outlines.push(o);
-            }
+            bar_outlines.push(rect.to_outline(line_thickness));
             batch.push(Color::RED, rect.clone());
             tooltips.push((
                 rect,

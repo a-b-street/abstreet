@@ -33,9 +33,10 @@ impl DrawBuilding {
         match &opts.camera_angle {
             CameraAngle::TopDown => {
                 bldg_batch.push(bldg_color, bldg.polygon.clone());
-                if let Ok(p) = bldg.polygon.to_outline(Distance::meters(0.1)) {
-                    outlines_batch.push(cs.building_outline, p);
-                }
+                outlines_batch.push(
+                    cs.building_outline,
+                    bldg.polygon.to_outline(Distance::meters(0.1)),
+                );
 
                 let parking_icon = match bldg.parking {
                     OffstreetParking::PublicGarage(_, _) => true,
@@ -133,9 +134,7 @@ impl DrawBuilding {
                         .map(|pt| pt.project_away(height, angle))
                         .collect(),
                 ) {
-                    if let Ok(p) = bldg.polygon.to_outline(Distance::meters(0.3)) {
-                        bldg_batch.push(Color::BLACK, p);
-                    }
+                    bldg_batch.push(Color::BLACK, bldg.polygon.to_outline(Distance::meters(0.3)));
 
                     // In actuality, the z of the walls should start at groundfloor_z and end at
                     // roof_z, but since we aren't dealing with actual 3d geometries, we have to
@@ -182,9 +181,10 @@ impl DrawBuilding {
                     );
                 } else {
                     bldg_batch.push(bldg_color, bldg.polygon.clone());
-                    if let Ok(p) = bldg.polygon.to_outline(Distance::meters(0.1)) {
-                        outlines_batch.push(cs.building_outline, p);
-                    }
+                    outlines_batch.push(
+                        cs.building_outline,
+                        bldg.polygon.to_outline(Distance::meters(0.1)),
+                    );
                 }
             }
         }
@@ -238,12 +238,7 @@ impl Renderable for DrawBuilding {
     }
 
     fn get_outline(&self, map: &Map) -> Tessellation {
-        let b = map.get_b(self.id);
-        if let Ok(p) = b.polygon.to_outline(OUTLINE_THICKNESS) {
-            p
-        } else {
-            Tessellation::from(b.polygon.clone())
-        }
+        map.get_b(self.id).polygon.to_outline(OUTLINE_THICKNESS)
     }
 
     fn contains_pt(&self, pt: Pt2D, map: &Map) -> bool {

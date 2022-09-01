@@ -114,9 +114,7 @@ pub fn draw_signal_stage(
                     if let Ok(pl) = pl.maybe_exact_slice(slice_start, pl.length() - slice_end) {
                         let arrow = pl.make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle);
                         batch.push(arrow_body_color, arrow.clone());
-                        if let Ok(p) = arrow.to_outline(Distance::meters(0.2)) {
-                            batch.push(Color::BLACK, p);
-                        }
+                        batch.push(Color::BLACK, arrow.to_outline(Distance::meters(0.2)));
                     }
                 } else {
                     batch.append(
@@ -140,9 +138,10 @@ pub fn draw_signal_stage(
                     .geom
                     .make_arrow(BIG_ARROW_THICKNESS * 2.0, ArrowCap::Triangle);
                 batch.push(app.cs().signal_permitted_turn.alpha(0.3), arrow.clone());
-                if let Ok(p) = arrow.to_outline(BIG_ARROW_THICKNESS / 2.0) {
-                    batch.push(app.cs().signal_permitted_turn, p);
-                }
+                batch.push(
+                    app.cs().signal_permitted_turn,
+                    arrow.to_outline(BIG_ARROW_THICKNESS / 2.0),
+                );
             }
             for m in &stage.protected_movements {
                 if m.crosswalk {
@@ -181,14 +180,12 @@ pub fn draw_signal_stage(
                         );
                     }
                     TurnPriority::Yield => {
-                        let arrow = turn
-                            .geom
-                            .make_arrow(BIG_ARROW_THICKNESS * 2.0, ArrowCap::Triangle);
-                        if let Ok(p) = arrow.to_outline(BIG_ARROW_THICKNESS / 2.0) {
-                            batch.push(app.cs().signal_permitted_turn, p);
-                        } else {
-                            batch.push(app.cs().signal_permitted_turn, arrow);
-                        }
+                        batch.push(
+                            app.cs().signal_permitted_turn,
+                            turn.geom
+                                .make_arrow(BIG_ARROW_THICKNESS * 2.0, ArrowCap::Triangle)
+                                .to_outline(BIG_ARROW_THICKNESS / 2.0),
+                        );
                     }
                     TurnPriority::Banned => {}
                 }

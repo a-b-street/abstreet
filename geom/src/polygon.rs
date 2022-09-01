@@ -349,22 +349,19 @@ impl Polygon {
     }
 
     /// Creates the outline around the polygon (both the exterior and holes), with the thickness
-    /// half straddling the polygon and half of it just outside. Only works for polygons that're
-    /// formed from rings.
+    /// half straddling the polygon and half of it just outside.
     ///
     /// Returns a `Tessellation` that may union together the outline from the exterior and multiple
     /// holes. Callers that need a `Polygon` must call `to_outline` on the individual `Rings`.
-    pub fn to_outline(&self, thickness: Distance) -> Result<Tessellation> {
-        if let Some(ref rings) = self.rings {
-            Ok(Tessellation::union_all(
-                rings
-                    .iter()
-                    .map(|r| Tessellation::from(r.to_outline(thickness)))
-                    .collect(),
-            ))
-        } else {
-            Ring::new(self.points.clone()).map(|r| Tessellation::from(r.to_outline(thickness)))
-        }
+    pub fn to_outline(&self, thickness: Distance) -> Tessellation {
+        Tessellation::union_all(
+            self.rings
+                .as_ref()
+                .unwrap()
+                .iter()
+                .map(|r| Tessellation::from(r.to_outline(thickness)))
+                .collect(),
+        )
     }
 
     /// Usually m^2, unless the polygon is in screen-space

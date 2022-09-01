@@ -479,8 +479,7 @@ fn calculate_one_way_markings(lane: &Lane, road: &Road) -> Vec<Tessellation> {
                 pt.project_away(arrow_len / 2.0, angle),
             ])
             .make_arrow(thickness * 2.0, ArrowCap::Triangle)
-            .to_outline(thickness / 2.0)
-            .unwrap(),
+            .to_outline(thickness / 2.0),
         );
     }
     results
@@ -557,9 +556,10 @@ fn calculate_buffer_markings(
                 Distance::meters(2.5),
             ) {
                 batch.push(Color::hex("#108833"), poly.clone());
-                if let Ok(border) = poly.to_outline(Distance::meters(0.25)) {
-                    batch.push(Color::hex("#A8882A"), border);
-                }
+                batch.push(
+                    Color::hex("#A8882A"),
+                    poly.to_outline(Distance::meters(0.25)),
+                );
             }
         }
         BufferType::JerseyBarrier => {

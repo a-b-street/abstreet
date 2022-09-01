@@ -71,9 +71,10 @@ impl Blockfinder {
     fn add_block(&mut self, ctx: &mut EventCtx, app: &App, id: Obj, color: Color, block: Block) {
         // Label the order of the perimeter roads while hovering
         let mut hovered = GeomBatch::from(vec![(color.alpha(0.5), block.polygon.clone())]);
-        if let Ok(outline) = block.polygon.to_outline(Distance::meters(5.0)) {
-            hovered.push(Color::BLACK, outline);
-        }
+        hovered.push(
+            Color::BLACK,
+            block.polygon.to_outline(Distance::meters(5.0)),
+        );
         for (idx, id) in block.perimeter.roads.iter().enumerate().skip(1) {
             hovered.append(
                 Text::from(Line(format!("{}", idx)).fg(Color::RED))

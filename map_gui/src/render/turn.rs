@@ -42,9 +42,7 @@ impl DrawMovement {
                         .geom
                         .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle);
                     batch.push(cs.signal_protected_turn, arrow.clone());
-                    if let Ok(p) = arrow.to_outline(Distance::meters(0.2)) {
-                        batch.push(Color::BLACK, p);
-                    }
+                    batch.push(Color::BLACK, arrow.to_outline(Distance::meters(0.2)));
                     arrow
                 }
             } else if stage.yield_movements.contains(&movement.id) {
@@ -145,9 +143,7 @@ impl DrawMovement {
             Some(TurnPriority::Protected) => {
                 let arrow = pl.make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle);
                 batch.push(green.alpha(0.5), arrow.clone());
-                if let Ok(p) = arrow.to_outline(Distance::meters(0.1)) {
-                    batch.push(green, p);
-                }
+                batch.push(green, arrow.to_outline(Distance::meters(0.1)));
             }
             Some(TurnPriority::Yield) => {
                 batch.extend(

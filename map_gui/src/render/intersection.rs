@@ -280,9 +280,7 @@ impl Renderable for DrawIntersection {
     }
 
     fn get_outline(&self, map: &Map) -> Tessellation {
-        let poly = &map.get_i(self.id).polygon;
-        poly.to_outline(OUTLINE_THICKNESS)
-            .unwrap_or_else(|_| Tessellation::from(poly.clone()))
+        map.get_i(self.id).polygon.to_outline(OUTLINE_THICKNESS)
     }
 
     fn contains_pt(&self, pt: Pt2D, map: &Map) -> bool {

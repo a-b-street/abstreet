@@ -453,16 +453,14 @@ impl TrafficJams {
             app.primary.sim.delayed_intersections(Duration::minutes(5)),
         ) {
             cnt += 1;
-            draw.unzoomed.push(
-                Color::RED,
-                boundary.to_outline(Distance::meters(5.0)).unwrap(),
-            );
+            draw.unzoomed
+                .push(Color::RED, boundary.to_outline(Distance::meters(5.0)));
             draw.unzoomed.push(Color::RED.alpha(0.5), boundary.clone());
             draw.unzoomed.push(Color::WHITE, epicenter.clone());
 
             draw.zoomed.push(
                 Color::RED.alpha(0.4),
-                boundary.to_outline(Distance::meters(5.0)).unwrap(),
+                boundary.to_outline(Distance::meters(5.0)),
             );
             draw.zoomed.push(Color::RED.alpha(0.3), boundary);
             draw.zoomed.push(Color::WHITE.alpha(0.4), epicenter);

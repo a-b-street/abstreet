@@ -83,13 +83,12 @@ impl SelectSegments {
         let map = &app.primary.map;
         let color = Color::CYAN;
         // Point out the road we're using as the template
-        if let Ok(outline) = map
-            .get_r(self.base_road)
-            .get_thick_polygon()
-            .to_outline(Distance::meters(3.0))
-        {
-            batch.push(color.alpha(0.9), outline);
-        }
+        batch.push(
+            color.alpha(0.9),
+            map.get_r(self.base_road)
+                .get_thick_polygon()
+                .to_outline(Distance::meters(3.0)),
+        );
         for r in &self.candidates {
             let alpha = if self.current.contains(r) { 0.9 } else { 0.5 };
             batch.push(

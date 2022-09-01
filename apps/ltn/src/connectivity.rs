@@ -300,9 +300,7 @@ fn setup_editing(
         let color = render_cells.colors[idx].alpha(1.0);
         for arrow in cell.border_arrows(app) {
             draw_top_layer.push(color, arrow.clone());
-            if let Ok(outline) = arrow.to_outline(Distance::meters(1.0)) {
-                draw_top_layer.push(Color::BLACK, outline);
-            }
+            draw_top_layer.push(Color::BLACK, arrow.to_outline(Distance::meters(1.0)));
         }
     }
 
@@ -331,12 +329,11 @@ fn setup_editing(
                 ])
                 .maybe_reverse(dir == Direction::Back);
 
-                if let Ok(poly) = pl
-                    .make_arrow(thickness * 2.0, ArrowCap::Triangle)
-                    .to_outline(thickness / 2.0)
-                {
-                    draw_top_layer.push(colors::ROAD_LABEL, poly);
-                }
+                draw_top_layer.push(
+                    colors::ROAD_LABEL,
+                    pl.make_arrow(thickness * 2.0, ArrowCap::Triangle)
+                        .to_outline(thickness / 2.0),
+                );
             }
         }
 

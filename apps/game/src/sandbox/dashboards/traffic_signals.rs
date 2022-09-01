@@ -80,10 +80,9 @@ impl TrafficSignalDemand {
                     .make_arrow(percent * Distance::meters(3.0), ArrowCap::Triangle);
 
                 let mut draw_hovered = GeomBatch::new();
-                if let Ok(p) = arrow.to_outline(Distance::meters(0.1)) {
-                    outlines.push(p.clone());
-                    draw_hovered.push(Color::WHITE, p);
-                }
+                let outline = arrow.to_outline(Distance::meters(0.1));
+                outlines.push(outline.clone());
+                draw_hovered.push(Color::WHITE, outline);
                 draw_all.push(Color::hex("#A3A3A3"), arrow.clone());
                 draw_hovered.push(Color::hex("#EE702E"), arrow.clone());
 

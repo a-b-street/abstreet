@@ -144,7 +144,7 @@ impl<T: 'static + Clone> WidgetImpl for Dropdown<T> {
             batch.push(g.style().field_bg, rect.clone());
             batch.push(
                 g.style().dropdown_border,
-                rect.to_outline(Distance::meters(1.0)).unwrap(),
+                rect.to_outline(Distance::meters(1.0)),
             );
             let draw_bg = g.upload(batch);
             g.fork(
