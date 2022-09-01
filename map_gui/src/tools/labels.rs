@@ -275,18 +275,16 @@ impl DrawSimpleRoadLabels {
             } else {
                 continue;
             };
-            let (pt, angle) = r.center_pts.must_dist_along(r.length() / 2.0);
 
-            let txt = Text::from(Line(&name).fg(self.fg_color));
-            let txt_batch = txt.render_autocropped(ctx);
-            let txt_bounds = txt_batch.get_bounds();
+            let txt_batch = Text::from(Line(&name)).render_autocropped(ctx);
             if txt_batch.is_empty() {
                 // This happens when we don't have a font loaded with the right characters
                 continue;
             }
+            let txt_bounds = txt_batch.get_bounds();
 
-            // The road has an outline, so leave a slight buffer
-            let outline_thickness = Distance::meters(1.0);
+            // The road has an outline of 1m, but also leave a slight buffer
+            let outline_thickness = Distance::meters(2.0);
             let road_width = (r.get_width() - 2.0 * outline_thickness).inner_meters();
             // Also a buffer from both ends of the road
             let road_length = (0.9 * r.length()).inner_meters();
@@ -294,27 +292,11 @@ impl DrawSimpleRoadLabels {
             // Fit the text height in the road width perfectly
             let mut scale = road_width / txt_bounds.height();
 
-            info!(
-                "{name}: txt height {}, road width {}, so scale {}",
-                txt_bounds.height(),
-                road_width,
-                scale
-            );
-
             // If the road is short and we'll overflow, then scale down even more.
             if txt_bounds.width() * scale > road_length {
                 scale = road_length / txt_bounds.width();
-                info!("  overflowing width, so actually scale {scale}");
                 // TODO in this case, the vertical centering is off
             }
-
-            /*let txt_batch = txt_batch.scale(scale);
-
-            batch.append(
-                txt_batch
-                    .centered_on(pt)
-                    .rotate_around_batch_center(angle.reorient()),
-            );*/
 
             // Pass in the bottom of the road, not the center. usvg doesn't support
             // alignmnet-baseline from SVG 1.1, which could otherwise correct for this
