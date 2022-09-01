@@ -1,12 +1,13 @@
 use std::collections::BTreeSet;
 
 use anyhow::Result;
+use geo::MapCoordsInPlace;
 use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
 use serde::Serialize;
 
 use map_gui::tools::checkbox_per_mode;
-use map_model::PathV2;
+use map_model::{PathV2, Road};
 use synthpop::make::ScenarioGenerator;
 use synthpop::{Scenario, TripMode};
 use widgetry::tools::{FileLoader, PopupMsg};
@@ -154,8 +155,10 @@ impl State<App> for ShowResults {
                     return Transition::Push(PopupMsg::new_state(ctx, "CSV export", vec![msg]));
                 }
                 "Save before/after counts to files (GeoJSON)" => {
-                    let path = "before_after_counts.json";
-                    let msg = match abstio::write_file(path.to_string(), export_geojson(app)) {
+                    let path = "before_after_counts.geojson";
+                    let msg = match export_geojson(app)
+                        .and_then(|contents| abstio::write_file(path.to_string(), contents))
+                    {
                         Ok(_) => format!("Saved {path}"),
                         Err(err) => format!("Failed to export: {err}"),
                     };
@@ -422,26 +425,7 @@ fn export_csv(app: &App) -> Result<String> {
     {
         let mut writer = csv::Writer::from_writer(&mut out);
         for r in app.per_map.map.all_roads() {
-            writer.serialize(ExportRow {
-                road_name: r.get_name(None),
-                osm_way_id: r.orig_id.osm_way_id.0,
-                osm_intersection1: r.orig_id.i1.0,
-                osm_intersection2: r.orig_id.i2.0,
-                total_count_before: app
-                    .per_map
-                    .impact
-                    .compare_counts
-                    .counts_a
-                    .per_road
-                    .get(r.id),
-                total_count_after: app
-                    .per_map
-                    .impact
-                    .compare_counts
-                    .counts_b
-                    .per_road
-                    .get(r.id),
-            })?;
+            writer.serialize(ExportRow::new(r, app))?
         }
         writer.flush()?;
     }
@@ -459,39 +443,60 @@ struct ExportRow {
     total_count_after: usize,
 }
 
-fn export_geojson(app: &App) -> String {
-    let mut pairs = Vec::new();
-    for r in app.per_map.map.all_roads() {
-        let mut props = serde_json::Map::new();
-        props.insert("road_name".to_string(), r.get_name(None).into());
-        props.insert("osm_way_id".to_string(), r.orig_id.osm_way_id.0.into());
-        props.insert("osm_intersection1".to_string(), r.orig_id.i1.0.into());
-        props.insert("osm_intersection2".to_string(), r.orig_id.i2.0.into());
-        props.insert(
-            "total_count_before".to_string(),
-            app.per_map
+impl ExportRow {
+    fn new(r: &Road, app: &App) -> Self {
+        Self {
+            road_name: r.get_name(None),
+            osm_way_id: r.orig_id.osm_way_id.0,
+            osm_intersection1: r.orig_id.i1.0,
+            osm_intersection2: r.orig_id.i2.0,
+            total_count_before: app
+                .per_map
                 .impact
                 .compare_counts
                 .counts_a
                 .per_road
-                .get(r.id)
-                .into(),
-        );
-        props.insert(
-            "total_count_after".to_string(),
-            app.per_map
+                .get(r.id),
+            total_count_after: app
+                .per_map
                 .impact
                 .compare_counts
                 .counts_b
                 .per_road
-                .get(r.id)
-                .into(),
-        );
-        pairs.push((
-            r.center_pts
-                .to_geojson(Some(app.per_map.map.get_gps_bounds())),
-            props,
-        ));
+                .get(r.id),
+        }
     }
-    abstutil::to_json(&geom::geometries_with_properties_to_geojson(pairs))
+}
+
+fn export_geojson(app: &App) -> Result<String> {
+    let mut string_buffer: Vec<u8> = vec![];
+    {
+        let mut writer = geojson::FeatureWriter::from_writer(&mut string_buffer);
+
+        #[derive(Serialize)]
+        struct RoadGeoJson {
+            #[serde(serialize_with = "geojson::ser::serialize_geometry")]
+            geometry: geo::LineString,
+            #[serde(flatten)]
+            export_row: ExportRow,
+        }
+
+        for r in app.per_map.map.all_roads() {
+            let bounds = app.per_map.map.get_gps_bounds();
+            let mut geometry = geo::LineString::from(&r.center_pts);
+            geometry.map_coords_in_place(|c| {
+                let lonlat = bounds.convert_back_xy(c.x, c.y);
+                return geo::coord! { x: lonlat.x(), y: lonlat.y() };
+            });
+
+            let sr = RoadGeoJson {
+                export_row: ExportRow::new(r, app),
+                geometry,
+            };
+
+            writer.serialize(&sr)?;
+        }
+    }
+    let out = String::from_utf8(string_buffer)?;
+    Ok(out)
 }
