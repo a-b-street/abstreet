@@ -214,7 +214,9 @@ impl TimePanel {
             // on the right, except at the very end (for the last 'radius' pixels). And
             // when the width is too small for the radius, this messes up.
             progress_bar.push(bar_bg, Polygon::rectangle(bar_width, bar_height));
-            progress_bar.push(bar_fg, Polygon::rectangle(finished_width, bar_height));
+            if let Ok(p) = Polygon::maybe_rectangle(finished_width, bar_height) {
+                progress_bar.push(bar_fg, p);
+            }
 
             if let Some(baseline_finished_width) = baseline_finished_width {
                 if baseline_finished_width > 0.0 {
