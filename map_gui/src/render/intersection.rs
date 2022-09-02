@@ -166,41 +166,39 @@ impl DrawIntersection {
     /// Find sections along the intersection polygon that aren't connected to a road. These should
     /// contribute an outline.
     pub fn get_unzoomed_outline(i: &Intersection, map: &Map) -> Vec<PolyLine> {
-        if let Some(ring) = i.polygon.get_outer_ring() {
-            // Turn each road into the left and right point that should be on the ring, so we can
-            // "subtract" them out.
-            let road_pairs = i
-                .roads
-                .iter()
-                .map(|r| {
-                    let road = map.get_r(*r);
-                    let half_width = road.get_half_width();
-                    let left = road.center_pts.must_shift_left(half_width);
-                    let right = road.center_pts.must_shift_right(half_width);
-                    if road.src_i == i.id {
-                        (left.first_pt(), right.first_pt())
-                    } else {
-                        (left.last_pt(), right.last_pt())
-                    }
-                })
-                .collect::<Vec<_>>();
+        // Turn each road into the left and right point that should be on the ring, so we can
+        // "subtract" them out.
+        let road_pairs = i
+            .roads
+            .iter()
+            .map(|r| {
+                let road = map.get_r(*r);
+                let half_width = road.get_half_width();
+                let left = road.center_pts.must_shift_left(half_width);
+                let right = road.center_pts.must_shift_right(half_width);
+                if road.src_i == i.id {
+                    (left.first_pt(), right.first_pt())
+                } else {
+                    (left.last_pt(), right.last_pt())
+                }
+            })
+            .collect::<Vec<_>>();
 
-            // Walk along each line segment on the ring. If it's not one of our road pairs, add it
-            // as a potential segment.
-            ring.into_points()
-                .windows(2)
-                .filter(|window| {
-                    !road_pairs
-                        .iter()
-                        .any(|road_pair| approx_eq(window, &road_pair))
-                })
-                .map(|pair| PolyLine::must_new(vec![pair[0], pair[1]]))
-                .collect::<Vec<_>>()
+        // Walk along each line segment on the ring. If it's not one of our road pairs, add it as a
+        // potential segment.
+        i.polygon
+            .get_outer_ring()
+            .into_points()
+            .windows(2)
+            .filter(|window| {
+                !road_pairs
+                    .iter()
+                    .any(|road_pair| approx_eq(window, &road_pair))
+            })
+            .map(|pair| PolyLine::must_new(vec![pair[0], pair[1]]))
+            .collect::<Vec<_>>()
 
-            // TODO We could merge adjacent segments, to get nicer corners
-        } else {
-            vec![]
-        }
+        // TODO We could merge adjacent segments, to get nicer corners
     }
 
     fn redraw_default(&self, g: &mut GfxCtx, app: &dyn AppLike) {

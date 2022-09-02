@@ -417,7 +417,7 @@ impl SimpleState<App> for OneBlock {
                     "pt",
                     self.block
                         .polygon
-                        .clone()
+                        .get_outer_ring()
                         .into_points()
                         .into_iter()
                         .map(polygons::Item::Point)

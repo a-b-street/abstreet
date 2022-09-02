@@ -161,24 +161,14 @@ impl Polygon {
             &self.points
         }
     }
-    pub fn into_points(mut self) -> Vec<Pt2D> {
-        if let Some(mut rings) = self.rings.take() {
-            rings.remove(0).into_points()
-        } else {
-            self.points
-        }
-    }
+    // TODO Switch to get_outer_ring. osm2streets depends on this one, have to juggle git repos
     pub fn into_ring(self) -> Ring {
-        Ring::must_new(self.into_points())
+        self.get_outer_ring()
     }
 
-    /// Get the outer ring of this polygon. This should usually succeed.
-    pub fn get_outer_ring(&self) -> Option<Ring> {
-        if let Some(ref rings) = self.rings {
-            Some(rings[0].clone())
-        } else {
-            Ring::new(self.points.clone()).ok()
-        }
+    // TODO Should be &Ring
+    pub fn get_outer_ring(&self) -> Ring {
+        self.get_rings().remove(0)
     }
 
     pub fn center(&self) -> Pt2D {
@@ -354,7 +344,7 @@ impl Polygon {
         if let Some(ref rings) = self.rings {
             rings.clone()
         } else {
-            vec![Ring::must_new(self.clone().into_points())]
+            vec![Ring::must_new(self.points.clone())]
         }
     }
 

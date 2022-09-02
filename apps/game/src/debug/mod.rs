@@ -1091,10 +1091,8 @@ fn reimport_map(
 fn draw_bad_intersections(ctx: &mut EventCtx, app: &App) -> Drawable {
     let mut batch = GeomBatch::new();
     for i in app.primary.map.all_intersections() {
-        if let Some(ring) = i.polygon.get_outer_ring() {
-            if ring.doubles_back() {
-                batch.push(Color::RED.alpha(0.8), i.polygon.clone());
-            }
+        if i.polygon.get_outer_ring().doubles_back() {
+            batch.push(Color::RED.alpha(0.8), i.polygon.clone());
         }
     }
     ctx.upload(batch)

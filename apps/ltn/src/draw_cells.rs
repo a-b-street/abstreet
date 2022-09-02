@@ -1,6 +1,6 @@
 use std::collections::{HashSet, VecDeque};
 
-use geom::{Bounds, Distance, PolyLine, Polygon};
+use geom::{Bounds, Distance, Polygon};
 use map_gui::tools::Grid;
 use map_model::Map;
 use widgetry::{Color, GeomBatch};
@@ -55,7 +55,7 @@ impl RenderCells {
         let neighbourhood_boundary = self
             .boundary_polygon
             .get_outer_ring()
-            .map(|r| r.to_outline(Distance::meters(25.0)));
+            .to_outline(Distance::meters(25.0));
 
         let mut batch = GeomBatch::new();
         for (cell_color, polygons) in self.colors.iter().zip(self.polygons_per_cell.iter()) {
@@ -67,18 +67,15 @@ impl RenderCells {
                     continue;
                 }
 
-                let boundary = PolyLine::unchecked_new(poly.clone().into_points())
-                    .make_polygons(Distance::meters(5.0));
+                let boundary = poly.get_outer_ring().to_outline(Distance::meters(5.0));
 
                 let color = cell_color.alpha(1.0).shade(0.2);
                 // If possible, try to erase where the cell boundary touches the perimeter road.
-                if let Some(ref neighbourhood_boundary) = neighbourhood_boundary {
-                    if let Ok(list) = boundary.difference(neighbourhood_boundary) {
-                        batch.extend(color, list);
-                    }
-                    continue;
+                if let Ok(list) = boundary.difference(&neighbourhood_boundary) {
+                    batch.extend(color, list);
+                } else {
+                    batch.push(color, boundary);
                 }
-                batch.push(color, boundary);
             }
         }
         batch
