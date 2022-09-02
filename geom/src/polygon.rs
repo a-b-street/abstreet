@@ -348,6 +348,16 @@ impl Polygon {
         self.to_geo().intersects(&pl.to_geo())
     }
 
+    // TODO Temporary until we change the internal Polygon representation to always just be rings.
+    // Note this does expensive cloning right now
+    fn get_rings(&self) -> Vec<Ring> {
+        if let Some(ref rings) = self.rings {
+            rings.clone()
+        } else {
+            vec![Ring::must_new(self.clone().into_points())]
+        }
+    }
+
     /// Creates the outline around the polygon (both the exterior and holes), with the thickness
     /// half straddling the polygon and half of it just outside.
     ///
@@ -355,9 +365,7 @@ impl Polygon {
     /// holes. Callers that need a `Polygon` must call `to_outline` on the individual `Rings`.
     pub fn to_outline(&self, thickness: Distance) -> Tessellation {
         Tessellation::union_all(
-            self.rings
-                .as_ref()
-                .unwrap()
+            self.get_rings()
                 .iter()
                 .map(|r| Tessellation::from(r.to_outline(thickness)))
                 .collect(),
