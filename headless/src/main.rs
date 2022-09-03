@@ -536,7 +536,7 @@ fn export_geometry(map: &Map, i: IntersectionID) -> geojson::GeoJson {
     pairs.push((
         i.polygon
             .translate(-center.x(), -center.y())
-            .into_ring()
+            .get_outer_ring()
             .to_geojson(None),
         props,
     ));

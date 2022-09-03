@@ -149,7 +149,7 @@ pub fn extract_osm(
         abstio::write_binary(map.name.city.input_path("footways.bin"), &extra_footways);
     }
 
-    let boundary = map.streets.boundary_polygon.clone().into_ring();
+    let boundary = map.streets.boundary_polygon.get_outer_ring();
 
     // TODO Fill this out in a separate loop to keep a mutable borrow short. Maybe do this in
     // reader, or stop doing this entirely.

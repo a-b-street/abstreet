@@ -158,7 +158,7 @@ impl RenderCellsBuilder {
         // enum with 3 cases, just assign a new index to mean "boundary."
         let boundary_marker = neighbourhood.cells.len();
         for (pt, _) in
-            geom::PolyLine::unchecked_new(boundary_polygon.clone().into_ring().into_points())
+            geom::PolyLine::unchecked_new(boundary_polygon.get_outer_ring().into_points())
                 .step_along(Distance::meters(RESOLUTION_M / 2.0), Distance::ZERO)
         {
             // TODO Refactor helpers to transform between map-space and the grid tiles. Possibly

@@ -552,7 +552,7 @@ impl Widget {
     }
 
     pub fn horiz_separator(ctx: &EventCtx, pct_container_width: f64) -> Widget {
-        GeomBatch::from(vec![(Color::CLEAR, Polygon::rectangle(0.0, 2.0))])
+        GeomBatch::from(vec![(Color::CLEAR, Polygon::rectangle(0.1, 2.0))])
             .into_widget(ctx)
             .container()
             .bg(ctx.style().section_outline.1)

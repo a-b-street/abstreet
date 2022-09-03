@@ -134,12 +134,12 @@ impl Neighbourhood {
             n.borders.insert(road.dst_i);
         }
         let fade_area = Polygon::with_holes(
-            map.get_boundary_polygon().clone().into_ring(),
+            map.get_boundary_polygon().get_outer_ring(),
             vec![app
                 .session
                 .partitioning
                 .neighbourhood_boundary_polygon(app, id)
-                .into_ring()],
+                .get_outer_ring()],
         );
         n.fade_irrelevant = GeomBatch::from(vec![(app.cs.fade_map_dark, fade_area)]).upload(ctx);
 

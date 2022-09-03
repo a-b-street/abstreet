@@ -164,8 +164,7 @@ fn create_route(
         // Find the first time the route shape hits the map boundary
         let entry_pt = *map
             .boundary_polygon
-            .clone()
-            .into_ring()
+            .get_outer_ring()
             .all_intersections(&route.shape)
             .get(0)
             .ok_or_else(|| anyhow!("couldn't find where shape enters map"))?;
@@ -191,8 +190,7 @@ fn create_route(
         // Find the last time the route shape hits the map boundary
         let exit_pt = *map
             .boundary_polygon
-            .clone()
-            .into_ring()
+            .get_outer_ring()
             .all_intersections(&route.shape)
             .last()
             .ok_or_else(|| anyhow!("couldn't find where shape leaves map"))?;

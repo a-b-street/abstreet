@@ -904,7 +904,7 @@ impl Map {
             let mut props = serde_json::Map::new();
             props.insert("type".to_string(), "intersection".into());
             props.insert("id".to_string(), i.orig_id.to_string().into());
-            pairs.push((i.polygon.clone().into_ring().to_geojson(gps_bounds), props));
+            pairs.push((i.polygon.get_outer_ring().to_geojson(gps_bounds), props));
         }
         for r in self.all_roads() {
             let mut props = serde_json::Map::new();
