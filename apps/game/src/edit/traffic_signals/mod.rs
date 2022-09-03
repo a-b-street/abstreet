@@ -981,8 +981,12 @@ pub fn fade_irrelevant(app: &App, members: &BTreeSet<IntersectionID>) -> GeomBat
     match Polygon::convex_hull(holes) {
         Ok(hole) => {
             let fade_area = Polygon::with_holes(
-                app.primary.map.get_boundary_polygon().get_outer_ring(),
-                vec![hole.get_outer_ring()],
+                app.primary
+                    .map
+                    .get_boundary_polygon()
+                    .get_outer_ring()
+                    .clone(),
+                vec![hole.into_outer_ring()],
             );
             GeomBatch::from(vec![(app.cs.fade_map_dark, fade_area)])
         }

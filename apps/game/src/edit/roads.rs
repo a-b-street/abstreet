@@ -1016,8 +1016,8 @@ fn fade_irrelevant(app: &App, r: RoadID) -> GeomBatch {
     match Polygon::convex_hull(holes) {
         Ok(hole) => {
             let fade_area = Polygon::with_holes(
-                map.get_boundary_polygon().get_outer_ring(),
-                vec![hole.get_outer_ring()],
+                map.get_boundary_polygon().get_outer_ring().clone(),
+                vec![hole.into_outer_ring()],
             );
             GeomBatch::from(vec![(app.cs.fade_map_dark, fade_area)])
         }

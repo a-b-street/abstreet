@@ -148,7 +148,9 @@ impl Player {
                     } else {
                         // Find the exact point on the boundary where we go out of bounds
                         let old_ring = match self.on {
-                            On::Intersection(i) => app.map.get_i(i).polygon.get_outer_ring(),
+                            On::Intersection(i) => {
+                                app.map.get_i(i).polygon.get_outer_ring().clone()
+                            }
                             On::Road(r, _, _) => {
                                 let road = app.map.get_r(r);
                                 road.center_pts.to_thick_ring(road.get_width())

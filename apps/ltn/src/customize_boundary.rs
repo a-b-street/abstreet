@@ -19,7 +19,7 @@ impl CustomizeBoundary {
             .session
             .partitioning
             .neighbourhood_boundary_polygon(app, id)
-            .get_outer_ring()
+            .into_outer_ring()
             .into_points();
         Box::new(Self {
             id,

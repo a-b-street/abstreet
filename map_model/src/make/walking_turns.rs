@@ -253,7 +253,7 @@ fn make_shared_sidewalk_corner(i: &Intersection, l1: &Lane, l2: &Lane) -> PolyLi
     // to corner1 below.
     let mut pts_between = vec![l2.endpoint(i.id)];
     // Intersection polygons are constructed in clockwise order, so do corner2 to corner1.
-    let mut i_pts = i.polygon.get_outer_ring().into_points();
+    let mut i_pts = i.polygon.get_outer_ring().clone().into_points();
 
     // last pt = first_pt
     i_pts.pop();

@@ -702,6 +702,7 @@ impl ContextualActions for Actions {
                     .get_i(i)
                     .polygon
                     .get_outer_ring()
+                    .clone()
                     .into_points();
                 let mut pts_without_last = pts.clone();
                 pts_without_last.pop();
@@ -838,6 +839,7 @@ impl ContextualActions for Actions {
                     .get_a(a)
                     .polygon
                     .get_outer_ring()
+                    .clone()
                     .into_points();
                 let center = if pts[0] == *pts.last().unwrap() {
                     // TODO The center looks really wrong for Volunteer Park and others, but I

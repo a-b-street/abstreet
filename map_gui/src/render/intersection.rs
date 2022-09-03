@@ -188,7 +188,7 @@ impl DrawIntersection {
         // potential segment.
         i.polygon
             .get_outer_ring()
-            .into_points()
+            .points()
             .windows(2)
             .filter(|window| {
                 !road_pairs
