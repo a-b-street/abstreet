@@ -5,7 +5,7 @@ use aabb_quadtree::QuadTree;
 use geo::{ClosestPoint, Contains, EuclideanDistance};
 
 use crate::conversions::pts_to_line_string;
-use crate::{Bounds, Distance, Pt2D};
+use crate::{Bounds, Distance, Polygon, Pt2D};
 
 // TODO Maybe use https://crates.io/crates/spatial-join proximity maps
 
@@ -35,6 +35,11 @@ where
         self.geometries.insert(key.clone(), pts_to_line_string(pts));
         self.quadtree
             .insert_with_box(key, Bounds::from(pts).as_bbox());
+    }
+
+    /// Adds the outer ring of a polygon to the quadtree.
+    pub fn add_polygon(&mut self, key: K, polygon: &Polygon) {
+        self.add(key, polygon.get_outer_ring().points());
     }
 
     /// For every object within some distance of a query point, return the (object's key, point on

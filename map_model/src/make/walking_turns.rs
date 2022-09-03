@@ -1,4 +1,4 @@
-use geom::{Distance, PolyLine, Pt2D, Ring, EPSILON_DIST};
+use geom::{Distance, PolyLine, Pt2D, EPSILON_DIST};
 
 use crate::{
     Direction, DrivingSide, Intersection, IntersectionID, Lane, LaneID, Map, Turn, TurnID, TurnType,
@@ -242,7 +242,9 @@ fn make_shared_sidewalk_corner(i: &Intersection, l1: &Lane, l2: &Lane) -> PolyLi
 
     // TODO Something like this will be MUCH simpler and avoid going around the long way sometimes.
     if false {
-        return Ring::must_new(i.polygon.points().clone())
+        return i
+            .polygon
+            .get_outer_ring()
             .get_shorter_slice_btwn(corner1, corner2)
             .unwrap();
     }
@@ -251,7 +253,7 @@ fn make_shared_sidewalk_corner(i: &Intersection, l1: &Lane, l2: &Lane) -> PolyLi
     // to corner1 below.
     let mut pts_between = vec![l2.endpoint(i.id)];
     // Intersection polygons are constructed in clockwise order, so do corner2 to corner1.
-    let mut i_pts = i.polygon.points().clone();
+    let mut i_pts = i.polygon.get_outer_ring().into_points();
 
     // last pt = first_pt
     i_pts.pop();

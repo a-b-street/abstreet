@@ -46,8 +46,10 @@ impl Bounds {
     pub fn from_polygons(polygons: &[Polygon]) -> Bounds {
         let mut b = Bounds::new();
         for poly in polygons {
-            for pt in poly.points() {
-                b.update(*pt);
+            for ring in poly.get_rings() {
+                for pt in ring.points() {
+                    b.update(*pt);
+                }
             }
         }
         b

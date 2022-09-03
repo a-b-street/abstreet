@@ -207,7 +207,7 @@ impl ExtraShapes {
         {
             shapes.push(ExtraShape {
                 // Awkward, but we have to convert back
-                points: gps_bounds.convert_back(polygon.points()),
+                points: gps_bounds.convert_back(polygon.get_outer_ring().points()),
                 attributes: tags.into_inner(),
             });
         }

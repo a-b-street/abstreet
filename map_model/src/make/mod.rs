@@ -368,7 +368,7 @@ pub fn match_points_to_lanes<F: Fn(&Lane) -> bool>(
 
 /// Adjust the path to start on the polygon's border, not center.
 pub fn trim_path(poly: &Polygon, path: Line) -> Line {
-    for line in poly.points().windows(2) {
+    for line in poly.get_outer_ring().points().windows(2) {
         if let Ok(l1) = Line::new(line[0], line[1]) {
             if let Some(hit) = l1.intersection(&path) {
                 if let Ok(l2) = Line::new(hit, path.pt2()) {

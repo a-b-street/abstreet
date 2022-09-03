@@ -258,7 +258,7 @@ impl ElevationContours {
             // interpolation to the nearest measurement we have.
             for i in app.primary.map.all_intersections() {
                 // TODO Or maybe even just the center?
-                closest.add(i.elevation, i.polygon.points());
+                closest.add_polygon(i.elevation, &i.polygon);
             }
             let mut indices = Vec::new();
             for x in 0..grid.width {

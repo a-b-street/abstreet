@@ -19,7 +19,7 @@ impl RouteSketcher {
     pub fn new(app: &App) -> RouteSketcher {
         let mut snap_to_intersections = FindClosest::new(app.primary.map.get_bounds());
         for i in app.primary.map.all_intersections() {
-            snap_to_intersections.add(i.id, i.polygon.points());
+            snap_to_intersections.add_polygon(i.id, &i.polygon);
         }
 
         RouteSketcher {

@@ -143,7 +143,7 @@ fn aggregated(
     // Match each collision to the nearest road and intersection
     let mut closest: FindClosest<ID> = FindClosest::new(map.get_bounds());
     for i in map.all_intersections() {
-        closest.add(ID::Intersection(i.id), i.polygon.points());
+        closest.add_polygon(ID::Intersection(i.id), &i.polygon);
     }
     for r in map.all_roads() {
         closest.add(ID::Road(r.id), r.center_pts.points());

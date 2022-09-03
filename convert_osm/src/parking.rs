@@ -157,7 +157,7 @@ fn use_offstreet_parking(map: &mut RawMap, path: String, timer: &mut Timer) {
     let mut closest: FindClosest<osm::OsmID> =
         FindClosest::new(&map.streets.gps_bounds.to_bounds());
     for (id, b) in &map.buildings {
-        closest.add(*id, b.polygon.points());
+        closest.add_polygon(*id, &b.polygon);
     }
 
     // TODO Another function just to use ?. Try blocks would rock.

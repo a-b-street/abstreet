@@ -696,7 +696,13 @@ impl ContextualActions for Actions {
                 Transition::Push(floodfill::Floodfiller::scc(ctx, app, l))
             }
             (ID::Intersection(i), "debug intersection geometry") => {
-                let pts = app.primary.map.get_i(i).polygon.points();
+                let pts = app
+                    .primary
+                    .map
+                    .get_i(i)
+                    .polygon
+                    .get_outer_ring()
+                    .into_points();
                 let mut pts_without_last = pts.clone();
                 pts_without_last.pop();
                 Transition::Push(polygons::PolygonDebugger::new_state(
@@ -826,13 +832,19 @@ impl ContextualActions for Actions {
                 Transition::Push(reimport_map(ctx, app, Some(orig_ways)))
             }
             (ID::Area(a), "debug area geometry") => {
-                let pts = &app.primary.map.get_a(a).polygon.points();
+                let pts = app
+                    .primary
+                    .map
+                    .get_a(a)
+                    .polygon
+                    .get_outer_ring()
+                    .into_points();
                 let center = if pts[0] == *pts.last().unwrap() {
                     // TODO The center looks really wrong for Volunteer Park and others, but I
                     // think it's because they have many points along some edges.
                     Pt2D::center(&pts.iter().skip(1).cloned().collect::<Vec<_>>())
                 } else {
-                    Pt2D::center(pts)
+                    Pt2D::center(&pts)
                 };
                 Transition::Push(polygons::PolygonDebugger::new_state(
                     ctx,

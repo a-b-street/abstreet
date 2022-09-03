@@ -74,7 +74,7 @@ fn add_lunch_trips(scenario: &mut Scenario, map: &Map, rng: &mut XorShiftRng, ti
             .iter()
             .any(|a| AmenityType::categorize(&a.amenity_type) == Some(AmenityType::Food))
         {
-            closest_spots.add(b.id, b.polygon.points());
+            closest_spots.add_polygon(b.id, &b.polygon);
         }
     }
     timer.stop("index lunch spots");

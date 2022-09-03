@@ -33,11 +33,11 @@ impl InputWaypoints {
         let mut snap_to_endpts = FindClosest::new(map.get_bounds());
         for i in map.all_intersections() {
             if i.is_border() {
-                snap_to_endpts.add(TripEndpoint::Border(i.id), i.polygon.points());
+                snap_to_endpts.add_polygon(TripEndpoint::Border(i.id), &i.polygon);
             }
         }
         for b in map.all_buildings() {
-            snap_to_endpts.add(TripEndpoint::Building(b.id), b.polygon.points());
+            snap_to_endpts.add_polygon(TripEndpoint::Building(b.id), &b.polygon);
         }
 
         InputWaypoints {

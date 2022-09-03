@@ -151,17 +151,6 @@ impl Polygon {
         self.translate(dx, dy)
     }
 
-    /// The order of these points depends on the constructor! The first and last point may or may
-    /// not match. Polygons constructed from PolyLines will have a very weird order.
-    // TODO rename outer_points to be clear
-    pub fn points(&self) -> &Vec<Pt2D> {
-        if let Some(ref rings) = self.rings {
-            rings[0].points()
-        } else {
-            &self.points
-        }
-    }
-
     // TODO Should be &Ring
     pub fn get_outer_ring(&self) -> Ring {
         self.get_rings().remove(0)
@@ -336,11 +325,13 @@ impl Polygon {
 
     // TODO Temporary until we change the internal Polygon representation to always just be rings.
     // Note this does expensive cloning right now
-    fn get_rings(&self) -> Vec<Ring> {
+    pub(crate) fn get_rings(&self) -> Vec<Ring> {
         if let Some(ref rings) = self.rings {
             rings.clone()
         } else {
-            vec![Ring::must_new(self.points.clone())]
+            // Why deduping_new? Maybe earcutr::flatten slightly changes points. Either way, this
+            // is going away soon...
+            vec![Ring::deduping_new(self.points.clone()).unwrap()]
         }
     }
 

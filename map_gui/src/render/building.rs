@@ -113,12 +113,14 @@ impl DrawBuilding {
                 // large building.
                 let closest_pt = bldg
                     .polygon
+                    .get_outer_ring()
                     .points()
                     .iter()
-                    .min_by(|a, b| distance(a).cmp(&distance(b)));
+                    .min_by(|a, b| distance(a).cmp(&distance(b)))
+                    .cloned();
 
                 let distance_from_projection_axis = closest_pt
-                    .map(|pt| distance(pt).inner_meters())
+                    .map(|pt| distance(&pt).inner_meters())
                     .unwrap_or(0.0);
 
                 // smaller z renders above larger
@@ -129,6 +131,7 @@ impl DrawBuilding {
                 // TODO Some buildings have holes in them
                 if let Ok(roof) = Ring::new(
                     bldg.polygon
+                        .get_outer_ring()
                         .points()
                         .iter()
                         .map(|pt| pt.project_away(height, angle))
@@ -143,7 +146,13 @@ impl DrawBuilding {
                     let wall_z = (groundfloor_z + roof_z) / 2.0;
 
                     let mut wall_beams = Vec::new();
-                    for (low, high) in bldg.polygon.points().iter().zip(roof.points().iter()) {
+                    for (low, high) in bldg
+                        .polygon
+                        .get_outer_ring()
+                        .points()
+                        .iter()
+                        .zip(roof.points().iter())
+                    {
                         // Sometimes building height is 0!
                         // https://www.openstreetmap.org/way/390547658
                         if let Ok(l) = Line::new(*low, *high) {

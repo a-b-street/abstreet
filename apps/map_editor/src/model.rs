@@ -142,7 +142,7 @@ impl Model {
     fn compute_bounds(&self) -> Bounds {
         let mut bounds = Bounds::new();
         for b in self.map.buildings.values() {
-            for pt in b.polygon.points() {
+            for pt in b.polygon.get_outer_ring().points() {
                 bounds.update(*pt);
             }
         }

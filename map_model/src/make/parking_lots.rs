@@ -73,7 +73,7 @@ pub fn make_all_parking_lots(
 
     let mut closest: FindClosest<ParkingLotID> = FindClosest::new(map.get_bounds());
     for lot in &results {
-        closest.add(lot.id, lot.polygon.points());
+        closest.add_polygon(lot.id, &lot.polygon);
     }
     timer.start_iter("match parking aisles", aisles.len());
     for (aisle_id, pts) in aisles {

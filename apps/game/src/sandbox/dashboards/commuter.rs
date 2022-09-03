@@ -494,7 +494,7 @@ fn group_bldgs(
                 if group.proper {
                     lanes.insert(bldg.sidewalk());
                 }
-                hull_points.append(&mut bldg.polygon.points().clone());
+                hull_points.append(&mut bldg.polygon.get_outer_ring().into_points());
             }
             if group.proper {
                 // TODO Even better, glue the loop of sidewalks together and fill that area.

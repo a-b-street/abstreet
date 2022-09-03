@@ -99,7 +99,9 @@ impl City {
         ))) {
             let map = Map::load_synchronously(path, timer);
             for area in map.all_areas() {
-                let pts = map.gps_bounds.convert_back(area.polygon.points());
+                let pts = map
+                    .gps_bounds
+                    .convert_back(area.polygon.get_outer_ring().points());
                 // TODO Holes in the polygons get lost
                 if let Ok(ring) = Ring::new(gps_bounds.convert(&pts)) {
                     areas.push((

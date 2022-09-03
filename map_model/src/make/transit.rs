@@ -117,24 +117,24 @@ impl BorderSnapper {
                 // polygon
                 snapper
                     .bus_incoming_borders
-                    .add(l, map.get_l(l).get_thick_polygon().points());
+                    .add_polygon(l, &map.get_l(l).get_thick_polygon());
             }
             for l in i.get_outgoing_lanes(map, PathConstraints::Train) {
                 snapper
                     .train_incoming_borders
-                    .add(l, map.get_l(l).get_thick_polygon().points());
+                    .add_polygon(l, &map.get_l(l).get_thick_polygon());
             }
         }
         for i in map.all_outgoing_borders() {
             for l in i.get_incoming_lanes(map, PathConstraints::Bus) {
                 snapper
                     .bus_outgoing_borders
-                    .add(l, map.get_l(l).get_thick_polygon().points());
+                    .add_polygon(l, &map.get_l(l).get_thick_polygon());
             }
             for l in i.get_incoming_lanes(map, PathConstraints::Train) {
                 snapper
                     .train_outgoing_borders
-                    .add(l, map.get_l(l).get_thick_polygon().points());
+                    .add_polygon(l, &map.get_l(l).get_thick_polygon());
             }
         }
         snapper

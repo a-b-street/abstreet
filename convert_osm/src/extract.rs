@@ -346,7 +346,7 @@ fn get_area_type(tags: &Tags) -> Option<AreaType> {
 fn find_parking_aisles(map: &mut RawMap, roads: &mut Vec<(WayID, Vec<Pt2D>, Tags)>) {
     let mut closest: FindClosest<usize> = FindClosest::new(&map.streets.gps_bounds.to_bounds());
     for (idx, lot) in map.parking_lots.iter().enumerate() {
-        closest.add(idx, lot.polygon.points());
+        closest.add_polygon(idx, &lot.polygon);
     }
     let mut keep_roads = Vec::new();
     let mut parking_aisles = Vec::new();

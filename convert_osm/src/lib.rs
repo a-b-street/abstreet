@@ -93,7 +93,7 @@ fn use_amenities(map: &mut RawMap, amenities: Vec<(Pt2D, Amenity)>, timer: &mut 
     let mut closest: FindClosest<osm::OsmID> =
         FindClosest::new(&map.streets.gps_bounds.to_bounds());
     for (id, b) in &map.buildings {
-        closest.add(*id, b.polygon.points());
+        closest.add_polygon(*id, &b.polygon);
     }
 
     timer.start_iter("match building amenities", amenities.len());
@@ -174,6 +174,7 @@ fn clip_map(map: &mut RawMap, timer: &mut Timer) {
 
     map.buildings.retain(|_, b| {
         b.polygon
+            .get_outer_ring()
             .points()
             .iter()
             .all(|pt| boundary_polygon.contains_pt(*pt))
