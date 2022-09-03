@@ -244,7 +244,7 @@ fn draw_time_left(
     );
     batch.push(
         app.cs().signal_spinner,
-        Circle::new(center, radius).to_partial_polygon(percent),
+        Circle::new(center, radius).to_partial_tessellation(percent),
     );
     batch.append(
         Text::from(format!("{}", idx + 1))

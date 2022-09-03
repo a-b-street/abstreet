@@ -42,9 +42,8 @@ impl Circle {
         self.to_ring().into_polygon()
     }
 
-    /// Renders some percent, between [0, 1], of the circle as a polygon. The polygon starts from 0
-    /// degrees.
-    pub fn to_partial_polygon(&self, percent_full: f64) -> Polygon {
+    /// Renders some percent, between [0, 1], of the circle. The shape starts from 0 degrees.
+    pub fn to_partial_tessellation(&self, percent_full: f64) -> Tessellation {
         #![allow(clippy::float_cmp)]
         assert!((0. ..=1.).contains(&percent_full));
         let mut pts = vec![self.center];
@@ -65,11 +64,7 @@ impl Circle {
                 indices.pop();
             }
         }
-        // TODO use to_ring? urgh
-        Polygon::pretessellated(
-            vec![Ring::must_new(pts.clone())],
-            Tessellation::new(pts, indices),
-        )
+        Tessellation::new(pts, indices)
     }
 
     /// Returns the ring around the circle.
