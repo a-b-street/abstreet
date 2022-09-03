@@ -89,7 +89,8 @@ impl Polygon {
     }
 
     pub fn get_bounds(&self) -> Bounds {
-        Bounds::from(&self.points)
+        // Interiors should always be strictly contained within the polygon's exterior
+        Bounds::from(self.get_outer_ring().points())
     }
 
     /// Transformations must preserve Rings.
@@ -357,8 +358,7 @@ impl Polygon {
 
     /// Doesn't handle multiple crossings in and out.
     pub fn clip_polyline(&self, input: &PolyLine) -> Option<Vec<Pt2D>> {
-        let ring = Ring::must_new(self.points.clone());
-        let hits = ring.all_intersections(input);
+        let hits = self.get_outer_ring().all_intersections(input);
 
         if hits.is_empty() {
             // All the points must be inside, or none
@@ -388,7 +388,7 @@ impl Polygon {
 
     // TODO Only handles a few cases
     pub fn clip_ring(&self, input: &Ring) -> Option<Vec<Pt2D>> {
-        let ring = Ring::must_new(self.points.clone());
+        let ring = self.get_outer_ring();
         let hits = ring.all_intersections(&PolyLine::unchecked_new(input.clone().into_points()));
 
         if hits.is_empty() {
@@ -421,31 +421,23 @@ impl Polygon {
         None
     }
 
-    /// If the polygon is just a single outer ring, produces a GeoJSON polygon. Otherwise, produces
-    /// a GeoJSON multipolygon consisting of individual triangles. Optionally map the world-space
-    /// points back to GPS.
+    /// Optionally map the world-space points back to GPS.
     pub fn to_geojson(&self, gps: Option<&GPSBounds>) -> geojson::Geometry {
-        if let Ok(ring) = Ring::new(self.points.clone()) {
-            return ring.to_geojson(gps);
+        use geo::MapCoordsInPlace;
+
+        let mut geom: geo::Geometry = self.to_geo().into();
+        if let Some(ref gps_bounds) = gps {
+            geom.map_coords_in_place(|c| {
+                let gps = Pt2D::new(c.x, c.y).to_gps(gps_bounds);
+                (gps.x(), gps.y()).into()
+            });
         }
 
-        let mut polygons = Vec::new();
-        for triangle in self.triangles() {
-            let raw_pts = vec![triangle.pt1, triangle.pt2, triangle.pt3, triangle.pt1];
-            let mut pts = Vec::new();
-            if let Some(gps) = gps {
-                for pt in gps.convert_back(&raw_pts) {
-                    pts.push(vec![pt.x(), pt.y()]);
-                }
-            } else {
-                for pt in raw_pts {
-                    pts.push(vec![pt.x(), pt.y()]);
-                }
-            }
-            polygons.push(vec![pts]);
+        geojson::Geometry {
+            bbox: None,
+            value: geojson::Value::from(&geom),
+            foreign_members: None,
         }
-
-        geojson::Geometry::new(geojson::Value::MultiPolygon(polygons))
     }
 
     /// Extracts all polygons from raw bytes representing a GeoJSON file, along with the string
