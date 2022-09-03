@@ -662,10 +662,6 @@
 <span id="656">656</span>
 <span id="657">657</span>
 <span id="658">658</span>
-<span id="659">659</span>
-<span id="660">660</span>
-<span id="661">661</span>
-<span id="662">662</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std::fmt::Write</span>;
 
@@ -1103,9 +1099,7 @@
         <span class="kw">if</span> <span class="ident">num_savings</span> <span class="op">&gt;</span> <span class="number">0</span> {
             <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> ((<span class="ident">total_savings</span> <span class="op">/</span> <span class="ident">intervals</span>.<span class="number">0</span>) <span class="op">*</span> <span class="ident">max_bar_height</span>).<span class="ident">max</span>(<span class="ident">min_bar_height</span>);
             <span class="kw">let</span> <span class="ident">rect</span> <span class="op">=</span> <span class="ident">Polygon::rectangle</span>(<span class="ident">bar_width</span>, <span class="ident">height</span>).<span class="ident">translate</span>(<span class="ident">x1</span>, <span class="ident">max_bar_height</span> <span class="op">-</span> <span class="ident">height</span>);
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">o</span>) <span class="op">=</span> <span class="ident">rect</span>.<span class="ident">to_outline</span>(<span class="ident">line_thickness</span>) {
-                <span class="ident">bar_outlines</span>.<span class="ident">push</span>(<span class="ident">o</span>);
-            }
+            <span class="ident">bar_outlines</span>.<span class="ident">push</span>(<span class="ident">rect</span>.<span class="ident">to_outline</span>(<span class="ident">line_thickness</span>));
             <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::GREEN</span>, <span class="ident">rect</span>.<span class="ident">clone</span>());
             <span class="ident">tooltips</span>.<span class="ident">push</span>((
                 <span class="ident">rect</span>,
@@ -1141,9 +1135,7 @@
             <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> ((<span class="ident">total_loss</span> <span class="op">/</span> <span class="ident">intervals</span>.<span class="number">0</span>) <span class="op">*</span> <span class="ident">max_bar_height</span>).<span class="ident">max</span>(<span class="ident">min_bar_height</span>);
             <span class="kw">let</span> <span class="ident">rect</span> <span class="op">=</span>
                 <span class="ident">Polygon::rectangle</span>(<span class="ident">bar_width</span>, <span class="ident">height</span>).<span class="ident">translate</span>(<span class="ident">x1</span>, <span class="ident">total_height</span> <span class="op">-</span> <span class="ident">max_bar_height</span>);
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">o</span>) <span class="op">=</span> <span class="ident">rect</span>.<span class="ident">to_outline</span>(<span class="ident">line_thickness</span>) {
-                <span class="ident">bar_outlines</span>.<span class="ident">push</span>(<span class="ident">o</span>);
-            }
+            <span class="ident">bar_outlines</span>.<span class="ident">push</span>(<span class="ident">rect</span>.<span class="ident">to_outline</span>(<span class="ident">line_thickness</span>));
             <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::RED</span>, <span class="ident">rect</span>.<span class="ident">clone</span>());
             <span class="ident">tooltips</span>.<span class="ident">push</span>((
                 <span class="ident">rect</span>,

@@ -785,8 +785,6 @@
 <span id="779">779</span>
 <span id="780">780</span>
 <span id="781">781</span>
-<span id="782">782</span>
-<span id="783">783</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
@@ -1242,16 +1240,14 @@
             <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">delayed_intersections</span>(<span class="ident">Duration::minutes</span>(<span class="number">5</span>)),
         ) {
             <span class="ident">cnt</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-            <span class="ident">draw</span>.<span class="ident">unzoomed</span>.<span class="ident">push</span>(
-                <span class="ident">Color::RED</span>,
-                <span class="ident">boundary</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">5.0</span>)).<span class="ident">unwrap</span>(),
-            );
+            <span class="ident">draw</span>.<span class="ident">unzoomed</span>
+                .<span class="ident">push</span>(<span class="ident">Color::RED</span>, <span class="ident">boundary</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">5.0</span>)));
             <span class="ident">draw</span>.<span class="ident">unzoomed</span>.<span class="ident">push</span>(<span class="ident">Color::RED</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="ident">boundary</span>.<span class="ident">clone</span>());
             <span class="ident">draw</span>.<span class="ident">unzoomed</span>.<span class="ident">push</span>(<span class="ident">Color::WHITE</span>, <span class="ident">epicenter</span>.<span class="ident">clone</span>());
 
             <span class="ident">draw</span>.<span class="ident">zoomed</span>.<span class="ident">push</span>(
                 <span class="ident">Color::RED</span>.<span class="ident">alpha</span>(<span class="number">0.4</span>),
-                <span class="ident">boundary</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">5.0</span>)).<span class="ident">unwrap</span>(),
+                <span class="ident">boundary</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">5.0</span>)),
             );
             <span class="ident">draw</span>.<span class="ident">zoomed</span>.<span class="ident">push</span>(<span class="ident">Color::RED</span>.<span class="ident">alpha</span>(<span class="number">0.3</span>), <span class="ident">boundary</span>);
             <span class="ident">draw</span>.<span class="ident">zoomed</span>.<span class="ident">push</span>(<span class="ident">Color::WHITE</span>.<span class="ident">alpha</span>(<span class="number">0.4</span>), <span class="ident">epicenter</span>);

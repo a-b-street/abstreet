@@ -347,7 +347,6 @@
 <span id="341">341</span>
 <span id="342">342</span>
 <span id="343">343</span>
-<span id="344">344</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::ops</span>;
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">trim_f64</span>, <span class="ident">CornerRadii</span>, <span class="ident">Distance</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
@@ -553,8 +552,7 @@
         <span class="ident">batch</span>.<span class="ident">push</span>(
             <span class="self">self</span>.<span class="ident">outline</span>.<span class="number">1</span>,
             <span class="ident">Polygon::rounded_rectangle</span>(<span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">width</span>, <span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">height</span>, <span class="number">5.0</span>)
-                .<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="self">self</span>.<span class="ident">outline</span>.<span class="number">0</span>))
-                .<span class="ident">unwrap</span>(),
+                .<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="self">self</span>.<span class="ident">outline</span>.<span class="number">0</span>)),
         );
         <span class="ident">prerender</span>.<span class="ident">upload</span>(<span class="ident">batch</span>)
     }

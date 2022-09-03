@@ -232,7 +232,6 @@
 <span id="226">226</span>
 <span id="227">227</span>
 <span id="228">228</span>
-<span id="229">229</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Counter</span>, <span class="ident">Timer</span>};
@@ -315,10 +314,9 @@
                     .<span class="ident">make_arrow</span>(<span class="ident">percent</span> <span class="op">*</span> <span class="ident">Distance::meters</span>(<span class="number">3.0</span>), <span class="ident">ArrowCap::Triangle</span>);
 
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw_hovered</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">p</span>) <span class="op">=</span> <span class="ident">arrow</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">0.1</span>)) {
-                    <span class="ident">outlines</span>.<span class="ident">push</span>(<span class="ident">p</span>.<span class="ident">clone</span>());
-                    <span class="ident">draw_hovered</span>.<span class="ident">push</span>(<span class="ident">Color::WHITE</span>, <span class="ident">p</span>);
-                }
+                <span class="kw">let</span> <span class="ident">outline</span> <span class="op">=</span> <span class="ident">arrow</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">0.1</span>));
+                <span class="ident">outlines</span>.<span class="ident">push</span>(<span class="ident">outline</span>.<span class="ident">clone</span>());
+                <span class="ident">draw_hovered</span>.<span class="ident">push</span>(<span class="ident">Color::WHITE</span>, <span class="ident">outline</span>);
                 <span class="ident">draw_all</span>.<span class="ident">push</span>(<span class="ident">Color::hex</span>(<span class="string">&quot;#A3A3A3&quot;</span>), <span class="ident">arrow</span>.<span class="ident">clone</span>());
                 <span class="ident">draw_hovered</span>.<span class="ident">push</span>(<span class="ident">Color::hex</span>(<span class="string">&quot;#EE702E&quot;</span>), <span class="ident">arrow</span>.<span class="ident">clone</span>());
 

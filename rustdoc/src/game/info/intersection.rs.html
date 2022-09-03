@@ -533,10 +533,6 @@
 <span id="527">527</span>
 <span id="528">528</span>
 <span id="529">529</span>
-<span id="530">530</span>
-<span id="531">531</span>
-<span id="532">532</span>
-<span id="533">533</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">abstutil::prettyprint_usize</span>;
@@ -749,9 +745,7 @@
             .<span class="ident">translate</span>(<span class="op">-</span><span class="ident">bounds</span>.<span class="ident">min_x</span>, <span class="op">-</span><span class="ident">bounds</span>.<span class="ident">min_y</span>)
             .<span class="ident">scale</span>(<span class="ident">zoom</span>)
         {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">p</span>) <span class="op">=</span> <span class="ident">arrow</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">1.0</span>)) {
-                <span class="ident">outlines</span>.<span class="ident">push</span>(<span class="ident">p</span>);
-            }
+            <span class="ident">outlines</span>.<span class="ident">push</span>(<span class="ident">arrow</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">1.0</span>)));
             <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::hex</span>(<span class="string">&quot;#A3A3A3&quot;</span>), <span class="ident">arrow</span>.<span class="ident">clone</span>());
             <span class="ident">tooltips</span>.<span class="ident">push</span>((<span class="ident">arrow</span>, <span class="ident">Text::from</span>(<span class="ident">prettyprint_usize</span>(<span class="ident">demand</span>)), <span class="prelude-val">None</span>));
         }
@@ -779,9 +773,7 @@
                 <span class="ident">tooltips</span>,
                 <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">arrow</span><span class="op">|</span> {
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(<span class="ident">Color::hex</span>(<span class="string">&quot;#EE702E&quot;</span>), <span class="ident">arrow</span>.<span class="ident">clone</span>())]);
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">p</span>) <span class="op">=</span> <span class="ident">arrow</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">1.0</span>)) {
-                        <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::WHITE</span>, <span class="ident">p</span>);
-                    }
+                    <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::WHITE</span>, <span class="ident">arrow</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">1.0</span>)));
                     <span class="ident">batch</span>
                 }),
             ),

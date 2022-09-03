@@ -358,7 +358,7 @@
             <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">g</span>.<span class="ident">style</span>().<span class="ident">field_bg</span>, <span class="ident">rect</span>.<span class="ident">clone</span>());
             <span class="ident">batch</span>.<span class="ident">push</span>(
                 <span class="ident">g</span>.<span class="ident">style</span>().<span class="ident">dropdown_border</span>,
-                <span class="ident">rect</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">1.0</span>)).<span class="ident">unwrap</span>(),
+                <span class="ident">rect</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">1.0</span>)),
             );
             <span class="kw">let</span> <span class="ident">draw_bg</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">upload</span>(<span class="ident">batch</span>);
             <span class="ident">g</span>.<span class="ident">fork</span>(

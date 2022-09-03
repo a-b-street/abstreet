@@ -410,9 +410,6 @@
 <span id="404">404</span>
 <span id="405">405</span>
 <span id="406">406</span>
-<span id="407">407</span>
-<span id="408">408</span>
-<span id="409">409</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>};
 <span class="kw">use</span> <span class="ident">street_network::Direction</span>;
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">DummyID</span>, <span class="ident">World</span>};
@@ -715,9 +712,7 @@
         <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident">render_cells</span>.<span class="ident">colors</span>[<span class="ident">idx</span>].<span class="ident">alpha</span>(<span class="number">1.0</span>);
         <span class="kw">for</span> <span class="ident">arrow</span> <span class="kw">in</span> <span class="ident">cell</span>.<span class="ident">border_arrows</span>(<span class="ident">app</span>) {
             <span class="ident">draw_top_layer</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">arrow</span>.<span class="ident">clone</span>());
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">outline</span>) <span class="op">=</span> <span class="ident">arrow</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">1.0</span>)) {
-                <span class="ident">draw_top_layer</span>.<span class="ident">push</span>(<span class="ident">Color::BLACK</span>, <span class="ident">outline</span>);
-            }
+            <span class="ident">draw_top_layer</span>.<span class="ident">push</span>(<span class="ident">Color::BLACK</span>, <span class="ident">arrow</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">1.0</span>)));
         }
     }
 
@@ -746,12 +741,11 @@
                 ])
                 .<span class="ident">maybe_reverse</span>(<span class="ident">dir</span> <span class="op">==</span> <span class="ident">Direction::Back</span>);
 
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">poly</span>) <span class="op">=</span> <span class="ident">pl</span>
-                    .<span class="ident">make_arrow</span>(<span class="ident">thickness</span> <span class="op">*</span> <span class="number">2.0</span>, <span class="ident">ArrowCap::Triangle</span>)
-                    .<span class="ident">to_outline</span>(<span class="ident">thickness</span> <span class="op">/</span> <span class="number">2.0</span>)
-                {
-                    <span class="ident">draw_top_layer</span>.<span class="ident">push</span>(<span class="ident">colors::ROAD_LABEL</span>, <span class="ident">poly</span>);
-                }
+                <span class="ident">draw_top_layer</span>.<span class="ident">push</span>(
+                    <span class="ident">colors::ROAD_LABEL</span>,
+                    <span class="ident">pl</span>.<span class="ident">make_arrow</span>(<span class="ident">thickness</span> <span class="op">*</span> <span class="number">2.0</span>, <span class="ident">ArrowCap::Triangle</span>)
+                        .<span class="ident">to_outline</span>(<span class="ident">thickness</span> <span class="op">/</span> <span class="number">2.0</span>),
+                );
             }
         }
 

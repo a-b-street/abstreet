@@ -599,11 +599,6 @@
 <span id="593">593</span>
 <span id="594">594</span>
 <span id="595">595</span>
-<span id="596">596</span>
-<span id="597">597</span>
-<span id="598">598</span>
-<span id="599">599</span>
-<span id="600">600</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::fmt</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
@@ -767,24 +762,14 @@
             <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">points</span>
         }
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_points</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">rings</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">rings</span>.<span class="ident">take</span>() {
-            <span class="ident">rings</span>.<span class="ident">remove</span>(<span class="number">0</span>).<span class="ident">into_points</span>()
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">points</span>
-        }
-    }
+    <span class="comment">// TODO Switch to get_outer_ring. osm2streets depends on this one, have to juggle git repos</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_ring</span>(<span class="self">self</span>) -&gt; <span class="ident">Ring</span> {
-        <span class="ident">Ring::must_new</span>(<span class="self">self</span>.<span class="ident">into_points</span>())
+        <span class="self">self</span>.<span class="ident">get_outer_ring</span>()
     }
 
-    <span class="doccomment">/// Get the outer ring of this polygon. This should usually succeed.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_outer_ring</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Ring</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">rings</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">rings</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">rings</span>[<span class="number">0</span>].<span class="ident">clone</span>())
-        } <span class="kw">else</span> {
-            <span class="ident">Ring::new</span>(<span class="self">self</span>.<span class="ident">points</span>.<span class="ident">clone</span>()).<span class="ident">ok</span>()
-        }
+    <span class="comment">// TODO Should be &amp;Ring</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_outer_ring</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Ring</span> {
+        <span class="self">self</span>.<span class="ident">get_rings</span>().<span class="ident">remove</span>(<span class="number">0</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">center</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Pt2D</span> {
@@ -954,23 +939,28 @@
         <span class="self">self</span>.<span class="ident">to_geo</span>().<span class="ident">intersects</span>(<span class="kw-2">&amp;</span><span class="ident">pl</span>.<span class="ident">to_geo</span>())
     }
 
+    <span class="comment">// TODO Temporary until we change the internal Polygon representation to always just be rings.</span>
+    <span class="comment">// Note this does expensive cloning right now</span>
+    <span class="kw">fn</span> <span class="ident">get_rings</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ring</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">rings</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">rings</span> {
+            <span class="ident">rings</span>.<span class="ident">clone</span>()
+        } <span class="kw">else</span> {
+            <span class="macro">vec!</span>[<span class="ident">Ring::must_new</span>(<span class="self">self</span>.<span class="ident">points</span>.<span class="ident">clone</span>())]
+        }
+    }
+
     <span class="doccomment">/// Creates the outline around the polygon (both the exterior and holes), with the thickness</span>
-    <span class="doccomment">/// half straddling the polygon and half of it just outside. Only works for polygons that&#39;re</span>
-    <span class="doccomment">/// formed from rings.</span>
+    <span class="doccomment">/// half straddling the polygon and half of it just outside.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Returns a `Tessellation` that may union together the outline from the exterior and multiple</span>
     <span class="doccomment">/// holes. Callers that need a `Polygon` must call `to_outline` on the individual `Rings`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_outline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">thickness</span>: <span class="ident">Distance</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Tessellation</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">rings</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">rings</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">Tessellation::union_all</span>(
-                <span class="ident">rings</span>
-                    .<span class="ident">iter</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">Tessellation::from</span>(<span class="ident">r</span>.<span class="ident">to_outline</span>(<span class="ident">thickness</span>)))
-                    .<span class="ident">collect</span>(),
-            ))
-        } <span class="kw">else</span> {
-            <span class="ident">Ring::new</span>(<span class="self">self</span>.<span class="ident">points</span>.<span class="ident">clone</span>()).<span class="ident">map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">Tessellation::from</span>(<span class="ident">r</span>.<span class="ident">to_outline</span>(<span class="ident">thickness</span>)))
-        }
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_outline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">thickness</span>: <span class="ident">Distance</span>) -&gt; <span class="ident">Tessellation</span> {
+        <span class="ident">Tessellation::union_all</span>(
+            <span class="self">self</span>.<span class="ident">get_rings</span>()
+                .<span class="ident">iter</span>()
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">Tessellation::from</span>(<span class="ident">r</span>.<span class="ident">to_outline</span>(<span class="ident">thickness</span>)))
+                .<span class="ident">collect</span>(),
+        )
     }
 
     <span class="doccomment">/// Usually m^2, unless the polygon is in screen-space</span>

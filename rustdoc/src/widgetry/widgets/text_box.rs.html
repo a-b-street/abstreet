@@ -337,11 +337,11 @@
         )]);
 
         <span class="kw">let</span> <span class="ident">outline_style</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">outline</span>;
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">outline</span>) <span class="op">=</span> <span class="ident">Polygon::rounded_rectangle</span>(<span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">width</span>, <span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">height</span>, <span class="number">2.0</span>)
-            .<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="ident">outline_style</span>.<span class="number">0</span>))
-        {
-            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">outline_style</span>.<span class="number">1</span>, <span class="ident">outline</span>);
-        }
+        <span class="ident">batch</span>.<span class="ident">push</span>(
+            <span class="ident">outline_style</span>.<span class="number">1</span>,
+            <span class="ident">Polygon::rounded_rectangle</span>(<span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">width</span>, <span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">height</span>, <span class="number">2.0</span>)
+                .<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="ident">outline_style</span>.<span class="number">0</span>)),
+        );
 
         <span class="ident">batch</span>.<span class="ident">append</span>(
             <span class="self">self</span>.<span class="ident">calculate_text</span>(<span class="ident">g</span>.<span class="ident">style</span>())

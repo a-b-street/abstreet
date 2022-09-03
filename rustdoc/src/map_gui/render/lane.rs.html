@@ -1064,8 +1064,7 @@
                 <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="ident">arrow_len</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">angle</span>),
             ])
             .<span class="ident">make_arrow</span>(<span class="ident">thickness</span> <span class="op">*</span> <span class="number">2.0</span>, <span class="ident">ArrowCap::Triangle</span>)
-            .<span class="ident">to_outline</span>(<span class="ident">thickness</span> <span class="op">/</span> <span class="number">2.0</span>)
-            .<span class="ident">unwrap</span>(),
+            .<span class="ident">to_outline</span>(<span class="ident">thickness</span> <span class="op">/</span> <span class="number">2.0</span>),
         );
     }
     <span class="ident">results</span>
@@ -1142,9 +1141,10 @@
                 <span class="ident">Distance::meters</span>(<span class="number">2.5</span>),
             ) {
                 <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::hex</span>(<span class="string">&quot;#108833&quot;</span>), <span class="ident">poly</span>.<span class="ident">clone</span>());
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">border</span>) <span class="op">=</span> <span class="ident">poly</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">0.25</span>)) {
-                    <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::hex</span>(<span class="string">&quot;#A8882A&quot;</span>), <span class="ident">border</span>);
-                }
+                <span class="ident">batch</span>.<span class="ident">push</span>(
+                    <span class="ident">Color::hex</span>(<span class="string">&quot;#A8882A&quot;</span>),
+                    <span class="ident">poly</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">0.25</span>)),
+                );
             }
         }
         <span class="ident">BufferType::JerseyBarrier</span> =&gt; {

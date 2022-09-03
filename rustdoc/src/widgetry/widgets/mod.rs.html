@@ -879,7 +879,6 @@
 <span id="873">873</span>
 <span id="874">874</span>
 <span id="875">875</span>
-<span id="876">876</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
 <span class="kw">use</span> <span class="ident">taffy::geometry</span>::{<span class="ident">Rect</span>, <span class="ident">Size</span>};
@@ -1551,8 +1550,7 @@
                         }
                         <span class="ident">CornerRounding::FullyRounded</span> =&gt; <span class="ident">Polygon::pill</span>(<span class="ident">width</span>, <span class="ident">height</span>),
                     }
-                    .<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="ident">thickness</span>))
-                    .<span class="ident">unwrap</span>(),
+                    .<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="ident">thickness</span>)),
                 );
             }
             <span class="kw">if</span> <span class="ident">defer_draw</span> {

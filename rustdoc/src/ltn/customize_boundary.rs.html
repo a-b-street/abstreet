@@ -76,6 +76,7 @@
 <span id="70">70</span>
 <span id="71">71</span>
 <span id="72">72</span>
+<span id="73">73</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom::Ring</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools::EditPolygon</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
@@ -97,6 +98,7 @@
             .<span class="ident">session</span>
             .<span class="ident">partitioning</span>
             .<span class="ident">neighbourhood_boundary_polygon</span>(<span class="ident">app</span>, <span class="ident">id</span>)
+            .<span class="ident">get_outer_ring</span>()
             .<span class="ident">into_points</span>();
         <span class="ident">Box::new</span>(<span class="self">Self</span> {
             <span class="ident">id</span>,
