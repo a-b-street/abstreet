@@ -314,13 +314,11 @@ fn make_object(
     let polygon = if pts.len() == 1 {
         Circle::new(pts[0], RADIUS).to_polygon()
     } else if let Ok(ring) = Ring::new(pts.clone()) {
-        // TODO Ideally we could choose this in the UI
-        if attribs.get("spatial_type") == Some(&"Polygon".to_string()) {
-            color = cs.rotating_color_plot(obj_idx).alpha(0.8);
-            ring.into_polygon()
-        } else {
-            ring.to_outline(THICKNESS)
-        }
+        // TODO If the below isn't true, show it as an outline instead? Can't make that a Polygon,
+        // though
+        // if attribs.get("spatial_type") == Some(&"Polygon".to_string()) {
+        color = cs.rotating_color_plot(obj_idx).alpha(0.8);
+        ring.into_polygon()
     } else {
         let backup = pts[0];
         match PolyLine::new(pts) {

@@ -221,11 +221,9 @@ impl Renderable for DrawCar {
     }
 
     fn get_outline(&self, _: &Map) -> Tessellation {
-        Tessellation::from(
-            self.body
-                .to_thick_boundary(CAR_WIDTH, OUTLINE_THICKNESS)
-                .unwrap_or_else(|| self.body_polygon.clone()),
-        )
+        self.body
+            .to_thick_boundary(CAR_WIDTH, OUTLINE_THICKNESS)
+            .unwrap_or_else(|| Tessellation::from(self.body_polygon.clone()))
     }
 
     fn contains_pt(&self, pt: Pt2D, _: &Map) -> bool {

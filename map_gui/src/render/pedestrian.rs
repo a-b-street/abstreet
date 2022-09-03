@@ -291,11 +291,9 @@ impl Renderable for DrawPedCrowd {
     }
 
     fn get_outline(&self, _: &Map) -> Tessellation {
-        Tessellation::from(
-            self.blob_pl
-                .to_thick_boundary(sim::pedestrian_body_radius() * 2.0, OUTLINE_THICKNESS)
-                .unwrap_or_else(|| self.blob.clone()),
-        )
+        self.blob_pl
+            .to_thick_boundary(sim::pedestrian_body_radius() * 2.0, OUTLINE_THICKNESS)
+            .unwrap_or_else(|| Tessellation::from(self.blob.clone()))
     }
 
     fn get_zorder(&self) -> isize {

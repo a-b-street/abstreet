@@ -1,5 +1,5 @@
 use abstutil::prettyprint_usize;
-use geom::{Distance, PolyLine, Polygon, Pt2D};
+use geom::{Distance, PolyLine, Pt2D, Tessellation};
 use widgetry::tools::{ColorLegend, PopupMsg};
 use widgetry::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel,
@@ -257,8 +257,8 @@ impl RecordPath {
         self.pts.push(pt);
     }
 
-    pub fn render(mut self, thickness: Distance) -> Polygon {
+    pub fn render(mut self, thickness: Distance) -> Tessellation {
         self.pts.dedup();
-        PolyLine::unchecked_new(self.pts).make_polygons(thickness)
+        PolyLine::unchecked_new(self.pts).thicken_tessellation(thickness)
     }
 }

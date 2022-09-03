@@ -5,7 +5,7 @@ use std::fmt::Write;
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
-use crate::{Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D};
+use crate::{Distance, GPSBounds, Line, PolyLine, Polygon, Pt2D, Tessellation};
 
 /// Maybe a misnomer, but like a PolyLine, but closed.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -52,9 +52,9 @@ impl Ring {
 
     /// Draws the ring with some thickness, with half of it straddling the interor of the ring, and
     /// half on the outside.
-    pub fn to_outline(&self, thickness: Distance) -> Polygon {
+    pub fn to_outline(&self, thickness: Distance) -> Tessellation {
         // TODO Has a weird corner. Use the polygon offset thing instead?
-        PolyLine::unchecked_new(self.pts.clone()).make_polygons(thickness)
+        PolyLine::unchecked_new(self.pts.clone()).thicken_tessellation(thickness)
     }
 
     pub fn into_polygon(self) -> Polygon {

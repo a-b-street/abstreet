@@ -1,6 +1,7 @@
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
-use crate::{Angle, Bounds, Polygon, Pt2D};
+use crate::{Angle, Bounds, GPSBounds, Polygon, Pt2D};
 
 // Only serializable for Polygons that precompute a tessellation
 /// A tessellated polygon, ready for rendering.
@@ -8,7 +9,7 @@ use crate::{Angle, Bounds, Polygon, Pt2D};
 pub struct Tessellation {
     /// These points aren't in any meaningful order. It's not generally possible to reconstruct a
     /// `Polygon` from this.
-    points: Vec<Pt2D>,
+    pub(crate) points: Vec<Pt2D>,
     /// Groups of three indices make up the triangles
     indices: Vec<u16>,
 }
@@ -203,6 +204,41 @@ impl Tessellation {
             result = result.union(p);
         }
         result
+    }
+
+    /// Produces a GeoJSON multipolygon consisting of individual triangles. Optionally map the
+    /// world-space points back to GPS.
+    pub fn to_geojson(&self, gps: Option<&GPSBounds>) -> geojson::Geometry {
+        let mut polygons = Vec::new();
+        for triangle in self.triangles() {
+            let raw_pts = vec![triangle.pt1, triangle.pt2, triangle.pt3, triangle.pt1];
+            let mut pts = Vec::new();
+            if let Some(gps) = gps {
+                for pt in gps.convert_back(&raw_pts) {
+                    pts.push(vec![pt.x(), pt.y()]);
+                }
+            } else {
+                for pt in raw_pts {
+                    pts.push(vec![pt.x(), pt.y()]);
+                }
+            }
+            polygons.push(vec![pts]);
+        }
+
+        geojson::Geometry::new(geojson::Value::MultiPolygon(polygons))
+    }
+
+    // TODO This only makes sense for something vaguely Ring-like
+    fn to_geo(&self) -> geo::Polygon {
+        let exterior = crate::conversions::pts_to_line_string(&self.points);
+        geo::Polygon::new(exterior, Vec::new())
+    }
+
+    // TODO After making to_outline return a real Polygon, get rid of this
+    pub fn difference(&self, other: &Tessellation) -> Result<Vec<Polygon>> {
+        use geo::BooleanOps;
+
+        crate::polygon::from_multi(self.to_geo().difference(&other.to_geo()))
     }
 }
 
