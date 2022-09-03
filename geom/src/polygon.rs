@@ -7,51 +7,41 @@ use serde::{Deserialize, Serialize};
 use abstutil::Tags;
 
 use crate::{
-    Angle, Bounds, CornerRadii, Distance, GPSBounds, HashablePt2D, LonLat, PolyLine, Pt2D, Ring,
-    Tessellation, Triangle,
+    Angle, Bounds, CornerRadii, Distance, GPSBounds, LonLat, PolyLine, Pt2D, Ring, Tessellation,
+    Triangle,
 };
 
 #[derive(PartialEq, Serialize, Deserialize, Clone, Debug)]
 pub struct Polygon {
-    pub(crate) points: Vec<Pt2D>,
-    /// Groups of three indices make up the triangles
-    pub(crate) indices: Vec<u16>,
-
-    /// If the polygon has holes, explicitly store all the rings (the one outer and all of the
-    /// inner) so they can later be used to generate outlines and such. If the polygon has no
-    /// holes, then this will just be None, since the points form a ring.
-    rings: Option<Vec<Ring>>,
+    // [0] is the outer/exterior ring, and the others are holes/interiors
+    pub(crate) rings: Vec<Ring>,
+    // For performance reasons, some callers may want to generate the polygon's Rings and
+    // Tessellation at the same time, instead of using earcutr.
+    pub(crate) tessellation: Option<Tessellation>,
 }
 
 impl Polygon {
     pub fn with_holes(outer: Ring, mut inner: Vec<Ring>) -> Self {
         inner.insert(0, outer);
-        let geojson_style: Vec<Vec<Vec<f64>>> = inner
-            .iter()
-            .map(|ring| {
-                ring.points()
-                    .iter()
-                    .map(|pt| vec![pt.x(), pt.y()])
-                    .collect()
-            })
-            .collect();
-        let (vertices, holes, dims) = earcutr::flatten(&geojson_style);
-        let indices = crate::tessellation::downsize(earcutr::earcut(&vertices, &holes, dims));
-
         Self {
-            points: vertices
-                .chunks(2)
-                .map(|pair| Pt2D::new(pair[0], pair[1]))
-                .collect(),
-            indices,
-            rings: if inner.len() == 1 { None } else { Some(inner) },
+            rings: inner,
+            tessellation: None,
         }
     }
 
-    pub fn from_rings(mut rings: Vec<Ring>) -> Self {
+    pub fn from_rings(rings: Vec<Ring>) -> Self {
         assert!(!rings.is_empty());
-        let outer = rings.remove(0);
-        Self::with_holes(outer, rings)
+        Self {
+            rings,
+            tessellation: None,
+        }
+    }
+
+    pub(crate) fn pretessellated(rings: Vec<Ring>, tessellation: Tessellation) -> Self {
+        Self {
+            rings,
+            tessellation: Some(tessellation),
+        }
     }
 
     pub fn from_geojson(raw: &[Vec<Vec<f64>>]) -> Result<Self> {
@@ -62,17 +52,6 @@ impl Polygon {
             rings.push(Ring::new(transformed)?);
         }
         Ok(Self::from_rings(rings))
-    }
-
-    // TODO No guarantee points forms a ring. In fact, the main caller is from SVG->lyon parsing,
-    // and it's NOT true there yet.
-    pub fn precomputed(points: Vec<Pt2D>, indices: Vec<usize>) -> Self {
-        assert!(indices.len() % 3 == 0);
-        Self {
-            points,
-            indices: crate::tessellation::downsize(indices),
-            rings: None,
-        }
     }
 
     pub fn from_triangle(tri: &Triangle) -> Self {
@@ -95,18 +74,16 @@ impl Polygon {
 
     /// Transformations must preserve Rings.
     fn transform<F: Fn(&Pt2D) -> Pt2D>(&self, f: F) -> Result<Self> {
-        let mut rings = None;
-        if let Some(ref existing_rings) = self.rings {
-            let mut transformed = Vec::new();
-            for ring in existing_rings {
-                transformed.push(Ring::new(ring.points().iter().map(&f).collect())?);
-            }
-            rings = Some(transformed);
+        let mut rings = Vec::new();
+        for ring in &self.rings {
+            rings.push(Ring::new(ring.points().iter().map(&f).collect())?);
         }
         Ok(Self {
-            points: self.points.iter().map(&f).collect(),
-            indices: self.indices.clone(),
             rings,
+            tessellation: self.tessellation.clone().take().map(|mut t| {
+                t.transform(f);
+                t
+            }),
         })
     }
 
@@ -152,17 +129,26 @@ impl Polygon {
         self.translate(dx, dy)
     }
 
-    // TODO Should be &Ring
-    pub fn get_outer_ring(&self) -> Ring {
-        self.get_rings().remove(0)
+    pub fn get_outer_ring(&self) -> &Ring {
+        &self.rings[0]
     }
 
+    pub fn into_outer_ring(mut self) -> Ring {
+        self.rings.remove(0)
+    }
+
+    /// The [centroid](https://docs.rs/geo/latest/geo/algorithm/centroid/trait.Centroid.html)
     pub fn center(&self) -> Pt2D {
-        // TODO dedupe just out of fear of the first/last point being repeated
-        let mut pts: Vec<HashablePt2D> = self.points.iter().map(|pt| pt.to_hashable()).collect();
-        pts.sort();
-        pts.dedup();
-        Pt2D::center(&pts.iter().map(|pt| pt.to_pt2d()).collect::<Vec<_>>())
+        use geo::Centroid;
+
+        if let Some(pt) = self.to_geo().centroid() {
+            return pt.into();
+        }
+        // TODO Not sure when centroid could fail. Fall back to just finding the center of the
+        // outer ring.
+        let mut pts = self.get_outer_ring().clone().into_points();
+        pts.pop();
+        Pt2D::center(&pts)
     }
 
     /// Top-left at the origin. Doesn't take Distance, because this is usually pixels, actually.
@@ -324,16 +310,8 @@ impl Polygon {
         self.to_geo().intersects(&pl.to_geo())
     }
 
-    // TODO Temporary until we change the internal Polygon representation to always just be rings.
-    // Note this does expensive cloning right now
-    pub(crate) fn get_rings(&self) -> Vec<Ring> {
-        if let Some(ref rings) = self.rings {
-            rings.clone()
-        } else {
-            // Why deduping_new? Maybe earcutr::flatten slightly changes points. Either way, this
-            // is going away soon...
-            vec![Ring::deduping_new(self.points.clone()).unwrap()]
-        }
+    pub(crate) fn get_rings(&self) -> &[Ring] {
+        &self.rings
     }
 
     /// Creates the outline around the polygon (both the exterior and holes), with the thickness
@@ -343,7 +321,7 @@ impl Polygon {
     /// holes. Callers that need a `Polygon` must call `to_outline` on the individual `Rings`.
     pub fn to_outline(&self, thickness: Distance) -> Tessellation {
         Tessellation::union_all(
-            self.get_rings()
+            self.rings
                 .iter()
                 .map(|r| Tessellation::from(r.to_outline(thickness)))
                 .collect(),
@@ -507,8 +485,7 @@ impl Polygon {
     }
 
     // A less verbose way of invoking the From/Into impl. Note this hides a potentially expensive
-    // clone. The eventual goal is for Polygon to directly wrap a geo::Polygon, at which point this
-    // cost goes away.
+    // clone.
     fn to_geo(&self) -> geo::Polygon {
         self.clone().into()
     }
@@ -516,20 +493,11 @@ impl Polygon {
 
 impl fmt::Display for Polygon {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        writeln!(
-            f,
-            "Polygon with {} points and {} indices",
-            self.points.len(),
-            self.indices.len()
-        )?;
-        for (idx, pt) in self.points.iter().enumerate() {
-            writeln!(f, "  {}: {}", idx, pt)?;
+        writeln!(f, "Polygon with {} rings", self.rings.len())?;
+        for ring in &self.rings {
+            writeln!(f, "  {}", ring)?;
         }
-        write!(f, "Indices: [")?;
-        for slice in self.indices.chunks_exact(3) {
-            write!(f, "({}, {}, {}), ", slice[0], slice[1], slice[2])?;
-        }
-        writeln!(f, "]")
+        Ok(())
     }
 }
 
@@ -547,21 +515,11 @@ impl TryFrom<geo::Polygon> for Polygon {
 }
 
 impl From<Polygon> for geo::Polygon {
-    fn from(poly: Polygon) -> Self {
-        if let Some(mut rings) = poly.rings {
-            let exterior = rings.remove(0);
-            let interiors: Vec<geo::LineString> =
-                rings.into_iter().map(geo::LineString::from).collect();
-            Self::new(exterior.into(), interiors)
-        } else {
-            let exterior_coords = poly
-                .points
-                .into_iter()
-                .map(geo::Coordinate::from)
-                .collect::<Vec<_>>();
-            let exterior = geo::LineString(exterior_coords);
-            Self::new(exterior, Vec::new())
-        }
+    fn from(mut poly: Polygon) -> Self {
+        let exterior = poly.rings.remove(0);
+        let interiors: Vec<geo::LineString> =
+            poly.rings.into_iter().map(geo::LineString::from).collect();
+        Self::new(exterior.into(), interiors)
     }
 }
 

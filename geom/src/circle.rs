@@ -3,7 +3,7 @@ use std::fmt;
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
-use crate::{Angle, Bounds, Distance, Polygon, Pt2D, Ring};
+use crate::{Angle, Bounds, Distance, Polygon, Pt2D, Ring, Tessellation};
 
 const TRIANGLES_PER_CIRCLE: usize = 60;
 
@@ -43,7 +43,7 @@ impl Circle {
     }
 
     /// Renders some percent, between [0, 1], of the circle as a polygon. The polygon starts from 0
-    /// degrees. Be warned the resulting polygon doesn't have a ring as its boundary!
+    /// degrees.
     pub fn to_partial_polygon(&self, percent_full: f64) -> Polygon {
         #![allow(clippy::float_cmp)]
         assert!((0. ..=1.).contains(&percent_full));
@@ -65,7 +65,11 @@ impl Circle {
                 indices.pop();
             }
         }
-        Polygon::precomputed(pts, indices)
+        // TODO use to_ring? urgh
+        Polygon::pretessellated(
+            vec![Ring::must_new(pts.clone())],
+            Tessellation::new(pts, indices),
+        )
     }
 
     /// Returns the ring around the circle.

@@ -410,7 +410,7 @@ impl State<App> for DrawFreehand {
                 Transition::ModifyState(Box::new(move |state, ctx, app| {
                     let editor = state.downcast_mut::<StoryMapEditor>().unwrap();
                     editor.story.markers.push(Marker {
-                        pts: polygon.get_outer_ring().into_points(),
+                        pts: polygon.into_outer_ring().into_points(),
                         label: String::new(),
                     });
 

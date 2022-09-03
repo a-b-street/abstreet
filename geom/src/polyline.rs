@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     Angle, Bounds, Circle, Distance, GPSBounds, HashablePt2D, InfiniteLine, Line, LonLat, Polygon,
-    Pt2D, Ring, EPSILON_DIST,
+    Pt2D, Ring, Tessellation, EPSILON_DIST,
 };
 
 // TODO How to tune this?
@@ -519,8 +519,6 @@ impl PolyLine {
         Ok(result)
     }
 
-    /// The resulting polygon is manually triangulated and may not have a valid outer Ring (but it
-    /// usually does).
     pub fn make_polygons(&self, width: Distance) -> Polygon {
         // TODO Don't use the angle corrections yet -- they seem to do weird things.
         let side1 = match self.shift_with_sharp_angles(width / 2.0, MITER_THRESHOLD) {
@@ -555,7 +553,10 @@ impl PolyLine {
             indices.extend(vec![high_idx, high_idx - 1, len - high_idx]);
             indices.extend(vec![len - high_idx, len - high_idx - 1, high_idx]);
         }
-        Polygon::precomputed(points, indices)
+
+        let tessellation = Tessellation::new(points.clone(), indices);
+        let ring = Ring::deduping_new(points).expect("PolyLine::make_polygons() failed");
+        Polygon::pretessellated(vec![ring], tessellation)
     }
 
     /// This does the equivalent of make_polygons, returning the (start left, start right, end

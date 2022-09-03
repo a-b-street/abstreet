@@ -1,8 +1,10 @@
+use serde::{Deserialize, Serialize};
+
 use crate::{Angle, Bounds, Polygon, Pt2D};
 
-// Deliberately not serializable
+// Only serializable for Polygons that precompute a tessellation
 /// A tessellated polygon, ready for rendering.
-#[derive(Clone)]
+#[derive(PartialEq, Serialize, Deserialize, Clone, Debug)]
 pub struct Tessellation {
     /// These points aren't in any meaningful order. It's not generally possible to reconstruct a
     /// `Polygon` from this.
@@ -19,16 +21,38 @@ pub struct Triangle {
 }
 
 impl From<Polygon> for Tessellation {
-    fn from(polygon: Polygon) -> Self {
+    fn from(mut polygon: Polygon) -> Self {
+        if let Some(tessellation) = polygon.tessellation.take() {
+            return tessellation;
+        }
+
+        let geojson_style: Vec<Vec<Vec<f64>>> = polygon
+            .rings
+            .iter()
+            .map(|ring| {
+                ring.points()
+                    .iter()
+                    .map(|pt| vec![pt.x(), pt.y()])
+                    .collect()
+            })
+            .collect();
+        let (vertices, holes, dims) = earcutr::flatten(&geojson_style);
+        let indices = downsize(earcutr::earcut(&vertices, &holes, dims));
+
         Self {
-            points: polygon.points,
-            indices: polygon.indices,
+            points: vertices
+                .chunks(2)
+                .map(|pair| Pt2D::new(pair[0], pair[1]))
+                .collect(),
+            indices,
         }
     }
 }
 
 impl From<geo::Polygon> for Tessellation {
     fn from(poly: geo::Polygon) -> Self {
+        // geo::Polygon -> geom::Polygon may fail, so we can't just do two hops. We can tessellate
+        // something even if it has invalid Rings.
         let (exterior, mut interiors) = poly.into_inner();
         interiors.insert(0, exterior);
 
@@ -101,7 +125,7 @@ impl Tessellation {
         self.get_bounds().center()
     }
 
-    fn transform<F: Fn(&Pt2D) -> Pt2D>(&mut self, f: F) {
+    pub(crate) fn transform<F: Fn(&Pt2D) -> Pt2D>(&mut self, f: F) {
         for pt in &mut self.points {
             *pt = f(pt);
         }
@@ -182,7 +206,7 @@ impl Tessellation {
     }
 }
 
-pub fn downsize(input: Vec<usize>) -> Vec<u16> {
+fn downsize(input: Vec<usize>) -> Vec<u16> {
     let mut output = Vec::new();
     for x in input {
         if let Ok(x) = u16::try_from(x) {
