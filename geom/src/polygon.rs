@@ -161,10 +161,6 @@ impl Polygon {
             &self.points
         }
     }
-    // TODO Switch to get_outer_ring. osm2streets depends on this one, have to juggle git repos
-    pub fn into_ring(self) -> Ring {
-        self.get_outer_ring()
-    }
 
     // TODO Should be &Ring
     pub fn get_outer_ring(&self) -> Ring {
