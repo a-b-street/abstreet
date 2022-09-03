@@ -136,15 +136,13 @@ impl Game {
         // TODO I couldn't quite work out how to get the partial outline from Figma working
         let center = Pt2D::new(0.0, 0.0);
         let outer = Distance::meters(30.0);
-        let draw = GeomBatch::from(vec![
-            (Color::WHITE, Circle::new(center, outer).to_polygon()),
-            (
-                Color::hex("#5D92C2"),
-                Circle::new(center, outer).to_partial_polygon(pct),
-            ),
-        ])
-        .autocrop()
-        .into_widget(ctx);
+        let mut batch = GeomBatch::new();
+        batch.push(Color::WHITE, Circle::new(center, outer).to_polygon());
+        batch.push(
+            Color::hex("#5D92C2"),
+            Circle::new(center, outer).to_partial_tessellation(pct),
+        );
+        let draw = batch.autocrop().into_widget(ctx);
         self.time_panel.replace(ctx, "time circle", draw);
     }
 
