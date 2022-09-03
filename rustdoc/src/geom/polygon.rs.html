@@ -595,10 +595,6 @@
 <span id="589">589</span>
 <span id="590">590</span>
 <span id="591">591</span>
-<span id="592">592</span>
-<span id="593">593</span>
-<span id="594">594</span>
-<span id="595">595</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::fmt</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
@@ -761,10 +757,6 @@
         } <span class="kw">else</span> {
             <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">points</span>
         }
-    }
-    <span class="comment">// TODO Switch to get_outer_ring. osm2streets depends on this one, have to juggle git repos</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_ring</span>(<span class="self">self</span>) -&gt; <span class="ident">Ring</span> {
-        <span class="self">self</span>.<span class="ident">get_outer_ring</span>()
     }
 
     <span class="comment">// TODO Should be &amp;Ring</span>

@@ -2066,8 +2066,8 @@
     <span class="kw">match</span> <span class="ident">Polygon::convex_hull</span>(<span class="ident">holes</span>) {
         <span class="prelude-val">Ok</span>(<span class="ident">hole</span>) =&gt; {
             <span class="kw">let</span> <span class="ident">fade_area</span> <span class="op">=</span> <span class="ident">Polygon::with_holes</span>(
-                <span class="ident">map</span>.<span class="ident">get_boundary_polygon</span>().<span class="ident">clone</span>().<span class="ident">into_ring</span>(),
-                <span class="macro">vec!</span>[<span class="ident">hole</span>.<span class="ident">into_ring</span>()],
+                <span class="ident">map</span>.<span class="ident">get_boundary_polygon</span>().<span class="ident">get_outer_ring</span>(),
+                <span class="macro">vec!</span>[<span class="ident">hole</span>.<span class="ident">get_outer_ring</span>()],
             );
             <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">fade_map_dark</span>, <span class="ident">fade_area</span>)])
         }

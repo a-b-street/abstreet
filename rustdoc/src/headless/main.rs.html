@@ -1102,7 +1102,7 @@
     <span class="ident">pairs</span>.<span class="ident">push</span>((
         <span class="ident">i</span>.<span class="ident">polygon</span>
             .<span class="ident">translate</span>(<span class="op">-</span><span class="ident">center</span>.<span class="ident">x</span>(), <span class="op">-</span><span class="ident">center</span>.<span class="ident">y</span>())
-            .<span class="ident">into_ring</span>()
+            .<span class="ident">get_outer_ring</span>()
             .<span class="ident">to_geojson</span>(<span class="prelude-val">None</span>),
         <span class="ident">props</span>,
     ));

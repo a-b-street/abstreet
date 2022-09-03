@@ -478,12 +478,12 @@
             <span class="ident">n</span>.<span class="ident">borders</span>.<span class="ident">insert</span>(<span class="ident">road</span>.<span class="ident">dst_i</span>);
         }
         <span class="kw">let</span> <span class="ident">fade_area</span> <span class="op">=</span> <span class="ident">Polygon::with_holes</span>(
-            <span class="ident">map</span>.<span class="ident">get_boundary_polygon</span>().<span class="ident">clone</span>().<span class="ident">into_ring</span>(),
+            <span class="ident">map</span>.<span class="ident">get_boundary_polygon</span>().<span class="ident">get_outer_ring</span>(),
             <span class="macro">vec!</span>[<span class="ident">app</span>
                 .<span class="ident">session</span>
                 .<span class="ident">partitioning</span>
                 .<span class="ident">neighbourhood_boundary_polygon</span>(<span class="ident">app</span>, <span class="ident">id</span>)
-                .<span class="ident">into_ring</span>()],
+                .<span class="ident">get_outer_ring</span>()],
         );
         <span class="ident">n</span>.<span class="ident">fade_irrelevant</span> <span class="op">=</span> <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">fade_map_dark</span>, <span class="ident">fade_area</span>)]).<span class="ident">upload</span>(<span class="ident">ctx</span>);
 
