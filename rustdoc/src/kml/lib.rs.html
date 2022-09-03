@@ -429,7 +429,7 @@
         {
             <span class="ident">shapes</span>.<span class="ident">push</span>(<span class="ident">ExtraShape</span> {
                 <span class="comment">// Awkward, but we have to convert back</span>
-                <span class="ident">points</span>: <span class="ident">gps_bounds</span>.<span class="ident">convert_back</span>(<span class="ident">polygon</span>.<span class="ident">points</span>()),
+                <span class="ident">points</span>: <span class="ident">gps_bounds</span>.<span class="ident">convert_back</span>(<span class="ident">polygon</span>.<span class="ident">get_outer_ring</span>().<span class="ident">points</span>()),
                 <span class="ident">attributes</span>: <span class="ident">tags</span>.<span class="ident">into_inner</span>(),
             });
         }

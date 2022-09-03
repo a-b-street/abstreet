@@ -824,7 +824,7 @@
     <span class="kw">fn</span> <span class="ident">compute_bounds</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Bounds</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">Bounds::new</span>();
         <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">buildings</span>.<span class="ident">values</span>() {
-            <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">points</span>() {
+            <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">get_outer_ring</span>().<span class="ident">points</span>() {
                 <span class="ident">bounds</span>.<span class="ident">update</span>(<span class="kw-2">*</span><span class="ident">pt</span>);
             }
         }

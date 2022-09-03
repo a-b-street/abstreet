@@ -93,6 +93,11 @@
 <span id="87">87</span>
 <span id="88">88</span>
 <span id="89">89</span>
+<span id="90">90</span>
+<span id="91">91</span>
+<span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
 
 <span class="kw">use</span> <span class="ident">aabb_quadtree::geom</span>::{<span class="ident">Point</span>, <span class="ident">Rect</span>};
@@ -100,7 +105,7 @@
 <span class="kw">use</span> <span class="ident">geo</span>::{<span class="ident">ClosestPoint</span>, <span class="ident">Contains</span>, <span class="ident">EuclideanDistance</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::conversions::pts_to_line_string</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">Pt2D</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 
 <span class="comment">// TODO Maybe use https://crates.io/crates/spatial-join proximity maps</span>
 
@@ -130,6 +135,11 @@
         <span class="self">self</span>.<span class="ident">geometries</span>.<span class="ident">insert</span>(<span class="ident">key</span>.<span class="ident">clone</span>(), <span class="ident">pts_to_line_string</span>(<span class="ident">pts</span>));
         <span class="self">self</span>.<span class="ident">quadtree</span>
             .<span class="ident">insert_with_box</span>(<span class="ident">key</span>, <span class="ident">Bounds::from</span>(<span class="ident">pts</span>).<span class="ident">as_bbox</span>());
+    }
+
+    <span class="doccomment">/// Adds the outer ring of a polygon to the quadtree.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_polygon</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="ident">K</span>, <span class="ident">polygon</span>: <span class="kw-2">&amp;</span><span class="ident">Polygon</span>) {
+        <span class="self">self</span>.<span class="ident">add</span>(<span class="ident">key</span>, <span class="ident">polygon</span>.<span class="ident">get_outer_ring</span>().<span class="ident">points</span>());
     }
 
     <span class="doccomment">/// For every object within some distance of a query point, return the (object&#39;s key, point on</span>

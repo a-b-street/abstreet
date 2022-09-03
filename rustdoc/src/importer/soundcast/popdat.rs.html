@@ -466,7 +466,7 @@
     <span class="comment">// line-string stuff right now, which&#39;ll be weird for the last-&gt;first pt line and stuff.</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">closest_bldg</span>: <span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">osm::OsmID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">FindClosest::new</span>(<span class="ident">huge_map</span>.<span class="ident">get_bounds</span>());
     <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">huge_map</span>.<span class="ident">all_buildings</span>() {
-        <span class="ident">closest_bldg</span>.<span class="ident">add</span>(<span class="ident">b</span>.<span class="ident">orig_id</span>, <span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">points</span>());
+        <span class="ident">closest_bldg</span>.<span class="ident">add_polygon</span>(<span class="ident">b</span>.<span class="ident">orig_id</span>, <span class="kw-2">&amp;</span><span class="ident">b</span>.<span class="ident">polygon</span>);
     }
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">x_coords</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();

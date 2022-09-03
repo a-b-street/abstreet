@@ -586,15 +586,6 @@
 <span id="580">580</span>
 <span id="581">581</span>
 <span id="582">582</span>
-<span id="583">583</span>
-<span id="584">584</span>
-<span id="585">585</span>
-<span id="586">586</span>
-<span id="587">587</span>
-<span id="588">588</span>
-<span id="589">589</span>
-<span id="590">590</span>
-<span id="591">591</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::fmt</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
@@ -746,17 +737,6 @@
         <span class="kw">let</span> <span class="ident">dx</span> <span class="op">=</span> <span class="ident">center</span>.<span class="ident">x</span>() <span class="op">-</span> <span class="ident">bounds</span>.<span class="ident">width</span>() <span class="op">/</span> <span class="number">2.0</span>;
         <span class="kw">let</span> <span class="ident">dy</span> <span class="op">=</span> <span class="ident">center</span>.<span class="ident">y</span>() <span class="op">-</span> <span class="ident">bounds</span>.<span class="ident">height</span>() <span class="op">/</span> <span class="number">2.0</span>;
         <span class="self">self</span>.<span class="ident">translate</span>(<span class="ident">dx</span>, <span class="ident">dy</span>)
-    }
-
-    <span class="doccomment">/// The order of these points depends on the constructor! The first and last point may or may</span>
-    <span class="doccomment">/// not match. Polygons constructed from PolyLines will have a very weird order.</span>
-    <span class="comment">// TODO rename outer_points to be clear</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">points</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">rings</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">rings</span> {
-            <span class="ident">rings</span>[<span class="number">0</span>].<span class="ident">points</span>()
-        } <span class="kw">else</span> {
-            <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">points</span>
-        }
     }
 
     <span class="comment">// TODO Should be &amp;Ring</span>
@@ -933,11 +913,13 @@
 
     <span class="comment">// TODO Temporary until we change the internal Polygon representation to always just be rings.</span>
     <span class="comment">// Note this does expensive cloning right now</span>
-    <span class="kw">fn</span> <span class="ident">get_rings</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ring</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">get_rings</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ring</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">rings</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">rings</span> {
             <span class="ident">rings</span>.<span class="ident">clone</span>()
         } <span class="kw">else</span> {
-            <span class="macro">vec!</span>[<span class="ident">Ring::must_new</span>(<span class="self">self</span>.<span class="ident">points</span>.<span class="ident">clone</span>())]
+            <span class="comment">// Why deduping_new? Maybe earcutr::flatten slightly changes points. Either way, this</span>
+            <span class="comment">// is going away soon...</span>
+            <span class="macro">vec!</span>[<span class="ident">Ring::deduping_new</span>(<span class="self">self</span>.<span class="ident">points</span>.<span class="ident">clone</span>()).<span class="ident">unwrap</span>()]
         }
     }
 
