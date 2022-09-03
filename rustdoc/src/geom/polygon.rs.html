@@ -578,14 +578,6 @@
 <span id="572">572</span>
 <span id="573">573</span>
 <span id="574">574</span>
-<span id="575">575</span>
-<span id="576">576</span>
-<span id="577">577</span>
-<span id="578">578</span>
-<span id="579">579</span>
-<span id="580">580</span>
-<span id="581">581</span>
-<span id="582">582</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::fmt</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
@@ -677,7 +669,8 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_bounds</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Bounds</span> {
-        <span class="ident">Bounds::from</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">points</span>)
+        <span class="comment">// Interiors should always be strictly contained within the polygon&#39;s exterior</span>
+        <span class="ident">Bounds::from</span>(<span class="self">self</span>.<span class="ident">get_outer_ring</span>().<span class="ident">points</span>())
     }
 
     <span class="doccomment">/// Transformations must preserve Rings.</span>
@@ -945,8 +938,7 @@
 
     <span class="doccomment">/// Doesn&#39;t handle multiple crossings in and out.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clip_polyline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">PolyLine</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">ring</span> <span class="op">=</span> <span class="ident">Ring::must_new</span>(<span class="self">self</span>.<span class="ident">points</span>.<span class="ident">clone</span>());
-        <span class="kw">let</span> <span class="ident">hits</span> <span class="op">=</span> <span class="ident">ring</span>.<span class="ident">all_intersections</span>(<span class="ident">input</span>);
+        <span class="kw">let</span> <span class="ident">hits</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_outer_ring</span>().<span class="ident">all_intersections</span>(<span class="ident">input</span>);
 
         <span class="kw">if</span> <span class="ident">hits</span>.<span class="ident">is_empty</span>() {
             <span class="comment">// All the points must be inside, or none</span>
@@ -976,7 +968,7 @@
 
     <span class="comment">// TODO Only handles a few cases</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clip_ring</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">Ring</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">ring</span> <span class="op">=</span> <span class="ident">Ring::must_new</span>(<span class="self">self</span>.<span class="ident">points</span>.<span class="ident">clone</span>());
+        <span class="kw">let</span> <span class="ident">ring</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_outer_ring</span>();
         <span class="kw">let</span> <span class="ident">hits</span> <span class="op">=</span> <span class="ident">ring</span>.<span class="ident">all_intersections</span>(<span class="kw-2">&amp;</span><span class="ident">PolyLine::unchecked_new</span>(<span class="ident">input</span>.<span class="ident">clone</span>().<span class="ident">into_points</span>()));
 
         <span class="kw">if</span> <span class="ident">hits</span>.<span class="ident">is_empty</span>() {
@@ -1009,31 +1001,23 @@
         <span class="prelude-val">None</span>
     }
 
-    <span class="doccomment">/// If the polygon is just a single outer ring, produces a GeoJSON polygon. Otherwise, produces</span>
-    <span class="doccomment">/// a GeoJSON multipolygon consisting of individual triangles. Optionally map the world-space</span>
-    <span class="doccomment">/// points back to GPS.</span>
+    <span class="doccomment">/// Optionally map the world-space points back to GPS.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_geojson</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">gps</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">GPSBounds</span><span class="op">&gt;</span>) -&gt; <span class="ident">geojson::Geometry</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">ring</span>) <span class="op">=</span> <span class="ident">Ring::new</span>(<span class="self">self</span>.<span class="ident">points</span>.<span class="ident">clone</span>()) {
-            <span class="kw">return</span> <span class="ident">ring</span>.<span class="ident">to_geojson</span>(<span class="ident">gps</span>);
+        <span class="kw">use</span> <span class="ident">geo::MapCoordsInPlace</span>;
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">geom</span>: <span class="ident">geo::Geometry</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">to_geo</span>().<span class="ident">into</span>();
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">gps_bounds</span>) <span class="op">=</span> <span class="ident">gps</span> {
+            <span class="ident">geom</span>.<span class="ident">map_coords_in_place</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> {
+                <span class="kw">let</span> <span class="ident">gps</span> <span class="op">=</span> <span class="ident">Pt2D::new</span>(<span class="ident">c</span>.<span class="ident">x</span>, <span class="ident">c</span>.<span class="ident">y</span>).<span class="ident">to_gps</span>(<span class="ident">gps_bounds</span>);
+                (<span class="ident">gps</span>.<span class="ident">x</span>(), <span class="ident">gps</span>.<span class="ident">y</span>()).<span class="ident">into</span>()
+            });
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">polygons</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">triangle</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">triangles</span>() {
-            <span class="kw">let</span> <span class="ident">raw_pts</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">triangle</span>.<span class="ident">pt1</span>, <span class="ident">triangle</span>.<span class="ident">pt2</span>, <span class="ident">triangle</span>.<span class="ident">pt3</span>, <span class="ident">triangle</span>.<span class="ident">pt1</span>];
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">gps</span>) <span class="op">=</span> <span class="ident">gps</span> {
-                <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">gps</span>.<span class="ident">convert_back</span>(<span class="kw-2">&amp;</span><span class="ident">raw_pts</span>) {
-                    <span class="ident">pts</span>.<span class="ident">push</span>(<span class="macro">vec!</span>[<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>()]);
-                }
-            } <span class="kw">else</span> {
-                <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">raw_pts</span> {
-                    <span class="ident">pts</span>.<span class="ident">push</span>(<span class="macro">vec!</span>[<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>()]);
-                }
-            }
-            <span class="ident">polygons</span>.<span class="ident">push</span>(<span class="macro">vec!</span>[<span class="ident">pts</span>]);
+        <span class="ident">geojson::Geometry</span> {
+            <span class="ident">bbox</span>: <span class="prelude-val">None</span>,
+            <span class="ident">value</span>: <span class="ident">geojson::Value::from</span>(<span class="kw-2">&amp;</span><span class="ident">geom</span>),
+            <span class="ident">foreign_members</span>: <span class="prelude-val">None</span>,
         }
-
-        <span class="ident">geojson::Geometry::new</span>(<span class="ident">geojson::Value::MultiPolygon</span>(<span class="ident">polygons</span>))
     }
 
     <span class="doccomment">/// Extracts all polygons from raw bytes representing a GeoJSON file, along with the string</span>
