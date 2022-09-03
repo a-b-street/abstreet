@@ -29,7 +29,7 @@ impl DrawParkingLot {
             let aisle_thickness = NORMAL_LANE_THICKNESS / 2.0;
             unzoomed_batch.push(
                 cs.unzoomed_road_surface(osm::RoadRank::Local),
-                PolyLine::unchecked_new(aisle.clone()).make_polygons(aisle_thickness),
+                PolyLine::unchecked_new(aisle.clone()).thicken_tessellation(aisle_thickness),
             );
         }
         unzoomed_batch.append(
@@ -76,7 +76,7 @@ impl DrawParkingLot {
             batch.push(
                 app.cs()
                     .zoomed_road_surface(LaneType::Driving, osm::RoadRank::Local),
-                PolyLine::unchecked_new(aisle.clone()).make_polygons(aisle_thickness),
+                PolyLine::unchecked_new(aisle.clone()).thicken_tessellation(aisle_thickness),
             );
         }
         let width = NORMAL_LANE_THICKNESS;

@@ -211,11 +211,9 @@ impl Renderable for DrawLane {
 
     fn get_outline(&self, map: &Map) -> Tessellation {
         let lane = map.get_l(self.id);
-        Tessellation::from(
-            lane.lane_center_pts
-                .to_thick_boundary(lane.width, OUTLINE_THICKNESS)
-                .unwrap_or_else(|| self.polygon.clone()),
-        )
+        lane.lane_center_pts
+            .to_thick_boundary(lane.width, OUTLINE_THICKNESS)
+            .unwrap_or_else(|| Tessellation::from(self.polygon.clone()))
     }
 
     fn contains_pt(&self, pt: Pt2D, _: &Map) -> bool {

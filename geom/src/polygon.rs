@@ -523,7 +523,7 @@ impl From<Polygon> for geo::Polygon {
     }
 }
 
-fn from_multi(multi: geo::MultiPolygon) -> Result<Vec<Polygon>> {
+pub(crate) fn from_multi(multi: geo::MultiPolygon) -> Result<Vec<Polygon>> {
     let mut result = Vec::new();
     for polygon in multi {
         result.push(Polygon::try_from(polygon)?);

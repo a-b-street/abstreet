@@ -101,7 +101,7 @@ impl PolyLine {
         &self,
         self_width: Distance,
         boundary_width: Distance,
-    ) -> Option<Polygon> {
+    ) -> Option<Tessellation> {
         if self_width <= boundary_width || self.length() <= boundary_width + EPSILON_DIST {
             return None;
         }
@@ -519,7 +519,17 @@ impl PolyLine {
         Ok(result)
     }
 
+    /// This produces a `Polygon` with a valid `Ring`. It may crash if this polyline was made with
+    /// `unchecked_new`
     pub fn make_polygons(&self, width: Distance) -> Polygon {
+        let tessellation = self.thicken_tessellation(width);
+        let ring = Ring::deduping_new(tessellation.points.clone())
+            .expect("PolyLine::make_polygons() failed");
+        Polygon::pretessellated(vec![ring], tessellation)
+    }
+
+    /// Just produces a Tessellation
+    pub fn thicken_tessellation(&self, width: Distance) -> Tessellation {
         // TODO Don't use the angle corrections yet -- they seem to do weird things.
         let side1 = match self.shift_with_sharp_angles(width / 2.0, MITER_THRESHOLD) {
             Ok(pl) => pl,
@@ -527,14 +537,14 @@ impl PolyLine {
                 // TODO Circles will look extremely bizarre, but it emphasizes there's a bug
                 // without just crashing
                 println!("make_polygons({}) of {:?} failed: {}", width, self, err);
-                return Circle::new(self.first_pt(), width).to_polygon();
+                return Tessellation::from(Circle::new(self.first_pt(), width).to_polygon());
             }
         };
         let mut side2 = match self.shift_with_sharp_angles(-width / 2.0, MITER_THRESHOLD) {
             Ok(pl) => pl,
             Err(err) => {
                 println!("make_polygons({}) of {:?} failed: {}", width, self, err);
-                return Circle::new(self.first_pt(), width).to_polygon();
+                return Tessellation::from(Circle::new(self.first_pt(), width).to_polygon());
             }
         };
         assert_eq!(side1.len(), side2.len());
@@ -554,9 +564,7 @@ impl PolyLine {
             indices.extend(vec![len - high_idx, len - high_idx - 1, high_idx]);
         }
 
-        let tessellation = Tessellation::new(points.clone(), indices);
-        let ring = Ring::deduping_new(points).expect("PolyLine::make_polygons() failed");
-        Polygon::pretessellated(vec![ring], tessellation)
+        Tessellation::new(points.clone(), indices)
     }
 
     /// This does the equivalent of make_polygons, returning the (start left, start right, end
