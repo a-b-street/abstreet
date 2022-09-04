@@ -298,6 +298,10 @@ impl Tags {
         self.0.contains_key(k)
     }
 
+    pub fn has_any(&self, keys: Vec<&str>) -> bool {
+        keys.into_iter().any(|key| self.contains_key(key))
+    }
+
     pub fn is(&self, k: &str, v: &str) -> bool {
         self.0.get(k) == Some(&v.to_string())
     }
