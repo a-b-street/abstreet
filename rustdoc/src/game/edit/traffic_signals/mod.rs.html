@@ -998,6 +998,10 @@
 <span id="992">992</span>
 <span id="993">993</span>
 <span id="994">994</span>
+<span id="995">995</span>
+<span id="996">996</span>
+<span id="997">997</span>
+<span id="998">998</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">VecDeque</span>};
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
@@ -1981,8 +1985,12 @@
     <span class="kw">match</span> <span class="ident">Polygon::convex_hull</span>(<span class="ident">holes</span>) {
         <span class="prelude-val">Ok</span>(<span class="ident">hole</span>) =&gt; {
             <span class="kw">let</span> <span class="ident">fade_area</span> <span class="op">=</span> <span class="ident">Polygon::with_holes</span>(
-                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_boundary_polygon</span>().<span class="ident">get_outer_ring</span>(),
-                <span class="macro">vec!</span>[<span class="ident">hole</span>.<span class="ident">get_outer_ring</span>()],
+                <span class="ident">app</span>.<span class="ident">primary</span>
+                    .<span class="ident">map</span>
+                    .<span class="ident">get_boundary_polygon</span>()
+                    .<span class="ident">get_outer_ring</span>()
+                    .<span class="ident">clone</span>(),
+                <span class="macro">vec!</span>[<span class="ident">hole</span>.<span class="ident">into_outer_ring</span>()],
             );
             <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">fade_map_dark</span>, <span class="ident">fade_area</span>)])
         }

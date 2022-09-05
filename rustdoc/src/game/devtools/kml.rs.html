@@ -442,8 +442,6 @@
 <span id="436">436</span>
 <span id="437">437</span>
 <span id="438">438</span>
-<span id="439">439</span>
-<span id="440">440</span>
 </pre><pre class="rust"><code><span class="comment">// TODO Rename -- this is for KML, CSV, GeoJSON</span>
 
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
@@ -760,13 +758,11 @@
     <span class="kw">let</span> <span class="ident">polygon</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">pts</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
         <span class="ident">Circle::new</span>(<span class="ident">pts</span>[<span class="number">0</span>], <span class="ident">RADIUS</span>).<span class="ident">to_polygon</span>()
     } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">ring</span>) <span class="op">=</span> <span class="ident">Ring::new</span>(<span class="ident">pts</span>.<span class="ident">clone</span>()) {
-        <span class="comment">// TODO Ideally we could choose this in the UI</span>
-        <span class="kw">if</span> <span class="ident">attribs</span>.<span class="ident">get</span>(<span class="string">&quot;spatial_type&quot;</span>) <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">&quot;Polygon&quot;</span>.<span class="ident">to_string</span>()) {
-            <span class="ident">color</span> <span class="op">=</span> <span class="ident">cs</span>.<span class="ident">rotating_color_plot</span>(<span class="ident">obj_idx</span>).<span class="ident">alpha</span>(<span class="number">0.8</span>);
-            <span class="ident">ring</span>.<span class="ident">into_polygon</span>()
-        } <span class="kw">else</span> {
-            <span class="ident">ring</span>.<span class="ident">to_outline</span>(<span class="ident">THICKNESS</span>)
-        }
+        <span class="comment">// TODO If the below isn&#39;t true, show it as an outline instead? Can&#39;t make that a Polygon,</span>
+        <span class="comment">// though</span>
+        <span class="comment">// if attribs.get(&quot;spatial_type&quot;) == Some(&amp;&quot;Polygon&quot;.to_string()) {</span>
+        <span class="ident">color</span> <span class="op">=</span> <span class="ident">cs</span>.<span class="ident">rotating_color_plot</span>(<span class="ident">obj_idx</span>).<span class="ident">alpha</span>(<span class="number">0.8</span>);
+        <span class="ident">ring</span>.<span class="ident">into_polygon</span>()
     } <span class="kw">else</span> {
         <span class="kw">let</span> <span class="ident">backup</span> <span class="op">=</span> <span class="ident">pts</span>[<span class="number">0</span>];
         <span class="kw">match</span> <span class="ident">PolyLine::new</span>(<span class="ident">pts</span>) {

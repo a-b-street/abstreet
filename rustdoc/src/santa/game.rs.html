@@ -704,8 +704,6 @@
 <span id="698">698</span>
 <span id="699">699</span>
 <span id="700">700</span>
-<span id="701">701</span>
-<span id="702">702</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil::prettyprint_usize</span>;
@@ -844,15 +842,13 @@
         <span class="comment">// TODO I couldn&#39;t quite work out how to get the partial outline from Figma working</span>
         <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>);
         <span class="kw">let</span> <span class="ident">outer</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">30.0</span>);
-        <span class="kw">let</span> <span class="ident">draw</span> <span class="op">=</span> <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[
-            (<span class="ident">Color::WHITE</span>, <span class="ident">Circle::new</span>(<span class="ident">center</span>, <span class="ident">outer</span>).<span class="ident">to_polygon</span>()),
-            (
-                <span class="ident">Color::hex</span>(<span class="string">&quot;#5D92C2&quot;</span>),
-                <span class="ident">Circle::new</span>(<span class="ident">center</span>, <span class="ident">outer</span>).<span class="ident">to_partial_polygon</span>(<span class="ident">pct</span>),
-            ),
-        ])
-        .<span class="ident">autocrop</span>()
-        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
+        <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::WHITE</span>, <span class="ident">Circle::new</span>(<span class="ident">center</span>, <span class="ident">outer</span>).<span class="ident">to_polygon</span>());
+        <span class="ident">batch</span>.<span class="ident">push</span>(
+            <span class="ident">Color::hex</span>(<span class="string">&quot;#5D92C2&quot;</span>),
+            <span class="ident">Circle::new</span>(<span class="ident">center</span>, <span class="ident">outer</span>).<span class="ident">to_partial_tessellation</span>(<span class="ident">pct</span>),
+        );
+        <span class="kw">let</span> <span class="ident">draw</span> <span class="op">=</span> <span class="ident">batch</span>.<span class="ident">autocrop</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>);
         <span class="self">self</span>.<span class="ident">time_panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;time circle&quot;</span>, <span class="ident">draw</span>);
     }
 

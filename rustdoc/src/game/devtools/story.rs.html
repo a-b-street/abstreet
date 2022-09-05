@@ -851,7 +851,7 @@
                 <span class="ident">Transition::ModifyState</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
                     <span class="kw">let</span> <span class="ident">editor</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">StoryMapEditor</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
                     <span class="ident">editor</span>.<span class="ident">story</span>.<span class="ident">markers</span>.<span class="ident">push</span>(<span class="ident">Marker</span> {
-                        <span class="ident">pts</span>: <span class="ident">polygon</span>.<span class="ident">get_outer_ring</span>().<span class="ident">into_points</span>(),
+                        <span class="ident">pts</span>: <span class="ident">polygon</span>.<span class="ident">into_outer_ring</span>().<span class="ident">into_points</span>(),
                         <span class="ident">label</span>: <span class="ident">String::new</span>(),
                     });
 

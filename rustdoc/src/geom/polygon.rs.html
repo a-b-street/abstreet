@@ -536,48 +536,6 @@
 <span id="530">530</span>
 <span id="531">531</span>
 <span id="532">532</span>
-<span id="533">533</span>
-<span id="534">534</span>
-<span id="535">535</span>
-<span id="536">536</span>
-<span id="537">537</span>
-<span id="538">538</span>
-<span id="539">539</span>
-<span id="540">540</span>
-<span id="541">541</span>
-<span id="542">542</span>
-<span id="543">543</span>
-<span id="544">544</span>
-<span id="545">545</span>
-<span id="546">546</span>
-<span id="547">547</span>
-<span id="548">548</span>
-<span id="549">549</span>
-<span id="550">550</span>
-<span id="551">551</span>
-<span id="552">552</span>
-<span id="553">553</span>
-<span id="554">554</span>
-<span id="555">555</span>
-<span id="556">556</span>
-<span id="557">557</span>
-<span id="558">558</span>
-<span id="559">559</span>
-<span id="560">560</span>
-<span id="561">561</span>
-<span id="562">562</span>
-<span id="563">563</span>
-<span id="564">564</span>
-<span id="565">565</span>
-<span id="566">566</span>
-<span id="567">567</span>
-<span id="568">568</span>
-<span id="569">569</span>
-<span id="570">570</span>
-<span id="571">571</span>
-<span id="572">572</span>
-<span id="573">573</span>
-<span id="574">574</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::fmt</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
@@ -587,51 +545,41 @@
 <span class="kw">use</span> <span class="ident">abstutil::Tags</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">Angle</span>, <span class="ident">Bounds</span>, <span class="ident">CornerRadii</span>, <span class="ident">Distance</span>, <span class="ident">GPSBounds</span>, <span class="ident">HashablePt2D</span>, <span class="ident">LonLat</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>,
-    <span class="ident">Tessellation</span>, <span class="ident">Triangle</span>,
+    <span class="ident">Angle</span>, <span class="ident">Bounds</span>, <span class="ident">CornerRadii</span>, <span class="ident">Distance</span>, <span class="ident">GPSBounds</span>, <span class="ident">LonLat</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>, <span class="ident">Tessellation</span>,
+    <span class="ident">Triangle</span>,
 };
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Polygon</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">points</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Groups of three indices make up the triangles</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">indices</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span>,
-
-    <span class="doccomment">/// If the polygon has holes, explicitly store all the rings (the one outer and all of the</span>
-    <span class="doccomment">/// inner) so they can later be used to generate outlines and such. If the polygon has no</span>
-    <span class="doccomment">/// holes, then this will just be None, since the points form a ring.</span>
-    <span class="ident">rings</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ring</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="comment">// [0] is the outer/exterior ring, and the others are holes/interiors</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">rings</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ring</span><span class="op">&gt;</span>,
+    <span class="comment">// For performance reasons, some callers may want to generate the polygon&#39;s Rings and</span>
+    <span class="comment">// Tessellation at the same time, instead of using earcutr.</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">tessellation</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Tessellation</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Polygon</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_holes</span>(<span class="ident">outer</span>: <span class="ident">Ring</span>, <span class="kw-2">mut</span> <span class="ident">inner</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ring</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">inner</span>.<span class="ident">insert</span>(<span class="number">0</span>, <span class="ident">outer</span>);
-        <span class="kw">let</span> <span class="ident">geojson_style</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">inner</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">ring</span><span class="op">|</span> {
-                <span class="ident">ring</span>.<span class="ident">points</span>()
-                    .<span class="ident">iter</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="macro">vec!</span>[<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>()])
-                    .<span class="ident">collect</span>()
-            })
-            .<span class="ident">collect</span>();
-        <span class="kw">let</span> (<span class="ident">vertices</span>, <span class="ident">holes</span>, <span class="ident">dims</span>) <span class="op">=</span> <span class="ident">earcutr::flatten</span>(<span class="kw-2">&amp;</span><span class="ident">geojson_style</span>);
-        <span class="kw">let</span> <span class="ident">indices</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::tessellation::downsize</span>(<span class="ident">earcutr::earcut</span>(<span class="kw-2">&amp;</span><span class="ident">vertices</span>, <span class="kw-2">&amp;</span><span class="ident">holes</span>, <span class="ident">dims</span>));
-
         <span class="self">Self</span> {
-            <span class="ident">points</span>: <span class="ident">vertices</span>
-                .<span class="ident">chunks</span>(<span class="number">2</span>)
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="ident">Pt2D::new</span>(<span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>]))
-                .<span class="ident">collect</span>(),
-            <span class="ident">indices</span>,
-            <span class="ident">rings</span>: <span class="kw">if</span> <span class="ident">inner</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> { <span class="prelude-val">None</span> } <span class="kw">else</span> { <span class="prelude-val">Some</span>(<span class="ident">inner</span>) },
+            <span class="ident">rings</span>: <span class="ident">inner</span>,
+            <span class="ident">tessellation</span>: <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_rings</span>(<span class="kw-2">mut</span> <span class="ident">rings</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ring</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_rings</span>(<span class="ident">rings</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ring</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">rings</span>.<span class="ident">is_empty</span>());
-        <span class="kw">let</span> <span class="ident">outer</span> <span class="op">=</span> <span class="ident">rings</span>.<span class="ident">remove</span>(<span class="number">0</span>);
-        <span class="ident"><span class="self">Self</span>::with_holes</span>(<span class="ident">outer</span>, <span class="ident">rings</span>)
+        <span class="self">Self</span> {
+            <span class="ident">rings</span>,
+            <span class="ident">tessellation</span>: <span class="prelude-val">None</span>,
+        }
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">pretessellated</span>(<span class="ident">rings</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ring</span><span class="op">&gt;</span>, <span class="ident">tessellation</span>: <span class="ident">Tessellation</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">Self</span> {
+            <span class="ident">rings</span>,
+            <span class="ident">tessellation</span>: <span class="prelude-val">Some</span>(<span class="ident">tessellation</span>),
+        }
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_geojson</span>(<span class="ident">raw</span>: <span class="kw-2">&amp;</span>[<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span><span class="op">&gt;</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
@@ -642,17 +590,6 @@
             <span class="ident">rings</span>.<span class="ident">push</span>(<span class="ident">Ring::new</span>(<span class="ident">transformed</span>)<span class="question-mark">?</span>);
         }
         <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::from_rings</span>(<span class="ident">rings</span>))
-    }
-
-    <span class="comment">// TODO No guarantee points forms a ring. In fact, the main caller is from SVG-&gt;lyon parsing,</span>
-    <span class="comment">// and it&#39;s NOT true there yet.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">precomputed</span>(<span class="ident">points</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>, <span class="ident">indices</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="macro">assert!</span>(<span class="ident">indices</span>.<span class="ident">len</span>() <span class="op">%</span> <span class="number">3</span> <span class="op">==</span> <span class="number">0</span>);
-        <span class="self">Self</span> {
-            <span class="ident">points</span>,
-            <span class="ident">indices</span>: <span class="ident"><span class="kw">crate</span>::tessellation::downsize</span>(<span class="ident">indices</span>),
-            <span class="ident">rings</span>: <span class="prelude-val">None</span>,
-        }
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_triangle</span>(<span class="ident">tri</span>: <span class="kw-2">&amp;</span><span class="ident">Triangle</span>) -&gt; <span class="self">Self</span> {
@@ -675,18 +612,16 @@
 
     <span class="doccomment">/// Transformations must preserve Rings.</span>
     <span class="kw">fn</span> <span class="ident">transform</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">Pt2D</span>) -&gt; <span class="ident">Pt2D</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rings</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">existing_rings</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">rings</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">transformed</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-            <span class="kw">for</span> <span class="ident">ring</span> <span class="kw">in</span> <span class="ident">existing_rings</span> {
-                <span class="ident">transformed</span>.<span class="ident">push</span>(<span class="ident">Ring::new</span>(<span class="ident">ring</span>.<span class="ident">points</span>().<span class="ident">iter</span>().<span class="ident">map</span>(<span class="kw-2">&amp;</span><span class="ident">f</span>).<span class="ident">collect</span>())<span class="question-mark">?</span>);
-            }
-            <span class="ident">rings</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">transformed</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rings</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">for</span> <span class="ident">ring</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">rings</span> {
+            <span class="ident">rings</span>.<span class="ident">push</span>(<span class="ident">Ring::new</span>(<span class="ident">ring</span>.<span class="ident">points</span>().<span class="ident">iter</span>().<span class="ident">map</span>(<span class="kw-2">&amp;</span><span class="ident">f</span>).<span class="ident">collect</span>())<span class="question-mark">?</span>);
         }
         <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
-            <span class="ident">points</span>: <span class="self">self</span>.<span class="ident">points</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="kw-2">&amp;</span><span class="ident">f</span>).<span class="ident">collect</span>(),
-            <span class="ident">indices</span>: <span class="self">self</span>.<span class="ident">indices</span>.<span class="ident">clone</span>(),
             <span class="ident">rings</span>,
+            <span class="ident">tessellation</span>: <span class="self">self</span>.<span class="ident">tessellation</span>.<span class="ident">clone</span>().<span class="ident">take</span>().<span class="ident">map</span>(<span class="op">|</span><span class="kw-2">mut</span> <span class="ident">t</span><span class="op">|</span> {
+                <span class="ident">t</span>.<span class="ident">transform</span>(<span class="ident">f</span>);
+                <span class="ident">t</span>
+            }),
         })
     }
 
@@ -732,17 +667,26 @@
         <span class="self">self</span>.<span class="ident">translate</span>(<span class="ident">dx</span>, <span class="ident">dy</span>)
     }
 
-    <span class="comment">// TODO Should be &amp;Ring</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_outer_ring</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Ring</span> {
-        <span class="self">self</span>.<span class="ident">get_rings</span>().<span class="ident">remove</span>(<span class="number">0</span>)
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_outer_ring</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Ring</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">rings</span>[<span class="number">0</span>]
     }
 
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_outer_ring</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">Ring</span> {
+        <span class="self">self</span>.<span class="ident">rings</span>.<span class="ident">remove</span>(<span class="number">0</span>)
+    }
+
+    <span class="doccomment">/// The [centroid](https://docs.rs/geo/latest/geo/algorithm/centroid/trait.Centroid.html)</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">center</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Pt2D</span> {
-        <span class="comment">// TODO dedupe just out of fear of the first/last point being repeated</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">HashablePt2D</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">points</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">pt</span>.<span class="ident">to_hashable</span>()).<span class="ident">collect</span>();
-        <span class="ident">pts</span>.<span class="ident">sort</span>();
-        <span class="ident">pts</span>.<span class="ident">dedup</span>();
-        <span class="ident">Pt2D::center</span>(<span class="kw-2">&amp;</span><span class="ident">pts</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">pt</span>.<span class="ident">to_pt2d</span>()).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>())
+        <span class="kw">use</span> <span class="ident">geo::Centroid</span>;
+
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">to_geo</span>().<span class="ident">centroid</span>() {
+            <span class="kw">return</span> <span class="ident">pt</span>.<span class="ident">into</span>();
+        }
+        <span class="comment">// TODO Not sure when centroid could fail. Fall back to just finding the center of the</span>
+        <span class="comment">// outer ring.</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_outer_ring</span>().<span class="ident">clone</span>().<span class="ident">into_points</span>();
+        <span class="ident">pts</span>.<span class="ident">pop</span>();
+        <span class="ident">Pt2D::center</span>(<span class="kw-2">&amp;</span><span class="ident">pts</span>)
     }
 
     <span class="doccomment">/// Top-left at the origin. Doesn&#39;t take Distance, because this is usually pixels, actually.</span>
@@ -904,16 +848,8 @@
         <span class="self">self</span>.<span class="ident">to_geo</span>().<span class="ident">intersects</span>(<span class="kw-2">&amp;</span><span class="ident">pl</span>.<span class="ident">to_geo</span>())
     }
 
-    <span class="comment">// TODO Temporary until we change the internal Polygon representation to always just be rings.</span>
-    <span class="comment">// Note this does expensive cloning right now</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">get_rings</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ring</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">rings</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">rings</span> {
-            <span class="ident">rings</span>.<span class="ident">clone</span>()
-        } <span class="kw">else</span> {
-            <span class="comment">// Why deduping_new? Maybe earcutr::flatten slightly changes points. Either way, this</span>
-            <span class="comment">// is going away soon...</span>
-            <span class="macro">vec!</span>[<span class="ident">Ring::deduping_new</span>(<span class="self">self</span>.<span class="ident">points</span>.<span class="ident">clone</span>()).<span class="ident">unwrap</span>()]
-        }
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">get_rings</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">Ring</span>] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">rings</span>
     }
 
     <span class="doccomment">/// Creates the outline around the polygon (both the exterior and holes), with the thickness</span>
@@ -923,7 +859,7 @@
     <span class="doccomment">/// holes. Callers that need a `Polygon` must call `to_outline` on the individual `Rings`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_outline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">thickness</span>: <span class="ident">Distance</span>) -&gt; <span class="ident">Tessellation</span> {
         <span class="ident">Tessellation::union_all</span>(
-            <span class="self">self</span>.<span class="ident">get_rings</span>()
+            <span class="self">self</span>.<span class="ident">rings</span>
                 .<span class="ident">iter</span>()
                 .<span class="ident">map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">Tessellation::from</span>(<span class="ident">r</span>.<span class="ident">to_outline</span>(<span class="ident">thickness</span>)))
                 .<span class="ident">collect</span>(),
@@ -1087,8 +1023,7 @@
     }
 
     <span class="comment">// A less verbose way of invoking the From/Into impl. Note this hides a potentially expensive</span>
-    <span class="comment">// clone. The eventual goal is for Polygon to directly wrap a geo::Polygon, at which point this</span>
-    <span class="comment">// cost goes away.</span>
+    <span class="comment">// clone.</span>
     <span class="kw">fn</span> <span class="ident">to_geo</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">geo::Polygon</span> {
         <span class="self">self</span>.<span class="ident">clone</span>().<span class="ident">into</span>()
     }
@@ -1096,20 +1031,11 @@
 
 <span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Polygon</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="macro">writeln!</span>(
-            <span class="ident">f</span>,
-            <span class="string">&quot;Polygon with {} points and {} indices&quot;</span>,
-            <span class="self">self</span>.<span class="ident">points</span>.<span class="ident">len</span>(),
-            <span class="self">self</span>.<span class="ident">indices</span>.<span class="ident">len</span>()
-        )<span class="question-mark">?</span>;
-        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">pt</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">points</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-            <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;  {}: {}&quot;</span>, <span class="ident">idx</span>, <span class="ident">pt</span>)<span class="question-mark">?</span>;
+        <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;Polygon with {} rings&quot;</span>, <span class="self">self</span>.<span class="ident">rings</span>.<span class="ident">len</span>())<span class="question-mark">?</span>;
+        <span class="kw">for</span> <span class="ident">ring</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">rings</span> {
+            <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;  {}&quot;</span>, <span class="ident">ring</span>)<span class="question-mark">?</span>;
         }
-        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Indices: [&quot;</span>)<span class="question-mark">?</span>;
-        <span class="kw">for</span> <span class="ident">slice</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">indices</span>.<span class="ident">chunks_exact</span>(<span class="number">3</span>) {
-            <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;({}, {}, {}), &quot;</span>, <span class="ident">slice</span>[<span class="number">0</span>], <span class="ident">slice</span>[<span class="number">1</span>], <span class="ident">slice</span>[<span class="number">2</span>])<span class="question-mark">?</span>;
-        }
-        <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;]&quot;</span>)
+        <span class="prelude-val">Ok</span>(())
     }
 }
 
@@ -1127,25 +1053,15 @@
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">geo::Polygon</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">poly</span>: <span class="ident">Polygon</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">rings</span>) <span class="op">=</span> <span class="ident">poly</span>.<span class="ident">rings</span> {
-            <span class="kw">let</span> <span class="ident">exterior</span> <span class="op">=</span> <span class="ident">rings</span>.<span class="ident">remove</span>(<span class="number">0</span>);
-            <span class="kw">let</span> <span class="ident">interiors</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">geo::LineString</span><span class="op">&gt;</span> <span class="op">=</span>
-                <span class="ident">rings</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="ident">geo::LineString::from</span>).<span class="ident">collect</span>();
-            <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">exterior</span>.<span class="ident">into</span>(), <span class="ident">interiors</span>)
-        } <span class="kw">else</span> {
-            <span class="kw">let</span> <span class="ident">exterior_coords</span> <span class="op">=</span> <span class="ident">poly</span>
-                .<span class="ident">points</span>
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">map</span>(<span class="ident">geo::Coordinate::from</span>)
-                .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-            <span class="kw">let</span> <span class="ident">exterior</span> <span class="op">=</span> <span class="ident">geo::LineString</span>(<span class="ident">exterior_coords</span>);
-            <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">exterior</span>, <span class="ident">Vec::new</span>())
-        }
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="kw-2">mut</span> <span class="ident">poly</span>: <span class="ident">Polygon</span>) -&gt; <span class="self">Self</span> {
+        <span class="kw">let</span> <span class="ident">exterior</span> <span class="op">=</span> <span class="ident">poly</span>.<span class="ident">rings</span>.<span class="ident">remove</span>(<span class="number">0</span>);
+        <span class="kw">let</span> <span class="ident">interiors</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">geo::LineString</span><span class="op">&gt;</span> <span class="op">=</span>
+            <span class="ident">poly</span>.<span class="ident">rings</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="ident">geo::LineString::from</span>).<span class="ident">collect</span>();
+        <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">exterior</span>.<span class="ident">into</span>(), <span class="ident">interiors</span>)
     }
 }
 
-<span class="kw">fn</span> <span class="ident">from_multi</span>(<span class="ident">multi</span>: <span class="ident">geo::MultiPolygon</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">from_multi</span>(<span class="ident">multi</span>: <span class="ident">geo::MultiPolygon</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">for</span> <span class="ident">polygon</span> <span class="kw">in</span> <span class="ident">multi</span> {
         <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">Polygon::try_from</span>(<span class="ident">polygon</span>)<span class="question-mark">?</span>);

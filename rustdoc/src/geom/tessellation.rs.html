@@ -199,15 +199,78 @@
 <span id="193">193</span>
 <span id="194">194</span>
 <span id="195">195</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Angle</span>, <span class="ident">Bounds</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">anyhow::Result</span>;
+<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
-<span class="comment">// Deliberately not serializable</span>
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Angle</span>, <span class="ident">Bounds</span>, <span class="ident">GPSBounds</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
+
+<span class="comment">// Only serializable for Polygons that precompute a tessellation</span>
 <span class="doccomment">/// A tessellated polygon, ready for rendering.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Tessellation</span> {
     <span class="doccomment">/// These points aren&#39;t in any meaningful order. It&#39;s not generally possible to reconstruct a</span>
     <span class="doccomment">/// `Polygon` from this.</span>
-    <span class="ident">points</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">points</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>,
     <span class="doccomment">/// Groups of three indices make up the triangles</span>
     <span class="ident">indices</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span>,
 }
@@ -220,16 +283,38 @@
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Tessellation</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">polygon</span>: <span class="ident">Polygon</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="kw-2">mut</span> <span class="ident">polygon</span>: <span class="ident">Polygon</span>) -&gt; <span class="self">Self</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">tessellation</span>) <span class="op">=</span> <span class="ident">polygon</span>.<span class="ident">tessellation</span>.<span class="ident">take</span>() {
+            <span class="kw">return</span> <span class="ident">tessellation</span>;
+        }
+
+        <span class="kw">let</span> <span class="ident">geojson_style</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">polygon</span>
+            .<span class="ident">rings</span>
+            .<span class="ident">iter</span>()
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">ring</span><span class="op">|</span> {
+                <span class="ident">ring</span>.<span class="ident">points</span>()
+                    .<span class="ident">iter</span>()
+                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="macro">vec!</span>[<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>()])
+                    .<span class="ident">collect</span>()
+            })
+            .<span class="ident">collect</span>();
+        <span class="kw">let</span> (<span class="ident">vertices</span>, <span class="ident">holes</span>, <span class="ident">dims</span>) <span class="op">=</span> <span class="ident">earcutr::flatten</span>(<span class="kw-2">&amp;</span><span class="ident">geojson_style</span>);
+        <span class="kw">let</span> <span class="ident">indices</span> <span class="op">=</span> <span class="ident">downsize</span>(<span class="ident">earcutr::earcut</span>(<span class="kw-2">&amp;</span><span class="ident">vertices</span>, <span class="kw-2">&amp;</span><span class="ident">holes</span>, <span class="ident">dims</span>));
+
         <span class="self">Self</span> {
-            <span class="ident">points</span>: <span class="ident">polygon</span>.<span class="ident">points</span>,
-            <span class="ident">indices</span>: <span class="ident">polygon</span>.<span class="ident">indices</span>,
+            <span class="ident">points</span>: <span class="ident">vertices</span>
+                .<span class="ident">chunks</span>(<span class="number">2</span>)
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="ident">Pt2D::new</span>(<span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>]))
+                .<span class="ident">collect</span>(),
+            <span class="ident">indices</span>,
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">geo::Polygon</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Tessellation</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">poly</span>: <span class="ident">geo::Polygon</span>) -&gt; <span class="self">Self</span> {
+        <span class="comment">// geo::Polygon -&gt; geom::Polygon may fail, so we can&#39;t just do two hops. We can tessellate</span>
+        <span class="comment">// something even if it has invalid Rings.</span>
         <span class="kw">let</span> (<span class="ident">exterior</span>, <span class="kw-2">mut</span> <span class="ident">interiors</span>) <span class="op">=</span> <span class="ident">poly</span>.<span class="ident">into_inner</span>();
         <span class="ident">interiors</span>.<span class="ident">insert</span>(<span class="number">0</span>, <span class="ident">exterior</span>);
 
@@ -302,7 +387,7 @@
         <span class="self">self</span>.<span class="ident">get_bounds</span>().<span class="ident">center</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">transform</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">Pt2D</span>) -&gt; <span class="ident">Pt2D</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">transform</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">Pt2D</span>) -&gt; <span class="ident">Pt2D</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) {
         <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">points</span> {
             <span class="kw-2">*</span><span class="ident">pt</span> <span class="op">=</span> <span class="ident">f</span>(<span class="ident">pt</span>);
         }
@@ -381,9 +466,44 @@
         }
         <span class="ident">result</span>
     }
+
+    <span class="doccomment">/// Produces a GeoJSON multipolygon consisting of individual triangles. Optionally map the</span>
+    <span class="doccomment">/// world-space points back to GPS.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_geojson</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">gps</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">GPSBounds</span><span class="op">&gt;</span>) -&gt; <span class="ident">geojson::Geometry</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">polygons</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">for</span> <span class="ident">triangle</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">triangles</span>() {
+            <span class="kw">let</span> <span class="ident">raw_pts</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">triangle</span>.<span class="ident">pt1</span>, <span class="ident">triangle</span>.<span class="ident">pt2</span>, <span class="ident">triangle</span>.<span class="ident">pt3</span>, <span class="ident">triangle</span>.<span class="ident">pt1</span>];
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">gps</span>) <span class="op">=</span> <span class="ident">gps</span> {
+                <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">gps</span>.<span class="ident">convert_back</span>(<span class="kw-2">&amp;</span><span class="ident">raw_pts</span>) {
+                    <span class="ident">pts</span>.<span class="ident">push</span>(<span class="macro">vec!</span>[<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>()]);
+                }
+            } <span class="kw">else</span> {
+                <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">raw_pts</span> {
+                    <span class="ident">pts</span>.<span class="ident">push</span>(<span class="macro">vec!</span>[<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>()]);
+                }
+            }
+            <span class="ident">polygons</span>.<span class="ident">push</span>(<span class="macro">vec!</span>[<span class="ident">pts</span>]);
+        }
+
+        <span class="ident">geojson::Geometry::new</span>(<span class="ident">geojson::Value::MultiPolygon</span>(<span class="ident">polygons</span>))
+    }
+
+    <span class="comment">// TODO This only makes sense for something vaguely Ring-like</span>
+    <span class="kw">fn</span> <span class="ident">to_geo</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">geo::Polygon</span> {
+        <span class="kw">let</span> <span class="ident">exterior</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::conversions::pts_to_line_string</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">points</span>);
+        <span class="ident">geo::Polygon::new</span>(<span class="ident">exterior</span>, <span class="ident">Vec::new</span>())
+    }
+
+    <span class="comment">// TODO After making to_outline return a real Polygon, get rid of this</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">difference</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Tessellation</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">use</span> <span class="ident">geo::BooleanOps</span>;
+
+        <span class="ident"><span class="kw">crate</span>::polygon::from_multi</span>(<span class="self">self</span>.<span class="ident">to_geo</span>().<span class="ident">difference</span>(<span class="kw-2">&amp;</span><span class="ident">other</span>.<span class="ident">to_geo</span>()))
+    }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">downsize</span>(<span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">downsize</span>(<span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="ident">input</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">u16::try_from</span>(<span class="ident">x</span>) {

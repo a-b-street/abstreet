@@ -606,7 +606,7 @@
     <span class="comment">// to corner1 below.</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts_between</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">l2</span>.<span class="ident">endpoint</span>(<span class="ident">i</span>.<span class="ident">id</span>)];
     <span class="comment">// Intersection polygons are constructed in clockwise order, so do corner2 to corner1.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i_pts</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">get_outer_ring</span>().<span class="ident">into_points</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i_pts</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">get_outer_ring</span>().<span class="ident">clone</span>().<span class="ident">into_points</span>();
 
     <span class="comment">// last pt = first_pt</span>
     <span class="ident">i_pts</span>.<span class="ident">pop</span>();

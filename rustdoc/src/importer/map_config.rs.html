@@ -116,6 +116,7 @@
 <span id="110">110</span>
 <span id="111">111</span>
 <span id="112">112</span>
+<span id="113">113</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">abstio</span>::{<span class="ident">CityName</span>, <span class="ident">MapName</span>};
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
 <span class="kw">use</span> <span class="ident">geom::Distance</span>;
@@ -171,6 +172,7 @@
             )
             .<span class="ident">ok</span>()
             .<span class="ident">unwrap_or_else</span>(<span class="ident">Vec::new</span>),
+            <span class="ident">osm2lanes</span>: <span class="bool-val">false</span>,
         },
         <span class="ident">onstreet_parking</span>: <span class="kw">match</span> <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>.<span class="ident">as_ref</span>() {
             <span class="string">&quot;seattle&quot;</span> =&gt; {

@@ -500,6 +500,7 @@
 <span id="494">494</span>
 <span id="495">495</span>
 <span id="496">496</span>
+<span id="497">497</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
@@ -920,6 +921,7 @@
                     <span class="self">self</span>.<span class="ident">block</span>
                         .<span class="ident">polygon</span>
                         .<span class="ident">get_outer_ring</span>()
+                        .<span class="ident">clone</span>()
                         .<span class="ident">into_points</span>()
                         .<span class="ident">into_iter</span>()
                         .<span class="ident">map</span>(<span class="ident">polygons::Item::Point</span>)

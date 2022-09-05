@@ -1143,6 +1143,15 @@
 <span id="1137">1137</span>
 <span id="1138">1138</span>
 <span id="1139">1139</span>
+<span id="1140">1140</span>
+<span id="1141">1141</span>
+<span id="1142">1142</span>
+<span id="1143">1143</span>
+<span id="1144">1144</span>
+<span id="1145">1145</span>
+<span id="1146">1146</span>
+<span id="1147">1147</span>
+<span id="1148">1148</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
@@ -1152,7 +1161,7 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">Angle</span>, <span class="ident">Bounds</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">GPSBounds</span>, <span class="ident">HashablePt2D</span>, <span class="ident">InfiniteLine</span>, <span class="ident">Line</span>, <span class="ident">LonLat</span>, <span class="ident">Polygon</span>,
-    <span class="ident">Pt2D</span>, <span class="ident">Ring</span>, <span class="ident">EPSILON_DIST</span>,
+    <span class="ident">Pt2D</span>, <span class="ident">Ring</span>, <span class="ident">Tessellation</span>, <span class="ident">EPSILON_DIST</span>,
 };
 
 <span class="comment">// TODO How to tune this?</span>
@@ -1246,7 +1255,7 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">self_width</span>: <span class="ident">Distance</span>,
         <span class="ident">boundary_width</span>: <span class="ident">Distance</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Tessellation</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">self_width</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">boundary_width</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">length</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="ident">boundary_width</span> <span class="op">+</span> <span class="ident">EPSILON_DIST</span> {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
@@ -1664,9 +1673,17 @@
         <span class="prelude-val">Ok</span>(<span class="ident">result</span>)
     }
 
-    <span class="doccomment">/// The resulting polygon is manually triangulated and may not have a valid outer Ring (but it</span>
-    <span class="doccomment">/// usually does).</span>
+    <span class="doccomment">/// This produces a `Polygon` with a valid `Ring`. It may crash if this polyline was made with</span>
+    <span class="doccomment">/// `unchecked_new`</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_polygons</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">width</span>: <span class="ident">Distance</span>) -&gt; <span class="ident">Polygon</span> {
+        <span class="kw">let</span> <span class="ident">tessellation</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">thicken_tessellation</span>(<span class="ident">width</span>);
+        <span class="kw">let</span> <span class="ident">ring</span> <span class="op">=</span> <span class="ident">Ring::deduping_new</span>(<span class="ident">tessellation</span>.<span class="ident">points</span>.<span class="ident">clone</span>())
+            .<span class="ident">expect</span>(<span class="string">&quot;PolyLine::make_polygons() failed&quot;</span>);
+        <span class="ident">Polygon::pretessellated</span>(<span class="macro">vec!</span>[<span class="ident">ring</span>], <span class="ident">tessellation</span>)
+    }
+
+    <span class="doccomment">/// Just produces a Tessellation</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">thicken_tessellation</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">width</span>: <span class="ident">Distance</span>) -&gt; <span class="ident">Tessellation</span> {
         <span class="comment">// TODO Don&#39;t use the angle corrections yet -- they seem to do weird things.</span>
         <span class="kw">let</span> <span class="ident">side1</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">shift_with_sharp_angles</span>(<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">MITER_THRESHOLD</span>) {
             <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) =&gt; <span class="ident">pl</span>,
@@ -1674,14 +1691,14 @@
                 <span class="comment">// TODO Circles will look extremely bizarre, but it emphasizes there&#39;s a bug</span>
                 <span class="comment">// without just crashing</span>
                 <span class="macro">println!</span>(<span class="string">&quot;make_polygons({}) of {:?} failed: {}&quot;</span>, <span class="ident">width</span>, <span class="self">self</span>, <span class="ident">err</span>);
-                <span class="kw">return</span> <span class="ident">Circle::new</span>(<span class="self">self</span>.<span class="ident">first_pt</span>(), <span class="ident">width</span>).<span class="ident">to_polygon</span>();
+                <span class="kw">return</span> <span class="ident">Tessellation::from</span>(<span class="ident">Circle::new</span>(<span class="self">self</span>.<span class="ident">first_pt</span>(), <span class="ident">width</span>).<span class="ident">to_polygon</span>());
             }
         };
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">side2</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">shift_with_sharp_angles</span>(<span class="op">-</span><span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">MITER_THRESHOLD</span>) {
             <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) =&gt; <span class="ident">pl</span>,
             <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
                 <span class="macro">println!</span>(<span class="string">&quot;make_polygons({}) of {:?} failed: {}&quot;</span>, <span class="ident">width</span>, <span class="self">self</span>, <span class="ident">err</span>);
-                <span class="kw">return</span> <span class="ident">Circle::new</span>(<span class="self">self</span>.<span class="ident">first_pt</span>(), <span class="ident">width</span>).<span class="ident">to_polygon</span>();
+                <span class="kw">return</span> <span class="ident">Tessellation::from</span>(<span class="ident">Circle::new</span>(<span class="self">self</span>.<span class="ident">first_pt</span>(), <span class="ident">width</span>).<span class="ident">to_polygon</span>());
             }
         };
         <span class="macro">assert_eq!</span>(<span class="ident">side1</span>.<span class="ident">len</span>(), <span class="ident">side2</span>.<span class="ident">len</span>());
@@ -1700,7 +1717,8 @@
             <span class="ident">indices</span>.<span class="ident">extend</span>(<span class="macro">vec!</span>[<span class="ident">high_idx</span>, <span class="ident">high_idx</span> <span class="op">-</span> <span class="number">1</span>, <span class="ident">len</span> <span class="op">-</span> <span class="ident">high_idx</span>]);
             <span class="ident">indices</span>.<span class="ident">extend</span>(<span class="macro">vec!</span>[<span class="ident">len</span> <span class="op">-</span> <span class="ident">high_idx</span>, <span class="ident">len</span> <span class="op">-</span> <span class="ident">high_idx</span> <span class="op">-</span> <span class="number">1</span>, <span class="ident">high_idx</span>]);
         }
-        <span class="ident">Polygon::precomputed</span>(<span class="ident">points</span>, <span class="ident">indices</span>)
+
+        <span class="ident">Tessellation::new</span>(<span class="ident">points</span>.<span class="ident">clone</span>(), <span class="ident">indices</span>)
     }
 
     <span class="doccomment">/// This does the equivalent of make_polygons, returning the (start left, start right, end</span>

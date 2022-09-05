@@ -531,7 +531,7 @@
     );
     <span class="ident">batch</span>.<span class="ident">push</span>(
         <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">signal_spinner</span>,
-        <span class="ident">Circle::new</span>(<span class="ident">center</span>, <span class="ident">radius</span>).<span class="ident">to_partial_polygon</span>(<span class="ident">percent</span>),
+        <span class="ident">Circle::new</span>(<span class="ident">center</span>, <span class="ident">radius</span>).<span class="ident">to_partial_tessellation</span>(<span class="ident">percent</span>),
     );
     <span class="ident">batch</span>.<span class="ident">append</span>(
         <span class="ident">Text::from</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>))

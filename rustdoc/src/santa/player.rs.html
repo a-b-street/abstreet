@@ -306,6 +306,8 @@
 <span id="300">300</span>
 <span id="301">301</span>
 <span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
 <span class="kw">use</span> <span class="ident">abstutil::MultiMap</span>;
@@ -456,7 +458,9 @@
                     } <span class="kw">else</span> {
                         <span class="comment">// Find the exact point on the boundary where we go out of bounds</span>
                         <span class="kw">let</span> <span class="ident">old_ring</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">on</span> {
-                            <span class="ident">On::Intersection</span>(<span class="ident">i</span>) =&gt; <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">get_outer_ring</span>(),
+                            <span class="ident">On::Intersection</span>(<span class="ident">i</span>) =&gt; {
+                                <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">get_outer_ring</span>().<span class="ident">clone</span>()
+                            }
                             <span class="ident">On::Road</span>(<span class="ident">r</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; {
                                 <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>);
                                 <span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">to_thick_ring</span>(<span class="ident">road</span>.<span class="ident">get_width</span>())

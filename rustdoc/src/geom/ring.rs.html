@@ -312,7 +312,7 @@
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Distance</span>, <span class="ident">GPSBounds</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Distance</span>, <span class="ident">GPSBounds</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Tessellation</span>};
 
 <span class="doccomment">/// Maybe a misnomer, but like a PolyLine, but closed.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
@@ -359,9 +359,9 @@
 
     <span class="doccomment">/// Draws the ring with some thickness, with half of it straddling the interor of the ring, and</span>
     <span class="doccomment">/// half on the outside.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_outline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">thickness</span>: <span class="ident">Distance</span>) -&gt; <span class="ident">Polygon</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_outline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">thickness</span>: <span class="ident">Distance</span>) -&gt; <span class="ident">Tessellation</span> {
         <span class="comment">// TODO Has a weird corner. Use the polygon offset thing instead?</span>
-        <span class="ident">PolyLine::unchecked_new</span>(<span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">clone</span>()).<span class="ident">make_polygons</span>(<span class="ident">thickness</span>)
+        <span class="ident">PolyLine::unchecked_new</span>(<span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">clone</span>()).<span class="ident">thicken_tessellation</span>(<span class="ident">thickness</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_polygon</span>(<span class="self">self</span>) -&gt; <span class="ident">Polygon</span> {

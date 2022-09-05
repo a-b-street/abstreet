@@ -1238,7 +1238,7 @@
                 <span class="kw">if</span> <span class="ident">group</span>.<span class="ident">proper</span> {
                     <span class="ident">lanes</span>.<span class="ident">insert</span>(<span class="ident">bldg</span>.<span class="ident">sidewalk</span>());
                 }
-                <span class="ident">hull_points</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">bldg</span>.<span class="ident">polygon</span>.<span class="ident">get_outer_ring</span>().<span class="ident">into_points</span>());
+                <span class="ident">hull_points</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">bldg</span>.<span class="ident">polygon</span>.<span class="ident">get_outer_ring</span>().<span class="ident">clone</span>().<span class="ident">into_points</span>());
             }
             <span class="kw">if</span> <span class="ident">group</span>.<span class="ident">proper</span> {
                 <span class="comment">// TODO Even better, glue the loop of sidewalks together and fill that area.</span>

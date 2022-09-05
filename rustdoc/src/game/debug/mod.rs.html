@@ -1115,6 +1115,8 @@
 <span id="1109">1109</span>
 <span id="1110">1110</span>
 <span id="1111">1111</span>
+<span id="1112">1112</span>
+<span id="1113">1113</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
 <span class="kw">use</span> <span class="ident">abstio::MapName</span>;
@@ -1819,6 +1821,7 @@
                     .<span class="ident">get_i</span>(<span class="ident">i</span>)
                     .<span class="ident">polygon</span>
                     .<span class="ident">get_outer_ring</span>()
+                    .<span class="ident">clone</span>()
                     .<span class="ident">into_points</span>();
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts_without_last</span> <span class="op">=</span> <span class="ident">pts</span>.<span class="ident">clone</span>();
                 <span class="ident">pts_without_last</span>.<span class="ident">pop</span>();
@@ -1955,6 +1958,7 @@
                     .<span class="ident">get_a</span>(<span class="ident">a</span>)
                     .<span class="ident">polygon</span>
                     .<span class="ident">get_outer_ring</span>()
+                    .<span class="ident">clone</span>()
                     .<span class="ident">into_points</span>();
                 <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">pts</span>[<span class="number">0</span>] <span class="op">==</span> <span class="kw-2">*</span><span class="ident">pts</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>() {
                     <span class="comment">// TODO The center looks really wrong for Volunteer Park and others, but I</span>
