@@ -5,18 +5,18 @@ data/system/us/seattle/maps/downtown.bin
 data/system/us/seattle/maps/lakeslice.bin
     1006 single blocks (0 failures to blockify), 1 partial merges, 0 failures to blockify partitions
 data/system/us/phoenix/maps/tempe.bin
-    410 single blocks (1 failures to blockify), 0 partial merges, 0 failures to blockify partitions
+    409 single blocks (1 failures to blockify), 0 partial merges, 0 failures to blockify partitions
 data/system/gb/bristol/maps/east.bin
-    817 single blocks (3 failures to blockify), 2 partial merges, 0 failures to blockify partitions
+    820 single blocks (3 failures to blockify), 1 partial merges, 0 failures to blockify partitions
 data/system/gb/leeds/maps/north.bin
-    1930 single blocks (1 failures to blockify), 6 partial merges, 1 failures to blockify partitions
+    1932 single blocks (1 failures to blockify), 6 partial merges, 1 failures to blockify partitions
 data/system/gb/london/maps/camden.bin
-    1034 single blocks (2 failures to blockify), 2 partial merges, 0 failures to blockify partitions
+    1036 single blocks (1 failures to blockify), 2 partial merges, 0 failures to blockify partitions
 data/system/gb/london/maps/southwark.bin
-    1310 single blocks (1 failures to blockify), 5 partial merges, 1 failures to blockify partitions
+    1308 single blocks (1 failures to blockify), 6 partial merges, 1 failures to blockify partitions
 data/system/gb/manchester/maps/levenshulme.bin
-    1230 single blocks (1 failures to blockify), 0 partial merges, 0 failures to blockify partitions
+    1228 single blocks (1 failures to blockify), 1 partial merges, 0 failures to blockify partitions
 data/system/fr/lyon/maps/center.bin
-    3800 single blocks (3 failures to blockify), 12 partial merges, 0 failures to blockify partitions
+    3810 single blocks (3 failures to blockify), 12 partial merges, 0 failures to blockify partitions
 data/system/us/seattle/maps/north_seattle.bin
     3274 single blocks (1 failures to blockify), 7 partial merges, 0 failures to blockify partitions
