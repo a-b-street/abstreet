@@ -431,6 +431,18 @@
 <span id="425">425</span>
 <span id="426">426</span>
 <span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
 </pre><pre class="rust"><code><span class="doccomment">//! A collection of tools, mostly related to importing maps and scenarios. These are bundled as a</span>
 <span class="doccomment">//! single executable to reduce the cost of static linking in the release&#39;s file size.</span>
 
@@ -830,6 +842,18 @@
     <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;set -e&quot;</span>)<span class="question-mark">?</span>;
     <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;pueue parallel 16&quot;</span>)<span class="question-mark">?</span>;
     <span class="kw">for</span> <span class="ident">city</span> <span class="kw">in</span> <span class="ident">CityName::list_all_cities_from_importer_config</span>() {
+        <span class="kw">if</span> <span class="ident">city</span> <span class="op">==</span> <span class="ident">CityName::new</span>(<span class="string">&quot;gb&quot;</span>, <span class="string">&quot;london&quot;</span>) {
+            <span class="comment">// Special case because there are so many maps</span>
+            <span class="kw">for</span> <span class="ident">map</span> <span class="kw">in</span> <span class="ident">city</span>.<span class="ident">list_all_maps_in_city_from_importer_config</span>() {
+                <span class="macro">writeln!</span>(
+                    <span class="ident">f</span>,
+                    <span class="string">&quot;pueue add -- ./import.sh --raw --map --scenario {} --city=gb/london&quot;</span>,
+                    <span class="ident">map</span>.<span class="ident">map</span>
+                )<span class="question-mark">?</span>;
+            }
+            <span class="kw">continue</span>;
+        }
+
         <span class="kw">let</span> <span class="ident">job</span> <span class="op">=</span> <span class="ident">Job::full_for_city</span>(<span class="ident">city</span>);
         <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;pueue add -- ./import.sh {}&quot;</span>, <span class="ident">job</span>.<span class="ident">flags</span>().<span class="ident">join</span>(<span class="string">&quot; &quot;</span>))<span class="question-mark">?</span>;
     }
