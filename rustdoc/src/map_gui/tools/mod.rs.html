@@ -436,6 +436,12 @@
 <span id="430">430</span>
 <span id="431">431</span>
 <span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Assorted tools and UI states that&#39;re useful for applications built to display maps.</span>
 
 <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
@@ -683,6 +689,11 @@
             (<span class="string">&quot;tripoli&quot;</span>, <span class="string">&quot;center&quot;</span>) =&gt; <span class="string">&quot;Tripoli&quot;</span>,
             <span class="kw">_</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">map</span>,
         },
+        <span class="string">&quot;nl&quot;</span> =&gt; <span class="kw">match</span> (<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>.<span class="ident">as_ref</span>(), <span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">as_ref</span>()) {
+            (<span class="string">&quot;groningen&quot;</span>, <span class="string">&quot;center&quot;</span>) =&gt; <span class="string">&quot;Groningen (city center)&quot;</span>,
+            (<span class="string">&quot;groningen&quot;</span>, <span class="string">&quot;huge&quot;</span>) =&gt; <span class="string">&quot;Groningen (entire area)&quot;</span>,
+            <span class="kw">_</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">map</span>,
+        },
         <span class="string">&quot;nz&quot;</span> =&gt; <span class="kw">match</span> (<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>.<span class="ident">as_ref</span>(), <span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">as_ref</span>()) {
             (<span class="string">&quot;auckland&quot;</span>, <span class="string">&quot;mangere&quot;</span>) =&gt; <span class="string">&quot;Māngere (Auckland)&quot;</span>,
             <span class="kw">_</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">map</span>,
@@ -763,6 +774,7 @@
         <span class="string">&quot;ir&quot;</span> =&gt; <span class="string">&quot;Iran&quot;</span>,
         <span class="string">&quot;jp&quot;</span> =&gt; <span class="string">&quot;Japan&quot;</span>,
         <span class="string">&quot;ly&quot;</span> =&gt; <span class="string">&quot;Libya&quot;</span>,
+        <span class="string">&quot;nl&quot;</span> =&gt; <span class="string">&quot;Netherlands&quot;</span>,
         <span class="string">&quot;nz&quot;</span> =&gt; <span class="string">&quot;New Zealand&quot;</span>,
         <span class="string">&quot;pl&quot;</span> =&gt; <span class="string">&quot;Poland&quot;</span>,
         <span class="string">&quot;pt&quot;</span> =&gt; <span class="string">&quot;Portugal&quot;</span>,
