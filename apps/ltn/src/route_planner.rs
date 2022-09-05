@@ -96,27 +96,31 @@ impl RoutePlanner {
                 self.waypoints.get_panel_widget(ctx),
             ])
             .section(ctx),
-            Widget::col(vec![
-                Widget::row(vec![
-                    Line("Slow-down factor for main roads:")
-                        .into_widget(ctx)
-                        .centered_vert(),
-                    Spinner::f64_widget(
-                        ctx,
-                        "main road penalty",
-                        (1.0, 10.0),
-                        app.session.main_road_penalty,
-                        0.5,
-                    ),
-                ]),
-                Text::from_multiline(vec![
-                    Line("1 means free-flow traffic conditions").secondary(),
-                    Line("Increase to see how drivers may try to detour in heavy traffic")
-                        .secondary(),
+            if self.waypoints.get_waypoints().len() < 2 {
+                Widget::nothing()
+            } else {
+                Widget::col(vec![
+                    Widget::row(vec![
+                        Line("Slow-down factor for main roads:")
+                            .into_widget(ctx)
+                            .centered_vert(),
+                        Spinner::f64_widget(
+                            ctx,
+                            "main road penalty",
+                            (1.0, 10.0),
+                            app.session.main_road_penalty,
+                            0.5,
+                        ),
+                    ]),
+                    Text::from_multiline(vec![
+                        Line("1 means free-flow traffic conditions").secondary(),
+                        Line("Increase to see how drivers may try to detour in heavy traffic")
+                            .secondary(),
+                    ])
+                    .into_widget(ctx),
                 ])
-                .into_widget(ctx),
-            ])
-            .section(ctx),
+                .section(ctx)
+            },
             results_widget.section(ctx),
         ]);
         let mut panel = crate::components::LeftPanel::builder(ctx, &self.top_panel, contents)
@@ -142,6 +146,11 @@ impl RoutePlanner {
 
     // Returns a widget to display
     fn recalculate_paths(&mut self, ctx: &mut EventCtx, app: &App) -> Widget {
+        if self.waypoints.get_waypoints().len() < 2 {
+            self.draw_routes = Drawable::empty(ctx);
+            return Widget::nothing();
+        }
+
         let map = &app.map;
 
         let mut paths: Vec<(PathV2, Color)> = Vec::new();
