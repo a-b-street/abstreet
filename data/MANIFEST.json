@@ -2150,6 +2150,31 @@
       "uncompressed_size_bytes": 4376088,
       "compressed_size_bytes": 494935
     },
+    "data/input/nl/groningen/osm/center.osm": {
+      "checksum": "7bc3c009f4c2a403577b1fa4feea7e28",
+      "uncompressed_size_bytes": 9057892,
+      "compressed_size_bytes": 821070
+    },
+    "data/input/nl/groningen/osm/groningen-latest.osm.pbf": {
+      "checksum": "d2c58b137149d109e5bc8851995d8844",
+      "uncompressed_size_bytes": 50934508,
+      "compressed_size_bytes": 50818318
+    },
+    "data/input/nl/groningen/osm/huge.osm": {
+      "checksum": "f11f02a39b2930ac96bf5015a6b55cba",
+      "uncompressed_size_bytes": 220347390,
+      "compressed_size_bytes": 19343282
+    },
+    "data/input/nl/groningen/raw_maps/center.bin": {
+      "checksum": "2380decd705ca16fd3e87be17c624faf",
+      "uncompressed_size_bytes": 1925802,
+      "compressed_size_bytes": 404099
+    },
+    "data/input/nl/groningen/raw_maps/huge.bin": {
+      "checksum": "c6616e689b9b00b1312fa87304010db6",
+      "uncompressed_size_bytes": 55189106,
+      "compressed_size_bytes": 11112360
+    },
     "data/input/nz/auckland/osm/mangere.osm": {
       "checksum": "f0453da2c4cde97a46dbcec405d29a51",
       "uncompressed_size_bytes": 24921307,
@@ -5139,6 +5164,16 @@
       "checksum": "0d032a0cd4647adee1a86e01eabbe6b3",
       "uncompressed_size_bytes": 27288172,
       "compressed_size_bytes": 10394811
+    },
+    "data/system/nl/groningen/maps/center.bin": {
+      "checksum": "4db9e6788aeafe5eee8b8758b80f59c0",
+      "uncompressed_size_bytes": 2420000,
+      "compressed_size_bytes": 881789
+    },
+    "data/system/nl/groningen/maps/huge.bin": {
+      "checksum": "b6915537731458f2fccd89b72db02a9b",
+      "uncompressed_size_bytes": 88078010,
+      "compressed_size_bytes": 33130438
     },
     "data/system/nz/auckland/maps/mangere.bin": {
       "checksum": "45dcd34c25bcacea9cc4102fe0d58512",
