@@ -400,6 +400,8 @@
 <span id="394">394</span>
 <span id="395">395</span>
 <span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::type_complexity</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">structopt::StructOpt</span>;
@@ -502,6 +504,7 @@
             <span class="ident">draw_neighbourhood_style</span>: <span class="ident">browse::Style::Simple</span>,
             <span class="ident">heuristic</span>: <span class="ident">filters::auto::Heuristic::SplitCells</span>,
             <span class="ident">main_road_penalty</span>: <span class="number">1.0</span>,
+            <span class="ident">show_walking_cycling_routes</span>: <span class="bool-val">false</span>,
 
             <span class="ident">current_trip_name</span>: <span class="prelude-val">None</span>,
 
@@ -693,6 +696,7 @@
     <span class="kw">pub</span> <span class="ident">heuristic</span>: <span class="ident">filters::auto::Heuristic</span>,
     <span class="comment">// Pathfinding</span>
     <span class="kw">pub</span> <span class="ident">main_road_penalty</span>: <span class="ident">f64</span>,
+    <span class="kw">pub</span> <span class="ident">show_walking_cycling_routes</span>: <span class="ident">bool</span>,
 
     <span class="ident">current_trip_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 

@@ -389,6 +389,61 @@
 <span id="383">383</span>
 <span id="384">384</span>
 <span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom::Duration</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{
     <span class="ident">DrawSimpleRoadLabels</span>, <span class="ident">InputWaypoints</span>, <span class="ident">TripManagement</span>, <span class="ident">TripManagementState</span>, <span class="ident">WaypointID</span>,
@@ -398,7 +453,7 @@
 <span class="kw">use</span> <span class="ident">widgetry::mapspace::World</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">ButtonBuilder</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>,
-    <span class="ident">Panel</span>, <span class="ident">RoundedF64</span>, <span class="ident">Spinner</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>,
+    <span class="ident">Panel</span>, <span class="ident">RoundedF64</span>, <span class="ident">Spinner</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">Toggle</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::components::Mode</span>;
@@ -410,6 +465,7 @@
     <span class="ident">waypoints</span>: <span class="ident">InputWaypoints</span>,
     <span class="ident">files</span>: <span class="ident">TripManagement</span><span class="op">&lt;</span><span class="ident">App</span>, <span class="ident">RoutePlanner</span><span class="op">&gt;</span>,
     <span class="ident">world</span>: <span class="ident">World</span><span class="op">&lt;</span><span class="ident">WaypointID</span><span class="op">&gt;</span>,
+    <span class="ident">show_main_roads</span>: <span class="ident">Drawable</span>,
     <span class="ident">draw_routes</span>: <span class="ident">Drawable</span>,
     <span class="comment">// TODO We could save the no-filter variations map-wide</span>
     <span class="ident">pathfinder_cache</span>: <span class="ident">PathfinderCache</span>,
@@ -441,12 +497,19 @@
             ));
         }
 
+        <span class="comment">// Fade all neighbourhood interiors, so it&#39;s very clear when a route cuts through</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
+        <span class="kw">for</span> <span class="ident">info</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">all_neighbourhoods</span>().<span class="ident">values</span>() {
+            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">fade_map_dark</span>, <span class="ident">info</span>.<span class="ident">block</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>());
+        }
+
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rp</span> <span class="op">=</span> <span class="ident">RoutePlanner</span> {
             <span class="ident">top_panel</span>: <span class="ident"><span class="kw">crate</span>::components::TopPanel::panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
             <span class="ident">left_panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
             <span class="ident">waypoints</span>: <span class="ident">InputWaypoints::new_max_2</span>(<span class="ident">app</span>),
             <span class="ident">files</span>: <span class="ident">TripManagement::new</span>(<span class="ident">app</span>),
             <span class="ident">world</span>: <span class="ident">World::unbounded</span>(),
+            <span class="ident">show_main_roads</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>),
             <span class="ident">draw_routes</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
             <span class="ident">pathfinder_cache</span>: <span class="ident">PathfinderCache::new</span>(),
         };
@@ -484,31 +547,35 @@
             <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
                 <span class="self">self</span>.<span class="ident">files</span>.<span class="ident">get_panel_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">Widget::horiz_separator</span>(<span class="ident">ctx</span>, <span class="number">1.0</span>),
-                <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_panel_widget</span>(<span class="ident">ctx</span>),
+                <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_panel_widget</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;waypoints&quot;</span>),
             ])
             .<span class="ident">section</span>(<span class="ident">ctx</span>),
-            <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Line</span>(<span class="string">&quot;Slow-down factor for main roads:&quot;</span>)
-                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
-                        .<span class="ident">centered_vert</span>(),
-                    <span class="ident">Spinner::f64_widget</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="string">&quot;main road penalty&quot;</span>,
-                        (<span class="number">1.0</span>, <span class="number">10.0</span>),
-                        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">main_road_penalty</span>,
-                        <span class="number">0.5</span>,
-                    ),
-                ]),
-                <span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Line</span>(<span class="string">&quot;1 means free-flow traffic conditions&quot;</span>).<span class="ident">secondary</span>(),
-                    <span class="ident">Line</span>(<span class="string">&quot;Increase to see how drivers may try to detour in heavy traffic&quot;</span>)
-                        .<span class="ident">secondary</span>(),
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>().<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">2</span> {
+                <span class="ident">Widget::nothing</span>()
+            } <span class="kw">else</span> {
+                <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+                    <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+                        <span class="ident">Line</span>(<span class="string">&quot;Slow-down factor for main roads:&quot;</span>)
+                            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
+                            .<span class="ident">centered_vert</span>(),
+                        <span class="ident">Spinner::f64_widget</span>(
+                            <span class="ident">ctx</span>,
+                            <span class="string">&quot;main road penalty&quot;</span>,
+                            (<span class="number">1.0</span>, <span class="number">10.0</span>),
+                            <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">main_road_penalty</span>,
+                            <span class="number">0.5</span>,
+                        ),
+                    ]),
+                    <span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
+                        <span class="ident">Line</span>(<span class="string">&quot;1 means free-flow traffic conditions&quot;</span>).<span class="ident">secondary</span>(),
+                        <span class="ident">Line</span>(<span class="string">&quot;Increase to see how drivers may try to detour in heavy traffic&quot;</span>)
+                            .<span class="ident">secondary</span>(),
+                    ])
+                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 ])
-                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            ])
-            .<span class="ident">section</span>(<span class="ident">ctx</span>),
-            <span class="ident">results_widget</span>.<span class="ident">section</span>(<span class="ident">ctx</span>),
+                .<span class="ident">section</span>(<span class="ident">ctx</span>)
+            },
+            <span class="ident">results_widget</span>.<span class="ident">named</span>(<span class="string">&quot;results&quot;</span>).<span class="ident">section</span>(<span class="ident">ctx</span>),
         ]);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::components::LeftPanel::builder</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">top_panel</span>, <span class="ident">contents</span>)
             <span class="comment">// Hovering on waypoint cards</span>
@@ -517,22 +584,40 @@
         <span class="ident">panel</span>.<span class="ident">restore</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">left_panel</span>);
         <span class="self">self</span>.<span class="ident">left_panel</span> <span class="op">=</span> <span class="ident">panel</span>;
 
-        <span class="comment">// Fade all neighbourhood interiors, so it&#39;s very clear when a route cuts through</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="kw">for</span> <span class="ident">info</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">all_neighbourhoods</span>().<span class="ident">values</span>() {
-            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">fade_map_dark</span>, <span class="ident">info</span>.<span class="ident">block</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>());
-        }
-
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">world</span> <span class="op">=</span> <span class="ident">World::bounded</span>(<span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>());
-        <span class="ident">world</span>.<span class="ident">draw_master_batch</span>(<span class="ident">ctx</span>, <span class="ident">batch</span>);
         <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">rebuild_world</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;mut</span> <span class="ident">world</span>, <span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>, <span class="number">0</span>);
         <span class="ident">world</span>.<span class="ident">initialize_hover</span>(<span class="ident">ctx</span>);
         <span class="ident">world</span>.<span class="ident">rebuilt_during_drag</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">world</span>);
         <span class="self">self</span>.<span class="ident">world</span> <span class="op">=</span> <span class="ident">world</span>;
     }
 
+    <span class="comment">// Called when waypoints changed, but the number has stayed the same. Aka, the common case of a</span>
+    <span class="comment">// waypoint being dragged. Does less work for speed.</span>
+    <span class="kw">fn</span> <span class="ident">update_minimal</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) {
+        <span class="self">self</span>.<span class="ident">files</span>.<span class="ident">autosave</span>(<span class="ident">app</span>);
+        <span class="kw">let</span> <span class="ident">results_widget</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">recalculate_paths</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">world</span> <span class="op">=</span> <span class="ident">World::bounded</span>(<span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>());
+        <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">rebuild_world</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;mut</span> <span class="ident">world</span>, <span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>, <span class="number">0</span>);
+        <span class="ident">world</span>.<span class="ident">initialize_hover</span>(<span class="ident">ctx</span>);
+        <span class="ident">world</span>.<span class="ident">rebuilt_during_drag</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">world</span>);
+        <span class="self">self</span>.<span class="ident">world</span> <span class="op">=</span> <span class="ident">world</span>;
+
+        <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;results&quot;</span>, <span class="ident">results_widget</span>);
+
+        <span class="comment">// TODO This is the most expensive part. While we&#39;re dragging, can we just fade out the</span>
+        <span class="comment">// cards or de-emphasize them somehow, and only do the recalculation when done?</span>
+        <span class="kw">let</span> <span class="ident">waypoints_widget</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_panel_widget</span>(<span class="ident">ctx</span>);
+        <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;waypoints&quot;</span>, <span class="ident">waypoints_widget</span>);
+    }
+
     <span class="comment">// Returns a widget to display</span>
     <span class="kw">fn</span> <span class="ident">recalculate_paths</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Widget</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>().<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">2</span> {
+            <span class="self">self</span>.<span class="ident">draw_routes</span> <span class="op">=</span> <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>);
+            <span class="kw">return</span> <span class="ident">Widget::nothing</span>();
+        }
+
         <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>;
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">paths</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">PathV2</span>, <span class="ident">Color</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
@@ -584,7 +669,7 @@
             <span class="ident">total_time</span>
         };
 
-        <span class="kw">let</span> <span class="ident">biking_time</span> <span class="op">=</span> {
+        <span class="kw">let</span> <span class="ident">biking_time</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">show_walking_cycling_routes</span> {
             <span class="comment">// No custom params, but don&#39;t use the map&#39;s built-in bike CH. Changes to one-way</span>
             <span class="comment">// streets haven&#39;t been reflected, and it&#39;s cheap enough to use Dijkstra&#39;s for</span>
             <span class="comment">// calculating one path at a time anyway.</span>
@@ -604,9 +689,11 @@
                 }
             }
             <span class="ident">total_time</span>
+        } <span class="kw">else</span> {
+            <span class="ident">Duration::ZERO</span>
         };
 
-        <span class="kw">let</span> <span class="ident">walking_time</span> <span class="op">=</span> {
+        <span class="kw">let</span> <span class="ident">walking_time</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">show_walking_cycling_routes</span> {
             <span class="comment">// Same as above -- don&#39;t use the built-in CH.</span>
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_time</span> <span class="op">=</span> <span class="ident">Duration::ZERO</span>;
             <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>().<span class="ident">windows</span>(<span class="number">2</span>) {
@@ -624,6 +711,8 @@
                 }
             }
             <span class="ident">total_time</span>
+        } <span class="kw">else</span> {
+            <span class="ident">Duration::ZERO</span>
         };
 
         <span class="self">self</span>.<span class="ident">draw_routes</span> <span class="op">=</span> <span class="ident">map_gui::tools::draw_overlapping_paths</span>(<span class="ident">app</span>, <span class="ident">paths</span>)
@@ -661,11 +750,21 @@
                 },
             ])
             .<span class="ident">evenly_spaced</span>(),
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">card</span>(<span class="ident">ctx</span>, <span class="string">&quot;Cycling&quot;</span>, <span class="string">&quot;This cycling route doesn&#39;t avoid high-stress roads or hills, and assumes an average 10mph pace&quot;</span>, <span class="ident">biking_time</span>, <span class="kw-2">*</span><span class="ident">colors::PLAN_ROUTE_BIKE</span>),
-                <span class="ident">card</span>(<span class="ident">ctx</span>, <span class="string">&quot;Walking&quot;</span>, <span class="string">&quot;This walking route doesn&#39;t avoid high-stress roads or hills, and assumes an average 3 mph pace&quot;</span>, <span class="ident">walking_time</span>, <span class="kw-2">*</span><span class="ident">colors::PLAN_ROUTE_WALK</span>),
-            ])
-            .<span class="ident">evenly_spaced</span>(),
+            <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">show_walking_cycling_routes</span> {
+                <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+                    <span class="ident">card</span>(<span class="ident">ctx</span>, <span class="string">&quot;Cycling&quot;</span>, <span class="string">&quot;This cycling route doesn&#39;t avoid high-stress roads or hills, and assumes an average 10mph pace&quot;</span>, <span class="ident">biking_time</span>, <span class="kw-2">*</span><span class="ident">colors::PLAN_ROUTE_BIKE</span>),
+                    <span class="ident">card</span>(<span class="ident">ctx</span>, <span class="string">&quot;Walking&quot;</span>, <span class="string">&quot;This walking route doesn&#39;t avoid high-stress roads or hills, and assumes an average 3 mph pace&quot;</span>, <span class="ident">walking_time</span>, <span class="kw-2">*</span><span class="ident">colors::PLAN_ROUTE_WALK</span>),
+                ])
+                .<span class="ident">evenly_spaced</span>()
+            } <span class="kw">else</span> {
+                <span class="ident">Widget::nothing</span>()
+            },
+            <span class="ident">Toggle::checkbox</span>(
+                <span class="ident">ctx</span>,
+                <span class="string">&quot;Show walking &amp; cycling route&quot;</span>,
+                <span class="prelude-val">None</span>,
+                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">show_walking_cycling_routes</span>,
+            ),
         ])
     }
 }
@@ -709,9 +808,14 @@
                 <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">main_road_penalty</span> <span class="op">=</span>
                     <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">spinner</span>::<span class="op">&lt;</span><span class="ident">RoundedF64</span><span class="op">&gt;</span>(<span class="string">&quot;main road penalty&quot;</span>).<span class="number">0</span>;
                 <span class="self">self</span>.<span class="ident">update_everything</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;Show walking &amp; cycling route&quot;</span> {
+                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">show_walking_cycling_routes</span> <span class="op">=</span>
+                    <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;Show walking &amp; cycling route&quot;</span>);
+                <span class="self">self</span>.<span class="ident">update_everything</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
             }
         }
 
+        <span class="kw">let</span> <span class="ident">waypoints_before</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>().<span class="ident">len</span>();
         <span class="kw">if</span> <span class="self">self</span>
             .<span class="ident">waypoints</span>
             .<span class="ident">event</span>(<span class="ident">app</span>, <span class="ident">panel_outcome</span>, <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">event</span>(<span class="ident">ctx</span>))
@@ -719,7 +823,12 @@
             <span class="comment">// Sync from waypoints to file management</span>
             <span class="comment">// TODO Maaaybe this directly live in the InputWaypoints system?</span>
             <span class="self">self</span>.<span class="ident">files</span>.<span class="ident">current</span>.<span class="ident">waypoints</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>();
-            <span class="self">self</span>.<span class="ident">update_everything</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>().<span class="ident">len</span>() <span class="op">==</span> <span class="ident">waypoints_before</span> {
+                <span class="self">self</span>.<span class="ident">update_minimal</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+            } <span class="kw">else</span> {
+                <span class="self">self</span>.<span class="ident">update_everything</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+            }
         }
 
         <span class="ident">Transition::Keep</span>
@@ -730,6 +839,7 @@
         <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">layers</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
 
+        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">show_main_roads</span>);
         <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="self">self</span>.<span class="ident">draw_routes</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_all_road_labels</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">draw</span>(<span class="ident">g</span>);
