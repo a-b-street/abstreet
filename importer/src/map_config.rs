@@ -53,6 +53,7 @@ pub fn config_for_map(name: &MapName) -> convert_osm::Options {
             )
             .ok()
             .unwrap_or_else(Vec::new),
+            osm2lanes: false,
         },
         onstreet_parking: match name.city.city.as_ref() {
             "seattle" => {

@@ -392,6 +392,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "celes"
+version = "2.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "39b9a21273925d7cc9e8a9a5f068122341336813c607014f5ef64f82b6acba58"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "cesu8"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2186,6 +2195,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "kstring"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ec3066350882a1cd6d950d055997f379ac37fd39f81cd4d8ed186032eb3c5747"
+dependencies = [
+ "static_assertions",
+]
+
+[[package]]
 name = "kurbo"
 version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2238,6 +2256,19 @@ name = "libm"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c7d73b3f436185384286bd8098d17ec07c9a7d2388a6599f824d8502b529702a"
+
+[[package]]
+name = "locale-codes"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d1f4cc9d2da40c19763d5dd398baf388f2cc1473ca3d53c578c75e9ad0402324"
+dependencies = [
+ "lazy_static",
+ "log",
+ "regex",
+ "serde",
+ "serde_json",
+]
 
 [[package]]
 name = "lock_api"
@@ -2877,6 +2908,35 @@ dependencies = [
 ]
 
 [[package]]
+name = "osm-tag-schemes"
+version = "0.1.0"
+source = "git+https://github.com/a-b-street/osm2lanes#25ac3ccdc862d82293de05c0c3973047d214ea49"
+dependencies = [
+ "osm-tags",
+ "strum 0.24.1",
+]
+
+[[package]]
+name = "osm-tags"
+version = "0.1.1"
+source = "git+https://github.com/a-b-street/osm2lanes#25ac3ccdc862d82293de05c0c3973047d214ea49"
+dependencies = [
+ "kstring",
+]
+
+[[package]]
+name = "osm2lanes"
+version = "0.1.0"
+source = "git+https://github.com/a-b-street/osm2lanes#25ac3ccdc862d82293de05c0c3973047d214ea49"
+dependencies = [
+ "celes",
+ "locale-codes",
+ "log",
+ "osm-tag-schemes",
+ "osm-tags",
+]
+
+[[package]]
 name = "osm_viewer"
 version = "0.1.0"
 dependencies = [
@@ -3362,8 +3422,8 @@ dependencies = [
  "geom",
  "serde",
  "street_network",
- "strum",
- "strum_macros",
+ "strum 0.21.0",
+ "strum_macros 0.21.1",
 ]
 
 [[package]]
@@ -3589,6 +3649,12 @@ dependencies = [
  "sct",
  "webpki",
 ]
+
+[[package]]
+name = "rustversion"
+version = "1.0.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "97477e48b4cf8603ad5f7aaf897467cf42ab4218a38ef76fb14c2d6773a6d6a8"
 
 [[package]]
 name = "rustybuzz"
@@ -3944,6 +4010,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a8f112729512f8e442d81f95a8a7ddf2b7c6b8a1a6f509a95864142b30cab2d3"
 
 [[package]]
+name = "static_assertions"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
+
+[[package]]
 name = "stdweb"
 version = "0.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3958,6 +4030,9 @@ dependencies = [
  "anyhow",
  "geom",
  "log",
+ "osm-tag-schemes",
+ "osm-tags",
+ "osm2lanes",
  "petgraph",
  "serde",
  "serde_json",
@@ -4012,6 +4087,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "aaf86bbcfd1fa9670b7a129f64fc0c9fcbbfe4f1bc4210e9e98fe71ffc12cde2"
 
 [[package]]
+name = "strum"
+version = "0.24.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "063e6045c0e62079840579a7e47a355ae92f60eb74daaf156fb1e84ba164e63f"
+dependencies = [
+ "strum_macros 0.24.3",
+]
+
+[[package]]
 name = "strum_macros"
 version = "0.21.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4020,6 +4104,19 @@ dependencies = [
  "heck 0.3.3",
  "proc-macro2",
  "quote",
+ "syn",
+]
+
+[[package]]
+name = "strum_macros"
+version = "0.24.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1e385be0d24f186b4ce2f9982191e7101bb737312ad61c1f2f984f34bcf85d59"
+dependencies = [
+ "heck 0.4.0",
+ "proc-macro2",
+ "quote",
+ "rustversion",
  "syn",
 ]
 
