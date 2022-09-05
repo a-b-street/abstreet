@@ -7,7 +7,7 @@ use synthpop::{TripEndpoint, TripMode};
 use widgetry::mapspace::World;
 use widgetry::{
     ButtonBuilder, Color, ControlState, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome,
-    Panel, RoundedF64, Spinner, State, Text, Widget,
+    Panel, RoundedF64, Spinner, State, Text, Toggle, Widget,
 };
 
 use crate::components::Mode;
@@ -202,7 +202,7 @@ impl RoutePlanner {
             total_time
         };
 
-        let biking_time = {
+        let biking_time = if app.session.show_walking_cycling_routes {
             // No custom params, but don't use the map's built-in bike CH. Changes to one-way
             // streets haven't been reflected, and it's cheap enough to use Dijkstra's for
             // calculating one path at a time anyway.
@@ -222,9 +222,11 @@ impl RoutePlanner {
                 }
             }
             total_time
+        } else {
+            Duration::ZERO
         };
 
-        let walking_time = {
+        let walking_time = if app.session.show_walking_cycling_routes {
             // Same as above -- don't use the built-in CH.
             let mut total_time = Duration::ZERO;
             for pair in self.waypoints.get_waypoints().windows(2) {
@@ -242,6 +244,8 @@ impl RoutePlanner {
                 }
             }
             total_time
+        } else {
+            Duration::ZERO
         };
 
         self.draw_routes = map_gui::tools::draw_overlapping_paths(app, paths)
@@ -279,11 +283,21 @@ impl RoutePlanner {
                 },
             ])
             .evenly_spaced(),
-            Widget::row(vec![
-                card(ctx, "Cycling", "This cycling route doesn't avoid high-stress roads or hills, and assumes an average 10mph pace", biking_time, *colors::PLAN_ROUTE_BIKE),
-                card(ctx, "Walking", "This walking route doesn't avoid high-stress roads or hills, and assumes an average 3 mph pace", walking_time, *colors::PLAN_ROUTE_WALK),
-            ])
-            .evenly_spaced(),
+            if app.session.show_walking_cycling_routes {
+                Widget::row(vec![
+                    card(ctx, "Cycling", "This cycling route doesn't avoid high-stress roads or hills, and assumes an average 10mph pace", biking_time, *colors::PLAN_ROUTE_BIKE),
+                    card(ctx, "Walking", "This walking route doesn't avoid high-stress roads or hills, and assumes an average 3 mph pace", walking_time, *colors::PLAN_ROUTE_WALK),
+                ])
+                .evenly_spaced()
+            } else {
+                Widget::nothing()
+            },
+            Toggle::checkbox(
+                ctx,
+                "Show walking & cycling route",
+                None,
+                app.session.show_walking_cycling_routes,
+            ),
         ])
     }
 }
@@ -326,6 +340,10 @@ impl State<App> for RoutePlanner {
             if x == "main road penalty" {
                 app.session.main_road_penalty =
                     self.left_panel.spinner::<RoundedF64>("main road penalty").0;
+                self.update_everything(ctx, app);
+            } else if x == "Show walking & cycling route" {
+                app.session.show_walking_cycling_routes =
+                    self.left_panel.is_checked("Show walking & cycling route");
                 self.update_everything(ctx, app);
             }
         }

@@ -100,6 +100,7 @@ fn run(mut settings: Settings) {
             draw_neighbourhood_style: browse::Style::Simple,
             heuristic: filters::auto::Heuristic::SplitCells,
             main_road_penalty: 1.0,
+            show_walking_cycling_routes: false,
 
             current_trip_name: None,
 
@@ -291,6 +292,7 @@ pub struct Session {
     pub heuristic: filters::auto::Heuristic,
     // Pathfinding
     pub main_road_penalty: f64,
+    pub show_walking_cycling_routes: bool,
 
     current_trip_name: Option<String>,
 
