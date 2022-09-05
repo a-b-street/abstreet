@@ -19,6 +19,7 @@ pub struct RoutePlanner {
     waypoints: InputWaypoints,
     files: TripManagement<App, RoutePlanner>,
     world: World<WaypointID>,
+    show_main_roads: Drawable,
     draw_routes: Drawable,
     // TODO We could save the no-filter variations map-wide
     pathfinder_cache: PathfinderCache,
@@ -50,12 +51,19 @@ impl RoutePlanner {
             ));
         }
 
+        // Fade all neighbourhood interiors, so it's very clear when a route cuts through
+        let mut batch = GeomBatch::new();
+        for info in app.session.partitioning.all_neighbourhoods().values() {
+            batch.push(app.cs.fade_map_dark, info.block.polygon.clone());
+        }
+
         let mut rp = RoutePlanner {
             top_panel: crate::components::TopPanel::panel(ctx, app),
             left_panel: Panel::empty(ctx),
             waypoints: InputWaypoints::new_max_2(app),
             files: TripManagement::new(app),
             world: World::unbounded(),
+            show_main_roads: ctx.upload(batch),
             draw_routes: Drawable::empty(ctx),
             pathfinder_cache: PathfinderCache::new(),
         };
@@ -93,7 +101,7 @@ impl RoutePlanner {
             Widget::col(vec![
                 self.files.get_panel_widget(ctx),
                 Widget::horiz_separator(ctx, 1.0),
-                self.waypoints.get_panel_widget(ctx),
+                self.waypoints.get_panel_widget(ctx).named("waypoints"),
             ])
             .section(ctx),
             if self.waypoints.get_waypoints().len() < 2 {
@@ -121,7 +129,7 @@ impl RoutePlanner {
                 ])
                 .section(ctx)
             },
-            results_widget.section(ctx),
+            results_widget.named("results").section(ctx),
         ]);
         let mut panel = crate::components::LeftPanel::builder(ctx, &self.top_panel, contents)
             // Hovering on waypoint cards
@@ -130,18 +138,31 @@ impl RoutePlanner {
         panel.restore(ctx, &self.left_panel);
         self.left_panel = panel;
 
-        // Fade all neighbourhood interiors, so it's very clear when a route cuts through
-        let mut batch = GeomBatch::new();
-        for info in app.session.partitioning.all_neighbourhoods().values() {
-            batch.push(app.cs.fade_map_dark, info.block.polygon.clone());
-        }
-
         let mut world = World::bounded(app.map.get_bounds());
-        world.draw_master_batch(ctx, batch);
         self.waypoints.rebuild_world(ctx, &mut world, |x| x, 0);
         world.initialize_hover(ctx);
         world.rebuilt_during_drag(&self.world);
         self.world = world;
+    }
+
+    // Called when waypoints changed, but the number has stayed the same. Aka, the common case of a
+    // waypoint being dragged. Does less work for speed.
+    fn update_minimal(&mut self, ctx: &mut EventCtx, app: &mut App) {
+        self.files.autosave(app);
+        let results_widget = self.recalculate_paths(ctx, app);
+
+        let mut world = World::bounded(app.map.get_bounds());
+        self.waypoints.rebuild_world(ctx, &mut world, |x| x, 0);
+        world.initialize_hover(ctx);
+        world.rebuilt_during_drag(&self.world);
+        self.world = world;
+
+        self.left_panel.replace(ctx, "results", results_widget);
+
+        // TODO This is the most expensive part. While we're dragging, can we just fade out the
+        // cards or de-emphasize them somehow, and only do the recalculation when done?
+        let waypoints_widget = self.waypoints.get_panel_widget(ctx);
+        self.left_panel.replace(ctx, "waypoints", waypoints_widget);
     }
 
     // Returns a widget to display
@@ -348,6 +369,7 @@ impl State<App> for RoutePlanner {
             }
         }
 
+        let waypoints_before = self.waypoints.get_waypoints().len();
         if self
             .waypoints
             .event(app, panel_outcome, self.world.event(ctx))
@@ -355,7 +377,12 @@ impl State<App> for RoutePlanner {
             // Sync from waypoints to file management
             // TODO Maaaybe this directly live in the InputWaypoints system?
             self.files.current.waypoints = self.waypoints.get_waypoints();
-            self.update_everything(ctx, app);
+
+            if self.waypoints.get_waypoints().len() == waypoints_before {
+                self.update_minimal(ctx, app);
+            } else {
+                self.update_everything(ctx, app);
+            }
         }
 
         Transition::Keep
@@ -366,6 +393,7 @@ impl State<App> for RoutePlanner {
         self.left_panel.draw(g);
         app.session.layers.draw(g, app);
 
+        g.redraw(&self.show_main_roads);
         self.world.draw(g);
         self.draw_routes.draw(g);
         app.session.draw_all_road_labels.as_ref().unwrap().draw(g);
