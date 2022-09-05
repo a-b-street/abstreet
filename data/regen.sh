@@ -12,6 +12,9 @@ RUST_BACKTRACE=1 cargo run --release --bin cli --features importer/scenarios -- 
 # If a map changes that has external JSON scenarios, enable this!
 # importer/external_scenarios.sh
 
+# London has a bunch of maps that run in parallel, so calculate the overview after all of those finish above
+./import.sh --city-overview --city=gb/london
+
 RUST_BACKTRACE=1 cargo run --release --bin game -- --prebake
 
 RUST_BACKTRACE=1 cargo run --release --bin tests

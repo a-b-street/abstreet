@@ -397,6 +397,18 @@ fn regenerate_everything_externally() -> Result<()> {
     writeln!(f, "set -e")?;
     writeln!(f, "pueue parallel 16")?;
     for city in CityName::list_all_cities_from_importer_config() {
+        if city == CityName::new("gb", "london") {
+            // Special case because there are so many maps
+            for map in city.list_all_maps_in_city_from_importer_config() {
+                writeln!(
+                    f,
+                    "pueue add -- ./import.sh --raw --map --scenario {} --city=gb/london",
+                    map.map
+                )?;
+            }
+            continue;
+        }
+
         let job = Job::full_for_city(city);
         writeln!(f, "pueue add -- ./import.sh {}", job.flags().join(" "))?;
     }
