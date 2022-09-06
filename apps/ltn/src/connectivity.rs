@@ -21,6 +21,8 @@ pub struct Viewer {
     draw_under_roads_layer: Drawable,
     highlight_cell: World<DummyID>,
     edit: EditNeighbourhood,
+    // Expensive to calculate
+    preserve_state: crate::save::PreserveState,
 
     show_error: Drawable,
 }
@@ -43,6 +45,10 @@ impl Viewer {
             draw_under_roads_layer: Drawable::empty(ctx),
             highlight_cell: World::unbounded(),
             edit: EditNeighbourhood::temporary(),
+            preserve_state: crate::save::PreserveState::Connectivity(
+                app.per_map.partitioning.all_blocks_in_neighbourhood(id),
+            ),
+
             show_error: Drawable::empty(ctx),
         };
         viewer.update(ctx, app);
@@ -110,7 +116,13 @@ impl Viewer {
 
 impl State<App> for Viewer {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        if let Some(t) = crate::components::TopPanel::event(ctx, app, &mut self.top_panel, help) {
+        if let Some(t) = crate::components::TopPanel::event(
+            ctx,
+            app,
+            &mut self.top_panel,
+            &self.preserve_state,
+            help,
+        ) {
             return t;
         }
         if let Some(t) = app
@@ -165,8 +177,7 @@ impl State<App> for Viewer {
                     &self.neighbourhood,
                     &mut self.left_panel,
                 ) {
-                    // Fall through to AltProposals
-                    EditOutcome::Nothing => {}
+                    EditOutcome::Nothing => unreachable!(),
                     EditOutcome::UpdatePanelAndWorld => {
                         self.update(ctx, app);
                         return Transition::Keep;
@@ -175,18 +186,6 @@ impl State<App> for Viewer {
                         return t;
                     }
                 }
-
-                return crate::save::AltProposals::handle_action(
-                    ctx,
-                    app,
-                    crate::save::PreserveState::Connectivity(
-                        app.per_map
-                            .partitioning
-                            .all_blocks_in_neighbourhood(self.neighbourhood.id),
-                    ),
-                    &x,
-                )
-                .unwrap();
             }
             Outcome::Changed(x) => match x.as_ref() {
                 "Advanced features" => {

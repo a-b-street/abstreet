@@ -85,10 +85,7 @@ impl EditNeighbourhood {
         per_tab_contents: Widget,
     ) -> PanelBuilder {
         let contents = Widget::col(vec![
-            app.per_map.alt_proposals.to_widget(ctx, app),
-            Line("Editing neighbourhood")
-                .small_heading()
-                .into_widget(ctx),
+            Line("Editing area").small_heading().into_widget(ctx),
             if app.per_map.consultation.is_none() {
                 ctx.style()
                     .btn_outline

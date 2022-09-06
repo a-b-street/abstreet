@@ -278,7 +278,14 @@ impl State<App> for SelectBoundary {
             return Transition::Keep;
         }
 
-        if let Some(t) = crate::components::TopPanel::event(ctx, app, &mut self.top_panel, help) {
+        // PreserveState doesn't matter, can't switch proposals in SelectBoundary anyway
+        if let Some(t) = crate::components::TopPanel::event(
+            ctx,
+            app,
+            &mut self.top_panel,
+            &crate::save::PreserveState::Route,
+            help,
+        ) {
             return t;
         }
         if let Some(t) = app.session.layers.event(ctx, &app.cs, Mode::SelectBoundary) {

@@ -8,7 +8,7 @@ use abstio::MapName;
 use abstutil::{Counter, Timer};
 use map_model::EditRoad;
 use widgetry::tools::{ChooseSomething, PopupMsg, PromptInput};
-use widgetry::{Choice, EventCtx, Key, Line, State, Widget};
+use widgetry::{Choice, EventCtx, Key, State, Widget};
 
 use crate::edit::EditMode;
 use crate::partition::BlockID;
@@ -256,17 +256,16 @@ impl AltProposals {
     }
 
     pub fn to_widget(&self, ctx: &EventCtx, app: &App) -> Widget {
-        let mut col = vec![
-            Line("LTN Policy Proposals")
-                .small_heading()
-                .into_widget(ctx),
-            Widget::row(vec![
-                ctx.style().btn_outline.text("New").build_def(ctx),
-                ctx.style().btn_outline.text("Load").build_def(ctx),
-                ctx.style().btn_outline.text("Save").build_def(ctx),
-                ctx.style().btn_outline.text("Share").build_def(ctx),
-            ]),
-        ];
+        let mut col = vec![Widget::row(vec![
+            ctx.style().btn_outline.text("New").build_def(ctx),
+            ctx.style().btn_outline.text("Load").build_def(ctx),
+            ctx.style().btn_outline.text("Save").build_def(ctx),
+            ctx.style().btn_outline.text("Share").build_def(ctx),
+            ctx.style()
+                .btn_outline
+                .text("Export GeoJSON")
+                .build_def(ctx),
+        ])];
         for (idx, proposal) in self.list.iter().enumerate() {
             let button = if let Some(proposal) = proposal {
                 ctx.style()
@@ -306,7 +305,7 @@ impl AltProposals {
     pub fn handle_action(
         ctx: &mut EventCtx,
         app: &mut App,
-        preserve_state: PreserveState,
+        preserve_state: &PreserveState,
         action: &str,
     ) -> Option<Transition> {
         match action {
@@ -337,13 +336,28 @@ impl AltProposals {
                 app.per_map.alt_proposals.current = app.per_map.alt_proposals.list.len() - 1;
             }
             "Load" => {
-                return Some(Transition::Push(load_picker_ui(ctx, app, preserve_state)));
+                return Some(Transition::Push(load_picker_ui(
+                    ctx,
+                    app,
+                    preserve_state.clone(),
+                )));
             }
             "Save" => {
-                return Some(Transition::Push(save_ui(ctx, app, preserve_state)));
+                return Some(Transition::Push(save_ui(ctx, app, preserve_state.clone())));
             }
             "Share" => {
                 return Some(Transition::Push(share::ShareProposal::new_state(ctx, app)));
+            }
+            "Export to GeoJSON" => {
+                let result = crate::export::write_geojson_file(ctx, app);
+                return Some(Transition::Push(match result {
+                    Ok(path) => PopupMsg::new_state(
+                        ctx,
+                        "LTNs exported",
+                        vec![format!("Data exported to {}", path)],
+                    ),
+                    Err(err) => PopupMsg::new_state(ctx, "Export failed", vec![err.to_string()]),
+                }));
             }
             _ => {
                 if let Some(x) = action.strip_prefix("switch to proposal ") {
@@ -369,7 +383,7 @@ impl AltProposals {
             }
         }
 
-        Some(preserve_state.switch_to_state(ctx, app))
+        Some(preserve_state.clone().switch_to_state(ctx, app))
     }
 }
 
@@ -378,6 +392,7 @@ impl AltProposals {
 // To preserve per-neighborhood states, we have to transform neighbourhood IDs, which may change if
 // the partitioning is different. If the boundary is a bit different, match up by all the blocks in
 // the current neighbourhood.
+#[derive(Clone)]
 pub enum PreserveState {
     BrowseNeighbourhoods,
     Route,

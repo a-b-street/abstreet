@@ -122,6 +122,7 @@ pub struct Session {
 
     // Shared in all modes
     pub layers: crate::components::Layers,
+    pub manage_proposals: bool,
 }
 
 impl AppLike for App {
@@ -227,6 +228,7 @@ impl App {
             show_walking_cycling_routes: false,
 
             layers: crate::components::Layers::new(ctx),
+            manage_proposals: false,
         };
 
         let cs = ColorScheme::new(ctx, opts.color_scheme);

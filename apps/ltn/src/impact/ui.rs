@@ -111,7 +111,14 @@ impl ShowResults {
 }
 impl State<App> for ShowResults {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        if let Some(t) = crate::components::TopPanel::event(ctx, app, &mut self.top_panel, help) {
+        // PreserveState doesn't matter
+        if let Some(t) = crate::components::TopPanel::event(
+            ctx,
+            app,
+            &mut self.top_panel,
+            &crate::save::PreserveState::Route,
+            help,
+        ) {
             return t;
         }
         if let Some(t) = app.session.layers.event(ctx, &app.cs, Mode::Impact) {

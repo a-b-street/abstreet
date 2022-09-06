@@ -82,7 +82,6 @@ impl RoutePlanner {
         let results_widget = self.recalculate_paths(ctx, app);
 
         let contents = Widget::col(vec![
-            app.per_map.alt_proposals.to_widget(ctx, app),
             Line("Plan a route").small_heading().into_widget(ctx),
             Widget::col(vec![
                 self.files.get_panel_widget(ctx),
@@ -311,7 +310,13 @@ impl RoutePlanner {
 
 impl State<App> for RoutePlanner {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        if let Some(t) = crate::components::TopPanel::event(ctx, app, &mut self.top_panel, help) {
+        if let Some(t) = crate::components::TopPanel::event(
+            ctx,
+            app,
+            &mut self.top_panel,
+            &crate::save::PreserveState::Route,
+            help,
+        ) {
             return t;
         }
         if let Some(t) = app.session.layers.event(ctx, &app.cs, Mode::RoutePlanner) {
@@ -327,14 +332,7 @@ impl State<App> for RoutePlanner {
                 }
                 return t;
             }
-            if let Some(t) = crate::save::AltProposals::handle_action(
-                ctx,
-                app,
-                crate::save::PreserveState::Route,
-                x,
-            ) {
-                return t;
-            }
+            unreachable!()
         }
 
         if let Outcome::Changed(ref x) = panel_outcome {
@@ -379,6 +377,10 @@ impl State<App> for RoutePlanner {
         app.per_map.draw_all_road_labels.as_ref().unwrap().draw(g);
         app.per_map.draw_all_filters.draw(g);
         app.per_map.draw_poi_icons.draw(g);
+    }
+
+    fn recreate(&mut self, ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
+        Self::new_state(ctx, app)
     }
 }
 
