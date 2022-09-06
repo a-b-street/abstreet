@@ -44,7 +44,7 @@ impl ShareProposal {
                 .strip_prefix(&abstio::path(""))
                 .unwrap()
                 .to_string();
-            let consultation = if let Some(ref x) = app.session.consultation_id {
+            let consultation = if let Some(ref x) = app.per_map.consultation_id {
                 format!("&--consultation={x}")
             } else {
                 String::new()

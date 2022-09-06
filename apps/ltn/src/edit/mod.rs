@@ -86,11 +86,11 @@ impl EditNeighbourhood {
         per_tab_contents: Widget,
     ) -> PanelBuilder {
         let contents = Widget::col(vec![
-            app.session.alt_proposals.to_widget(ctx, app),
+            app.per_map.alt_proposals.to_widget(ctx, app),
             BrowseNeighbourhoods::button(ctx, app),
             {
                 let mut row = Vec::new();
-                if app.session.consultation.is_none() {
+                if app.per_map.consultation.is_none() {
                     row.push(
                         ctx.style()
                             .btn_outline
@@ -120,14 +120,14 @@ impl EditNeighbourhood {
                 ctx.style()
                     .btn_plain
                     .icon("system/assets/tools/undo.svg")
-                    .disabled(app.session.edits.previous_version.is_none())
+                    .disabled(app.per_map.edits.previous_version.is_none())
                     .hotkey(lctrl(Key::Z))
                     .build_widget(ctx, "undo"),
                 // TODO Only count new filters, not existing
                 format!(
                     "{} filters added, {} road directions changed",
-                    app.session.edits.roads.len() + app.session.edits.intersections.len(),
-                    app.session.edits.one_ways.len()
+                    app.per_map.edits.roads.len() + app.per_map.edits.intersections.len(),
+                    app.per_map.edits.one_ways.len()
                 )
                 .text_widget(ctx)
                 .centered_vert(),
@@ -376,19 +376,19 @@ impl State<App> for ResolveOneWayAndFilter {
                 app.per_map.map.must_apply_edits(edits, timer);
             });
 
-            app.session.edits.before_edit();
+            app.per_map.edits.before_edit();
 
             for r in &self.roads {
                 let r = *r;
                 let road = app.per_map.map.get_r(r);
                 let r_edit = app.per_map.map.get_r_edit(r);
                 if r_edit == EditRoad::get_orig_from_osm(road, app.per_map.map.get_config()) {
-                    app.session.edits.one_ways.remove(&r);
+                    app.per_map.edits.one_ways.remove(&r);
                 } else {
-                    app.session.edits.one_ways.insert(r, r_edit);
+                    app.per_map.edits.one_ways.insert(r, r_edit);
                 }
 
-                app.session.edits.roads.insert(
+                app.per_map.edits.roads.insert(
                     r,
                     RoadFilter::new_by_user(road.length() / 2.0, app.session.filter_type),
                 );
@@ -462,7 +462,7 @@ impl ResolveBusGate {
 impl State<App> for ResolveBusGate {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         if let Outcome::Clicked(x) = self.panel.event(ctx) {
-            app.session.edits.before_edit();
+            app.per_map.edits.before_edit();
             let filter_type = if x == "Place bus gates" {
                 FilterType::BusGate
             } else {
@@ -470,7 +470,7 @@ impl State<App> for ResolveBusGate {
             };
 
             for (r, dist) in self.roads.drain(..) {
-                app.session
+                app.per_map
                     .edits
                     .roads
                     .insert(r, RoadFilter::new_by_user(dist, filter_type));

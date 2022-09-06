@@ -74,8 +74,8 @@ pub fn handle_world_outcome(
                 return EditOutcome::error(ctx, "You can't filter a dead-end");
             }
 
-            app.session.edits.before_edit();
-            if app.session.edits.roads.remove(&r).is_none() {
+            app.per_map.edits.before_edit();
+            if app.per_map.edits.roads.remove(&r).is_none() {
                 // Place the filter on the part of the road that was clicked
                 // These calls shouldn't fail -- since we clicked a road, the cursor must be in
                 // map-space. And project_pt returns a point that's guaranteed to be on the
@@ -89,13 +89,13 @@ pub fn handle_world_outcome(
                 if app.session.filter_type != FilterType::BusGate
                     && !app.per_map.map.get_bus_routes_on_road(r).is_empty()
                 {
-                    app.session.edits.cancel_empty_edit();
+                    app.per_map.edits.cancel_empty_edit();
                     return EditOutcome::Transition(Transition::Push(
                         super::ResolveBusGate::new_state(ctx, app, vec![(r, distance)]),
                     ));
                 }
 
-                app.session.edits.roads.insert(
+                app.per_map.edits.roads.insert(
                     r,
                     RoadFilter::new_by_user(distance, app.session.filter_type),
                 );
@@ -104,7 +104,7 @@ pub fn handle_world_outcome(
             EditOutcome::Transition(Transition::Recreate)
         }
         WorldOutcome::ClickedObject(Obj::InteriorIntersection(i)) => {
-            app.session.edits.before_edit();
+            app.per_map.edits.before_edit();
             DiagonalFilter::cycle_through_alternatives(app, i);
             after_edit(ctx, app);
             EditOutcome::Transition(Transition::Recreate)

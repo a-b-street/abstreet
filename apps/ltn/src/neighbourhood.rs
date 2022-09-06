@@ -54,7 +54,7 @@ impl Cell {
                 // Design choice: when we have a filter right at the entrance of a neighbourhood, it
                 // creates its own little cell allowing access to just the very beginning of the
                 // road. Let's not draw anything for that.
-                if app.session.edits.roads.contains_key(r) {
+                if app.per_map.edits.roads.contains_key(r) {
                     continue;
                 }
 
@@ -107,7 +107,7 @@ impl Neighbourhood {
     pub fn new(ctx: &mut EventCtx, app: &App, id: NeighbourhoodID) -> Neighbourhood {
         let map = &app.per_map.map;
         let orig_perimeter = app
-            .session
+            .per_map
             .partitioning
             .neighbourhood_block(id)
             .perimeter
@@ -136,7 +136,7 @@ impl Neighbourhood {
         let fade_area = Polygon::with_holes(
             map.get_boundary_polygon().get_outer_ring().clone(),
             vec![app
-                .session
+                .per_map
                 .partitioning
                 .neighbourhood_boundary_polygon(app, id)
                 .into_outer_ring()],
@@ -152,7 +152,7 @@ impl Neighbourhood {
             }
         }
 
-        n.cells = find_cells(map, &n.orig_perimeter, &n.borders, &app.session.edits);
+        n.cells = find_cells(map, &n.orig_perimeter, &n.borders, &app.per_map.edits);
 
         let mut label_roads = n.perimeter.clone();
         label_roads.extend(n.orig_perimeter.interior.clone());

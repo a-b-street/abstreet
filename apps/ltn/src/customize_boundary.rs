@@ -16,7 +16,7 @@ pub struct CustomizeBoundary {
 impl CustomizeBoundary {
     pub fn new_state(ctx: &mut EventCtx, app: &App, id: NeighbourhoodID) -> Box<dyn State<App>> {
         let points = app
-            .session
+            .per_map
             .partitioning
             .neighbourhood_boundary_polygon(app, id)
             .into_outer_ring()
@@ -52,7 +52,7 @@ impl State<App> for CustomizeBoundary {
                     let mut pts = self.edit.get_points().to_vec();
                     pts.push(pts[0]);
                     if let Ok(ring) = Ring::new(pts) {
-                        app.session
+                        app.per_map
                             .partitioning
                             .override_neighbourhood_boundary_polygon(self.id, ring.into_polygon());
                         return Transition::Multi(vec![Transition::Pop, Transition::Recreate]);

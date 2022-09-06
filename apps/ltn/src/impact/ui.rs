@@ -30,7 +30,7 @@ pub struct ShowResults {
 impl ShowResults {
     pub fn new_state(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
         let map_name = app.per_map.map.get_name().clone();
-        if app.session.impact.map != map_name {
+        if app.per_map.impact.map != map_name {
             let scenario_name = Scenario::default_scenario_for_map(&map_name);
 
             if scenario_name != "home_to_work" {
@@ -40,7 +40,7 @@ impl ShowResults {
                     Box::new(move |ctx, app, timer, maybe_scenario| {
                         // TODO Handle corrupt files
                         let scenario = maybe_scenario.unwrap();
-                        app.session.impact = Impact::from_scenario(ctx, app, scenario, timer);
+                        app.per_map.impact = Impact::from_scenario(ctx, app, scenario, timer);
                         Transition::Replace(ShowResults::new_state(ctx, app))
                     }),
                 );
@@ -55,16 +55,16 @@ impl ShowResults {
                     &mut XorShiftRng::seed_from_u64(42),
                     timer,
                 );
-                app.session.impact = Impact::from_scenario(ctx, app, scenario, timer);
+                app.per_map.impact = Impact::from_scenario(ctx, app, scenario, timer);
             });
         }
 
-        if app.session.impact.change_key != app.session.edits.get_change_key() {
+        if app.per_map.impact.change_key != app.per_map.edits.get_change_key() {
             ctx.loading_screen("recalculate impact", |ctx, timer| {
                 // Avoid a double borrow
-                let mut impact = std::mem::replace(&mut app.session.impact, Impact::empty(ctx));
+                let mut impact = std::mem::replace(&mut app.per_map.impact, Impact::empty(ctx));
                 impact.map_edits_changed(ctx, app, timer);
-                app.session.impact = impact;
+                app.per_map.impact = impact;
             });
         }
 
@@ -81,8 +81,8 @@ impl ShowResults {
                 Text::from(Line("Click a road to see changed routes through it.")).wrap_to_pct(ctx, 20).into_widget(ctx),
                 Text::from(Line("Results may be wrong for various reasons. Interpret carefully.")).wrap_to_pct(ctx, 20).into_widget(ctx),
             // TODO Dropdown for the scenario, and explain its source/limitations
-            app.session.impact.filters.to_panel(ctx, app),
-            app.session
+            app.per_map.impact.filters.to_panel(ctx, app),
+            app.per_map
                 .impact
                 .compare_counts
                 .get_panel_widget(ctx)
@@ -130,11 +130,11 @@ impl State<App> for ShowResults {
                     let path2 = "counts_b.json";
                     abstio::write_json(
                         path1.to_string(),
-                        &app.session.impact.compare_counts.counts_a,
+                        &app.per_map.impact.compare_counts.counts_a,
                     );
                     abstio::write_json(
                         path2.to_string(),
-                        &app.session.impact.compare_counts.counts_b,
+                        &app.per_map.impact.compare_counts.counts_b,
                     );
                     return Transition::Push(PopupMsg::new_state(
                         ctx,
@@ -162,12 +162,12 @@ impl State<App> for ShowResults {
                 }
                 x => {
                     // Avoid a double borrow
-                    let mut impact = std::mem::replace(&mut app.session.impact, Impact::empty(ctx));
+                    let mut impact = std::mem::replace(&mut app.per_map.impact, Impact::empty(ctx));
                     let widget = impact
                         .compare_counts
                         .on_click(ctx, app, x)
                         .expect("button click didn't belong to CompareCounts");
-                    app.session.impact = impact;
+                    app.per_map.impact = impact;
                     self.left_panel.replace(ctx, "compare counts", widget);
                     return Transition::Keep;
                 }
@@ -176,25 +176,25 @@ impl State<App> for ShowResults {
                 // TODO The sliders should only trigger updates when the user lets go; way too slow
                 // otherwise
                 let filters = Filters::from_panel(&self.left_panel);
-                if filters == app.session.impact.filters {
+                if filters == app.per_map.impact.filters {
                     return Transition::Keep;
                 }
 
                 // Avoid a double borrow
-                let mut impact = std::mem::replace(&mut app.session.impact, Impact::empty(ctx));
+                let mut impact = std::mem::replace(&mut app.per_map.impact, Impact::empty(ctx));
                 impact.filters = Filters::from_panel(&self.left_panel);
                 ctx.loading_screen("update filters", |ctx, timer| {
                     impact.trips_changed(ctx, app, timer);
                 });
-                app.session.impact = impact;
+                app.per_map.impact = impact;
                 return Transition::Keep;
             }
             _ => {}
         }
 
-        if let Some(r) = app.session.impact.compare_counts.other_event(ctx) {
+        if let Some(r) = app.per_map.impact.compare_counts.other_event(ctx) {
             let results = ctx.loading_screen("find changed routes", |_, timer| {
-                app.session.impact.find_changed_routes(app, r, timer)
+                app.per_map.impact.find_changed_routes(app, r, timer)
             });
             return Transition::Push(ChangedRoutes::new_state(ctx, app, results));
         }
@@ -212,8 +212,8 @@ impl State<App> for ShowResults {
         g.clear(app.cs.void_background);
         g.redraw(&app.per_map.draw_map.boundary_polygon);
         g.redraw(&app.per_map.draw_map.draw_all_areas);
-        app.session.impact.compare_counts.draw(g, app);
-        app.session.draw_all_filters.draw(g);
+        app.per_map.impact.compare_counts.draw(g, app);
+        app.per_map.draw_all_filters.draw(g);
 
         self.top_panel.draw(g);
         self.left_panel.draw(g);
@@ -407,8 +407,8 @@ impl State<App> for ChangedRoutes {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
         g.redraw(&self.draw_paths);
-        app.session.draw_all_filters.draw(g);
-        app.session.draw_poi_icons.draw(g);
+        app.per_map.draw_all_filters.draw(g);
+        app.per_map.draw_poi_icons.draw(g);
     }
 }
 
@@ -423,14 +423,14 @@ fn export_csv(app: &App) -> Result<String> {
                 osm_intersection1: r.orig_id.i1.0,
                 osm_intersection2: r.orig_id.i2.0,
                 total_count_before: app
-                    .session
+                    .per_map
                     .impact
                     .compare_counts
                     .counts_a
                     .per_road
                     .get(r.id),
                 total_count_after: app
-                    .session
+                    .per_map
                     .impact
                     .compare_counts
                     .counts_b
@@ -464,7 +464,7 @@ fn export_geojson(app: &App) -> String {
         props.insert("osm_intersection2".to_string(), r.orig_id.i2.0.into());
         props.insert(
             "total_count_before".to_string(),
-            app.session
+            app.per_map
                 .impact
                 .compare_counts
                 .counts_a
@@ -474,7 +474,7 @@ fn export_geojson(app: &App) -> String {
         );
         props.insert(
             "total_count_after".to_string(),
-            app.session
+            app.per_map
                 .impact
                 .compare_counts
                 .counts_b

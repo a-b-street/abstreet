@@ -11,7 +11,7 @@ pub struct TopPanel;
 
 impl TopPanel {
     pub fn panel(ctx: &mut EventCtx, app: &App) -> Panel {
-        let consultation = app.session.consultation.is_some();
+        let consultation = app.per_map.consultation.is_some();
 
         Panel::new_builder(
             Widget::row(vec![
@@ -75,7 +75,7 @@ impl TopPanel {
         if let Outcome::Clicked(x) = panel.event(ctx) {
             match x.as_ref() {
                 "Home" => {
-                    if app.session.consultation.is_none() {
+                    if app.per_map.consultation.is_none() {
                         Some(Transition::Clear(vec![
                             map_gui::tools::TitleScreen::new_state(
                                 ctx,

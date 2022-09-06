@@ -80,7 +80,7 @@ impl Layers {
     pub fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
         if self.show_bus_routes {
-            g.redraw(&app.session.draw_bus_routes);
+            g.redraw(&app.per_map.draw_bus_routes);
         }
     }
 

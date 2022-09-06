@@ -39,7 +39,7 @@ impl SelectBoundary {
         app: &mut App,
         id: NeighbourhoodID,
     ) -> Box<dyn State<App>> {
-        if app.session.partitioning.broken {
+        if app.per_map.partitioning.broken {
             return PopupMsg::new_state(
                 ctx,
                 "Error",
@@ -50,8 +50,8 @@ impl SelectBoundary {
             );
         }
 
-        if app.session.draw_all_road_labels.is_none() {
-            app.session.draw_all_road_labels = Some(DrawSimpleRoadLabels::all_roads(
+        if app.per_map.draw_all_road_labels.is_none() {
+            app.per_map.draw_all_road_labels = Some(DrawSimpleRoadLabels::all_roads(
                 ctx,
                 app,
                 colors::ROAD_LABEL,
@@ -76,20 +76,20 @@ impl SelectBoundary {
             draw_boundary_roads: draw_boundary_roads(ctx, app),
             frontier: BTreeSet::new(),
 
-            orig_partitioning: app.session.partitioning.clone(),
+            orig_partitioning: app.per_map.partitioning.clone(),
             last_failed_change: None,
 
             lasso: None,
         };
 
-        let initial_boundary = app.session.partitioning.neighbourhood_block(id);
+        let initial_boundary = app.per_map.partitioning.neighbourhood_block(id);
         state.frontier = app
-            .session
+            .per_map
             .partitioning
             .calculate_frontier(&initial_boundary.perimeter);
 
         // Fill out the world initially
-        for id in app.session.partitioning.all_block_ids() {
+        for id in app.per_map.partitioning.all_block_ids() {
             state.add_block(ctx, app, id);
         }
 
@@ -102,7 +102,7 @@ impl SelectBoundary {
             let mut obj = self
                 .world
                 .add(id)
-                .hitbox(app.session.partitioning.get_block(id).polygon.clone())
+                .hitbox(app.per_map.partitioning.get_block(id).polygon.clone())
                 .draw_color(colors::BLOCK_IN_BOUNDARY)
                 .hover_alpha(0.8);
             if self.frontier.contains(&id) {
@@ -115,7 +115,7 @@ impl SelectBoundary {
         } else if self.frontier.contains(&id) {
             self.world
                 .add(id)
-                .hitbox(app.session.partitioning.get_block(id).polygon.clone())
+                .hitbox(app.per_map.partitioning.get_block(id).polygon.clone())
                 .draw_color(colors::BLOCK_IN_FRONTIER)
                 .hover_alpha(0.8)
                 .hotkey(Key::Space, "add")
@@ -126,7 +126,7 @@ impl SelectBoundary {
             // TODO Adds an invisible, non-clickable block. Don't add the block at all then?
             self.world
                 .add(id)
-                .hitbox(app.session.partitioning.get_block(id).polygon.clone())
+                .hitbox(app.per_map.partitioning.get_block(id).polygon.clone())
                 .draw(GeomBatch::new())
                 .build(ctx);
         }
@@ -146,8 +146,8 @@ impl SelectBoundary {
             }
             Ok(None) => {
                 let old_frontier = std::mem::take(&mut self.frontier);
-                self.frontier = app.session.partitioning.calculate_frontier(
-                    &app.session
+                self.frontier = app.per_map.partitioning.calculate_frontier(
+                    &app.per_map
                         .partitioning
                         .neighbourhood_block(self.id)
                         .perimeter,
@@ -185,13 +185,13 @@ impl SelectBoundary {
     // focusing on a different neighborhood
     fn try_toggle_block(&mut self, app: &mut App, id: BlockID) -> Result<Option<NeighbourhoodID>> {
         if self.currently_have_block(app, id) {
-            app.session
+            app.per_map
                 .partitioning
                 .remove_block_from_neighbourhood(&app.per_map.map, id, self.id)
         } else {
-            let old_owner = app.session.partitioning.block_to_neighbourhood(id);
+            let old_owner = app.per_map.partitioning.block_to_neighbourhood(id);
             // Ignore the return value if the old neighbourhood is deleted
-            app.session
+            app.per_map
                 .partitioning
                 .transfer_block(&app.per_map.map, id, old_owner, self.id)?;
             Ok(None)
@@ -199,7 +199,7 @@ impl SelectBoundary {
     }
 
     fn currently_have_block(&self, app: &App, id: BlockID) -> bool {
-        app.session.partitioning.block_to_neighbourhood(id) == self.id
+        app.per_map.partitioning.block_to_neighbourhood(id) == self.id
     }
 
     fn add_blocks_freehand(&mut self, ctx: &mut EventCtx, app: &mut App, lasso_polygon: Polygon) {
@@ -207,9 +207,9 @@ impl SelectBoundary {
             timer.start("find matching blocks");
             // Find all of the blocks within the polygon
             let mut add_blocks = Vec::new();
-            for (id, block) in app.session.partitioning.all_single_blocks() {
+            for (id, block) in app.per_map.partitioning.all_single_blocks() {
                 if lasso_polygon.contains_pt(block.polygon.center()) {
-                    if app.session.partitioning.block_to_neighbourhood(id) != self.id {
+                    if app.per_map.partitioning.block_to_neighbourhood(id) != self.id {
                         add_blocks.push(id);
                     }
                 }
@@ -228,8 +228,8 @@ impl SelectBoundary {
                 for block_id in add_blocks.drain(..) {
                     timer.next();
                     if self.frontier.contains(&block_id) {
-                        let old_owner = app.session.partitioning.block_to_neighbourhood(block_id);
-                        if let Ok(_) = app.session.partitioning.transfer_block(
+                        let old_owner = app.per_map.partitioning.block_to_neighbourhood(block_id);
+                        if let Ok(_) = app.per_map.partitioning.transfer_block(
                             &app.per_map.map,
                             block_id,
                             old_owner,
@@ -245,8 +245,8 @@ impl SelectBoundary {
                 }
                 if changed {
                     add_blocks = still_todo;
-                    self.frontier = app.session.partitioning.calculate_frontier(
-                        &app.session
+                    self.frontier = app.per_map.partitioning.calculate_frontier(
+                        &app.per_map
                             .partitioning
                             .neighbourhood_block(self.id)
                             .perimeter,
@@ -259,7 +259,7 @@ impl SelectBoundary {
 
             // Just redraw everything
             self.world = World::bounded(app.per_map.map.get_bounds());
-            for id in app.session.partitioning.all_block_ids() {
+            for id in app.per_map.partitioning.all_block_ids() {
                 self.add_block(ctx, app, id);
             }
             self.draw_boundary_roads = draw_boundary_roads(ctx, app);
@@ -290,7 +290,7 @@ impl State<App> for SelectBoundary {
                     // TODO If we destroyed the current neighbourhood, then we cancel, we'll pop
                     // back to a different neighbourhood than we started with. And also the original
                     // partitioning will have been lost!!!
-                    app.session.partitioning = self.orig_partitioning.clone();
+                    app.per_map.partitioning = self.orig_partitioning.clone();
                     return Transition::Replace(crate::connectivity::Viewer::new_state(
                         ctx, app, self.id,
                     ));
@@ -338,7 +338,7 @@ impl State<App> for SelectBoundary {
         self.top_panel.draw(g);
         self.left_panel.draw(g);
         app.session.layers.draw(g, app);
-        app.session.draw_all_road_labels.as_ref().unwrap().draw(g);
+        app.per_map.draw_all_road_labels.as_ref().unwrap().draw(g);
         if let Some(ref lasso) = self.lasso {
             lasso.draw(g);
         }
@@ -372,7 +372,7 @@ fn make_panel(ctx: &mut EventCtx, app: &App, id: NeighbourhoodID, top_panel: &Pa
             .into_widget(ctx),
             format!(
                 "Neighbourhood area: {}",
-                app.session.partitioning.neighbourhood_area_km2(id)
+                app.per_map.partitioning.neighbourhood_area_km2(id)
             )
             .text_widget(ctx),
             ctx.style()

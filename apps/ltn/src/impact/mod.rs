@@ -79,13 +79,13 @@ impl Impact {
 
         impact.pathfinder_before_changes = Pathfinder::new_ch(
             map,
-            app.session.routing_params_before_changes.clone(),
+            app.per_map.routing_params_before_changes.clone(),
             PathConstraints::all(),
             timer,
         );
 
         impact.map = app.per_map.map.get_name().clone();
-        impact.change_key = app.session.edits.get_change_key();
+        impact.change_key = app.per_map.edits.get_change_key();
         impact.all_trips = timer
             .parallelize("analyze trips", scenario.all_trips().collect(), |trip| {
                 TripEndpoint::path_req(trip.origin, trip.destination, trip.mode, map)
@@ -107,7 +107,7 @@ impl Impact {
             .map(|m| m.to_constraints())
             .collect();
         let mut params = app.per_map.map.routing_params().clone();
-        app.session.edits.update_routing_params(&mut params);
+        app.per_map.edits.update_routing_params(&mut params);
         Pathfinder::new_ch(
             &app.per_map.map,
             params,
@@ -156,7 +156,7 @@ impl Impact {
     }
 
     fn map_edits_changed(&mut self, ctx: &mut EventCtx, app: &App, timer: &mut Timer) {
-        self.change_key = app.session.edits.get_change_key();
+        self.change_key = app.per_map.edits.get_change_key();
         let counts_b = self.counts_b(app, timer);
         self.compare_counts.recalculate_b(ctx, app, counts_b);
     }

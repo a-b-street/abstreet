@@ -89,7 +89,7 @@ impl Viewer {
                 Widget::col(vec![
                     format!(
                         "Neighbourhood area: {}",
-                        app.session
+                        app.per_map
                             .partitioning
                             .neighbourhood_area_km2(self.neighbourhood.id)
                     )
@@ -174,7 +174,7 @@ impl State<App> for Viewer {
                     ctx,
                     app,
                     crate::save::PreserveState::Connectivity(
-                        app.session
+                        app.per_map
                             .partitioning
                             .all_blocks_in_neighbourhood(self.neighbourhood.id),
                     ),
@@ -227,8 +227,8 @@ impl State<App> for Viewer {
         self.left_panel.draw(g);
         app.session.layers.draw(g, app);
         self.neighbourhood.labels.draw(g);
-        app.session.draw_all_filters.draw(g);
-        app.session.draw_poi_icons.draw(g);
+        app.per_map.draw_all_filters.draw(g);
+        app.per_map.draw_poi_icons.draw(g);
 
         if self.left_panel.currently_hovering() == Some(&"warning".to_string()) {
             g.redraw(&self.show_error);
@@ -377,7 +377,7 @@ fn help() -> Vec<&'static str> {
 }
 
 fn advanced_panel(ctx: &EventCtx, app: &App) -> Widget {
-    if app.session.consultation.is_some() {
+    if app.per_map.consultation.is_some() {
         return Widget::nothing();
     }
     if !app.opts.dev {

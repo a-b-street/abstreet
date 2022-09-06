@@ -88,7 +88,7 @@ impl Shortcuts {
 
 pub fn find_shortcuts(app: &App, neighbourhood: &Neighbourhood, timer: &mut Timer) -> Shortcuts {
     let map = &app.per_map.map;
-    let edits = &app.session.edits;
+    let edits = &app.per_map.edits;
     // The overall approach: look for all possible paths from an entrance to an exit, only if they
     // connect to different major roads.
     //

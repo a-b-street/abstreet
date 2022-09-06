@@ -33,21 +33,21 @@ impl Proposal {
         Self {
             map: app.per_map.map.get_name().clone(),
             name: app
-                .session
+                .per_map
                 .proposal_name
                 .clone()
                 .unwrap_or(String::from("existing LTNs")),
             abst_version: map_gui::tools::version().to_string(),
 
-            partitioning: app.session.partitioning.clone(),
-            edits: app.session.edits.clone(),
+            partitioning: app.per_map.partitioning.clone(),
+            edits: app.per_map.edits.clone(),
         }
     }
 
     fn make_active(self, ctx: &EventCtx, app: &mut App) {
         // First undo any one-way changes
         let mut edits = app.per_map.map.new_edits();
-        for r in app.session.edits.one_ways.keys().cloned() {
+        for r in app.per_map.edits.one_ways.keys().cloned() {
             // Just revert to the original state
             edits.commands.push(app.per_map.map.edit_road_cmd(r, |new| {
                 *new = EditRoad::get_orig_from_osm(
@@ -57,14 +57,14 @@ impl Proposal {
             }));
         }
 
-        app.session.proposal_name = Some(self.name);
-        app.session.partitioning = self.partitioning;
-        app.session.edits = self.edits;
-        app.session.draw_all_filters = app.session.edits.draw(ctx, &app.per_map.map);
+        app.per_map.proposal_name = Some(self.name);
+        app.per_map.partitioning = self.partitioning;
+        app.per_map.edits = self.edits;
+        app.per_map.draw_all_filters = app.per_map.edits.draw(ctx, &app.per_map.map);
 
         // Then append any new one-way changes. Edits are applied in order, so the net effect
         // should be correct.
-        for (r, r_edit) in &app.session.edits.one_ways {
+        for (r, r_edit) in &app.per_map.edits.one_ways {
             edits
                 .commands
                 .push(app.per_map.map.edit_road_cmd(*r, move |new| {
@@ -116,12 +116,12 @@ impl Proposal {
 
         // When initially loading a proposal from CLI flag, the partitioning will be a placeholder.
         // Don't stash it.
-        if !app.session.partitioning.is_empty() {
+        if !app.per_map.partitioning.is_empty() {
             stash_current_proposal(app);
 
             // Start a new proposal
-            app.session.alt_proposals.list.push(None);
-            app.session.alt_proposals.current = app.session.alt_proposals.list.len() - 1;
+            app.per_map.alt_proposals.list.push(None);
+            app.per_map.alt_proposals.current = app.per_map.alt_proposals.list.len() - 1;
         }
 
         proposal.make_active(ctx, app);
@@ -148,10 +148,10 @@ impl Proposal {
 }
 
 fn stash_current_proposal(app: &mut App) {
-    *app.session
+    *app.per_map
         .alt_proposals
         .list
-        .get_mut(app.session.alt_proposals.current)
+        .get_mut(app.per_map.alt_proposals.current)
         .unwrap() = Some(Proposal::from_app(app));
 }
 
@@ -159,21 +159,21 @@ fn switch_to_existing_proposal(ctx: &mut EventCtx, app: &mut App, idx: usize) {
     stash_current_proposal(app);
 
     let proposal = app
-        .session
+        .per_map
         .alt_proposals
         .list
         .get_mut(idx)
         .unwrap()
         .take()
         .unwrap();
-    app.session.alt_proposals.current = idx;
+    app.per_map.alt_proposals.current = idx;
 
     proposal.make_active(ctx, app);
 }
 
 fn save_ui(ctx: &mut EventCtx, app: &App, preserve_state: PreserveState) -> Box<dyn State<App>> {
     let default_name = app
-        .session
+        .per_map
         .proposal_name
         .clone()
         .unwrap_or_else(String::new);
@@ -184,7 +184,7 @@ fn save_ui(ctx: &mut EventCtx, app: &App, preserve_state: PreserveState) -> Box<
         Box::new(|name, ctx, app| {
             // If we overwrite an existing proposal, all hell may break loose. AltProposals state
             // and file state are not synchronized / auto-saved.
-            app.session.proposal_name = Some(name.clone());
+            app.per_map.proposal_name = Some(name.clone());
 
             match inner_save(app) {
                 // If we changed the name, we'll want to recreate the panel
@@ -280,7 +280,7 @@ impl AltProposals {
                     .text(format!(
                         "{} - {}",
                         idx + 1,
-                        app.session
+                        app.per_map
                             .proposal_name
                             .as_ref()
                             .unwrap_or(&String::from("existing LTNs")),
@@ -319,7 +319,7 @@ impl AltProposals {
                     // First undo any one-way changes. This is messy to repeat here, but it's not
                     // straightforward to use make_active.
                     let mut edits = app.per_map.map.new_edits();
-                    for r in app.session.edits.one_ways.keys().cloned() {
+                    for r in app.per_map.edits.one_ways.keys().cloned() {
                         edits.commands.push(app.per_map.map.edit_road_cmd(r, |new| {
                             *new = EditRoad::get_orig_from_osm(
                                 app.per_map.map.get_r(r),
@@ -333,8 +333,8 @@ impl AltProposals {
                 });
 
                 // Start a new proposal
-                app.session.alt_proposals.list.push(None);
-                app.session.alt_proposals.current = app.session.alt_proposals.list.len() - 1;
+                app.per_map.alt_proposals.list.push(None);
+                app.per_map.alt_proposals.current = app.per_map.alt_proposals.list.len() - 1;
             }
             "Load" => {
                 return Some(Transition::Push(load_picker_ui(ctx, app, preserve_state)));
@@ -351,17 +351,17 @@ impl AltProposals {
                     switch_to_existing_proposal(ctx, app, idx);
                 } else if let Some(x) = action.strip_prefix("hide proposal ") {
                     let idx = x.parse::<usize>().unwrap();
-                    if idx == app.session.alt_proposals.current {
+                    if idx == app.per_map.alt_proposals.current {
                         // First make sure we're not hiding the current proposal
                         switch_to_existing_proposal(ctx, app, if idx == 0 { 1 } else { idx - 1 });
                     }
 
                     // Remove it
-                    app.session.alt_proposals.list.remove(idx);
+                    app.per_map.alt_proposals.list.remove(idx);
 
                     // Fix up indices
-                    if idx < app.session.alt_proposals.current {
-                        app.session.alt_proposals.current -= 1;
+                    if idx < app.per_map.alt_proposals.current {
+                        app.per_map.alt_proposals.current -= 1;
                     }
                 } else {
                     return None;
@@ -399,7 +399,7 @@ impl PreserveState {
                 // with the most matches
                 let mut count = Counter::new();
                 for block in blocks {
-                    count.inc(app.session.partitioning.block_to_neighbourhood(block));
+                    count.inc(app.per_map.partitioning.block_to_neighbourhood(block));
                 }
 
                 if let EditMode::Shortcuts(ref mut maybe_focus) = app.session.edit_mode {

@@ -37,9 +37,9 @@ fn make_filters_along_path(
     let mut oneways = Vec::new();
     let mut bus_roads = Vec::new();
 
-    app.session.edits.before_edit();
+    app.per_map.edits.before_edit();
     for r in &neighbourhood.orig_perimeter.interior {
-        if app.session.edits.roads.contains_key(r) {
+        if app.per_map.edits.roads.contains_key(r) {
             continue;
         }
         let road = app.per_map.map.get_r(*r);
@@ -66,7 +66,7 @@ fn make_filters_along_path(
                 continue;
             }
 
-            app.session
+            app.per_map
                 .edits
                 .roads
                 .insert(*r, RoadFilter::new_by_user(dist, app.session.filter_type));

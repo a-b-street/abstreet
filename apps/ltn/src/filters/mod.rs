@@ -14,7 +14,7 @@ use widgetry::{Drawable, EventCtx, GeomBatch, GfxCtx, RewriteColor};
 pub use self::existing::transform_existing_filters;
 use crate::App;
 
-/// Stored in App session state. Before making any changes, call `before_edit`.
+/// Stored in App per-map state. Before making any changes, call `before_edit`.
 #[derive(Clone, Default, Serialize, Deserialize)]
 pub struct Edits {
     // We use serialize_btreemap so that save::perma can detect and transform IDs
@@ -264,18 +264,18 @@ impl DiagonalFilter {
             let alt1 = DiagonalFilter::new(app, i, roads[0], roads[1]);
             let alt2 = DiagonalFilter::new(app, i, roads[1], roads[2]);
 
-            match app.session.edits.intersections.get(&i) {
+            match app.per_map.edits.intersections.get(&i) {
                 Some(prev) => {
                     if alt1.approx_eq(prev) {
-                        app.session.edits.intersections.insert(i, alt2);
+                        app.per_map.edits.intersections.insert(i, alt2);
                     } else if alt2.approx_eq(prev) {
-                        app.session.edits.intersections.remove(&i);
+                        app.per_map.edits.intersections.remove(&i);
                     } else {
                         unreachable!()
                     }
                 }
                 None => {
-                    app.session.edits.intersections.insert(i, alt1);
+                    app.per_map.edits.intersections.insert(i, alt1);
                 }
             }
         } else if roads.len() > 1 {
@@ -300,9 +300,9 @@ impl DiagonalFilter {
             let mut add_filter_to = None;
             if let Some(idx) = roads
                 .iter()
-                .position(|r| app.session.edits.roads.contains_key(r))
+                .position(|r| app.per_map.edits.roads.contains_key(r))
             {
-                app.session.edits.roads.remove(&roads[idx]);
+                app.per_map.edits.roads.remove(&roads[idx]);
                 if idx != roads.len() - 1 {
                     add_filter_to = Some(roads[idx + 1]);
                 }
@@ -316,7 +316,7 @@ impl DiagonalFilter {
                 } else {
                     road.length()
                 };
-                app.session
+                app.per_map
                     .edits
                     .roads
                     .insert(r, RoadFilter::new_by_user(dist, app.session.filter_type));

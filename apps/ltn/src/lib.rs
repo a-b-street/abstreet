@@ -4,10 +4,9 @@ use structopt::StructOpt;
 
 use abstio::MapName;
 use abstutil::Timer;
-use geom::Distance;
-use map_model::{AmenityType, Map, PathConstraints, Road, RoutingParams};
+use map_model::{Map, PathConstraints, Road, RoutingParams};
 use widgetry::tools::FutureLoader;
-use widgetry::{Color, Drawable, EventCtx, GeomBatch, RewriteColor, Settings, State};
+use widgetry::{EventCtx, Settings, State};
 
 pub use app::{App, PerMap, Session, Transition};
 pub use browse::BrowseNeighbourhoods;
@@ -79,41 +78,11 @@ fn run(mut settings: Settings) {
         .update_widgetry_settings(settings)
         .canvas_settings(opts.canvas_settings.clone());
     widgetry::run(settings, move |ctx| {
-        let session = Session {
-            proposal_name: None,
-            partitioning: Partitioning::empty(),
-            edits: Edits::default(),
-            routing_params_before_changes: RoutingParams::default(),
-            draw_all_road_labels: None,
-            draw_poi_icons: Drawable::empty(ctx),
-            draw_bus_routes: Drawable::empty(ctx),
-
-            alt_proposals: save::AltProposals::new(),
-            draw_all_filters: Toggle3Zoomed::empty(ctx),
-            impact: impact::Impact::empty(ctx),
-
-            edit_mode: edit::EditMode::Filters,
-            filter_type: FilterType::WalkCycleOnly,
-
-            draw_neighbourhood_style: browse::Style::Simple,
-            heuristic: filters::auto::Heuristic::SplitCells,
-            main_road_penalty: 1.0,
-            show_walking_cycling_routes: false,
-
-            current_trip_name: None,
-
-            consultation: None,
-            consultation_id: None,
-            consultation_proposal_path: None,
-
-            layers: components::Layers::new(ctx),
-        };
         App::new(
             ctx,
             opts,
             args.app_args.map_name(),
             args.app_args.cam,
-            session,
             move |ctx, app| {
                 // We need app to fully initialize this
                 app.session
@@ -159,7 +128,7 @@ fn setup_initial_states(
             "pt1" => "Gregory Street",
             "pt2" => {
                 // Start from a baked-in proposal with special boundaries
-                app.session.consultation_proposal_path = Some(abstio::path(
+                app.per_map.consultation_proposal_path = Some(abstio::path(
                     "system/ltn_proposals/bristol_beaufort_road.json.gz",
                 ));
                 "Jubilee Road"
@@ -168,8 +137,8 @@ fn setup_initial_states(
         };
 
         // If we already loaded something from a saved proposal, then don't clear anything
-        if &app.session.partitioning.map != app.per_map.map.get_name() {
-            app.session.alt_proposals = crate::save::AltProposals::new();
+        if &app.per_map.partitioning.map != app.per_map.map.get_name() {
+            app.per_map.alt_proposals = crate::save::AltProposals::new();
             ctx.loading_screen("initialize", |ctx, timer| {
                 crate::clear_current_proposal(ctx, app, timer);
             });
@@ -185,7 +154,7 @@ fn setup_initial_states(
             .expect(&format!("Can't find {focus_on_street}"))
             .id;
         let (neighbourhood, _) = app
-            .session
+            .per_map
             .partitioning
             .all_neighbourhoods()
             .iter()
@@ -193,15 +162,15 @@ fn setup_initial_states(
             .expect(&format!(
                 "Can't find neighbourhood containing {focus_on_street}"
             ));
-        app.session.consultation = Some(*neighbourhood);
-        app.session.consultation_id = Some(consultation.to_string());
+        app.per_map.consultation = Some(*neighbourhood);
+        app.per_map.consultation_id = Some(consultation.to_string());
 
         // TODO Maybe center the camera, ignoring any saved values
 
         states.push(connectivity::Viewer::new_state(
             ctx,
             app,
-            app.session.consultation.unwrap(),
+            app.per_map.consultation.unwrap(),
         ));
     } else {
         states.push(map_gui::tools::TitleScreen::new_state(
@@ -263,73 +232,26 @@ pub fn run_wasm(root_dom_id: String, assets_base_url: String, assets_are_gzipped
 }
 
 pub fn after_edit(ctx: &EventCtx, app: &mut App) {
-    app.session.draw_all_filters = app.session.edits.draw(ctx, &app.per_map.map);
+    app.per_map.draw_all_filters = app.per_map.edits.draw(ctx, &app.per_map.map);
 }
 
 pub fn clear_current_proposal(ctx: &mut EventCtx, app: &mut App, timer: &mut Timer) {
-    if let Some(path) = app.session.consultation_proposal_path.clone() {
+    if let Some(path) = app.per_map.consultation_proposal_path.clone() {
         if crate::save::Proposal::load_from_path(ctx, app, path.clone()).is_some() {
             panic!("Consultation mode broken; go fix {path} manually");
         }
         return;
     }
 
-    app.session.proposal_name = None;
+    // TODO How much of this can go to PerMap? Maybe we need to explicitly store the original
+    // detected filters as an immutable proposal, calculated in PerMap::new
+
     // Reset this first. transform_existing_filters will fill some out.
-    app.session.routing_params_before_changes = RoutingParams::default();
-    app.session.edits = Edits::default();
+    app.per_map.routing_params_before_changes = RoutingParams::default();
+    app.per_map.edits = Edits::default();
     crate::filters::transform_existing_filters(ctx, app, timer);
-    app.session.partitioning = Partitioning::seed_using_heuristics(app, timer);
-    app.session.draw_all_filters = app.session.edits.draw(ctx, &app.per_map.map);
-    app.session.draw_all_road_labels = None;
-    app.session.draw_poi_icons = render_poi_icons(ctx, app);
-    app.session.draw_bus_routes = render_bus_routes(ctx, app);
-}
-
-fn render_poi_icons(ctx: &EventCtx, app: &App) -> Drawable {
-    let mut batch = GeomBatch::new();
-    let school = GeomBatch::load_svg(ctx, "system/assets/map/school.svg")
-        .scale(0.2)
-        .color(RewriteColor::ChangeAll(Color::WHITE));
-
-    for b in app.per_map.map.all_buildings() {
-        if b.amenities.iter().any(|a| {
-            let at = AmenityType::categorize(&a.amenity_type);
-            at == Some(AmenityType::School) || at == Some(AmenityType::University)
-        }) {
-            batch.append(school.clone().centered_on(b.polygon.polylabel()));
-        }
-    }
-
-    ctx.upload(batch)
-}
-
-fn render_bus_routes(ctx: &EventCtx, app: &App) -> Drawable {
-    let mut batch = GeomBatch::new();
-    for r in app.per_map.map.all_roads() {
-        if app.per_map.map.get_bus_routes_on_road(r.id).is_empty() {
-            continue;
-        }
-        // Draw dashed outlines surrounding the road
-        let width = r.get_width();
-        for pl in [
-            r.center_pts.shift_left(width * 0.7),
-            r.center_pts.shift_right(width * 0.7),
-        ]
-        .into_iter()
-        .flatten()
-        {
-            batch.extend(
-                *colors::BUS_ROUTE,
-                pl.exact_dashed_polygons(
-                    Distance::meters(2.0),
-                    Distance::meters(5.0),
-                    Distance::meters(2.0),
-                ),
-            );
-        }
-    }
-    ctx.upload(batch)
+    app.per_map.partitioning = Partitioning::seed_using_heuristics(app, timer);
+    app.per_map.draw_all_filters = app.per_map.edits.draw(ctx, &app.per_map.map);
 }
 
 fn is_private(road: &Road) -> bool {

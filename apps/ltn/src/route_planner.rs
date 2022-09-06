@@ -31,7 +31,7 @@ impl TripManagementState<App> for RoutePlanner {
     }
 
     fn app_session_current_trip_name(app: &mut App) -> &mut Option<String> {
-        &mut app.session.current_trip_name
+        &mut app.per_map.current_trip_name
     }
 
     fn sync_from_file_management(&mut self, ctx: &mut EventCtx, app: &mut App) {
@@ -43,8 +43,8 @@ impl TripManagementState<App> for RoutePlanner {
 
 impl RoutePlanner {
     pub fn new_state(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
-        if app.session.draw_all_road_labels.is_none() {
-            app.session.draw_all_road_labels = Some(DrawSimpleRoadLabels::all_roads(
+        if app.per_map.draw_all_road_labels.is_none() {
+            app.per_map.draw_all_road_labels = Some(DrawSimpleRoadLabels::all_roads(
                 ctx,
                 app,
                 colors::ROAD_LABEL,
@@ -53,7 +53,7 @@ impl RoutePlanner {
 
         // Fade all neighbourhood interiors, so it's very clear when a route cuts through
         let mut batch = GeomBatch::new();
-        for info in app.session.partitioning.all_neighbourhoods().values() {
+        for info in app.per_map.partitioning.all_neighbourhoods().values() {
             batch.push(app.cs.fade_map_dark, info.block.polygon.clone());
         }
 
@@ -68,7 +68,7 @@ impl RoutePlanner {
             pathfinder_cache: PathfinderCache::new(),
         };
 
-        if let Some(current_name) = &app.session.current_trip_name {
+        if let Some(current_name) = &app.per_map.current_trip_name {
             rp.files.set_current(current_name);
         }
         rp.sync_from_file_management(ctx, app);
@@ -90,13 +90,13 @@ impl RoutePlanner {
         let results_widget = self.recalculate_paths(ctx, app);
 
         let contents = Widget::col(vec![
-            app.session.alt_proposals.to_widget(ctx, app),
+            app.per_map.alt_proposals.to_widget(ctx, app),
             BrowseNeighbourhoods::button(ctx, app),
             ctx.style()
                 .btn_back("Analyze neighbourhood")
                 .hotkey(Key::Escape)
                 .build_def(ctx)
-                .hide(app.session.consultation.is_none()),
+                .hide(app.per_map.consultation.is_none()),
             Line("Plan a route").small_heading().into_widget(ctx),
             Widget::col(vec![
                 self.files.get_panel_widget(ctx),
@@ -178,7 +178,7 @@ impl RoutePlanner {
 
         let driving_before_changes_time = {
             let mut total_time = Duration::ZERO;
-            let mut params = app.session.routing_params_before_changes.clone();
+            let mut params = app.per_map.routing_params_before_changes.clone();
             params.main_road_penalty = app.session.main_road_penalty;
 
             for pair in self.waypoints.get_waypoints().windows(2) {
@@ -199,7 +199,7 @@ impl RoutePlanner {
         // The route respecting the filters
         let driving_after_changes_time = {
             let mut params = map.routing_params().clone();
-            app.session.edits.update_routing_params(&mut params);
+            app.per_map.edits.update_routing_params(&mut params);
             params.main_road_penalty = app.session.main_road_penalty;
 
             let mut total_time = Duration::ZERO;
@@ -396,9 +396,9 @@ impl State<App> for RoutePlanner {
         g.redraw(&self.show_main_roads);
         self.world.draw(g);
         self.draw_routes.draw(g);
-        app.session.draw_all_road_labels.as_ref().unwrap().draw(g);
-        app.session.draw_all_filters.draw(g);
-        app.session.draw_poi_icons.draw(g);
+        app.per_map.draw_all_road_labels.as_ref().unwrap().draw(g);
+        app.per_map.draw_all_filters.draw(g);
+        app.per_map.draw_poi_icons.draw(g);
     }
 }
 

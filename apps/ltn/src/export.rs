@@ -20,7 +20,7 @@ fn geojson_string(ctx: &mut EventCtx, app: &App) -> Result<String> {
     let mut features = Vec::new();
 
     // All neighbourhood boundaries
-    for (id, info) in app.session.partitioning.all_neighbourhoods() {
+    for (id, info) in app.per_map.partitioning.all_neighbourhoods() {
         let mut feature = Feature {
             bbox: None,
             geometry: Some(info.block.polygon.to_geojson(None)),
@@ -53,7 +53,7 @@ fn geojson_string(ctx: &mut EventCtx, app: &App) -> Result<String> {
     }
 
     // All modal filters
-    for (r, filter) in &app.session.edits.roads {
+    for (r, filter) in &app.per_map.edits.roads {
         let road = map.get_r(*r);
         if let Ok((pt, angle)) = road.center_pts.dist_along(filter.dist) {
             let road_width = road.get_width();
@@ -75,7 +75,7 @@ fn geojson_string(ctx: &mut EventCtx, app: &App) -> Result<String> {
             features.push(feature);
         }
     }
-    for (_, filter) in &app.session.edits.intersections {
+    for (_, filter) in &app.per_map.edits.intersections {
         let pl = filter.geometry(map).to_polyline();
         let mut feature = Feature {
             bbox: None,

@@ -1,6 +1,6 @@
 use abstio::MapName;
 use abstutil::Timer;
-use geom::{Duration, Pt2D, Time};
+use geom::{Distance, Duration, Pt2D, Time};
 use map_gui::colors::ColorScheme;
 use map_gui::load::MapLoader;
 use map_gui::options::Options;
@@ -8,9 +8,12 @@ use map_gui::render::{DrawMap, DrawOptions};
 use map_gui::tools::CameraState;
 use map_gui::tools::DrawSimpleRoadLabels;
 use map_gui::{AppLike, ID};
-use map_model::{IntersectionID, Map, RoutingParams};
+use map_model::{AmenityType, IntersectionID, Map, RoutingParams};
 use widgetry::tools::URLManager;
-use widgetry::{Canvas, Drawable, EventCtx, GfxCtx, SharedAppState, State, Warper};
+use widgetry::{
+    Canvas, Color, Drawable, EventCtx, GeomBatch, GfxCtx, RewriteColor, SharedAppState, State,
+    Warper,
+};
 
 use crate::{Edits, FilterType, NeighbourhoodID, Partitioning, Toggle3Zoomed};
 
@@ -27,12 +30,67 @@ pub struct App {
 pub struct PerMap {
     pub map: Map,
     pub draw_map: DrawMap,
+
+    // These come from a save::Proposal
+    pub proposal_name: Option<String>,
+    pub partitioning: Partitioning,
+    pub edits: Edits,
+
+    // These capture modal filters that exist in the map already. Whenever we pathfind in this app
+    // in the "before changes" case, we have to use these. Do NOT use the map's built-in
+    // pathfinder. (https://github.com/a-b-street/abstreet/issues/852 would make this more clear)
+    pub routing_params_before_changes: RoutingParams,
+    pub alt_proposals: crate::save::AltProposals,
+    pub impact: crate::impact::Impact,
+
+    pub consultation: Option<NeighbourhoodID>,
+    pub consultation_id: Option<String>,
+    // The current consultation should always be based off a built-in proposal
+    pub consultation_proposal_path: Option<String>,
+
+    pub draw_all_filters: Toggle3Zoomed,
+    pub draw_all_road_labels: Option<DrawSimpleRoadLabels>,
+    pub draw_poi_icons: Drawable,
+    pub draw_bus_routes: Drawable,
+
+    pub current_trip_name: Option<String>,
 }
 
 impl PerMap {
-    fn new(ctx: &mut EventCtx, app: &App, map: Map, timer: &mut Timer) -> Self {
-        let draw_map = DrawMap::new(ctx, &map, &app.opts, &app.cs, timer);
-        let per_map = Self { map, draw_map };
+    fn new(
+        ctx: &mut EventCtx,
+        map: Map,
+        opts: &Options,
+        cs: &ColorScheme,
+        timer: &mut Timer,
+    ) -> Self {
+        let draw_map = DrawMap::new(ctx, &map, opts, cs, timer);
+        let draw_poi_icons = render_poi_icons(ctx, &map);
+        let draw_bus_routes = render_bus_routes(ctx, &map);
+
+        let per_map = Self {
+            map,
+            draw_map,
+
+            proposal_name: None,
+            partitioning: Partitioning::empty(),
+            edits: Edits::default(),
+
+            routing_params_before_changes: RoutingParams::default(),
+            alt_proposals: crate::save::AltProposals::new(),
+            impact: crate::impact::Impact::empty(ctx),
+
+            consultation: None,
+            consultation_id: None,
+            consultation_proposal_path: None,
+
+            draw_all_filters: Toggle3Zoomed::empty(ctx),
+            draw_all_road_labels: None,
+            draw_poi_icons,
+            draw_bus_routes,
+
+            current_trip_name: None,
+        };
         if !CameraState::load(ctx, per_map.map.get_name()) {
             // If we didn't restore a previous camera position, start zoomed out, centered on the
             // map's center.
@@ -44,25 +102,7 @@ impl PerMap {
     }
 }
 
-// TODO Tension: Many of these are per-map. game::App nicely wraps these up. Time to stop abusing
-// SimpleApp?
 pub struct Session {
-    // These come from a save::Proposal
-    pub proposal_name: Option<String>,
-    pub partitioning: Partitioning,
-    pub edits: Edits,
-    // These capture modal filters that exist in the map already. Whenever we pathfind in this app
-    // in the "before changes" case, we have to use these. Do NOT use the map's built-in
-    // pathfinder. (https://github.com/a-b-street/abstreet/issues/852 would make this more clear)
-    pub routing_params_before_changes: RoutingParams,
-    pub draw_all_road_labels: Option<DrawSimpleRoadLabels>,
-    pub draw_poi_icons: Drawable,
-    pub draw_bus_routes: Drawable,
-
-    pub alt_proposals: crate::save::AltProposals,
-    pub draw_all_filters: Toggle3Zoomed,
-    pub impact: crate::impact::Impact,
-
     pub edit_mode: crate::edit::EditMode,
     pub filter_type: FilterType,
 
@@ -74,13 +114,6 @@ pub struct Session {
     // Pathfinding
     pub main_road_penalty: f64,
     pub show_walking_cycling_routes: bool,
-
-    pub current_trip_name: Option<String>,
-
-    pub consultation: Option<NeighbourhoodID>,
-    pub consultation_id: Option<String>,
-    // The current consultation should always be based off a built-in proposal
-    pub consultation_proposal_path: Option<String>,
 
     // Shared in all modes
     pub layers: crate::components::Layers,
@@ -122,7 +155,7 @@ impl AppLike for App {
 
     fn map_switched(&mut self, ctx: &mut EventCtx, map: Map, timer: &mut Timer) {
         CameraState::save(ctx.canvas, self.per_map.map.get_name());
-        self.per_map = PerMap::new(ctx, self, map, timer);
+        self.per_map = PerMap::new(ctx, map, &self.opts, &self.cs, timer);
         self.opts.units.metric = self.per_map.map.get_name().city.uses_metric();
     }
 
@@ -174,18 +207,27 @@ impl App {
         opts: Options,
         map_name: MapName,
         cam: Option<String>,
-        session: Session,
         init_states: F,
     ) -> (App, Vec<Box<dyn State<App>>>) {
         abstutil::logger::setup();
         ctx.canvas.settings = opts.canvas_settings.clone();
 
+        let session = Session {
+            edit_mode: crate::edit::EditMode::Filters,
+            filter_type: FilterType::WalkCycleOnly,
+
+            draw_neighbourhood_style: crate::browse::Style::Simple,
+            heuristic: crate::filters::auto::Heuristic::SplitCells,
+            main_road_penalty: 1.0,
+            show_walking_cycling_routes: false,
+
+            layers: crate::components::Layers::new(ctx),
+        };
+
         let cs = ColorScheme::new(ctx, opts.color_scheme);
-        // Start with a blank map
-        let map = Map::blank();
-        let draw_map = DrawMap::new(ctx, &map, &opts, &cs, &mut Timer::throwaway());
         let app = App {
-            per_map: PerMap { map, draw_map },
+            // Start with a blank map
+            per_map: PerMap::new(ctx, Map::blank(), &opts, &cs, &mut Timer::throwaway()),
             cs,
             opts,
             session,
@@ -235,4 +277,50 @@ impl State<App> for SimpleWarper {
     }
 
     fn draw(&self, _: &mut GfxCtx, _: &App) {}
+}
+
+fn render_poi_icons(ctx: &EventCtx, map: &Map) -> Drawable {
+    let mut batch = GeomBatch::new();
+    let school = GeomBatch::load_svg(ctx, "system/assets/map/school.svg")
+        .scale(0.2)
+        .color(RewriteColor::ChangeAll(Color::WHITE));
+
+    for b in map.all_buildings() {
+        if b.amenities.iter().any(|a| {
+            let at = AmenityType::categorize(&a.amenity_type);
+            at == Some(AmenityType::School) || at == Some(AmenityType::University)
+        }) {
+            batch.append(school.clone().centered_on(b.polygon.polylabel()));
+        }
+    }
+
+    ctx.upload(batch)
+}
+
+fn render_bus_routes(ctx: &EventCtx, map: &Map) -> Drawable {
+    let mut batch = GeomBatch::new();
+    for r in map.all_roads() {
+        if map.get_bus_routes_on_road(r.id).is_empty() {
+            continue;
+        }
+        // Draw dashed outlines surrounding the road
+        let width = r.get_width();
+        for pl in [
+            r.center_pts.shift_left(width * 0.7),
+            r.center_pts.shift_right(width * 0.7),
+        ]
+        .into_iter()
+        .flatten()
+        {
+            batch.extend(
+                *crate::colors::BUS_ROUTE,
+                pl.exact_dashed_polygons(
+                    Distance::meters(2.0),
+                    Distance::meters(5.0),
+                    Distance::meters(2.0),
+                ),
+            );
+        }
+    }
+    ctx.upload(batch)
 }

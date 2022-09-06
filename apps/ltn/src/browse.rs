@@ -36,8 +36,8 @@ impl BrowseNeighbourhoods {
 
         let (world, draw_over_roads) =
             ctx.loading_screen("calculate neighbourhoods", |ctx, timer| {
-                if &app.session.partitioning.map != app.per_map.map.get_name() {
-                    app.session.alt_proposals = crate::save::AltProposals::new();
+                if &app.per_map.partitioning.map != app.per_map.map.get_name() {
+                    app.per_map.alt_proposals = crate::save::AltProposals::new();
                     crate::clear_current_proposal(ctx, app, timer);
                 }
                 (make_world(ctx, app), draw_over_roads(ctx, app))
@@ -48,7 +48,7 @@ impl BrowseNeighbourhoods {
             ctx,
             &top_panel,
             Widget::col(vec![
-                app.session.alt_proposals.to_widget(ctx, app),
+                app.per_map.alt_proposals.to_widget(ctx, app),
                 crate::route_planner::RoutePlanner::button(ctx),
                 Toggle::checkbox(ctx, "Advanced features", None, app.opts.dev),
                 advanced_panel(ctx, app),
@@ -70,7 +70,7 @@ impl BrowseNeighbourhoods {
             .btn_back("Browse neighbourhoods")
             .hotkey(Key::Escape)
             .build_def(ctx)
-            .hide(app.session.consultation.is_some())
+            .hide(app.per_map.consultation.is_some())
     }
 }
 
@@ -100,10 +100,10 @@ impl State<App> for BrowseNeighbourhoods {
                     ctx.loading_screen("automatically filter all neighbourhoods", |ctx, timer| {
                         timer.start_iter(
                             "filter neighbourhood",
-                            app.session.partitioning.all_neighbourhoods().len(),
+                            app.per_map.partitioning.all_neighbourhoods().len(),
                         );
                         for id in app
-                            .session
+                            .per_map
                             .partitioning
                             .all_neighbourhoods()
                             .keys()
@@ -167,8 +167,8 @@ impl State<App> for BrowseNeighbourhoods {
         app.session.layers.draw(g, app);
         self.draw_boundary_roads.draw(g);
         self.labels.draw(g);
-        app.session.draw_all_filters.draw(g);
-        app.session.draw_poi_icons.draw(g);
+        app.per_map.draw_all_filters.draw(g);
+        app.per_map.draw_poi_icons.draw(g);
     }
 }
 
@@ -178,9 +178,9 @@ fn make_world(ctx: &mut EventCtx, app: &App) -> World<NeighbourhoodID> {
     ctx.loading_screen("render neighbourhoods", |ctx, timer| {
         timer.start_iter(
             "render neighbourhoods",
-            app.session.partitioning.all_neighbourhoods().len(),
+            app.per_map.partitioning.all_neighbourhoods().len(),
         );
-        for (id, info) in app.session.partitioning.all_neighbourhoods() {
+        for (id, info) in app.per_map.partitioning.all_neighbourhoods() {
             timer.next();
             match app.session.draw_neighbourhood_style {
                 Style::Simple => {
@@ -247,7 +247,7 @@ fn draw_over_roads(ctx: &mut EventCtx, app: &App) -> Drawable {
     let mut count_per_road = Counter::new();
     let mut count_per_intersection = Counter::new();
 
-    for id in app.session.partitioning.all_neighbourhoods().keys() {
+    for id in app.per_map.partitioning.all_neighbourhoods().keys() {
         let neighbourhood = Neighbourhood::new(ctx, app, *id);
         count_per_road.extend(neighbourhood.shortcuts.count_per_road);
         count_per_intersection.extend(neighbourhood.shortcuts.count_per_intersection);
@@ -266,7 +266,7 @@ pub fn draw_boundary_roads(ctx: &EventCtx, app: &App) -> Drawable {
     let mut seen_roads = HashSet::new();
     let mut seen_borders = HashSet::new();
     let mut batch = GeomBatch::new();
-    for info in app.session.partitioning.all_neighbourhoods().values() {
+    for info in app.per_map.partitioning.all_neighbourhoods().values() {
         for id in &info.block.perimeter.roads {
             let r = id.road;
             if seen_roads.contains(&r) {
@@ -300,8 +300,8 @@ pub enum Style {
 }
 
 fn impact_widget(ctx: &EventCtx, app: &App) -> Widget {
-    if &app.session.impact.map == app.per_map.map.get_name()
-        && app.session.impact.change_key == app.session.edits.get_change_key()
+    if &app.per_map.impact.map == app.per_map.map.get_name()
+        && app.per_map.impact.change_key == app.per_map.edits.get_change_key()
     {
         // Nothing to calculate!
         return ctx.style().btn_outline.text("Show impact").build_def(ctx);
