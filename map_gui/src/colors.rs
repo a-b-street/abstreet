@@ -369,8 +369,10 @@ impl ColorScheme {
 
         // Based on Mapbox light scheme: https://www.mapbox.com/maps/light
         cs.map_background = hex("#F6F6F4").into();
-        cs.water = hex("#CAD2D3").into();
-        cs.grass = hex("#ECEEED").into();
+        // Water is #CAD2D3, but more blue
+        cs.water = hex("#c7d7d9").into();
+        // #ECEEED, but more green
+        cs.grass = hex("#ddebe4").into();
         cs.unzoomed_highway = Color::WHITE;
         cs.unzoomed_arterial = Color::WHITE;
         cs.unzoomed_residential = Color::WHITE;
