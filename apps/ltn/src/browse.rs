@@ -48,7 +48,6 @@ impl BrowseNeighbourhoods {
             ctx,
             &top_panel,
             Widget::col(vec![
-                app.per_map.alt_proposals.to_widget(ctx, app),
                 Toggle::checkbox(ctx, "Advanced features", None, app.opts.dev),
                 advanced_panel(ctx, app),
             ]),
@@ -67,7 +66,13 @@ impl BrowseNeighbourhoods {
 
 impl State<App> for BrowseNeighbourhoods {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        if let Some(t) = crate::components::TopPanel::event(ctx, app, &mut self.top_panel, help) {
+        if let Some(t) = crate::components::TopPanel::event(
+            ctx,
+            app,
+            &mut self.top_panel,
+            &crate::save::PreserveState::BrowseNeighbourhoods,
+            help,
+        ) {
             return t;
         }
         if let Some(t) = app
@@ -101,15 +106,7 @@ impl State<App> for BrowseNeighbourhoods {
                     });
                     return Transition::Replace(BrowseNeighbourhoods::new_state(ctx, app));
                 }
-                x => {
-                    return crate::save::AltProposals::handle_action(
-                        ctx,
-                        app,
-                        crate::save::PreserveState::BrowseNeighbourhoods,
-                        x,
-                    )
-                    .unwrap();
-                }
+                _ => unreachable!(),
             },
             Outcome::Changed(x) => {
                 if x == "Advanced features" {
@@ -152,6 +149,10 @@ impl State<App> for BrowseNeighbourhoods {
         self.labels.draw(g);
         app.per_map.draw_all_filters.draw(g);
         app.per_map.draw_poi_icons.draw(g);
+    }
+
+    fn recreate(&mut self, ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
+        Self::new_state(ctx, app)
     }
 }
 
