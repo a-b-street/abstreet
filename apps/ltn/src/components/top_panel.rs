@@ -101,8 +101,8 @@ impl TopPanel {
             ])
             .align_right(),
         ])];
-        // Switching proposals in impact mode is too complex to implement, so don't allow it
-        if app.session.manage_proposals && mode != Mode::Impact {
+        // Switching proposals in some modes is too complex to implement, so don't allow it
+        if app.session.manage_proposals && mode != Mode::Impact && mode != Mode::SelectBoundary {
             col.push(app.per_map.alt_proposals.to_widget(ctx, app));
         }
 

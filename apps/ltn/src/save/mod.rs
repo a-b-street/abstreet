@@ -348,7 +348,7 @@ impl AltProposals {
             "Share" => {
                 return Some(Transition::Push(share::ShareProposal::new_state(ctx, app)));
             }
-            "Export to GeoJSON" => {
+            "Export GeoJSON" => {
                 let result = crate::export::write_geojson_file(ctx, app);
                 return Some(Transition::Push(match result {
                     Ok(path) => PopupMsg::new_state(

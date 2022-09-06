@@ -220,6 +220,10 @@ impl State<App> for ShowResults {
         self.left_panel.draw(g);
         app.session.layers.draw(g, app);
     }
+
+    fn recreate(&mut self, ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
+        Self::new_state(ctx, app)
+    }
 }
 
 impl Filters {
