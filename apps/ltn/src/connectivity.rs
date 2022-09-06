@@ -26,11 +26,17 @@ pub struct Viewer {
 }
 
 impl Viewer {
-    pub fn new_state(ctx: &mut EventCtx, app: &App, id: NeighbourhoodID) -> Box<dyn State<App>> {
+    pub fn new_state(
+        ctx: &mut EventCtx,
+        app: &mut App,
+        id: NeighbourhoodID,
+    ) -> Box<dyn State<App>> {
+        app.per_map.current_neighbourhood = Some(id);
+
         let neighbourhood = Neighbourhood::new(ctx, app, id);
 
         let mut viewer = Viewer {
-            top_panel: crate::components::TopPanel::panel(ctx, app),
+            top_panel: crate::components::TopPanel::panel(ctx, app, Mode::ModifyNeighbourhood),
             left_panel: Panel::empty(ctx),
             neighbourhood,
             draw_top_layer: Drawable::empty(ctx),

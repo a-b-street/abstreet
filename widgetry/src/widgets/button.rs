@@ -480,6 +480,12 @@ impl<'b, 'a: 'b, 'c> ButtonBuilder<'a, 'c> {
         self
     }
 
+    /// Like `disabled_tooltip`, but the tooltip may not exist.
+    pub fn maybe_disabled_tooltip(mut self, tooltip: Option<impl Into<Text>>) -> Self {
+        self.disabled_tooltip = tooltip.map(|x| x.into());
+        self
+    }
+
     /// The button's items will be rendered in a vertical column
     ///
     /// If the button doesn't have both an image and label, this has no effect.

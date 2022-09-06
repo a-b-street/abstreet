@@ -4,7 +4,7 @@ use abstutil::Counter;
 use map_gui::tools::{ColorNetwork, DrawSimpleRoadLabels};
 use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::{
-    Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel,
+    Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Outcome, Panel,
     State, TextExt, Toggle, Widget,
 };
 
@@ -43,13 +43,12 @@ impl BrowseNeighbourhoods {
                 (make_world(ctx, app), draw_over_roads(ctx, app))
             });
 
-        let top_panel = crate::components::TopPanel::panel(ctx, app);
+        let top_panel = crate::components::TopPanel::panel(ctx, app, Mode::BrowseNeighbourhoods);
         let left_panel = crate::components::LeftPanel::builder(
             ctx,
             &top_panel,
             Widget::col(vec![
                 app.per_map.alt_proposals.to_widget(ctx, app),
-                crate::route_planner::RoutePlanner::button(ctx),
                 Toggle::checkbox(ctx, "Advanced features", None, app.opts.dev),
                 advanced_panel(ctx, app),
             ]),
@@ -63,14 +62,6 @@ impl BrowseNeighbourhoods {
             labels: DrawSimpleRoadLabels::only_major_roads(ctx, app, colors::ROAD_LABEL),
             draw_boundary_roads: draw_boundary_roads(ctx, app),
         })
-    }
-
-    pub fn button(ctx: &EventCtx, app: &App) -> Widget {
-        ctx.style()
-            .btn_back("Browse neighbourhoods")
-            .hotkey(Key::Escape)
-            .build_def(ctx)
-            .hide(app.per_map.consultation.is_some())
     }
 }
 
@@ -88,14 +79,6 @@ impl State<App> for BrowseNeighbourhoods {
         }
         match self.left_panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
-                "Calculate" | "Show impact" => {
-                    return Transition::Push(crate::impact::ShowResults::new_state(ctx, app));
-                }
-                "Plan a route" => {
-                    return Transition::Push(crate::route_planner::RoutePlanner::new_state(
-                        ctx, app,
-                    ));
-                }
                 "Automatically place filters" => {
                     ctx.loading_screen("automatically filter all neighbourhoods", |ctx, timer| {
                         timer.start_iter(
@@ -299,22 +282,6 @@ pub enum Style {
     Shortcuts,
 }
 
-fn impact_widget(ctx: &EventCtx, app: &App) -> Widget {
-    if &app.per_map.impact.map == app.per_map.map.get_name()
-        && app.per_map.impact.change_key == app.per_map.edits.get_change_key()
-    {
-        // Nothing to calculate!
-        return ctx.style().btn_outline.text("Show impact").build_def(ctx);
-    }
-
-    Widget::col(vec![
-        Line("The app may freeze while calculating this.")
-            .small()
-            .into_widget(ctx),
-        ctx.style().btn_outline.text("Calculate").build_def(ctx),
-    ])
-}
-
 fn help() -> Vec<&'static str> {
     vec![
         "Basic map navigation: click and drag to pan, swipe or scroll to zoom",
@@ -343,11 +310,6 @@ fn advanced_panel(ctx: &EventCtx, app: &App) -> Widget {
                 ],
             ),
         ])])
-        .section(ctx),
-        Widget::col(vec![
-            "Predict proposal impact".text_widget(ctx),
-            impact_widget(ctx, app),
-        ])
         .section(ctx),
         Widget::col(vec![
             ctx.style()

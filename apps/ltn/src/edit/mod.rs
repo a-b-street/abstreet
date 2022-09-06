@@ -17,8 +17,7 @@ use widgetry::{
 };
 
 use crate::{
-    after_edit, colors, is_private, App, BrowseNeighbourhoods, FilterType, Neighbourhood,
-    RoadFilter, Transition,
+    after_edit, colors, is_private, App, FilterType, Neighbourhood, RoadFilter, Transition,
 };
 
 pub enum EditMode {
@@ -87,24 +86,18 @@ impl EditNeighbourhood {
     ) -> PanelBuilder {
         let contents = Widget::col(vec![
             app.per_map.alt_proposals.to_widget(ctx, app),
-            BrowseNeighbourhoods::button(ctx, app),
-            {
-                let mut row = Vec::new();
-                if app.per_map.consultation.is_none() {
-                    row.push(
-                        ctx.style()
-                            .btn_outline
-                            .text("Adjust boundary")
-                            .hotkey(Key::B)
-                            .build_def(ctx),
-                    );
-                }
-                row.push(crate::route_planner::RoutePlanner::button(ctx));
-                Widget::row(row)
-            },
             Line("Editing neighbourhood")
                 .small_heading()
                 .into_widget(ctx),
+            if app.per_map.consultation.is_none() {
+                ctx.style()
+                    .btn_outline
+                    .text("Adjust boundary")
+                    .hotkey(Key::B)
+                    .build_def(ctx)
+            } else {
+                Widget::nothing()
+            },
             Widget::col(vec![
                 edit_mode(ctx, app),
                 match app.session.edit_mode {
@@ -170,12 +163,6 @@ impl EditNeighbourhood {
     ) -> EditOutcome {
         let id = neighbourhood.id;
         match action {
-            "Browse neighbourhoods" => {
-                // Recalculate the state to redraw any changed filters
-                EditOutcome::Transition(Transition::Replace(BrowseNeighbourhoods::new_state(
-                    ctx, app,
-                )))
-            }
             "Adjust boundary" => EditOutcome::Transition(Transition::Replace(
                 crate::select_boundary::SelectBoundary::new_state(ctx, app, id),
             )),
@@ -190,9 +177,6 @@ impl EditNeighbourhood {
                 }
                 EditOutcome::Transition(Transition::Recreate)
             }
-            "Plan a route" => EditOutcome::Transition(Transition::Push(
-                crate::route_planner::RoutePlanner::new_state(ctx, app),
-            )),
             "Modal filter - no entry" => {
                 app.session.filter_type = FilterType::NoEntry;
                 app.session.edit_mode = EditMode::Filters;

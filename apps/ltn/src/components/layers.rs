@@ -7,6 +7,7 @@ use widgetry::{
     Widget,
 };
 
+use crate::components::Mode;
 use crate::{colors, App, FilterType, Transition};
 
 // Partly copied from ungap/layers.s
@@ -179,15 +180,6 @@ fn make_zoom_controls(ctx: &mut EventCtx) -> Widget {
 
 fn zoom_enabled_cache_key(ctx: &EventCtx) -> (bool, bool) {
     (ctx.canvas.is_max_zoom(), ctx.canvas.is_min_zoom())
-}
-
-#[derive(PartialEq)]
-pub enum Mode {
-    BrowseNeighbourhoods,
-    ModifyNeighbourhood,
-    SelectBoundary,
-    RoutePlanner,
-    Impact,
 }
 
 impl Mode {

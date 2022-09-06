@@ -36,6 +36,9 @@ pub struct PerMap {
     pub partitioning: Partitioning,
     pub edits: Edits,
 
+    // The last edited neighbourhood
+    pub current_neighbourhood: Option<NeighbourhoodID>,
+
     // These capture modal filters that exist in the map already. Whenever we pathfind in this app
     // in the "before changes" case, we have to use these. Do NOT use the map's built-in
     // pathfinder. (https://github.com/a-b-street/abstreet/issues/852 would make this more clear)
@@ -75,6 +78,8 @@ impl PerMap {
             proposal_name: None,
             partitioning: Partitioning::empty(),
             edits: Edits::default(),
+
+            current_neighbourhood: None,
 
             routing_params_before_changes: RoutingParams::default(),
             alt_proposals: crate::save::AltProposals::new(),
