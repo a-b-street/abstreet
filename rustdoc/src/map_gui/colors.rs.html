@@ -540,6 +540,8 @@
 <span id="534">534</span>
 <span id="535">535</span>
 <span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
 </pre><pre class="rust"><code><span class="doccomment">//! A color scheme groups colors used for different map, dynamic, and UI elements in one place, to</span>
 <span class="doccomment">//! encourage deduplication. The player can also switch between different color schemes.</span>
 
@@ -911,8 +913,10 @@
 
         <span class="comment">// Based on Mapbox light scheme: https://www.mapbox.com/maps/light</span>
         <span class="ident">cs</span>.<span class="ident">map_background</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#F6F6F4&quot;</span>).<span class="ident">into</span>();
-        <span class="ident">cs</span>.<span class="ident">water</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#CAD2D3&quot;</span>).<span class="ident">into</span>();
-        <span class="ident">cs</span>.<span class="ident">grass</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#ECEEED&quot;</span>).<span class="ident">into</span>();
+        <span class="comment">// Water is #CAD2D3, but more blue</span>
+        <span class="ident">cs</span>.<span class="ident">water</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#c7d7d9&quot;</span>).<span class="ident">into</span>();
+        <span class="comment">// #ECEEED, but more green</span>
+        <span class="ident">cs</span>.<span class="ident">grass</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#ddebe4&quot;</span>).<span class="ident">into</span>();
         <span class="ident">cs</span>.<span class="ident">unzoomed_highway</span> <span class="op">=</span> <span class="ident">Color::WHITE</span>;
         <span class="ident">cs</span>.<span class="ident">unzoomed_arterial</span> <span class="op">=</span> <span class="ident">Color::WHITE</span>;
         <span class="ident">cs</span>.<span class="ident">unzoomed_residential</span> <span class="op">=</span> <span class="ident">Color::WHITE</span>;
