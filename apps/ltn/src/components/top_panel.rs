@@ -1,17 +1,72 @@
 use geom::CornerRadii;
+use widgetry::tools::ChooseSomething;
 use widgetry::tools::PopupMsg;
 use widgetry::{
-    lctrl, CornerRounding, EventCtx, HorizontalAlignment, Key, Line, Outcome, Panel, PanelDims,
-    VerticalAlignment, Widget,
+    lctrl, Choice, Color, CornerRounding, EventCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
+    PanelDims, VerticalAlignment, Widget,
 };
 
+use crate::components::Mode;
 use crate::{App, BrowseNeighbourhoods, Transition};
 
 pub struct TopPanel;
 
 impl TopPanel {
-    pub fn panel(ctx: &mut EventCtx, app: &App) -> Panel {
+    pub fn panel(ctx: &mut EventCtx, app: &App, mode: Mode) -> Panel {
         let consultation = app.per_map.consultation.is_some();
+
+        // While we're adjusting a boundary, it's weird to navigate away without explicitly
+        // confirming or reverting the edits. Just remove the nav bar entirely.
+        let navbar = if mode != Mode::SelectBoundary {
+            Widget::row(vec![
+                ctx.style()
+                    .btn_outline
+                    .text("Pick area")
+                    .disabled(
+                        mode == Mode::BrowseNeighbourhoods || app.per_map.consultation.is_some(),
+                    )
+                    .maybe_disabled_tooltip(if mode == Mode::BrowseNeighbourhoods {
+                        None
+                    } else {
+                        Some("This consultation is only about the current area")
+                    })
+                    .build_def(ctx),
+                ctx.style()
+                    .btn_outline
+                    .text("Design LTN")
+                    .disabled(
+                        mode == Mode::ModifyNeighbourhood
+                            || app.per_map.current_neighbourhood.is_none(),
+                    )
+                    .maybe_disabled_tooltip(if mode == Mode::ModifyNeighbourhood {
+                        None
+                    } else {
+                        Some("Pick an area first")
+                    })
+                    .build_def(ctx),
+                ctx.style()
+                    .btn_outline
+                    .text("Plan route")
+                    .hotkey(Key::R)
+                    .disabled(mode == Mode::RoutePlanner)
+                    .build_def(ctx),
+                ctx.style()
+                    .btn_outline
+                    .text("Predict impact")
+                    .disabled(mode == Mode::Impact || app.per_map.consultation.is_some())
+                    .maybe_disabled_tooltip(if mode == Mode::Impact {
+                        None
+                    } else {
+                        Some("Not supported here yet")
+                    })
+                    .build_def(ctx),
+            ])
+            .centered_vert()
+            .padding(16)
+            .outline((5.0, Color::BLACK))
+        } else {
+            Widget::nothing()
+        };
 
         Panel::new_builder(
             Widget::row(vec![
@@ -33,6 +88,7 @@ impl TopPanel {
                 map_gui::tools::change_map_btn(ctx, app)
                     .centered_vert()
                     .hide(consultation),
+                navbar,
                 Widget::row(vec![
                     ctx.style()
                         .btn_plain
@@ -68,7 +124,7 @@ impl TopPanel {
 
     pub fn event<F: Fn() -> Vec<&'static str>>(
         ctx: &mut EventCtx,
-        app: &App,
+        app: &mut App,
         panel: &mut Panel,
         help: F,
     ) -> Option<Transition> {
@@ -113,10 +169,44 @@ impl TopPanel {
                         }
                     }))
                 }
+                "Pick area" => Some(Transition::Replace(BrowseNeighbourhoods::new_state(
+                    ctx, app,
+                ))),
+                "Design LTN" => Some(Transition::Replace(crate::connectivity::Viewer::new_state(
+                    ctx,
+                    app,
+                    app.per_map.current_neighbourhood.unwrap(),
+                ))),
+                "Plan route" => Some(Transition::Replace(
+                    crate::route_planner::RoutePlanner::new_state(ctx, app),
+                )),
+                "Predict impact" => Some(launch_impact(ctx, app)),
                 _ => unreachable!(),
             }
         } else {
             None
         }
     }
+}
+
+fn launch_impact(ctx: &mut EventCtx, app: &mut App) -> Transition {
+    if &app.per_map.impact.map == app.per_map.map.get_name()
+        && app.per_map.impact.change_key == app.per_map.edits.get_change_key()
+    {
+        return Transition::Replace(crate::impact::ShowResults::new_state(ctx, app));
+    }
+
+    Transition::Push(ChooseSomething::new_state(ctx,
+        "Impact prediction is experimental. You have to interpret the results carefully. The app may also freeze while calculating this.",
+        Choice::strings(vec!["Never mind", "I understand the warnings. Predict impact!"]),
+        Box::new(|choice, ctx, app| {
+            if choice == "Never mind" {
+                Transition::Pop
+            } else {
+                Transition::Multi(vec![
+                                  Transition::Pop,
+                                  Transition::Replace(crate::impact::ShowResults::new_state(ctx, app)),
+                ])
+            }
+        })))
 }

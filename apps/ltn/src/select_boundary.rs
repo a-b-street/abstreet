@@ -66,7 +66,7 @@ impl SelectBoundary {
             app.session.edit_mode = EditMode::Filters;
         }
 
-        let top_panel = crate::components::TopPanel::panel(ctx, app);
+        let top_panel = crate::components::TopPanel::panel(ctx, app, Mode::SelectBoundary);
         let left_panel = make_panel(ctx, app, id, &top_panel);
         let mut state = SelectBoundary {
             top_panel,

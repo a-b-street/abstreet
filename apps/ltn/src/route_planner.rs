@@ -6,12 +6,12 @@ use map_model::{PathV2, PathfinderCache};
 use synthpop::{TripEndpoint, TripMode};
 use widgetry::mapspace::World;
 use widgetry::{
-    ButtonBuilder, Color, ControlState, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome,
+    ButtonBuilder, Color, ControlState, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Outcome,
     Panel, RoundedF64, Spinner, State, Text, Toggle, Widget,
 };
 
 use crate::components::Mode;
-use crate::{colors, App, BrowseNeighbourhoods, Transition};
+use crate::{colors, App, Transition};
 
 pub struct RoutePlanner {
     top_panel: Panel,
@@ -58,7 +58,7 @@ impl RoutePlanner {
         }
 
         let mut rp = RoutePlanner {
-            top_panel: crate::components::TopPanel::panel(ctx, app),
+            top_panel: crate::components::TopPanel::panel(ctx, app, Mode::RoutePlanner),
             left_panel: Panel::empty(ctx),
             waypoints: InputWaypoints::new_max_2(app),
             files: TripManagement::new(app),
@@ -76,14 +76,6 @@ impl RoutePlanner {
         Box::new(rp)
     }
 
-    pub fn button(ctx: &EventCtx) -> Widget {
-        ctx.style()
-            .btn_outline
-            .text("Plan a route")
-            .hotkey(Key::R)
-            .build_def(ctx)
-    }
-
     // Updates the panel and draw_routes
     fn update_everything(&mut self, ctx: &mut EventCtx, app: &mut App) {
         self.files.autosave(app);
@@ -91,12 +83,6 @@ impl RoutePlanner {
 
         let contents = Widget::col(vec![
             app.per_map.alt_proposals.to_widget(ctx, app),
-            BrowseNeighbourhoods::button(ctx, app),
-            ctx.style()
-                .btn_back("Analyze neighbourhood")
-                .hotkey(Key::Escape)
-                .build_def(ctx)
-                .hide(app.per_map.consultation.is_none()),
             Line("Plan a route").small_heading().into_widget(ctx),
             Widget::col(vec![
                 self.files.get_panel_widget(ctx),
@@ -334,12 +320,6 @@ impl State<App> for RoutePlanner {
 
         let panel_outcome = self.left_panel.event(ctx);
         if let Outcome::Clicked(ref x) = panel_outcome {
-            if x == "Browse neighbourhoods" {
-                return Transition::Replace(BrowseNeighbourhoods::new_state(ctx, app));
-            }
-            if x == "Analyze neighbourhood" {
-                return Transition::Pop;
-            }
             if let Some(t) = self.files.on_click(ctx, app, x) {
                 // Bit hacky...
                 if matches!(t, Transition::Keep) {

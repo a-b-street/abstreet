@@ -17,7 +17,7 @@ use widgetry::{
 
 use crate::components::Mode;
 use crate::impact::{end_of_day, Filters, Impact};
-use crate::{colors, App, BrowseNeighbourhoods, Transition};
+use crate::{colors, App, Transition};
 
 // TODO Share structure or pieces with Ungap's predict mode
 // ... can't we just produce data of a certain shape, and have a UI pretty tuned for that?
@@ -69,7 +69,6 @@ impl ShowResults {
         }
 
         let contents = Widget::col(vec![
-            BrowseNeighbourhoods::button(ctx, app),
             Line("Impact prediction").small_heading().into_widget(ctx),
             Text::from(Line("This tool starts with a travel demand model, calculates the route every trip takes before and after changes, and displays volumes along roads")).wrap_to_pct(ctx, 20).into_widget(ctx),
             Text::from_all(vec![
@@ -79,7 +78,7 @@ impl ShowResults {
                     Line(" roads have less. Width of the road shows how much baseline traffic it has."),
                 ]).wrap_to_pct(ctx, 20).into_widget(ctx),
                 Text::from(Line("Click a road to see changed routes through it.")).wrap_to_pct(ctx, 20).into_widget(ctx),
-                Text::from(Line("Results may be wrong for various reasons. Interpret carefully.")).wrap_to_pct(ctx, 20).into_widget(ctx),
+                Text::from(Line("Results may be wrong for various reasons. Interpret carefully.").bold_body()).wrap_to_pct(ctx, 20).into_widget(ctx),
             // TODO Dropdown for the scenario, and explain its source/limitations
             app.per_map.impact.filters.to_panel(ctx, app),
             app.per_map
@@ -100,7 +99,7 @@ impl ShowResults {
                 .text("Save before/after counts to files (GeoJSON)")
                 .build_def(ctx),
         ]);
-        let top_panel = crate::components::TopPanel::panel(ctx, app);
+        let top_panel = crate::components::TopPanel::panel(ctx, app, Mode::Impact);
         let left_panel =
             crate::components::LeftPanel::builder(ctx, &top_panel, contents).build(ctx);
 
@@ -120,11 +119,6 @@ impl State<App> for ShowResults {
         }
         match self.left_panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
-                "Browse neighbourhoods" => {
-                    // Don't just Pop; if we updated the results, the UI won't warn the user about a slow
-                    // loading
-                    return Transition::Replace(BrowseNeighbourhoods::new_state(ctx, app));
-                }
                 "Save before/after counts to files (JSON)" => {
                     let path1 = "counts_a.json";
                     let path2 = "counts_b.json";
