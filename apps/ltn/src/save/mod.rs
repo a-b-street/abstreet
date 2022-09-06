@@ -31,7 +31,7 @@ pub struct Proposal {
 impl Proposal {
     fn from_app(app: &App) -> Self {
         Self {
-            map: app.map.get_name().clone(),
+            map: app.per_map.map.get_name().clone(),
             name: app
                 .session
                 .proposal_name
@@ -46,27 +46,34 @@ impl Proposal {
 
     fn make_active(self, ctx: &EventCtx, app: &mut App) {
         // First undo any one-way changes
-        let mut edits = app.map.new_edits();
+        let mut edits = app.per_map.map.new_edits();
         for r in app.session.edits.one_ways.keys().cloned() {
             // Just revert to the original state
-            edits.commands.push(app.map.edit_road_cmd(r, |new| {
-                *new = EditRoad::get_orig_from_osm(app.map.get_r(r), app.map.get_config());
+            edits.commands.push(app.per_map.map.edit_road_cmd(r, |new| {
+                *new = EditRoad::get_orig_from_osm(
+                    app.per_map.map.get_r(r),
+                    app.per_map.map.get_config(),
+                );
             }));
         }
 
         app.session.proposal_name = Some(self.name);
         app.session.partitioning = self.partitioning;
         app.session.edits = self.edits;
-        app.session.draw_all_filters = app.session.edits.draw(ctx, &app.map);
+        app.session.draw_all_filters = app.session.edits.draw(ctx, &app.per_map.map);
 
         // Then append any new one-way changes. Edits are applied in order, so the net effect
         // should be correct.
         for (r, r_edit) in &app.session.edits.one_ways {
-            edits.commands.push(app.map.edit_road_cmd(*r, move |new| {
-                *new = r_edit.clone();
-            }));
+            edits
+                .commands
+                .push(app.per_map.map.edit_road_cmd(*r, move |new| {
+                    *new = r_edit.clone();
+                }));
         }
-        app.map.must_apply_edits(edits, &mut Timer::throwaway());
+        app.per_map
+            .map
+            .must_apply_edits(edits, &mut Timer::throwaway());
     }
 
     /// Try to load a proposal. If it fails, returns a popup message state.
@@ -102,7 +109,7 @@ impl Proposal {
     fn inner_load(ctx: &mut EventCtx, app: &mut App, bytes: Vec<u8>) -> Result<()> {
         let decoder = flate2::read::GzDecoder::new(&bytes[..]);
         let value = serde_json::from_reader(decoder)?;
-        let proposal = perma::from_permanent(&app.map, value)?;
+        let proposal = perma::from_permanent(&app.per_map.map, value)?;
 
         // TODO We could try to detect if the file's partitioning (road IDs and such) still matches
         // this version of the map or not
@@ -123,7 +130,7 @@ impl Proposal {
     }
 
     fn to_gzipped_bytes(&self, app: &App) -> Result<Vec<u8>> {
-        let json_value = perma::to_permanent(&app.map, self)?;
+        let json_value = perma::to_permanent(&app.per_map.map, self)?;
         let mut output_buffer = Vec::new();
         let mut encoder =
             flate2::write::GzEncoder::new(&mut output_buffer, flate2::Compression::best());
@@ -197,7 +204,7 @@ fn save_ui(ctx: &mut EventCtx, app: &App, preserve_state: PreserveState) -> Box<
 
 fn inner_save(app: &App) -> Result<()> {
     let proposal = Proposal::from_app(app);
-    let path = abstio::path_ltn_proposals(app.map.get_name(), &proposal.name);
+    let path = abstio::path_ltn_proposals(app.per_map.map.get_name(), &proposal.name);
     let output_buffer = proposal.to_gzipped_bytes(app)?;
     abstio::write_raw(path, &output_buffer)
 }
@@ -216,7 +223,7 @@ fn load_picker_ui(
         // strip out the extension.
         // TODO Fix basename, but make sure nothing downstream breaks
         Choice::strings(
-            abstio::list_all_objects(abstio::path_all_ltn_proposals(app.map.get_name()))
+            abstio::list_all_objects(abstio::path_all_ltn_proposals(app.per_map.map.get_name()))
                 .into_iter()
                 .map(abstutil::basename)
                 .collect(),
@@ -225,7 +232,7 @@ fn load_picker_ui(
             match Proposal::load_from_path(
                 ctx,
                 app,
-                abstio::path_ltn_proposals(app.map.get_name(), &name),
+                abstio::path_ltn_proposals(app.per_map.map.get_name(), &name),
             ) {
                 Some(err_state) => Transition::Replace(err_state),
                 None => preserve_state.switch_to_state(ctx, app),
@@ -311,14 +318,16 @@ impl AltProposals {
                 ctx.loading_screen("create new proposal", |ctx, timer| {
                     // First undo any one-way changes. This is messy to repeat here, but it's not
                     // straightforward to use make_active.
-                    let mut edits = app.map.new_edits();
+                    let mut edits = app.per_map.map.new_edits();
                     for r in app.session.edits.one_ways.keys().cloned() {
-                        edits.commands.push(app.map.edit_road_cmd(r, |new| {
-                            *new =
-                                EditRoad::get_orig_from_osm(app.map.get_r(r), app.map.get_config());
+                        edits.commands.push(app.per_map.map.edit_road_cmd(r, |new| {
+                            *new = EditRoad::get_orig_from_osm(
+                                app.per_map.map.get_r(r),
+                                app.per_map.map.get_config(),
+                            );
                         }));
                     }
-                    app.map.must_apply_edits(edits, timer);
+                    app.per_map.map.must_apply_edits(edits, timer);
 
                     crate::clear_current_proposal(ctx, app, timer);
                 });

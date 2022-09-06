@@ -29,7 +29,7 @@ pub struct ShowResults {
 
 impl ShowResults {
     pub fn new_state(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
-        let map_name = app.map.get_name().clone();
+        let map_name = app.per_map.map.get_name().clone();
         if app.session.impact.map != map_name {
             let scenario_name = Scenario::default_scenario_for_map(&map_name);
 
@@ -48,10 +48,10 @@ impl ShowResults {
             ctx.loading_screen("synthesize travel demand model", |ctx, timer| {
                 // TODO Argh, this internally uses the map's pathfinder to estimate mode split.
                 // Just ignore any edits or pre-existing files.
-                app.map.keep_pathfinder_despite_edits();
+                app.per_map.map.keep_pathfinder_despite_edits();
 
                 let scenario = ScenarioGenerator::proletariat_robot(
-                    &app.map,
+                    &app.per_map.map,
                     &mut XorShiftRng::seed_from_u64(42),
                     timer,
                 );
@@ -210,8 +210,8 @@ impl State<App> for ShowResults {
         // Just emphasize roads that've changed, so don't draw the baselayer of roads. Even
         // buildings are a distraction.
         g.clear(app.cs.void_background);
-        g.redraw(&app.draw_map.boundary_polygon);
-        g.redraw(&app.draw_map.draw_all_areas);
+        g.redraw(&app.per_map.draw_map.boundary_polygon);
+        g.redraw(&app.per_map.draw_map.draw_all_areas);
         app.session.impact.compare_counts.draw(g, app);
         app.session.draw_all_filters.draw(g);
 
@@ -364,10 +364,14 @@ impl ChangedRoutes {
         let req = self.paths[self.current].0.get_req();
         batch.append(map_gui::tools::start_marker(
             ctx,
-            req.start.pt(&app.map),
+            req.start.pt(&app.per_map.map),
             2.0,
         ));
-        batch.append(map_gui::tools::goal_marker(ctx, req.end.pt(&app.map), 2.0));
+        batch.append(map_gui::tools::goal_marker(
+            ctx,
+            req.end.pt(&app.per_map.map),
+            2.0,
+        ));
         self.draw_paths = ctx.upload(batch);
     }
 }
@@ -412,7 +416,7 @@ fn export_csv(app: &App) -> Result<String> {
     let mut out = Vec::new();
     {
         let mut writer = csv::Writer::from_writer(&mut out);
-        for r in app.map.all_roads() {
+        for r in app.per_map.map.all_roads() {
             writer.serialize(ExportRow {
                 road_name: r.get_name(None),
                 osm_way_id: r.orig_id.osm_way_id.0,
@@ -452,7 +456,7 @@ struct ExportRow {
 
 fn export_geojson(app: &App) -> String {
     let mut pairs = Vec::new();
-    for r in app.map.all_roads() {
+    for r in app.per_map.map.all_roads() {
         let mut props = serde_json::Map::new();
         props.insert("road_name".to_string(), r.get_name(None).into());
         props.insert("osm_way_id".to_string(), r.orig_id.osm_way_id.0.into());
@@ -479,7 +483,8 @@ fn export_geojson(app: &App) -> String {
                 .into(),
         );
         pairs.push((
-            r.center_pts.to_geojson(Some(app.map.get_gps_bounds())),
+            r.center_pts
+                .to_geojson(Some(app.per_map.map.get_gps_bounds())),
             props,
         ));
     }

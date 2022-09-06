@@ -2325,6 +2325,7 @@ dependencies = [
  "regex",
  "serde",
  "serde_json",
+ "sim",
  "street_network",
  "structopt",
  "synthpop",

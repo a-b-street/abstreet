@@ -5,11 +5,11 @@ use structopt::StructOpt;
 use abstio::MapName;
 use abstutil::Timer;
 use geom::Distance;
-use map_gui::tools::DrawSimpleRoadLabels;
 use map_model::{AmenityType, Map, PathConstraints, Road, RoutingParams};
 use widgetry::tools::FutureLoader;
-use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, RewriteColor, Settings, State};
+use widgetry::{Color, Drawable, EventCtx, GeomBatch, RewriteColor, Settings, State};
 
+pub use app::{App, PerMap, Session, Transition};
 pub use browse::BrowseNeighbourhoods;
 use filters::Toggle3Zoomed;
 pub use filters::{DiagonalFilter, Edits, FilterType, RoadFilter};
@@ -21,6 +21,7 @@ extern crate anyhow;
 #[macro_use]
 extern crate log;
 
+mod app;
 mod browse;
 mod colors;
 mod components;
@@ -37,9 +38,6 @@ mod route_planner;
 mod save;
 mod select_boundary;
 mod shortcuts;
-
-type App = map_gui::SimpleApp<Session>;
-type Transition = widgetry::Transition<App>;
 
 pub fn main() {
     let settings = Settings::new("Low traffic neighbourhoods");
@@ -110,7 +108,7 @@ fn run(mut settings: Settings) {
 
             layers: components::Layers::new(ctx),
         };
-        map_gui::SimpleApp::new(
+        App::new(
             ctx,
             opts,
             args.app_args.map_name(),
@@ -132,7 +130,7 @@ fn run(mut settings: Settings) {
                         let popup_state = crate::save::Proposal::load_from_path(
                             ctx,
                             app,
-                            abstio::path_ltn_proposals(app.map.get_name(), name),
+                            abstio::path_ltn_proposals(app.per_map.map.get_name(), name),
                         );
                         setup_initial_states(ctx, app, args.consultation.as_ref(), popup_state)
                     }
@@ -153,7 +151,7 @@ fn setup_initial_states(
 ) -> Vec<Box<dyn State<App>>> {
     let mut states = Vec::new();
     if let Some(ref consultation) = consultation {
-        if app.map.get_name() != &MapName::new("gb", "bristol", "east") {
+        if app.per_map.map.get_name() != &MapName::new("gb", "bristol", "east") {
             panic!("Consultation mode not supported on this map");
         }
 
@@ -170,7 +168,7 @@ fn setup_initial_states(
         };
 
         // If we already loaded something from a saved proposal, then don't clear anything
-        if &app.session.partitioning.map != app.map.get_name() {
+        if &app.session.partitioning.map != app.per_map.map.get_name() {
             app.session.alt_proposals = crate::save::AltProposals::new();
             ctx.loading_screen("initialize", |ctx, timer| {
                 crate::clear_current_proposal(ctx, app, timer);
@@ -179,6 +177,7 @@ fn setup_initial_states(
 
         // Look for the neighbourhood containing one small street
         let r = app
+            .per_map
             .map
             .all_roads()
             .iter()
@@ -263,63 +262,8 @@ pub fn run_wasm(root_dom_id: String, assets_base_url: String, assets_are_gzipped
     run(settings);
 }
 
-// TODO Tension: Many of these are per-map. game::App nicely wraps these up. Time to stop abusing
-// SimpleApp?
-pub struct Session {
-    // These come from a save::Proposal
-    pub proposal_name: Option<String>,
-    pub partitioning: Partitioning,
-    pub edits: Edits,
-    // These capture modal filters that exist in the map already. Whenever we pathfind in this app
-    // in the "before changes" case, we have to use these. Do NOT use the map's built-in
-    // pathfinder. (https://github.com/a-b-street/abstreet/issues/852 would make this more clear)
-    pub routing_params_before_changes: RoutingParams,
-    pub draw_all_road_labels: Option<DrawSimpleRoadLabels>,
-    pub draw_poi_icons: Drawable,
-    pub draw_bus_routes: Drawable,
-
-    pub alt_proposals: save::AltProposals,
-    pub draw_all_filters: Toggle3Zoomed,
-    pub impact: impact::Impact,
-
-    pub edit_mode: edit::EditMode,
-    pub filter_type: FilterType,
-
-    // Remember form settings in different tabs.
-    // Browse neighbourhoods:
-    pub draw_neighbourhood_style: browse::Style,
-    // Editing:
-    pub heuristic: filters::auto::Heuristic,
-    // Pathfinding
-    pub main_road_penalty: f64,
-    pub show_walking_cycling_routes: bool,
-
-    current_trip_name: Option<String>,
-
-    consultation: Option<NeighbourhoodID>,
-    consultation_id: Option<String>,
-    // The current consultation should always be based off a built-in proposal
-    consultation_proposal_path: Option<String>,
-
-    // Shared in all modes
-    pub layers: components::Layers,
-}
-
-/// Do the equivalent of `SimpleApp::draw_unzoomed`, but after the water/park areas layer, draw
-/// something custom.
-fn draw_with_layering<F: Fn(&mut GfxCtx)>(g: &mut GfxCtx, app: &App, custom: F) {
-    g.clear(app.cs.void_background);
-    g.redraw(&app.draw_map.boundary_polygon);
-    g.redraw(&app.draw_map.draw_all_areas);
-    custom(g);
-    g.redraw(&app.draw_map.draw_all_unzoomed_parking_lots);
-    g.redraw(&app.draw_map.draw_all_unzoomed_roads_and_intersections);
-    g.redraw(&app.draw_map.draw_all_buildings);
-    g.redraw(&app.draw_map.draw_all_building_outlines);
-}
-
 pub fn after_edit(ctx: &EventCtx, app: &mut App) {
-    app.session.draw_all_filters = app.session.edits.draw(ctx, &app.map);
+    app.session.draw_all_filters = app.session.edits.draw(ctx, &app.per_map.map);
 }
 
 pub fn clear_current_proposal(ctx: &mut EventCtx, app: &mut App, timer: &mut Timer) {
@@ -336,7 +280,7 @@ pub fn clear_current_proposal(ctx: &mut EventCtx, app: &mut App, timer: &mut Tim
     app.session.edits = Edits::default();
     crate::filters::transform_existing_filters(ctx, app, timer);
     app.session.partitioning = Partitioning::seed_using_heuristics(app, timer);
-    app.session.draw_all_filters = app.session.edits.draw(ctx, &app.map);
+    app.session.draw_all_filters = app.session.edits.draw(ctx, &app.per_map.map);
     app.session.draw_all_road_labels = None;
     app.session.draw_poi_icons = render_poi_icons(ctx, app);
     app.session.draw_bus_routes = render_bus_routes(ctx, app);
@@ -348,7 +292,7 @@ fn render_poi_icons(ctx: &EventCtx, app: &App) -> Drawable {
         .scale(0.2)
         .color(RewriteColor::ChangeAll(Color::WHITE));
 
-    for b in app.map.all_buildings() {
+    for b in app.per_map.map.all_buildings() {
         if b.amenities.iter().any(|a| {
             let at = AmenityType::categorize(&a.amenity_type);
             at == Some(AmenityType::School) || at == Some(AmenityType::University)
@@ -362,8 +306,8 @@ fn render_poi_icons(ctx: &EventCtx, app: &App) -> Drawable {
 
 fn render_bus_routes(ctx: &EventCtx, app: &App) -> Drawable {
     let mut batch = GeomBatch::new();
-    for r in app.map.all_roads() {
-        if app.map.get_bus_routes_on_road(r.id).is_empty() {
+    for r in app.per_map.map.all_roads() {
+        if app.per_map.map.get_bus_routes_on_road(r.id).is_empty() {
             continue;
         }
         // Draw dashed outlines surrounding the road

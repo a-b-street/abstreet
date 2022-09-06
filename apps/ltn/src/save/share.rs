@@ -37,6 +37,7 @@ impl ShareProposal {
         ])];
         if UploadedProposals::load().md5sums.contains(&checksum) {
             let map_path = app
+                .per_map
                 .map
                 .get_name()
                 .path()

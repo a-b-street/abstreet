@@ -138,7 +138,7 @@ impl RoutePlanner {
         panel.restore(ctx, &self.left_panel);
         self.left_panel = panel;
 
-        let mut world = World::bounded(app.map.get_bounds());
+        let mut world = World::bounded(app.per_map.map.get_bounds());
         self.waypoints.rebuild_world(ctx, &mut world, |x| x, 0);
         world.initialize_hover(ctx);
         world.rebuilt_during_drag(&self.world);
@@ -151,7 +151,7 @@ impl RoutePlanner {
         self.files.autosave(app);
         let results_widget = self.recalculate_paths(ctx, app);
 
-        let mut world = World::bounded(app.map.get_bounds());
+        let mut world = World::bounded(app.per_map.map.get_bounds());
         self.waypoints.rebuild_world(ctx, &mut world, |x| x, 0);
         world.initialize_hover(ctx);
         world.rebuilt_during_drag(&self.world);
@@ -172,7 +172,7 @@ impl RoutePlanner {
             return Widget::nothing();
         }
 
-        let map = &app.map;
+        let map = &app.per_map.map;
 
         let mut paths: Vec<(PathV2, Color)> = Vec::new();
 

@@ -217,7 +217,7 @@ impl State<App> for Viewer {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        crate::draw_with_layering(g, app, |g| g.redraw(&self.draw_under_roads_layer));
+        app.draw_with_layering(g, |g| g.redraw(&self.draw_under_roads_layer));
         g.redraw(&self.neighbourhood.fade_irrelevant);
         self.draw_top_layer.draw(g);
         self.highlight_cell.draw(g);
@@ -256,13 +256,13 @@ fn setup_editing(
     World<DummyID>,
 ) {
     let edit = EditNeighbourhood::new(ctx, app, neighbourhood);
-    let map = &app.map;
+    let map = &app.per_map.map;
 
     // Draw some stuff under roads and other stuff on top
     let mut draw_top_layer = GeomBatch::new();
     // Use a separate world to highlight cells when hovering on them. This is separate from
     // edit.world so that we draw it even while hovering on roads/intersections in a cell
-    let mut highlight_cell = World::bounded(app.map.get_bounds());
+    let mut highlight_cell = World::bounded(app.per_map.map.get_bounds());
 
     let render_cells = RenderCells::new(map, neighbourhood);
 

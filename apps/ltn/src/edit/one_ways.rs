@@ -11,7 +11,7 @@ pub fn widget(ctx: &mut EventCtx) -> Widget {
 }
 
 pub fn make_world(ctx: &mut EventCtx, app: &App, neighbourhood: &Neighbourhood) -> World<Obj> {
-    let map = &app.map;
+    let map = &app.per_map.map;
     let mut world = World::bounded(map.get_bounds());
 
     for r in &neighbourhood.orig_perimeter.interior {
@@ -43,18 +43,23 @@ pub fn handle_world_outcome(
             if app.session.edits.roads.contains_key(&r) {
                 return EditOutcome::error(ctx, "A one-way street can't have a filter");
             }
-            if app.map.get_r(r).is_deadend_for_driving(&app.map) {
+            if app
+                .per_map
+                .map
+                .get_r(r)
+                .is_deadend_for_driving(&app.per_map.map)
+            {
                 return EditOutcome::error(ctx, "A dead-end street can't be one-way");
             }
 
-            let driving_side = app.map.get_config().driving_side;
-            let mut edits = app.map.get_edits().clone();
-            edits.commands.push(app.map.edit_road_cmd(r, |new| {
+            let driving_side = app.per_map.map.get_config().driving_side;
+            let mut edits = app.per_map.map.get_edits().clone();
+            edits.commands.push(app.per_map.map.edit_road_cmd(r, |new| {
                 LaneSpec::toggle_road_direction(&mut new.lanes_ltr, driving_side);
             }));
 
             ctx.loading_screen("apply edits", |_, timer| {
-                app.map.must_apply_edits(edits, timer);
+                app.per_map.map.must_apply_edits(edits, timer);
                 // We don't need to regenerate_unzoomed_layer for one-ways; no widths or styling
                 // has changed
 
@@ -64,11 +69,16 @@ pub fn handle_world_outcome(
 
             app.session.edits.before_edit();
 
-            let r_edit = app.map.get_r_edit(r);
+            let r_edit = app.per_map.map.get_r_edit(r);
             // Was the road originally like this? Use the original OSM tags to decide.
             // TODO This'll break in the face of newer osm2streets transformations. But it's the
             // same problem as EditRoad::get_orig_from_osm -- figure out a bigger solution later.
-            if r_edit == EditRoad::get_orig_from_osm(app.map.get_r(r), app.map.get_config()) {
+            if r_edit
+                == EditRoad::get_orig_from_osm(
+                    app.per_map.map.get_r(r),
+                    app.per_map.map.get_config(),
+                )
+            {
                 app.session.edits.one_ways.remove(&r);
             } else {
                 app.session.edits.one_ways.insert(r, r_edit);
@@ -90,26 +100,33 @@ pub fn undo_proposal(ctx: &mut EventCtx, app: &mut App) {
     // Generate edits to undo possible changes to a one-way. Note there may be multiple in one
     // batch, from the freehand tool
     if prev.one_ways != app.session.edits.one_ways {
-        let mut edits = app.map.get_edits().clone();
+        let mut edits = app.per_map.map.get_edits().clone();
 
         for (r, r_edit1) in &prev.one_ways {
             if Some(r_edit1) != app.session.edits.one_ways.get(r) {
-                edits.commands.push(app.map.edit_road_cmd(*r, |new| {
-                    *new = r_edit1.clone();
-                }));
+                edits
+                    .commands
+                    .push(app.per_map.map.edit_road_cmd(*r, |new| {
+                        *new = r_edit1.clone();
+                    }));
             }
         }
         // Also look for newly introduced one-ways
         for r in app.session.edits.one_ways.keys() {
             if !prev.one_ways.contains_key(r) {
-                edits.commands.push(app.map.edit_road_cmd(*r, |new| {
-                    *new = EditRoad::get_orig_from_osm(app.map.get_r(*r), app.map.get_config());
-                }));
+                edits
+                    .commands
+                    .push(app.per_map.map.edit_road_cmd(*r, |new| {
+                        *new = EditRoad::get_orig_from_osm(
+                            app.per_map.map.get_r(*r),
+                            app.per_map.map.get_config(),
+                        );
+                    }));
             }
         }
 
         ctx.loading_screen("apply edits", |_, timer| {
-            app.map.must_apply_edits(edits, timer);
+            app.per_map.map.must_apply_edits(edits, timer);
         });
     }
 

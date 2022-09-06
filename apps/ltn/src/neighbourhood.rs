@@ -50,7 +50,7 @@ impl Cell {
             // arrows will overlap each other -- but that happens anyway with borders close
             // together at certain angles.
             for r in self.roads.keys() {
-                let road = app.map.get_r(*r);
+                let road = app.per_map.map.get_r(*r);
                 // Design choice: when we have a filter right at the entrance of a neighbourhood, it
                 // creates its own little cell allowing access to just the very beginning of the
                 // road. Let's not draw anything for that.
@@ -68,7 +68,7 @@ impl Cell {
                     continue;
                 };
 
-                let center = app.map.get_i(*i).polygon.center();
+                let center = app.per_map.map.get_i(*i).polygon.center();
                 let pt_farther = center.project_away(Distance::meters(40.0), angle_in.opposite());
                 let pt_closer = center.project_away(Distance::meters(10.0), angle_in.opposite());
 
@@ -105,7 +105,7 @@ pub struct DistanceInterval {
 
 impl Neighbourhood {
     pub fn new(ctx: &mut EventCtx, app: &App, id: NeighbourhoodID) -> Neighbourhood {
-        let map = &app.map;
+        let map = &app.per_map.map;
         let orig_perimeter = app
             .session
             .partitioning

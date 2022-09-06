@@ -72,7 +72,7 @@ impl SelectBoundary {
             top_panel,
             left_panel,
             id,
-            world: World::bounded(app.map.get_bounds()),
+            world: World::bounded(app.per_map.map.get_bounds()),
             draw_boundary_roads: draw_boundary_roads(ctx, app),
             frontier: BTreeSet::new(),
 
@@ -187,13 +187,13 @@ impl SelectBoundary {
         if self.currently_have_block(app, id) {
             app.session
                 .partitioning
-                .remove_block_from_neighbourhood(&app.map, id, self.id)
+                .remove_block_from_neighbourhood(&app.per_map.map, id, self.id)
         } else {
             let old_owner = app.session.partitioning.block_to_neighbourhood(id);
             // Ignore the return value if the old neighbourhood is deleted
             app.session
                 .partitioning
-                .transfer_block(&app.map, id, old_owner, self.id)?;
+                .transfer_block(&app.per_map.map, id, old_owner, self.id)?;
             Ok(None)
         }
     }
@@ -229,11 +229,12 @@ impl SelectBoundary {
                     timer.next();
                     if self.frontier.contains(&block_id) {
                         let old_owner = app.session.partitioning.block_to_neighbourhood(block_id);
-                        if let Ok(_) = app
-                            .session
-                            .partitioning
-                            .transfer_block(&app.map, block_id, old_owner, self.id)
-                        {
+                        if let Ok(_) = app.session.partitioning.transfer_block(
+                            &app.per_map.map,
+                            block_id,
+                            old_owner,
+                            self.id,
+                        ) {
                             changed = true;
                         } else {
                             still_todo.push(block_id);
@@ -257,7 +258,7 @@ impl SelectBoundary {
             }
 
             // Just redraw everything
-            self.world = World::bounded(app.map.get_bounds());
+            self.world = World::bounded(app.per_map.map.get_bounds());
             for id in app.session.partitioning.all_block_ids() {
                 self.add_block(ctx, app, id);
             }

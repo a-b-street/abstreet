@@ -36,7 +36,7 @@ impl BrowseNeighbourhoods {
 
         let (world, draw_over_roads) =
             ctx.loading_screen("calculate neighbourhoods", |ctx, timer| {
-                if &app.session.partitioning.map != app.map.get_name() {
+                if &app.session.partitioning.map != app.per_map.map.get_name() {
                     app.session.alt_proposals = crate::save::AltProposals::new();
                     crate::clear_current_proposal(ctx, app, timer);
                 }
@@ -159,7 +159,7 @@ impl State<App> for BrowseNeighbourhoods {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        crate::draw_with_layering(g, app, |g| self.world.draw(g));
+        app.draw_with_layering(g, |g| self.world.draw(g));
         self.draw_over_roads.draw(g);
 
         self.top_panel.draw(g);
@@ -173,8 +173,8 @@ impl State<App> for BrowseNeighbourhoods {
 }
 
 fn make_world(ctx: &mut EventCtx, app: &App) -> World<NeighbourhoodID> {
-    let mut world = World::bounded(app.map.get_bounds());
-    let map = &app.map;
+    let mut world = World::bounded(app.per_map.map.get_bounds());
+    let map = &app.per_map.map;
     ctx.loading_screen("render neighbourhoods", |ctx, timer| {
         timer.start_iter(
             "render neighbourhoods",
@@ -273,7 +273,7 @@ pub fn draw_boundary_roads(ctx: &EventCtx, app: &App) -> Drawable {
                 continue;
             }
             seen_roads.insert(r);
-            let road = app.map.get_r(r);
+            let road = app.per_map.map.get_r(r);
             batch.push(colors::HIGHLIGHT_BOUNDARY, road.get_thick_polygon());
 
             for i in [road.src_i, road.dst_i] {
@@ -281,7 +281,10 @@ pub fn draw_boundary_roads(ctx: &EventCtx, app: &App) -> Drawable {
                     continue;
                 }
                 seen_borders.insert(i);
-                batch.push(colors::HIGHLIGHT_BOUNDARY, app.map.get_i(i).polygon.clone());
+                batch.push(
+                    colors::HIGHLIGHT_BOUNDARY,
+                    app.per_map.map.get_i(i).polygon.clone(),
+                );
             }
         }
     }
@@ -297,7 +300,7 @@ pub enum Style {
 }
 
 fn impact_widget(ctx: &EventCtx, app: &App) -> Widget {
-    if &app.session.impact.map == app.map.get_name()
+    if &app.session.impact.map == app.per_map.map.get_name()
         && app.session.impact.change_key == app.session.edits.get_change_key()
     {
         // Nothing to calculate!

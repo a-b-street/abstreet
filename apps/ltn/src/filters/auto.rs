@@ -194,7 +194,7 @@ fn only_one_border(app: &mut App, neighbourhood: &Neighbourhood) {
             for i in cell.borders.iter().skip(1) {
                 // Find the road in this cell connected to this border
                 for r in cell.roads.keys() {
-                    let road = app.map.get_r(*r);
+                    let road = app.per_map.map.get_r(*r);
                     if road.src_i == *i {
                         app.session.edits.roads.insert(
                             road.id,
@@ -222,7 +222,7 @@ fn try_to_filter_road(
     neighbourhood: &Neighbourhood,
     r: RoadID,
 ) -> Option<Neighbourhood> {
-    let road = app.map.get_r(r);
+    let road = app.per_map.map.get_r(r);
     app.session.edits.roads.insert(
         r,
         RoadFilter::new_by_user(road.length() / 2.0, app.session.filter_type),

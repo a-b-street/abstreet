@@ -80,7 +80,7 @@ impl Partitioning {
     pub fn seed_using_heuristics(app: &App, timer: &mut Timer) -> Partitioning {
         // Try the easy thing first, but then give up
         'METHOD: for use_expensive_blockfinding in [false, true] {
-            let map = &app.map;
+            let map = &app.per_map.map;
             timer.start("find single blocks");
             let mut single_blocks = Vec::new();
             let mut single_block_perims = Vec::new();
@@ -338,7 +338,7 @@ impl Partitioning {
             .perimeter
             .clone()
             .flip_side_of_road()
-            .to_block(&app.map)
+            .to_block(&app.per_map.map)
         {
             Ok(block) => block.polygon,
             Err(_) => info.block.polygon.clone(),

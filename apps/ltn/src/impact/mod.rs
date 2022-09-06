@@ -75,7 +75,7 @@ impl Impact {
         timer: &mut Timer,
     ) -> Impact {
         let mut impact = Impact::empty(ctx);
-        let map = &app.map;
+        let map = &app.per_map.map;
 
         impact.pathfinder_before_changes = Pathfinder::new_ch(
             map,
@@ -84,7 +84,7 @@ impl Impact {
             timer,
         );
 
-        impact.map = app.map.get_name().clone();
+        impact.map = app.per_map.map.get_name().clone();
         impact.change_key = app.session.edits.get_change_key();
         impact.all_trips = timer
             .parallelize("analyze trips", scenario.all_trips().collect(), |trip| {
@@ -106,13 +106,18 @@ impl Impact {
             .iter()
             .map(|m| m.to_constraints())
             .collect();
-        let mut params = app.map.routing_params().clone();
+        let mut params = app.per_map.map.routing_params().clone();
         app.session.edits.update_routing_params(&mut params);
-        Pathfinder::new_ch(&app.map, params, constraints.into_iter().collect(), timer)
+        Pathfinder::new_ch(
+            &app.per_map.map,
+            params,
+            constraints.into_iter().collect(),
+            timer,
+        )
     }
 
     fn trips_changed(&mut self, ctx: &mut EventCtx, app: &App, timer: &mut Timer) {
-        let map = &app.map;
+        let map = &app.per_map.map;
         let constraints: BTreeSet<PathConstraints> = self
             .filters
             .modes
@@ -157,7 +162,7 @@ impl Impact {
     }
 
     fn counts_b(&self, app: &App, timer: &mut Timer) -> TrafficCounts {
-        let map = &app.map;
+        let map = &app.per_map.map;
         let pathfinder_after = self.pathfinder_after(app, timer);
 
         // We can't simply use TrafficCounts::from_path_requests. Due to spurious diffs with paths,
@@ -200,7 +205,7 @@ impl Impact {
         r: RoadID,
         timer: &mut Timer,
     ) -> Vec<(PathV2, PathV2)> {
-        let map = &app.map;
+        let map = &app.per_map.map;
         let pathfinder_after = self.pathfinder_after(app, timer);
 
         let mut changed = Vec::new();

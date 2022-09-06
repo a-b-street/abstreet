@@ -16,7 +16,7 @@ pub fn widget(ctx: &mut EventCtx) -> Widget {
 /// Creates clickable objects for managing filters on roads and intersections. Everything is
 /// invisible; the caller is responsible for drawing things.
 pub fn make_world(ctx: &mut EventCtx, app: &App, neighbourhood: &Neighbourhood) -> World<Obj> {
-    let map = &app.map;
+    let map = &app.per_map.map;
     let mut world = World::bounded(map.get_bounds());
 
     for r in &neighbourhood.orig_perimeter.interior {
@@ -60,7 +60,7 @@ pub fn handle_world_outcome(
     app: &mut App,
     outcome: WorldOutcome<Obj>,
 ) -> EditOutcome {
-    let map = &app.map;
+    let map = &app.per_map.map;
     match outcome {
         WorldOutcome::ClickedObject(Obj::InteriorRoad(r)) => {
             let road = map.get_r(r);
@@ -70,7 +70,7 @@ pub fn handle_world_outcome(
                     super::ResolveOneWayAndFilter::new_state(ctx, vec![r]),
                 ));
             }
-            if road.is_deadend_for_driving(&app.map) {
+            if road.is_deadend_for_driving(&app.per_map.map) {
                 return EditOutcome::error(ctx, "You can't filter a dead-end");
             }
 
@@ -87,7 +87,7 @@ pub fn handle_world_outcome(
                 // If we have a one-way bus route, the one-way resolver will win and we won't warn
                 // about bus gates. Oh well.
                 if app.session.filter_type != FilterType::BusGate
-                    && !app.map.get_bus_routes_on_road(r).is_empty()
+                    && !app.per_map.map.get_bus_routes_on_road(r).is_empty()
                 {
                     app.session.edits.cancel_empty_edit();
                     return EditOutcome::Transition(Transition::Push(
@@ -110,11 +110,11 @@ pub fn handle_world_outcome(
             EditOutcome::Transition(Transition::Recreate)
         }
         WorldOutcome::Keypress("debug", Obj::InteriorIntersection(i)) => {
-            open_browser(app.map.get_i(i).orig_id.to_string());
+            open_browser(app.per_map.map.get_i(i).orig_id.to_string());
             EditOutcome::Nothing
         }
         WorldOutcome::Keypress("debug", Obj::InteriorRoad(r)) => {
-            open_browser(app.map.get_r(r).orig_id.osm_way_id.to_string());
+            open_browser(app.per_map.map.get_r(r).orig_id.osm_way_id.to_string());
             EditOutcome::Nothing
         }
         _ => EditOutcome::Nothing,

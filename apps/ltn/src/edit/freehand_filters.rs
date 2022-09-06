@@ -42,9 +42,9 @@ fn make_filters_along_path(
         if app.session.edits.roads.contains_key(r) {
             continue;
         }
-        let road = app.map.get_r(*r);
+        let road = app.per_map.map.get_r(*r);
         // Don't show error messages
-        if road.is_deadend_for_driving(&app.map) {
+        if road.is_deadend_for_driving(&app.per_map.map) {
             continue;
         }
         if let Some((pt, _)) = road.center_pts.intersection(&path) {
@@ -60,7 +60,7 @@ fn make_filters_along_path(
                 .unwrap_or(road.center_pts.length() / 2.0);
 
             if app.session.filter_type != FilterType::BusGate
-                && !app.map.get_bus_routes_on_road(*r).is_empty()
+                && !app.per_map.map.get_bus_routes_on_road(*r).is_empty()
             {
                 bus_roads.push((*r, dist));
                 continue;
@@ -73,7 +73,7 @@ fn make_filters_along_path(
         }
     }
     for i in &neighbourhood.interior_intersections {
-        if app.map.get_i(*i).polygon.intersects_polyline(&path) {
+        if app.per_map.map.get_i(*i).polygon.intersects_polyline(&path) {
             // We probably won't guess the right one, but make an attempt
             DiagonalFilter::cycle_through_alternatives(app, *i);
         }

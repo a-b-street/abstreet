@@ -12,26 +12,31 @@ use crate::{App, FilterType, RoadFilter};
 ///
 /// Also detect modal filters defined in OSM as points.
 pub fn transform_existing_filters(ctx: &EventCtx, app: &mut App, timer: &mut Timer) {
-    let mut edits = app.map.get_edits().clone();
+    let mut edits = app.per_map.map.get_edits().clone();
     let mut filtered_roads = Vec::new();
-    for r in detect_filters(&app.map) {
-        edits.commands.push(app.map.edit_road_cmd(r.id, |new| {
-            // Produce a fixed [sidewalk, driving, driving, sidewalk] configuration. We could get
-            // fancier and copy the tags of one of the roads we're connected to, but there might be
-            // turn lanes or something extraneous there.
-            let mut tags = Tags::empty();
-            tags.insert("highway", "residential");
-            tags.insert("lanes", "2");
-            tags.insert("sidewalk", "both");
-            new.lanes_ltr = street_network::get_lane_specs_ltr(&tags, app.map.get_config());
-        }));
+    for r in detect_filters(&app.per_map.map) {
+        edits
+            .commands
+            .push(app.per_map.map.edit_road_cmd(r.id, |new| {
+                // Produce a fixed [sidewalk, driving, driving, sidewalk] configuration. We could get
+                // fancier and copy the tags of one of the roads we're connected to, but there might be
+                // turn lanes or something extraneous there.
+                let mut tags = Tags::empty();
+                tags.insert("highway", "residential");
+                tags.insert("lanes", "2");
+                tags.insert("sidewalk", "both");
+                new.lanes_ltr =
+                    street_network::get_lane_specs_ltr(&tags, app.per_map.map.get_config());
+            }));
         filtered_roads.push(r.id);
     }
 
     if !edits.commands.is_empty() {
-        app.map.must_apply_edits(edits, timer);
-        app.draw_map.draw_all_unzoomed_roads_and_intersections =
-            DrawMap::regenerate_unzoomed_layer(ctx, &app.map, &app.cs, &app.opts, timer);
+        app.per_map.map.must_apply_edits(edits, timer);
+        app.per_map
+            .draw_map
+            .draw_all_unzoomed_roads_and_intersections =
+            DrawMap::regenerate_unzoomed_layer(ctx, &app.per_map.map, &app.cs, &app.opts, timer);
         // No need to recreate_road or recreate_intersection. They mostly have zoomed-in effects we
         // ignore. The thickened polygon may change slightly due to width, but it's negligible.
 
@@ -43,8 +48,8 @@ pub fn transform_existing_filters(ctx: &EventCtx, app: &mut App, timer: &mut Tim
             app.session.edits.roads.insert(
                 r,
                 RoadFilter {
-                    dist: app.map.get_r(r).length() / 2.0,
-                    filter_type: if app.map.get_bus_routes_on_road(r).is_empty() {
+                    dist: app.per_map.map.get_r(r).length() / 2.0,
+                    filter_type: if app.per_map.map.get_bus_routes_on_road(r).is_empty() {
                         FilterType::WalkCycleOnly
                     } else {
                         FilterType::BusGate
@@ -56,7 +61,7 @@ pub fn transform_existing_filters(ctx: &EventCtx, app: &mut App, timer: &mut Tim
     }
 
     // Now handle modal filters defined as points in OSM
-    for r in app.map.all_roads() {
+    for r in app.per_map.map.all_roads() {
         for dist in &r.barrier_nodes {
             // The road might also be marked as non-driving. This'll move the filter position from
             // the center.
@@ -64,7 +69,7 @@ pub fn transform_existing_filters(ctx: &EventCtx, app: &mut App, timer: &mut Tim
                 r.id,
                 RoadFilter {
                     dist: *dist,
-                    filter_type: if app.map.get_bus_routes_on_road(r.id).is_empty() {
+                    filter_type: if app.per_map.map.get_bus_routes_on_road(r.id).is_empty() {
                         FilterType::WalkCycleOnly
                     } else {
                         FilterType::BusGate
@@ -76,7 +81,7 @@ pub fn transform_existing_filters(ctx: &EventCtx, app: &mut App, timer: &mut Tim
     }
 
     // Now that we've applied all pre-existing filters, calculate the RoutingParams.
-    let mut params = app.map.routing_params().clone();
+    let mut params = app.per_map.map.routing_params().clone();
     app.session.edits.update_routing_params(&mut params);
     app.session.routing_params_before_changes = params;
 

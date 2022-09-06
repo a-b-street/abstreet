@@ -18,7 +18,10 @@ pub fn widget(ctx: &mut EventCtx, app: &App, focus: Option<&FocusedRoad>) -> Wid
             format!(
                 "{} possible shortcuts cross {}",
                 focus.paths.len(),
-                app.map.get_r(focus.r).get_name(app.opts.language.as_ref()),
+                app.per_map
+                    .map
+                    .get_r(focus.r)
+                    .get_name(app.opts.language.as_ref()),
             )
             .text_widget(ctx),
             Widget::row(vec![
@@ -51,7 +54,7 @@ pub fn make_world(
     neighbourhood: &Neighbourhood,
     focus: &Option<FocusedRoad>,
 ) -> World<Obj> {
-    let map = &app.map;
+    let map = &app.per_map.map;
     let mut world = World::bounded(map.get_bounds());
     let focused_road = focus.as_ref().map(|f| f.r);
 
@@ -90,17 +93,17 @@ pub fn make_world(
         let path = &focus.paths[focus.current_idx];
         let color = app.cs.good_to_bad_red.0.last().unwrap().alpha(0.8);
 
-        match path.trace_v2(&app.map) {
+        match path.trace_v2(&app.per_map.map) {
             Ok(poly) => {
                 draw_path.push(color, poly);
             }
             Err(_) => {
-                draw_path.extend(color, path.trace_all_polygons(&app.map));
+                draw_path.extend(color, path.trace_all_polygons(&app.per_map.map));
             }
         }
 
-        let first_pt = path.get_req().start.pt(&app.map);
-        let last_pt = path.get_req().end.pt(&app.map);
+        let first_pt = path.get_req().start.pt(&app.per_map.map);
+        let last_pt = path.get_req().end.pt(&app.per_map.map);
         draw_path.append(map_gui::tools::start_marker(ctx, first_pt, 2.0));
         draw_path.append(map_gui::tools::goal_marker(ctx, last_pt, 2.0));
 

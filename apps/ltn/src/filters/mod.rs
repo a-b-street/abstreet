@@ -256,7 +256,7 @@ impl Edits {
 impl DiagonalFilter {
     /// The caller must call this in a `before_edit` / `after_edit` "transaction."
     pub fn cycle_through_alternatives(app: &mut App, i: IntersectionID) {
-        let map = &app.map;
+        let map = &app.per_map.map;
         let mut roads = map.get_i(i).get_roads_sorted_by_incoming_angle(map);
 
         if roads.len() == 4 {
@@ -326,9 +326,10 @@ impl DiagonalFilter {
 
     fn new(app: &App, i: IntersectionID, r1: RoadID, r2: RoadID) -> DiagonalFilter {
         let mut roads = app
+            .per_map
             .map
             .get_i(i)
-            .get_roads_sorted_by_incoming_angle(&app.map);
+            .get_roads_sorted_by_incoming_angle(&app.per_map.map);
         // Make self.r1 be the first entry
         while roads[0] != r1 {
             roads.rotate_right(1);

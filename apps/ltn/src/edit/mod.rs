@@ -358,29 +358,31 @@ impl State<App> for ResolveOneWayAndFilter {
                 return Transition::Pop;
             }
 
-            let driving_side = app.map.get_config().driving_side;
-            let mut edits = app.map.get_edits().clone();
+            let driving_side = app.per_map.map.get_config().driving_side;
+            let mut edits = app.per_map.map.get_edits().clone();
             for r in &self.roads {
-                edits.commands.push(app.map.edit_road_cmd(*r, |new| {
-                    LaneSpec::toggle_road_direction(&mut new.lanes_ltr, driving_side);
-                    // Maybe we just flipped a one-way forwards to a one-way backwards. So one more
-                    // time to make it two-way
-                    if LaneSpec::oneway_for_driving(&new.lanes_ltr) == Some(Direction::Back) {
+                edits
+                    .commands
+                    .push(app.per_map.map.edit_road_cmd(*r, |new| {
                         LaneSpec::toggle_road_direction(&mut new.lanes_ltr, driving_side);
-                    }
-                }));
+                        // Maybe we just flipped a one-way forwards to a one-way backwards. So one more
+                        // time to make it two-way
+                        if LaneSpec::oneway_for_driving(&new.lanes_ltr) == Some(Direction::Back) {
+                            LaneSpec::toggle_road_direction(&mut new.lanes_ltr, driving_side);
+                        }
+                    }));
             }
             ctx.loading_screen("apply edits", |_, timer| {
-                app.map.must_apply_edits(edits, timer);
+                app.per_map.map.must_apply_edits(edits, timer);
             });
 
             app.session.edits.before_edit();
 
             for r in &self.roads {
                 let r = *r;
-                let road = app.map.get_r(r);
-                let r_edit = app.map.get_r_edit(r);
-                if r_edit == EditRoad::get_orig_from_osm(road, app.map.get_config()) {
+                let road = app.per_map.map.get_r(r);
+                let r_edit = app.per_map.map.get_r_edit(r);
+                if r_edit == EditRoad::get_orig_from_osm(road, app.per_map.map.get_config()) {
                     app.session.edits.one_ways.remove(&r);
                 } else {
                     app.session.edits.one_ways.insert(r, r_edit);
@@ -431,7 +433,7 @@ impl ResolveBusGate {
 
         let mut routes = BTreeSet::new();
         for (r, _) in &roads {
-            routes.extend(app.map.get_bus_routes_on_road(*r));
+            routes.extend(app.per_map.map.get_bus_routes_on_road(*r));
         }
         for route in routes {
             txt.add_line(format!("- {route}"));
