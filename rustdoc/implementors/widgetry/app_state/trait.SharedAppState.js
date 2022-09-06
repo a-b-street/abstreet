@@ -1,5 +1,6 @@
 (function() {var implementors = {};
 implementors["game"] = [{"text":"impl SharedAppState for <a class=\"struct\" href=\"game/app/struct.App.html\" title=\"struct game::app::App\">App</a>","synthetic":false,"types":["game::app::App"]}];
+implementors["ltn"] = [{"text":"impl SharedAppState for <a class=\"struct\" href=\"ltn/app/struct.App.html\" title=\"struct ltn::app::App\">App</a>","synthetic":false,"types":["ltn::app::App"]}];
 implementors["map_editor"] = [{"text":"impl SharedAppState for <a class=\"struct\" href=\"map_editor/app/struct.App.html\" title=\"struct map_editor::app::App\">App</a>","synthetic":false,"types":["map_editor::app::App"]}];
 implementors["map_gui"] = [{"text":"impl&lt;T:&nbsp;'static&gt; SharedAppState for <a class=\"struct\" href=\"map_gui/simple_app/struct.SimpleApp.html\" title=\"struct map_gui::simple_app::SimpleApp\">SimpleApp</a>&lt;T&gt;","synthetic":false,"types":["map_gui::simple_app::SimpleApp"]}];
 implementors["widgetry_demo"] = [{"text":"impl SharedAppState for <a class=\"struct\" href=\"widgetry_demo/struct.App.html\" title=\"struct widgetry_demo::App\">App</a>","synthetic":false,"types":["widgetry_demo::App"]}];

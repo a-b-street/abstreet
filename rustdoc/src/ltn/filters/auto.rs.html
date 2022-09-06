@@ -438,7 +438,7 @@
             <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">cell</span>.<span class="ident">borders</span>.<span class="ident">iter</span>().<span class="ident">skip</span>(<span class="number">1</span>) {
                 <span class="comment">// Find the road in this cell connected to this border</span>
                 <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">cell</span>.<span class="ident">roads</span>.<span class="ident">keys</span>() {
-                    <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
+                    <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
                     <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">src_i</span> <span class="op">==</span> <span class="kw-2">*</span><span class="ident">i</span> {
                         <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edits</span>.<span class="ident">roads</span>.<span class="ident">insert</span>(
                             <span class="ident">road</span>.<span class="ident">id</span>,
@@ -466,7 +466,7 @@
     <span class="ident">neighbourhood</span>: <span class="kw-2">&amp;</span><span class="ident">Neighbourhood</span>,
     <span class="ident">r</span>: <span class="ident">RoadID</span>,
 ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Neighbourhood</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>);
+    <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>);
     <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edits</span>.<span class="ident">roads</span>.<span class="ident">insert</span>(
         <span class="ident">r</span>,
         <span class="ident">RoadFilter::new_by_user</span>(<span class="ident">road</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">filter_type</span>),

@@ -122,6 +122,23 @@
 <span id="116">116</span>
 <span id="117">117</span>
 <span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">map_model::EditRoad</span>;
 <span class="kw">use</span> <span class="ident">street_network::LaneSpec</span>;
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">World</span>, <span class="ident">WorldOutcome</span>};
@@ -135,7 +152,7 @@
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_world</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">neighbourhood</span>: <span class="kw-2">&amp;</span><span class="ident">Neighbourhood</span>) -&gt; <span class="ident">World</span><span class="op">&lt;</span><span class="ident">Obj</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>;
+    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">world</span> <span class="op">=</span> <span class="ident">World::bounded</span>(<span class="ident">map</span>.<span class="ident">get_bounds</span>());
 
     <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">neighbourhood</span>.<span class="ident">orig_perimeter</span>.<span class="ident">interior</span> {
@@ -167,18 +184,23 @@
             <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edits</span>.<span class="ident">roads</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>) {
                 <span class="kw">return</span> <span class="ident">EditOutcome::error</span>(<span class="ident">ctx</span>, <span class="string">&quot;A one-way street can&#39;t have a filter&quot;</span>);
             }
-            <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">is_deadend_for_driving</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>) {
+            <span class="kw">if</span> <span class="ident">app</span>
+                .<span class="ident">per_map</span>
+                .<span class="ident">map</span>
+                .<span class="ident">get_r</span>(<span class="ident">r</span>)
+                .<span class="ident">is_deadend_for_driving</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>)
+            {
                 <span class="kw">return</span> <span class="ident">EditOutcome::error</span>(<span class="ident">ctx</span>, <span class="string">&quot;A dead-end street can&#39;t be one-way&quot;</span>);
             }
 
-            <span class="kw">let</span> <span class="ident">driving_side</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_config</span>().<span class="ident">driving_side</span>;
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
-            <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">edit_road_cmd</span>(<span class="ident">r</span>, <span class="op">|</span><span class="ident">new</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">driving_side</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">get_config</span>().<span class="ident">driving_side</span>;
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
+            <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">edit_road_cmd</span>(<span class="ident">r</span>, <span class="op">|</span><span class="ident">new</span><span class="op">|</span> {
                 <span class="ident">LaneSpec::toggle_road_direction</span>(<span class="kw-2">&amp;mut</span> <span class="ident">new</span>.<span class="ident">lanes_ltr</span>, <span class="ident">driving_side</span>);
             }));
 
             <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;apply edits&quot;</span>, <span class="op">|</span><span class="kw">_</span>, <span class="ident">timer</span><span class="op">|</span> {
-                <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">must_apply_edits</span>(<span class="ident">edits</span>, <span class="ident">timer</span>);
+                <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">must_apply_edits</span>(<span class="ident">edits</span>, <span class="ident">timer</span>);
                 <span class="comment">// We don&#39;t need to regenerate_unzoomed_layer for one-ways; no widths or styling</span>
                 <span class="comment">// has changed</span>
 
@@ -188,11 +210,16 @@
 
             <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edits</span>.<span class="ident">before_edit</span>();
 
-            <span class="kw">let</span> <span class="ident">r_edit</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_r_edit</span>(<span class="ident">r</span>);
+            <span class="kw">let</span> <span class="ident">r_edit</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">get_r_edit</span>(<span class="ident">r</span>);
             <span class="comment">// Was the road originally like this? Use the original OSM tags to decide.</span>
             <span class="comment">// TODO This&#39;ll break in the face of newer osm2streets transformations. But it&#39;s the</span>
             <span class="comment">// same problem as EditRoad::get_orig_from_osm -- figure out a bigger solution later.</span>
-            <span class="kw">if</span> <span class="ident">r_edit</span> <span class="op">==</span> <span class="ident">EditRoad::get_orig_from_osm</span>(<span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>), <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_config</span>()) {
+            <span class="kw">if</span> <span class="ident">r_edit</span>
+                <span class="op">==</span> <span class="ident">EditRoad::get_orig_from_osm</span>(
+                    <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>),
+                    <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">get_config</span>(),
+                )
+            {
                 <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edits</span>.<span class="ident">one_ways</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>);
             } <span class="kw">else</span> {
                 <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edits</span>.<span class="ident">one_ways</span>.<span class="ident">insert</span>(<span class="ident">r</span>, <span class="ident">r_edit</span>);
@@ -214,26 +241,33 @@
     <span class="comment">// Generate edits to undo possible changes to a one-way. Note there may be multiple in one</span>
     <span class="comment">// batch, from the freehand tool</span>
     <span class="kw">if</span> <span class="ident">prev</span>.<span class="ident">one_ways</span> <span class="op">!</span><span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edits</span>.<span class="ident">one_ways</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
 
         <span class="kw">for</span> (<span class="ident">r</span>, <span class="ident">r_edit1</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">prev</span>.<span class="ident">one_ways</span> {
             <span class="kw">if</span> <span class="prelude-val">Some</span>(<span class="ident">r_edit1</span>) <span class="op">!</span><span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edits</span>.<span class="ident">one_ways</span>.<span class="ident">get</span>(<span class="ident">r</span>) {
-                <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">edit_road_cmd</span>(<span class="kw-2">*</span><span class="ident">r</span>, <span class="op">|</span><span class="ident">new</span><span class="op">|</span> {
-                    <span class="kw-2">*</span><span class="ident">new</span> <span class="op">=</span> <span class="ident">r_edit1</span>.<span class="ident">clone</span>();
-                }));
+                <span class="ident">edits</span>
+                    .<span class="ident">commands</span>
+                    .<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">edit_road_cmd</span>(<span class="kw-2">*</span><span class="ident">r</span>, <span class="op">|</span><span class="ident">new</span><span class="op">|</span> {
+                        <span class="kw-2">*</span><span class="ident">new</span> <span class="op">=</span> <span class="ident">r_edit1</span>.<span class="ident">clone</span>();
+                    }));
             }
         }
         <span class="comment">// Also look for newly introduced one-ways</span>
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edits</span>.<span class="ident">one_ways</span>.<span class="ident">keys</span>() {
             <span class="kw">if</span> <span class="op">!</span><span class="ident">prev</span>.<span class="ident">one_ways</span>.<span class="ident">contains_key</span>(<span class="ident">r</span>) {
-                <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">edit_road_cmd</span>(<span class="kw-2">*</span><span class="ident">r</span>, <span class="op">|</span><span class="ident">new</span><span class="op">|</span> {
-                    <span class="kw-2">*</span><span class="ident">new</span> <span class="op">=</span> <span class="ident">EditRoad::get_orig_from_osm</span>(<span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>), <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_config</span>());
-                }));
+                <span class="ident">edits</span>
+                    .<span class="ident">commands</span>
+                    .<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">edit_road_cmd</span>(<span class="kw-2">*</span><span class="ident">r</span>, <span class="op">|</span><span class="ident">new</span><span class="op">|</span> {
+                        <span class="kw-2">*</span><span class="ident">new</span> <span class="op">=</span> <span class="ident">EditRoad::get_orig_from_osm</span>(
+                            <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>),
+                            <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">get_config</span>(),
+                        );
+                    }));
             }
         }
 
         <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;apply edits&quot;</span>, <span class="op">|</span><span class="kw">_</span>, <span class="ident">timer</span><span class="op">|</span> {
-            <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">must_apply_edits</span>(<span class="ident">edits</span>, <span class="ident">timer</span>);
+            <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">must_apply_edits</span>(<span class="ident">edits</span>, <span class="ident">timer</span>);
         });
     }
 
