@@ -13,7 +13,7 @@ use crate::edit::EditMode;
 use crate::filters::auto::Heuristic;
 use crate::{colors, App, Neighbourhood, NeighbourhoodID, Transition};
 
-pub struct BrowseNeighbourhoods {
+pub struct PickArea {
     top_panel: Panel,
     left_panel: Panel,
     world: World<NeighbourhoodID>,
@@ -22,7 +22,7 @@ pub struct BrowseNeighbourhoods {
     draw_boundary_roads: Drawable,
 }
 
-impl BrowseNeighbourhoods {
+impl PickArea {
     pub fn new_state(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
         map_gui::tools::update_url_map_name(app);
 
@@ -43,7 +43,7 @@ impl BrowseNeighbourhoods {
                 (make_world(ctx, app), draw_over_roads(ctx, app))
             });
 
-        let top_panel = crate::components::TopPanel::panel(ctx, app, Mode::BrowseNeighbourhoods);
+        let top_panel = crate::components::TopPanel::panel(ctx, app, Mode::PickArea);
         let left_panel = crate::components::LeftPanel::builder(
             ctx,
             &top_panel,
@@ -53,7 +53,7 @@ impl BrowseNeighbourhoods {
             ]),
         )
         .build(ctx);
-        Box::new(BrowseNeighbourhoods {
+        Box::new(PickArea {
             top_panel,
             left_panel,
             world,
@@ -64,22 +64,18 @@ impl BrowseNeighbourhoods {
     }
 }
 
-impl State<App> for BrowseNeighbourhoods {
+impl State<App> for PickArea {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         if let Some(t) = crate::components::TopPanel::event(
             ctx,
             app,
             &mut self.top_panel,
-            &crate::save::PreserveState::BrowseNeighbourhoods,
+            &crate::save::PreserveState::PickArea,
             help,
         ) {
             return t;
         }
-        if let Some(t) = app
-            .session
-            .layers
-            .event(ctx, &app.cs, Mode::BrowseNeighbourhoods)
-        {
+        if let Some(t) = app.session.layers.event(ctx, &app.cs, Mode::PickArea) {
             return t;
         }
         match self.left_panel.event(ctx) {
@@ -104,14 +100,14 @@ impl State<App> for BrowseNeighbourhoods {
                             let _ = app.session.heuristic.apply(ctx, app, &neighbourhood, timer);
                         }
                     });
-                    return Transition::Replace(BrowseNeighbourhoods::new_state(ctx, app));
+                    return Transition::Replace(PickArea::new_state(ctx, app));
                 }
                 _ => unreachable!(),
             },
             Outcome::Changed(x) => {
                 if x == "Advanced features" {
                     app.opts.dev = self.left_panel.is_checked("Advanced features");
-                    return Transition::Replace(BrowseNeighbourhoods::new_state(ctx, app));
+                    return Transition::Replace(PickArea::new_state(ctx, app));
                 }
                 if x == "heuristic" {
                     app.session.heuristic = self.left_panel.dropdown_value("heuristic");
@@ -128,7 +124,7 @@ impl State<App> for BrowseNeighbourhoods {
         }
 
         if let WorldOutcome::ClickedObject(id) = self.world.event(ctx) {
-            return Transition::Push(crate::connectivity::Viewer::new_state(ctx, app, id));
+            return Transition::Push(crate::design_ltn::DesignLTN::new_state(ctx, app, id));
         }
 
         Transition::Keep

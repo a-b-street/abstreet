@@ -10,10 +10,10 @@ use widgetry::{
     Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, State, Text, TextExt, Widget,
 };
 
-use crate::browse::draw_boundary_roads;
 use crate::components::Mode;
 use crate::edit::EditMode;
 use crate::partition::BlockID;
+use crate::pick_area::draw_boundary_roads;
 use crate::{colors, App, NeighbourhoodID, Partitioning, Transition};
 
 pub struct SelectBoundary {
@@ -298,12 +298,12 @@ impl State<App> for SelectBoundary {
                     // back to a different neighbourhood than we started with. And also the original
                     // partitioning will have been lost!!!
                     app.per_map.partitioning = self.orig_partitioning.clone();
-                    return Transition::Replace(crate::connectivity::Viewer::new_state(
+                    return Transition::Replace(crate::design_ltn::DesignLTN::new_state(
                         ctx, app, self.id,
                     ));
                 }
                 "Confirm" => {
-                    return Transition::Replace(crate::connectivity::Viewer::new_state(
+                    return Transition::Replace(crate::design_ltn::DesignLTN::new_state(
                         ctx, app, self.id,
                     ));
                 }

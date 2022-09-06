@@ -13,7 +13,7 @@ use crate::edit::{EditMode, EditNeighbourhood, EditOutcome};
 use crate::filters::auto::Heuristic;
 use crate::{colors, is_private, App, Neighbourhood, NeighbourhoodID, Transition};
 
-pub struct Viewer {
+pub struct DesignLTN {
     top_panel: Panel,
     left_panel: Panel,
     neighbourhood: Neighbourhood,
@@ -27,7 +27,7 @@ pub struct Viewer {
     show_error: Drawable,
 }
 
-impl Viewer {
+impl DesignLTN {
     pub fn new_state(
         ctx: &mut EventCtx,
         app: &mut App,
@@ -37,7 +37,7 @@ impl Viewer {
 
         let neighbourhood = Neighbourhood::new(ctx, app, id);
 
-        let mut viewer = Viewer {
+        let mut state = Self {
             top_panel: crate::components::TopPanel::panel(ctx, app, Mode::ModifyNeighbourhood),
             left_panel: Panel::empty(ctx),
             neighbourhood,
@@ -45,14 +45,14 @@ impl Viewer {
             draw_under_roads_layer: Drawable::empty(ctx),
             highlight_cell: World::unbounded(),
             edit: EditNeighbourhood::temporary(),
-            preserve_state: crate::save::PreserveState::Connectivity(
+            preserve_state: crate::save::PreserveState::DesignLTN(
                 app.per_map.partitioning.all_blocks_in_neighbourhood(id),
             ),
 
             show_error: Drawable::empty(ctx),
         };
-        viewer.update(ctx, app);
-        Box::new(viewer)
+        state.update(ctx, app);
+        Box::new(state)
     }
 
     fn update(&mut self, ctx: &mut EventCtx, app: &App) {
@@ -114,7 +114,7 @@ impl Viewer {
     }
 }
 
-impl State<App> for Viewer {
+impl State<App> for DesignLTN {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         if let Some(t) = crate::components::TopPanel::event(
             ctx,

@@ -26,7 +26,7 @@ pub struct Neighbourhood {
     pub labels: DrawSimpleRoadLabels,
 }
 
-/// A partitioning of the interior of a neighbourhood based on driving connectivity
+/// A partitioning of the interior of a neighbourhood based on driving design_ltn
 pub struct Cell {
     /// Most roads are fully in one cell. Roads with modal filters on them are sometimes split
     /// between two cells, and the DistanceInterval indicates the split. The distances are over the
@@ -277,7 +277,7 @@ fn floodfill(
         for i in [current.src_i, current.dst_i] {
             // It's possible for one border intersection to have two roads in the interior of the
             // neighbourhood. Don't consider a turn between those roads through this intersection as
-            // counting as connectivity -- we're right at the boundary road, so it's like leaving
+            // counting as design_ltn -- we're right at the boundary road, so it's like leaving
             // and re-entering the neighbourhood.
             if neighbourhood_borders.contains(&i) {
                 cell_borders.insert(i);
