@@ -408,8 +408,8 @@
 
         <span class="kw">let</span> (<span class="ident">world</span>, <span class="ident">draw_over_roads</span>) <span class="op">=</span>
             <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;calculate neighbourhoods&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
-                <span class="kw">if</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">map</span> <span class="op">!</span><span class="op">=</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">get_name</span>() {
-                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">alt_proposals</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::save::AltProposals::new</span>();
+                <span class="kw">if</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">partitioning</span>.<span class="ident">map</span> <span class="op">!</span><span class="op">=</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">get_name</span>() {
+                    <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">alt_proposals</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::save::AltProposals::new</span>();
                     <span class="ident"><span class="kw">crate</span>::clear_current_proposal</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">timer</span>);
                 }
                 (<span class="ident">make_world</span>(<span class="ident">ctx</span>, <span class="ident">app</span>), <span class="ident">draw_over_roads</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))
@@ -420,7 +420,7 @@
             <span class="ident">ctx</span>,
             <span class="kw-2">&amp;</span><span class="ident">top_panel</span>,
             <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">alt_proposals</span>.<span class="ident">to_widget</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+                <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">alt_proposals</span>.<span class="ident">to_widget</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
                 <span class="ident"><span class="kw">crate</span>::route_planner::RoutePlanner::button</span>(<span class="ident">ctx</span>),
                 <span class="ident">Toggle::checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;Advanced features&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span>),
                 <span class="ident">advanced_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
@@ -442,7 +442,7 @@
             .<span class="ident">btn_back</span>(<span class="string">&quot;Browse neighbourhoods&quot;</span>)
             .<span class="ident">hotkey</span>(<span class="ident">Key::Escape</span>)
             .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
-            .<span class="ident">hide</span>(<span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">consultation</span>.<span class="ident">is_some</span>())
+            .<span class="ident">hide</span>(<span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">consultation</span>.<span class="ident">is_some</span>())
     }
 }
 
@@ -472,10 +472,10 @@
                     <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;automatically filter all neighbourhoods&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
                         <span class="ident">timer</span>.<span class="ident">start_iter</span>(
                             <span class="string">&quot;filter neighbourhood&quot;</span>,
-                            <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">all_neighbourhoods</span>().<span class="ident">len</span>(),
+                            <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">partitioning</span>.<span class="ident">all_neighbourhoods</span>().<span class="ident">len</span>(),
                         );
                         <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="ident">app</span>
-                            .<span class="ident">session</span>
+                            .<span class="ident">per_map</span>
                             .<span class="ident">partitioning</span>
                             .<span class="ident">all_neighbourhoods</span>()
                             .<span class="ident">keys</span>()
@@ -539,8 +539,8 @@
         <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">layers</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
         <span class="self">self</span>.<span class="ident">draw_boundary_roads</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="self">self</span>.<span class="ident">labels</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_all_filters</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_poi_icons</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+        <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">draw_all_filters</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+        <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">draw_poi_icons</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
     }
 }
 
@@ -550,9 +550,9 @@
     <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;render neighbourhoods&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
         <span class="ident">timer</span>.<span class="ident">start_iter</span>(
             <span class="string">&quot;render neighbourhoods&quot;</span>,
-            <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">all_neighbourhoods</span>().<span class="ident">len</span>(),
+            <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">partitioning</span>.<span class="ident">all_neighbourhoods</span>().<span class="ident">len</span>(),
         );
-        <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">info</span>) <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">all_neighbourhoods</span>() {
+        <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">info</span>) <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">partitioning</span>.<span class="ident">all_neighbourhoods</span>() {
             <span class="ident">timer</span>.<span class="ident">next</span>();
             <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_neighbourhood_style</span> {
                 <span class="ident">Style::Simple</span> =&gt; {
@@ -619,7 +619,7 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">count_per_road</span> <span class="op">=</span> <span class="ident">Counter::new</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">count_per_intersection</span> <span class="op">=</span> <span class="ident">Counter::new</span>();
 
-    <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">all_neighbourhoods</span>().<span class="ident">keys</span>() {
+    <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">partitioning</span>.<span class="ident">all_neighbourhoods</span>().<span class="ident">keys</span>() {
         <span class="kw">let</span> <span class="ident">neighbourhood</span> <span class="op">=</span> <span class="ident">Neighbourhood::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">*</span><span class="ident">id</span>);
         <span class="ident">count_per_road</span>.<span class="ident">extend</span>(<span class="ident">neighbourhood</span>.<span class="ident">shortcuts</span>.<span class="ident">count_per_road</span>);
         <span class="ident">count_per_intersection</span>.<span class="ident">extend</span>(<span class="ident">neighbourhood</span>.<span class="ident">shortcuts</span>.<span class="ident">count_per_intersection</span>);
@@ -638,7 +638,7 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seen_roads</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seen_borders</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-    <span class="kw">for</span> <span class="ident">info</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">all_neighbourhoods</span>().<span class="ident">values</span>() {
+    <span class="kw">for</span> <span class="ident">info</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">partitioning</span>.<span class="ident">all_neighbourhoods</span>().<span class="ident">values</span>() {
         <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">info</span>.<span class="ident">block</span>.<span class="ident">perimeter</span>.<span class="ident">roads</span> {
             <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">id</span>.<span class="ident">road</span>;
             <span class="kw">if</span> <span class="ident">seen_roads</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>) {
@@ -672,8 +672,8 @@
 }
 
 <span class="kw">fn</span> <span class="ident">impact_widget</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Widget</span> {
-    <span class="kw">if</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">impact</span>.<span class="ident">map</span> <span class="op">==</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()
-        <span class="op">&amp;&amp;</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">impact</span>.<span class="ident">change_key</span> <span class="op">==</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edits</span>.<span class="ident">get_change_key</span>()
+    <span class="kw">if</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">impact</span>.<span class="ident">map</span> <span class="op">==</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()
+        <span class="op">&amp;&amp;</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">impact</span>.<span class="ident">change_key</span> <span class="op">==</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">edits</span>.<span class="ident">get_change_key</span>()
     {
         <span class="comment">// Nothing to calculate!</span>
         <span class="kw">return</span> <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;Show impact&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>);

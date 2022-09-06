@@ -461,21 +461,21 @@
         <span class="self">Self</span> {
             <span class="ident">map</span>: <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">clone</span>(),
             <span class="ident">name</span>: <span class="ident">app</span>
-                .<span class="ident">session</span>
+                .<span class="ident">per_map</span>
                 .<span class="ident">proposal_name</span>
                 .<span class="ident">clone</span>()
                 .<span class="ident">unwrap_or</span>(<span class="ident">String::from</span>(<span class="string">&quot;existing LTNs&quot;</span>)),
             <span class="ident">abst_version</span>: <span class="ident">map_gui::tools::version</span>().<span class="ident">to_string</span>(),
 
-            <span class="ident">partitioning</span>: <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">clone</span>(),
-            <span class="ident">edits</span>: <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edits</span>.<span class="ident">clone</span>(),
+            <span class="ident">partitioning</span>: <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">partitioning</span>.<span class="ident">clone</span>(),
+            <span class="ident">edits</span>: <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">edits</span>.<span class="ident">clone</span>(),
         }
     }
 
     <span class="kw">fn</span> <span class="ident">make_active</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) {
         <span class="comment">// First undo any one-way changes</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">new_edits</span>();
-        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edits</span>.<span class="ident">one_ways</span>.<span class="ident">keys</span>().<span class="ident">cloned</span>() {
+        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">edits</span>.<span class="ident">one_ways</span>.<span class="ident">keys</span>().<span class="ident">cloned</span>() {
             <span class="comment">// Just revert to the original state</span>
             <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">edit_road_cmd</span>(<span class="ident">r</span>, <span class="op">|</span><span class="ident">new</span><span class="op">|</span> {
                 <span class="kw-2">*</span><span class="ident">new</span> <span class="op">=</span> <span class="ident">EditRoad::get_orig_from_osm</span>(
@@ -485,14 +485,14 @@
             }));
         }
 
-        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">proposal_name</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">name</span>);
-        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">partitioning</span>;
-        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edits</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">edits</span>;
-        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_all_filters</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edits</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>);
+        <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">proposal_name</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">name</span>);
+        <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">partitioning</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">partitioning</span>;
+        <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">edits</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">edits</span>;
+        <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">draw_all_filters</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">edits</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>);
 
         <span class="comment">// Then append any new one-way changes. Edits are applied in order, so the net effect</span>
         <span class="comment">// should be correct.</span>
-        <span class="kw">for</span> (<span class="ident">r</span>, <span class="ident">r_edit</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edits</span>.<span class="ident">one_ways</span> {
+        <span class="kw">for</span> (<span class="ident">r</span>, <span class="ident">r_edit</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">edits</span>.<span class="ident">one_ways</span> {
             <span class="ident">edits</span>
                 .<span class="ident">commands</span>
                 .<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">edit_road_cmd</span>(<span class="kw-2">*</span><span class="ident">r</span>, <span class="kw">move</span> <span class="op">|</span><span class="ident">new</span><span class="op">|</span> {
@@ -544,12 +544,12 @@
 
         <span class="comment">// When initially loading a proposal from CLI flag, the partitioning will be a placeholder.</span>
         <span class="comment">// Don&#39;t stash it.</span>
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">is_empty</span>() {
+        <span class="kw">if</span> <span class="op">!</span><span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">partitioning</span>.<span class="ident">is_empty</span>() {
             <span class="ident">stash_current_proposal</span>(<span class="ident">app</span>);
 
             <span class="comment">// Start a new proposal</span>
-            <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">alt_proposals</span>.<span class="ident">list</span>.<span class="ident">push</span>(<span class="prelude-val">None</span>);
-            <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">alt_proposals</span>.<span class="ident">current</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">alt_proposals</span>.<span class="ident">list</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>;
+            <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">alt_proposals</span>.<span class="ident">list</span>.<span class="ident">push</span>(<span class="prelude-val">None</span>);
+            <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">alt_proposals</span>.<span class="ident">current</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">alt_proposals</span>.<span class="ident">list</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>;
         }
 
         <span class="ident">proposal</span>.<span class="ident">make_active</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
@@ -576,10 +576,10 @@
 }
 
 <span class="kw">fn</span> <span class="ident">stash_current_proposal</span>(<span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) {
-    <span class="kw-2">*</span><span class="ident">app</span>.<span class="ident">session</span>
+    <span class="kw-2">*</span><span class="ident">app</span>.<span class="ident">per_map</span>
         .<span class="ident">alt_proposals</span>
         .<span class="ident">list</span>
-        .<span class="ident">get_mut</span>(<span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">alt_proposals</span>.<span class="ident">current</span>)
+        .<span class="ident">get_mut</span>(<span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">alt_proposals</span>.<span class="ident">current</span>)
         .<span class="ident">unwrap</span>() <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Proposal::from_app</span>(<span class="ident">app</span>));
 }
 
@@ -587,21 +587,21 @@
     <span class="ident">stash_current_proposal</span>(<span class="ident">app</span>);
 
     <span class="kw">let</span> <span class="ident">proposal</span> <span class="op">=</span> <span class="ident">app</span>
-        .<span class="ident">session</span>
+        .<span class="ident">per_map</span>
         .<span class="ident">alt_proposals</span>
         .<span class="ident">list</span>
         .<span class="ident">get_mut</span>(<span class="ident">idx</span>)
         .<span class="ident">unwrap</span>()
         .<span class="ident">take</span>()
         .<span class="ident">unwrap</span>();
-    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">alt_proposals</span>.<span class="ident">current</span> <span class="op">=</span> <span class="ident">idx</span>;
+    <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">alt_proposals</span>.<span class="ident">current</span> <span class="op">=</span> <span class="ident">idx</span>;
 
     <span class="ident">proposal</span>.<span class="ident">make_active</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
 }
 
 <span class="kw">fn</span> <span class="ident">save_ui</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">preserve_state</span>: <span class="ident">PreserveState</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">default_name</span> <span class="op">=</span> <span class="ident">app</span>
-        .<span class="ident">session</span>
+        .<span class="ident">per_map</span>
         .<span class="ident">proposal_name</span>
         .<span class="ident">clone</span>()
         .<span class="ident">unwrap_or_else</span>(<span class="ident">String::new</span>);
@@ -612,7 +612,7 @@
         <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">name</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
             <span class="comment">// If we overwrite an existing proposal, all hell may break loose. AltProposals state</span>
             <span class="comment">// and file state are not synchronized / auto-saved.</span>
-            <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">proposal_name</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">name</span>.<span class="ident">clone</span>());
+            <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">proposal_name</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">name</span>.<span class="ident">clone</span>());
 
             <span class="kw">match</span> <span class="ident">inner_save</span>(<span class="ident">app</span>) {
                 <span class="comment">// If we changed the name, we&#39;ll want to recreate the panel</span>
@@ -708,7 +708,7 @@
                     .<span class="ident">text</span>(<span class="macro">format!</span>(
                         <span class="string">&quot;{} - {}&quot;</span>,
                         <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>,
-                        <span class="ident">app</span>.<span class="ident">session</span>
+                        <span class="ident">app</span>.<span class="ident">per_map</span>
                             .<span class="ident">proposal_name</span>
                             .<span class="ident">as_ref</span>()
                             .<span class="ident">unwrap_or</span>(<span class="kw-2">&amp;</span><span class="ident">String::from</span>(<span class="string">&quot;existing LTNs&quot;</span>)),
@@ -747,7 +747,7 @@
                     <span class="comment">// First undo any one-way changes. This is messy to repeat here, but it&#39;s not</span>
                     <span class="comment">// straightforward to use make_active.</span>
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">new_edits</span>();
-                    <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edits</span>.<span class="ident">one_ways</span>.<span class="ident">keys</span>().<span class="ident">cloned</span>() {
+                    <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">edits</span>.<span class="ident">one_ways</span>.<span class="ident">keys</span>().<span class="ident">cloned</span>() {
                         <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">edit_road_cmd</span>(<span class="ident">r</span>, <span class="op">|</span><span class="ident">new</span><span class="op">|</span> {
                             <span class="kw-2">*</span><span class="ident">new</span> <span class="op">=</span> <span class="ident">EditRoad::get_orig_from_osm</span>(
                                 <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>),
@@ -761,8 +761,8 @@
                 });
 
                 <span class="comment">// Start a new proposal</span>
-                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">alt_proposals</span>.<span class="ident">list</span>.<span class="ident">push</span>(<span class="prelude-val">None</span>);
-                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">alt_proposals</span>.<span class="ident">current</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">alt_proposals</span>.<span class="ident">list</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>;
+                <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">alt_proposals</span>.<span class="ident">list</span>.<span class="ident">push</span>(<span class="prelude-val">None</span>);
+                <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">alt_proposals</span>.<span class="ident">current</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">alt_proposals</span>.<span class="ident">list</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>;
             }
             <span class="string">&quot;Load&quot;</span> =&gt; {
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">load_picker_ui</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">preserve_state</span>)));
@@ -779,17 +779,17 @@
                     <span class="ident">switch_to_existing_proposal</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">idx</span>);
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">action</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;hide proposal &quot;</span>) {
                     <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">x</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-                    <span class="kw">if</span> <span class="ident">idx</span> <span class="op">==</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">alt_proposals</span>.<span class="ident">current</span> {
+                    <span class="kw">if</span> <span class="ident">idx</span> <span class="op">==</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">alt_proposals</span>.<span class="ident">current</span> {
                         <span class="comment">// First make sure we&#39;re not hiding the current proposal</span>
                         <span class="ident">switch_to_existing_proposal</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw">if</span> <span class="ident">idx</span> <span class="op">==</span> <span class="number">0</span> { <span class="number">1</span> } <span class="kw">else</span> { <span class="ident">idx</span> <span class="op">-</span> <span class="number">1</span> });
                     }
 
                     <span class="comment">// Remove it</span>
-                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">alt_proposals</span>.<span class="ident">list</span>.<span class="ident">remove</span>(<span class="ident">idx</span>);
+                    <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">alt_proposals</span>.<span class="ident">list</span>.<span class="ident">remove</span>(<span class="ident">idx</span>);
 
                     <span class="comment">// Fix up indices</span>
-                    <span class="kw">if</span> <span class="ident">idx</span> <span class="op">&lt;</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">alt_proposals</span>.<span class="ident">current</span> {
-                        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">alt_proposals</span>.<span class="ident">current</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
+                    <span class="kw">if</span> <span class="ident">idx</span> <span class="op">&lt;</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">alt_proposals</span>.<span class="ident">current</span> {
+                        <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">alt_proposals</span>.<span class="ident">current</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
                     }
                 } <span class="kw">else</span> {
                     <span class="kw">return</span> <span class="prelude-val">None</span>;
@@ -827,7 +827,7 @@
                 <span class="comment">// with the most matches</span>
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">Counter::new</span>();
                 <span class="kw">for</span> <span class="ident">block</span> <span class="kw">in</span> <span class="ident">blocks</span> {
-                    <span class="ident">count</span>.<span class="ident">inc</span>(<span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">partitioning</span>.<span class="ident">block_to_neighbourhood</span>(<span class="ident">block</span>));
+                    <span class="ident">count</span>.<span class="ident">inc</span>(<span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">partitioning</span>.<span class="ident">block_to_neighbourhood</span>(<span class="ident">block</span>));
                 }
 
                 <span class="kw">if</span> <span class="kw">let</span> <span class="ident">EditMode::Shortcuts</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">maybe_focus</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> {
