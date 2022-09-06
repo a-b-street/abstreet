@@ -85,15 +85,6 @@ impl Building {
         self.sidewalk_pos.lane()
     }
 
-    pub fn house_number(&self) -> Option<String> {
-        let num = self.address.split(' ').next().unwrap();
-        if num != "???" {
-            Some(num.to_string())
-        } else {
-            None
-        }
-    }
-
     /// The polyline goes from the building to the driving position
     // TODO Make this handle parking_blackhole
     pub fn driving_connection(&self, map: &Map) -> Option<(Position, PolyLine)> {
