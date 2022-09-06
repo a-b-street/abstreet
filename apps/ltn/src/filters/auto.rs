@@ -22,7 +22,7 @@ pub enum Heuristic {
     BruteForce,
     /// Find one filter that splits a cell, maximizing the number of streets in each new cell.
     SplitCells,
-    /// Per cell, close all borders except for one. This doesn't affect connectivity, but prevents
+    /// Per cell, close all borders except for one. This doesn't affect design_ltn, but prevents
     /// all shortcuts.
     OnlyOneBorder,
 }
@@ -227,7 +227,7 @@ fn try_to_filter_road(
         r,
         RoadFilter::new_by_user(road.length() / 2.0, app.session.filter_type),
     );
-    // TODO This is expensive; can we just do the connectivity work and not drawing?
+    // TODO This is expensive; can we just do the design_ltn work and not drawing?
     let new_neighbourhood = Neighbourhood::new(ctx, app, neighbourhood.id);
     if new_neighbourhood.cells.iter().any(|c| c.is_disconnected()) {
         app.per_map.edits.roads.remove(&r).unwrap();

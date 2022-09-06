@@ -12,7 +12,7 @@ use widgetry::{Choice, EventCtx, Key, State, Widget};
 
 use crate::edit::EditMode;
 use crate::partition::BlockID;
-use crate::{App, BrowseNeighbourhoods, Edits, Partitioning, Transition};
+use crate::{App, Edits, Partitioning, PickArea, Transition};
 
 pub use share::PROPOSAL_HOST_URL;
 
@@ -394,22 +394,20 @@ impl AltProposals {
 // the current neighbourhood.
 #[derive(Clone)]
 pub enum PreserveState {
-    BrowseNeighbourhoods,
+    PickArea,
     Route,
     // TODO app.session.edit_mode now has state for Shortcuts...
-    Connectivity(Vec<BlockID>),
+    DesignLTN(Vec<BlockID>),
 }
 
 impl PreserveState {
     fn switch_to_state(self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self {
-            PreserveState::BrowseNeighbourhoods => {
-                Transition::Replace(BrowseNeighbourhoods::new_state(ctx, app))
-            }
+            PreserveState::PickArea => Transition::Replace(PickArea::new_state(ctx, app)),
             PreserveState::Route => {
                 Transition::Replace(crate::route_planner::RoutePlanner::new_state(ctx, app))
             }
-            PreserveState::Connectivity(blocks) => {
+            PreserveState::DesignLTN(blocks) => {
                 // Count which new neighbourhoods have the blocks from the original. Pick the one
                 // with the most matches
                 let mut count = Counter::new();
@@ -426,7 +424,7 @@ impl PreserveState {
                     app.session.edit_mode = EditMode::Filters;
                 }
 
-                Transition::Replace(crate::connectivity::Viewer::new_state(
+                Transition::Replace(crate::design_ltn::DesignLTN::new_state(
                     ctx,
                     app,
                     count.max_key(),

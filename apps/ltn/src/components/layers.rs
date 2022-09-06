@@ -187,7 +187,7 @@ impl Mode {
         // TODO Light/dark buildings? Traffic signals?
 
         Widget::col(match self {
-            Mode::BrowseNeighbourhoods => vec![
+            Mode::PickArea => vec![
                 entry(ctx, colors::HIGHLIGHT_BOUNDARY, "boundary road"),
                 entry(ctx, Color::YELLOW.alpha(0.1), "neighbourhood"),
             ],

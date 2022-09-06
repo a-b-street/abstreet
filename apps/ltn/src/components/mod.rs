@@ -9,7 +9,7 @@ pub use top_panel::TopPanel;
 
 #[derive(PartialEq)]
 pub enum Mode {
-    BrowseNeighbourhoods,
+    PickArea,
     ModifyNeighbourhood,
     SelectBoundary,
     RoutePlanner,

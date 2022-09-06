@@ -9,11 +9,11 @@ use widgetry::tools::FutureLoader;
 use widgetry::{EventCtx, Settings, State};
 
 pub use app::{App, PerMap, Session, Transition};
-pub use browse::BrowseNeighbourhoods;
 use filters::Toggle3Zoomed;
 pub use filters::{DiagonalFilter, Edits, FilterType, RoadFilter};
 pub use neighbourhood::{Cell, DistanceInterval, Neighbourhood};
 pub use partition::{NeighbourhoodID, Partitioning};
+pub use pick_area::PickArea;
 
 #[macro_use]
 extern crate anyhow;
@@ -21,11 +21,10 @@ extern crate anyhow;
 extern crate log;
 
 mod app;
-mod browse;
 mod colors;
 mod components;
-mod connectivity;
 mod customize_boundary;
+mod design_ltn;
 mod draw_cells;
 mod edit;
 mod export;
@@ -33,6 +32,7 @@ mod filters;
 mod impact;
 mod neighbourhood;
 mod partition;
+mod pick_area;
 mod route_planner;
 mod save;
 mod select_boundary;
@@ -87,10 +87,10 @@ fn run(mut settings: Settings) {
                 // We need app to fully initialize this
                 app.session
                     .layers
-                    .event(ctx, &app.cs, components::Mode::BrowseNeighbourhoods);
+                    .event(ctx, &app.cs, components::Mode::PickArea);
 
                 // Load a proposal first? Make sure to restore the partitioning from a file before
-                // calling BrowseNeighbourhoods
+                // calling PickArea
                 if let Some(ref name) = args.proposal {
                     // Remote edits require another intermediate state to load
                     if let Some(id) = name.strip_prefix("remote/") {
@@ -167,7 +167,7 @@ fn setup_initial_states(
 
         // TODO Maybe center the camera, ignoring any saved values
 
-        states.push(connectivity::Viewer::new_state(
+        states.push(design_ltn::DesignLTN::new_state(
             ctx,
             app,
             app.per_map.consultation.unwrap(),
@@ -177,9 +177,9 @@ fn setup_initial_states(
             ctx,
             app,
             map_gui::tools::Executable::LTN,
-            Box::new(|ctx, app, _| BrowseNeighbourhoods::new_state(ctx, app)),
+            Box::new(|ctx, app, _| PickArea::new_state(ctx, app)),
         ));
-        states.push(BrowseNeighbourhoods::new_state(ctx, app));
+        states.push(PickArea::new_state(ctx, app));
     }
     if let Some(state) = popup_state {
         states.push(state);

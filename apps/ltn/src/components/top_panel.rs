@@ -7,7 +7,7 @@ use widgetry::{
 };
 
 use crate::components::Mode;
-use crate::{App, BrowseNeighbourhoods, Transition};
+use crate::{App, PickArea, Transition};
 
 pub struct TopPanel;
 
@@ -22,10 +22,8 @@ impl TopPanel {
                 ctx.style()
                     .btn_outline
                     .text("Pick area")
-                    .disabled(
-                        mode == Mode::BrowseNeighbourhoods || app.per_map.consultation.is_some(),
-                    )
-                    .maybe_disabled_tooltip(if mode == Mode::BrowseNeighbourhoods {
+                    .disabled(mode == Mode::PickArea || app.per_map.consultation.is_some())
+                    .maybe_disabled_tooltip(if mode == Mode::PickArea {
                         None
                     } else {
                         Some("This consultation is only about the current area")
@@ -137,7 +135,7 @@ impl TopPanel {
                                 ctx,
                                 app,
                                 map_gui::tools::Executable::LTN,
-                                Box::new(|ctx, app, _| BrowseNeighbourhoods::new_state(ctx, app)),
+                                Box::new(|ctx, app, _| PickArea::new_state(ctx, app)),
                             ),
                         ]))
                     } else {
@@ -147,23 +145,21 @@ impl TopPanel {
                 "change map" => Some(Transition::Push(map_gui::tools::CityPicker::new_state(
                     ctx,
                     app,
-                    Box::new(|ctx, app| {
-                        Transition::Replace(BrowseNeighbourhoods::new_state(ctx, app))
-                    }),
+                    Box::new(|ctx, app| Transition::Replace(PickArea::new_state(ctx, app))),
                 ))),
                 "search" => Some(Transition::Push(
                     map_gui::tools::Navigator::new_state_with_target_zoom(ctx, app, 4.0),
                 )),
                 "help" => Some(Transition::Push(PopupMsg::new_state(ctx, "Help", help()))),
                 "about this tool" => Some(Transition::Push(super::about::About::new_state(ctx))),
-                "Pick area" => Some(Transition::Replace(BrowseNeighbourhoods::new_state(
-                    ctx, app,
-                ))),
-                "Design LTN" => Some(Transition::Replace(crate::connectivity::Viewer::new_state(
-                    ctx,
-                    app,
-                    app.per_map.current_neighbourhood.unwrap(),
-                ))),
+                "Pick area" => Some(Transition::Replace(PickArea::new_state(ctx, app))),
+                "Design LTN" => Some(Transition::Replace(
+                    crate::design_ltn::DesignLTN::new_state(
+                        ctx,
+                        app,
+                        app.per_map.current_neighbourhood.unwrap(),
+                    ),
+                )),
                 "Plan route" => Some(Transition::Replace(
                     crate::route_planner::RoutePlanner::new_state(ctx, app),
                 )),
