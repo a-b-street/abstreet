@@ -330,6 +330,13 @@
 <span id="324">324</span>
 <span id="325">325</span>
 <span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">abstio::MapName</span>;
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
@@ -367,6 +374,9 @@
     <span class="kw">pub</span> <span class="ident">proposal_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">partitioning</span>: <span class="ident">Partitioning</span>,
     <span class="kw">pub</span> <span class="ident">edits</span>: <span class="ident">Edits</span>,
+
+    <span class="comment">// The last edited neighbourhood</span>
+    <span class="kw">pub</span> <span class="ident">current_neighbourhood</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NeighbourhoodID</span><span class="op">&gt;</span>,
 
     <span class="comment">// These capture modal filters that exist in the map already. Whenever we pathfind in this app</span>
     <span class="comment">// in the &quot;before changes&quot; case, we have to use these. Do NOT use the map&#39;s built-in</span>
@@ -408,6 +418,8 @@
             <span class="ident">partitioning</span>: <span class="ident">Partitioning::empty</span>(),
             <span class="ident">edits</span>: <span class="ident">Edits::default</span>(),
 
+            <span class="ident">current_neighbourhood</span>: <span class="prelude-val">None</span>,
+
             <span class="ident">routing_params_before_changes</span>: <span class="ident">RoutingParams::default</span>(),
             <span class="ident">alt_proposals</span>: <span class="ident"><span class="kw">crate</span>::save::AltProposals::new</span>(),
             <span class="ident">impact</span>: <span class="ident"><span class="kw">crate</span>::impact::Impact::empty</span>(<span class="ident">ctx</span>),
@@ -439,8 +451,8 @@
     <span class="kw">pub</span> <span class="ident">filter_type</span>: <span class="ident">FilterType</span>,
 
     <span class="comment">// Remember form settings in different tabs.</span>
-    <span class="comment">// Browse neighbourhoods:</span>
-    <span class="kw">pub</span> <span class="ident">draw_neighbourhood_style</span>: <span class="ident"><span class="kw">crate</span>::browse::Style</span>,
+    <span class="comment">// Pick areas:</span>
+    <span class="kw">pub</span> <span class="ident">draw_neighbourhood_style</span>: <span class="ident"><span class="kw">crate</span>::pick_area::Style</span>,
     <span class="comment">// Editing:</span>
     <span class="kw">pub</span> <span class="ident">heuristic</span>: <span class="ident"><span class="kw">crate</span>::filters::auto::Heuristic</span>,
     <span class="comment">// Pathfinding</span>
@@ -449,6 +461,7 @@
 
     <span class="comment">// Shared in all modes</span>
     <span class="kw">pub</span> <span class="ident">layers</span>: <span class="ident"><span class="kw">crate</span>::components::Layers</span>,
+    <span class="kw">pub</span> <span class="ident">manage_proposals</span>: <span class="ident">bool</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">AppLike</span> <span class="kw">for</span> <span class="ident">App</span> {
@@ -548,12 +561,13 @@
             <span class="ident">edit_mode</span>: <span class="ident"><span class="kw">crate</span>::edit::EditMode::Filters</span>,
             <span class="ident">filter_type</span>: <span class="ident">FilterType::WalkCycleOnly</span>,
 
-            <span class="ident">draw_neighbourhood_style</span>: <span class="ident"><span class="kw">crate</span>::browse::Style::Simple</span>,
+            <span class="ident">draw_neighbourhood_style</span>: <span class="ident"><span class="kw">crate</span>::pick_area::Style::Simple</span>,
             <span class="ident">heuristic</span>: <span class="ident"><span class="kw">crate</span>::filters::auto::Heuristic::SplitCells</span>,
             <span class="ident">main_road_penalty</span>: <span class="number">1.0</span>,
             <span class="ident">show_walking_cycling_routes</span>: <span class="bool-val">false</span>,
 
             <span class="ident">layers</span>: <span class="ident"><span class="kw">crate</span>::components::Layers::new</span>(<span class="ident">ctx</span>),
+            <span class="ident">manage_proposals</span>: <span class="bool-val">false</span>,
         };
 
         <span class="kw">let</span> <span class="ident">cs</span> <span class="op">=</span> <span class="ident">ColorScheme::new</span>(<span class="ident">ctx</span>, <span class="ident">opts</span>.<span class="ident">color_scheme</span>);

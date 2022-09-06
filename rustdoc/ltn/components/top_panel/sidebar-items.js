@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["TopPanel",""]]};
+window.SIDEBAR_ITEMS = {"fn":[["launch_impact",""]],"struct":[["TopPanel",""]]};

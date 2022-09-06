@@ -370,7 +370,7 @@
     <span class="kw">pub</span> <span class="ident">labels</span>: <span class="ident">DrawSimpleRoadLabels</span>,
 }
 
-<span class="doccomment">/// A partitioning of the interior of a neighbourhood based on driving connectivity</span>
+<span class="doccomment">/// A partitioning of the interior of a neighbourhood based on driving design_ltn</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Cell</span> {
     <span class="doccomment">/// Most roads are fully in one cell. Roads with modal filters on them are sometimes split</span>
     <span class="doccomment">/// between two cells, and the DistanceInterval indicates the split. The distances are over the</span>
@@ -621,7 +621,7 @@
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> [<span class="ident">current</span>.<span class="ident">src_i</span>, <span class="ident">current</span>.<span class="ident">dst_i</span>] {
             <span class="comment">// It&#39;s possible for one border intersection to have two roads in the interior of the</span>
             <span class="comment">// neighbourhood. Don&#39;t consider a turn between those roads through this intersection as</span>
-            <span class="comment">// counting as connectivity -- we&#39;re right at the boundary road, so it&#39;s like leaving</span>
+            <span class="comment">// counting as design_ltn -- we&#39;re right at the boundary road, so it&#39;s like leaving</span>
             <span class="comment">// and re-entering the neighbourhood.</span>
             <span class="kw">if</span> <span class="ident">neighbourhood_borders</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>) {
                 <span class="ident">cell_borders</span>.<span class="ident">insert</span>(<span class="ident">i</span>);

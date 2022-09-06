@@ -12,14 +12,32 @@
 <span id="6">6</span>
 <span id="7">7</span>
 <span id="8">8</span>
+<span id="9">9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
 </pre><pre class="rust"><code><span class="kw">mod</span> <span class="ident">about</span>;
 <span class="kw">mod</span> <span class="ident">layers</span>;
 <span class="kw">mod</span> <span class="ident">left_panel</span>;
 <span class="kw">mod</span> <span class="ident">top_panel</span>;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">layers</span>::{<span class="ident">Layers</span>, <span class="ident">Mode</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">layers::Layers</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">left_panel::LeftPanel</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">top_panel::TopPanel</span>;
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Mode</span> {
+    <span class="ident">PickArea</span>,
+    <span class="ident">ModifyNeighbourhood</span>,
+    <span class="ident">SelectBoundary</span>,
+    <span class="ident">RoutePlanner</span>,
+    <span class="ident">Impact</span>,
+}
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ltn" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0 (4b91a6ea7 2022-08-08)" ></div>
 </body></html>

@@ -479,25 +479,6 @@
 <span id="473">473</span>
 <span id="474">474</span>
 <span id="475">475</span>
-<span id="476">476</span>
-<span id="477">477</span>
-<span id="478">478</span>
-<span id="479">479</span>
-<span id="480">480</span>
-<span id="481">481</span>
-<span id="482">482</span>
-<span id="483">483</span>
-<span id="484">484</span>
-<span id="485">485</span>
-<span id="486">486</span>
-<span id="487">487</span>
-<span id="488">488</span>
-<span id="489">489</span>
-<span id="490">490</span>
-<span id="491">491</span>
-<span id="492">492</span>
-<span id="493">493</span>
-<span id="494">494</span>
 </pre><pre class="rust"><code><span class="kw">mod</span> <span class="ident">filters</span>;
 <span class="kw">mod</span> <span class="ident">freehand_filters</span>;
 <span class="kw">mod</span> <span class="ident">one_ways</span>;
@@ -517,8 +498,7 @@
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">after_edit</span>, <span class="ident">colors</span>, <span class="ident">is_private</span>, <span class="ident">App</span>, <span class="ident">BrowseNeighbourhoods</span>, <span class="ident">FilterType</span>, <span class="ident">Neighbourhood</span>,
-    <span class="ident">RoadFilter</span>, <span class="ident">Transition</span>,
+    <span class="ident">after_edit</span>, <span class="ident">colors</span>, <span class="ident">is_private</span>, <span class="ident">App</span>, <span class="ident">FilterType</span>, <span class="ident">Neighbourhood</span>, <span class="ident">RoadFilter</span>, <span class="ident">Transition</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">EditMode</span> {
@@ -586,25 +566,16 @@
         <span class="ident">per_tab_contents</span>: <span class="ident">Widget</span>,
     ) -&gt; <span class="ident">PanelBuilder</span> {
         <span class="kw">let</span> <span class="ident">contents</span> <span class="op">=</span> <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">alt_proposals</span>.<span class="ident">to_widget</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-            <span class="ident">BrowseNeighbourhoods::button</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-            {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-                <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">consultation</span>.<span class="ident">is_none</span>() {
-                    <span class="ident">row</span>.<span class="ident">push</span>(
-                        <span class="ident">ctx</span>.<span class="ident">style</span>()
-                            .<span class="ident">btn_outline</span>
-                            .<span class="ident">text</span>(<span class="string">&quot;Adjust boundary&quot;</span>)
-                            .<span class="ident">hotkey</span>(<span class="ident">Key::B</span>)
-                            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-                    );
-                }
-                <span class="ident">row</span>.<span class="ident">push</span>(<span class="ident"><span class="kw">crate</span>::route_planner::RoutePlanner::button</span>(<span class="ident">ctx</span>));
-                <span class="ident">Widget::row</span>(<span class="ident">row</span>)
+            <span class="ident">Line</span>(<span class="string">&quot;Editing area&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+            <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">consultation</span>.<span class="ident">is_none</span>() {
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
+                    .<span class="ident">btn_outline</span>
+                    .<span class="ident">text</span>(<span class="string">&quot;Adjust boundary&quot;</span>)
+                    .<span class="ident">hotkey</span>(<span class="ident">Key::B</span>)
+                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
+            } <span class="kw">else</span> {
+                <span class="ident">Widget::nothing</span>()
             },
-            <span class="ident">Line</span>(<span class="string">&quot;Editing neighbourhood&quot;</span>)
-                .<span class="ident">small_heading</span>()
-                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
                 <span class="ident">edit_mode</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
                 <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> {
@@ -670,12 +641,6 @@
     ) -&gt; <span class="ident">EditOutcome</span> {
         <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">neighbourhood</span>.<span class="ident">id</span>;
         <span class="kw">match</span> <span class="ident">action</span> {
-            <span class="string">&quot;Browse neighbourhoods&quot;</span> =&gt; {
-                <span class="comment">// Recalculate the state to redraw any changed filters</span>
-                <span class="ident">EditOutcome::Transition</span>(<span class="ident">Transition::Replace</span>(<span class="ident">BrowseNeighbourhoods::new_state</span>(
-                    <span class="ident">ctx</span>, <span class="ident">app</span>,
-                )))
-            }
             <span class="string">&quot;Adjust boundary&quot;</span> =&gt; <span class="ident">EditOutcome::Transition</span>(<span class="ident">Transition::Replace</span>(
                 <span class="ident"><span class="kw">crate</span>::select_boundary::SelectBoundary::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>),
             )),
@@ -690,9 +655,6 @@
                 }
                 <span class="ident">EditOutcome::Transition</span>(<span class="ident">Transition::Recreate</span>)
             }
-            <span class="string">&quot;Plan a route&quot;</span> =&gt; <span class="ident">EditOutcome::Transition</span>(<span class="ident">Transition::Push</span>(
-                <span class="ident"><span class="kw">crate</span>::route_planner::RoutePlanner::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-            )),
             <span class="string">&quot;Modal filter - no entry&quot;</span> =&gt; {
                 <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">filter_type</span> <span class="op">=</span> <span class="ident">FilterType::NoEntry</span>;
                 <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> <span class="op">=</span> <span class="ident">EditMode::Filters</span>;

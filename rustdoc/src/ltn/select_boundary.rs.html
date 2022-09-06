@@ -432,6 +432,13 @@
 <span id="426">426</span>
 <span id="427">427</span>
 <span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
@@ -444,10 +451,10 @@
     <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::browse::draw_boundary_roads</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::components::Mode</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::edit::EditMode</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::partition::BlockID</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pick_area::draw_boundary_roads</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">colors</span>, <span class="ident">App</span>, <span class="ident">NeighbourhoodID</span>, <span class="ident">Partitioning</span>, <span class="ident">Transition</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SelectBoundary</span> {
@@ -500,7 +507,7 @@
             <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> <span class="op">=</span> <span class="ident">EditMode::Filters</span>;
         }
 
-        <span class="kw">let</span> <span class="ident">top_panel</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::components::TopPanel::panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+        <span class="kw">let</span> <span class="ident">top_panel</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::components::TopPanel::panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Mode::SelectBoundary</span>);
         <span class="kw">let</span> <span class="ident">left_panel</span> <span class="op">=</span> <span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">top_panel</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">SelectBoundary</span> {
             <span class="ident">top_panel</span>,
@@ -712,7 +719,14 @@
             <span class="kw">return</span> <span class="ident">Transition::Keep</span>;
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::components::TopPanel::event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">top_panel</span>, <span class="ident">help</span>) {
+        <span class="comment">// PreserveState doesn&#39;t matter, can&#39;t switch proposals in SelectBoundary anyway</span>
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::components::TopPanel::event</span>(
+            <span class="ident">ctx</span>,
+            <span class="ident">app</span>,
+            <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">top_panel</span>,
+            <span class="kw-2">&amp;</span><span class="ident"><span class="kw">crate</span>::save::PreserveState::Route</span>,
+            <span class="ident">help</span>,
+        ) {
             <span class="kw">return</span> <span class="ident">t</span>;
         }
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">layers</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>, <span class="ident">Mode::SelectBoundary</span>) {
@@ -725,12 +739,12 @@
                     <span class="comment">// back to a different neighbourhood than we started with. And also the original</span>
                     <span class="comment">// partitioning will have been lost!!!</span>
                     <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">partitioning</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">orig_partitioning</span>.<span class="ident">clone</span>();
-                    <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident"><span class="kw">crate</span>::connectivity::Viewer::new_state</span>(
+                    <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident"><span class="kw">crate</span>::design_ltn::DesignLTN::new_state</span>(
                         <span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">id</span>,
                     ));
                 }
                 <span class="string">&quot;Confirm&quot;</span> =&gt; {
-                    <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident"><span class="kw">crate</span>::connectivity::Viewer::new_state</span>(
+                    <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident"><span class="kw">crate</span>::design_ltn::DesignLTN::new_state</span>(
                         <span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">id</span>,
                     ));
                 }

@@ -426,6 +426,19 @@
 <span id="420">420</span>
 <span id="421">421</span>
 <span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
 </pre><pre class="rust"><code><span class="kw">mod</span> <span class="ident">perma</span>;
 <span class="kw">mod</span> <span class="ident">share</span>;
 
@@ -436,11 +449,11 @@
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Counter</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">map_model::EditRoad</span>;
 <span class="kw">use</span> <span class="ident">widgetry::tools</span>::{<span class="ident">ChooseSomething</span>, <span class="ident">PopupMsg</span>, <span class="ident">PromptInput</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Choice</span>, <span class="ident">EventCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">State</span>, <span class="ident">Widget</span>};
+<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Choice</span>, <span class="ident">EventCtx</span>, <span class="ident">Key</span>, <span class="ident">State</span>, <span class="ident">Widget</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::edit::EditMode</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::partition::BlockID</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">App</span>, <span class="ident">BrowseNeighbourhoods</span>, <span class="ident">Edits</span>, <span class="ident">Partitioning</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">App</span>, <span class="ident">Edits</span>, <span class="ident">Partitioning</span>, <span class="ident">PickArea</span>, <span class="ident">Transition</span>};
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">share::PROPOSAL_HOST_URL</span>;
 
@@ -684,17 +697,16 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_widget</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec!</span>[
-            <span class="ident">Line</span>(<span class="string">&quot;LTN Policy Proposals&quot;</span>)
-                .<span class="ident">small_heading</span>()
-                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;New&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;Load&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;Save&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;Share&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-            ]),
-        ];
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+            <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;New&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+            <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;Load&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+            <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;Save&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+            <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;Share&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_outline</span>
+                .<span class="ident">text</span>(<span class="string">&quot;Export GeoJSON&quot;</span>)
+                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+        ])];
         <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">proposal</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">list</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
             <span class="kw">let</span> <span class="ident">button</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">proposal</span>) <span class="op">=</span> <span class="ident">proposal</span> {
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
@@ -734,7 +746,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">handle_action</span>(
         <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
         <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
-        <span class="ident">preserve_state</span>: <span class="ident">PreserveState</span>,
+        <span class="ident">preserve_state</span>: <span class="kw-2">&amp;</span><span class="ident">PreserveState</span>,
         <span class="ident">action</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
     ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">action</span> {
@@ -765,13 +777,28 @@
                 <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">alt_proposals</span>.<span class="ident">current</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">alt_proposals</span>.<span class="ident">list</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>;
             }
             <span class="string">&quot;Load&quot;</span> =&gt; {
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">load_picker_ui</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">preserve_state</span>)));
+                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">load_picker_ui</span>(
+                    <span class="ident">ctx</span>,
+                    <span class="ident">app</span>,
+                    <span class="ident">preserve_state</span>.<span class="ident">clone</span>(),
+                )));
             }
             <span class="string">&quot;Save&quot;</span> =&gt; {
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">save_ui</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">preserve_state</span>)));
+                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">save_ui</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">preserve_state</span>.<span class="ident">clone</span>())));
             }
             <span class="string">&quot;Share&quot;</span> =&gt; {
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">share::ShareProposal::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
+            }
+            <span class="string">&quot;Export GeoJSON&quot;</span> =&gt; {
+                <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::export::write_geojson_file</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="kw">match</span> <span class="ident">result</span> {
+                    <span class="prelude-val">Ok</span>(<span class="ident">path</span>) =&gt; <span class="ident">PopupMsg::new_state</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="string">&quot;LTNs exported&quot;</span>,
+                        <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">&quot;Data exported to {}&quot;</span>, <span class="ident">path</span>)],
+                    ),
+                    <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;Export failed&quot;</span>, <span class="macro">vec!</span>[<span class="ident">err</span>.<span class="ident">to_string</span>()]),
+                }));
             }
             <span class="kw">_</span> =&gt; {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">action</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;switch to proposal &quot;</span>) {
@@ -797,7 +824,7 @@
             }
         }
 
-        <span class="prelude-val">Some</span>(<span class="ident">preserve_state</span>.<span class="ident">switch_to_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))
+        <span class="prelude-val">Some</span>(<span class="ident">preserve_state</span>.<span class="ident">clone</span>().<span class="ident">switch_to_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))
     }
 }
 
@@ -806,23 +833,22 @@
 <span class="comment">// To preserve per-neighborhood states, we have to transform neighbourhood IDs, which may change if</span>
 <span class="comment">// the partitioning is different. If the boundary is a bit different, match up by all the blocks in</span>
 <span class="comment">// the current neighbourhood.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">PreserveState</span> {
-    <span class="ident">BrowseNeighbourhoods</span>,
+    <span class="ident">PickArea</span>,
     <span class="ident">Route</span>,
     <span class="comment">// TODO app.session.edit_mode now has state for Shortcuts...</span>
-    <span class="ident">Connectivity</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BlockID</span><span class="op">&gt;</span>),
+    <span class="ident">DesignLTN</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BlockID</span><span class="op">&gt;</span>),
 }
 
 <span class="kw">impl</span> <span class="ident">PreserveState</span> {
     <span class="kw">fn</span> <span class="ident">switch_to_state</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">PreserveState::BrowseNeighbourhoods</span> =&gt; {
-                <span class="ident">Transition::Replace</span>(<span class="ident">BrowseNeighbourhoods::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))
-            }
+            <span class="ident">PreserveState::PickArea</span> =&gt; <span class="ident">Transition::Replace</span>(<span class="ident">PickArea::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
             <span class="ident">PreserveState::Route</span> =&gt; {
                 <span class="ident">Transition::Replace</span>(<span class="ident"><span class="kw">crate</span>::route_planner::RoutePlanner::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))
             }
-            <span class="ident">PreserveState::Connectivity</span>(<span class="ident">blocks</span>) =&gt; {
+            <span class="ident">PreserveState::DesignLTN</span>(<span class="ident">blocks</span>) =&gt; {
                 <span class="comment">// Count which new neighbourhoods have the blocks from the original. Pick the one</span>
                 <span class="comment">// with the most matches</span>
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">Counter::new</span>();
@@ -839,7 +865,7 @@
                     <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> <span class="op">=</span> <span class="ident">EditMode::Filters</span>;
                 }
 
-                <span class="ident">Transition::Replace</span>(<span class="ident"><span class="kw">crate</span>::connectivity::Viewer::new_state</span>(
+                <span class="ident">Transition::Replace</span>(<span class="ident"><span class="kw">crate</span>::design_ltn::DesignLTN::new_state</span>(
                     <span class="ident">ctx</span>,
                     <span class="ident">app</span>,
                     <span class="ident">count</span>.<span class="ident">max_key</span>(),
