@@ -234,7 +234,13 @@ impl App {
         let cs = ColorScheme::new(ctx, opts.color_scheme);
         let app = App {
             // Start with a blank map
-            per_map: PerMap::new(ctx, Map::blank(), &opts, &cs, &mut Timer::throwaway()),
+            per_map: PerMap::new(
+                ctx,
+                Map::almost_blank(),
+                &opts,
+                &cs,
+                &mut Timer::throwaway(),
+            ),
             cs,
             opts,
             session,

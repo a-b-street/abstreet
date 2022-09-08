@@ -158,6 +158,78 @@ impl Map {
         }
     }
 
+    /// A dummy map that won't crash UIs, but has almost nothing in it.
+    pub fn almost_blank() -> Self {
+        use geom::LonLat;
+        use raw_map::RawBuilding;
+        use street_network::ControlType;
+        use street_network::IntersectionComplexity;
+
+        // Programatically creating a Map is very verbose. RawMap less so, but .osm could be even
+        // better... but then we'd pull in dependencies for XML parsing everywhere.
+        let mut raw = RawMap::blank(MapName::blank());
+
+        raw.streets.boundary_polygon = Polygon::rectangle(100.0, 100.0);
+        raw.streets
+            .gps_bounds
+            .update(LonLat::new(-122.453224, 47.723277));
+        raw.streets
+            .gps_bounds
+            .update(LonLat::new(-122.240505, 47.495342));
+
+        let i1 = osm::NodeID(0);
+        let i2 = osm::NodeID(1);
+        raw.streets.intersections.insert(
+            i1,
+            street_network::Intersection::new(
+                Pt2D::new(30.0, 30.0),
+                IntersectionComplexity::MapEdge,
+                ControlType::Border,
+            ),
+        );
+        raw.streets.intersections.insert(
+            i2,
+            street_network::Intersection::new(
+                Pt2D::new(70.0, 70.0),
+                IntersectionComplexity::MapEdge,
+                ControlType::Border,
+            ),
+        );
+        let mut tags = Tags::empty();
+        tags.insert("highway", "residential");
+        tags.insert("lanes", "2");
+        raw.streets.roads.insert(
+            OriginalRoad::new(2, (i1.0, i2.0)),
+            street_network::Road::new(
+                vec![Pt2D::new(30.0, 30.0), Pt2D::new(70.0, 70.0)],
+                tags,
+                &raw.streets.config,
+            )
+            .unwrap(),
+        );
+
+        raw.buildings.insert(
+            osm::OsmID::Way(osm::WayID(3)),
+            RawBuilding {
+                polygon: Polygon::rectangle_centered(
+                    Pt2D::new(50.0, 20.0),
+                    Distance::meters(30.0),
+                    Distance::meters(10.0),
+                ),
+                osm_tags: Tags::empty(),
+                public_garage_name: None,
+                num_parking_spots: 0,
+                amenities: Vec::new(),
+            },
+        );
+
+        Self::create_from_raw(
+            raw,
+            crate::RawToMapOptions::default(),
+            &mut Timer::throwaway(),
+        )
+    }
+
     pub fn all_roads(&self) -> &Vec<Road> {
         &self.roads
     }
