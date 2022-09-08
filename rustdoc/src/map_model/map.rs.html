@@ -934,6 +934,78 @@
 <span id="928">928</span>
 <span id="929">929</span>
 <span id="930">930</span>
+<span id="931">931</span>
+<span id="932">932</span>
+<span id="933">933</span>
+<span id="934">934</span>
+<span id="935">935</span>
+<span id="936">936</span>
+<span id="937">937</span>
+<span id="938">938</span>
+<span id="939">939</span>
+<span id="940">940</span>
+<span id="941">941</span>
+<span id="942">942</span>
+<span id="943">943</span>
+<span id="944">944</span>
+<span id="945">945</span>
+<span id="946">946</span>
+<span id="947">947</span>
+<span id="948">948</span>
+<span id="949">949</span>
+<span id="950">950</span>
+<span id="951">951</span>
+<span id="952">952</span>
+<span id="953">953</span>
+<span id="954">954</span>
+<span id="955">955</span>
+<span id="956">956</span>
+<span id="957">957</span>
+<span id="958">958</span>
+<span id="959">959</span>
+<span id="960">960</span>
+<span id="961">961</span>
+<span id="962">962</span>
+<span id="963">963</span>
+<span id="964">964</span>
+<span id="965">965</span>
+<span id="966">966</span>
+<span id="967">967</span>
+<span id="968">968</span>
+<span id="969">969</span>
+<span id="970">970</span>
+<span id="971">971</span>
+<span id="972">972</span>
+<span id="973">973</span>
+<span id="974">974</span>
+<span id="975">975</span>
+<span id="976">976</span>
+<span id="977">977</span>
+<span id="978">978</span>
+<span id="979">979</span>
+<span id="980">980</span>
+<span id="981">981</span>
+<span id="982">982</span>
+<span id="983">983</span>
+<span id="984">984</span>
+<span id="985">985</span>
+<span id="986">986</span>
+<span id="987">987</span>
+<span id="988">988</span>
+<span id="989">989</span>
+<span id="990">990</span>
+<span id="991">991</span>
+<span id="992">992</span>
+<span id="993">993</span>
+<span id="994">994</span>
+<span id="995">995</span>
+<span id="996">996</span>
+<span id="997">997</span>
+<span id="998">998</span>
+<span id="999">999</span>
+<span id="1000">1000</span>
+<span id="1001">1001</span>
+<span id="1002">1002</span>
 </pre><pre class="rust"><code><span class="doccomment">//! A bunch of (mostly read-only) queries on a Map.</span>
 
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
@@ -1092,6 +1164,78 @@
             <span class="ident">edits_generation</span>: <span class="number">0</span>,
             <span class="ident">road_to_buildings</span>: <span class="ident">MultiMap::new</span>(),
         }
+    }
+
+    <span class="doccomment">/// A dummy map that won&#39;t crash UIs, but has almost nothing in it.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">almost_blank</span>() -&gt; <span class="self">Self</span> {
+        <span class="kw">use</span> <span class="ident">geom::LonLat</span>;
+        <span class="kw">use</span> <span class="ident">raw_map::RawBuilding</span>;
+        <span class="kw">use</span> <span class="ident">street_network::ControlType</span>;
+        <span class="kw">use</span> <span class="ident">street_network::IntersectionComplexity</span>;
+
+        <span class="comment">// Programatically creating a Map is very verbose. RawMap less so, but .osm could be even</span>
+        <span class="comment">// better... but then we&#39;d pull in dependencies for XML parsing everywhere.</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">raw</span> <span class="op">=</span> <span class="ident">RawMap::blank</span>(<span class="ident">MapName::blank</span>());
+
+        <span class="ident">raw</span>.<span class="ident">streets</span>.<span class="ident">boundary_polygon</span> <span class="op">=</span> <span class="ident">Polygon::rectangle</span>(<span class="number">100.0</span>, <span class="number">100.0</span>);
+        <span class="ident">raw</span>.<span class="ident">streets</span>
+            .<span class="ident">gps_bounds</span>
+            .<span class="ident">update</span>(<span class="ident">LonLat::new</span>(<span class="op">-</span><span class="number">122.453224</span>, <span class="number">47.723277</span>));
+        <span class="ident">raw</span>.<span class="ident">streets</span>
+            .<span class="ident">gps_bounds</span>
+            .<span class="ident">update</span>(<span class="ident">LonLat::new</span>(<span class="op">-</span><span class="number">122.240505</span>, <span class="number">47.495342</span>));
+
+        <span class="kw">let</span> <span class="ident">i1</span> <span class="op">=</span> <span class="ident">osm::NodeID</span>(<span class="number">0</span>);
+        <span class="kw">let</span> <span class="ident">i2</span> <span class="op">=</span> <span class="ident">osm::NodeID</span>(<span class="number">1</span>);
+        <span class="ident">raw</span>.<span class="ident">streets</span>.<span class="ident">intersections</span>.<span class="ident">insert</span>(
+            <span class="ident">i1</span>,
+            <span class="ident">street_network::Intersection::new</span>(
+                <span class="ident">Pt2D::new</span>(<span class="number">30.0</span>, <span class="number">30.0</span>),
+                <span class="ident">IntersectionComplexity::MapEdge</span>,
+                <span class="ident">ControlType::Border</span>,
+            ),
+        );
+        <span class="ident">raw</span>.<span class="ident">streets</span>.<span class="ident">intersections</span>.<span class="ident">insert</span>(
+            <span class="ident">i2</span>,
+            <span class="ident">street_network::Intersection::new</span>(
+                <span class="ident">Pt2D::new</span>(<span class="number">70.0</span>, <span class="number">70.0</span>),
+                <span class="ident">IntersectionComplexity::MapEdge</span>,
+                <span class="ident">ControlType::Border</span>,
+            ),
+        );
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tags</span> <span class="op">=</span> <span class="ident">Tags::empty</span>();
+        <span class="ident">tags</span>.<span class="ident">insert</span>(<span class="string">&quot;highway&quot;</span>, <span class="string">&quot;residential&quot;</span>);
+        <span class="ident">tags</span>.<span class="ident">insert</span>(<span class="string">&quot;lanes&quot;</span>, <span class="string">&quot;2&quot;</span>);
+        <span class="ident">raw</span>.<span class="ident">streets</span>.<span class="ident">roads</span>.<span class="ident">insert</span>(
+            <span class="ident">OriginalRoad::new</span>(<span class="number">2</span>, (<span class="ident">i1</span>.<span class="number">0</span>, <span class="ident">i2</span>.<span class="number">0</span>)),
+            <span class="ident">street_network::Road::new</span>(
+                <span class="macro">vec!</span>[<span class="ident">Pt2D::new</span>(<span class="number">30.0</span>, <span class="number">30.0</span>), <span class="ident">Pt2D::new</span>(<span class="number">70.0</span>, <span class="number">70.0</span>)],
+                <span class="ident">tags</span>,
+                <span class="kw-2">&amp;</span><span class="ident">raw</span>.<span class="ident">streets</span>.<span class="ident">config</span>,
+            )
+            .<span class="ident">unwrap</span>(),
+        );
+
+        <span class="ident">raw</span>.<span class="ident">buildings</span>.<span class="ident">insert</span>(
+            <span class="ident">osm::OsmID::Way</span>(<span class="ident">osm::WayID</span>(<span class="number">3</span>)),
+            <span class="ident">RawBuilding</span> {
+                <span class="ident">polygon</span>: <span class="ident">Polygon::rectangle_centered</span>(
+                    <span class="ident">Pt2D::new</span>(<span class="number">50.0</span>, <span class="number">20.0</span>),
+                    <span class="ident">Distance::meters</span>(<span class="number">30.0</span>),
+                    <span class="ident">Distance::meters</span>(<span class="number">10.0</span>),
+                ),
+                <span class="ident">osm_tags</span>: <span class="ident">Tags::empty</span>(),
+                <span class="ident">public_garage_name</span>: <span class="prelude-val">None</span>,
+                <span class="ident">num_parking_spots</span>: <span class="number">0</span>,
+                <span class="ident">amenities</span>: <span class="ident">Vec::new</span>(),
+            },
+        );
+
+        <span class="ident"><span class="self">Self</span>::create_from_raw</span>(
+            <span class="ident">raw</span>,
+            <span class="ident"><span class="kw">crate</span>::RawToMapOptions::default</span>(),
+            <span class="kw-2">&amp;mut</span> <span class="ident">Timer::throwaway</span>(),
+        )
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_roads</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Road</span><span class="op">&gt;</span> {
