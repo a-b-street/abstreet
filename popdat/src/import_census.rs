@@ -1,17 +1,16 @@
 use anyhow::Result;
+use geo::{BoundingRect, Intersects, MapCoordsInPlace};
 
 use geom::{GPSBounds, Polygon};
 
 use crate::CensusArea;
 
 impl CensusArea {
-    #[cfg(not(target_arch = "wasm32"))]
     pub async fn fetch_all_for_map(
         map_area: &Polygon,
         bounds: &GPSBounds,
     ) -> Result<Vec<CensusArea>> {
         use flatgeobuf::HttpFgbReader;
-        use geo::{BoundingRect, Intersects, MapCoordsInPlace};
         use geozero::geo_types::GeoWriter;
 
         let mut geo_map_area: geo::Polygon = map_area.clone().into();
@@ -88,10 +87,5 @@ impl CensusArea {
         }
 
         Ok(results)
-    }
-
-    #[cfg(target_arch = "wasm32")]
-    pub async fn fetch_all_for_map(_: &Polygon, _: &GPSBounds) -> Result<Vec<CensusArea>> {
-        bail!("Unsupported on web");
     }
 }

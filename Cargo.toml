@@ -43,6 +43,7 @@ abstutil = { path = "abstutil" }
 [patch.crates-io]
 # avoid duplicating geo dependency, until next polylabel release
 polylabel = { git = "https://github.com/urschrei/polylabel-rs", rev = "b919b8587b491b9a952a6d4c0670558bfd38e034" }
+http-range-client = { git = "https://github.com/pka/http-range-client", rev = "e62f72ab3553a19f4166f73efd18b13b4c4164ec" }
 
 # To temporarily work on dependencies locally, uncomment this
 # TODO Do not commit. Update each repo

@@ -1911,8 +1911,7 @@ dependencies = [
 [[package]]
 name = "http-range-client"
 version = "0.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f9e031570fd8415fc4ded0cb8582b304be567b05e6d811474948629b4590d820"
+source = "git+https://github.com/pka/http-range-client?rev=e62f72ab3553a19f4166f73efd18b13b4c4164ec#e62f72ab3553a19f4166f73efd18b13b4c4164ec"
 dependencies = [
  "async-trait",
  "byteorder",
