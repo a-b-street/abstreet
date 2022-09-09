@@ -1,5 +1,7 @@
-<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<svg width="18.700001" height="24" viewBox="0 0 18.700001 24" xmlns="http://www.w3.org/2000/svg">
     <defs/>
-    <path fill="none" stroke="none" visibility="hidden" d="M 0 0 L 24 0 L 24 24 L 0 24 L 0 0 Z"/>
-    <path fill="#000000" stroke="none" d="M 6.99 11 L 3 15 L 6.99 19 L 6.99 16 L 14 16 L 14 14 L 6.99 14 L 6.99 11 Z M 21 9 L 17.01 5 L 17.01 8 L 10 8 L 10 10 L 17.01 10 L 17.01 13 L 21 9 Z"/>
+    <g enable-background="new 0 0 24 24">
+        <path id="rect2" fill="none" stroke="none" visibility="hidden" d="M 0 0 L 24 0 L 24 24 L 0 24 Z"/>
+        <path id="polygon6" fill="#000000" stroke="none" d="M 9.4867137 1.2057319 L 1.5631161 8.7501604 L 4.3564792 11.408188 L 7.5065695 8.4297407 L 7.5065695 22.921453 L 11.466858 22.921453 L 11.466858 8.4297407 L 14.616949 11.408188 L 17.410312 8.7501604 Z"/>
+    </g>
 </svg>
