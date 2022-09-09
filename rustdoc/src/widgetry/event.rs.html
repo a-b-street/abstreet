@@ -472,6 +472,9 @@
 <span id="466">466</span>
 <span id="467">467</span>
 <span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">instant::Instant</span>;
 <span class="kw">use</span> <span class="ident">winit::event</span>::{
     <span class="ident">ElementState</span>, <span class="ident">KeyboardInput</span>, <span class="ident">MouseButton</span>, <span class="ident">MouseScrollDelta</span>, <span class="ident">VirtualKeyCode</span>, <span class="ident">WindowEvent</span>,
@@ -663,6 +666,7 @@
     <span class="ident">Colon</span>,
     <span class="ident">Equals</span>,
     <span class="ident">SingleQuote</span>,
+    <span class="ident">Minus</span>,
     <span class="comment">// Stuff without a straightforward single-character display</span>
     <span class="ident">Escape</span>,
     <span class="ident">Enter</span>,
@@ -751,6 +755,7 @@
             <span class="ident">Key::Colon</span> =&gt; <span class="prelude-val">Some</span>(<span class="string">&#39;:&#39;</span>),
             <span class="ident">Key::Equals</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;+&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;=&#39;</span> }),
             <span class="ident">Key::SingleQuote</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;&quot;&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;\&#39;&#39;</span> }),
+            <span class="ident">Key::Minus</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;_&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;-&#39;</span> }),
             <span class="ident">Key::Escape</span>
             <span class="op">|</span> <span class="ident">Key::Enter</span>
             <span class="op">|</span> <span class="ident">Key::Tab</span>
@@ -859,6 +864,7 @@
             <span class="ident">VirtualKeyCode::Colon</span> =&gt; <span class="ident">Key::Colon</span>,
             <span class="ident">VirtualKeyCode::Equals</span> =&gt; <span class="ident">Key::Equals</span>,
             <span class="ident">VirtualKeyCode::Apostrophe</span> =&gt; <span class="ident">Key::SingleQuote</span>,
+            <span class="ident">VirtualKeyCode::Minus</span> =&gt; <span class="ident">Key::Minus</span>,
             <span class="ident">VirtualKeyCode::Escape</span> =&gt; <span class="ident">Key::Escape</span>,
             <span class="ident">VirtualKeyCode::Return</span> =&gt; <span class="ident">Key::Enter</span>,
             <span class="ident">VirtualKeyCode::Tab</span> =&gt; <span class="ident">Key::Tab</span>,
