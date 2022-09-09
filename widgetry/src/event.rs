@@ -189,6 +189,7 @@ pub enum Key {
     Colon,
     Equals,
     SingleQuote,
+    Minus,
     // Stuff without a straightforward single-character display
     Escape,
     Enter,
@@ -277,6 +278,7 @@ impl Key {
             Key::Colon => Some(':'),
             Key::Equals => Some(if shift_pressed { '+' } else { '=' }),
             Key::SingleQuote => Some(if shift_pressed { '"' } else { '\'' }),
+            Key::Minus => Some(if shift_pressed { '_' } else { '-' }),
             Key::Escape
             | Key::Enter
             | Key::Tab
@@ -385,6 +387,7 @@ impl Key {
             VirtualKeyCode::Colon => Key::Colon,
             VirtualKeyCode::Equals => Key::Equals,
             VirtualKeyCode::Apostrophe => Key::SingleQuote,
+            VirtualKeyCode::Minus => Key::Minus,
             VirtualKeyCode::Escape => Key::Escape,
             VirtualKeyCode::Return => Key::Enter,
             VirtualKeyCode::Tab => Key::Tab,
