@@ -132,16 +132,16 @@ impl WidgetImpl for TextBox {
                         self.cursor_x -= 1;
                     }
                 }
-                _ => {
-                    if let Some(c) = key.to_char(ctx.is_key_down(Key::LeftShift)) {
-                        output.outcome = Outcome::Changed(self.label.clone());
-                        self.line.insert(self.cursor_x, c);
-                        self.cursor_x += 1;
-                    } else {
-                        ctx.input.unconsume_event();
-                    }
-                }
-            };
+                _ => {}
+            }
+        } else if let Some(x) = ctx.input.text_entry() {
+            if x == '\r' {
+                ctx.input.unconsume_event();
+                return;
+            }
+            output.outcome = Outcome::Changed(self.label.clone());
+            self.line.insert(self.cursor_x, x);
+            self.cursor_x += 1;
         }
     }
 

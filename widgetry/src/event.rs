@@ -39,6 +39,7 @@ pub enum Event {
     // events while a key is held down.
     KeyPress(Key),
     KeyRelease(Key),
+    TextEntry(char),
     // Some real amount of time has passed since the last update
     Update(Duration),
     MouseMovedTo(ScreenPt),
@@ -76,6 +77,7 @@ impl Event {
                     None
                 }
             }
+            WindowEvent::ReceivedCharacter(x) => Some(Event::TextEntry(x)),
             WindowEvent::CursorMoved { position, .. } => Some(Event::MouseMovedTo(
                 position.to_logical(scale_factor).into(),
             )),
@@ -413,7 +415,8 @@ impl Key {
             VirtualKeyCode::F11 => Key::F11,
             VirtualKeyCode::F12 => Key::F12,
             _ => {
-                println!("Unknown winit key {:?}", key);
+                // No need to warn. Event::ReceivedCharacter is likely to come through and turn
+                // into Event::TextEntry
                 return None;
             }
         })

@@ -56,6 +56,19 @@ impl UserInput {
         None
     }
 
+    /// Did the user enter some text?
+    pub(crate) fn text_entry(&mut self) -> Option<char> {
+        if self.event_consumed {
+            return None;
+        }
+
+        if let Event::TextEntry(x) = self.event {
+            self.consume_event();
+            return Some(x);
+        }
+        None
+    }
+
     pub fn key_released(&mut self, key: Key) -> bool {
         if self.event_consumed {
             return false;
