@@ -137,15 +137,9 @@ impl Polygon {
         self.rings.remove(0)
     }
 
-    /// The [centroid](https://docs.rs/geo/latest/geo/algorithm/centroid/trait.Centroid.html)
+    /// Returns the arithmetic mean of the outer ring's points. The result could wind up inside a
+    /// hole in the polygon. Consider using `polylabel` too.
     pub fn center(&self) -> Pt2D {
-        use geo::Centroid;
-
-        if let Some(pt) = self.to_geo().centroid() {
-            return pt.into();
-        }
-        // TODO Not sure when centroid could fail. Fall back to just finding the center of the
-        // outer ring.
         let mut pts = self.get_outer_ring().clone().into_points();
         pts.pop();
         Pt2D::center(&pts)
