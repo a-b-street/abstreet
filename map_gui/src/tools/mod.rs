@@ -287,7 +287,6 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("nyc", "midtown_manhattan") => "Midtown Manhattan",
             ("nyc", "downtown_brooklyn") => "Downtown Brooklyn",
             ("phoenix", "gilbert") => "Gilbert",
-            ("phoenix", "loop101") => "Loop 101 (no local roads)",
             ("phoenix", "tempe") => "Tempe",
             ("providence", "downtown") => "Providence",
             ("san_francisco", "downtown") => "San Francisco",

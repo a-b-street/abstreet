@@ -1,9 +1,7 @@
 use osm::{OsmID, RelationID, WayID};
 
-use abstio::{CityName, MapName};
 use abstutil::{MultiMap, Tags, Timer};
 use geom::{Distance, FindClosest, Polygon, Pt2D, Ring};
-use kml::{ExtraShape, ExtraShapes};
 use raw_map::{Amenity, AreaType, RawArea, RawBuilding, RawMap, RawParkingLot};
 use street_network::{osm, NamePerLanguage};
 
@@ -44,8 +42,6 @@ pub fn extract_osm(
     if let Some(way) = doc.ways.get_mut(&WayID(332060236)) {
         way.tags.insert("sidewalk", "right");
     }
-    // Hack for Geneva, which maps sidewalks as separate ways
-    let infer_both_sidewalks_for_oneways = map.name.city == CityName::new("ch", "geneva");
 
     if clip_path.is_none() {
         // Use the boundary from .osm.
@@ -66,9 +62,6 @@ pub fn extract_osm(
         }
     }
 
-    // and cycleways
-    let mut extra_footways = ExtraShapes { shapes: Vec::new() };
-
     let mut coastline_groups: Vec<(WayID, Vec<Pt2D>)> = Vec::new();
     let mut memorial_areas: Vec<Polygon> = Vec::new();
     let mut amenity_areas: Vec<(Polygon, Amenity)> = Vec::new();
@@ -79,19 +72,11 @@ pub fn extract_osm(
 
         way.tags.insert(osm::OSM_WAY_ID, id.0.to_string());
 
-        if out.handle_way(id, &way, opts, infer_both_sidewalks_for_oneways) {
+        if out.handle_way(id, &way, opts) {
             continue;
         } else if way.tags.is(osm::HIGHWAY, "service") {
             // If we got here, is_road didn't interpret it as a normal road
             map.parking_aisles.push((id, way.pts.clone()));
-        } else if way
-            .tags
-            .is_any(osm::HIGHWAY, vec!["cycleway", "footway", "path"])
-        {
-            extra_footways.shapes.push(ExtraShape {
-                points: map.streets.gps_bounds.convert_back(&way.pts),
-                attributes: way.tags.inner().clone(),
-            });
         } else if way.tags.is("natural", "coastline") && !way.tags.is("place", "island") {
             coastline_groups.push((id, way.pts.clone()));
             continue;
@@ -140,13 +125,6 @@ pub fn extract_osm(
             };
             amenity_areas.push((polygon, amenity));
         }
-    }
-
-    // Since we're not actively working on using footways, stop generating except in Seattle. In
-    // the future, this should only happen for the largest or canonical map per city, but there's
-    // no way to express that right now.
-    if map.name == MapName::seattle("huge_seattle") {
-        abstio::write_binary(map.name.city.input_path("footways.bin"), &extra_footways);
     }
 
     let boundary = map.streets.boundary_polygon.get_outer_ring();

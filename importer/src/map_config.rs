@@ -92,7 +92,6 @@ pub fn config_for_map(name: &MapName) -> convert_osm::Options {
             _ => true,
         },
         extra_buildings,
-        skip_local_roads: name == &MapName::new("us", "phoenix", "loop101"),
         filter_crosswalks: false,
         // https://www.transit.land is a great place to find the static GTFS URLs
         gtfs_url: if name == &MapName::new("us", "seattle", "arboretum") {

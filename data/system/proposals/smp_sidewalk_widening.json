@@ -482,66 +482,6 @@
     {
       "ChangeRoad": {
         "r": {
-          "osm_way_id": 161352088,
-          "i1": 1733363783,
-          "i2": 1733363548
-        },
-        "new": {
-          "lanes_ltr": [
-            {
-              "lt": "Sidewalk",
-              "dir": "Back",
-              "width": 27192
-            },
-            {
-              "lt": "Driving",
-              "dir": "Fwd",
-              "width": 36576
-            },
-            {
-              "lt": "Driving",
-              "dir": "Back",
-              "width": 36576
-            },
-            {
-              "lt": "Sidewalk",
-              "dir": "Fwd",
-              "width": 27192
-            }
-          ],
-          "speed_limit": 178816,
-          "access_restrictions": {
-            "allow_through_traffic": 31
-          }
-        },
-        "old": {
-          "lanes_ltr": [
-            {
-              "lt": "Sidewalk",
-              "dir": "Back",
-              "width": 15000
-            },
-            {
-              "lt": "Driving",
-              "dir": "Fwd",
-              "width": 24384
-            },
-            {
-              "lt": "Sidewalk",
-              "dir": "Fwd",
-              "width": 15000
-            }
-          ],
-          "speed_limit": 178816,
-          "access_restrictions": {
-            "allow_through_traffic": 31
-          }
-        }
-      }
-    },
-    {
-      "ChangeRoad": {
-        "r": {
           "osm_way_id": 161374260,
           "i1": 1733509194,
           "i2": 1733509206
@@ -1148,66 +1088,6 @@
             }
           ],
           "speed_limit": 178816,
-          "access_restrictions": {
-            "allow_through_traffic": 31
-          }
-        }
-      }
-    },
-    {
-      "ChangeRoad": {
-        "r": {
-          "osm_way_id": 195459841,
-          "i1": 1664042091,
-          "i2": 1664042154
-        },
-        "new": {
-          "lanes_ltr": [
-            {
-              "lt": "Sidewalk",
-              "dir": "Back",
-              "width": 21096
-            },
-            {
-              "lt": "Bus",
-              "dir": "Fwd",
-              "width": 36576
-            },
-            {
-              "lt": "Driving",
-              "dir": "Fwd",
-              "width": 36576
-            },
-            {
-              "lt": "Sidewalk",
-              "dir": "Fwd",
-              "width": 30240
-            }
-          ],
-          "speed_limit": 89408,
-          "access_restrictions": {
-            "allow_through_traffic": 31
-          }
-        },
-        "old": {
-          "lanes_ltr": [
-            {
-              "lt": "Sidewalk",
-              "dir": "Back",
-              "width": 15000
-            },
-            {
-              "lt": "Driving",
-              "dir": "Fwd",
-              "width": 24384
-            },
-            {
-              "lt": "Sidewalk",
-              "dir": "Fwd",
-              "width": 15000
-            }
-          ],
-          "speed_limit": 89408,
           "access_restrictions": {
             "allow_through_traffic": 31
           }

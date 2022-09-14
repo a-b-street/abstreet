@@ -16,6 +16,8 @@ use widgetry::{
 
 type App = SimpleApp<()>;
 
+const FAKE_PARKING_TAG: &str = "abst:parking_source";
+
 pub struct ParkingMapper {
     panel: Panel,
     draw_layer: Drawable,
@@ -70,7 +72,7 @@ impl ParkingMapper {
             if r.is_light_rail() {
                 continue;
             }
-            if r.osm_tags.contains_key(osm::INFERRED_PARKING)
+            if r.osm_tags.contains_key(FAKE_PARKING_TAG)
                 && !data.contains_key(&r.orig_id.osm_way_id)
             {
                 todo.insert(r.orig_id.osm_way_id);
@@ -112,7 +114,7 @@ impl ParkingMapper {
         for i in map.all_intersections() {
             let is_todo = i.roads.iter().any(|id| {
                 let r = map.get_r(*id);
-                r.osm_tags.contains_key(osm::INFERRED_PARKING)
+                r.osm_tags.contains_key(FAKE_PARKING_TAG)
                     && !data.contains_key(&r.orig_id.osm_way_id)
             });
             if matches!((show, is_todo), (Show::ToDo, true) | (Show::Done, false)) {
@@ -239,13 +241,11 @@ impl State<App> for ParkingMapper {
                             continue;
                         }
                         if k.contains("parking") {
-                            if !road.osm_tags.contains_key(osm::INFERRED_PARKING) {
+                            if !road.osm_tags.contains_key(FAKE_PARKING_TAG) {
                                 txt.add_line(format!("{} = {}", k, v));
                             }
                         } else if k == "sidewalk" {
-                            if !road.osm_tags.contains_key(osm::INFERRED_SIDEWALKS) {
-                                txt.add_line(Line(format!("{} = {}", k, v)).secondary());
-                            }
+                            txt.add_line(Line(format!("{} = {}", k, v)).secondary());
                         } else {
                             txt.add_line(Line(format!("{} = {}", k, v)).secondary());
                         }

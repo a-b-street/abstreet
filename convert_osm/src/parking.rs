@@ -1,4 +1,4 @@
-use abstutil::Timer;
+use abstutil::{Tags, Timer};
 use geom::{Distance, FindClosest, PolyLine};
 use kml::ExtraShapes;
 use raw_map::RawMap;
@@ -19,7 +19,7 @@ pub fn apply_parking(map: &mut RawMap, opts: &Options, timer: &mut Timer) {
             let pct = pct as i64;
             for (id, r) in map.streets.roads.iter_mut() {
                 // The 20m minimum is a rough heuristic.
-                if r.osm_tags.contains_key(osm::INFERRED_PARKING)
+                if unknown_parking(&r.osm_tags)
                     && r.osm_tags
                         .is_any(osm::HIGHWAY, vec!["residential", "tertiary"])
                     && !r.osm_tags.is("foot", "no")
@@ -46,6 +46,14 @@ pub fn apply_parking(map: &mut RawMap, opts: &Options, timer: &mut Timer) {
         }
     }
     apply_private_offstreet_parking(map, &opts.private_offstreet_parking);
+}
+
+fn unknown_parking(tags: &Tags) -> bool {
+    !tags.contains_key(osm::PARKING_LEFT)
+        && !tags.contains_key(osm::PARKING_RIGHT)
+        && !tags.contains_key(osm::PARKING_BOTH)
+        && !tags.is_any(osm::HIGHWAY, vec!["motorway", "motorway_link", "service"])
+        && !tags.is("junction", "roundabout")
 }
 
 fn use_parking_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
@@ -89,7 +97,7 @@ fn use_parking_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
             let tags = &mut map.streets.roads.get_mut(&r).unwrap().osm_tags;
 
             // Skip if the road already has this mapped.
-            if !tags.contains_key(osm::INFERRED_PARKING) {
+            if !unknown_parking(&tags) {
                 continue;
             }
 
@@ -142,6 +150,9 @@ fn use_parking_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
                 tags.remove(osm::PARKING_RIGHT).unwrap();
                 tags.insert(osm::PARKING_BOTH, value);
             }
+
+            // Remember that this isn't OSM data
+            tags.insert("abst:parking_source", "blockface");
 
             let lane_specs_ltr = street_network::get_lane_specs_ltr(tags, &map.streets.config);
             map.streets.roads.get_mut(&r).unwrap().lane_specs_ltr = lane_specs_ltr;

@@ -109,14 +109,11 @@ impl Viewer {
                     if k.starts_with("abst:") {
                         continue;
                     }
-                    if tags.contains_key(osm::INFERRED_PARKING)
+                    if tags.contains_key("abst:parking_source")
                         && (k == osm::PARKING_RIGHT
                             || k == osm::PARKING_LEFT
                             || k == osm::PARKING_BOTH)
                     {
-                        continue;
-                    }
-                    if tags.contains_key(osm::INFERRED_SIDEWALKS) && k == osm::SIDEWALK {
                         continue;
                     }
                     col.push(Widget::row(vec![

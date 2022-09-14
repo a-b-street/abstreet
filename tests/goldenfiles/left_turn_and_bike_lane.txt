@@ -17,14 +17,14 @@ TurnID(Lane #97, Lane #36, Intersection #0) is a Right
 TurnID(Lane #97, Lane #37, Intersection #0) is a Right
 TurnID(Lane #97, Lane #66, Intersection #0) is a Straight
 TurnID(Lane #98, Lane #66, Intersection #0) is a Straight
+TurnID(Lane #64, Lane #67, Intersection #0) is a Crosswalk
+TurnID(Lane #67, Lane #32, Intersection #0) is a SharedSidewalkCorner
 TurnID(Lane #32, Lane #38, Intersection #0) is a Crosswalk
 TurnID(Lane #38, Lane #96, Intersection #0) is a SharedSidewalkCorner
 TurnID(Lane #96, Lane #101, Intersection #0) is a Crosswalk
 TurnID(Lane #101, Lane #0, Intersection #0) is a SharedSidewalkCorner
 TurnID(Lane #0, Lane #5, Intersection #0) is a Crosswalk
 TurnID(Lane #5, Lane #64, Intersection #0) is a SharedSidewalkCorner
-TurnID(Lane #64, Lane #67, Intersection #0) is a Crosswalk
-TurnID(Lane #67, Lane #32, Intersection #0) is a SharedSidewalkCorner
 TurnID(Lane #1, Lane #99, Intersection #0) is a Right
 TurnID(Lane #33, Lane #66, Intersection #0) is a Right
 TurnID(Lane #65, Lane #3, Intersection #0) is a Right
