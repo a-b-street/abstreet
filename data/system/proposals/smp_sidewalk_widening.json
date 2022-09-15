@@ -68,76 +68,6 @@
       "ChangeRoad": {
         "r": {
           "osm_way_id": 160812365,
-          "i1": 1728327591,
-          "i2": 7299780164
-        },
-        "new": {
-          "lanes_ltr": [
-            {
-              "lt": "Driving",
-              "dir": "Fwd",
-              "width": 27432
-            },
-            {
-              "lt": "Driving",
-              "dir": "Fwd",
-              "width": 27432
-            },
-            {
-              "lt": "Driving",
-              "dir": "Fwd",
-              "width": 27432
-            },
-            {
-              "lt": "Sidewalk",
-              "dir": "Fwd",
-              "width": 45480
-            }
-          ],
-          "speed_limit": 178816,
-          "access_restrictions": {
-            "allow_through_traffic": 31
-          }
-        },
-        "old": {
-          "lanes_ltr": [
-            {
-              "lt": "Sidewalk",
-              "dir": "Back",
-              "width": 15000
-            },
-            {
-              "lt": "Driving",
-              "dir": "Fwd",
-              "width": 24384
-            },
-            {
-              "lt": "Driving",
-              "dir": "Fwd",
-              "width": 24384
-            },
-            {
-              "lt": "Driving",
-              "dir": "Fwd",
-              "width": 24384
-            },
-            {
-              "lt": "Sidewalk",
-              "dir": "Fwd",
-              "width": 15000
-            }
-          ],
-          "speed_limit": 178816,
-          "access_restrictions": {
-            "allow_through_traffic": 31
-          }
-        }
-      }
-    },
-    {
-      "ChangeRoad": {
-        "r": {
-          "osm_way_id": 160812365,
           "i1": 7299780164,
           "i2": 1664042126
         },
@@ -770,61 +700,6 @@
           "osm_way_id": 188361682,
           "i1": 493878010,
           "i2": 4533806371
-        },
-        "new": {
-          "lanes_ltr": [
-            {
-              "lt": "Driving",
-              "dir": "Fwd",
-              "width": 42672
-            },
-            {
-              "lt": "Driving",
-              "dir": "Back",
-              "width": 42672
-            },
-            {
-              "lt": "Sidewalk",
-              "dir": "Fwd",
-              "width": 42432
-            }
-          ],
-          "speed_limit": 178816,
-          "access_restrictions": {
-            "allow_through_traffic": 31
-          }
-        },
-        "old": {
-          "lanes_ltr": [
-            {
-              "lt": "Sidewalk",
-              "dir": "Back",
-              "width": 15000
-            },
-            {
-              "lt": "Driving",
-              "dir": "Fwd",
-              "width": 24384
-            },
-            {
-              "lt": "Sidewalk",
-              "dir": "Fwd",
-              "width": 15000
-            }
-          ],
-          "speed_limit": 178816,
-          "access_restrictions": {
-            "allow_through_traffic": 31
-          }
-        }
-      }
-    },
-    {
-      "ChangeRoad": {
-        "r": {
-          "osm_way_id": 188361682,
-          "i1": 4533806368,
-          "i2": 2368411752
         },
         "new": {
           "lanes_ltr": [
@@ -2727,66 +2602,6 @@
               "lt": "Sidewalk",
               "dir": "Fwd",
               "width": 30240
-            }
-          ],
-          "speed_limit": 178816,
-          "access_restrictions": {
-            "allow_through_traffic": 31
-          }
-        },
-        "old": {
-          "lanes_ltr": [
-            {
-              "lt": "Sidewalk",
-              "dir": "Back",
-              "width": 15000
-            },
-            {
-              "lt": "Driving",
-              "dir": "Fwd",
-              "width": 24384
-            },
-            {
-              "lt": "Driving",
-              "dir": "Fwd",
-              "width": 24384
-            },
-            {
-              "lt": "Sidewalk",
-              "dir": "Fwd",
-              "width": 15000
-            }
-          ],
-          "speed_limit": 178816,
-          "access_restrictions": {
-            "allow_through_traffic": 31
-          }
-        }
-      }
-    },
-    {
-      "ChangeRoad": {
-        "r": {
-          "osm_way_id": 945278842,
-          "i1": 1728327831,
-          "i2": 1664042163
-        },
-        "new": {
-          "lanes_ltr": [
-            {
-              "lt": "Driving",
-              "dir": "Fwd",
-              "width": 30480
-            },
-            {
-              "lt": "Driving",
-              "dir": "Fwd",
-              "width": 30480
-            },
-            {
-              "lt": "Sidewalk",
-              "dir": "Fwd",
-              "width": 59196
             }
           ],
           "speed_limit": 178816,
