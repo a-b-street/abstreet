@@ -422,14 +422,17 @@ impl Road {
     }
 
     pub fn is_footway(&self) -> bool {
-        self.lanes.len() == 1 && self.lanes[0].lane_type == LaneType::Sidewalk
+        self.lanes.len() == 1
+            && matches!(
+                self.lanes[0].lane_type,
+                LaneType::Footway | LaneType::SharedUse
+            )
     }
 
     pub fn is_service(&self) -> bool {
         self.osm_tags.is(osm::HIGHWAY, "service")
     }
 
-    // TODO Shared walking/biking roads get classified as a cycleway for now
     pub fn is_cycleway(&self) -> bool {
         let mut bike = false;
         for lane in &self.lanes {

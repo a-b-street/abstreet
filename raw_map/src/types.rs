@@ -185,9 +185,6 @@ pub enum AreaType {
     Park,
     Water,
     Island,
-    // TODO This is unused, could delete. It'll change the binary format, so no urgency.
-    MedianStrip,
-    PedestrianPlaza,
     /// Not from OSM. A user-specified area to focus on.
     StudyArea,
 }

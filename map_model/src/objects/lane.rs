@@ -186,6 +186,11 @@ impl Lane {
         self.lane_type == LaneType::LightRail
     }
 
+    // TODO Misleading?
+    pub fn is_footway(&self) -> bool {
+        self.lane_type == LaneType::Footway || self.lane_type == LaneType::SharedUse
+    }
+
     pub fn get_directed_parent(&self) -> DirectedRoadID {
         DirectedRoadID {
             road: self.id.road,

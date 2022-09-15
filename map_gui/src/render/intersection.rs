@@ -41,7 +41,8 @@ impl DrawIntersection {
         let rank = i.get_rank(map);
         default_geom.push(
             if i.is_footway(map) {
-                app.cs().zoomed_road_surface(LaneType::Sidewalk, rank)
+                // TODO Or maybe shared-use, once there's some visual distinction there
+                app.cs().zoomed_road_surface(LaneType::Footway, rank)
             } else if i.is_cycleway(map) {
                 app.cs().zoomed_road_surface(LaneType::Biking, rank)
             } else {
@@ -55,6 +56,18 @@ impl DrawIntersection {
         );
         if app.cs().road_outlines {
             default_geom.extend(app.cs().curb(rank), calculate_corner_curbs(i, map));
+        }
+        if i.is_footway(map) {
+            for pl in Self::get_unzoomed_outline(i, map) {
+                default_geom.extend(
+                    Color::BLACK,
+                    pl.exact_dashed_polygons(
+                        Distance::meters(0.25),
+                        Distance::meters(1.0),
+                        Distance::meters(1.5),
+                    ),
+                );
+            }
         }
 
         for turn in &i.turns {
@@ -290,9 +303,10 @@ impl Renderable for DrawIntersection {
     }
 }
 
-// TODO Temporarily public for debugging.
+// Public for debugging
 pub fn calculate_corners(i: &Intersection, map: &Map) -> Vec<Polygon> {
-    if i.is_footway(map) {
+    // Don't attempt corners for footways or where normal roads and footways meet
+    if i.roads.iter().any(|r| map.get_r(*r).is_footway()) {
         return Vec::new();
     }
 
@@ -372,7 +386,8 @@ pub fn calculate_corners(i: &Intersection, map: &Map) -> Vec<Polygon> {
 }
 
 fn calculate_corner_curbs(i: &Intersection, map: &Map) -> Vec<Polygon> {
-    if i.is_footway(map) {
+    // Don't attempt corners for footways or where normal roads and footways meet
+    if i.roads.iter().any(|r| map.get_r(*r).is_footway()) {
         return Vec::new();
     }
 

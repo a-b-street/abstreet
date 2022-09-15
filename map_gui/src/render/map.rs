@@ -234,7 +234,9 @@ impl DrawMap {
                 Fill::Color(if r.is_light_rail() {
                     cs.light_rail_track
                 } else if r.is_cycleway() {
-                    cs.unzoomed_trail
+                    cs.unzoomed_cycleway
+                } else if r.is_footway() {
+                    cs.unzoomed_footway
                 } else if r.is_private() && cs.private_road.is_some() {
                     cs.private_road.unwrap()
                 } else {
@@ -252,9 +254,9 @@ impl DrawMap {
                 .into_iter()
                 .flatten()
                 {
-                    if opts.simplify_basemap && r.is_cycleway() {
+                    if (opts.simplify_basemap && r.is_cycleway()) || r.is_footway() {
                         for p in pl.exact_dashed_polygons(
-                            outline_thickness,
+                            0.5 * outline_thickness,
                             Distance::meters(5.0),
                             Distance::meters(2.0),
                         ) {
@@ -291,7 +293,9 @@ impl DrawMap {
                 if i.is_light_rail(map) {
                     cs.light_rail_track
                 } else if i.is_cycleway(map) {
-                    cs.unzoomed_trail
+                    cs.unzoomed_cycleway
+                } else if i.is_footway(map) {
+                    cs.unzoomed_footway
                 } else if i.is_private(map) && cs.private_road.is_some() {
                     cs.private_road.unwrap()
                 } else {
@@ -303,11 +307,14 @@ impl DrawMap {
             unzoomed_pieces.push((zorder, intersection_color.into(), i.polygon.clone().into()));
 
             if cs.road_outlines {
+                // It'd be nice to dash the outline for footways, but usually the pieces of the
+                // outline in between the roads are too small to dash, and using the entire thing
+                // would look like the intersection is blocked off
                 for pl in DrawIntersection::get_unzoomed_outline(i, map) {
                     unzoomed_pieces.push((
                         zorder + outline_z_offset,
                         outline_color.into(),
-                        pl.make_polygons(outline_thickness).into(),
+                        pl.make_polygons(0.5 * outline_thickness).into(),
                     ));
                 }
             }

@@ -8,9 +8,10 @@ use serde::{Deserialize, Serialize};
 
 use geom::{Distance, PolyLine};
 
-use crate::{DirectedRoadID, IntersectionID, LaneID, Map, MovementID, TurnID};
+use crate::{DirectedRoadID, IntersectionID, LaneID, Map, MovementID, PathConstraints, TurnID};
 
 /// This only applies to VehiclePathfinder; walking through these intersections is nothing special.
+/// And in fact, even lanes only for buses/bikes are ignored.
 // TODO I haven't seen any cases yet with "interior" intersections. Some stuff might break.
 pub struct IntersectionCluster {
     pub members: BTreeSet<IntersectionID>,
@@ -200,7 +201,9 @@ fn flood(start: TurnID, map: &Map, exits: &BTreeSet<TurnID>) -> Vec<UberTurn> {
 
     while !queue.is_empty() {
         let current = queue.pop().unwrap();
-        for next in map.get_turns_from_lane(current.dst) {
+        // Filtering for car lanes is necessary near https://www.openstreetmap.org/node/1283661439,
+        // where there's a bidirectional shared-use path
+        for next in map.get_turns_for(current.dst, PathConstraints::Car) {
             if preds.contains_key(&next.id) {
                 continue;
             }

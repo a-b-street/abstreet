@@ -50,7 +50,7 @@ impl DrawLane {
                 if lane.is_sidewalk() {
                     batch.extend(app.cs().sidewalk_lines, calculate_sidewalk_lines(lane));
                 }
-                if app.cs().road_outlines && !road.is_footway() {
+                if app.cs().road_outlines {
                     // Create a sense of depth at the curb
                     let width = Distance::meters(0.2);
                     let mut shift = (lane.width - width) / 2.0;
@@ -173,6 +173,23 @@ impl DrawLane {
             }
             LaneType::Buffer(style) => {
                 calculate_buffer_markings(app, style, lane, &mut batch);
+            }
+            LaneType::Footway | LaneType::SharedUse => {
+                // Dashed lines on both sides
+                for dir in [-1.0, 1.0] {
+                    let pl = lane
+                        .lane_center_pts
+                        .shift_either_direction(dir * lane.width / 2.0)
+                        .unwrap();
+                    batch.extend(
+                        Color::BLACK,
+                        pl.exact_dashed_polygons(
+                            Distance::meters(0.25),
+                            Distance::meters(1.0),
+                            Distance::meters(1.5),
+                        ),
+                    );
+                }
             }
         }
 

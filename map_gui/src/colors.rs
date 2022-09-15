@@ -95,7 +95,10 @@ pub struct ColorScheme {
     pub unzoomed_highway: Color,
     pub unzoomed_arterial: Color,
     pub unzoomed_residential: Color,
-    pub unzoomed_trail: Color,
+    pub unzoomed_cycleway: Color,
+    pub unzoomed_footway: Color,
+    footway: Color,
+    shared_use: Color,
 
     // Intersections
     pub normal_intersection: Color,
@@ -123,8 +126,6 @@ pub struct ColorScheme {
     pub parking_lot: Color,
     pub grass: Fill,
     pub water: Fill,
-    pub median_strip: Fill,
-    pub pedestrian_plaza: Fill,
     pub study_area: Fill,
 
     // Unzoomed dynamic elements
@@ -218,7 +219,11 @@ impl ColorScheme {
             unzoomed_highway: hex("#E892A2"),
             unzoomed_arterial: hex("#FFC73E"),
             unzoomed_residential: Color::WHITE,
-            unzoomed_trail: hex("#0F7D4B"),
+            unzoomed_cycleway: hex("#0F7D4B"),
+            unzoomed_footway: hex("#DED68A"),
+            // TODO Distinguish shared use and footway unzoomed or zoomed?
+            footway: hex("#DED68A"),
+            shared_use: hex("#DED68A"),
 
             // Intersections
             normal_intersection: Color::grey(0.2),
@@ -246,8 +251,6 @@ impl ColorScheme {
             parking_lot: Color::grey(0.7),
             grass: hex("#94C84A").into(),
             water: hex("#A4C8EA").into(),
-            median_strip: Color::CYAN.into(),
-            pedestrian_plaza: hex("#DDDDE8").into(),
             study_area: hex("#96830C").into(),
 
             // Unzoomed dynamic elements
@@ -319,7 +322,6 @@ impl ColorScheme {
         cs.unzoomed_interesting_intersection = cs.unzoomed_highway;
         cs.stop_sign = hex("#A32015");
         cs.private_road = Some(hex("#9E757F"));
-        cs.pedestrian_plaza = hex("#94949C").into();
         cs.study_area = hex("#D9B002").into();
 
         cs.panel_bg = cs.gui_style.panel_bg;
@@ -376,7 +378,8 @@ impl ColorScheme {
         cs.unzoomed_highway = Color::WHITE;
         cs.unzoomed_arterial = Color::WHITE;
         cs.unzoomed_residential = Color::WHITE;
-        cs.unzoomed_trail = Color::CLEAR;
+        cs.unzoomed_cycleway = Color::CLEAR;
+        cs.unzoomed_footway = Color::CLEAR;
         cs.light_rail_track = Color::CLEAR;
 
         // The colors of cells will show through these, de-emphasizing them
@@ -443,6 +446,8 @@ impl ColorScheme {
             LaneType::Construction => parking_asphalt,
             LaneType::LightRail => unreachable!(),
             LaneType::Buffer(_) => main_asphalt,
+            LaneType::Footway => self.footway,
+            LaneType::SharedUse => self.shared_use,
         }
     }
     pub fn zoomed_intersection_surface(&self, rank: RoadRank) -> Color {
@@ -483,7 +488,8 @@ impl ColorScheme {
             "unzoomed_residential {}",
             self.unzoomed_residential.as_hex()
         )?;
-        writeln!(f, "unzoomed_trail {}", self.unzoomed_trail.as_hex())?;
+        writeln!(f, "unzoomed_cycleway {}", self.unzoomed_cycleway.as_hex())?;
+        writeln!(f, "unzoomed_footway {}", self.unzoomed_footway.as_hex())?;
         writeln!(
             f,
             "residential_building {}",
@@ -518,11 +524,12 @@ impl ColorScheme {
         self.unzoomed_highway = colors[0];
         self.unzoomed_arterial = colors[1];
         self.unzoomed_residential = colors[2];
-        self.unzoomed_trail = colors[3];
-        self.residential_building = colors[4];
-        self.commercial_building = colors[5];
-        self.grass = Fill::Color(colors[6]);
-        self.water = Fill::Color(colors[7]);
+        self.unzoomed_cycleway = colors[3];
+        self.unzoomed_footway = colors[4];
+        self.residential_building = colors[5];
+        self.commercial_building = colors[6];
+        self.grass = Fill::Color(colors[7]);
+        self.water = Fill::Color(colors[8]);
 
         Ok(())
     }
