@@ -98,10 +98,16 @@ impl IntersectionCluster {
                 if turn.between_sidewalks() {
                     continue;
                 }
-                if !members.contains(&map.get_l(turn.id.src).src_i) {
+                let src = map.get_l(turn.id.src);
+                let dst = map.get_l(turn.id.dst);
+                if src.is_footway() || dst.is_footway() {
+                    continue;
+                }
+
+                if !members.contains(&src.src_i) {
                     entrances.push(turn.id);
                 }
-                if !members.contains(&map.get_l(turn.id.dst).dst_i) {
+                if !members.contains(&dst.dst_i) {
                     exits.insert(turn.id);
                 }
             }
