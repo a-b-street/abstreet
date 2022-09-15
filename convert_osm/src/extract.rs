@@ -312,10 +312,6 @@ fn get_area_type(tags: &Tags) -> Option<AreaType> {
         return Some(AreaType::Island);
     }
 
-    if tags.is(osm::HIGHWAY, "pedestrian") {
-        return Some(AreaType::PedestrianPlaza);
-    }
-
     None
 }
 
