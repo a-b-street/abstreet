@@ -47,6 +47,6 @@ http-range-client = { git = "https://github.com/pka/http-range-client", rev = "e
 
 # To temporarily work on dependencies locally, uncomment this
 # TODO Do not commit. Update each repo
-[patch."https://github.com/a-b-street/osm2streets"]
-import_streets = { path = "/home/dabreegster/osm2streets/import_streets" }
-street_network = { path = "/home/dabreegster/osm2streets/street_network" }
+#[patch."https://github.com/a-b-street/osm2streets"]
+#import_streets = { path = "/home/dabreegster/osm2streets/import_streets" }
+#street_network = { path = "/home/dabreegster/osm2streets/street_network" }
