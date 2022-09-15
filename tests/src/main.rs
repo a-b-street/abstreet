@@ -273,7 +273,7 @@ fn ab_test_spurious_diff() -> Result<()> {
     let mut edits = map.get_edits().clone();
     // It doesn't matter much which road, but if the map changes over time, it could eventually be
     // necessary to fiddle with this
-    edits.commands.push(map.edit_road_cmd(RoadID(190), |new| {
+    edits.commands.push(map.edit_road_cmd(RoadID(293), |new| {
         assert_eq!(new.lanes_ltr[1].lt, LaneType::Parking);
         new.lanes_ltr[1].lt = LaneType::Biking;
     }));
