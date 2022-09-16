@@ -670,12 +670,13 @@ fn make_timeline(
             ));
             d
         };
-        // TODO Problems when this is really low?
         let percent_duration = if total_duration_so_far == Duration::ZERO {
             0.0
         } else {
             phase_duration / total_duration_so_far
         };
+        // Don't crash when this is too low
+        let percent_duration = percent_duration.max(0.01);
         tooltip.push(format!(
             "  {}% of trip percentage",
             (100.0 * percent_duration) as usize
