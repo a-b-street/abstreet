@@ -127,7 +127,7 @@ impl Building {
                 return Some(pair);
             }
             for (_, next) in map.get_next_turns_and_lanes(l) {
-                if !visited.contains(&next.id) {
+                if next.is_walkable() && !visited.contains(&next.id) {
                     queue.push_back(next.id);
                 }
             }

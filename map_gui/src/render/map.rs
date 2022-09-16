@@ -290,6 +290,8 @@ impl DrawMap {
                 || (i.is_traffic_signal() && opts.show_traffic_signal_icon)
             {
                 // Use the color of the road, so the intersection doesn't stand out
+                // TODO When cycleways meet footways, we fallback to unzoomed_road_surface. Maybe
+                // we need a ranking for types here too
                 if i.is_light_rail(map) {
                     cs.light_rail_track
                 } else if i.is_cycleway(map) {
