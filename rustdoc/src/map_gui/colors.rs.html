@@ -542,6 +542,13 @@
 <span id="536">536</span>
 <span id="537">537</span>
 <span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
 </pre><pre class="rust"><code><span class="doccomment">//! A color scheme groups colors used for different map, dynamic, and UI elements in one place, to</span>
 <span class="doccomment">//! encourage deduplication. The player can also switch between different color schemes.</span>
 
@@ -639,7 +646,10 @@
     <span class="kw">pub</span> <span class="ident">unzoomed_highway</span>: <span class="ident">Color</span>,
     <span class="kw">pub</span> <span class="ident">unzoomed_arterial</span>: <span class="ident">Color</span>,
     <span class="kw">pub</span> <span class="ident">unzoomed_residential</span>: <span class="ident">Color</span>,
-    <span class="kw">pub</span> <span class="ident">unzoomed_trail</span>: <span class="ident">Color</span>,
+    <span class="kw">pub</span> <span class="ident">unzoomed_cycleway</span>: <span class="ident">Color</span>,
+    <span class="kw">pub</span> <span class="ident">unzoomed_footway</span>: <span class="ident">Color</span>,
+    <span class="ident">footway</span>: <span class="ident">Color</span>,
+    <span class="ident">shared_use</span>: <span class="ident">Color</span>,
 
     <span class="comment">// Intersections</span>
     <span class="kw">pub</span> <span class="ident">normal_intersection</span>: <span class="ident">Color</span>,
@@ -667,8 +677,6 @@
     <span class="kw">pub</span> <span class="ident">parking_lot</span>: <span class="ident">Color</span>,
     <span class="kw">pub</span> <span class="ident">grass</span>: <span class="ident">Fill</span>,
     <span class="kw">pub</span> <span class="ident">water</span>: <span class="ident">Fill</span>,
-    <span class="kw">pub</span> <span class="ident">median_strip</span>: <span class="ident">Fill</span>,
-    <span class="kw">pub</span> <span class="ident">pedestrian_plaza</span>: <span class="ident">Fill</span>,
     <span class="kw">pub</span> <span class="ident">study_area</span>: <span class="ident">Fill</span>,
 
     <span class="comment">// Unzoomed dynamic elements</span>
@@ -762,7 +770,11 @@
             <span class="ident">unzoomed_highway</span>: <span class="ident">hex</span>(<span class="string">&quot;#E892A2&quot;</span>),
             <span class="ident">unzoomed_arterial</span>: <span class="ident">hex</span>(<span class="string">&quot;#FFC73E&quot;</span>),
             <span class="ident">unzoomed_residential</span>: <span class="ident">Color::WHITE</span>,
-            <span class="ident">unzoomed_trail</span>: <span class="ident">hex</span>(<span class="string">&quot;#0F7D4B&quot;</span>),
+            <span class="ident">unzoomed_cycleway</span>: <span class="ident">hex</span>(<span class="string">&quot;#0F7D4B&quot;</span>),
+            <span class="ident">unzoomed_footway</span>: <span class="ident">hex</span>(<span class="string">&quot;#DED68A&quot;</span>),
+            <span class="comment">// TODO Distinguish shared use and footway unzoomed or zoomed?</span>
+            <span class="ident">footway</span>: <span class="ident">hex</span>(<span class="string">&quot;#DED68A&quot;</span>),
+            <span class="ident">shared_use</span>: <span class="ident">hex</span>(<span class="string">&quot;#DED68A&quot;</span>),
 
             <span class="comment">// Intersections</span>
             <span class="ident">normal_intersection</span>: <span class="ident">Color::grey</span>(<span class="number">0.2</span>),
@@ -790,8 +802,6 @@
             <span class="ident">parking_lot</span>: <span class="ident">Color::grey</span>(<span class="number">0.7</span>),
             <span class="ident">grass</span>: <span class="ident">hex</span>(<span class="string">&quot;#94C84A&quot;</span>).<span class="ident">into</span>(),
             <span class="ident">water</span>: <span class="ident">hex</span>(<span class="string">&quot;#A4C8EA&quot;</span>).<span class="ident">into</span>(),
-            <span class="ident">median_strip</span>: <span class="ident">Color::CYAN</span>.<span class="ident">into</span>(),
-            <span class="ident">pedestrian_plaza</span>: <span class="ident">hex</span>(<span class="string">&quot;#DDDDE8&quot;</span>).<span class="ident">into</span>(),
             <span class="ident">study_area</span>: <span class="ident">hex</span>(<span class="string">&quot;#96830C&quot;</span>).<span class="ident">into</span>(),
 
             <span class="comment">// Unzoomed dynamic elements</span>
@@ -863,7 +873,6 @@
         <span class="ident">cs</span>.<span class="ident">unzoomed_interesting_intersection</span> <span class="op">=</span> <span class="ident">cs</span>.<span class="ident">unzoomed_highway</span>;
         <span class="ident">cs</span>.<span class="ident">stop_sign</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#A32015&quot;</span>);
         <span class="ident">cs</span>.<span class="ident">private_road</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">hex</span>(<span class="string">&quot;#9E757F&quot;</span>));
-        <span class="ident">cs</span>.<span class="ident">pedestrian_plaza</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#94949C&quot;</span>).<span class="ident">into</span>();
         <span class="ident">cs</span>.<span class="ident">study_area</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#D9B002&quot;</span>).<span class="ident">into</span>();
 
         <span class="ident">cs</span>.<span class="ident">panel_bg</span> <span class="op">=</span> <span class="ident">cs</span>.<span class="ident">gui_style</span>.<span class="ident">panel_bg</span>;
@@ -920,7 +929,8 @@
         <span class="ident">cs</span>.<span class="ident">unzoomed_highway</span> <span class="op">=</span> <span class="ident">Color::WHITE</span>;
         <span class="ident">cs</span>.<span class="ident">unzoomed_arterial</span> <span class="op">=</span> <span class="ident">Color::WHITE</span>;
         <span class="ident">cs</span>.<span class="ident">unzoomed_residential</span> <span class="op">=</span> <span class="ident">Color::WHITE</span>;
-        <span class="ident">cs</span>.<span class="ident">unzoomed_trail</span> <span class="op">=</span> <span class="ident">Color::CLEAR</span>;
+        <span class="ident">cs</span>.<span class="ident">unzoomed_cycleway</span> <span class="op">=</span> <span class="ident">Color::CLEAR</span>;
+        <span class="ident">cs</span>.<span class="ident">unzoomed_footway</span> <span class="op">=</span> <span class="ident">Color::CLEAR</span>;
         <span class="ident">cs</span>.<span class="ident">light_rail_track</span> <span class="op">=</span> <span class="ident">Color::CLEAR</span>;
 
         <span class="comment">// The colors of cells will show through these, de-emphasizing them</span>
@@ -987,6 +997,8 @@
             <span class="ident">LaneType::Construction</span> =&gt; <span class="ident">parking_asphalt</span>,
             <span class="ident">LaneType::LightRail</span> =&gt; <span class="macro">unreachable!</span>(),
             <span class="ident">LaneType::Buffer</span>(<span class="kw">_</span>) =&gt; <span class="ident">main_asphalt</span>,
+            <span class="ident">LaneType::Footway</span> =&gt; <span class="self">self</span>.<span class="ident">footway</span>,
+            <span class="ident">LaneType::SharedUse</span> =&gt; <span class="self">self</span>.<span class="ident">shared_use</span>,
         }
     }
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">zoomed_intersection_surface</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rank</span>: <span class="ident">RoadRank</span>) -&gt; <span class="ident">Color</span> {
@@ -1027,7 +1039,8 @@
             <span class="string">&quot;unzoomed_residential {}&quot;</span>,
             <span class="self">self</span>.<span class="ident">unzoomed_residential</span>.<span class="ident">as_hex</span>()
         )<span class="question-mark">?</span>;
-        <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;unzoomed_trail {}&quot;</span>, <span class="self">self</span>.<span class="ident">unzoomed_trail</span>.<span class="ident">as_hex</span>())<span class="question-mark">?</span>;
+        <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;unzoomed_cycleway {}&quot;</span>, <span class="self">self</span>.<span class="ident">unzoomed_cycleway</span>.<span class="ident">as_hex</span>())<span class="question-mark">?</span>;
+        <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;unzoomed_footway {}&quot;</span>, <span class="self">self</span>.<span class="ident">unzoomed_footway</span>.<span class="ident">as_hex</span>())<span class="question-mark">?</span>;
         <span class="macro">writeln!</span>(
             <span class="ident">f</span>,
             <span class="string">&quot;residential_building {}&quot;</span>,
@@ -1062,11 +1075,12 @@
         <span class="self">self</span>.<span class="ident">unzoomed_highway</span> <span class="op">=</span> <span class="ident">colors</span>[<span class="number">0</span>];
         <span class="self">self</span>.<span class="ident">unzoomed_arterial</span> <span class="op">=</span> <span class="ident">colors</span>[<span class="number">1</span>];
         <span class="self">self</span>.<span class="ident">unzoomed_residential</span> <span class="op">=</span> <span class="ident">colors</span>[<span class="number">2</span>];
-        <span class="self">self</span>.<span class="ident">unzoomed_trail</span> <span class="op">=</span> <span class="ident">colors</span>[<span class="number">3</span>];
-        <span class="self">self</span>.<span class="ident">residential_building</span> <span class="op">=</span> <span class="ident">colors</span>[<span class="number">4</span>];
-        <span class="self">self</span>.<span class="ident">commercial_building</span> <span class="op">=</span> <span class="ident">colors</span>[<span class="number">5</span>];
-        <span class="self">self</span>.<span class="ident">grass</span> <span class="op">=</span> <span class="ident">Fill::Color</span>(<span class="ident">colors</span>[<span class="number">6</span>]);
-        <span class="self">self</span>.<span class="ident">water</span> <span class="op">=</span> <span class="ident">Fill::Color</span>(<span class="ident">colors</span>[<span class="number">7</span>]);
+        <span class="self">self</span>.<span class="ident">unzoomed_cycleway</span> <span class="op">=</span> <span class="ident">colors</span>[<span class="number">3</span>];
+        <span class="self">self</span>.<span class="ident">unzoomed_footway</span> <span class="op">=</span> <span class="ident">colors</span>[<span class="number">4</span>];
+        <span class="self">self</span>.<span class="ident">residential_building</span> <span class="op">=</span> <span class="ident">colors</span>[<span class="number">5</span>];
+        <span class="self">self</span>.<span class="ident">commercial_building</span> <span class="op">=</span> <span class="ident">colors</span>[<span class="number">6</span>];
+        <span class="self">self</span>.<span class="ident">grass</span> <span class="op">=</span> <span class="ident">Fill::Color</span>(<span class="ident">colors</span>[<span class="number">7</span>]);
+        <span class="self">self</span>.<span class="ident">water</span> <span class="op">=</span> <span class="ident">Fill::Color</span>(<span class="ident">colors</span>[<span class="number">8</span>]);
 
         <span class="prelude-val">Ok</span>(())
     }

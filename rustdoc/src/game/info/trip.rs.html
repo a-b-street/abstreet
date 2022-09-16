@@ -998,6 +998,7 @@
 <span id="992">992</span>
 <span id="993">993</span>
 <span id="994">994</span>
+<span id="995">995</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
 
 <span class="kw">use</span> <span class="ident">maplit::btreemap</span>;
@@ -1670,12 +1671,13 @@
             ));
             <span class="ident">d</span>
         };
-        <span class="comment">// TODO Problems when this is really low?</span>
         <span class="kw">let</span> <span class="ident">percent_duration</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">total_duration_so_far</span> <span class="op">==</span> <span class="ident">Duration::ZERO</span> {
             <span class="number">0.0</span>
         } <span class="kw">else</span> {
             <span class="ident">phase_duration</span> <span class="op">/</span> <span class="ident">total_duration_so_far</span>
         };
+        <span class="comment">// Don&#39;t crash when this is too low</span>
+        <span class="kw">let</span> <span class="ident">percent_duration</span> <span class="op">=</span> <span class="ident">percent_duration</span>.<span class="ident">max</span>(<span class="number">0.01</span>);
         <span class="ident">tooltip</span>.<span class="ident">push</span>(<span class="macro">format!</span>(
             <span class="string">&quot;  {}% of trip percentage&quot;</span>,
             (<span class="number">100.0</span> <span class="op">*</span> <span class="ident">percent_duration</span>) <span class="kw">as</span> <span class="ident">usize</span>

@@ -67,8 +67,6 @@
 <span id="61">61</span>
 <span id="62">62</span>
 <span id="63">63</span>
-<span id="64">64</span>
-<span id="65">65</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Pt2D</span>, <span class="ident">Tessellation</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Area</span>, <span class="ident">AreaID</span>, <span class="ident">AreaType</span>, <span class="ident">Map</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">Fill</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">Text</span>};
@@ -111,8 +109,6 @@
             <span class="ident">AreaType::Park</span> =&gt; <span class="ident">cs</span>.<span class="ident">grass</span>.<span class="ident">clone</span>(),
             <span class="ident">AreaType::Water</span> =&gt; <span class="ident">cs</span>.<span class="ident">water</span>.<span class="ident">clone</span>(),
             <span class="ident">AreaType::Island</span> =&gt; <span class="ident">cs</span>.<span class="ident">map_background</span>.<span class="ident">clone</span>(),
-            <span class="ident">AreaType::MedianStrip</span> =&gt; <span class="ident">cs</span>.<span class="ident">median_strip</span>.<span class="ident">clone</span>(),
-            <span class="ident">AreaType::PedestrianPlaza</span> =&gt; <span class="ident">cs</span>.<span class="ident">pedestrian_plaza</span>.<span class="ident">clone</span>(),
             <span class="ident">AreaType::StudyArea</span> =&gt; <span class="ident">cs</span>.<span class="ident">study_area</span>.<span class="ident">clone</span>(),
         }
     }

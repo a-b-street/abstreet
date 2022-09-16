@@ -581,6 +581,23 @@
 <span id="575">575</span>
 <span id="576">576</span>
 <span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 
 <span class="kw">use</span> <span class="ident">lyon::geom</span>::{<span class="ident">CubicBezierSegment</span>, <span class="ident">Point</span>, <span class="ident">QuadraticBezierSegment</span>};
@@ -633,7 +650,7 @@
                 <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">is_sidewalk</span>() {
                     <span class="ident">batch</span>.<span class="ident">extend</span>(<span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">sidewalk_lines</span>, <span class="ident">calculate_sidewalk_lines</span>(<span class="ident">lane</span>));
                 }
-                <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">road_outlines</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">road</span>.<span class="ident">is_footway</span>() {
+                <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">road_outlines</span> {
                     <span class="comment">// Create a sense of depth at the curb</span>
                     <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">0.2</span>);
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">shift</span> <span class="op">=</span> (<span class="ident">lane</span>.<span class="ident">width</span> <span class="op">-</span> <span class="ident">width</span>) <span class="op">/</span> <span class="number">2.0</span>;
@@ -756,6 +773,23 @@
             }
             <span class="ident">LaneType::Buffer</span>(<span class="ident">style</span>) =&gt; {
                 <span class="ident">calculate_buffer_markings</span>(<span class="ident">app</span>, <span class="ident">style</span>, <span class="ident">lane</span>, <span class="kw-2">&amp;mut</span> <span class="ident">batch</span>);
+            }
+            <span class="ident">LaneType::Footway</span> <span class="op">|</span> <span class="ident">LaneType::SharedUse</span> =&gt; {
+                <span class="comment">// Dashed lines on both sides</span>
+                <span class="kw">for</span> <span class="ident">dir</span> <span class="kw">in</span> [<span class="op">-</span><span class="number">1.0</span>, <span class="number">1.0</span>] {
+                    <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="ident">lane</span>
+                        .<span class="ident">lane_center_pts</span>
+                        .<span class="ident">shift_either_direction</span>(<span class="ident">dir</span> <span class="op">*</span> <span class="ident">lane</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>)
+                        .<span class="ident">unwrap</span>();
+                    <span class="ident">batch</span>.<span class="ident">extend</span>(
+                        <span class="ident">Color::BLACK</span>,
+                        <span class="ident">pl</span>.<span class="ident">exact_dashed_polygons</span>(
+                            <span class="ident">Distance::meters</span>(<span class="number">0.25</span>),
+                            <span class="ident">Distance::meters</span>(<span class="number">1.0</span>),
+                            <span class="ident">Distance::meters</span>(<span class="number">1.5</span>),
+                        ),
+                    );
+                }
             }
         }
 

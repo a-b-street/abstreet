@@ -677,6 +677,9 @@
 <span id="671">671</span>
 <span id="672">672</span>
 <span id="673">673</span>
+<span id="674">674</span>
+<span id="675">675</span>
+<span id="676">676</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
@@ -1101,14 +1104,17 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_footway</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">lanes</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">lanes</span>[<span class="number">0</span>].<span class="ident">lane_type</span> <span class="op">==</span> <span class="ident">LaneType::Sidewalk</span>
+        <span class="self">self</span>.<span class="ident">lanes</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span>
+            <span class="op">&amp;&amp;</span> <span class="macro">matches!</span>(
+                <span class="self">self</span>.<span class="ident">lanes</span>[<span class="number">0</span>].<span class="ident">lane_type</span>,
+                <span class="ident">LaneType::Footway</span> <span class="op">|</span> <span class="ident">LaneType::SharedUse</span>
+            )
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_service</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="ident">osm::HIGHWAY</span>, <span class="string">&quot;service&quot;</span>)
     }
 
-    <span class="comment">// TODO Shared walking/biking roads get classified as a cycleway for now</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_cycleway</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bike</span> <span class="op">=</span> <span class="bool-val">false</span>;
         <span class="kw">for</span> <span class="ident">lane</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">lanes</span> {

@@ -2024,7 +2024,7 @@
         }
         <span class="ident">LaneType::Buffer</span>(<span class="ident">BufferType::Curb</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/buffer/curb.svg&quot;</span>),
         <span class="comment">// Don&#39;t allow creating these yet</span>
-        <span class="ident">LaneType::LightRail</span> =&gt; <span class="prelude-val">None</span>,
+        <span class="ident">LaneType::LightRail</span> <span class="op">|</span> <span class="ident">LaneType::Footway</span> <span class="op">|</span> <span class="ident">LaneType::SharedUse</span> =&gt; <span class="prelude-val">None</span>,
     }
 }
 
