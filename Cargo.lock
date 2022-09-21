@@ -609,11 +609,11 @@ dependencies = [
 
 [[package]]
 name = "contour"
-version = "0.5.0"
+version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "da7807ce7a41dd08b640191a148e1745f37bcfef6ac69afabf742d9e7a4675a2"
+checksum = "c9a222f3d35d40c225e5f77e5a0d3cb5724f396340882c54cfca8b9e938e2b39"
 dependencies = [
- "geojson",
+ "geojson 0.24.0",
  "lazy_static",
  "rustc-hash",
  "serde_json",
@@ -1158,7 +1158,7 @@ dependencies = [
  "abstio",
  "abstutil",
  "contour",
- "geojson",
+ "geojson 0.24.0",
  "geom",
  "getrandom",
  "log",
@@ -1437,7 +1437,7 @@ dependencies = [
  "fs-err",
  "futures-channel",
  "geo",
- "geojson",
+ "geojson 0.24.0",
  "geom",
  "getrandom",
  "instant",
@@ -1542,6 +1542,7 @@ dependencies = [
  "approx",
  "num-traits",
  "rstar",
+ "serde",
 ]
 
 [[package]]
@@ -1567,6 +1568,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "geojson"
+version = "0.24.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ff2cc39a555a57b2a5514e223d76e23779f853840cc3c67767f77f58dc2272b7"
+dependencies = [
+ "geo-types",
+ "log",
+ "serde",
+ "serde_json",
+ "thiserror",
+]
+
+[[package]]
 name = "geom"
 version = "0.1.0"
 dependencies = [
@@ -1576,7 +1590,7 @@ dependencies = [
  "earcutr",
  "fs-err",
  "geo",
- "geojson",
+ "geojson 0.24.0",
  "histogram",
  "instant",
  "ordered-float",
@@ -1594,7 +1608,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a8850d78e5f2f803e3b201805bf41aea28eeff71bd0b56c3ff067e805d208b58"
 dependencies = [
  "geo-types",
- "geojson",
+ "geojson 0.23.0",
  "log",
  "prost-build",
  "serde_json",
@@ -1820,7 +1834,7 @@ dependencies = [
  "abstio",
  "abstutil",
  "anyhow",
- "geojson",
+ "geojson 0.24.0",
  "geom",
  "hyper",
  "lazy_static",
@@ -2036,7 +2050,7 @@ dependencies = [
  "fs-err",
  "gdal",
  "geo",
- "geojson",
+ "geojson 0.24.0",
  "geom",
  "hashbrown 0.9.1",
  "kml",
@@ -2310,7 +2324,7 @@ dependencies = [
  "flate2",
  "futures-channel",
  "geo",
- "geojson",
+ "geojson 0.24.0",
  "geom",
  "getrandom",
  "lazy_static",
@@ -2439,7 +2453,7 @@ dependencies = [
  "flate2",
  "fs-err",
  "futures-channel",
- "geojson",
+ "geojson 0.24.0",
  "geom",
  "instant",
  "lazy_static",
@@ -2467,7 +2481,7 @@ dependencies = [
  "anyhow",
  "enumset",
  "fast_paths",
- "geojson",
+ "geojson 0.24.0",
  "geom",
  "kml",
  "log",
@@ -3174,7 +3188,7 @@ dependencies = [
  "flatgeobuf",
  "futures",
  "geo",
- "geojson",
+ "geojson 0.24.0",
  "geom",
  "geozero",
  "log",
@@ -4922,7 +4936,7 @@ dependencies = [
  "fs-err",
  "futures",
  "futures-channel",
- "geojson",
+ "geojson 0.24.0",
  "geom",
  "glow",
  "glutin",
