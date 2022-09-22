@@ -220,23 +220,19 @@ impl RenderCellsBuilder {
             };
 
             let smooth = false;
-            let c = contour::ContourBuilder::new(grid.width as u32, grid.height as u32, smooth);
+            let contour_builder = contour::ContourBuilder::new(grid.width as u32, grid.height as u32, smooth);
             let thresholds = vec![1.0];
 
             let mut cell_polygons = Vec::new();
-            for feature in c.contours(&grid.data, &thresholds).unwrap() {
-                match feature.geometry.unwrap().value {
-                    geojson::Value::MultiPolygon(polygons) => {
-                        for p in polygons {
-                            if let Ok(poly) = Polygon::from_geojson(&p) {
-                                cell_polygons.push(
-                                    poly.must_scale(RESOLUTION_M)
-                                        .translate(self.bounds.min_x, self.bounds.min_y),
-                                );
-                            }
-                        }
+            for contour in contour_builder.contours(&grid.data, &thresholds).unwrap() {
+                let (polygons, _) = contour.into_inner();
+                for p in polygons {
+                    if let Ok(poly) = Polygon::try_from(p) {
+                        cell_polygons.push(
+                            poly.must_scale(RESOLUTION_M)
+                                .translate(self.bounds.min_x, self.bounds.min_y),
+                        );
                     }
-                    _ => unreachable!(),
                 }
             }
 

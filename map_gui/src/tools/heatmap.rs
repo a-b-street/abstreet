@@ -196,27 +196,18 @@ pub fn make_heatmap(
         // Skip 0; it'll cover the entire map. But have a low value to distinguish
         // nothing/something.
         thresholds[0] = 0.1;
-        let c = contour::ContourBuilder::new(grid.width as u32, grid.height as u32, false);
-        for (feature, value) in c
-            .contours(&grid.data, &thresholds)
-            .unwrap()
-            .into_iter()
-            .zip(thresholds)
-        {
-            // TODO We should technically not depend on the order of features matching the input
-            // thresholds, but extracting geojson values doesn't sound fun
-            match feature.geometry.unwrap().value {
-                geojson::Value::MultiPolygon(polygons) => {
-                    let c = gradient.eval_continuous(value / max);
-                    // Don't block the map underneath
-                    let color = Color::rgb(c.r as usize, c.g as usize, c.b as usize).alpha(0.6);
-                    for p in polygons {
-                        if let Ok(poly) = Polygon::from_geojson(&p) {
-                            batch.push(color, poly.must_scale(opts.resolution));
-                        }
-                    }
+        let contour_builder = contour::ContourBuilder::new(grid.width as u32, grid.height as u32, false);
+        for contour in contour_builder.contours(&grid.data, &thresholds).unwrap() {
+            let (geometry, threshold) = contour.into_inner();
+
+            let c = gradient.eval_continuous(threshold / max);
+            // Don't block the map underneath
+            let color = Color::rgb(c.r as usize, c.g as usize, c.b as usize).alpha(0.6);
+
+            for geo_poly in geometry {
+                if let Ok(poly) = Polygon::try_from(geo_poly) {
+                    batch.push(color, poly.must_scale(opts.resolution));
                 }
-                _ => unreachable!(),
             }
         }
     } else {
@@ -330,7 +321,7 @@ pub fn draw_isochrone(
     }
 
     let smooth = false;
-    let c = contour::ContourBuilder::new(grid.width as u32, grid.height as u32, smooth);
+    let contour_builder = contour::ContourBuilder::new(grid.width as u32, grid.height as u32, smooth);
     let mut batch = GeomBatch::new();
     // The last feature returned will be larger than the last threshold value. We don't want to
     // display that at all. zip() will omit this last pair, since colors.len() ==
@@ -338,21 +329,17 @@ pub fn draw_isochrone(
     //
     // TODO Actually, this still isn't working. I think each polygon is everything > the
     // threshold, not everything between two thresholds?
-    for (feature, color) in c
+    for (contour, color) in contour_builder
         .contours(&grid.data, thresholds)
         .unwrap()
         .into_iter()
         .zip(colors)
     {
-        match feature.geometry.unwrap().value {
-            geojson::Value::MultiPolygon(polygons) => {
-                for p in polygons {
-                    if let Ok(poly) = Polygon::from_geojson(&p) {
-                        batch.push(*color, poly.must_scale(resolution_m));
-                    }
-                }
+        let (polygons, _) = contour.into_inner();
+        for p in polygons {
+            if let Ok(poly) = Polygon::try_from(p) {
+                batch.push(*color, poly.must_scale(resolution_m));
             }
-            _ => unreachable!(),
         }
     }
 
