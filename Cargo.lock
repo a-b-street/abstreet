@@ -609,11 +609,11 @@ dependencies = [
 
 [[package]]
 name = "contour"
-version = "0.6.0"
+version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c9a222f3d35d40c225e5f77e5a0d3cb5724f396340882c54cfca8b9e938e2b39"
+checksum = "8e05707ba96d7d9102d2161a750213e8d46bf0610061923d43d72cd1ab50c70c"
 dependencies = [
- "geojson",
+ "geo-types",
  "lazy_static",
  "rustc-hash",
  "serde_json",

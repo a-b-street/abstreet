@@ -294,27 +294,23 @@ impl ElevationContours {
                 .map(|i| scale.eval((i as f64) / (thresholds.len() as f64)))
                 .collect();
             let smooth = false;
-            let c = contour::ContourBuilder::new(grid.width as u32, grid.height as u32, smooth);
-            let features = c.contours(&grid.data, &thresholds).unwrap();
+            let contour_builder = contour::ContourBuilder::new(grid.width as u32, grid.height as u32, smooth);
+            let contours = contour_builder.contours(&grid.data, &thresholds).unwrap();
             timer.stop("calculate contours");
 
-            timer.start_iter("draw", features.len());
-            for (feature, color) in features.into_iter().zip(colors) {
+            timer.start_iter("draw", contours.len());
+            for (contour, color) in contours.into_iter().zip(colors) {
                 timer.next();
-                match feature.geometry.unwrap().value {
-                    geojson::Value::MultiPolygon(polygons) => {
-                        for p in polygons {
-                            if let Ok(p) = Polygon::from_geojson(&p) {
-                                let poly = p.must_scale(resolution_m);
-                                draw.unzoomed.push(
-                                    Color::BLACK.alpha(0.5),
-                                    poly.to_outline(Distance::meters(5.0)),
-                                );
-                                draw.unzoomed.push(color.alpha(0.1), poly);
-                            }
-                        }
+                let (polygons, _) = contour.into_inner();
+                for p in polygons {
+                    if let Ok(p) = Polygon::try_from(p) {
+                        let poly = p.must_scale(resolution_m);
+                        draw.unzoomed.push(
+                            Color::BLACK.alpha(0.5),
+                            poly.to_outline(Distance::meters(5.0)),
+                        );
+                        draw.unzoomed.push(color.alpha(0.1), poly);
                     }
-                    _ => unreachable!(),
                 }
             }
         });
