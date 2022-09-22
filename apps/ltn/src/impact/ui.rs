@@ -425,7 +425,7 @@ fn export_csv(app: &App) -> Result<String> {
     {
         let mut writer = csv::Writer::from_writer(&mut out);
         for r in app.per_map.map.all_roads() {
-            writer.serialize(ExportRow::new(r, app))?
+            writer.serialize(ExportRow::new(r, app))?;
         }
         writer.flush()?;
     }
