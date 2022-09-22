@@ -45,6 +45,9 @@ abstutil = { path = "abstutil" }
 polylabel = { git = "https://github.com/urschrei/polylabel-rs", rev = "b919b8587b491b9a952a6d4c0670558bfd38e034" }
 http-range-client = { git = "https://github.com/pka/http-range-client", rev = "e62f72ab3553a19f4166f73efd18b13b4c4164ec" }
 
+# awaiting release to avoid duplicated geojson dep
+geozero = { git = "https://github.com/georust/geozero", rev = "0c3d6209eea8aa37bd42e9e784b92f2087e7efb4" }
+
 # To temporarily work on dependencies locally, uncomment this
 # TODO Do not commit. Update each repo
 #[patch."https://github.com/a-b-street/osm2streets"]

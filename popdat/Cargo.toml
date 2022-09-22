@@ -13,7 +13,7 @@ futures = "0.3.12"
 geo = "0.22.0"
 geojson = { version = "0.24.0", features = ["geo-types"] }
 geom = { path = "../geom" }
-geozero = "0.9.5"
+geozero = "0.9.6"
 log = "0.4.14"
 map_model = { path = "../map_model" }
 rand = "0.8.3"
