@@ -7,20 +7,20 @@ edition = "2021"
 [dependencies]
 abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
-anyhow = "1.0.38"
+anyhow = { workspace = true }
 ctrlc = { version = "3.1.7", optional = true }
 downcast-rs = "1.2.0"
 enum_dispatch = "0.3.5"
 geom = { path = "../geom" }
 instant = "0.1.7"
 libm = "0.2.1"
-log = "0.4.14"
+log = { workspace = true }
 map_model = { path = "../map_model" }
-rand = "0.8.3"
+rand = { workspace = true }
 rand_distr = "0.4.0"
-rand_xorshift = "0.3.0"
-serde = "1.0.123"
-structopt = "0.3.23"
+rand_xorshift = { workspace = true }
+serde = { workspace = true }
+structopt = { workspace = true }
 synthpop = { path = "../synthpop" }
 
 [[bin]]

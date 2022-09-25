@@ -7,9 +7,9 @@ edition = "2021"
 [dependencies]
 abstutil = { path = "../abstutil" }
 geom = { path = "../geom" }
-log = "0.4.14"
+log = { workspace = true }
 map_model = { path = "../map_model" }
-rand = "0.8.3"
-rand_xorshift = "0.3.0"
+rand = { workspace = true }
+rand_xorshift = { workspace = true }
 sim = { path = "../sim" }
-structopt = "0.3.23"
+structopt = { workspace = true }

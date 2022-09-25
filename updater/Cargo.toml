@@ -7,11 +7,11 @@ edition = "2021"
 [dependencies]
 abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
-anyhow = "1.0.38"
+anyhow = { workspace = true }
 flate2 = "1.0.20"
-fs-err = "2.6.0"
+fs-err = { workspace = true }
 futures-channel = { version = "0.3.12"}
 md5 = "0.7.0"
-structopt = "0.3.23"
+structopt = { workspace = true }
 tokio = { version = "1.19.2", features = ["full"] }
 walkdir = "2.3.1"

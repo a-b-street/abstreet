@@ -7,18 +7,18 @@ edition = "2021"
 [dependencies]
 aabb-quadtree = "0.1.0"
 abstutil = { path = "../abstutil" }
-anyhow = "1.0.38"
+anyhow = { workspace = true }
 earcutr = "0.1.1"
-fs-err = "2.6.0"
-geo = "0.22.0"
-geojson = { version = "0.24.0", features = ["geo-types"] }
+fs-err = { workspace = true }
+geo = { workspace = true }
+geojson = { workspace = true }
 histogram = "0.6.9"
 instant = "0.1.7"
 ordered-float = { version = "2.4.0", features=["serde"] }
 polylabel = "2.4.0"
-serde = "1.0.123"
-serde_json = "1.0.61"
+serde = { workspace = true }
+serde_json = { workspace = true }
 
 [dev-dependencies]
-rand = "0.8.3"
-rand_xorshift = "0.3.0"
+rand = { workspace = true }
+rand_xorshift = { workspace = true }

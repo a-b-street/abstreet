@@ -12,27 +12,27 @@ scenarios = ["gdal"]
 aabb-quadtree = "0.1.0"
 abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
-anyhow = "1.0.38"
+anyhow = { workspace = true }
 collisions = { path = "../collisions" }
 convert_osm = { path = "../convert_osm" }
 csv = "1.1.4"
-geo = "0.22.0"
-geojson = { version = "0.24.0", features = ["geo-types"] }
+geo = { workspace = true }
+geojson = { workspace = true }
 geom = { path = "../geom" }
 gdal = { version = "0.8.0", optional = true, features = ["bindgen"] }
 kml = { path = "../kml" }
-log = "0.4.14"
+log = { workspace = true }
 map_model = { path = "../map_model" }
 popdat = { path = "../popdat" }
 rand  = "0.8.3"
-rand_xorshift = "0.3.0"
+rand_xorshift = { workspace = true }
 raw_map = { path = "../raw_map" }
-serde = "1.0.123"
-serde_json = "1.0.61"
+serde = { workspace = true }
+serde_json = { workspace = true }
 sim = { path = "../sim" }
 street_network = { git = "https://github.com/a-b-street/osm2streets" }
 synthpop = { path = "../synthpop" }
-structopt = "0.3.23"
+structopt = { workspace = true }
 
 # These are all transitive dependencies, specified here only to enable certain
 # features. This lets this crate share dependencies with game and most of the
@@ -41,4 +41,4 @@ structopt = "0.3.23"
 hashbrown = "0.9.1"
 libc = { version = "0.2.94", features=["extra_traits"] }
 num-integer = { version = "0.1.44", features=["i128", "std"] }
-fs-err = "2.6.0"
+fs-err = { workspace = true }

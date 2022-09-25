@@ -14,16 +14,16 @@ wasm = ["getrandom/js", "map_gui/wasm", "wasm-bindgen", "widgetry/wasm-backend"]
 [dependencies]
 abstio = { path = "../../abstio" }
 abstutil = { path = "../../abstutil" }
-anyhow = "1.0.38"
+anyhow = { workspace = true }
 geom = { path = "../../geom" }
 getrandom = { version = "0.2.3", optional = true }
 kml = { path = "../../kml" }
-log = "0.4.14"
+log = { workspace = true }
 map_gui = { path = "../../map_gui" }
 map_model = { path = "../../map_model" }
-rand = "0.8.3"
-rand_xorshift = "0.3.0"
+rand = { workspace = true }
+rand_xorshift = { workspace = true }
 rodio = { version = "0.14.0", default-features = false, features = ["vorbis"] }
-serde = "1.0.123"
+serde = { workspace = true }
 wasm-bindgen = { version = "0.2.70", optional = true }
 widgetry = { path = "../../widgetry" }

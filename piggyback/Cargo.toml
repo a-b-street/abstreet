@@ -16,7 +16,7 @@ abstutil = { path = "../abstutil" }
 geom = { path = "../geom" }
 getrandom = { version = "0.2.3", optional = true }
 js-sys = { version = "0.3.51", optional = true }
-log = "0.4.14"
+log = { workspace = true }
 map_gui= { path = "../map_gui" }
 map_model = { path = "../map_model" }
 sim = { path = "../sim" }

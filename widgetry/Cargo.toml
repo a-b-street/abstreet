@@ -12,16 +12,16 @@ wasm-backend = ["instant/wasm-bindgen", "js-sys", "usvg/text", "wasm-bindgen", "
 aabb-quadtree = "0.1.0"
 abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
-anyhow = "1.0.38"
+anyhow = { workspace = true }
 # backtrace = "0.3.40"
 clipboard = { version = "0.5.0", optional = true }
 colorous = "1.0.3"
 downcast-rs = "1.2.0"
 flate2 = "1.0.20"
-fs-err = "2.6.0"
+fs-err = { workspace = true }
 futures = { version = "0.3.12" }
 futures-channel = { version = "0.3.12"}
-geojson = { version = "0.24.0", features = ["geo-types"] }
+geojson = { workspace = true }
 geom = { path = "../geom" }
 glow = "0.11.2"
 glutin = { git = "https://github.com/rust-windowing/glutin", optional = true }
@@ -29,11 +29,11 @@ htmlescape = "0.3.1"
 image = { version = "0.24.3", default-features = false, features=["png"] }
 instant = "0.1.7"
 js-sys = { version = "0.3.47", optional = true }
-log = "0.4.14"
+log = { workspace = true }
 lru = "0.7.1"
 lyon = "1.0.0"
-serde = "1.0.123"
-serde_json = "1.0.61"
+serde = { workspace = true }
+serde_json = { workspace = true }
 taffy = "0.1.0"
 tokio = { version ="1.19.2", features=["full"], optional = true }
 ttf-parser = "0.15.0"

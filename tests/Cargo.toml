@@ -7,11 +7,11 @@ edition = "2021"
 [dependencies]
 abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
-anyhow = "1.0.38"
+anyhow = { workspace = true }
 convert_osm = { path = "../convert_osm" }
-fs-err = "2.6.0"
+fs-err = { workspace = true }
 geom = { path = "../geom" }
 map_model = { path = "../map_model" }
-rand = "0.8.3"
+rand = { workspace = true }
 sim = { path = "../sim" }
 synthpop = { path = "../synthpop" }

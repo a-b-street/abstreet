@@ -15,13 +15,13 @@ wasm = ["getrandom/js", "wasm-bindgen", "widgetry/wasm-backend"]
 aabb-quadtree = "0.1.0"
 abstio = { path = "../../abstio" }
 abstutil = { path = "../../abstutil" }
-fs-err = "2.6.0"
+fs-err = { workspace = true }
 geom = { path = "../../geom" }
 getrandom = { version = "0.2.3", optional = true }
-log = "0.4.14"
+log = { workspace = true }
 raw_map = { path = "../../raw_map" }
-serde = "1.0.123"
+serde = { workspace = true }
 street_network = { git = "https://github.com/a-b-street/osm2streets" }
-structopt = "0.3.23"
+structopt = { workspace = true }
 wasm-bindgen = { version = "0.2.70", optional = true }
 widgetry = { path = "../../widgetry" }

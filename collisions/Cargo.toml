@@ -7,5 +7,5 @@ edition = "2021"
 [dependencies]
 geom = { path = "../geom" }
 kml = { path = "../kml" }
-log = "0.4.14"
-serde = "1.0.123"
+log = { workspace = true }
+serde = { workspace = true }

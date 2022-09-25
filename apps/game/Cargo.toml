@@ -18,36 +18,36 @@ wasm = ["getrandom/js", "map_gui/wasm", "wasm-bindgen", "widgetry/wasm-backend"]
 aabb-quadtree = "0.1.0"
 abstio = { path = "../../abstio" }
 abstutil = { path = "../../abstutil" }
-anyhow = "1.0.38"
+anyhow = { workspace = true }
 collisions = { path = "../../collisions" }
 colorous = "1.0.3"
-contour = "0.6.0"
+contour = { workspace = true }
 csv = "1.1.4"
 downcast-rs = "1.2.0"
 enumset = "1.0.3"
-fs-err = "2.6.0"
+fs-err = { workspace = true }
 futures-channel = { version = "0.3.12"}
-geo = "0.22.0"
-geojson = { version = "0.24.0", features = ["geo-types"] }
+geo = { workspace = true }
+geojson = { workspace = true }
 geom = { path = "../../geom" }
 getrandom = { version = "0.2.3", optional = true }
 instant = "0.1.7"
 kml = { path = "../../kml" }
 lazy_static = "1.4.0"
-log = "0.4.14"
+log = { workspace = true }
 lttb = "0.2.0"
 maplit = "1.0.2"
 map_gui = { path = "../../map_gui" }
 map_model = { path = "../../map_model" }
 petname = "1.1.0"
 popdat = { path = "../../popdat" }
-rand = "0.8.3"
-rand_xorshift = "0.3.0"
-serde = "1.0.123"
-serde_json = "1.0.61"
+rand = { workspace = true }
+rand_xorshift = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
 svg_face = "0.1.3"
 sim = { path = "../../sim" }
 synthpop = { path = "../../synthpop" }
-structopt = "0.3.23"
+structopt = { workspace = true }
 wasm-bindgen = { version = "0.2.70", optional = true }
 widgetry = { path = "../../widgetry" }

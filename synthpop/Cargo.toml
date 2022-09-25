@@ -6,10 +6,10 @@ edition = "2021"
 [dependencies]
 abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
-anyhow = "1.0.38"
+anyhow = { workspace = true }
 geom = { path = "../geom" }
-log = "0.4.14"
+log = { workspace = true }
 map_model = { path = "../map_model" }
 rand = "0.8.5"
-rand_xorshift = "0.3.0"
-serde = "1.0.123"
+rand_xorshift = { workspace = true }
+serde = { workspace = true }

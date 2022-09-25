@@ -7,13 +7,13 @@ edition = "2021"
 [dependencies]
 abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
-anyhow = "1.0.38"
+anyhow = { workspace = true }
 csv = "1.1.4"
-fs-err = "2.6.0"
+fs-err = { workspace = true }
 geom = { path = "../geom" }
 kml = { path = "../kml" }
 import_streets = { git = "https://github.com/a-b-street/osm2streets" }
-log = "0.4.14"
+log = { workspace = true }
 raw_map = { path = "../raw_map" }
-serde = "1.0.123"
+serde = { workspace = true }
 street_network = { git = "https://github.com/a-b-street/osm2streets" }
