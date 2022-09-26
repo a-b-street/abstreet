@@ -465,14 +465,6 @@
 <span id="465">465</span>
 <span id="466">466</span>
 <span id="467">467</span>
-<span id="468">468</span>
-<span id="469">469</span>
-<span id="470">470</span>
-<span id="471">471</span>
-<span id="472">472</span>
-<span id="473">473</span>
-<span id="474">474</span>
-<span id="475">475</span>
 </pre><pre class="rust"><code><span class="kw">mod</span> <span class="ident">filters</span>;
 <span class="kw">mod</span> <span class="ident">freehand_filters</span>;
 <span class="kw">mod</span> <span class="ident">one_ways</span>;
@@ -882,7 +874,7 @@
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
         <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="string">&quot;Warning&quot;</span>).<span class="ident">small_heading</span>());
-        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;A regular modal filter would impact bus routes here.&quot;</span>);
+        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;A regular modal filter would block bus routes here.&quot;</span>);
         <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;A bus gate uses signage and camera enforcement to only allow buses&quot;</span>);
         <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;&quot;</span>);
         <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;The following bus routes cross this road:&quot;</span>);
@@ -900,13 +892,10 @@
             <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                 <span class="comment">// TODO Just have pictures?</span>
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_solid</span>
-                    .<span class="ident">text</span>(<span class="string">&quot;Place a regular modal filter here&quot;</span>)
-                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_solid_primary</span>
                     .<span class="ident">text</span>(<span class="string">&quot;Place bus gates&quot;</span>)
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid</span>.<span class="ident">text</span>(<span class="string">&quot;Cancel&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             ]),
         ]))
         .<span class="ident">build</span>(<span class="ident">ctx</span>);
@@ -918,21 +907,16 @@
 <span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ResolveBusGate</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">edits</span>.<span class="ident">before_edit</span>();
-            <span class="kw">let</span> <span class="ident">filter_type</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;Place bus gates&quot;</span> {
-                <span class="ident">FilterType::BusGate</span>
-            } <span class="kw">else</span> {
-                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">filter_type</span>
-            };
-
-            <span class="kw">for</span> (<span class="ident">r</span>, <span class="ident">dist</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">drain</span>(..) {
-                <span class="ident">app</span>.<span class="ident">per_map</span>
-                    .<span class="ident">edits</span>
-                    .<span class="ident">roads</span>
-                    .<span class="ident">insert</span>(<span class="ident">r</span>, <span class="ident">RoadFilter::new_by_user</span>(<span class="ident">dist</span>, <span class="ident">filter_type</span>));
+            <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;Place bus gates&quot;</span> {
+                <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">edits</span>.<span class="ident">before_edit</span>();
+                <span class="kw">for</span> (<span class="ident">r</span>, <span class="ident">dist</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">drain</span>(..) {
+                    <span class="ident">app</span>.<span class="ident">per_map</span>
+                        .<span class="ident">edits</span>
+                        .<span class="ident">roads</span>
+                        .<span class="ident">insert</span>(<span class="ident">r</span>, <span class="ident">RoadFilter::new_by_user</span>(<span class="ident">dist</span>, <span class="ident">FilterType::BusGate</span>));
+                }
+                <span class="ident">after_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
             }
-
-            <span class="ident">after_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
 
             <span class="kw">return</span> <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[<span class="ident">Transition::Pop</span>, <span class="ident">Transition::Recreate</span>]);
         }
