@@ -407,7 +407,7 @@ impl ResolveBusGate {
 
         let mut txt = Text::new();
         txt.add_line(Line("Warning").small_heading());
-        txt.add_line("A regular modal filter would impact bus routes here.");
+        txt.add_line("A regular modal filter would block bus routes here.");
         txt.add_line("A bus gate uses signage and camera enforcement to only allow buses");
         txt.add_line("");
         txt.add_line("The following bus routes cross this road:");
@@ -425,13 +425,10 @@ impl ResolveBusGate {
             Widget::row(vec![
                 // TODO Just have pictures?
                 ctx.style()
-                    .btn_solid
-                    .text("Place a regular modal filter here")
-                    .build_def(ctx),
-                ctx.style()
                     .btn_solid_primary
                     .text("Place bus gates")
                     .build_def(ctx),
+                ctx.style().btn_solid.text("Cancel").build_def(ctx),
             ]),
         ]))
         .build(ctx);
@@ -443,21 +440,16 @@ impl ResolveBusGate {
 impl State<App> for ResolveBusGate {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         if let Outcome::Clicked(x) = self.panel.event(ctx) {
-            app.per_map.edits.before_edit();
-            let filter_type = if x == "Place bus gates" {
-                FilterType::BusGate
-            } else {
-                app.session.filter_type
-            };
-
-            for (r, dist) in self.roads.drain(..) {
-                app.per_map
-                    .edits
-                    .roads
-                    .insert(r, RoadFilter::new_by_user(dist, filter_type));
+            if x == "Place bus gates" {
+                app.per_map.edits.before_edit();
+                for (r, dist) in self.roads.drain(..) {
+                    app.per_map
+                        .edits
+                        .roads
+                        .insert(r, RoadFilter::new_by_user(dist, FilterType::BusGate));
+                }
+                after_edit(ctx, app);
             }
-
-            after_edit(ctx, app);
 
             return Transition::Multi(vec![Transition::Pop, Transition::Recreate]);
         }
