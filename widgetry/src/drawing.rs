@@ -256,7 +256,7 @@ pub struct Prerender {
     pub(crate) inner: PrerenderInnards,
     pub(crate) assets: Assets,
     pub(crate) num_uploads: Cell<usize>,
-    pub(crate) scale_factor: f64,
+    pub(crate) scale_factor: Cell<f64>,
 }
 
 impl Prerender {
@@ -283,8 +283,8 @@ impl Prerender {
         self.inner.request_redraw()
     }
 
-    pub(crate) fn get_scale_factor(&self) -> f64 {
-        self.scale_factor
+    pub fn get_scale_factor(&self) -> f64 {
+        self.scale_factor.get()
     }
 
     pub(crate) fn window_size(&self) -> ScreenDims {

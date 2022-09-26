@@ -328,7 +328,7 @@ pub fn run<
     style.loading_tips = settings.loading_tips.unwrap_or_else(Text::new);
 
     let monitor_scale_factor = prerender_innards.monitor_scale_factor();
-    let mut prerender = Prerender {
+    let prerender = Prerender {
         assets: Assets::new(
             style.clone(),
             settings.assets_base_url,
@@ -337,7 +337,7 @@ pub fn run<
         ),
         num_uploads: Cell::new(0),
         inner: prerender_innards,
-        scale_factor: settings.scale_factor.unwrap_or(monitor_scale_factor),
+        scale_factor: Cell::new(settings.scale_factor.unwrap_or(monitor_scale_factor)),
     };
     if let Some(min_width) = settings.require_minimum_width {
         let initial_size = prerender.window_size();
@@ -347,7 +347,7 @@ pub fn run<
                  {}. Overriding the scale factor to 1.",
                 monitor_scale_factor, initial_size.width, min_width
             );
-            prerender.scale_factor = 1.0;
+            prerender.scale_factor.set(1.0);
         }
     }
 

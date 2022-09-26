@@ -210,7 +210,7 @@ impl RenderOnly {
             ),
             num_uploads: Cell::new(0),
             inner: prerender_innards,
-            scale_factor: settings.scale_factor.unwrap_or(1.0),
+            scale_factor: Cell::new(settings.scale_factor.unwrap_or(1.0)),
         };
         let canvas = Canvas::new(initial_size, settings.canvas_settings);
 

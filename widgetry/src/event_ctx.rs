@@ -227,6 +227,15 @@ impl<'a> EventCtx<'a> {
     pub fn show_cursor(&self) {
         self.prerender.inner.set_cursor_visible(true);
     }
+
+    /// The app will need to recreate its panels for this to take effect
+    pub fn set_scale_factor(&mut self, scale_factor: f64) {
+        self.prerender.scale_factor.set(scale_factor);
+        let new_size = self.prerender.window_size();
+        self.prerender.window_resized(new_size);
+        self.canvas.window_width = new_size.width;
+        self.canvas.window_height = new_size.height;
+    }
 }
 
 struct LoadingScreen<'a> {

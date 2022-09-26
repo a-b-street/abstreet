@@ -3,8 +3,8 @@ use map_gui::colors::ColorScheme;
 use widgetry::tools::ColorLegend;
 use widgetry::{
     ButtonBuilder, Color, ControlState, EdgeInsets, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Image, Key, Line, Outcome, Panel, TextExt, Toggle, VerticalAlignment,
-    Widget,
+    HorizontalAlignment, Image, Key, Line, Outcome, Panel, RoundedF64, Spinner, TextExt, Toggle,
+    VerticalAlignment, Widget,
 };
 
 use crate::components::Mode;
@@ -58,10 +58,18 @@ impl Layers {
                 self.update_panel(ctx, cs);
                 return Some(Transition::Keep);
             }
-            Outcome::Changed(_) => {
-                self.show_bus_routes = self.panel.is_checked("show bus routes");
+            Outcome::Changed(x) => {
+                if x == "show bus routes" {
+                    self.show_bus_routes = self.panel.is_checked("show bus routes");
+                    self.update_panel(ctx, cs);
+                    return Some(Transition::Keep);
+                }
+
+                ctx.set_scale_factor(self.panel.spinner::<RoundedF64>("scale_factor").0);
+                // TODO This doesn't seem to do mark_covered_area correctly, so using the scroll
+                // wheel on the spinner just scrolls the canvas
                 self.update_panel(ctx, cs);
-                return Some(Transition::Keep);
+                return Some(Transition::Recreate);
             }
             _ => {}
         }
@@ -137,6 +145,16 @@ impl Layers {
                     checkbox
                 }
             },
+            Widget::row(vec![
+                "Adjust the size of text:".text_widget(ctx).centered_vert(),
+                Spinner::f64_widget(
+                    ctx,
+                    "scale_factor",
+                    (0.5, 2.5),
+                    ctx.prerender.get_scale_factor(),
+                    0.1,
+                ),
+            ]),
         ])
         .padding(16)
     }

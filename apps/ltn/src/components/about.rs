@@ -14,7 +14,7 @@ impl About {
                 ctx.style().btn_close_widget(ctx),
             ]),
             Text::from_multiline(vec![
-                Line("Created by Dustin Carlino, Cindy Huang, and Jennifer Ding"),
+                Line("Created by Dustin Carlino, Madison Wang, Cindy Huang, and Jennifer Ding"),
                 Line("with major design advice from Duncan Geere"),
                 Line("Developed at the Alan Turing Institute"),
                 Line("Data from OpenStreetMap"),
