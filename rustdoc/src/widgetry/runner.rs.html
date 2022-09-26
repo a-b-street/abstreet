@@ -815,7 +815,7 @@
     <span class="ident">style</span>.<span class="ident">loading_tips</span> <span class="op">=</span> <span class="ident">settings</span>.<span class="ident">loading_tips</span>.<span class="ident">unwrap_or_else</span>(<span class="ident">Text::new</span>);
 
     <span class="kw">let</span> <span class="ident">monitor_scale_factor</span> <span class="op">=</span> <span class="ident">prerender_innards</span>.<span class="ident">monitor_scale_factor</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">prerender</span> <span class="op">=</span> <span class="ident">Prerender</span> {
+    <span class="kw">let</span> <span class="ident">prerender</span> <span class="op">=</span> <span class="ident">Prerender</span> {
         <span class="ident">assets</span>: <span class="ident">Assets::new</span>(
             <span class="ident">style</span>.<span class="ident">clone</span>(),
             <span class="ident">settings</span>.<span class="ident">assets_base_url</span>,
@@ -824,7 +824,7 @@
         ),
         <span class="ident">num_uploads</span>: <span class="ident">Cell::new</span>(<span class="number">0</span>),
         <span class="ident">inner</span>: <span class="ident">prerender_innards</span>,
-        <span class="ident">scale_factor</span>: <span class="ident">settings</span>.<span class="ident">scale_factor</span>.<span class="ident">unwrap_or</span>(<span class="ident">monitor_scale_factor</span>),
+        <span class="ident">scale_factor</span>: <span class="ident">Cell::new</span>(<span class="ident">settings</span>.<span class="ident">scale_factor</span>.<span class="ident">unwrap_or</span>(<span class="ident">monitor_scale_factor</span>)),
     };
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">min_width</span>) <span class="op">=</span> <span class="ident">settings</span>.<span class="ident">require_minimum_width</span> {
         <span class="kw">let</span> <span class="ident">initial_size</span> <span class="op">=</span> <span class="ident">prerender</span>.<span class="ident">window_size</span>();
@@ -834,7 +834,7 @@
                  {}. Overriding the scale factor to 1.&quot;</span>,
                 <span class="ident">monitor_scale_factor</span>, <span class="ident">initial_size</span>.<span class="ident">width</span>, <span class="ident">min_width</span>
             );
-            <span class="ident">prerender</span>.<span class="ident">scale_factor</span> <span class="op">=</span> <span class="number">1.0</span>;
+            <span class="ident">prerender</span>.<span class="ident">scale_factor</span>.<span class="ident">set</span>(<span class="number">1.0</span>);
         }
     }
 

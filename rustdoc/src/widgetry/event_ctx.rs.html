@@ -308,6 +308,15 @@
 <span id="308">308</span>
 <span id="309">309</span>
 <span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::VecDeque</span>;
 
 <span class="kw">use</span> <span class="ident">instant::Instant</span>;
@@ -536,6 +545,15 @@
     }
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">show_cursor</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
         <span class="self">self</span>.<span class="ident">prerender</span>.<span class="ident">inner</span>.<span class="ident">set_cursor_visible</span>(<span class="bool-val">true</span>);
+    }
+
+    <span class="doccomment">/// The app will need to recreate its panels for this to take effect</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_scale_factor</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">scale_factor</span>: <span class="ident">f64</span>) {
+        <span class="self">self</span>.<span class="ident">prerender</span>.<span class="ident">scale_factor</span>.<span class="ident">set</span>(<span class="ident">scale_factor</span>);
+        <span class="kw">let</span> <span class="ident">new_size</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">prerender</span>.<span class="ident">window_size</span>();
+        <span class="self">self</span>.<span class="ident">prerender</span>.<span class="ident">window_resized</span>(<span class="ident">new_size</span>);
+        <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span> <span class="op">=</span> <span class="ident">new_size</span>.<span class="ident">width</span>;
+        <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">window_height</span> <span class="op">=</span> <span class="ident">new_size</span>.<span class="ident">height</span>;
     }
 }
 

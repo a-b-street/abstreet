@@ -579,7 +579,7 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">inner</span>: <span class="ident">PrerenderInnards</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">assets</span>: <span class="ident">Assets</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">num_uploads</span>: <span class="ident">Cell</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">scale_factor</span>: <span class="ident">f64</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">scale_factor</span>: <span class="ident">Cell</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Prerender</span> {
@@ -606,8 +606,8 @@
         <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">request_redraw</span>()
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">get_scale_factor</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">f64</span> {
-        <span class="self">self</span>.<span class="ident">scale_factor</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_scale_factor</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">f64</span> {
+        <span class="self">self</span>.<span class="ident">scale_factor</span>.<span class="ident">get</span>()
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">window_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ScreenDims</span> {

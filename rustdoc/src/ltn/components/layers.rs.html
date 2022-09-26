@@ -297,13 +297,31 @@
 <span id="297">297</span>
 <span id="298">298</span>
 <span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom::Polygon</span>;
 <span class="kw">use</span> <span class="ident">map_gui::colors::ColorScheme</span>;
 <span class="kw">use</span> <span class="ident">widgetry::tools::ColorLegend</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">ButtonBuilder</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
-    <span class="ident">HorizontalAlignment</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">VerticalAlignment</span>,
-    <span class="ident">Widget</span>,
+    <span class="ident">HorizontalAlignment</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RoundedF64</span>, <span class="ident">Spinner</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>,
+    <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::components::Mode</span>;
@@ -357,10 +375,18 @@
                 <span class="self">self</span>.<span class="ident">update_panel</span>(<span class="ident">ctx</span>, <span class="ident">cs</span>);
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Keep</span>);
             }
-            <span class="ident">Outcome::Changed</span>(<span class="kw">_</span>) =&gt; {
-                <span class="self">self</span>.<span class="ident">show_bus_routes</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;show bus routes&quot;</span>);
+            <span class="ident">Outcome::Changed</span>(<span class="ident">x</span>) =&gt; {
+                <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;show bus routes&quot;</span> {
+                    <span class="self">self</span>.<span class="ident">show_bus_routes</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;show bus routes&quot;</span>);
+                    <span class="self">self</span>.<span class="ident">update_panel</span>(<span class="ident">ctx</span>, <span class="ident">cs</span>);
+                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Keep</span>);
+                }
+
+                <span class="ident">ctx</span>.<span class="ident">set_scale_factor</span>(<span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">spinner</span>::<span class="op">&lt;</span><span class="ident">RoundedF64</span><span class="op">&gt;</span>(<span class="string">&quot;scale_factor&quot;</span>).<span class="number">0</span>);
+                <span class="comment">// TODO This doesn&#39;t seem to do mark_covered_area correctly, so using the scroll</span>
+                <span class="comment">// wheel on the spinner just scrolls the canvas</span>
                 <span class="self">self</span>.<span class="ident">update_panel</span>(<span class="ident">ctx</span>, <span class="ident">cs</span>);
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Keep</span>);
+                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Recreate</span>);
             }
             <span class="kw">_</span> =&gt; {}
         }
@@ -436,6 +462,16 @@
                     <span class="ident">checkbox</span>
                 }
             },
+            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+                <span class="string">&quot;Adjust the size of text:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
+                <span class="ident">Spinner::f64_widget</span>(
+                    <span class="ident">ctx</span>,
+                    <span class="string">&quot;scale_factor&quot;</span>,
+                    (<span class="number">0.5</span>, <span class="number">2.5</span>),
+                    <span class="ident">ctx</span>.<span class="ident">prerender</span>.<span class="ident">get_scale_factor</span>(),
+                    <span class="number">0.1</span>,
+                ),
+            ]),
         ])
         .<span class="ident">padding</span>(<span class="number">16</span>)
     }
