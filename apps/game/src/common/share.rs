@@ -46,15 +46,21 @@ impl ShareProposal {
             ));
 
             if cfg!(target_arch = "wasm32") {
-                col.push("Proposal uploaded! Share your browser's URL".text_widget(ctx));
+                col.push("Proposal uploaded! Share your browser's URL.".text_widget(ctx));
             } else {
-                col.push(
-                    ctx.style()
-                        .btn_plain
-                        .btn()
-                        .label_underlined_text(url.as_ref().unwrap())
-                        .build_widget(ctx, "open in browser"),
-                );
+                col.push("Proposal uploaded! Share the URL below.".text_widget(ctx));
+            }
+            col.push(
+                ctx.style()
+                    .btn_plain
+                    .btn()
+                    .label_underlined_text(url.as_ref().unwrap())
+                    .build_widget(ctx, "open in browser"),
+            );
+
+            if cfg!(target_arch = "wasm32") {
+                col.push(ctx.style().btn_plain.text("Back").build_def(ctx));
+            } else {
                 col.push(Widget::row(vec![
                     ctx.style()
                         .btn_solid_primary
