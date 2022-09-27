@@ -318,6 +318,7 @@
 <span id="318">318</span>
 <span id="319">319</span>
 <span id="320">320</span>
+<span id="321">321</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">ColorDiscrete</span>, <span class="ident">Grid</span>};
 <span class="kw">use</span> <span class="ident">map_gui::ID</span>;
@@ -614,7 +615,8 @@
                 .<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">scale</span>.<span class="ident">eval</span>((<span class="ident">i</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> (<span class="ident">thresholds</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">f64</span>)))
                 .<span class="ident">collect</span>();
             <span class="kw">let</span> <span class="ident">smooth</span> <span class="op">=</span> <span class="bool-val">false</span>;
-            <span class="kw">let</span> <span class="ident">contour_builder</span> <span class="op">=</span> <span class="ident">contour::ContourBuilder::new</span>(<span class="ident">grid</span>.<span class="ident">width</span> <span class="kw">as</span> <span class="ident">u32</span>, <span class="ident">grid</span>.<span class="ident">height</span> <span class="kw">as</span> <span class="ident">u32</span>, <span class="ident">smooth</span>);
+            <span class="kw">let</span> <span class="ident">contour_builder</span> <span class="op">=</span>
+                <span class="ident">contour::ContourBuilder::new</span>(<span class="ident">grid</span>.<span class="ident">width</span> <span class="kw">as</span> <span class="ident">u32</span>, <span class="ident">grid</span>.<span class="ident">height</span> <span class="kw">as</span> <span class="ident">u32</span>, <span class="ident">smooth</span>);
             <span class="kw">let</span> <span class="ident">contours</span> <span class="op">=</span> <span class="ident">contour_builder</span>.<span class="ident">contours</span>(<span class="kw-2">&amp;</span><span class="ident">grid</span>.<span class="ident">data</span>, <span class="kw-2">&amp;</span><span class="ident">thresholds</span>).<span class="ident">unwrap</span>();
             <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;calculate contours&quot;</span>);
 

@@ -350,6 +350,7 @@
 <span id="350">350</span>
 <span id="351">351</span>
 <span id="352">352</span>
+<span id="353">353</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">Polygon</span>};
@@ -572,7 +573,8 @@
             };
 
             <span class="kw">let</span> <span class="ident">smooth</span> <span class="op">=</span> <span class="bool-val">false</span>;
-            <span class="kw">let</span> <span class="ident">contour_builder</span> <span class="op">=</span> <span class="ident">contour::ContourBuilder::new</span>(<span class="ident">grid</span>.<span class="ident">width</span> <span class="kw">as</span> <span class="ident">u32</span>, <span class="ident">grid</span>.<span class="ident">height</span> <span class="kw">as</span> <span class="ident">u32</span>, <span class="ident">smooth</span>);
+            <span class="kw">let</span> <span class="ident">contour_builder</span> <span class="op">=</span>
+                <span class="ident">contour::ContourBuilder::new</span>(<span class="ident">grid</span>.<span class="ident">width</span> <span class="kw">as</span> <span class="ident">u32</span>, <span class="ident">grid</span>.<span class="ident">height</span> <span class="kw">as</span> <span class="ident">u32</span>, <span class="ident">smooth</span>);
             <span class="kw">let</span> <span class="ident">thresholds</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="number">1.0</span>];
 
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cell_polygons</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
