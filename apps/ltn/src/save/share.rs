@@ -6,7 +6,9 @@ use abstutil::Timer;
 use map_gui::tools::grey_out_map;
 use widgetry::tools::URLManager;
 use widgetry::tools::{open_browser, FutureLoader, PopupMsg};
-use widgetry::{EventCtx, GfxCtx, Key, Line, Panel, SimpleState, State, Text, TextExt, Widget};
+use widgetry::{
+    DrawBaselayer, EventCtx, GfxCtx, Key, Line, Panel, SimpleState, State, Text, TextExt, Widget,
+};
 
 use super::Proposal;
 use crate::{App, Transition};
@@ -170,6 +172,10 @@ impl SimpleState<App> for ShareProposal {
             }
             _ => unreachable!(),
         }
+    }
+
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::PreviousState
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {

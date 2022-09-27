@@ -3,7 +3,7 @@ use widgetry::tools::ChooseSomething;
 use widgetry::tools::PopupMsg;
 use widgetry::{
     lctrl, Choice, Color, CornerRounding, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Panel, PanelDims, Toggle, VerticalAlignment, Widget,
+    Outcome, Panel, PanelDims, VerticalAlignment, Widget,
 };
 
 use crate::components::Mode;
@@ -74,16 +74,19 @@ impl AppwidePanel {
             };
         }
 
-        match self.left_panel.event(ctx) {
-            Outcome::Clicked(x) => {
-                crate::save::AltProposals::handle_action(ctx, app, preserve_state, &x)
-            }
-            Outcome::Changed(_) => {
-                app.session.manage_proposals = self.left_panel.is_checked("Manage proposals");
+        if let Outcome::Clicked(x) = self.left_panel.event(ctx) {
+            return if x == "show panel" {
+                app.session.manage_proposals = true;
                 Some(Transition::Recreate)
-            }
-            _ => None,
+            } else if x == "hide panel" {
+                app.session.manage_proposals = false;
+                Some(Transition::Recreate)
+            } else {
+                crate::save::AltProposals::handle_action(ctx, app, preserve_state, &x)
+            };
         }
+
+        None
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
@@ -217,16 +220,29 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App, mode: Mode) -> Panel {
 }
 
 fn make_left_panel(ctx: &mut EventCtx, app: &App, top_panel: &Panel, mode: Mode) -> Panel {
-    let mut col = vec![Toggle::checkbox(
-        ctx,
-        "Manage proposals",
-        None,
-        app.session.manage_proposals,
-    )];
+    let mut col = Vec::new();
 
     // Switching proposals in some modes is too complex to implement, so don't allow it
     if app.session.manage_proposals && mode != Mode::Impact && mode != Mode::SelectBoundary {
-        col.push(app.per_map.alt_proposals.to_widget(ctx, app));
+        col.push(
+            ctx.style()
+                .btn_plain
+                .icon("system/assets/tools/collapse_panel.svg")
+                .build_widget(ctx, "hide panel")
+                .align_right(),
+        );
+        col.push(app.per_map.alt_proposals.to_widget_expanded(ctx, app));
+    } else {
+        col.push(
+            ctx.style()
+                .btn_plain
+                .icon("system/assets/tools/expand_panel.svg")
+                .build_widget(ctx, "show panel")
+                .align_right(),
+        );
+        if mode != Mode::Impact && mode != Mode::SelectBoundary {
+            col.push(app.per_map.alt_proposals.to_widget_collapsed(ctx));
+        }
     }
 
     let top_height = top_panel.panel_dims().height;
