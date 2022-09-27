@@ -220,7 +220,8 @@ impl RenderCellsBuilder {
             };
 
             let smooth = false;
-            let contour_builder = contour::ContourBuilder::new(grid.width as u32, grid.height as u32, smooth);
+            let contour_builder =
+                contour::ContourBuilder::new(grid.width as u32, grid.height as u32, smooth);
             let thresholds = vec![1.0];
 
             let mut cell_polygons = Vec::new();

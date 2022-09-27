@@ -196,7 +196,8 @@ pub fn make_heatmap(
         // Skip 0; it'll cover the entire map. But have a low value to distinguish
         // nothing/something.
         thresholds[0] = 0.1;
-        let contour_builder = contour::ContourBuilder::new(grid.width as u32, grid.height as u32, false);
+        let contour_builder =
+            contour::ContourBuilder::new(grid.width as u32, grid.height as u32, false);
         for contour in contour_builder.contours(&grid.data, &thresholds).unwrap() {
             let (geometry, threshold) = contour.into_inner();
 
@@ -321,7 +322,8 @@ pub fn draw_isochrone(
     }
 
     let smooth = false;
-    let contour_builder = contour::ContourBuilder::new(grid.width as u32, grid.height as u32, smooth);
+    let contour_builder =
+        contour::ContourBuilder::new(grid.width as u32, grid.height as u32, smooth);
     let mut batch = GeomBatch::new();
     // The last feature returned will be larger than the last threshold value. We don't want to
     // display that at all. zip() will omit this last pair, since colors.len() ==

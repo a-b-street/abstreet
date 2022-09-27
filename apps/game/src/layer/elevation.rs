@@ -294,7 +294,8 @@ impl ElevationContours {
                 .map(|i| scale.eval((i as f64) / (thresholds.len() as f64)))
                 .collect();
             let smooth = false;
-            let contour_builder = contour::ContourBuilder::new(grid.width as u32, grid.height as u32, smooth);
+            let contour_builder =
+                contour::ContourBuilder::new(grid.width as u32, grid.height as u32, smooth);
             let contours = contour_builder.contours(&grid.data, &thresholds).unwrap();
             timer.stop("calculate contours");
 
