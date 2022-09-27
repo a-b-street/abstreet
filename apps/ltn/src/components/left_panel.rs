@@ -4,11 +4,11 @@ use widgetry::{
     VerticalAlignment, Widget,
 };
 
+// TODO Not sure what this'll become
 pub struct LeftPanel;
 
 impl LeftPanel {
-    pub fn builder(ctx: &EventCtx, top_panel: &Panel, contents: Widget) -> PanelBuilder {
-        let top_height = top_panel.panel_dims().height;
+    pub fn builder(ctx: &EventCtx, file_panel: &Panel, contents: Widget) -> PanelBuilder {
         Panel::new_builder(
             contents.corner_rounding(CornerRounding::CornerRadii(CornerRadii {
                 top_left: 0.0,
@@ -18,11 +18,8 @@ impl LeftPanel {
             })),
         )
         .aligned(
-            HorizontalAlignment::Percent(0.0),
-            VerticalAlignment::Below(top_height),
+            HorizontalAlignment::RightOf(file_panel.panel_dims().width),
+            VerticalAlignment::Center,
         )
-        .dims_height(PanelDims::ExactPixels(
-            ctx.canvas.window_height - top_height,
-        ))
     }
 }
