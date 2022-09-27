@@ -12,8 +12,8 @@ use street_network::{Direction, LaneSpec};
 use widgetry::mapspace::{ObjectID, World};
 use widgetry::tools::{PolyLineLasso, PopupMsg};
 use widgetry::{
-    lctrl, Color, ControlState, DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel,
-    PanelBuilder, RewriteColor, State, Text, TextExt, Widget,
+    lctrl, Color, ControlState, DrawBaselayer, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
+    Outcome, Panel, RewriteColor, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::components::AppwidePanel;
@@ -79,54 +79,61 @@ impl EditNeighbourhood {
     }
 
     // TODO Only one caller now, consider collapsing
-    pub fn panel_builder(
+    pub fn make_panel(
         &self,
         ctx: &mut EventCtx,
         app: &App,
         appwide_panel: &AppwidePanel,
         per_tab_contents: Widget,
-    ) -> PanelBuilder {
-        let contents = Widget::col(vec![
-            Line("Editing area").small_heading().into_widget(ctx),
+    ) -> Panel {
+        let row = Widget::row(vec![
             if app.per_map.consultation.is_none() {
                 ctx.style()
                     .btn_outline
                     .text("Adjust boundary")
                     .hotkey(Key::B)
                     .build_def(ctx)
+                    .centered_vert()
+                // TODO Vertical sep
             } else {
                 Widget::nothing()
             },
+            edit_mode(ctx, app),
+            match app.session.edit_mode {
+                EditMode::Filters => filters::widget(ctx),
+                EditMode::FreehandFilters(_) => freehand_filters::widget(ctx),
+                EditMode::Oneways => one_ways::widget(ctx),
+                EditMode::Shortcuts(ref focus) => shortcuts::widget(ctx, app, focus.as_ref()),
+            }
+            .named("edit mode contents"),
+            ctx.style()
+                .btn_plain
+                .icon("system/assets/tools/undo.svg")
+                .disabled(app.per_map.edits.previous_version.is_none())
+                .hotkey(lctrl(Key::Z))
+                .build_widget(ctx, "undo"),
             Widget::col(vec![
-                edit_mode(ctx, app),
-                match app.session.edit_mode {
-                    EditMode::Filters => filters::widget(ctx),
-                    EditMode::FreehandFilters(_) => freehand_filters::widget(ctx),
-                    EditMode::Oneways => one_ways::widget(ctx),
-                    EditMode::Shortcuts(ref focus) => shortcuts::widget(ctx, app, focus.as_ref()),
-                }
-                .named("edit mode contents"),
-            ])
-            .section(ctx),
-            Widget::row(vec![
-                ctx.style()
-                    .btn_plain
-                    .icon("system/assets/tools/undo.svg")
-                    .disabled(app.per_map.edits.previous_version.is_none())
-                    .hotkey(lctrl(Key::Z))
-                    .build_widget(ctx, "undo"),
                 // TODO Only count new filters, not existing
                 format!(
-                    "{} filters added, {} road directions changed",
-                    app.per_map.edits.roads.len() + app.per_map.edits.intersections.len(),
+                    "{} filters added",
+                    app.per_map.edits.roads.len() + app.per_map.edits.intersections.len()
+                )
+                .text_widget(ctx),
+                format!(
+                    "{} road directions changed",
                     app.per_map.edits.one_ways.len()
                 )
-                .text_widget(ctx)
-                .centered_vert(),
+                .text_widget(ctx),
             ]),
             per_tab_contents,
         ]);
-        crate::components::LeftPanel::appwide_builder(ctx, appwide_panel, contents)
+
+        Panel::new_builder(row)
+            .aligned(
+                HorizontalAlignment::RightOf(appwide_panel.left_panel.panel_dims().width),
+                VerticalAlignment::Bottom,
+            )
+            .build(ctx)
     }
 
     pub fn event(

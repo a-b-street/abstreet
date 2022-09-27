@@ -15,7 +15,7 @@ use crate::{colors, is_private, App, Neighbourhood, NeighbourhoodID, Transition}
 
 pub struct DesignLTN {
     appwide_panel: AppwidePanel,
-    left_panel: Panel,
+    bottom_panel: Panel,
     neighbourhood: Neighbourhood,
     draw_top_layer: Drawable,
     draw_under_roads_layer: Drawable,
@@ -39,7 +39,7 @@ impl DesignLTN {
 
         let mut state = Self {
             appwide_panel: AppwidePanel::new(ctx, app, Mode::ModifyNeighbourhood),
-            left_panel: Panel::empty(ctx),
+            bottom_panel: Panel::empty(ctx),
             neighbourhood,
             draw_top_layer: Drawable::empty(ctx),
             draw_under_roads_layer: Drawable::empty(ctx),
@@ -92,25 +92,22 @@ impl DesignLTN {
         };
         self.show_error = ctx.upload(show_error);
 
-        self.left_panel = self
-            .edit
-            .panel_builder(
-                ctx,
-                app,
-                &self.appwide_panel,
-                Widget::col(vec![
-                    format!(
-                        "Neighbourhood area: {}",
-                        app.per_map
-                            .partitioning
-                            .neighbourhood_area_km2(self.neighbourhood.id)
-                    )
-                    .text_widget(ctx),
-                    warning,
-                    advanced_panel(ctx, app),
-                ]),
-            )
-            .build(ctx);
+        self.bottom_panel = self.edit.make_panel(
+            ctx,
+            app,
+            &self.appwide_panel,
+            Widget::col(vec![
+                format!(
+                    "Area: {}",
+                    app.per_map
+                        .partitioning
+                        .neighbourhood_area_km2(self.neighbourhood.id)
+                )
+                .text_widget(ctx),
+                warning,
+                advanced_panel(ctx, app),
+            ]),
+        );
     }
 }
 
@@ -129,7 +126,7 @@ impl State<App> for DesignLTN {
         {
             return t;
         }
-        match self.left_panel.event(ctx) {
+        match self.bottom_panel.event(ctx) {
             Outcome::Clicked(x) => {
                 if x == "Automatically place filters" {
                     match ctx.loading_screen(
@@ -172,7 +169,7 @@ impl State<App> for DesignLTN {
                     app,
                     x.as_ref(),
                     &self.neighbourhood,
-                    &mut self.left_panel,
+                    &mut self.bottom_panel,
                 ) {
                     EditOutcome::Nothing => unreachable!(),
                     EditOutcome::UpdatePanelAndWorld => {
@@ -186,12 +183,12 @@ impl State<App> for DesignLTN {
             }
             Outcome::Changed(x) => match x.as_ref() {
                 "Advanced features" => {
-                    app.opts.dev = self.left_panel.is_checked("Advanced features");
+                    app.opts.dev = self.bottom_panel.is_checked("Advanced features");
                     self.update(ctx, app);
                     return Transition::Keep;
                 }
                 "heuristic" => {
-                    app.session.heuristic = self.left_panel.dropdown_value("heuristic");
+                    app.session.heuristic = self.bottom_panel.dropdown_value("heuristic");
                     return Transition::Keep;
                 }
                 _ => unreachable!(),
@@ -226,13 +223,13 @@ impl State<App> for DesignLTN {
         self.edit.world.draw(g);
 
         self.appwide_panel.draw(g);
-        self.left_panel.draw(g);
+        self.bottom_panel.draw(g);
         app.session.layers.draw(g, app);
         self.neighbourhood.labels.draw(g);
         app.per_map.draw_all_filters.draw(g);
         app.per_map.draw_poi_icons.draw(g);
 
-        if self.left_panel.currently_hovering() == Some(&"warning".to_string()) {
+        if self.bottom_panel.currently_hovering() == Some(&"warning".to_string()) {
             g.redraw(&self.show_error);
         }
 
