@@ -16,6 +16,7 @@ use widgetry::{
     PanelBuilder, RewriteColor, State, Text, TextExt, Widget,
 };
 
+use crate::components::AppwidePanel;
 use crate::{
     after_edit, colors, is_private, App, FilterType, Neighbourhood, RoadFilter, Transition,
 };
@@ -77,11 +78,12 @@ impl EditNeighbourhood {
         }
     }
 
+    // TODO Only one caller now, consider collapsing
     pub fn panel_builder(
         &self,
         ctx: &mut EventCtx,
         app: &App,
-        top_panel: &Panel,
+        appwide_panel: &AppwidePanel,
         per_tab_contents: Widget,
     ) -> PanelBuilder {
         let contents = Widget::col(vec![
@@ -124,7 +126,7 @@ impl EditNeighbourhood {
             ]),
             per_tab_contents,
         ]);
-        crate::components::LeftPanel::builder(ctx, top_panel, contents)
+        crate::components::LeftPanel::appwide_builder(ctx, appwide_panel, contents)
     }
 
     pub fn event(

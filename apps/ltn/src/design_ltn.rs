@@ -7,15 +7,14 @@ use widgetry::{
     Panel, State, TextExt, Toggle, Widget,
 };
 
-use crate::components::Mode;
+use crate::components::{AppwidePanel, Mode};
 use crate::draw_cells::RenderCells;
 use crate::edit::{EditMode, EditNeighbourhood, EditOutcome};
 use crate::filters::auto::Heuristic;
 use crate::{colors, is_private, App, Neighbourhood, NeighbourhoodID, Transition};
 
 pub struct DesignLTN {
-    top_panel: Panel,
-    file_panel: Panel,
+    appwide_panel: AppwidePanel,
     left_panel: Panel,
     neighbourhood: Neighbourhood,
     draw_top_layer: Drawable,
@@ -38,11 +37,8 @@ impl DesignLTN {
 
         let neighbourhood = Neighbourhood::new(ctx, app, id);
 
-        let top_panel = crate::components::TopPanel::panel(ctx, app, Mode::ModifyNeighbourhood);
-        let file_panel = crate::components::FilePanel::panel(ctx, app, &top_panel, Mode::ModifyNeighbourhood);
         let mut state = Self {
-            top_panel,
-            file_panel,
+            appwide_panel: AppwidePanel::new(ctx, app, Mode::ModifyNeighbourhood),
             left_panel: Panel::empty(ctx),
             neighbourhood,
             draw_top_layer: Drawable::empty(ctx),
@@ -101,7 +97,7 @@ impl DesignLTN {
             .panel_builder(
                 ctx,
                 app,
-                &self.file_panel,
+                &self.appwide_panel,
                 Widget::col(vec![
                     format!(
                         "Neighbourhood area: {}",
@@ -120,15 +116,10 @@ impl DesignLTN {
 
 impl State<App> for DesignLTN {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        // TODO Maybe we should wrap up state and just treat like one object that happens to be two
-        // panels
-        if let Some(t) = crate::components::TopPanel::event(
-            ctx,
-            app,
-            &mut self.top_panel,
-            &self.preserve_state,
-            help,
-        ) {
+        if let Some(t) = self
+            .appwide_panel
+            .event(ctx, app, &self.preserve_state, help)
+        {
             return t;
         }
         if let Some(t) = app
@@ -234,8 +225,7 @@ impl State<App> for DesignLTN {
         self.highlight_cell.draw(g);
         self.edit.world.draw(g);
 
-        self.top_panel.draw(g);
-        self.file_panel.draw(g);
+        self.appwide_panel.draw(g);
         self.left_panel.draw(g);
         app.session.layers.draw(g, app);
         self.neighbourhood.labels.draw(g);

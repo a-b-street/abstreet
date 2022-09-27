@@ -3,7 +3,7 @@ use widgetry::tools::ChooseSomething;
 use widgetry::tools::PopupMsg;
 use widgetry::{
     lctrl, Choice, Color, CornerRounding, EventCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    PanelDims, Toggle, VerticalAlignment, Widget,
+    PanelDims, VerticalAlignment, Widget,
 };
 
 use crate::components::Mode;
@@ -190,31 +190,4 @@ fn launch_impact(ctx: &mut EventCtx, app: &mut App) -> Transition {
                 ])
             }
         })))
-}
-
-pub struct FilePanel;
-
-impl FilePanel {
-    // TODO One method, return two panels
-    pub fn panel(ctx: &mut EventCtx, app: &App, top_panel: &Panel, mode: Mode) -> Panel {
-        let mut col = vec![Toggle::checkbox(ctx, "Manage proposals", None, app.session.manage_proposals)];
-
-        // Switching proposals in some modes is too complex to implement, so don't allow it
-        if app.session.manage_proposals && mode != Mode::Impact && mode != Mode::SelectBoundary {
-            col.push(app.per_map.alt_proposals.to_widget(ctx, app));
-        }
-
-        let top_height = top_panel.panel_dims().height;
-        Panel::new_builder(
-            Widget::col(col).corner_rounding(CornerRounding::CornerRadii(CornerRadii {
-                top_left: 0.0,
-                bottom_left: 0.0,
-                bottom_right: 0.0,
-                top_right: 0.0,
-            })),
-        )
-        .aligned(HorizontalAlignment::Left, VerticalAlignment::Below(top_height))
-        .dims_height(PanelDims::ExactPixels(ctx.canvas.window_height - top_height))
-        .build(ctx)
-    }
 }
