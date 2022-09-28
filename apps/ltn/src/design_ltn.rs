@@ -119,11 +119,12 @@ impl State<App> for DesignLTN {
         {
             return t;
         }
-        if let Some(t) = app
-            .session
-            .layers
-            .event(ctx, &app.cs, Mode::ModifyNeighbourhood)
-        {
+        if let Some(t) = app.session.layers.event(
+            ctx,
+            &app.cs,
+            Mode::ModifyNeighbourhood,
+            Some(&self.bottom_panel),
+        ) {
             return t;
         }
         match self.bottom_panel.event(ctx) {

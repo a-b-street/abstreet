@@ -75,10 +75,10 @@ impl AppwidePanel {
         }
 
         if let Outcome::Clicked(x) = self.left_panel.event(ctx) {
-            return if x == "show panel" {
+            return if x == "show proposals" {
                 app.session.manage_proposals = true;
                 Some(Transition::Recreate)
-            } else if x == "hide panel" {
+            } else if x == "hide proposals" {
                 app.session.manage_proposals = false;
                 Some(Transition::Recreate)
             } else {
@@ -228,7 +228,8 @@ fn make_left_panel(ctx: &mut EventCtx, app: &App, top_panel: &Panel, mode: Mode)
             ctx.style()
                 .btn_plain
                 .icon("system/assets/tools/collapse_panel.svg")
-                .build_widget(ctx, "hide panel")
+                .hotkey(Key::P)
+                .build_widget(ctx, "hide proposals")
                 .align_right(),
         );
         col.push(app.per_map.alt_proposals.to_widget_expanded(ctx, app));
@@ -237,7 +238,8 @@ fn make_left_panel(ctx: &mut EventCtx, app: &App, top_panel: &Panel, mode: Mode)
             ctx.style()
                 .btn_plain
                 .icon("system/assets/tools/expand_panel.svg")
-                .build_widget(ctx, "show panel")
+                .hotkey(Key::P)
+                .build_widget(ctx, "show proposals")
                 .align_right(),
         );
         if mode != Mode::Impact && mode != Mode::SelectBoundary {

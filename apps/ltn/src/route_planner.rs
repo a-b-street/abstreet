@@ -319,7 +319,11 @@ impl State<App> for RoutePlanner {
         ) {
             return t;
         }
-        if let Some(t) = app.session.layers.event(ctx, &app.cs, Mode::RoutePlanner) {
+        if let Some(t) = app
+            .session
+            .layers
+            .event(ctx, &app.cs, Mode::RoutePlanner, None)
+        {
             return t;
         }
 

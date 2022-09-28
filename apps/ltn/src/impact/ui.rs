@@ -122,7 +122,7 @@ impl State<App> for ShowResults {
         ) {
             return t;
         }
-        if let Some(t) = app.session.layers.event(ctx, &app.cs, Mode::Impact) {
+        if let Some(t) = app.session.layers.event(ctx, &app.cs, Mode::Impact, None) {
             return t;
         }
         match self.left_panel.event(ctx) {

@@ -75,7 +75,7 @@ impl State<App> for PickArea {
         ) {
             return t;
         }
-        if let Some(t) = app.session.layers.event(ctx, &app.cs, Mode::PickArea) {
+        if let Some(t) = app.session.layers.event(ctx, &app.cs, Mode::PickArea, None) {
             return t;
         }
         match self.left_panel.event(ctx) {

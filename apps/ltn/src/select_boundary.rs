@@ -288,7 +288,11 @@ impl State<App> for SelectBoundary {
         ) {
             return t;
         }
-        if let Some(t) = app.session.layers.event(ctx, &app.cs, Mode::SelectBoundary) {
+        if let Some(t) = app
+            .session
+            .layers
+            .event(ctx, &app.cs, Mode::SelectBoundary, None)
+        {
             return t;
         }
         if let Outcome::Clicked(x) = self.left_panel.event(ctx) {

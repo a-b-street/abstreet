@@ -87,7 +87,7 @@ fn run(mut settings: Settings) {
                 // We need app to fully initialize this
                 app.session
                     .layers
-                    .event(ctx, &app.cs, components::Mode::PickArea);
+                    .event(ctx, &app.cs, components::Mode::PickArea, None);
 
                 // Load a proposal first? Make sure to restore the partitioning from a file before
                 // calling PickArea

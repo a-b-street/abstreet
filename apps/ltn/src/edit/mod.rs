@@ -13,7 +13,7 @@ use widgetry::mapspace::{ObjectID, World};
 use widgetry::tools::{PolyLineLasso, PopupMsg};
 use widgetry::{
     lctrl, Color, ControlState, DrawBaselayer, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Panel, RewriteColor, State, Text, TextExt, VerticalAlignment, Widget,
+    Outcome, Panel, PanelDims, RewriteColor, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::components::AppwidePanel;
@@ -128,11 +128,15 @@ impl EditNeighbourhood {
             per_tab_contents,
         ]);
 
+        let left_panel_width = appwide_panel.left_panel.panel_dims().width;
         Panel::new_builder(row)
             .aligned(
-                HorizontalAlignment::RightOf(appwide_panel.left_panel.panel_dims().width),
+                HorizontalAlignment::RightOf(left_panel_width),
                 VerticalAlignment::Bottom,
             )
+            .dims_width(PanelDims::ExactPixels(
+                ctx.canvas.window_width - left_panel_width,
+            ))
             .build(ctx)
     }
 
@@ -412,7 +416,8 @@ impl ResolveBusGate {
         app: &mut App,
         roads: Vec<(RoadID, Distance)>,
     ) -> Box<dyn State<App>> {
-        app.session.layers.show_bus_routes(ctx, &app.cs);
+        // TODO This'll mess up the panel, but we don't have easy access to the panel here
+        app.session.layers.show_bus_routes(ctx, &app.cs, None);
 
         let mut txt = Text::new();
         txt.add_line(Line("Warning").small_heading());
