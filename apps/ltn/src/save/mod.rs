@@ -259,11 +259,10 @@ impl AltProposals {
         let mut col = Vec::new();
         for (action, icon) in [
             ("New", "pencil"),
-            ("Load", "load"),
+            ("Load", "folder"),
             ("Save", "save"),
             ("Share", "share"),
             ("Export GeoJSON", "export"),
-            ("Proposals", "folder"), // TODO should this one be a button?
         ] {
             col.push(
                 ctx.style()
@@ -313,11 +312,10 @@ impl AltProposals {
         let mut col = Vec::new();
         for (action, icon) in [
             ("New", "pencil"),
-            ("Load", "load"),
+            ("Load", "folder"),
             ("Save", "save"),
             ("Share", "share"),
             ("Export GeoJSON", "export"),
-            ("Proposals", "folder"), // TODO should this one be a button?
         ] {
             col.push(
                 ctx.style()
