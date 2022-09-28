@@ -10,7 +10,6 @@ use widgetry::{
 
 use crate::components::{AppwidePanel, Mode};
 use crate::edit::EditMode;
-use crate::filters::auto::Heuristic;
 use crate::{colors, App, Neighbourhood, NeighbourhoodID, Transition};
 
 pub struct PickArea {
@@ -75,49 +74,18 @@ impl State<App> for PickArea {
         if let Some(t) = app.session.layers.event(ctx, &app.cs, Mode::PickArea, None) {
             return t;
         }
-        match self.left_panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
-                "Automatically place filters" => {
-                    ctx.loading_screen("automatically filter all neighbourhoods", |ctx, timer| {
-                        timer.start_iter(
-                            "filter neighbourhood",
-                            app.per_map.partitioning.all_neighbourhoods().len(),
-                        );
-                        for id in app
-                            .per_map
-                            .partitioning
-                            .all_neighbourhoods()
-                            .keys()
-                            .cloned()
-                            .collect::<Vec<_>>()
-                        {
-                            timer.next();
-                            let neighbourhood = Neighbourhood::new(ctx, app, id);
-                            // Ignore errors
-                            let _ = app.session.heuristic.apply(ctx, app, &neighbourhood, timer);
-                        }
-                    });
-                    return Transition::Replace(PickArea::new_state(ctx, app));
-                }
-                _ => unreachable!(),
-            },
-            Outcome::Changed(x) => {
-                if x == "Advanced features" {
-                    app.opts.dev = self.left_panel.is_checked("Advanced features");
-                    return Transition::Replace(PickArea::new_state(ctx, app));
-                }
-                if x == "heuristic" {
-                    app.session.heuristic = self.left_panel.dropdown_value("heuristic");
-                } else if x == "style" {
-                    app.session.draw_neighbourhood_style = self.left_panel.dropdown_value("style");
+        if let Outcome::Changed(x) = self.left_panel.event(ctx) {
+            if x == "Advanced features" {
+                app.opts.dev = self.left_panel.is_checked("Advanced features");
+                return Transition::Replace(PickArea::new_state(ctx, app));
+            } else if x == "style" {
+                app.session.draw_neighbourhood_style = self.left_panel.dropdown_value("style");
 
-                    ctx.loading_screen("change style", |ctx, _| {
-                        self.world = make_world(ctx, app);
-                        self.draw_over_roads = draw_over_roads(ctx, app);
-                    });
-                }
+                ctx.loading_screen("change style", |ctx, _| {
+                    self.world = make_world(ctx, app);
+                    self.draw_over_roads = draw_over_roads(ctx, app);
+                });
             }
-            _ => {}
         }
 
         if let WorldOutcome::ClickedObject(id) = self.world.event(ctx) {
@@ -304,19 +272,6 @@ fn advanced_panel(ctx: &EventCtx, app: &App) -> Widget {
                 ],
             ),
         ])])
-        .section(ctx),
-        Widget::col(vec![
-            ctx.style()
-                .btn_outline
-                .text("Automatically place filters")
-                .build_def(ctx),
-            Widget::dropdown(
-                ctx,
-                "heuristic",
-                app.session.heuristic,
-                Heuristic::choices(),
-            ),
-        ])
         .section(ctx),
     ])
 }
