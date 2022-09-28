@@ -18,7 +18,7 @@ impl LeftPanel {
             })),
         )
         .aligned(
-            HorizontalAlignment::Percent(0.0),
+            HorizontalAlignment::Left,
             VerticalAlignment::Below(top_height),
         )
         .dims_height(PanelDims::ExactPixels(

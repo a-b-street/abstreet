@@ -6,15 +6,16 @@ use map_model::{PathV2, PathfinderCache};
 use synthpop::{TripEndpoint, TripMode};
 use widgetry::mapspace::World;
 use widgetry::{
-    ButtonBuilder, Color, ControlState, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Outcome,
-    Panel, RoundedF64, Spinner, State, Text, Toggle, Widget,
+    ButtonBuilder, Color, ControlState, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
+    Line, Outcome, Panel, PanelDims, RoundedF64, Spinner, State, Text, Toggle, VerticalAlignment,
+    Widget,
 };
 
-use crate::components::Mode;
+use crate::components::{AppwidePanel, Mode};
 use crate::{colors, App, Transition};
 
 pub struct RoutePlanner {
-    top_panel: Panel,
+    appwide_panel: AppwidePanel,
     left_panel: Panel,
     waypoints: InputWaypoints,
     files: TripManagement<App, RoutePlanner>,
@@ -58,7 +59,7 @@ impl RoutePlanner {
         }
 
         let mut rp = RoutePlanner {
-            top_panel: crate::components::TopPanel::panel(ctx, app, Mode::RoutePlanner),
+            appwide_panel: AppwidePanel::new(ctx, app, Mode::RoutePlanner),
             left_panel: Panel::empty(ctx),
             waypoints: InputWaypoints::new_max_2(app),
             files: TripManagement::new(app),
@@ -116,7 +117,18 @@ impl RoutePlanner {
             },
             results_widget.named("results").section(ctx),
         ]);
-        let mut panel = crate::components::LeftPanel::builder(ctx, &self.top_panel, contents)
+        let buffer = 5.0;
+        let top_height = self.appwide_panel.top_panel.panel_dims().height;
+        let mut panel = Panel::new_builder(contents)
+            .aligned(
+                HorizontalAlignment::RightOf(
+                    self.appwide_panel.left_panel.panel_dims().width + buffer,
+                ),
+                VerticalAlignment::Below(top_height),
+            )
+            .dims_height(PanelDims::ExactPixels(
+                ctx.canvas.window_height - top_height,
+            ))
             // Hovering on waypoint cards
             .ignore_initial_events()
             .build(ctx);
@@ -310,13 +322,10 @@ impl RoutePlanner {
 
 impl State<App> for RoutePlanner {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        if let Some(t) = crate::components::TopPanel::event(
-            ctx,
-            app,
-            &mut self.top_panel,
-            &crate::save::PreserveState::Route,
-            help,
-        ) {
+        if let Some(t) =
+            self.appwide_panel
+                .event(ctx, app, &crate::save::PreserveState::Route, help)
+        {
             return t;
         }
         if let Some(t) = app
@@ -371,7 +380,7 @@ impl State<App> for RoutePlanner {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.top_panel.draw(g);
+        self.appwide_panel.draw(g);
         self.left_panel.draw(g);
         app.session.layers.draw(g, app);
 
