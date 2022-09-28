@@ -10,14 +10,14 @@ use widgetry::{
     Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, State, Text, TextExt, Widget,
 };
 
-use crate::components::Mode;
+use crate::components::{AppwidePanel, Mode};
 use crate::edit::EditMode;
 use crate::partition::BlockID;
 use crate::pick_area::draw_boundary_roads;
 use crate::{colors, App, NeighbourhoodID, Partitioning, Transition};
 
 pub struct SelectBoundary {
-    top_panel: Panel,
+    appwide_panel: AppwidePanel,
     left_panel: Panel,
     id: NeighbourhoodID,
     world: World<BlockID>,
@@ -66,10 +66,10 @@ impl SelectBoundary {
             app.session.edit_mode = EditMode::Filters;
         }
 
-        let top_panel = crate::components::TopPanel::panel(ctx, app, Mode::SelectBoundary);
-        let left_panel = make_panel(ctx, app, id, &top_panel);
+        let appwide_panel = AppwidePanel::new(ctx, app, Mode::SelectBoundary);
+        let left_panel = make_panel(ctx, app, id, &appwide_panel.top_panel);
         let mut state = SelectBoundary {
-            top_panel,
+            appwide_panel,
             left_panel,
             id,
             world: World::bounded(app.per_map.map.get_bounds()),
@@ -167,7 +167,7 @@ impl SelectBoundary {
                 }
 
                 self.draw_boundary_roads = draw_boundary_roads(ctx, app);
-                self.left_panel = make_panel(ctx, app, self.id, &self.top_panel);
+                self.left_panel = make_panel(ctx, app, self.id, &self.appwide_panel.top_panel);
             }
             Err(err) => {
                 self.last_failed_change = Some((id, self.currently_have_block(app, id)));
@@ -273,19 +273,16 @@ impl State<App> for SelectBoundary {
             if let Some(polygon) = lasso.event(ctx) {
                 self.lasso = None;
                 self.add_blocks_freehand(ctx, app, polygon);
-                self.left_panel = make_panel(ctx, app, self.id, &self.top_panel);
+                self.left_panel = make_panel(ctx, app, self.id, &self.appwide_panel.top_panel);
             }
             return Transition::Keep;
         }
 
         // PreserveState doesn't matter, can't switch proposals in SelectBoundary anyway
-        if let Some(t) = crate::components::TopPanel::event(
-            ctx,
-            app,
-            &mut self.top_panel,
-            &crate::save::PreserveState::Route,
-            help,
-        ) {
+        if let Some(t) =
+            self.appwide_panel
+                .event(ctx, app, &crate::save::PreserveState::Route, help)
+        {
             return t;
         }
         if let Some(t) = app
@@ -313,7 +310,7 @@ impl State<App> for SelectBoundary {
                 }
                 "Select freehand" => {
                     self.lasso = Some(Lasso::new());
-                    self.left_panel = make_panel_for_lasso(ctx, &self.top_panel);
+                    self.left_panel = make_panel_for_lasso(ctx, &self.appwide_panel.top_panel);
                 }
                 _ => unreachable!(),
             }
@@ -346,7 +343,7 @@ impl State<App> for SelectBoundary {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.world.draw(g);
         self.draw_boundary_roads.draw(g);
-        self.top_panel.draw(g);
+        self.appwide_panel.draw(g);
         self.left_panel.draw(g);
         app.session.layers.draw(g, app);
         app.per_map.draw_all_road_labels.as_ref().unwrap().draw(g);

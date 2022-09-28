@@ -4,9 +4,12 @@ use widgetry::{
     VerticalAlignment, Widget,
 };
 
+use super::AppwidePanel;
+
 pub struct LeftPanel;
 
 impl LeftPanel {
+    // No proposals panel
     pub fn builder(ctx: &EventCtx, top_panel: &Panel, contents: Widget) -> PanelBuilder {
         let top_height = top_panel.panel_dims().height;
         Panel::new_builder(
@@ -24,5 +27,22 @@ impl LeftPanel {
         .dims_height(PanelDims::ExactPixels(
             ctx.canvas.window_height - top_height,
         ))
+    }
+
+    pub fn right_of_proposals(
+        ctx: &EventCtx,
+        appwide_panel: &AppwidePanel,
+        contents: Widget,
+    ) -> PanelBuilder {
+        let buffer = 5.0;
+        let top_height = appwide_panel.top_panel.panel_dims().height;
+        Panel::new_builder(contents)
+            .aligned(
+                HorizontalAlignment::RightOf(appwide_panel.left_panel.panel_dims().width + buffer),
+                VerticalAlignment::Below(top_height),
+            )
+            .dims_height(PanelDims::ExactPixels(
+                ctx.canvas.window_height - top_height,
+            ))
     }
 }

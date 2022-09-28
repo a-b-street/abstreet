@@ -6,9 +6,8 @@ use map_model::{PathV2, PathfinderCache};
 use synthpop::{TripEndpoint, TripMode};
 use widgetry::mapspace::World;
 use widgetry::{
-    ButtonBuilder, Color, ControlState, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
-    Line, Outcome, Panel, PanelDims, RoundedF64, Spinner, State, Text, Toggle, VerticalAlignment,
-    Widget,
+    ButtonBuilder, Color, ControlState, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Outcome,
+    Panel, RoundedF64, Spinner, State, Text, Toggle, Widget,
 };
 
 use crate::components::{AppwidePanel, Mode};
@@ -117,21 +116,11 @@ impl RoutePlanner {
             },
             results_widget.named("results").section(ctx),
         ]);
-        let buffer = 5.0;
-        let top_height = self.appwide_panel.top_panel.panel_dims().height;
-        let mut panel = Panel::new_builder(contents)
-            .aligned(
-                HorizontalAlignment::RightOf(
-                    self.appwide_panel.left_panel.panel_dims().width + buffer,
-                ),
-                VerticalAlignment::Below(top_height),
-            )
-            .dims_height(PanelDims::ExactPixels(
-                ctx.canvas.window_height - top_height,
-            ))
-            // Hovering on waypoint cards
-            .ignore_initial_events()
-            .build(ctx);
+        let mut panel =
+            crate::components::LeftPanel::right_of_proposals(ctx, &self.appwide_panel, contents)
+                // Hovering on waypoint cards
+                .ignore_initial_events()
+                .build(ctx);
         panel.restore(ctx, &self.left_panel);
         self.left_panel = panel;
 

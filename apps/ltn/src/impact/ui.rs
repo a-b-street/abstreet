@@ -16,7 +16,7 @@ use widgetry::{
     Panel, Slider, State, Text, TextExt, Toggle, VerticalAlignment, Widget,
 };
 
-use crate::components::Mode;
+use crate::components::{AppwidePanel, Mode};
 use crate::impact::{end_of_day, Filters, Impact};
 use crate::{colors, App, Transition};
 
@@ -24,7 +24,7 @@ use crate::{colors, App, Transition};
 // ... can't we just produce data of a certain shape, and have a UI pretty tuned for that?
 
 pub struct ShowResults {
-    top_panel: Panel,
+    appwide_panel: AppwidePanel,
     left_panel: Panel,
 }
 
@@ -100,12 +100,13 @@ impl ShowResults {
                 .text("Save before/after counts to files (GeoJSON)")
                 .build_def(ctx),
         ]);
-        let top_panel = crate::components::TopPanel::panel(ctx, app, Mode::Impact);
+        let appwide_panel = AppwidePanel::new(ctx, app, Mode::Impact);
         let left_panel =
-            crate::components::LeftPanel::builder(ctx, &top_panel, contents).build(ctx);
+            crate::components::LeftPanel::builder(ctx, &appwide_panel.top_panel, contents)
+                .build(ctx);
 
         Box::new(Self {
-            top_panel,
+            appwide_panel,
             left_panel,
         })
     }
@@ -113,13 +114,10 @@ impl ShowResults {
 impl State<App> for ShowResults {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         // PreserveState doesn't matter
-        if let Some(t) = crate::components::TopPanel::event(
-            ctx,
-            app,
-            &mut self.top_panel,
-            &crate::save::PreserveState::Route,
-            help,
-        ) {
+        if let Some(t) =
+            self.appwide_panel
+                .event(ctx, app, &crate::save::PreserveState::Route, help)
+        {
             return t;
         }
         if let Some(t) = app.session.layers.event(ctx, &app.cs, Mode::Impact, None) {
@@ -219,7 +217,7 @@ impl State<App> for ShowResults {
         app.per_map.impact.compare_counts.draw(g, app);
         app.per_map.draw_all_filters.draw(g);
 
-        self.top_panel.draw(g);
+        self.appwide_panel.draw(g);
         self.left_panel.draw(g);
         app.session.layers.draw(g, app);
     }

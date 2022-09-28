@@ -8,13 +8,13 @@ use widgetry::{
     State, TextExt, Toggle, Widget,
 };
 
-use crate::components::Mode;
+use crate::components::{AppwidePanel, Mode};
 use crate::edit::EditMode;
 use crate::filters::auto::Heuristic;
 use crate::{colors, App, Neighbourhood, NeighbourhoodID, Transition};
 
 pub struct PickArea {
-    top_panel: Panel,
+    appwide_panel: AppwidePanel,
     left_panel: Panel,
     world: World<NeighbourhoodID>,
     draw_over_roads: Drawable,
@@ -43,10 +43,10 @@ impl PickArea {
                 (make_world(ctx, app), draw_over_roads(ctx, app))
             });
 
-        let top_panel = crate::components::TopPanel::panel(ctx, app, Mode::PickArea);
-        let left_panel = crate::components::LeftPanel::builder(
+        let appwide_panel = AppwidePanel::new(ctx, app, Mode::PickArea);
+        let left_panel = crate::components::LeftPanel::right_of_proposals(
             ctx,
-            &top_panel,
+            &appwide_panel,
             Widget::col(vec![
                 Toggle::checkbox(ctx, "Advanced features", None, app.opts.dev),
                 advanced_panel(ctx, app),
@@ -54,7 +54,7 @@ impl PickArea {
         )
         .build(ctx);
         Box::new(PickArea {
-            top_panel,
+            appwide_panel,
             left_panel,
             world,
             draw_over_roads,
@@ -66,13 +66,10 @@ impl PickArea {
 
 impl State<App> for PickArea {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        if let Some(t) = crate::components::TopPanel::event(
-            ctx,
-            app,
-            &mut self.top_panel,
-            &crate::save::PreserveState::PickArea,
-            help,
-        ) {
+        if let Some(t) =
+            self.appwide_panel
+                .event(ctx, app, &crate::save::PreserveState::PickArea, help)
+        {
             return t;
         }
         if let Some(t) = app.session.layers.event(ctx, &app.cs, Mode::PickArea, None) {
@@ -138,7 +135,7 @@ impl State<App> for PickArea {
         app.draw_with_layering(g, |g| self.world.draw(g));
         self.draw_over_roads.draw(g);
 
-        self.top_panel.draw(g);
+        self.appwide_panel.draw(g);
         self.left_panel.draw(g);
         app.session.layers.draw(g, app);
         self.draw_boundary_roads.draw(g);
