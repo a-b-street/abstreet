@@ -280,67 +280,23 @@
 <span id="280">280</span>
 <span id="281">281</span>
 <span id="282">282</span>
-<span id="283">283</span>
-<span id="284">284</span>
-<span id="285">285</span>
-<span id="286">286</span>
-<span id="287">287</span>
-<span id="288">288</span>
-<span id="289">289</span>
-<span id="290">290</span>
-<span id="291">291</span>
-<span id="292">292</span>
-<span id="293">293</span>
-<span id="294">294</span>
-<span id="295">295</span>
-<span id="296">296</span>
-<span id="297">297</span>
-<span id="298">298</span>
-<span id="299">299</span>
-<span id="300">300</span>
-<span id="301">301</span>
-<span id="302">302</span>
-<span id="303">303</span>
-<span id="304">304</span>
-<span id="305">305</span>
-<span id="306">306</span>
-<span id="307">307</span>
-<span id="308">308</span>
-<span id="309">309</span>
-<span id="310">310</span>
-<span id="311">311</span>
-<span id="312">312</span>
-<span id="313">313</span>
-<span id="314">314</span>
-<span id="315">315</span>
-<span id="316">316</span>
-<span id="317">317</span>
-<span id="318">318</span>
-<span id="319">319</span>
-<span id="320">320</span>
-<span id="321">321</span>
-<span id="322">322</span>
-<span id="323">323</span>
-<span id="324">324</span>
-<span id="325">325</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil::Counter</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">ColorNetwork</span>, <span class="ident">DrawSimpleRoadLabels</span>};
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">World</span>, <span class="ident">WorldOutcome</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
-    <span class="ident">State</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">Widget</span>,
+    <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>,
+    <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">Widget</span>,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::components::Mode</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::components</span>::{<span class="ident">AppwidePanel</span>, <span class="ident">BottomPanel</span>, <span class="ident">Mode</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::edit::EditMode</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::filters::auto::Heuristic</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">colors</span>, <span class="ident">App</span>, <span class="ident">Neighbourhood</span>, <span class="ident">NeighbourhoodID</span>, <span class="ident">Transition</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PickArea</span> {
-    <span class="ident">top_panel</span>: <span class="ident">Panel</span>,
-    <span class="ident">left_panel</span>: <span class="ident">Panel</span>,
+    <span class="ident">appwide_panel</span>: <span class="ident">AppwidePanel</span>,
+    <span class="ident">bottom_panel</span>: <span class="ident">Panel</span>,
     <span class="ident">world</span>: <span class="ident">World</span><span class="op">&lt;</span><span class="ident">NeighbourhoodID</span><span class="op">&gt;</span>,
     <span class="ident">draw_over_roads</span>: <span class="ident">Drawable</span>,
     <span class="ident">labels</span>: <span class="ident">DrawSimpleRoadLabels</span>,
@@ -368,19 +324,24 @@
                 (<span class="ident">make_world</span>(<span class="ident">ctx</span>, <span class="ident">app</span>), <span class="ident">draw_over_roads</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))
             });
 
-        <span class="kw">let</span> <span class="ident">top_panel</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::components::TopPanel::panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Mode::PickArea</span>);
-        <span class="kw">let</span> <span class="ident">left_panel</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::components::LeftPanel::builder</span>(
+        <span class="kw">let</span> <span class="ident">appwide_panel</span> <span class="op">=</span> <span class="ident">AppwidePanel::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Mode::PickArea</span>);
+        <span class="kw">let</span> <span class="ident">bottom_panel</span> <span class="op">=</span> <span class="ident">BottomPanel::new</span>(
             <span class="ident">ctx</span>,
-            <span class="kw-2">&amp;</span><span class="ident">top_panel</span>,
-            <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+            <span class="kw-2">&amp;</span><span class="ident">appwide_panel</span>,
+            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                 <span class="ident">Toggle::checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;Advanced features&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span>),
                 <span class="ident">advanced_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
             ]),
-        )
-        .<span class="ident">build</span>(<span class="ident">ctx</span>);
+        );
+
+        <span class="comment">// Just force the layers panel to align above the bottom panel</span>
+        <span class="ident">app</span>.<span class="ident">session</span>
+            .<span class="ident">layers</span>
+            .<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>, <span class="ident">Mode::PickArea</span>, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">bottom_panel</span>));
+
         <span class="ident">Box::new</span>(<span class="ident">PickArea</span> {
-            <span class="ident">top_panel</span>,
-            <span class="ident">left_panel</span>,
+            <span class="ident">appwide_panel</span>,
+            <span class="ident">bottom_panel</span>,
             <span class="ident">world</span>,
             <span class="ident">draw_over_roads</span>,
             <span class="ident">labels</span>: <span class="ident">DrawSimpleRoadLabels::only_major_roads</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">colors::ROAD_LABEL</span>),
@@ -391,61 +352,31 @@
 
 <span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PickArea</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::components::TopPanel::event</span>(
-            <span class="ident">ctx</span>,
-            <span class="ident">app</span>,
-            <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">top_panel</span>,
-            <span class="kw-2">&amp;</span><span class="ident"><span class="kw">crate</span>::save::PreserveState::PickArea</span>,
-            <span class="ident">help</span>,
-        ) {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span>
+            <span class="self">self</span>.<span class="ident">appwide_panel</span>
+                .<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident"><span class="kw">crate</span>::save::PreserveState::PickArea</span>, <span class="ident">help</span>)
+        {
             <span class="kw">return</span> <span class="ident">t</span>;
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">layers</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>, <span class="ident">Mode::PickArea</span>) {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span>
+            <span class="ident">app</span>.<span class="ident">session</span>
+                .<span class="ident">layers</span>
+                .<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>, <span class="ident">Mode::PickArea</span>, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bottom_panel</span>))
+        {
             <span class="kw">return</span> <span class="ident">t</span>;
         }
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) =&gt; <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;Automatically place filters&quot;</span> =&gt; {
-                    <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;automatically filter all neighbourhoods&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
-                        <span class="ident">timer</span>.<span class="ident">start_iter</span>(
-                            <span class="string">&quot;filter neighbourhood&quot;</span>,
-                            <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">partitioning</span>.<span class="ident">all_neighbourhoods</span>().<span class="ident">len</span>(),
-                        );
-                        <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="ident">app</span>
-                            .<span class="ident">per_map</span>
-                            .<span class="ident">partitioning</span>
-                            .<span class="ident">all_neighbourhoods</span>()
-                            .<span class="ident">keys</span>()
-                            .<span class="ident">cloned</span>()
-                            .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()
-                        {
-                            <span class="ident">timer</span>.<span class="ident">next</span>();
-                            <span class="kw">let</span> <span class="ident">neighbourhood</span> <span class="op">=</span> <span class="ident">Neighbourhood::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>);
-                            <span class="comment">// Ignore errors</span>
-                            <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">heuristic</span>.<span class="ident">apply</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">neighbourhood</span>, <span class="ident">timer</span>);
-                        }
-                    });
-                    <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">PickArea::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
-                }
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
-            },
-            <span class="ident">Outcome::Changed</span>(<span class="ident">x</span>) =&gt; {
-                <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;Advanced features&quot;</span> {
-                    <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;Advanced features&quot;</span>);
-                    <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">PickArea::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
-                }
-                <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;heuristic&quot;</span> {
-                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">heuristic</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;heuristic&quot;</span>);
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;style&quot;</span> {
-                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_neighbourhood_style</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;style&quot;</span>);
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Changed</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">bottom_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+            <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;Advanced features&quot;</span> {
+                <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">bottom_panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;Advanced features&quot;</span>);
+                <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">PickArea::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;style&quot;</span> {
+                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_neighbourhood_style</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">bottom_panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;style&quot;</span>);
 
-                    <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;change style&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="kw">_</span><span class="op">|</span> {
-                        <span class="self">self</span>.<span class="ident">world</span> <span class="op">=</span> <span class="ident">make_world</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-                        <span class="self">self</span>.<span class="ident">draw_over_roads</span> <span class="op">=</span> <span class="ident">draw_over_roads</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-                    });
-                }
+                <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;change style&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="kw">_</span><span class="op">|</span> {
+                    <span class="self">self</span>.<span class="ident">world</span> <span class="op">=</span> <span class="ident">make_world</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                    <span class="self">self</span>.<span class="ident">draw_over_roads</span> <span class="op">=</span> <span class="ident">draw_over_roads</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                });
             }
-            <span class="kw">_</span> =&gt; {}
         }
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">WorldOutcome::ClickedObject</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
@@ -463,8 +394,8 @@
         <span class="ident">app</span>.<span class="ident">draw_with_layering</span>(<span class="ident">g</span>, <span class="op">|</span><span class="ident">g</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">draw</span>(<span class="ident">g</span>));
         <span class="self">self</span>.<span class="ident">draw_over_roads</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
 
-        <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+        <span class="self">self</span>.<span class="ident">appwide_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+        <span class="self">self</span>.<span class="ident">bottom_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">layers</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
         <span class="self">self</span>.<span class="ident">draw_boundary_roads</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="self">self</span>.<span class="ident">labels</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
@@ -616,36 +547,19 @@
     <span class="kw">if</span> <span class="op">!</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
         <span class="kw">return</span> <span class="ident">Widget::nothing</span>();
     }
-    <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-        <span class="ident">Line</span>(<span class="string">&quot;Advanced features&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-        <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[<span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="string">&quot;Draw neighbourhoods:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
-            <span class="ident">Widget::dropdown</span>(
-                <span class="ident">ctx</span>,
-                <span class="string">&quot;style&quot;</span>,
-                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_neighbourhood_style</span>,
-                <span class="macro">vec!</span>[
-                    <span class="ident">Choice::new</span>(<span class="string">&quot;simple&quot;</span>, <span class="ident">Style::Simple</span>),
-                    <span class="ident">Choice::new</span>(<span class="string">&quot;cells&quot;</span>, <span class="ident">Style::Cells</span>),
-                    <span class="ident">Choice::new</span>(<span class="string">&quot;quietness&quot;</span>, <span class="ident">Style::Quietness</span>),
-                    <span class="ident">Choice::new</span>(<span class="string">&quot;all shortcuts&quot;</span>, <span class="ident">Style::Shortcuts</span>),
-                ],
-            ),
-        ])])
-        .<span class="ident">section</span>(<span class="ident">ctx</span>),
-        <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline</span>
-                .<span class="ident">text</span>(<span class="string">&quot;Automatically place filters&quot;</span>)
-                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-            <span class="ident">Widget::dropdown</span>(
-                <span class="ident">ctx</span>,
-                <span class="string">&quot;heuristic&quot;</span>,
-                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">heuristic</span>,
-                <span class="ident">Heuristic::choices</span>(),
-            ),
-        ])
-        .<span class="ident">section</span>(<span class="ident">ctx</span>),
+    <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+        <span class="string">&quot;Draw neighbourhoods:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
+        <span class="ident">Widget::dropdown</span>(
+            <span class="ident">ctx</span>,
+            <span class="string">&quot;style&quot;</span>,
+            <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">draw_neighbourhood_style</span>,
+            <span class="macro">vec!</span>[
+                <span class="ident">Choice::new</span>(<span class="string">&quot;simple&quot;</span>, <span class="ident">Style::Simple</span>),
+                <span class="ident">Choice::new</span>(<span class="string">&quot;cells&quot;</span>, <span class="ident">Style::Cells</span>),
+                <span class="ident">Choice::new</span>(<span class="string">&quot;quietness&quot;</span>, <span class="ident">Style::Quietness</span>),
+                <span class="ident">Choice::new</span>(<span class="string">&quot;all shortcuts&quot;</span>, <span class="ident">Style::Shortcuts</span>),
+            ],
+        ),
     ])
 }
 </code></pre></div>

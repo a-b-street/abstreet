@@ -409,24 +409,127 @@
 <span id="409">409</span>
 <span id="410">410</span>
 <span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>};
 <span class="kw">use</span> <span class="ident">street_network::Direction</span>;
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">DummyID</span>, <span class="ident">World</span>};
-<span class="kw">use</span> <span class="ident">widgetry::tools::PopupMsg</span>;
+<span class="kw">use</span> <span class="ident">widgetry::tools</span>::{<span class="ident">ChooseSomething</span>, <span class="ident">PopupMsg</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>,
-    <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">Widget</span>,
+    <span class="ident">lctrl</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
+    <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>, <span class="ident">State</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">Widget</span>,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::components::Mode</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::components</span>::{<span class="ident">AppwidePanel</span>, <span class="ident">BottomPanel</span>, <span class="ident">Mode</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::draw_cells::RenderCells</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::edit</span>::{<span class="ident">EditMode</span>, <span class="ident">EditNeighbourhood</span>, <span class="ident">EditOutcome</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::filters::auto::Heuristic</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">colors</span>, <span class="ident">is_private</span>, <span class="ident">App</span>, <span class="ident">Neighbourhood</span>, <span class="ident">NeighbourhoodID</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">colors</span>, <span class="ident">is_private</span>, <span class="ident">App</span>, <span class="ident">FilterType</span>, <span class="ident">Neighbourhood</span>, <span class="ident">NeighbourhoodID</span>, <span class="ident">Transition</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DesignLTN</span> {
-    <span class="ident">top_panel</span>: <span class="ident">Panel</span>,
-    <span class="ident">left_panel</span>: <span class="ident">Panel</span>,
+    <span class="ident">appwide_panel</span>: <span class="ident">AppwidePanel</span>,
+    <span class="ident">bottom_panel</span>: <span class="ident">Panel</span>,
     <span class="ident">neighbourhood</span>: <span class="ident">Neighbourhood</span>,
     <span class="ident">draw_top_layer</span>: <span class="ident">Drawable</span>,
     <span class="ident">draw_under_roads_layer</span>: <span class="ident">Drawable</span>,
@@ -449,8 +552,8 @@
         <span class="kw">let</span> <span class="ident">neighbourhood</span> <span class="op">=</span> <span class="ident">Neighbourhood::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="self">Self</span> {
-            <span class="ident">top_panel</span>: <span class="ident"><span class="kw">crate</span>::components::TopPanel::panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Mode::ModifyNeighbourhood</span>),
-            <span class="ident">left_panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
+            <span class="ident">appwide_panel</span>: <span class="ident">AppwidePanel::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Mode::ModifyNeighbourhood</span>),
+            <span class="ident">bottom_panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
             <span class="ident">neighbourhood</span>,
             <span class="ident">draw_top_layer</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
             <span class="ident">draw_under_roads_layer</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
@@ -503,71 +606,45 @@
         };
         <span class="self">self</span>.<span class="ident">show_error</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">show_error</span>);
 
-        <span class="self">self</span>.<span class="ident">left_panel</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">edit</span>
-            .<span class="ident">panel_builder</span>(
-                <span class="ident">ctx</span>,
-                <span class="ident">app</span>,
-                <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">top_panel</span>,
-                <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                    <span class="macro">format!</span>(
-                        <span class="string">&quot;Neighbourhood area: {}&quot;</span>,
-                        <span class="ident">app</span>.<span class="ident">per_map</span>
-                            .<span class="ident">partitioning</span>
-                            .<span class="ident">neighbourhood_area_km2</span>(<span class="self">self</span>.<span class="ident">neighbourhood</span>.<span class="ident">id</span>)
-                    )
-                    .<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-                    <span class="ident">warning</span>,
-                    <span class="ident">advanced_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-                ]),
-            )
-            .<span class="ident">build</span>(<span class="ident">ctx</span>);
+        <span class="self">self</span>.<span class="ident">bottom_panel</span> <span class="op">=</span> <span class="ident">make_bottom_panel</span>(
+            <span class="ident">ctx</span>,
+            <span class="ident">app</span>,
+            <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">appwide_panel</span>,
+            <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+                <span class="macro">format!</span>(
+                    <span class="string">&quot;Area: {}&quot;</span>,
+                    <span class="ident">app</span>.<span class="ident">per_map</span>
+                        .<span class="ident">partitioning</span>
+                        .<span class="ident">neighbourhood_area_km2</span>(<span class="self">self</span>.<span class="ident">neighbourhood</span>.<span class="ident">id</span>)
+                )
+                .<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
+                <span class="ident">warning</span>,
+            ])
+            .<span class="ident">centered_vert</span>(),
+        );
     }
 }
 
 <span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DesignLTN</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::components::TopPanel::event</span>(
-            <span class="ident">ctx</span>,
-            <span class="ident">app</span>,
-            <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">top_panel</span>,
-            <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">preserve_state</span>,
-            <span class="ident">help</span>,
-        ) {
-            <span class="kw">return</span> <span class="ident">t</span>;
-        }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">app</span>
-            .<span class="ident">session</span>
-            .<span class="ident">layers</span>
-            .<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>, <span class="ident">Mode::ModifyNeighbourhood</span>)
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">appwide_panel</span>
+            .<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">preserve_state</span>, <span class="ident">help</span>)
         {
             <span class="kw">return</span> <span class="ident">t</span>;
         }
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">layers</span>.<span class="ident">event</span>(
+            <span class="ident">ctx</span>,
+            <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>,
+            <span class="ident">Mode::ModifyNeighbourhood</span>,
+            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bottom_panel</span>),
+        ) {
+            <span class="kw">return</span> <span class="ident">t</span>;
+        }
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">bottom_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) =&gt; {
                 <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;Automatically place filters&quot;</span> {
-                    <span class="kw">match</span> <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(
-                        <span class="string">&quot;automatically filter a neighbourhood&quot;</span>,
-                        <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
-                            <span class="ident">app</span>.<span class="ident">session</span>
-                                .<span class="ident">heuristic</span>
-                                .<span class="ident">apply</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">neighbourhood</span>, <span class="ident">timer</span>)
-                        },
-                    ) {
-                        <span class="prelude-val">Ok</span>(()) =&gt; {
-                            <span class="self">self</span>.<span class="ident">neighbourhood</span> <span class="op">=</span>
-                                <span class="ident">Neighbourhood::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">neighbourhood</span>.<span class="ident">id</span>);
-                            <span class="self">self</span>.<span class="ident">update</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-                            <span class="kw">return</span> <span class="ident">Transition::Keep</span>;
-                        }
-                        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-                            <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">PopupMsg::new_state</span>(
-                                <span class="ident">ctx</span>,
-                                <span class="string">&quot;Error&quot;</span>,
-                                <span class="macro">vec!</span>[<span class="ident">err</span>.<span class="ident">to_string</span>()],
-                            ));
-                        }
-                    }
+                    <span class="kw">return</span> <span class="ident">launch_autoplace_filters</span>(<span class="ident">ctx</span>, <span class="self">self</span>.<span class="ident">neighbourhood</span>.<span class="ident">id</span>);
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;Customize boundary&quot;</span> {
                     <span class="kw">return</span> <span class="ident">Transition::Push</span>(
                         <span class="ident"><span class="kw">crate</span>::customize_boundary::CustomizeBoundary::new_state</span>(
@@ -586,7 +663,7 @@
                     <span class="ident">app</span>,
                     <span class="ident">x</span>.<span class="ident">as_ref</span>(),
                     <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">neighbourhood</span>,
-                    <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">left_panel</span>,
+                    <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">bottom_panel</span>,
                 ) {
                     <span class="ident">EditOutcome::Nothing</span> =&gt; <span class="macro">unreachable!</span>(),
                     <span class="ident">EditOutcome::UpdatePanelAndWorld</span> =&gt; {
@@ -600,12 +677,16 @@
             }
             <span class="ident">Outcome::Changed</span>(<span class="ident">x</span>) =&gt; <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;Advanced features&quot;</span> =&gt; {
-                    <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;Advanced features&quot;</span>);
+                    <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">bottom_panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;Advanced features&quot;</span>);
                     <span class="self">self</span>.<span class="ident">update</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-                    <span class="kw">return</span> <span class="ident">Transition::Keep</span>;
-                }
-                <span class="string">&quot;heuristic&quot;</span> =&gt; {
-                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">heuristic</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;heuristic&quot;</span>);
+                    <span class="comment">// Update the layer panel placement immediately</span>
+                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">layers</span>.<span class="ident">event</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>,
+                        <span class="ident">Mode::ModifyNeighbourhood</span>,
+                        <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bottom_panel</span>),
+                    );
+
                     <span class="kw">return</span> <span class="ident">Transition::Keep</span>;
                 }
                 <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
@@ -639,14 +720,14 @@
         <span class="self">self</span>.<span class="ident">highlight_cell</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="self">self</span>.<span class="ident">edit</span>.<span class="ident">world</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
 
-        <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+        <span class="self">self</span>.<span class="ident">appwide_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+        <span class="self">self</span>.<span class="ident">bottom_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">layers</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
         <span class="self">self</span>.<span class="ident">neighbourhood</span>.<span class="ident">labels</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">draw_all_filters</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">draw_poi_icons</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
 
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">currently_hovering</span>() <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">&quot;warning&quot;</span>.<span class="ident">to_string</span>()) {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">bottom_panel</span>.<span class="ident">currently_hovering</span>() <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">&quot;warning&quot;</span>.<span class="ident">to_string</span>()) {
             <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">show_error</span>);
         }
 
@@ -781,6 +862,25 @@
     )
 }
 
+<span class="kw">fn</span> <span class="ident">launch_autoplace_filters</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">id</span>: <span class="ident">NeighbourhoodID</span>) -&gt; <span class="ident">Transition</span> {
+    <span class="ident">Transition::Push</span>(<span class="ident">ChooseSomething::new_state</span>(
+        <span class="ident">ctx</span>,
+        <span class="string">&quot;Add one filter automatically, using different heuristics&quot;</span>,
+        <span class="ident">Heuristic::choices</span>(),
+        <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">heuristic</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+            <span class="kw">match</span> <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;automatically filter a neighbourhood&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
+                <span class="kw">let</span> <span class="ident">neighbourhood</span> <span class="op">=</span> <span class="ident">Neighbourhood::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>);
+                <span class="ident">heuristic</span>.<span class="ident">apply</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">neighbourhood</span>, <span class="ident">timer</span>)
+            }) {
+                <span class="prelude-val">Ok</span>(()) =&gt; <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[<span class="ident">Transition::Pop</span>, <span class="ident">Transition::Recreate</span>]),
+                <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
+                    <span class="ident">Transition::Replace</span>(<span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;Error&quot;</span>, <span class="macro">vec!</span>[<span class="ident">err</span>.<span class="ident">to_string</span>()]))
+                }
+            }
+        }),
+    ))
+}
+
 <span class="kw">fn</span> <span class="ident">help</span>() -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> {
     <span class="macro">vec!</span>[
         <span class="string">&quot;The colored cells show where it&#39;s possible to drive without leaving the neighbourhood.&quot;</span>,
@@ -797,7 +897,7 @@
         <span class="kw">return</span> <span class="ident">Widget::nothing</span>();
     }
     <span class="kw">if</span> <span class="op">!</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
-        <span class="kw">return</span> <span class="ident">Toggle::checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;Advanced features&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span>);
+        <span class="kw">return</span> <span class="ident">Toggle::checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;Advanced features&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span>).<span class="ident">centered_vert</span>();
     }
     <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
         <span class="ident">Toggle::checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;Advanced features&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span>),
@@ -811,14 +911,120 @@
             .<span class="ident">text</span>(<span class="string">&quot;Automatically place filters&quot;</span>)
             .<span class="ident">hotkey</span>(<span class="ident">Key::A</span>)
             .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-        <span class="ident">Widget::dropdown</span>(
-            <span class="ident">ctx</span>,
-            <span class="string">&quot;heuristic&quot;</span>,
-            <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">heuristic</span>,
-            <span class="ident">Heuristic::choices</span>(),
-        ),
     ])
     .<span class="ident">section</span>(<span class="ident">ctx</span>)
+}
+
+<span class="kw">fn</span> <span class="ident">make_bottom_panel</span>(
+    <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
+    <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
+    <span class="ident">appwide_panel</span>: <span class="kw-2">&amp;</span><span class="ident">AppwidePanel</span>,
+    <span class="ident">per_tab_contents</span>: <span class="ident">Widget</span>,
+) -&gt; <span class="ident">Panel</span> {
+    <span class="comment">// TODO Widget::vert_separator, but pick the height automatically?</span>
+    <span class="kw">let</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+        <span class="ident">advanced_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+        <span class="ident">edit_mode</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+        <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> {
+            <span class="ident">EditMode::Filters</span> =&gt; <span class="ident"><span class="kw">crate</span>::edit::filters::widget</span>(<span class="ident">ctx</span>),
+            <span class="ident">EditMode::FreehandFilters</span>(<span class="kw">_</span>) =&gt; <span class="ident"><span class="kw">crate</span>::edit::freehand_filters::widget</span>(<span class="ident">ctx</span>),
+            <span class="ident">EditMode::Oneways</span> =&gt; <span class="ident"><span class="kw">crate</span>::edit::one_ways::widget</span>(<span class="ident">ctx</span>),
+            <span class="ident">EditMode::Shortcuts</span>(<span class="kw-2">ref</span> <span class="ident">focus</span>) =&gt; {
+                <span class="ident"><span class="kw">crate</span>::edit::shortcuts::widget</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">focus</span>.<span class="ident">as_ref</span>())
+            }
+        }
+        .<span class="ident">named</span>(<span class="string">&quot;edit mode contents&quot;</span>),
+        <span class="ident">ctx</span>.<span class="ident">style</span>()
+            .<span class="ident">btn_plain</span>
+            .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/undo.svg&quot;</span>)
+            .<span class="ident">disabled</span>(<span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">edits</span>.<span class="ident">previous_version</span>.<span class="ident">is_none</span>())
+            .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::Z</span>))
+            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;undo&quot;</span>),
+        <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+            <span class="comment">// TODO Only count new filters, not existing</span>
+            <span class="macro">format!</span>(
+                <span class="string">&quot;{} filters added&quot;</span>,
+                <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">edits</span>.<span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">edits</span>.<span class="ident">intersections</span>.<span class="ident">len</span>()
+            )
+            .<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
+            <span class="macro">format!</span>(
+                <span class="string">&quot;{} road directions changed&quot;</span>,
+                <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">edits</span>.<span class="ident">one_ways</span>.<span class="ident">len</span>()
+            )
+            .<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
+        ]),
+        <span class="ident">per_tab_contents</span>,
+        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">consultation</span>.<span class="ident">is_none</span>() {
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_outline</span>
+                .<span class="ident">text</span>(<span class="string">&quot;Adjust boundary&quot;</span>)
+                .<span class="ident">hotkey</span>(<span class="ident">Key::B</span>)
+                .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
+                .<span class="ident">centered_vert</span>()
+            <span class="comment">// TODO Vertical sep</span>
+        } <span class="kw">else</span> {
+            <span class="ident">Widget::nothing</span>()
+        },
+    ]);
+
+    <span class="ident">BottomPanel::new</span>(<span class="ident">ctx</span>, <span class="ident">appwide_panel</span>, <span class="ident">row</span>)
+}
+
+<span class="kw">fn</span> <span class="ident">edit_mode</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Widget</span> {
+    <span class="kw">let</span> <span class="ident">edit_mode</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span>;
+    <span class="kw">let</span> <span class="ident">filter</span> <span class="op">=</span> <span class="op">|</span><span class="ident">ft</span>: <span class="ident">FilterType</span>, <span class="ident">hide_color</span>: <span class="ident">Color</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">|</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">btn</span> <span class="op">=</span> <span class="ident">ctx</span>
+            .<span class="ident">style</span>()
+            .<span class="ident">btn_solid_primary</span>
+            .<span class="ident">icon</span>(<span class="ident">ft</span>.<span class="ident">svg_path</span>())
+            .<span class="ident">image_color</span>(
+                <span class="ident">RewriteColor::Change</span>(<span class="ident">hide_color</span>, <span class="ident">Color::CLEAR</span>),
+                <span class="ident">ControlState::Default</span>,
+            )
+            .<span class="ident">image_color</span>(
+                <span class="ident">RewriteColor::Change</span>(<span class="ident">hide_color</span>, <span class="ident">Color::CLEAR</span>),
+                <span class="ident">ControlState::Disabled</span>,
+            )
+            .<span class="ident">disabled</span>(<span class="macro">matches!</span>(<span class="ident">edit_mode</span>, <span class="ident">EditMode::Filters</span>) <span class="op">&amp;&amp;</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">filter_type</span> <span class="op">==</span> <span class="ident">ft</span>);
+        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">filter_type</span> <span class="op">==</span> <span class="ident">ft</span> {
+            <span class="ident">btn</span> <span class="op">=</span> <span class="ident">btn</span>.<span class="ident">hotkey</span>(<span class="ident">Key::F1</span>);
+        }
+        <span class="ident">btn</span>.<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="ident">name</span>)
+    };
+
+    <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+            <span class="ident">filter</span>(
+                <span class="ident">FilterType::WalkCycleOnly</span>,
+                <span class="ident">Color::hex</span>(<span class="string">&quot;#0b793a&quot;</span>),
+                <span class="string">&quot;Modal filter -- walking/cycling only&quot;</span>,
+            ),
+            <span class="ident">filter</span>(<span class="ident">FilterType::NoEntry</span>, <span class="ident">Color::RED</span>, <span class="string">&quot;Modal filter - no entry&quot;</span>),
+            <span class="ident">filter</span>(<span class="ident">FilterType::BusGate</span>, <span class="kw-2">*</span><span class="ident">colors::BUS_ROUTE</span>, <span class="string">&quot;Bus gate&quot;</span>),
+        ])
+        .<span class="ident">section</span>(<span class="ident">ctx</span>),
+        <span class="ident">ctx</span>.<span class="ident">style</span>()
+            .<span class="ident">btn_solid_primary</span>
+            .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/select.svg&quot;</span>)
+            .<span class="ident">disabled</span>(<span class="macro">matches!</span>(<span class="ident">edit_mode</span>, <span class="ident">EditMode::FreehandFilters</span>(<span class="kw">_</span>)))
+            .<span class="ident">hotkey</span>(<span class="ident">Key::F2</span>)
+            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;Freehand filters&quot;</span>)
+            .<span class="ident">centered_vert</span>(),
+        <span class="ident">ctx</span>.<span class="ident">style</span>()
+            .<span class="ident">btn_solid_primary</span>
+            .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/one_ways.svg&quot;</span>)
+            .<span class="ident">disabled</span>(<span class="macro">matches!</span>(<span class="ident">edit_mode</span>, <span class="ident">EditMode::Oneways</span>))
+            .<span class="ident">hotkey</span>(<span class="ident">Key::F3</span>)
+            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;One-ways&quot;</span>)
+            .<span class="ident">centered_vert</span>(),
+        <span class="ident">ctx</span>.<span class="ident">style</span>()
+            .<span class="ident">btn_solid_primary</span>
+            .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/shortcut.svg&quot;</span>)
+            .<span class="ident">disabled</span>(<span class="macro">matches!</span>(<span class="ident">edit_mode</span>, <span class="ident">EditMode::Shortcuts</span>(<span class="kw">_</span>)))
+            .<span class="ident">hotkey</span>(<span class="ident">Key::F4</span>)
+            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;Shortcuts&quot;</span>)
+            .<span class="ident">centered_vert</span>(),
+    ])
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ltn" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>

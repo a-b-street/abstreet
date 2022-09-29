@@ -16,15 +16,15 @@
 <span id="16">16</span>
 <span id="17">17</span>
 </pre><pre class="rust"><code><span class="kw">mod</span> <span class="ident">about</span>;
+<span class="kw">mod</span> <span class="ident">appwide_panel</span>;
 <span class="kw">mod</span> <span class="ident">layers</span>;
 <span class="kw">mod</span> <span class="ident">left_panel</span>;
-<span class="kw">mod</span> <span class="ident">top_panel</span>;
 
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">appwide_panel::AppwidePanel</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">layers::Layers</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">left_panel::LeftPanel</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">top_panel::TopPanel</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">left_panel</span>::{<span class="ident">BottomPanel</span>, <span class="ident">LeftPanel</span>};
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Mode</span> {
     <span class="ident">PickArea</span>,
     <span class="ident">ModifyNeighbourhood</span>,

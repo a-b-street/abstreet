@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["color_grid",""],["entry",""],["make_zoom_controls",""],["zoom_enabled_cache_key",""]],"struct":[["Layers",""]]};
+window.SIDEBAR_ITEMS = {"fn":[["color_grid",""],["entry",""],["make_zoom_controls",""]],"struct":[["Layers",""]]};

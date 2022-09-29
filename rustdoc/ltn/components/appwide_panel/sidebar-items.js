@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":[["launch_impact",""],["make_left_panel",""],["make_top_panel",""]],"struct":[["AppwidePanel","Both the top panel and the collapsible left sidebar."]]};

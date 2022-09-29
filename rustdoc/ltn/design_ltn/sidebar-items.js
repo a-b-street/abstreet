@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["advanced_panel",""],["help",""],["setup_editing",""]],"struct":[["DesignLTN",""]]};
+window.SIDEBAR_ITEMS = {"fn":[["advanced_panel",""],["edit_mode",""],["help",""],["launch_autoplace_filters",""],["make_bottom_panel",""],["setup_editing",""]],"struct":[["DesignLTN",""]]};

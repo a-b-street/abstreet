@@ -334,9 +334,6 @@
 <span id="334">334</span>
 <span id="335">335</span>
 <span id="336">336</span>
-<span id="337">337</span>
-<span id="338">338</span>
-<span id="339">339</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">abstio::MapName</span>;
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
@@ -453,8 +450,6 @@
     <span class="comment">// Remember form settings in different tabs.</span>
     <span class="comment">// Pick areas:</span>
     <span class="kw">pub</span> <span class="ident">draw_neighbourhood_style</span>: <span class="ident"><span class="kw">crate</span>::pick_area::Style</span>,
-    <span class="comment">// Editing:</span>
-    <span class="kw">pub</span> <span class="ident">heuristic</span>: <span class="ident"><span class="kw">crate</span>::filters::auto::Heuristic</span>,
     <span class="comment">// Pathfinding</span>
     <span class="kw">pub</span> <span class="ident">main_road_penalty</span>: <span class="ident">f64</span>,
     <span class="kw">pub</span> <span class="ident">show_walking_cycling_routes</span>: <span class="ident">bool</span>,
@@ -562,7 +557,6 @@
             <span class="ident">filter_type</span>: <span class="ident">FilterType::WalkCycleOnly</span>,
 
             <span class="ident">draw_neighbourhood_style</span>: <span class="ident"><span class="kw">crate</span>::pick_area::Style::Simple</span>,
-            <span class="ident">heuristic</span>: <span class="ident"><span class="kw">crate</span>::filters::auto::Heuristic::SplitCells</span>,
             <span class="ident">main_road_penalty</span>: <span class="number">1.0</span>,
             <span class="ident">show_walking_cycling_routes</span>: <span class="bool-val">false</span>,
 

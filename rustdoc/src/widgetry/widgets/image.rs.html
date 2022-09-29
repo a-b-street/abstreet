@@ -340,6 +340,9 @@
 <span id="340">340</span>
 <span id="341">341</span>
 <span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">Color</span>, <span class="ident">ContentMode</span>, <span class="ident">CornerRounding</span>, <span class="ident">DrawWithTooltips</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>,
     <span class="ident">JustDraw</span>, <span class="ident">RewriteColor</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>,
@@ -642,6 +645,9 @@
                             <span class="ident">container_bounds</span>.<span class="ident">height</span>(),
                             <span class="ident">image_corners</span>,
                         ),
+                        <span class="ident">CornerRounding::NoRounding</span> =&gt; {
+                            <span class="ident">Polygon::rectangle</span>(<span class="ident">container_bounds</span>.<span class="ident">width</span>(), <span class="ident">container_bounds</span>.<span class="ident">height</span>())
+                        }
                     };
 
                     <span class="kw">let</span> <span class="ident">image_bg</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">bg_color</span>.<span class="ident">unwrap_or</span>(<span class="ident">Color::CLEAR</span>);

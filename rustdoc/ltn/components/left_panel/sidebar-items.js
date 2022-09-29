@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["LeftPanel",""]]};
+window.SIDEBAR_ITEMS = {"struct":[["BottomPanel",""],["LeftPanel",""]]};

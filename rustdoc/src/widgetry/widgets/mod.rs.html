@@ -873,6 +873,9 @@
 <span id="873">873</span>
 <span id="874">874</span>
 <span id="875">875</span>
+<span id="876">876</span>
+<span id="877">877</span>
+<span id="878">878</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
 <span class="kw">use</span> <span class="ident">taffy::geometry</span>::{<span class="ident">Rect</span>, <span class="ident">Size</span>};
@@ -1014,6 +1017,7 @@
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">CornerRounding</span> {
     <span class="ident">CornerRadii</span>(<span class="ident">CornerRadii</span>),
     <span class="ident">FullyRounded</span>,
+    <span class="ident">NoRounding</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">std::convert::From</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">CornerRounding</span> {
@@ -1531,6 +1535,7 @@
                             <span class="ident">Polygon::rounded_rectangle</span>(<span class="ident">width</span>, <span class="ident">height</span>, <span class="ident">corner_radii</span>)
                         }
                         <span class="ident">CornerRounding::FullyRounded</span> =&gt; <span class="ident">Polygon::pill</span>(<span class="ident">width</span>, <span class="ident">height</span>),
+                        <span class="ident">CornerRounding::NoRounding</span> =&gt; <span class="ident">Polygon::rectangle</span>(<span class="ident">width</span>, <span class="ident">height</span>),
                     },
                 );
             }
@@ -1543,6 +1548,7 @@
                             <span class="ident">Polygon::rounded_rectangle</span>(<span class="ident">width</span>, <span class="ident">height</span>, <span class="ident">corner_radii</span>)
                         }
                         <span class="ident">CornerRounding::FullyRounded</span> =&gt; <span class="ident">Polygon::pill</span>(<span class="ident">width</span>, <span class="ident">height</span>),
+                        <span class="ident">CornerRounding::NoRounding</span> =&gt; <span class="ident">Polygon::rectangle</span>(<span class="ident">width</span>, <span class="ident">height</span>),
                     }
                     .<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="ident">thickness</span>)),
                 );

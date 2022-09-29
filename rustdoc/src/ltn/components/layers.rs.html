@@ -315,6 +315,16 @@
 <span id="315">315</span>
 <span id="316">316</span>
 <span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom::Polygon</span>;
 <span class="kw">use</span> <span class="ident">map_gui::colors::ColorScheme</span>;
 <span class="kw">use</span> <span class="ident">widgetry::tools::ColorLegend</span>;
@@ -332,8 +342,8 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Layers</span> {
     <span class="ident">panel</span>: <span class="ident">Panel</span>,
     <span class="ident">minimized</span>: <span class="ident">bool</span>,
-    <span class="ident">mode_cache_key</span>: <span class="ident">Mode</span>,
-    <span class="ident">zoom_enabled_cache_key</span>: (<span class="ident">bool</span>, <span class="ident">bool</span>),
+    <span class="comment">// (Mode, max zoom, min zoom, bottom bar position)</span>
+    <span class="ident">panel_cache_key</span>: (<span class="ident">Mode</span>, <span class="ident">bool</span>, <span class="ident">bool</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>),
     <span class="ident">show_bus_routes</span>: <span class="ident">bool</span>,
 }
 
@@ -343,8 +353,7 @@
         <span class="self">Self</span> {
             <span class="ident">panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
             <span class="ident">minimized</span>: <span class="bool-val">true</span>,
-            <span class="ident">mode_cache_key</span>: <span class="ident">Mode::Impact</span>,
-            <span class="ident">zoom_enabled_cache_key</span>: <span class="ident">zoom_enabled_cache_key</span>(<span class="ident">ctx</span>),
+            <span class="ident">panel_cache_key</span>: (<span class="ident">Mode::Impact</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="prelude-val">None</span>),
             <span class="ident">show_bus_routes</span>: <span class="bool-val">false</span>,
         }
     }
@@ -354,6 +363,7 @@
         <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
         <span class="ident">cs</span>: <span class="kw-2">&amp;</span><span class="ident">ColorScheme</span>,
         <span class="ident">mode</span>: <span class="ident">Mode</span>,
+        <span class="ident">bottom_panel</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Panel</span><span class="op">&gt;</span>,
     ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) =&gt; {
@@ -364,40 +374,42 @@
                     <span class="string">&quot;zoom map in&quot;</span> =&gt; {
                         <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">center_zoom</span>(<span class="number">8.0</span>);
                     }
-                    <span class="string">&quot;hide panel&quot;</span> =&gt; {
+                    <span class="string">&quot;hide layers&quot;</span> =&gt; {
                         <span class="self">self</span>.<span class="ident">minimized</span> <span class="op">=</span> <span class="bool-val">true</span>;
                     }
-                    <span class="string">&quot;show panel&quot;</span> =&gt; {
+                    <span class="string">&quot;show layers&quot;</span> =&gt; {
                         <span class="self">self</span>.<span class="ident">minimized</span> <span class="op">=</span> <span class="bool-val">false</span>;
                     }
                     <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
                 }
-                <span class="self">self</span>.<span class="ident">update_panel</span>(<span class="ident">ctx</span>, <span class="ident">cs</span>);
+                <span class="self">self</span>.<span class="ident">update_panel</span>(<span class="ident">ctx</span>, <span class="ident">cs</span>, <span class="ident">bottom_panel</span>);
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Keep</span>);
             }
             <span class="ident">Outcome::Changed</span>(<span class="ident">x</span>) =&gt; {
                 <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;show bus routes&quot;</span> {
                     <span class="self">self</span>.<span class="ident">show_bus_routes</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;show bus routes&quot;</span>);
-                    <span class="self">self</span>.<span class="ident">update_panel</span>(<span class="ident">ctx</span>, <span class="ident">cs</span>);
+                    <span class="self">self</span>.<span class="ident">update_panel</span>(<span class="ident">ctx</span>, <span class="ident">cs</span>, <span class="ident">bottom_panel</span>);
                     <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Keep</span>);
                 }
 
                 <span class="ident">ctx</span>.<span class="ident">set_scale_factor</span>(<span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">spinner</span>::<span class="op">&lt;</span><span class="ident">RoundedF64</span><span class="op">&gt;</span>(<span class="string">&quot;scale_factor&quot;</span>).<span class="number">0</span>);
                 <span class="comment">// TODO This doesn&#39;t seem to do mark_covered_area correctly, so using the scroll</span>
                 <span class="comment">// wheel on the spinner just scrolls the canvas</span>
-                <span class="self">self</span>.<span class="ident">update_panel</span>(<span class="ident">ctx</span>, <span class="ident">cs</span>);
+                <span class="self">self</span>.<span class="ident">update_panel</span>(<span class="ident">ctx</span>, <span class="ident">cs</span>, <span class="ident">bottom_panel</span>);
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Recreate</span>);
             }
             <span class="kw">_</span> =&gt; {}
         }
 
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">zoom_enabled_cache_key</span> <span class="op">!</span><span class="op">=</span> <span class="ident">zoom_enabled_cache_key</span>(<span class="ident">ctx</span>) {
-            <span class="self">self</span>.<span class="ident">zoom_enabled_cache_key</span> <span class="op">=</span> <span class="ident">zoom_enabled_cache_key</span>(<span class="ident">ctx</span>);
-            <span class="self">self</span>.<span class="ident">update_panel</span>(<span class="ident">ctx</span>, <span class="ident">cs</span>);
-        }
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">mode_cache_key</span> <span class="op">!</span><span class="op">=</span> <span class="ident">mode</span> {
-            <span class="self">self</span>.<span class="ident">mode_cache_key</span> <span class="op">=</span> <span class="ident">mode</span>;
-            <span class="self">self</span>.<span class="ident">update_panel</span>(<span class="ident">ctx</span>, <span class="ident">cs</span>);
+        <span class="kw">let</span> <span class="ident">cache_key</span> <span class="op">=</span> (
+            <span class="ident">mode</span>,
+            <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">is_max_zoom</span>(),
+            <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">is_min_zoom</span>(),
+            <span class="ident">bottom_panel</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">panel_rect</span>().<span class="ident">y1</span>),
+        );
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel_cache_key</span> <span class="op">!</span><span class="op">=</span> <span class="ident">cache_key</span> {
+            <span class="self">self</span>.<span class="ident">panel_cache_key</span> <span class="op">=</span> <span class="ident">cache_key</span>;
+            <span class="self">self</span>.<span class="ident">update_panel</span>(<span class="ident">ctx</span>, <span class="ident">cs</span>, <span class="ident">bottom_panel</span>);
         }
 
         <span class="prelude-val">None</span>
@@ -410,22 +422,34 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">show_bus_routes</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">cs</span>: <span class="kw-2">&amp;</span><span class="ident">ColorScheme</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">show_bus_routes</span>(
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
+        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
+        <span class="ident">cs</span>: <span class="kw-2">&amp;</span><span class="ident">ColorScheme</span>,
+        <span class="ident">bottom_panel</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Panel</span><span class="op">&gt;</span>,
+    ) {
         <span class="self">self</span>.<span class="ident">minimized</span> <span class="op">=</span> <span class="bool-val">false</span>;
         <span class="self">self</span>.<span class="ident">show_bus_routes</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="self">self</span>.<span class="ident">update_panel</span>(<span class="ident">ctx</span>, <span class="ident">cs</span>);
+        <span class="self">self</span>.<span class="ident">update_panel</span>(<span class="ident">ctx</span>, <span class="ident">cs</span>, <span class="ident">bottom_panel</span>);
     }
 
-    <span class="kw">fn</span> <span class="ident">update_panel</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">cs</span>: <span class="kw-2">&amp;</span><span class="ident">ColorScheme</span>) {
-        <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(
+    <span class="kw">fn</span> <span class="ident">update_panel</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">cs</span>: <span class="kw-2">&amp;</span><span class="ident">ColorScheme</span>, <span class="ident">bottom_panel</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Panel</span><span class="op">&gt;</span>) {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(
             <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
                 <span class="ident">make_zoom_controls</span>(<span class="ident">ctx</span>).<span class="ident">align_right</span>(),
                 <span class="self">self</span>.<span class="ident">make_legend</span>(<span class="ident">ctx</span>, <span class="ident">cs</span>).<span class="ident">bg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">panel_bg</span>),
             ])
             .<span class="ident">padding_right</span>(<span class="number">16</span>),
         )
-        .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Right</span>, <span class="ident">VerticalAlignment::Bottom</span>)
-        .<span class="ident">build_custom</span>(<span class="ident">ctx</span>);
+        .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Right</span>, <span class="ident">VerticalAlignment::Bottom</span>);
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">bottom_panel</span>) <span class="op">=</span> <span class="ident">bottom_panel</span> {
+            <span class="kw">let</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="number">5.0</span>;
+            <span class="ident">builder</span> <span class="op">=</span> <span class="ident">builder</span>.<span class="ident">aligned</span>(
+                <span class="ident">HorizontalAlignment::Right</span>,
+                <span class="ident">VerticalAlignment::Above</span>(<span class="ident">bottom_panel</span>.<span class="ident">panel_rect</span>().<span class="ident">y1</span> <span class="op">-</span> <span class="ident">buffer</span>),
+            );
+        }
+        <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">builder</span>.<span class="ident">build_custom</span>(<span class="ident">ctx</span>);
     }
 
     <span class="kw">fn</span> <span class="ident">make_legend</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">cs</span>: <span class="kw-2">&amp;</span><span class="ident">ColorScheme</span>) -&gt; <span class="ident">Widget</span> {
@@ -435,7 +459,7 @@
                 .<span class="ident">btn_plain</span>
                 .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/layers.svg&quot;</span>)
                 .<span class="ident">hotkey</span>(<span class="ident">Key::L</span>)
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;show panel&quot;</span>)
+                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;show layers&quot;</span>)
                 .<span class="ident">centered_horiz</span>();
         }
 
@@ -450,10 +474,10 @@
                     .<span class="ident">btn_plain</span>
                     .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/minimize.svg&quot;</span>)
                     .<span class="ident">hotkey</span>(<span class="ident">Key::L</span>)
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;hide panel&quot;</span>)
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;hide layers&quot;</span>)
                     .<span class="ident">align_right</span>(),
             ]),
-            <span class="self">self</span>.<span class="ident">mode_cache_key</span>.<span class="ident">legend</span>(<span class="ident">ctx</span>, <span class="ident">cs</span>),
+            <span class="self">self</span>.<span class="ident">panel_cache_key</span>.<span class="number">0</span>.<span class="ident">legend</span>(<span class="ident">ctx</span>, <span class="ident">cs</span>),
             {
                 <span class="kw">let</span> <span class="ident">checkbox</span> <span class="op">=</span> <span class="ident">Toggle::checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;show bus routes&quot;</span>, <span class="prelude-val">None</span>, <span class="self">self</span>.<span class="ident">show_bus_routes</span>);
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">show_bus_routes</span> {
@@ -511,10 +535,6 @@
             .<span class="ident">disabled</span>(<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">is_min_zoom</span>())
             .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;zoom map out&quot;</span>),
     ])
-}
-
-<span class="kw">fn</span> <span class="ident">zoom_enabled_cache_key</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; (<span class="ident">bool</span>, <span class="ident">bool</span>) {
-    (<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">is_max_zoom</span>(), <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">is_min_zoom</span>())
 }
 
 <span class="kw">impl</span> <span class="ident">Mode</span> {

@@ -409,6 +409,8 @@
 <span id="409">409</span>
 <span id="410">410</span>
 <span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 <span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
@@ -751,6 +753,7 @@
             <span class="ident">HorizontalAlignment::LeftInset</span> =&gt; <span class="ident">INSET</span>,
             <span class="ident">HorizontalAlignment::Center</span> =&gt; (<span class="self">self</span>.<span class="ident">window_width</span> <span class="op">-</span> <span class="ident">dims</span>.<span class="ident">width</span>) <span class="op">/</span> <span class="number">2.0</span>,
             <span class="ident">HorizontalAlignment::Right</span> =&gt; <span class="self">self</span>.<span class="ident">window_width</span> <span class="op">-</span> <span class="ident">dims</span>.<span class="ident">width</span>,
+            <span class="ident">HorizontalAlignment::RightOf</span>(<span class="ident">x</span>) =&gt; <span class="ident">x</span>,
             <span class="ident">HorizontalAlignment::RightInset</span> =&gt; <span class="self">self</span>.<span class="ident">window_width</span> <span class="op">-</span> <span class="ident">dims</span>.<span class="ident">width</span> <span class="op">-</span> <span class="ident">INSET</span>,
             <span class="ident">HorizontalAlignment::Percent</span>(<span class="ident">pct</span>) =&gt; <span class="ident">pct</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">window_width</span>,
             <span class="ident">HorizontalAlignment::Centered</span>(<span class="ident">x</span>) =&gt; <span class="ident">x</span> <span class="op">-</span> (<span class="ident">dims</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>),
@@ -803,6 +806,7 @@
     <span class="ident">LeftInset</span>,
     <span class="ident">Center</span>,
     <span class="ident">Right</span>,
+    <span class="ident">RightOf</span>(<span class="ident">f64</span>),
     <span class="ident">RightInset</span>,
     <span class="ident">Percent</span>(<span class="ident">f64</span>),
     <span class="ident">Centered</span>(<span class="ident">f64</span>),

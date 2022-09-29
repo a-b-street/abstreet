@@ -433,6 +433,7 @@
 <span id="433">433</span>
 <span id="434">434</span>
 <span id="435">435</span>
+<span id="436">436</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
@@ -445,14 +446,14 @@
     <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::components::Mode</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::components</span>::{<span class="ident">AppwidePanel</span>, <span class="ident">Mode</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::edit::EditMode</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::partition::BlockID</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pick_area::draw_boundary_roads</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">colors</span>, <span class="ident">App</span>, <span class="ident">NeighbourhoodID</span>, <span class="ident">Partitioning</span>, <span class="ident">Transition</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SelectBoundary</span> {
-    <span class="ident">top_panel</span>: <span class="ident">Panel</span>,
+    <span class="ident">appwide_panel</span>: <span class="ident">AppwidePanel</span>,
     <span class="ident">left_panel</span>: <span class="ident">Panel</span>,
     <span class="ident">id</span>: <span class="ident">NeighbourhoodID</span>,
     <span class="ident">world</span>: <span class="ident">World</span><span class="op">&lt;</span><span class="ident">BlockID</span><span class="op">&gt;</span>,
@@ -501,10 +502,10 @@
             <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> <span class="op">=</span> <span class="ident">EditMode::Filters</span>;
         }
 
-        <span class="kw">let</span> <span class="ident">top_panel</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::components::TopPanel::panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Mode::SelectBoundary</span>);
-        <span class="kw">let</span> <span class="ident">left_panel</span> <span class="op">=</span> <span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">top_panel</span>);
+        <span class="kw">let</span> <span class="ident">appwide_panel</span> <span class="op">=</span> <span class="ident">AppwidePanel::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Mode::SelectBoundary</span>);
+        <span class="kw">let</span> <span class="ident">left_panel</span> <span class="op">=</span> <span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">appwide_panel</span>.<span class="ident">top_panel</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">SelectBoundary</span> {
-            <span class="ident">top_panel</span>,
+            <span class="ident">appwide_panel</span>,
             <span class="ident">left_panel</span>,
             <span class="ident">id</span>,
             <span class="ident">world</span>: <span class="ident">World::bounded</span>(<span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>()),
@@ -602,7 +603,7 @@
                 }
 
                 <span class="self">self</span>.<span class="ident">draw_boundary_roads</span> <span class="op">=</span> <span class="ident">draw_boundary_roads</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-                <span class="self">self</span>.<span class="ident">left_panel</span> <span class="op">=</span> <span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">top_panel</span>);
+                <span class="self">self</span>.<span class="ident">left_panel</span> <span class="op">=</span> <span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">appwide_panel</span>.<span class="ident">top_panel</span>);
             }
             <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
                 <span class="self">self</span>.<span class="ident">last_failed_change</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">id</span>, <span class="self">self</span>.<span class="ident">currently_have_block</span>(<span class="ident">app</span>, <span class="ident">id</span>)));
@@ -708,22 +709,23 @@
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">polygon</span>) <span class="op">=</span> <span class="ident">lasso</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
                 <span class="self">self</span>.<span class="ident">lasso</span> <span class="op">=</span> <span class="prelude-val">None</span>;
                 <span class="self">self</span>.<span class="ident">add_blocks_freehand</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">polygon</span>);
-                <span class="self">self</span>.<span class="ident">left_panel</span> <span class="op">=</span> <span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">top_panel</span>);
+                <span class="self">self</span>.<span class="ident">left_panel</span> <span class="op">=</span> <span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">appwide_panel</span>.<span class="ident">top_panel</span>);
             }
             <span class="kw">return</span> <span class="ident">Transition::Keep</span>;
         }
 
         <span class="comment">// PreserveState doesn&#39;t matter, can&#39;t switch proposals in SelectBoundary anyway</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::components::TopPanel::event</span>(
-            <span class="ident">ctx</span>,
-            <span class="ident">app</span>,
-            <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">top_panel</span>,
-            <span class="kw-2">&amp;</span><span class="ident"><span class="kw">crate</span>::save::PreserveState::Route</span>,
-            <span class="ident">help</span>,
-        ) {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span>
+            <span class="self">self</span>.<span class="ident">appwide_panel</span>
+                .<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident"><span class="kw">crate</span>::save::PreserveState::Route</span>, <span class="ident">help</span>)
+        {
             <span class="kw">return</span> <span class="ident">t</span>;
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">layers</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>, <span class="ident">Mode::SelectBoundary</span>) {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">app</span>
+            .<span class="ident">session</span>
+            .<span class="ident">layers</span>
+            .<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>, <span class="ident">Mode::SelectBoundary</span>, <span class="prelude-val">None</span>)
+        {
             <span class="kw">return</span> <span class="ident">t</span>;
         }
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
@@ -744,7 +746,7 @@
                 }
                 <span class="string">&quot;Select freehand&quot;</span> =&gt; {
                     <span class="self">self</span>.<span class="ident">lasso</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Lasso::new</span>());
-                    <span class="self">self</span>.<span class="ident">left_panel</span> <span class="op">=</span> <span class="ident">make_panel_for_lasso</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">top_panel</span>);
+                    <span class="self">self</span>.<span class="ident">left_panel</span> <span class="op">=</span> <span class="ident">make_panel_for_lasso</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">appwide_panel</span>.<span class="ident">top_panel</span>);
                 }
                 <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
             }
@@ -777,7 +779,7 @@
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
         <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="self">self</span>.<span class="ident">draw_boundary_roads</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+        <span class="self">self</span>.<span class="ident">appwide_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">layers</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
         <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">draw_all_road_labels</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">draw</span>(<span class="ident">g</span>);
