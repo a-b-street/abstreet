@@ -12,11 +12,11 @@ use street_network::{Direction, LaneSpec};
 use widgetry::mapspace::{ObjectID, World};
 use widgetry::tools::{PolyLineLasso, PopupMsg};
 use widgetry::{
-    lctrl, Color, ControlState, DrawBaselayer, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Panel, PanelDims, RewriteColor, State, Text, TextExt, VerticalAlignment, Widget,
+    lctrl, Color, ControlState, DrawBaselayer, EventCtx, GfxCtx, Key, Line,
+    Outcome, Panel, RewriteColor, State, Text, TextExt, Widget,
 };
 
-use crate::components::AppwidePanel;
+use crate::components::{BottomPanel, AppwidePanel};
 use crate::{
     after_edit, colors, is_private, App, FilterType, Neighbourhood, RoadFilter, Transition,
 };
@@ -128,16 +128,7 @@ impl EditNeighbourhood {
             per_tab_contents,
         ]);
 
-        let left_panel_width = appwide_panel.left_panel.panel_dims().width;
-        Panel::new_builder(row)
-            .aligned(
-                HorizontalAlignment::RightOf(left_panel_width),
-                VerticalAlignment::Bottom,
-            )
-            .dims_width(PanelDims::ExactPixels(
-                ctx.canvas.window_width - left_panel_width,
-            ))
-            .build(ctx)
+        BottomPanel::new(ctx, appwide_panel, row)
     }
 
     pub fn event(

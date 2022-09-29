@@ -15,8 +15,8 @@ use crate::{colors, App, FilterType, Transition};
 pub struct Layers {
     panel: Panel,
     minimized: bool,
-    mode_cache_key: Mode,
-    zoom_enabled_cache_key: (bool, bool),
+    // (Mode, max zoom, min zoom, bottom bar position)
+    panel_cache_key: (Mode, bool, bool, Option<f64>),
     show_bus_routes: bool,
 }
 
@@ -26,8 +26,7 @@ impl Layers {
         Self {
             panel: Panel::empty(ctx),
             minimized: true,
-            mode_cache_key: Mode::Impact,
-            zoom_enabled_cache_key: zoom_enabled_cache_key(ctx),
+            panel_cache_key: (Mode::Impact, false, false, None),
             show_bus_routes: false,
         }
     }
@@ -75,12 +74,9 @@ impl Layers {
             _ => {}
         }
 
-        if self.zoom_enabled_cache_key != zoom_enabled_cache_key(ctx) {
-            self.zoom_enabled_cache_key = zoom_enabled_cache_key(ctx);
-            self.update_panel(ctx, cs, bottom_panel);
-        }
-        if self.mode_cache_key != mode {
-            self.mode_cache_key = mode;
+        let cache_key = (mode, ctx.canvas.is_max_zoom(), ctx.canvas.is_min_zoom(), bottom_panel.map(|p| p.panel_rect().y1));
+        if self.panel_cache_key != cache_key {
+            self.panel_cache_key = cache_key;
             self.update_panel(ctx, cs, bottom_panel);
         }
 
@@ -149,7 +145,7 @@ impl Layers {
                     .build_widget(ctx, "hide layers")
                     .align_right(),
             ]),
-            self.mode_cache_key.legend(ctx, cs),
+            self.panel_cache_key.0.legend(ctx, cs),
             {
                 let checkbox = Toggle::checkbox(ctx, "show bus routes", None, self.show_bus_routes);
                 if self.show_bus_routes {
@@ -207,10 +203,6 @@ fn make_zoom_controls(ctx: &mut EventCtx) -> Widget {
             .disabled(ctx.canvas.is_min_zoom())
             .build_widget(ctx, "zoom map out"),
     ])
-}
-
-fn zoom_enabled_cache_key(ctx: &EventCtx) -> (bool, bool) {
-    (ctx.canvas.is_max_zoom(), ctx.canvas.is_min_zoom())
 }
 
 impl Mode {
