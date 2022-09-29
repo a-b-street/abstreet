@@ -1,6 +1,6 @@
 use map_gui::tools::grey_out_map;
 use widgetry::tools::open_browser;
-use widgetry::{EventCtx, GfxCtx, Line, Panel, SimpleState, State, Text, Widget};
+use widgetry::{DrawBaselayer, EventCtx, GfxCtx, Line, Panel, SimpleState, State, Text, Widget};
 
 use crate::{App, Transition};
 
@@ -44,5 +44,9 @@ impl SimpleState<App> for About {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         grey_out_map(g, app);
+    }
+
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::PreviousState
     }
 }

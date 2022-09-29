@@ -139,6 +139,7 @@ pub struct Widget {
 pub enum CornerRounding {
     CornerRadii(CornerRadii),
     FullyRounded,
+    NoRounding,
 }
 
 impl std::convert::From<f64> for CornerRounding {
@@ -656,6 +657,7 @@ impl Widget {
                             Polygon::rounded_rectangle(width, height, corner_radii)
                         }
                         CornerRounding::FullyRounded => Polygon::pill(width, height),
+                        CornerRounding::NoRounding => Polygon::rectangle(width, height),
                     },
                 );
             }
@@ -668,6 +670,7 @@ impl Widget {
                             Polygon::rounded_rectangle(width, height, corner_radii)
                         }
                         CornerRounding::FullyRounded => Polygon::pill(width, height),
+                        CornerRounding::NoRounding => Polygon::rectangle(width, height),
                     }
                     .to_outline(Distance::meters(thickness)),
                 );

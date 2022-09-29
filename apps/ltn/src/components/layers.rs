@@ -15,8 +15,8 @@ use crate::{colors, App, FilterType, Transition};
 pub struct Layers {
     panel: Panel,
     minimized: bool,
-    mode_cache_key: Mode,
-    zoom_enabled_cache_key: (bool, bool),
+    // (Mode, max zoom, min zoom, bottom bar position)
+    panel_cache_key: (Mode, bool, bool, Option<f64>),
     show_bus_routes: bool,
 }
 
@@ -26,8 +26,7 @@ impl Layers {
         Self {
             panel: Panel::empty(ctx),
             minimized: true,
-            mode_cache_key: Mode::Impact,
-            zoom_enabled_cache_key: zoom_enabled_cache_key(ctx),
+            panel_cache_key: (Mode::Impact, false, false, None),
             show_bus_routes: false,
         }
     }
@@ -37,6 +36,7 @@ impl Layers {
         ctx: &mut EventCtx,
         cs: &ColorScheme,
         mode: Mode,
+        bottom_panel: Option<&Panel>,
     ) -> Option<Transition> {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => {
@@ -47,40 +47,42 @@ impl Layers {
                     "zoom map in" => {
                         ctx.canvas.center_zoom(8.0);
                     }
-                    "hide panel" => {
+                    "hide layers" => {
                         self.minimized = true;
                     }
-                    "show panel" => {
+                    "show layers" => {
                         self.minimized = false;
                     }
                     _ => unreachable!(),
                 }
-                self.update_panel(ctx, cs);
+                self.update_panel(ctx, cs, bottom_panel);
                 return Some(Transition::Keep);
             }
             Outcome::Changed(x) => {
                 if x == "show bus routes" {
                     self.show_bus_routes = self.panel.is_checked("show bus routes");
-                    self.update_panel(ctx, cs);
+                    self.update_panel(ctx, cs, bottom_panel);
                     return Some(Transition::Keep);
                 }
 
                 ctx.set_scale_factor(self.panel.spinner::<RoundedF64>("scale_factor").0);
                 // TODO This doesn't seem to do mark_covered_area correctly, so using the scroll
                 // wheel on the spinner just scrolls the canvas
-                self.update_panel(ctx, cs);
+                self.update_panel(ctx, cs, bottom_panel);
                 return Some(Transition::Recreate);
             }
             _ => {}
         }
 
-        if self.zoom_enabled_cache_key != zoom_enabled_cache_key(ctx) {
-            self.zoom_enabled_cache_key = zoom_enabled_cache_key(ctx);
-            self.update_panel(ctx, cs);
-        }
-        if self.mode_cache_key != mode {
-            self.mode_cache_key = mode;
-            self.update_panel(ctx, cs);
+        let cache_key = (
+            mode,
+            ctx.canvas.is_max_zoom(),
+            ctx.canvas.is_min_zoom(),
+            bottom_panel.map(|p| p.panel_rect().y1),
+        );
+        if self.panel_cache_key != cache_key {
+            self.panel_cache_key = cache_key;
+            self.update_panel(ctx, cs, bottom_panel);
         }
 
         None
@@ -93,22 +95,34 @@ impl Layers {
         }
     }
 
-    pub fn show_bus_routes(&mut self, ctx: &mut EventCtx, cs: &ColorScheme) {
+    pub fn show_bus_routes(
+        &mut self,
+        ctx: &mut EventCtx,
+        cs: &ColorScheme,
+        bottom_panel: Option<&Panel>,
+    ) {
         self.minimized = false;
         self.show_bus_routes = true;
-        self.update_panel(ctx, cs);
+        self.update_panel(ctx, cs, bottom_panel);
     }
 
-    fn update_panel(&mut self, ctx: &mut EventCtx, cs: &ColorScheme) {
-        self.panel = Panel::new_builder(
+    fn update_panel(&mut self, ctx: &mut EventCtx, cs: &ColorScheme, bottom_panel: Option<&Panel>) {
+        let mut builder = Panel::new_builder(
             Widget::col(vec![
                 make_zoom_controls(ctx).align_right(),
                 self.make_legend(ctx, cs).bg(ctx.style().panel_bg),
             ])
             .padding_right(16),
         )
-        .aligned(HorizontalAlignment::Right, VerticalAlignment::Bottom)
-        .build_custom(ctx);
+        .aligned(HorizontalAlignment::Right, VerticalAlignment::Bottom);
+        if let Some(bottom_panel) = bottom_panel {
+            let buffer = 5.0;
+            builder = builder.aligned(
+                HorizontalAlignment::Right,
+                VerticalAlignment::Above(bottom_panel.panel_rect().y1 - buffer),
+            );
+        }
+        self.panel = builder.build_custom(ctx);
     }
 
     fn make_legend(&self, ctx: &mut EventCtx, cs: &ColorScheme) -> Widget {
@@ -118,7 +132,7 @@ impl Layers {
                 .btn_plain
                 .icon("system/assets/tools/layers.svg")
                 .hotkey(Key::L)
-                .build_widget(ctx, "show panel")
+                .build_widget(ctx, "show layers")
                 .centered_horiz();
         }
 
@@ -133,10 +147,10 @@ impl Layers {
                     .btn_plain
                     .icon("system/assets/tools/minimize.svg")
                     .hotkey(Key::L)
-                    .build_widget(ctx, "hide panel")
+                    .build_widget(ctx, "hide layers")
                     .align_right(),
             ]),
-            self.mode_cache_key.legend(ctx, cs),
+            self.panel_cache_key.0.legend(ctx, cs),
             {
                 let checkbox = Toggle::checkbox(ctx, "show bus routes", None, self.show_bus_routes);
                 if self.show_bus_routes {
@@ -194,10 +208,6 @@ fn make_zoom_controls(ctx: &mut EventCtx) -> Widget {
             .disabled(ctx.canvas.is_min_zoom())
             .build_widget(ctx, "zoom map out"),
     ])
-}
-
-fn zoom_enabled_cache_key(ctx: &EventCtx) -> (bool, bool) {
-    (ctx.canvas.is_max_zoom(), ctx.canvas.is_min_zoom())
 }
 
 impl Mode {

@@ -255,17 +255,23 @@ impl AltProposals {
         }
     }
 
-    pub fn to_widget(&self, ctx: &EventCtx, app: &App) -> Widget {
-        let mut col = vec![Widget::row(vec![
-            ctx.style().btn_outline.text("New").build_def(ctx),
-            ctx.style().btn_outline.text("Load").build_def(ctx),
-            ctx.style().btn_outline.text("Save").build_def(ctx),
-            ctx.style().btn_outline.text("Share").build_def(ctx),
-            ctx.style()
-                .btn_outline
-                .text("Export GeoJSON")
-                .build_def(ctx),
-        ])];
+    pub fn to_widget_expanded(&self, ctx: &EventCtx, app: &App) -> Widget {
+        let mut col = Vec::new();
+        for (action, icon) in [
+            ("New", "pencil"),
+            ("Load", "folder"),
+            ("Save", "save"),
+            ("Share", "share"),
+            ("Export GeoJSON", "export"),
+        ] {
+            col.push(
+                ctx.style()
+                    .btn_plain
+                    .icon_text(&format!("system/assets/tools/{icon}.svg"), action)
+                    .build_def(ctx),
+            );
+        }
+
         for (idx, proposal) in self.list.iter().enumerate() {
             let button = if let Some(proposal) = proposal {
                 ctx.style()
@@ -299,7 +305,26 @@ impl AltProposals {
                 break;
             }
         }
-        Widget::col(col).section(ctx)
+        Widget::col(col)
+    }
+
+    pub fn to_widget_collapsed(&self, ctx: &EventCtx) -> Widget {
+        let mut col = Vec::new();
+        for (action, icon) in [
+            ("New", "pencil"),
+            ("Load", "folder"),
+            ("Save", "save"),
+            ("Share", "share"),
+            ("Export GeoJSON", "export"),
+        ] {
+            col.push(
+                ctx.style()
+                    .btn_plain
+                    .icon(&format!("system/assets/tools/{icon}.svg"))
+                    .build_widget(ctx, action),
+            );
+        }
+        Widget::col(col)
     }
 
     pub fn handle_action(

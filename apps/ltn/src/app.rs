@@ -114,8 +114,6 @@ pub struct Session {
     // Remember form settings in different tabs.
     // Pick areas:
     pub draw_neighbourhood_style: crate::pick_area::Style,
-    // Editing:
-    pub heuristic: crate::filters::auto::Heuristic,
     // Pathfinding
     pub main_road_penalty: f64,
     pub show_walking_cycling_routes: bool,
@@ -223,7 +221,6 @@ impl App {
             filter_type: FilterType::WalkCycleOnly,
 
             draw_neighbourhood_style: crate::pick_area::Style::Simple,
-            heuristic: crate::filters::auto::Heuristic::SplitCells,
             main_road_penalty: 1.0,
             show_walking_cycling_routes: false,
 

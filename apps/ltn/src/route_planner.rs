@@ -10,11 +10,11 @@ use widgetry::{
     Panel, RoundedF64, Spinner, State, Text, Toggle, Widget,
 };
 
-use crate::components::Mode;
+use crate::components::{AppwidePanel, Mode};
 use crate::{colors, App, Transition};
 
 pub struct RoutePlanner {
-    top_panel: Panel,
+    appwide_panel: AppwidePanel,
     left_panel: Panel,
     waypoints: InputWaypoints,
     files: TripManagement<App, RoutePlanner>,
@@ -58,7 +58,7 @@ impl RoutePlanner {
         }
 
         let mut rp = RoutePlanner {
-            top_panel: crate::components::TopPanel::panel(ctx, app, Mode::RoutePlanner),
+            appwide_panel: AppwidePanel::new(ctx, app, Mode::RoutePlanner),
             left_panel: Panel::empty(ctx),
             waypoints: InputWaypoints::new_max_2(app),
             files: TripManagement::new(app),
@@ -116,10 +116,11 @@ impl RoutePlanner {
             },
             results_widget.named("results").section(ctx),
         ]);
-        let mut panel = crate::components::LeftPanel::builder(ctx, &self.top_panel, contents)
-            // Hovering on waypoint cards
-            .ignore_initial_events()
-            .build(ctx);
+        let mut panel =
+            crate::components::LeftPanel::right_of_proposals(ctx, &self.appwide_panel, contents)
+                // Hovering on waypoint cards
+                .ignore_initial_events()
+                .build(ctx);
         panel.restore(ctx, &self.left_panel);
         self.left_panel = panel;
 
@@ -310,16 +311,17 @@ impl RoutePlanner {
 
 impl State<App> for RoutePlanner {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        if let Some(t) = crate::components::TopPanel::event(
-            ctx,
-            app,
-            &mut self.top_panel,
-            &crate::save::PreserveState::Route,
-            help,
-        ) {
+        if let Some(t) =
+            self.appwide_panel
+                .event(ctx, app, &crate::save::PreserveState::Route, help)
+        {
             return t;
         }
-        if let Some(t) = app.session.layers.event(ctx, &app.cs, Mode::RoutePlanner) {
+        if let Some(t) = app
+            .session
+            .layers
+            .event(ctx, &app.cs, Mode::RoutePlanner, None)
+        {
             return t;
         }
 
@@ -367,7 +369,7 @@ impl State<App> for RoutePlanner {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.top_panel.draw(g);
+        self.appwide_panel.draw(g);
         self.left_panel.draw(g);
         app.session.layers.draw(g, app);
 

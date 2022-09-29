@@ -1,21 +1,21 @@
 use geom::{ArrowCap, Distance, PolyLine};
 use street_network::Direction;
 use widgetry::mapspace::{DummyID, World};
-use widgetry::tools::PopupMsg;
+use widgetry::tools::{ChooseSomething, PopupMsg};
 use widgetry::{
-    Color, ControlState, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome,
-    Panel, State, TextExt, Toggle, Widget,
+    lctrl, Color, ControlState, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line,
+    Outcome, Panel, RewriteColor, State, TextExt, Toggle, Widget,
 };
 
-use crate::components::Mode;
+use crate::components::{AppwidePanel, BottomPanel, Mode};
 use crate::draw_cells::RenderCells;
 use crate::edit::{EditMode, EditNeighbourhood, EditOutcome};
 use crate::filters::auto::Heuristic;
-use crate::{colors, is_private, App, Neighbourhood, NeighbourhoodID, Transition};
+use crate::{colors, is_private, App, FilterType, Neighbourhood, NeighbourhoodID, Transition};
 
 pub struct DesignLTN {
-    top_panel: Panel,
-    left_panel: Panel,
+    appwide_panel: AppwidePanel,
+    bottom_panel: Panel,
     neighbourhood: Neighbourhood,
     draw_top_layer: Drawable,
     draw_under_roads_layer: Drawable,
@@ -38,8 +38,8 @@ impl DesignLTN {
         let neighbourhood = Neighbourhood::new(ctx, app, id);
 
         let mut state = Self {
-            top_panel: crate::components::TopPanel::panel(ctx, app, Mode::ModifyNeighbourhood),
-            left_panel: Panel::empty(ctx),
+            appwide_panel: AppwidePanel::new(ctx, app, Mode::ModifyNeighbourhood),
+            bottom_panel: Panel::empty(ctx),
             neighbourhood,
             draw_top_layer: Drawable::empty(ctx),
             draw_under_roads_layer: Drawable::empty(ctx),
@@ -92,71 +92,45 @@ impl DesignLTN {
         };
         self.show_error = ctx.upload(show_error);
 
-        self.left_panel = self
-            .edit
-            .panel_builder(
-                ctx,
-                app,
-                &self.top_panel,
-                Widget::col(vec![
-                    format!(
-                        "Neighbourhood area: {}",
-                        app.per_map
-                            .partitioning
-                            .neighbourhood_area_km2(self.neighbourhood.id)
-                    )
-                    .text_widget(ctx),
-                    warning,
-                    advanced_panel(ctx, app),
-                ]),
-            )
-            .build(ctx);
+        self.bottom_panel = make_bottom_panel(
+            ctx,
+            app,
+            &self.appwide_panel,
+            Widget::col(vec![
+                format!(
+                    "Area: {}",
+                    app.per_map
+                        .partitioning
+                        .neighbourhood_area_km2(self.neighbourhood.id)
+                )
+                .text_widget(ctx),
+                warning,
+            ])
+            .centered_vert(),
+        );
     }
 }
 
 impl State<App> for DesignLTN {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        if let Some(t) = crate::components::TopPanel::event(
-            ctx,
-            app,
-            &mut self.top_panel,
-            &self.preserve_state,
-            help,
-        ) {
-            return t;
-        }
-        if let Some(t) = app
-            .session
-            .layers
-            .event(ctx, &app.cs, Mode::ModifyNeighbourhood)
+        if let Some(t) = self
+            .appwide_panel
+            .event(ctx, app, &self.preserve_state, help)
         {
             return t;
         }
-        match self.left_panel.event(ctx) {
+        if let Some(t) = app.session.layers.event(
+            ctx,
+            &app.cs,
+            Mode::ModifyNeighbourhood,
+            Some(&self.bottom_panel),
+        ) {
+            return t;
+        }
+        match self.bottom_panel.event(ctx) {
             Outcome::Clicked(x) => {
                 if x == "Automatically place filters" {
-                    match ctx.loading_screen(
-                        "automatically filter a neighbourhood",
-                        |ctx, timer| {
-                            app.session
-                                .heuristic
-                                .apply(ctx, app, &self.neighbourhood, timer)
-                        },
-                    ) {
-                        Ok(()) => {
-                            self.neighbourhood =
-                                Neighbourhood::new(ctx, app, self.neighbourhood.id);
-                            self.update(ctx, app);
-                            return Transition::Keep;
-                        }
-                        Err(err) => {
-                            return Transition::Push(PopupMsg::new_state(
-                                ctx,
-                                "Error",
-                                vec![err.to_string()],
-                            ));
-                        }
-                    }
+                    return launch_autoplace_filters(ctx, self.neighbourhood.id);
                 } else if x == "Customize boundary" {
                     return Transition::Push(
                         crate::customize_boundary::CustomizeBoundary::new_state(
@@ -175,7 +149,7 @@ impl State<App> for DesignLTN {
                     app,
                     x.as_ref(),
                     &self.neighbourhood,
-                    &mut self.left_panel,
+                    &mut self.bottom_panel,
                 ) {
                     EditOutcome::Nothing => unreachable!(),
                     EditOutcome::UpdatePanelAndWorld => {
@@ -189,12 +163,16 @@ impl State<App> for DesignLTN {
             }
             Outcome::Changed(x) => match x.as_ref() {
                 "Advanced features" => {
-                    app.opts.dev = self.left_panel.is_checked("Advanced features");
+                    app.opts.dev = self.bottom_panel.is_checked("Advanced features");
                     self.update(ctx, app);
-                    return Transition::Keep;
-                }
-                "heuristic" => {
-                    app.session.heuristic = self.left_panel.dropdown_value("heuristic");
+                    // Update the layer panel placement immediately
+                    app.session.layers.event(
+                        ctx,
+                        &app.cs,
+                        Mode::ModifyNeighbourhood,
+                        Some(&self.bottom_panel),
+                    );
+
                     return Transition::Keep;
                 }
                 _ => unreachable!(),
@@ -228,14 +206,14 @@ impl State<App> for DesignLTN {
         self.highlight_cell.draw(g);
         self.edit.world.draw(g);
 
-        self.top_panel.draw(g);
-        self.left_panel.draw(g);
+        self.appwide_panel.draw(g);
+        self.bottom_panel.draw(g);
         app.session.layers.draw(g, app);
         self.neighbourhood.labels.draw(g);
         app.per_map.draw_all_filters.draw(g);
         app.per_map.draw_poi_icons.draw(g);
 
-        if self.left_panel.currently_hovering() == Some(&"warning".to_string()) {
+        if self.bottom_panel.currently_hovering() == Some(&"warning".to_string()) {
             g.redraw(&self.show_error);
         }
 
@@ -370,6 +348,25 @@ fn setup_editing(
     )
 }
 
+fn launch_autoplace_filters(ctx: &mut EventCtx, id: NeighbourhoodID) -> Transition {
+    Transition::Push(ChooseSomething::new_state(
+        ctx,
+        "Add one filter automatically, using different heuristics",
+        Heuristic::choices(),
+        Box::new(move |heuristic, ctx, app| {
+            match ctx.loading_screen("automatically filter a neighbourhood", |ctx, timer| {
+                let neighbourhood = Neighbourhood::new(ctx, app, id);
+                heuristic.apply(ctx, app, &neighbourhood, timer)
+            }) {
+                Ok(()) => Transition::Multi(vec![Transition::Pop, Transition::Recreate]),
+                Err(err) => {
+                    Transition::Replace(PopupMsg::new_state(ctx, "Error", vec![err.to_string()]))
+                }
+            }
+        }),
+    ))
+}
+
 fn help() -> Vec<&'static str> {
     vec![
         "The colored cells show where it's possible to drive without leaving the neighbourhood.",
@@ -386,7 +383,7 @@ fn advanced_panel(ctx: &EventCtx, app: &App) -> Widget {
         return Widget::nothing();
     }
     if !app.opts.dev {
-        return Toggle::checkbox(ctx, "Advanced features", None, app.opts.dev);
+        return Toggle::checkbox(ctx, "Advanced features", None, app.opts.dev).centered_vert();
     }
     Widget::col(vec![
         Toggle::checkbox(ctx, "Advanced features", None, app.opts.dev),
@@ -400,12 +397,118 @@ fn advanced_panel(ctx: &EventCtx, app: &App) -> Widget {
             .text("Automatically place filters")
             .hotkey(Key::A)
             .build_def(ctx),
-        Widget::dropdown(
-            ctx,
-            "heuristic",
-            app.session.heuristic,
-            Heuristic::choices(),
-        ),
     ])
     .section(ctx)
+}
+
+fn make_bottom_panel(
+    ctx: &mut EventCtx,
+    app: &App,
+    appwide_panel: &AppwidePanel,
+    per_tab_contents: Widget,
+) -> Panel {
+    // TODO Widget::vert_separator, but pick the height automatically?
+    let row = Widget::row(vec![
+        advanced_panel(ctx, app),
+        edit_mode(ctx, app),
+        match app.session.edit_mode {
+            EditMode::Filters => crate::edit::filters::widget(ctx),
+            EditMode::FreehandFilters(_) => crate::edit::freehand_filters::widget(ctx),
+            EditMode::Oneways => crate::edit::one_ways::widget(ctx),
+            EditMode::Shortcuts(ref focus) => {
+                crate::edit::shortcuts::widget(ctx, app, focus.as_ref())
+            }
+        }
+        .named("edit mode contents"),
+        ctx.style()
+            .btn_plain
+            .icon("system/assets/tools/undo.svg")
+            .disabled(app.per_map.edits.previous_version.is_none())
+            .hotkey(lctrl(Key::Z))
+            .build_widget(ctx, "undo"),
+        Widget::col(vec![
+            // TODO Only count new filters, not existing
+            format!(
+                "{} filters added",
+                app.per_map.edits.roads.len() + app.per_map.edits.intersections.len()
+            )
+            .text_widget(ctx),
+            format!(
+                "{} road directions changed",
+                app.per_map.edits.one_ways.len()
+            )
+            .text_widget(ctx),
+        ]),
+        per_tab_contents,
+        if app.per_map.consultation.is_none() {
+            ctx.style()
+                .btn_outline
+                .text("Adjust boundary")
+                .hotkey(Key::B)
+                .build_def(ctx)
+                .centered_vert()
+            // TODO Vertical sep
+        } else {
+            Widget::nothing()
+        },
+    ]);
+
+    BottomPanel::new(ctx, appwide_panel, row)
+}
+
+fn edit_mode(ctx: &mut EventCtx, app: &App) -> Widget {
+    let edit_mode = &app.session.edit_mode;
+    let filter = |ft: FilterType, hide_color: Color, name: &str| {
+        let mut btn = ctx
+            .style()
+            .btn_solid_primary
+            .icon(ft.svg_path())
+            .image_color(
+                RewriteColor::Change(hide_color, Color::CLEAR),
+                ControlState::Default,
+            )
+            .image_color(
+                RewriteColor::Change(hide_color, Color::CLEAR),
+                ControlState::Disabled,
+            )
+            .disabled(matches!(edit_mode, EditMode::Filters) && app.session.filter_type == ft);
+        if app.session.filter_type == ft {
+            btn = btn.hotkey(Key::F1);
+        }
+        btn.build_widget(ctx, name)
+    };
+
+    Widget::row(vec![
+        Widget::row(vec![
+            filter(
+                FilterType::WalkCycleOnly,
+                Color::hex("#0b793a"),
+                "Modal filter -- walking/cycling only",
+            ),
+            filter(FilterType::NoEntry, Color::RED, "Modal filter - no entry"),
+            filter(FilterType::BusGate, *colors::BUS_ROUTE, "Bus gate"),
+        ])
+        .section(ctx),
+        ctx.style()
+            .btn_solid_primary
+            .icon("system/assets/tools/select.svg")
+            .disabled(matches!(edit_mode, EditMode::FreehandFilters(_)))
+            .hotkey(Key::F2)
+            .build_widget(ctx, "Freehand filters")
+            .centered_vert(),
+        ctx.style()
+            .btn_solid_primary
+            .icon("system/assets/tools/one_ways.svg")
+            .disabled(matches!(edit_mode, EditMode::Oneways))
+            .hotkey(Key::F3)
+            .build_widget(ctx, "One-ways")
+            .centered_vert(),
+        ctx.style()
+            .btn_solid_primary
+            .icon("system/assets/tools/shortcut.svg")
+            .disabled(matches!(edit_mode, EditMode::Shortcuts(_)))
+            .hotkey(Key::F4)
+            .build_widget(ctx, "Shortcuts")
+            .centered_vert(),
+    ])
 }

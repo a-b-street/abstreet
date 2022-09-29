@@ -300,6 +300,9 @@ impl<'a, 'c> Image<'a, 'c> {
                             container_bounds.height(),
                             image_corners,
                         ),
+                        CornerRounding::NoRounding => {
+                            Polygon::rectangle(container_bounds.width(), container_bounds.height())
+                        }
                     };
 
                     let image_bg = self.bg_color.unwrap_or(Color::CLEAR);

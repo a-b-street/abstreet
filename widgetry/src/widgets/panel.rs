@@ -530,6 +530,9 @@ impl Panel {
     pub fn center_of_panel(&self) -> ScreenPt {
         self.top_level.rect.center()
     }
+    pub fn panel_rect(&self) -> &ScreenRectangle {
+        &self.top_level.rect
+    }
     pub fn panel_dims(&self) -> ScreenDims {
         self.top_level.rect.dims()
     }

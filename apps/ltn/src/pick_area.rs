@@ -4,18 +4,17 @@ use abstutil::Counter;
 use map_gui::tools::{ColorNetwork, DrawSimpleRoadLabels};
 use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::{
-    Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Outcome, Panel,
-    State, TextExt, Toggle, Widget,
+    Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, Outcome, Panel, State,
+    TextExt, Toggle, Widget,
 };
 
-use crate::components::Mode;
+use crate::components::{AppwidePanel, BottomPanel, Mode};
 use crate::edit::EditMode;
-use crate::filters::auto::Heuristic;
 use crate::{colors, App, Neighbourhood, NeighbourhoodID, Transition};
 
 pub struct PickArea {
-    top_panel: Panel,
-    left_panel: Panel,
+    appwide_panel: AppwidePanel,
+    bottom_panel: Panel,
     world: World<NeighbourhoodID>,
     draw_over_roads: Drawable,
     labels: DrawSimpleRoadLabels,
@@ -43,19 +42,24 @@ impl PickArea {
                 (make_world(ctx, app), draw_over_roads(ctx, app))
             });
 
-        let top_panel = crate::components::TopPanel::panel(ctx, app, Mode::PickArea);
-        let left_panel = crate::components::LeftPanel::builder(
+        let appwide_panel = AppwidePanel::new(ctx, app, Mode::PickArea);
+        let bottom_panel = BottomPanel::new(
             ctx,
-            &top_panel,
-            Widget::col(vec![
+            &appwide_panel,
+            Widget::row(vec![
                 Toggle::checkbox(ctx, "Advanced features", None, app.opts.dev),
                 advanced_panel(ctx, app),
             ]),
-        )
-        .build(ctx);
+        );
+
+        // Just force the layers panel to align above the bottom panel
+        app.session
+            .layers
+            .event(ctx, &app.cs, Mode::PickArea, Some(&bottom_panel));
+
         Box::new(PickArea {
-            top_panel,
-            left_panel,
+            appwide_panel,
+            bottom_panel,
             world,
             draw_over_roads,
             labels: DrawSimpleRoadLabels::only_major_roads(ctx, app, colors::ROAD_LABEL),
@@ -66,61 +70,31 @@ impl PickArea {
 
 impl State<App> for PickArea {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        if let Some(t) = crate::components::TopPanel::event(
-            ctx,
-            app,
-            &mut self.top_panel,
-            &crate::save::PreserveState::PickArea,
-            help,
-        ) {
+        if let Some(t) =
+            self.appwide_panel
+                .event(ctx, app, &crate::save::PreserveState::PickArea, help)
+        {
             return t;
         }
-        if let Some(t) = app.session.layers.event(ctx, &app.cs, Mode::PickArea) {
+        if let Some(t) =
+            app.session
+                .layers
+                .event(ctx, &app.cs, Mode::PickArea, Some(&self.bottom_panel))
+        {
             return t;
         }
-        match self.left_panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
-                "Automatically place filters" => {
-                    ctx.loading_screen("automatically filter all neighbourhoods", |ctx, timer| {
-                        timer.start_iter(
-                            "filter neighbourhood",
-                            app.per_map.partitioning.all_neighbourhoods().len(),
-                        );
-                        for id in app
-                            .per_map
-                            .partitioning
-                            .all_neighbourhoods()
-                            .keys()
-                            .cloned()
-                            .collect::<Vec<_>>()
-                        {
-                            timer.next();
-                            let neighbourhood = Neighbourhood::new(ctx, app, id);
-                            // Ignore errors
-                            let _ = app.session.heuristic.apply(ctx, app, &neighbourhood, timer);
-                        }
-                    });
-                    return Transition::Replace(PickArea::new_state(ctx, app));
-                }
-                _ => unreachable!(),
-            },
-            Outcome::Changed(x) => {
-                if x == "Advanced features" {
-                    app.opts.dev = self.left_panel.is_checked("Advanced features");
-                    return Transition::Replace(PickArea::new_state(ctx, app));
-                }
-                if x == "heuristic" {
-                    app.session.heuristic = self.left_panel.dropdown_value("heuristic");
-                } else if x == "style" {
-                    app.session.draw_neighbourhood_style = self.left_panel.dropdown_value("style");
+        if let Outcome::Changed(x) = self.bottom_panel.event(ctx) {
+            if x == "Advanced features" {
+                app.opts.dev = self.bottom_panel.is_checked("Advanced features");
+                return Transition::Replace(PickArea::new_state(ctx, app));
+            } else if x == "style" {
+                app.session.draw_neighbourhood_style = self.bottom_panel.dropdown_value("style");
 
-                    ctx.loading_screen("change style", |ctx, _| {
-                        self.world = make_world(ctx, app);
-                        self.draw_over_roads = draw_over_roads(ctx, app);
-                    });
-                }
+                ctx.loading_screen("change style", |ctx, _| {
+                    self.world = make_world(ctx, app);
+                    self.draw_over_roads = draw_over_roads(ctx, app);
+                });
             }
-            _ => {}
         }
 
         if let WorldOutcome::ClickedObject(id) = self.world.event(ctx) {
@@ -138,8 +112,8 @@ impl State<App> for PickArea {
         app.draw_with_layering(g, |g| self.world.draw(g));
         self.draw_over_roads.draw(g);
 
-        self.top_panel.draw(g);
-        self.left_panel.draw(g);
+        self.appwide_panel.draw(g);
+        self.bottom_panel.draw(g);
         app.session.layers.draw(g, app);
         self.draw_boundary_roads.draw(g);
         self.labels.draw(g);
@@ -291,35 +265,18 @@ fn advanced_panel(ctx: &EventCtx, app: &App) -> Widget {
     if !app.opts.dev {
         return Widget::nothing();
     }
-    Widget::col(vec![
-        Line("Advanced features").small_heading().into_widget(ctx),
-        Widget::col(vec![Widget::row(vec![
-            "Draw neighbourhoods:".text_widget(ctx).centered_vert(),
-            Widget::dropdown(
-                ctx,
-                "style",
-                app.session.draw_neighbourhood_style,
-                vec![
-                    Choice::new("simple", Style::Simple),
-                    Choice::new("cells", Style::Cells),
-                    Choice::new("quietness", Style::Quietness),
-                    Choice::new("all shortcuts", Style::Shortcuts),
-                ],
-            ),
-        ])])
-        .section(ctx),
-        Widget::col(vec![
-            ctx.style()
-                .btn_outline
-                .text("Automatically place filters")
-                .build_def(ctx),
-            Widget::dropdown(
-                ctx,
-                "heuristic",
-                app.session.heuristic,
-                Heuristic::choices(),
-            ),
-        ])
-        .section(ctx),
+    Widget::row(vec![
+        "Draw neighbourhoods:".text_widget(ctx).centered_vert(),
+        Widget::dropdown(
+            ctx,
+            "style",
+            app.session.draw_neighbourhood_style,
+            vec![
+                Choice::new("simple", Style::Simple),
+                Choice::new("cells", Style::Cells),
+                Choice::new("quietness", Style::Quietness),
+                Choice::new("all shortcuts", Style::Shortcuts),
+            ],
+        ),
     ])
 }
