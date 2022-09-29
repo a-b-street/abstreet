@@ -4,11 +4,11 @@ use abstutil::Counter;
 use map_gui::tools::{ColorNetwork, DrawSimpleRoadLabels};
 use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::{
-    Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, Outcome, Panel,
-    State, TextExt, Toggle, Widget,
+    Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, Outcome, Panel, State,
+    TextExt, Toggle, Widget,
 };
 
-use crate::components::{AppwidePanel, Mode, BottomPanel};
+use crate::components::{AppwidePanel, BottomPanel, Mode};
 use crate::edit::EditMode;
 use crate::{colors, App, Neighbourhood, NeighbourhoodID, Transition};
 
@@ -51,9 +51,11 @@ impl PickArea {
                 advanced_panel(ctx, app),
             ]),
         );
-        
+
         // Just force the layers panel to align above the bottom panel
-        app.session.layers.event(ctx, &app.cs, Mode::PickArea, Some(&bottom_panel));
+        app.session
+            .layers
+            .event(ctx, &app.cs, Mode::PickArea, Some(&bottom_panel));
 
         Box::new(PickArea {
             appwide_panel,
@@ -74,7 +76,11 @@ impl State<App> for PickArea {
         {
             return t;
         }
-        if let Some(t) = app.session.layers.event(ctx, &app.cs, Mode::PickArea, Some(&self.bottom_panel)) {
+        if let Some(t) =
+            app.session
+                .layers
+                .event(ctx, &app.cs, Mode::PickArea, Some(&self.bottom_panel))
+        {
             return t;
         }
         if let Outcome::Changed(x) = self.bottom_panel.event(ctx) {

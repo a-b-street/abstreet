@@ -74,7 +74,12 @@ impl Layers {
             _ => {}
         }
 
-        let cache_key = (mode, ctx.canvas.is_max_zoom(), ctx.canvas.is_min_zoom(), bottom_panel.map(|p| p.panel_rect().y1));
+        let cache_key = (
+            mode,
+            ctx.canvas.is_max_zoom(),
+            ctx.canvas.is_min_zoom(),
+            bottom_panel.map(|p| p.panel_rect().y1),
+        );
         if self.panel_cache_key != cache_key {
             self.panel_cache_key = cache_key;
             self.update_panel(ctx, cs, bottom_panel);

@@ -1,4 +1,3 @@
-use geom::CornerRadii;
 use widgetry::tools::ChooseSomething;
 use widgetry::tools::PopupMsg;
 use widgetry::{
@@ -206,17 +205,10 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App, mode: Mode) -> Panel {
         .align_right(),
     ])];
 
-    Panel::new_builder(
-        Widget::col(col).corner_rounding(CornerRounding::CornerRadii(CornerRadii {
-            top_left: 0.0,
-            bottom_left: 0.0,
-            bottom_right: 0.0,
-            top_right: 0.0,
-        })),
-    )
-    .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
-    .dims_width(PanelDims::ExactPercent(1.0))
-    .build(ctx)
+    Panel::new_builder(Widget::col(col).corner_rounding(CornerRounding::NoRounding))
+        .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
+        .dims_width(PanelDims::ExactPercent(1.0))
+        .build(ctx)
 }
 
 fn make_left_panel(ctx: &mut EventCtx, app: &App, top_panel: &Panel, mode: Mode) -> Panel {
@@ -248,20 +240,13 @@ fn make_left_panel(ctx: &mut EventCtx, app: &App, top_panel: &Panel, mode: Mode)
     }
 
     let top_height = top_panel.panel_dims().height;
-    Panel::new_builder(
-        Widget::col(col).corner_rounding(CornerRounding::CornerRadii(CornerRadii {
-            top_left: 0.0,
-            bottom_left: 0.0,
-            bottom_right: 0.0,
-            top_right: 0.0,
-        })),
-    )
-    .aligned(
-        HorizontalAlignment::Left,
-        VerticalAlignment::Below(top_height),
-    )
-    .dims_height(PanelDims::ExactPixels(
-        ctx.canvas.window_height - top_height,
-    ))
-    .build(ctx)
+    Panel::new_builder(Widget::col(col).corner_rounding(CornerRounding::NoRounding))
+        .aligned(
+            HorizontalAlignment::Left,
+            VerticalAlignment::Below(top_height),
+        )
+        .dims_height(PanelDims::ExactPixels(
+            ctx.canvas.window_height - top_height,
+        ))
+        .build(ctx)
 }

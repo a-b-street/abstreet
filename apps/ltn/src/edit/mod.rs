@@ -12,11 +12,11 @@ use street_network::{Direction, LaneSpec};
 use widgetry::mapspace::{ObjectID, World};
 use widgetry::tools::{PolyLineLasso, PopupMsg};
 use widgetry::{
-    lctrl, Color, ControlState, DrawBaselayer, EventCtx, GfxCtx, Key, Line,
-    Outcome, Panel, RewriteColor, State, Text, TextExt, Widget,
+    lctrl, Color, ControlState, DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel,
+    RewriteColor, State, Text, TextExt, Widget,
 };
 
-use crate::components::{BottomPanel, AppwidePanel};
+use crate::components::{AppwidePanel, BottomPanel};
 use crate::{
     after_edit, colors, is_private, App, FilterType, Neighbourhood, RoadFilter, Transition,
 };

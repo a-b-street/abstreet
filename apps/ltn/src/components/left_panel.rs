@@ -1,4 +1,3 @@
-use geom::CornerRadii;
 use widgetry::{
     CornerRounding, EventCtx, HorizontalAlignment, Panel, PanelBuilder, PanelDims,
     VerticalAlignment, Widget,
@@ -12,21 +11,14 @@ impl LeftPanel {
     // No proposals panel
     pub fn builder(ctx: &EventCtx, top_panel: &Panel, contents: Widget) -> PanelBuilder {
         let top_height = top_panel.panel_dims().height;
-        Panel::new_builder(
-            contents.corner_rounding(CornerRounding::CornerRadii(CornerRadii {
-                top_left: 0.0,
-                bottom_left: 0.0,
-                bottom_right: 0.0,
-                top_right: 0.0,
-            })),
-        )
-        .aligned(
-            HorizontalAlignment::Left,
-            VerticalAlignment::Below(top_height),
-        )
-        .dims_height(PanelDims::ExactPixels(
-            ctx.canvas.window_height - top_height,
-        ))
+        Panel::new_builder(contents.corner_rounding(CornerRounding::NoRounding))
+            .aligned(
+                HorizontalAlignment::Left,
+                VerticalAlignment::Below(top_height),
+            )
+            .dims_height(PanelDims::ExactPixels(
+                ctx.canvas.window_height - top_height,
+            ))
     }
 
     pub fn right_of_proposals(
@@ -50,13 +42,9 @@ impl LeftPanel {
 pub struct BottomPanel;
 
 impl BottomPanel {
-    pub fn new(
-        ctx: &mut EventCtx,
-        appwide_panel: &AppwidePanel,
-        contents: Widget,
-    ) -> Panel {
+    pub fn new(ctx: &mut EventCtx, appwide_panel: &AppwidePanel, contents: Widget) -> Panel {
         let left_panel_width = appwide_panel.left_panel.panel_dims().width;
-        Panel::new_builder(contents)
+        Panel::new_builder(contents.corner_rounding(CornerRounding::NoRounding))
             .aligned(
                 HorizontalAlignment::RightOf(left_panel_width),
                 VerticalAlignment::Bottom,
