@@ -103,9 +103,9 @@ impl DesignLTN {
                         .partitioning
                         .neighbourhood_area_km2(self.neighbourhood.id)
                 )
-                .text_widget(ctx),
+                .text_widget(ctx)
+                .centered_vert(),
                 warning,
-                advanced_panel(ctx, app),
             ]),
         );
     }
@@ -165,6 +165,14 @@ impl State<App> for DesignLTN {
                 "Advanced features" => {
                     app.opts.dev = self.bottom_panel.is_checked("Advanced features");
                     self.update(ctx, app);
+                    // Update the layer panel placement immediately
+                    app.session.layers.event(
+                        ctx,
+                        &app.cs,
+                        Mode::ModifyNeighbourhood,
+                        Some(&self.bottom_panel),
+                    );
+
                     return Transition::Keep;
                 }
                 _ => unreachable!(),
@@ -375,7 +383,7 @@ fn advanced_panel(ctx: &EventCtx, app: &App) -> Widget {
         return Widget::nothing();
     }
     if !app.opts.dev {
-        return Toggle::checkbox(ctx, "Advanced features", None, app.opts.dev);
+        return Toggle::checkbox(ctx, "Advanced features", None, app.opts.dev).centered_vert();
     }
     Widget::col(vec![
         Toggle::checkbox(ctx, "Advanced features", None, app.opts.dev),
@@ -399,18 +407,9 @@ fn make_bottom_panel(
     appwide_panel: &AppwidePanel,
     per_tab_contents: Widget,
 ) -> Panel {
+    // TODO Widget::vert_separator, but pick the height automatically?
     let row = Widget::row(vec![
-        if app.per_map.consultation.is_none() {
-            ctx.style()
-                .btn_outline
-                .text("Adjust boundary")
-                .hotkey(Key::B)
-                .build_def(ctx)
-                .centered_vert()
-            // TODO Vertical sep
-        } else {
-            Widget::nothing()
-        },
+        advanced_panel(ctx, app),
         edit_mode(ctx, app),
         match app.session.edit_mode {
             EditMode::Filters => crate::edit::filters::widget(ctx),
@@ -441,6 +440,17 @@ fn make_bottom_panel(
             .text_widget(ctx),
         ]),
         per_tab_contents,
+        if app.per_map.consultation.is_none() {
+            ctx.style()
+                .btn_outline
+                .text("Adjust boundary")
+                .hotkey(Key::B)
+                .build_def(ctx)
+                .centered_vert()
+            // TODO Vertical sep
+        } else {
+            Widget::nothing()
+        },
     ]);
 
     BottomPanel::new(ctx, appwide_panel, row)
