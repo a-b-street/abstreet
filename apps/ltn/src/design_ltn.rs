@@ -103,10 +103,10 @@ impl DesignLTN {
                         .partitioning
                         .neighbourhood_area_km2(self.neighbourhood.id)
                 )
-                .text_widget(ctx)
-                .centered_vert(),
+                .text_widget(ctx),
                 warning,
-            ]),
+            ])
+            .centered_vert(),
         );
     }
 }
