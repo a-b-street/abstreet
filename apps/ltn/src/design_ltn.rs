@@ -1,7 +1,7 @@
 use geom::{ArrowCap, Distance, PolyLine};
 use street_network::Direction;
 use widgetry::mapspace::{DummyID, World};
-use widgetry::tools::PopupMsg;
+use widgetry::tools::{ChooseSomething, PopupMsg};
 use widgetry::{
     Color, ControlState, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome,
     Panel, State, TextExt, Toggle, Widget,
@@ -130,28 +130,7 @@ impl State<App> for DesignLTN {
         match self.bottom_panel.event(ctx) {
             Outcome::Clicked(x) => {
                 if x == "Automatically place filters" {
-                    match ctx.loading_screen(
-                        "automatically filter a neighbourhood",
-                        |ctx, timer| {
-                            app.session
-                                .heuristic
-                                .apply(ctx, app, &self.neighbourhood, timer)
-                        },
-                    ) {
-                        Ok(()) => {
-                            self.neighbourhood =
-                                Neighbourhood::new(ctx, app, self.neighbourhood.id);
-                            self.update(ctx, app);
-                            return Transition::Keep;
-                        }
-                        Err(err) => {
-                            return Transition::Push(PopupMsg::new_state(
-                                ctx,
-                                "Error",
-                                vec![err.to_string()],
-                            ));
-                        }
-                    }
+                    return launch_autoplace_filters(ctx, self.neighbourhood.id);
                 } else if x == "Customize boundary" {
                     return Transition::Push(
                         crate::customize_boundary::CustomizeBoundary::new_state(
@@ -186,10 +165,6 @@ impl State<App> for DesignLTN {
                 "Advanced features" => {
                     app.opts.dev = self.bottom_panel.is_checked("Advanced features");
                     self.update(ctx, app);
-                    return Transition::Keep;
-                }
-                "heuristic" => {
-                    app.session.heuristic = self.bottom_panel.dropdown_value("heuristic");
                     return Transition::Keep;
                 }
                 _ => unreachable!(),
@@ -365,6 +340,25 @@ fn setup_editing(
     )
 }
 
+fn launch_autoplace_filters(ctx: &mut EventCtx, id: NeighbourhoodID) -> Transition {
+    Transition::Push(ChooseSomething::new_state(
+        ctx,
+        "Add one filter automatically, using different heuristics",
+        Heuristic::choices(),
+        Box::new(move |heuristic, ctx, app| {
+            match ctx.loading_screen("automatically filter a neighbourhood", |ctx, timer| {
+                let neighbourhood = Neighbourhood::new(ctx, app, id);
+                heuristic.apply(ctx, app, &neighbourhood, timer)
+            }) {
+                Ok(()) => Transition::Multi(vec![Transition::Pop, Transition::Recreate]),
+                Err(err) => {
+                    Transition::Replace(PopupMsg::new_state(ctx, "Error", vec![err.to_string()]))
+                }
+            }
+        }),
+    ))
+}
+
 fn help() -> Vec<&'static str> {
     vec![
         "The colored cells show where it's possible to drive without leaving the neighbourhood.",
@@ -395,12 +389,6 @@ fn advanced_panel(ctx: &EventCtx, app: &App) -> Widget {
             .text("Automatically place filters")
             .hotkey(Key::A)
             .build_def(ctx),
-        Widget::dropdown(
-            ctx,
-            "heuristic",
-            app.session.heuristic,
-            Heuristic::choices(),
-        ),
     ])
     .section(ctx)
 }
