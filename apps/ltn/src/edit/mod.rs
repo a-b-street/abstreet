@@ -1,7 +1,7 @@
-mod filters;
-mod freehand_filters;
-mod one_ways;
-mod shortcuts;
+pub mod filters;
+pub mod freehand_filters;
+pub mod one_ways;
+pub mod shortcuts;
 
 use std::collections::BTreeSet;
 
@@ -11,15 +11,9 @@ use map_model::{EditRoad, IntersectionID, Road, RoadID};
 use street_network::{Direction, LaneSpec};
 use widgetry::mapspace::{ObjectID, World};
 use widgetry::tools::{PolyLineLasso, PopupMsg};
-use widgetry::{
-    lctrl, Color, ControlState, DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel,
-    RewriteColor, State, Text, TextExt, Widget,
-};
+use widgetry::{DrawBaselayer, EventCtx, GfxCtx, Line, Outcome, Panel, State, Text, Widget};
 
-use crate::components::{AppwidePanel, BottomPanel};
-use crate::{
-    after_edit, colors, is_private, App, FilterType, Neighbourhood, RoadFilter, Transition,
-};
+use crate::{after_edit, is_private, App, FilterType, Neighbourhood, RoadFilter, Transition};
 
 pub enum EditMode {
     Filters,
@@ -76,59 +70,6 @@ impl EditNeighbourhood {
                 EditMode::Shortcuts(focus) => shortcuts::make_world(ctx, app, neighbourhood, focus),
             },
         }
-    }
-
-    // TODO Only one caller now, consider collapsing
-    pub fn make_panel(
-        &self,
-        ctx: &mut EventCtx,
-        app: &App,
-        appwide_panel: &AppwidePanel,
-        per_tab_contents: Widget,
-    ) -> Panel {
-        let row = Widget::row(vec![
-            if app.per_map.consultation.is_none() {
-                ctx.style()
-                    .btn_outline
-                    .text("Adjust boundary")
-                    .hotkey(Key::B)
-                    .build_def(ctx)
-                    .centered_vert()
-                // TODO Vertical sep
-            } else {
-                Widget::nothing()
-            },
-            edit_mode(ctx, app),
-            match app.session.edit_mode {
-                EditMode::Filters => filters::widget(ctx),
-                EditMode::FreehandFilters(_) => freehand_filters::widget(ctx),
-                EditMode::Oneways => one_ways::widget(ctx),
-                EditMode::Shortcuts(ref focus) => shortcuts::widget(ctx, app, focus.as_ref()),
-            }
-            .named("edit mode contents"),
-            ctx.style()
-                .btn_plain
-                .icon("system/assets/tools/undo.svg")
-                .disabled(app.per_map.edits.previous_version.is_none())
-                .hotkey(lctrl(Key::Z))
-                .build_widget(ctx, "undo"),
-            Widget::col(vec![
-                // TODO Only count new filters, not existing
-                format!(
-                    "{} filters added",
-                    app.per_map.edits.roads.len() + app.per_map.edits.intersections.len()
-                )
-                .text_widget(ctx),
-                format!(
-                    "{} road directions changed",
-                    app.per_map.edits.one_ways.len()
-                )
-                .text_widget(ctx),
-            ]),
-            per_tab_contents,
-        ]);
-
-        BottomPanel::new(ctx, appwide_panel, row)
     }
 
     pub fn event(
@@ -231,63 +172,6 @@ impl EditNeighbourhood {
             _ => EditOutcome::Nothing,
         }
     }
-}
-
-fn edit_mode(ctx: &mut EventCtx, app: &App) -> Widget {
-    let edit_mode = &app.session.edit_mode;
-    let filter = |ft: FilterType, hide_color: Color, name: &str| {
-        let mut btn = ctx
-            .style()
-            .btn_solid_primary
-            .icon(ft.svg_path())
-            .image_color(
-                RewriteColor::Change(hide_color, Color::CLEAR),
-                ControlState::Default,
-            )
-            .image_color(
-                RewriteColor::Change(hide_color, Color::CLEAR),
-                ControlState::Disabled,
-            )
-            .disabled(matches!(edit_mode, EditMode::Filters) && app.session.filter_type == ft);
-        if app.session.filter_type == ft {
-            btn = btn.hotkey(Key::F1);
-        }
-        btn.build_widget(ctx, name)
-    };
-
-    Widget::row(vec![
-        Widget::row(vec![
-            filter(
-                FilterType::WalkCycleOnly,
-                Color::hex("#0b793a"),
-                "Modal filter -- walking/cycling only",
-            ),
-            filter(FilterType::NoEntry, Color::RED, "Modal filter - no entry"),
-            filter(FilterType::BusGate, *colors::BUS_ROUTE, "Bus gate"),
-        ])
-        .section(ctx),
-        ctx.style()
-            .btn_solid_primary
-            .icon("system/assets/tools/select.svg")
-            .disabled(matches!(edit_mode, EditMode::FreehandFilters(_)))
-            .hotkey(Key::F2)
-            .build_widget(ctx, "Freehand filters")
-            .centered_vert(),
-        ctx.style()
-            .btn_solid_primary
-            .icon("system/assets/tools/one_ways.svg")
-            .disabled(matches!(edit_mode, EditMode::Oneways))
-            .hotkey(Key::F3)
-            .build_widget(ctx, "One-ways")
-            .centered_vert(),
-        ctx.style()
-            .btn_solid_primary
-            .icon("system/assets/tools/shortcut.svg")
-            .disabled(matches!(edit_mode, EditMode::Shortcuts(_)))
-            .hotkey(Key::F4)
-            .build_widget(ctx, "Shortcuts")
-            .centered_vert(),
-    ])
 }
 
 fn road_name(app: &App, road: &Road) -> String {
