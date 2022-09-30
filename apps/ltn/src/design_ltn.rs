@@ -4,8 +4,8 @@ use street_network::Direction;
 use widgetry::mapspace::{DummyID, World};
 use widgetry::tools::{ChooseSomething, PopupMsg};
 use widgetry::{
-    lctrl, Color, ControlState, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line,
-    Outcome, Panel, RewriteColor, State, Text, TextExt, Toggle, Widget,
+    lctrl, Choice, Color, ControlState, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, Key,
+    Line, Outcome, Panel, RewriteColor, State, Text, TextExt, Widget,
 };
 
 use crate::components::{AppwidePanel, BottomPanel, Mode};
@@ -155,57 +155,30 @@ impl State<App> for DesignLTN {
         ) {
             return t;
         }
-        match self.bottom_panel.event(ctx) {
-            Outcome::Clicked(x) => {
-                if x == "Automatically place filters" {
-                    return launch_autoplace_filters(ctx, self.neighbourhood.id);
-                } else if x == "Customize boundary" {
-                    return Transition::Push(
-                        crate::customize_boundary::CustomizeBoundary::new_state(
-                            ctx,
-                            app,
-                            self.neighbourhood.id,
-                        ),
-                    );
-                } else if x == "warning" {
-                    // Not really clickable
+        if let Outcome::Clicked(x) = self.bottom_panel.event(ctx) {
+            if x == "Advanced" {
+                return launch_advanced(ctx, self.neighbourhood.id);
+            } else if x == "warning" {
+                // Not really clickable
+                return Transition::Keep;
+            }
+
+            match self.edit.handle_panel_action(
+                ctx,
+                app,
+                x.as_ref(),
+                &self.neighbourhood,
+                &mut self.bottom_panel,
+            ) {
+                EditOutcome::Nothing => unreachable!(),
+                EditOutcome::UpdatePanelAndWorld => {
+                    self.update(ctx, app);
                     return Transition::Keep;
                 }
-
-                match self.edit.handle_panel_action(
-                    ctx,
-                    app,
-                    x.as_ref(),
-                    &self.neighbourhood,
-                    &mut self.bottom_panel,
-                ) {
-                    EditOutcome::Nothing => unreachable!(),
-                    EditOutcome::UpdatePanelAndWorld => {
-                        self.update(ctx, app);
-                        return Transition::Keep;
-                    }
-                    EditOutcome::Transition(t) => {
-                        return t;
-                    }
+                EditOutcome::Transition(t) => {
+                    return t;
                 }
             }
-            Outcome::Changed(x) => match x.as_ref() {
-                "Advanced features" => {
-                    app.opts.dev = self.bottom_panel.is_checked("Advanced features");
-                    self.update(ctx, app);
-                    // Update the layer panel placement immediately
-                    app.session.layers.event(
-                        ctx,
-                        &app.cs,
-                        Mode::ModifyNeighbourhood,
-                        Some(&self.bottom_panel),
-                    );
-
-                    return Transition::Keep;
-                }
-                _ => unreachable!(),
-            },
-            _ => {}
         }
 
         match self.edit.event(ctx, app, &self.neighbourhood) {
@@ -376,20 +349,43 @@ fn setup_editing(
     )
 }
 
-fn launch_autoplace_filters(ctx: &mut EventCtx, id: NeighbourhoodID) -> Transition {
+fn launch_advanced(ctx: &mut EventCtx, id: NeighbourhoodID) -> Transition {
     Transition::Push(ChooseSomething::new_state(
         ctx,
-        "Add one filter automatically, using different heuristics",
-        Heuristic::choices(),
-        Box::new(move |heuristic, ctx, app| {
-            match ctx.loading_screen("automatically filter a neighbourhood", |ctx, timer| {
-                let neighbourhood = Neighbourhood::new(app, id);
-                heuristic.apply(ctx, app, &neighbourhood, timer)
-            }) {
-                Ok(()) => Transition::Multi(vec![Transition::Pop, Transition::Recreate]),
-                Err(err) => {
-                    Transition::Replace(PopupMsg::new_state(ctx, "Error", vec![err.to_string()]))
-                }
+        "Advanced features",
+        Choice::strings(vec![
+            "Customize boundary (for drawing only)",
+            "Automatically place modal filters",
+        ]),
+        Box::new(move |choice, ctx, app| {
+            if choice == "Customize boundary (for drawing only)" {
+                Transition::Replace(crate::customize_boundary::CustomizeBoundary::new_state(
+                    ctx, app, id,
+                ))
+            } else {
+                Transition::Replace(ChooseSomething::new_state(
+                    ctx,
+                    "Add one filter automatically, using different heuristics",
+                    Heuristic::choices(),
+                    Box::new(move |heuristic, ctx, app| {
+                        match ctx.loading_screen(
+                            "automatically filter a neighbourhood",
+                            |ctx, timer| {
+                                let neighbourhood = Neighbourhood::new(app, id);
+                                heuristic.apply(ctx, app, &neighbourhood, timer)
+                            },
+                        ) {
+                            Ok(()) => {
+                                Transition::Multi(vec![Transition::Pop, Transition::Recreate])
+                            }
+                            Err(err) => Transition::Replace(PopupMsg::new_state(
+                                ctx,
+                                "Error",
+                                vec![err.to_string()],
+                            )),
+                        }
+                    }),
+                ))
             }
         }),
     ))
@@ -406,29 +402,6 @@ fn help() -> Vec<&'static str> {
     ]
 }
 
-fn advanced_panel(ctx: &EventCtx, app: &App) -> Widget {
-    if app.per_map.consultation.is_some() {
-        return Widget::nothing();
-    }
-    if !app.opts.dev {
-        return Toggle::checkbox(ctx, "Advanced features", None, app.opts.dev).centered_vert();
-    }
-    Widget::col(vec![
-        Toggle::checkbox(ctx, "Advanced features", None, app.opts.dev),
-        Line("Advanced features").small_heading().into_widget(ctx),
-        ctx.style()
-            .btn_outline
-            .text("Customize boundary")
-            .build_def(ctx),
-        ctx.style()
-            .btn_outline
-            .text("Automatically place filters")
-            .hotkey(Key::A)
-            .build_def(ctx),
-    ])
-    .section(ctx)
-}
-
 fn make_bottom_panel(
     ctx: &mut EventCtx,
     app: &App,
@@ -437,7 +410,6 @@ fn make_bottom_panel(
 ) -> Panel {
     // TODO Widget::vert_separator, but pick the height automatically?
     let row = Widget::row(vec![
-        advanced_panel(ctx, app),
         edit_mode(ctx, app),
         if let EditMode::Shortcuts(ref focus) = app.session.edit_mode {
             crate::edit::shortcuts::widget(ctx, app, focus.as_ref())
@@ -468,13 +440,15 @@ fn make_bottom_panel(
         ]),
         per_tab_contents,
         if app.per_map.consultation.is_none() {
-            ctx.style()
-                .btn_outline
-                .text("Adjust boundary")
-                .hotkey(Key::B)
-                .build_def(ctx)
-                .centered_vert()
-            // TODO Vertical sep
+            Widget::row(vec![
+                ctx.style()
+                    .btn_outline
+                    .text("Adjust boundary")
+                    .hotkey(Key::B)
+                    .build_def(ctx),
+                ctx.style().btn_outline.text("Advanced").build_def(ctx),
+            ])
+            .centered_vert()
         } else {
             Widget::nothing()
         },

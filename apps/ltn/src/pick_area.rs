@@ -3,9 +3,9 @@ use std::collections::HashSet;
 use abstutil::Counter;
 use map_gui::tools::{ColorNetwork, DrawSimpleRoadLabels};
 use widgetry::mapspace::{World, WorldOutcome};
+use widgetry::tools::ChooseSomething;
 use widgetry::{
     Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, Outcome, Panel, State,
-    TextExt, Toggle, Widget,
 };
 
 use crate::components::{AppwidePanel, BottomPanel, Mode};
@@ -46,10 +46,11 @@ impl PickArea {
         let bottom_panel = BottomPanel::new(
             ctx,
             &appwide_panel,
-            Widget::row(vec![
-                Toggle::checkbox(ctx, "Advanced features", None, app.opts.dev),
-                advanced_panel(ctx, app),
-            ]),
+            ctx.style()
+                .btn_outline
+                .text("Change draw style")
+                .build_def(ctx)
+                .container(),
         );
 
         // Just force the layers panel to align above the bottom panel
@@ -83,17 +84,11 @@ impl State<App> for PickArea {
         {
             return t;
         }
-        if let Outcome::Changed(x) = self.bottom_panel.event(ctx) {
-            if x == "Advanced features" {
-                app.opts.dev = self.bottom_panel.is_checked("Advanced features");
-                return Transition::Replace(PickArea::new_state(ctx, app));
-            } else if x == "style" {
-                app.session.draw_neighbourhood_style = self.bottom_panel.dropdown_value("style");
-
-                ctx.loading_screen("change style", |ctx, _| {
-                    self.world = make_world(ctx, app);
-                    self.draw_over_roads = draw_over_roads(ctx, app);
-                });
+        if let Outcome::Clicked(x) = self.bottom_panel.event(ctx) {
+            if x == "Change draw style" {
+                return change_draw_style(ctx);
+            } else {
+                unreachable!()
             }
         }
 
@@ -261,22 +256,22 @@ fn help() -> Vec<&'static str> {
     ]
 }
 
-fn advanced_panel(ctx: &EventCtx, app: &App) -> Widget {
-    if !app.opts.dev {
-        return Widget::nothing();
-    }
-    Widget::row(vec![
-        "Draw neighbourhoods:".text_widget(ctx).centered_vert(),
-        Widget::dropdown(
-            ctx,
-            "style",
-            app.session.draw_neighbourhood_style,
-            vec![
-                Choice::new("simple", Style::Simple),
-                Choice::new("cells", Style::Cells),
-                Choice::new("quietness", Style::Quietness),
-                Choice::new("all shortcuts", Style::Shortcuts),
-            ],
-        ),
-    ])
+fn change_draw_style(ctx: &mut EventCtx) -> Transition {
+    Transition::Push(ChooseSomething::new_state(
+        ctx,
+        "Change draw style",
+        vec![
+            Choice::new("default", Style::Simple),
+            Choice::new("show cells when you hover on an area", Style::Cells),
+            Choice::new(
+                "color areas by how much shortcutting they have",
+                Style::Quietness,
+            ),
+            Choice::new("show shortcuts through all areas", Style::Shortcuts),
+        ],
+        Box::new(move |choice, _, app| {
+            app.session.draw_neighbourhood_style = choice;
+            Transition::Multi(vec![Transition::Pop, Transition::Recreate])
+        }),
+    ))
 }
