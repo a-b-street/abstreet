@@ -1,14 +1,10 @@
 use map_model::EditRoad;
 use street_network::LaneSpec;
 use widgetry::mapspace::{World, WorldOutcome};
-use widgetry::{EventCtx, Text, TextExt, Transition, Widget};
+use widgetry::{EventCtx, Text, Transition};
 
 use super::{road_name, EditOutcome, Obj};
 use crate::{colors, App, Neighbourhood};
-
-pub fn widget(ctx: &mut EventCtx) -> Widget {
-    "Click a road to change its direction".text_widget(ctx)
-}
 
 pub fn make_world(ctx: &mut EventCtx, app: &App, neighbourhood: &Neighbourhood) -> World<Obj> {
     let map = &app.per_map.map;

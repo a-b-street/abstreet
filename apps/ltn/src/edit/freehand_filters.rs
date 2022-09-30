@@ -1,17 +1,8 @@
 use geom::PolyLine;
-use widgetry::{EventCtx, Line, Text, Widget};
+use widgetry::EventCtx;
 
 use crate::edit::{EditMode, EditOutcome};
 use crate::{after_edit, App, DiagonalFilter, FilterType, Neighbourhood, RoadFilter, Transition};
-
-pub fn widget(ctx: &mut EventCtx) -> Widget {
-    Text::from_all(vec![
-        Line("Click and drag").fg(ctx.style().text_hotkey_color),
-        Line(" across the roads you want to filter"),
-    ])
-    .wrap_to_pct(ctx, 15)
-    .into_widget(ctx)
-}
 
 pub fn event(ctx: &mut EventCtx, app: &mut App, neighbourhood: &Neighbourhood) -> EditOutcome {
     if let EditMode::FreehandFilters(ref mut lasso) = app.session.edit_mode {

@@ -5,7 +5,7 @@ use widgetry::mapspace::{DummyID, World};
 use widgetry::tools::{ChooseSomething, PopupMsg};
 use widgetry::{
     lctrl, Color, ControlState, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line,
-    Outcome, Panel, RewriteColor, State, TextExt, Toggle, Widget,
+    Outcome, Panel, RewriteColor, State, Text, TextExt, Toggle, Widget,
 };
 
 use crate::components::{AppwidePanel, BottomPanel, Mode};
@@ -439,33 +439,32 @@ fn make_bottom_panel(
     let row = Widget::row(vec![
         advanced_panel(ctx, app),
         edit_mode(ctx, app),
-        match app.session.edit_mode {
-            EditMode::Filters => crate::edit::filters::widget(ctx),
-            EditMode::FreehandFilters(_) => crate::edit::freehand_filters::widget(ctx),
-            EditMode::Oneways => crate::edit::one_ways::widget(ctx),
-            EditMode::Shortcuts(ref focus) => {
-                crate::edit::shortcuts::widget(ctx, app, focus.as_ref())
-            }
+        if let EditMode::Shortcuts(ref focus) = app.session.edit_mode {
+            crate::edit::shortcuts::widget(ctx, app, focus.as_ref())
+        } else {
+            Widget::nothing()
         }
         .named("edit mode contents"),
-        ctx.style()
-            .btn_plain
-            .icon("system/assets/tools/undo.svg")
-            .disabled(app.per_map.edits.previous_version.is_none())
-            .hotkey(lctrl(Key::Z))
-            .build_widget(ctx, "undo"),
-        Widget::col(vec![
-            // TODO Only count new filters, not existing
-            format!(
-                "{} filters added",
-                app.per_map.edits.roads.len() + app.per_map.edits.intersections.len()
-            )
-            .text_widget(ctx),
-            format!(
-                "{} road directions changed",
-                app.per_map.edits.one_ways.len()
-            )
-            .text_widget(ctx),
+        Widget::row(vec![
+            ctx.style()
+                .btn_plain
+                .icon("system/assets/tools/undo.svg")
+                .disabled(app.per_map.edits.previous_version.is_none())
+                .hotkey(lctrl(Key::Z))
+                .build_widget(ctx, "undo"),
+            Widget::col(vec![
+                // TODO Only count new filters, not existing
+                format!(
+                    "{} filters added",
+                    app.per_map.edits.roads.len() + app.per_map.edits.intersections.len()
+                )
+                .text_widget(ctx),
+                format!(
+                    "{} road directions changed",
+                    app.per_map.edits.one_ways.len()
+                )
+                .text_widget(ctx),
+            ]),
         ]),
         per_tab_contents,
         if app.per_map.consultation.is_none() {
@@ -479,7 +478,8 @@ fn make_bottom_panel(
         } else {
             Widget::nothing()
         },
-    ]);
+    ])
+    .evenly_spaced();
 
     BottomPanel::new(ctx, appwide_panel, row)
 }
@@ -499,7 +499,22 @@ fn edit_mode(ctx: &mut EventCtx, app: &App) -> Widget {
                 RewriteColor::Change(hide_color, Color::CLEAR),
                 ControlState::Disabled,
             )
-            .disabled(matches!(edit_mode, EditMode::Filters) && app.session.filter_type == ft);
+            .disabled(matches!(edit_mode, EditMode::Filters) && app.session.filter_type == ft)
+            .tooltip_and_disabled({
+                let mut txt = Text::new();
+                if app.session.filter_type == ft {
+                    txt.add_line(Line(Key::F1.describe()).fg(ctx.style().text_hotkey_color));
+                    txt.append(Line(" - "));
+                } else {
+                    txt.add_line("");
+                }
+                txt.append(Line(name));
+                txt.add_line(Line("Click").fg(ctx.style().text_hotkey_color));
+                txt.append(Line(
+                    " a road or intersection to add or remove a modal filter",
+                ));
+                txt
+            });
         if app.session.filter_type == ft {
             btn = btn.hotkey(Key::F1);
         }
@@ -522,6 +537,14 @@ fn edit_mode(ctx: &mut EventCtx, app: &App) -> Widget {
             .icon("system/assets/tools/select.svg")
             .disabled(matches!(edit_mode, EditMode::FreehandFilters(_)))
             .hotkey(Key::F2)
+            .tooltip_and_disabled({
+                let mut txt = Text::new();
+                txt.add_line(Line(Key::F2.describe()).fg(ctx.style().text_hotkey_color));
+                txt.append(Line(" - Freehand filters"));
+                txt.add_line(Line("Click and drag").fg(ctx.style().text_hotkey_color));
+                txt.append(Line(" across the roads you want to filter"));
+                txt
+            })
             .build_widget(ctx, "Freehand filters")
             .centered_vert(),
         ctx.style()
@@ -529,6 +552,14 @@ fn edit_mode(ctx: &mut EventCtx, app: &App) -> Widget {
             .icon("system/assets/tools/one_ways.svg")
             .disabled(matches!(edit_mode, EditMode::Oneways))
             .hotkey(Key::F3)
+            .tooltip_and_disabled({
+                let mut txt = Text::new();
+                txt.add_line(Line(Key::F3.describe()).fg(ctx.style().text_hotkey_color));
+                txt.append(Line(" - One-ways"));
+                txt.add_line(Line("Click").fg(ctx.style().text_hotkey_color));
+                txt.append(Line(" a road to change its direction"));
+                txt
+            })
             .build_widget(ctx, "One-ways")
             .centered_vert(),
         ctx.style()
@@ -536,6 +567,14 @@ fn edit_mode(ctx: &mut EventCtx, app: &App) -> Widget {
             .icon("system/assets/tools/shortcut.svg")
             .disabled(matches!(edit_mode, EditMode::Shortcuts(_)))
             .hotkey(Key::F4)
+            .tooltip_and_disabled({
+                let mut txt = Text::new();
+                txt.add_line(Line(Key::F4.describe()).fg(ctx.style().text_hotkey_color));
+                txt.append(Line(" - Shortcuts"));
+                txt.add_line(Line("Click").fg(ctx.style().text_hotkey_color));
+                txt.append(Line(" a road to view shortcuts through it"));
+                txt
+            })
             .build_widget(ctx, "Shortcuts")
             .centered_vert(),
     ])

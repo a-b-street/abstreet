@@ -42,9 +42,7 @@ pub fn widget(ctx: &mut EventCtx, app: &App, focus: Option<&FocusedRoad>) -> Wid
                     .build_widget(ctx, "next shortcut"),
             ]),
         ]),
-        None => Widget::col(vec![
-            "Click a road to view shortcuts through it".text_widget(ctx)
-        ]),
+        None => Widget::nothing(),
     }
 }
 

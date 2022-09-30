@@ -486,6 +486,14 @@ impl<'b, 'a: 'b, 'c> ButtonBuilder<'a, 'c> {
         self
     }
 
+    /// Sets a tooltip to appear whether the button is disabled or not.
+    pub fn tooltip_and_disabled(mut self, tooltip: impl Into<Text>) -> Self {
+        let tooltip = tooltip.into();
+        self.tooltip = Some(tooltip.clone());
+        self.disabled_tooltip = Some(tooltip.clone());
+        self
+    }
+
     /// The button's items will be rendered in a vertical column
     ///
     /// If the button doesn't have both an image and label, this has no effect.

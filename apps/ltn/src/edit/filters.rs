@@ -1,17 +1,9 @@
 use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::tools::open_browser;
-use widgetry::{lctrl, EventCtx, Key, Line, Text, Transition, Widget};
+use widgetry::{lctrl, EventCtx, Key, Text, Transition};
 
 use super::{road_name, EditOutcome, Obj};
 use crate::{after_edit, colors, App, DiagonalFilter, FilterType, Neighbourhood, RoadFilter};
-
-pub fn widget(ctx: &mut EventCtx) -> Widget {
-    Text::from(Line(
-        "Click a road or intersection to add or remove a modal filter",
-    ))
-    .wrap_to_pct(ctx, 15)
-    .into_widget(ctx)
-}
 
 /// Creates clickable objects for managing filters on roads and intersections. Everything is
 /// invisible; the caller is responsible for drawing things.
