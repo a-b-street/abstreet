@@ -1,18 +1,17 @@
 use anyhow::Result;
 
 use geom::{PolyLine, Pt2D};
-use widgetry::EventCtx;
 
 use crate::{App, Neighbourhood};
 
 /// Returns the path where the file was written
-pub fn write_geojson_file(ctx: &mut EventCtx, app: &App) -> Result<String> {
-    let contents = geojson_string(ctx, app)?;
+pub fn write_geojson_file(app: &App) -> Result<String> {
+    let contents = geojson_string(app)?;
     let path = format!("ltn_{}.geojson", app.per_map.map.get_name().map);
     abstio::write_file(path, contents)
 }
 
-fn geojson_string(ctx: &mut EventCtx, app: &App) -> Result<String> {
+fn geojson_string(app: &App) -> Result<String> {
     use geo::MapCoordsInPlace;
     use geojson::{Feature, FeatureCollection, GeoJson, Geometry, Value};
 
@@ -32,8 +31,7 @@ fn geojson_string(ctx: &mut EventCtx, app: &App) -> Result<String> {
         features.push(feature);
 
         // Cells per neighbourhood
-        let render_cells =
-            crate::draw_cells::RenderCells::new(map, &Neighbourhood::new(ctx, app, *id));
+        let render_cells = crate::draw_cells::RenderCells::new(map, &Neighbourhood::new(app, *id));
         for (idx, multipolygon) in render_cells.to_multipolygons().into_iter().enumerate() {
             let mut feature = Feature {
                 bbox: None,

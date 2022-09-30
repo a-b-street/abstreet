@@ -3,12 +3,10 @@ use std::collections::{BTreeMap, BTreeSet};
 use maplit::btreeset;
 
 use geom::{ArrowCap, Distance, PolyLine, Polygon};
-use map_gui::tools::DrawSimpleRoadLabels;
 use map_model::{Direction, IntersectionID, Map, Perimeter, RoadID};
-use widgetry::{Drawable, EventCtx, GeomBatch};
 
 use crate::shortcuts::Shortcuts;
-use crate::{colors, is_private, App, Edits, NeighbourhoodID};
+use crate::{is_private, App, Edits, NeighbourhoodID};
 
 // Once constructed, a Neighbourhood is immutable
 pub struct Neighbourhood {
@@ -21,9 +19,6 @@ pub struct Neighbourhood {
 
     pub cells: Vec<Cell>,
     pub shortcuts: Shortcuts,
-
-    pub fade_irrelevant: Drawable,
-    pub labels: DrawSimpleRoadLabels,
 }
 
 /// A partitioning of the interior of a neighbourhood based on driving design_ltn
@@ -104,7 +99,7 @@ pub struct DistanceInterval {
 }
 
 impl Neighbourhood {
-    pub fn new(ctx: &mut EventCtx, app: &App, id: NeighbourhoodID) -> Neighbourhood {
+    pub fn new(app: &App, id: NeighbourhoodID) -> Neighbourhood {
         let map = &app.per_map.map;
         let orig_perimeter = app
             .per_map
@@ -122,9 +117,6 @@ impl Neighbourhood {
 
             cells: Vec::new(),
             shortcuts: Shortcuts::empty(),
-
-            fade_irrelevant: Drawable::empty(ctx),
-            labels: DrawSimpleRoadLabels::empty(ctx),
         };
 
         for id in &n.orig_perimeter.roads {
@@ -133,15 +125,6 @@ impl Neighbourhood {
             n.borders.insert(road.src_i);
             n.borders.insert(road.dst_i);
         }
-        let fade_area = Polygon::with_holes(
-            map.get_boundary_polygon().get_outer_ring().clone(),
-            vec![app
-                .per_map
-                .partitioning
-                .neighbourhood_boundary_polygon(app, id)
-                .into_outer_ring()],
-        );
-        n.fade_irrelevant = GeomBatch::from(vec![(app.cs.fade_map_dark, fade_area)]).upload(ctx);
 
         for r in &n.orig_perimeter.interior {
             let road = map.get_r(*r);
@@ -153,15 +136,6 @@ impl Neighbourhood {
         }
 
         n.cells = find_cells(map, &n.orig_perimeter, &n.borders, &app.per_map.edits);
-
-        let mut label_roads = n.perimeter.clone();
-        label_roads.extend(n.orig_perimeter.interior.clone());
-        n.labels = DrawSimpleRoadLabels::new(
-            ctx,
-            app,
-            colors::ROAD_LABEL,
-            Box::new(move |r| label_roads.contains(&r.id)),
-        );
 
         // TODO The timer could be nice for large areas. But plumbing through one everywhere is
         // tedious, and would hit a nested start_iter bug anyway.

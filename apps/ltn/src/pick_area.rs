@@ -147,7 +147,7 @@ fn make_world(ctx: &mut EventCtx, app: &App) -> World<NeighbourhoodID> {
                         .build(ctx);
                 }
                 Style::Cells => {
-                    let neighbourhood = Neighbourhood::new(ctx, app, *id);
+                    let neighbourhood = Neighbourhood::new(app, *id);
                     let render_cells = crate::draw_cells::RenderCells::new(map, &neighbourhood);
                     let hovered_batch = render_cells.draw_colored_areas();
                     world
@@ -159,7 +159,7 @@ fn make_world(ctx: &mut EventCtx, app: &App) -> World<NeighbourhoodID> {
                         .build(ctx);
                 }
                 Style::Quietness => {
-                    let neighbourhood = Neighbourhood::new(ctx, app, *id);
+                    let neighbourhood = Neighbourhood::new(app, *id);
                     let (quiet_streets, total_streets) = neighbourhood
                         .shortcuts
                         .quiet_and_total_streets(&neighbourhood);
@@ -202,7 +202,7 @@ fn draw_over_roads(ctx: &mut EventCtx, app: &App) -> Drawable {
     let mut count_per_intersection = Counter::new();
 
     for id in app.per_map.partitioning.all_neighbourhoods().keys() {
-        let neighbourhood = Neighbourhood::new(ctx, app, *id);
+        let neighbourhood = Neighbourhood::new(app, *id);
         count_per_road.extend(neighbourhood.shortcuts.count_per_road);
         count_per_intersection.extend(neighbourhood.shortcuts.count_per_intersection);
     }

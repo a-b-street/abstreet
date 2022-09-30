@@ -65,9 +65,9 @@ impl Heuristic {
         app.per_map.edits.before_edit();
 
         match self {
-            Heuristic::Greedy => greedy(ctx, app, neighbourhood),
-            Heuristic::BruteForce => brute_force(ctx, app, neighbourhood, timer),
-            Heuristic::SplitCells => split_cells(ctx, app, neighbourhood, timer),
+            Heuristic::Greedy => greedy(app, neighbourhood),
+            Heuristic::BruteForce => brute_force(app, neighbourhood, timer),
+            Heuristic::SplitCells => split_cells(app, neighbourhood, timer),
             Heuristic::OnlyOneBorder => only_one_border(app, neighbourhood),
         }
 
@@ -81,7 +81,7 @@ impl Heuristic {
     }
 }
 
-fn greedy(ctx: &mut EventCtx, app: &mut App, neighbourhood: &Neighbourhood) {
+fn greedy(app: &mut App, neighbourhood: &Neighbourhood) {
     // TODO How should we break ties? Some shortcuts are worse than others; use that weight?
     // TODO Should this operation be per cell instead? We could hover on a road belonging to that
     // cell to select it
@@ -92,19 +92,14 @@ fn greedy(ctx: &mut EventCtx, app: &mut App, neighbourhood: &Neighbourhood) {
         .iter()
         .max_by_key(|pair| pair.1)
     {
-        if try_to_filter_road(ctx, app, neighbourhood, *r).is_none() {
+        if try_to_filter_road(app, neighbourhood, *r).is_none() {
             warn!("Filtering {} disconnects a cell, never mind", r);
             // TODO Try the next choice
         }
     }
 }
 
-fn brute_force(
-    ctx: &mut EventCtx,
-    app: &mut App,
-    neighbourhood: &Neighbourhood,
-    timer: &mut Timer,
-) {
+fn brute_force(app: &mut App, neighbourhood: &Neighbourhood, timer: &mut Timer) {
     // Which road leads to the fewest shortcuts?
     let mut best: Option<(RoadID, usize)> = None;
 
@@ -118,7 +113,7 @@ fn brute_force(
         if app.per_map.edits.roads.contains_key(r) {
             continue;
         }
-        if let Some(new) = try_to_filter_road(ctx, app, neighbourhood, *r) {
+        if let Some(new) = try_to_filter_road(app, neighbourhood, *r) {
             let num_shortcuts = new.shortcuts.paths.len();
             // TODO Again, break ties. Just the number of paths is kind of a weak metric.
             if best.map(|(_, score)| num_shortcuts < score).unwrap_or(true) {
@@ -132,16 +127,11 @@ fn brute_force(
     }
 
     if let Some((r, _)) = best {
-        try_to_filter_road(ctx, app, neighbourhood, r).unwrap();
+        try_to_filter_road(app, neighbourhood, r).unwrap();
     }
 }
 
-fn split_cells(
-    ctx: &mut EventCtx,
-    app: &mut App,
-    neighbourhood: &Neighbourhood,
-    timer: &mut Timer,
-) {
+fn split_cells(app: &mut App, neighbourhood: &Neighbourhood, timer: &mut Timer) {
     // Filtering which road leads to new cells with the MOST streets in the smaller cell?
     let mut best: Option<(RoadID, usize)> = None;
 
@@ -155,7 +145,7 @@ fn split_cells(
         if app.per_map.edits.roads.contains_key(r) {
             continue;
         }
-        if let Some(new) = try_to_filter_road(ctx, app, neighbourhood, *r) {
+        if let Some(new) = try_to_filter_road(app, neighbourhood, *r) {
             // Did we split the cell?
             if new.cells.len() > neighbourhood.cells.len() {
                 // Find the two new cells
@@ -183,7 +173,7 @@ fn split_cells(
     }
 
     if let Some((r, _)) = best {
-        try_to_filter_road(ctx, app, neighbourhood, r).unwrap();
+        try_to_filter_road(app, neighbourhood, r).unwrap();
     }
 }
 
@@ -217,7 +207,6 @@ fn only_one_border(app: &mut App, neighbourhood: &Neighbourhood) {
 // If successful, returns a Neighbourhood and leaves the new filter in place. If it disconncts a
 // cell, reverts the change and returns None
 fn try_to_filter_road(
-    ctx: &mut EventCtx,
     app: &mut App,
     neighbourhood: &Neighbourhood,
     r: RoadID,
@@ -227,8 +216,7 @@ fn try_to_filter_road(
         r,
         RoadFilter::new_by_user(road.length() / 2.0, app.session.filter_type),
     );
-    // TODO This is expensive; can we just do the design_ltn work and not drawing?
-    let new_neighbourhood = Neighbourhood::new(ctx, app, neighbourhood.id);
+    let new_neighbourhood = Neighbourhood::new(app, neighbourhood.id);
     if new_neighbourhood.cells.iter().any(|c| c.is_disconnected()) {
         app.per_map.edits.roads.remove(&r).unwrap();
         None

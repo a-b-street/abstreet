@@ -1,4 +1,5 @@
-use geom::{ArrowCap, Distance, PolyLine};
+use geom::{ArrowCap, Distance, PolyLine, Polygon};
+use map_gui::tools::DrawSimpleRoadLabels;
 use street_network::Direction;
 use widgetry::mapspace::{DummyID, World};
 use widgetry::tools::{ChooseSomething, PopupMsg};
@@ -19,6 +20,8 @@ pub struct DesignLTN {
     neighbourhood: Neighbourhood,
     draw_top_layer: Drawable,
     draw_under_roads_layer: Drawable,
+    fade_irrelevant: Drawable,
+    labels: DrawSimpleRoadLabels,
     highlight_cell: World<DummyID>,
     edit: EditNeighbourhood,
     // Expensive to calculate
@@ -35,7 +38,30 @@ impl DesignLTN {
     ) -> Box<dyn State<App>> {
         app.per_map.current_neighbourhood = Some(id);
 
-        let neighbourhood = Neighbourhood::new(ctx, app, id);
+        let neighbourhood = Neighbourhood::new(app, id);
+
+        let fade_area = Polygon::with_holes(
+            app.per_map
+                .map
+                .get_boundary_polygon()
+                .get_outer_ring()
+                .clone(),
+            vec![app
+                .per_map
+                .partitioning
+                .neighbourhood_boundary_polygon(app, id)
+                .into_outer_ring()],
+        );
+        let fade_irrelevant = GeomBatch::from(vec![(app.cs.fade_map_dark, fade_area)]).upload(ctx);
+
+        let mut label_roads = neighbourhood.perimeter.clone();
+        label_roads.extend(neighbourhood.orig_perimeter.interior.clone());
+        let labels = DrawSimpleRoadLabels::new(
+            ctx,
+            app,
+            colors::ROAD_LABEL,
+            Box::new(move |r| label_roads.contains(&r.id)),
+        );
 
         let mut state = Self {
             appwide_panel: AppwidePanel::new(ctx, app, Mode::ModifyNeighbourhood),
@@ -43,6 +69,8 @@ impl DesignLTN {
             neighbourhood,
             draw_top_layer: Drawable::empty(ctx),
             draw_under_roads_layer: Drawable::empty(ctx),
+            fade_irrelevant,
+            labels,
             highlight_cell: World::unbounded(),
             edit: EditNeighbourhood::temporary(),
             preserve_state: crate::save::PreserveState::DesignLTN(
@@ -201,7 +229,7 @@ impl State<App> for DesignLTN {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         app.draw_with_layering(g, |g| g.redraw(&self.draw_under_roads_layer));
-        g.redraw(&self.neighbourhood.fade_irrelevant);
+        g.redraw(&self.fade_irrelevant);
         self.draw_top_layer.draw(g);
         self.highlight_cell.draw(g);
         self.edit.world.draw(g);
@@ -209,7 +237,7 @@ impl State<App> for DesignLTN {
         self.appwide_panel.draw(g);
         self.bottom_panel.draw(g);
         app.session.layers.draw(g, app);
-        self.neighbourhood.labels.draw(g);
+        self.labels.draw(g);
         app.per_map.draw_all_filters.draw(g);
         app.per_map.draw_poi_icons.draw(g);
 
@@ -355,7 +383,7 @@ fn launch_autoplace_filters(ctx: &mut EventCtx, id: NeighbourhoodID) -> Transiti
         Heuristic::choices(),
         Box::new(move |heuristic, ctx, app| {
             match ctx.loading_screen("automatically filter a neighbourhood", |ctx, timer| {
-                let neighbourhood = Neighbourhood::new(ctx, app, id);
+                let neighbourhood = Neighbourhood::new(app, id);
                 heuristic.apply(ctx, app, &neighbourhood, timer)
             }) {
                 Ok(()) => Transition::Multi(vec![Transition::Pop, Transition::Recreate]),
