@@ -1,4 +1,4 @@
-use geom::Duration;
+use geom::{Duration, Polygon};
 use map_gui::tools::{
     DrawSimpleRoadLabels, InputWaypoints, TripManagement, TripManagementState, WaypointID,
 };
@@ -6,8 +6,8 @@ use map_model::{PathV2, PathfinderCache};
 use synthpop::{TripEndpoint, TripMode};
 use widgetry::mapspace::World;
 use widgetry::{
-    ButtonBuilder, Color, ControlState, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Outcome,
-    Panel, RoundedF64, Spinner, State, Text, Toggle, Widget,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, Image, Line, Outcome, Panel, RoundedF64, Spinner,
+    State, TextExt, Toggle, Widget,
 };
 
 use crate::components::{AppwidePanel, Mode};
@@ -87,8 +87,7 @@ impl RoutePlanner {
                 self.files.get_panel_widget(ctx),
                 Widget::horiz_separator(ctx, 1.0),
                 self.waypoints.get_panel_widget(ctx).named("waypoints"),
-            ])
-            .section(ctx),
+            ]),
             if self.waypoints.get_waypoints().len() < 2 {
                 Widget::nothing()
             } else {
@@ -104,17 +103,23 @@ impl RoutePlanner {
                             app.session.main_road_penalty,
                             0.5,
                         ),
+                        ctx.style()
+                            .btn_plain
+                            .icon("system/assets/tools/help.svg")
+                            .tooltip(
+                                "Increase to see how drivers may try to detour in heavy traffic",
+                            )
+                            .build_widget(ctx, "penalty instructions")
+                            .align_right(),
                     ]),
-                    Text::from_multiline(vec![
-                        Line("1 means free-flow traffic conditions").secondary(),
-                        Line("Increase to see how drivers may try to detour in heavy traffic")
-                            .secondary(),
-                    ])
-                    .into_widget(ctx),
+                    Line("1 means free-flow traffic conditions")
+                        .secondary()
+                        .into_widget(ctx),
                 ])
-                .section(ctx)
             },
-            results_widget.named("results").section(ctx),
+            // Invisible separator
+            GeomBatch::from(vec![(Color::CLEAR, Polygon::rectangle(0.1, 30.0))]).into_widget(ctx),
+            results_widget.named("results"),
         ]);
         let mut panel =
             crate::components::LeftPanel::right_of_proposals(ctx, &self.appwide_panel, contents)
@@ -260,45 +265,62 @@ impl RoutePlanner {
             .upload(ctx);
 
         Widget::col(vec![
+            // TODO Circle icons
             Widget::row(vec![
-                card(
-                    ctx,
-                    "Driving before any changes",
-                    "",
-                    driving_before_changes_time,
-                    *colors::PLAN_ROUTE_BEFORE,
-                ),
-                if driving_before_changes_time == driving_after_changes_time {
-                    Widget::col(vec![
-                        Line("Driving after changes")
-                            .fg(colors::PLAN_ROUTE_BEFORE.invert())
-                            .into_widget(ctx),
-                        Line("No difference")
-                            .fg(colors::PLAN_ROUTE_BEFORE.invert())
-                            .into_widget(ctx),
-                    ])
-                    .bg(*colors::PLAN_ROUTE_BEFORE)
-                    .padding(16)
-                } else {
-                    card(
-                        ctx,
-                        "Driving after changes",
-                        "",
-                        driving_after_changes_time,
-                        *colors::PLAN_ROUTE_AFTER,
-                    )
-                },
-            ])
-            .evenly_spaced(),
-            if app.session.show_walking_cycling_routes {
+                Image::from_path("system/assets/meters/car.svg")
+                    .color(*colors::PLAN_ROUTE_BEFORE)
+                    .into_widget(ctx),
+                "Driving before any changes".text_widget(ctx),
+                Line(driving_before_changes_time.to_rounded_string(0))
+                    .into_widget(ctx)
+                    .align_right(),
+            ]),
+            if driving_before_changes_time == driving_after_changes_time {
                 Widget::row(vec![
-                    card(ctx, "Cycling", "This cycling route doesn't avoid high-stress roads or hills, and assumes an average 10mph pace", biking_time, *colors::PLAN_ROUTE_BIKE),
-                    card(ctx, "Walking", "This walking route doesn't avoid high-stress roads or hills, and assumes an average 3 mph pace", walking_time, *colors::PLAN_ROUTE_WALK),
+                    Image::from_path("system/assets/meters/car.svg")
+                        .color(*colors::PLAN_ROUTE_BEFORE)
+                        .into_widget(ctx),
+                    "Driving after changes".text_widget(ctx),
+                    "Same".text_widget(ctx).align_right(),
                 ])
-                .evenly_spaced()
+            } else {
+                Widget::row(vec![
+                    Image::from_path("system/assets/meters/car.svg")
+                        .color(*colors::PLAN_ROUTE_AFTER)
+                        .into_widget(ctx),
+                    "Driving after changes".text_widget(ctx),
+                    Line(driving_after_changes_time.to_rounded_string(0))
+                        .into_widget(ctx)
+                        .align_right(),
+                ])
+            },
+            if app.session.show_walking_cycling_routes {
+                Widget::col(vec![
+                    // TODO Is the tooltip that important? "This cycling route doesn't avoid
+                    // high-stress roads or hills, and assumes an average 10mph pace"
+                    Widget::row(vec![
+                        Image::from_path("system/assets/meters/bike.svg")
+                            .color(*colors::PLAN_ROUTE_BIKE)
+                            .into_widget(ctx),
+                        "Cycling".text_widget(ctx),
+                        Line(biking_time.to_rounded_string(0))
+                            .into_widget(ctx)
+                            .align_right(),
+                    ]),
+                    Widget::row(vec![
+                        Image::from_path("system/assets/meters/pedestrian.svg")
+                            .color(*colors::PLAN_ROUTE_WALK)
+                            .into_widget(ctx),
+                        "Walking".text_widget(ctx),
+                        Line(walking_time.to_rounded_string(0))
+                            .into_widget(ctx)
+                            .align_right(),
+                    ]),
+                ])
             } else {
                 Widget::nothing()
             },
+            // TODO Tooltip to explain how these routes remain direct?
             Toggle::checkbox(
                 ctx,
                 "Show walking & cycling route",
@@ -333,6 +355,9 @@ impl State<App> for RoutePlanner {
                     self.sync_from_file_management(ctx, app);
                 }
                 return t;
+            }
+            if x == "penalty instructions" {
+                return Transition::Keep;
             }
             unreachable!()
         }
@@ -393,32 +418,4 @@ fn help() -> Vec<&'static str> {
         "The fastest route may not cut through neighbourhoods normally,",
         "but you can adjust the slow-down factor to mimic rush hour conditions",
     ]
-}
-
-fn card(
-    ctx: &EventCtx,
-    label: &'static str,
-    tooltip: &'static str,
-    time: Duration,
-    color: Color,
-) -> Widget {
-    // TODO Convoluted way to add tooltips to text with a background
-    let mut txt = Text::new();
-    txt.add_line(Line(label).fg(color.invert()));
-    txt.add_line(Line(time.to_rounded_string(0)).fg(color.invert()));
-    let (batch, _) = txt
-        .render_autocropped(ctx)
-        .batch()
-        .container()
-        .bg(color)
-        .padding(16)
-        .into_geom(ctx, None);
-    let btn = ButtonBuilder::new()
-        .custom_batch(batch, ControlState::Default)
-        .disabled(true);
-    if tooltip.is_empty() {
-        btn.build_widget(ctx, label)
-    } else {
-        btn.disabled_tooltip(tooltip).build_widget(ctx, label)
-    }
 }

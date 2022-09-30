@@ -116,24 +116,12 @@ impl InputWaypoints {
             );
         }
 
-        Widget::col(vec![
-            Widget::row(vec![
-                drag_drop.into_widget(ctx),
-                Widget::custom_col(delete_buttons)
-                    .evenly_spaced()
-                    .margin_above(8)
-                    .margin_below(8),
-            ]),
-            Widget::row(vec![
-                Image::from_path("system/assets/tools/mouse.svg").into_widget(ctx),
-                Text::from_all(vec![
-                    Line("Click").fg(ctx.style().text_hotkey_color),
-                    Line(" to add a waypoint, "),
-                    Line("drag").fg(ctx.style().text_hotkey_color),
-                    Line(" a waypoint to move it"),
-                ])
-                .into_widget(ctx),
-            ]),
+        Widget::row(vec![
+            drag_drop.into_widget(ctx),
+            Widget::custom_col(delete_buttons)
+                .evenly_spaced()
+                .margin_above(8)
+                .margin_below(8),
         ])
     }
 

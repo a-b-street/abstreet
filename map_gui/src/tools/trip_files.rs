@@ -124,25 +124,8 @@ impl<A: AppLike + 'static, S: TripManagementState<A>> TripManagement<A, S> {
 
     pub fn get_panel_widget(&self, ctx: &mut EventCtx) -> Widget {
         let current_name = &self.current.name;
-        Widget::col(vec![
+        Widget::row(vec![
             Widget::row(vec![
-                ctx.style()
-                    .btn_plain
-                    .btn()
-                    .label_underlined_text(current_name)
-                    .build_widget(ctx, "rename trip"),
-                ctx.style()
-                    .btn_plain_destructive
-                    .icon_text("system/assets/tools/trash.svg", "Delete")
-                    .disabled(self.current.waypoints.is_empty())
-                    .build_def(ctx),
-            ]),
-            Widget::row(vec![
-                ctx.style()
-                    .btn_plain
-                    .text("Start new trip")
-                    .disabled(self.current.waypoints.is_empty())
-                    .build_def(ctx),
                 ctx.style()
                     .btn_prev()
                     .hotkey(Key::LeftArrow)
@@ -150,15 +133,39 @@ impl<A: AppLike + 'static, S: TripManagementState<A>> TripManagement<A, S> {
                     .build_widget(ctx, "previous trip"),
                 ctx.style()
                     .btn_plain
-                    .text("Load another trip")
-                    .disabled(self.all.len() < 2)
-                    .build_def(ctx),
+                    .btn()
+                    .label_underlined_text(current_name)
+                    .build_widget(ctx, "rename trip"),
                 ctx.style()
                     .btn_next()
                     .hotkey(Key::RightArrow)
                     .disabled(self.all.next(current_name).is_none())
                     .build_widget(ctx, "next trip"),
             ]),
+            Widget::row(vec![
+                ctx.style()
+                    .btn_plain
+                    .icon("system/assets/speed/plus.svg")
+                    .disabled(self.current.waypoints.is_empty())
+                    .build_widget(ctx, "Start new trip"),
+                ctx.style()
+                    .btn_plain
+                    .icon("system/assets/tools/folder.svg")
+                    .disabled(self.all.len() < 2)
+                    .build_widget(ctx, "Load another trip"),
+                ctx.style()
+                    .btn_plain
+                    .icon("system/assets/tools/trash.svg")
+                    .disabled(self.current.waypoints.is_empty())
+                    .build_widget(ctx, "Delete"),
+                // This info more applies to InputWaypoints, but the button fits better here
+                ctx.style()
+                    .btn_plain
+                    .icon("system/assets/tools/help.svg")
+                    .tooltip("Click to add a waypoint, drag to move one")
+                    .build_widget(ctx, "waypoint instructions"),
+            ])
+            .align_right(),
         ])
     }
 
@@ -247,6 +254,7 @@ impl<A: AppLike + 'static, S: TripManagementState<A>> TripManagement<A, S> {
                 &self.current,
                 &self.all,
             ))),
+            "waypoint instructions" => Some(Transition::Keep),
             _ => None,
         }
     }
