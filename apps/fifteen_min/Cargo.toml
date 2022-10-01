@@ -18,7 +18,7 @@ contour = { workspace = true }
 geojson = { workspace = true }
 geom = { path = "../../geom" }
 getrandom = { version = "0.2.3", optional = true }
-log = "0.4"
+log = { workspace = true }
 map_gui = { path = "../../map_gui" }
 map_model = { path = "../../map_model" }
 structopt = { workspace = true }

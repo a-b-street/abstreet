@@ -24,7 +24,7 @@ geojson = { workspace = true }
 geom = { path = "../../geom" }
 getrandom = { version = "0.2.3", optional = true }
 lazy_static = "1.4.0"
-log = "0.4"
+log = { workspace = true }
 maplit = "1.0.2"
 map_gui = { path = "../../map_gui" }
 map_model = { path = "../../map_model" }
