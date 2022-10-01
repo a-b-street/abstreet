@@ -359,7 +359,7 @@ impl State<App> for RoutePlanner {
             if x == "penalty instructions" {
                 return Transition::Keep;
             }
-            unreachable!()
+            // Might be for waypoints
         }
 
         if let Outcome::Changed(ref x) = panel_outcome {
