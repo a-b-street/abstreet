@@ -8,7 +8,7 @@ edition = "2021"
 abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
 anyhow = { workspace = true }
-ctrlc = { version = "3.1.7", optional = true }
+ctrlc = { version = "3.2.3", optional = true }
 downcast-rs = "1.2.0"
 enum_dispatch = "0.3.5"
 geom = { path = "../geom" }
