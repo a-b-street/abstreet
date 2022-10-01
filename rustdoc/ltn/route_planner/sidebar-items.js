@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["card",""],["help",""]],"struct":[["RoutePlanner",""]]};
+window.SIDEBAR_ITEMS = {"fn":[["help",""]],"struct":[["RoutePlanner",""]]};

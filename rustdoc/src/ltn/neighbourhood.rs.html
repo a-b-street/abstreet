@@ -310,43 +310,15 @@
 <span id="310">310</span>
 <span id="311">311</span>
 <span id="312">312</span>
-<span id="313">313</span>
-<span id="314">314</span>
-<span id="315">315</span>
-<span id="316">316</span>
-<span id="317">317</span>
-<span id="318">318</span>
-<span id="319">319</span>
-<span id="320">320</span>
-<span id="321">321</span>
-<span id="322">322</span>
-<span id="323">323</span>
-<span id="324">324</span>
-<span id="325">325</span>
-<span id="326">326</span>
-<span id="327">327</span>
-<span id="328">328</span>
-<span id="329">329</span>
-<span id="330">330</span>
-<span id="331">331</span>
-<span id="332">332</span>
-<span id="333">333</span>
-<span id="334">334</span>
-<span id="335">335</span>
-<span id="336">336</span>
-<span id="337">337</span>
-<span id="338">338</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">maplit::btreeset</span>;
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>};
-<span class="kw">use</span> <span class="ident">map_gui::tools::DrawSimpleRoadLabels</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Direction</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">Perimeter</span>, <span class="ident">RoadID</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::shortcuts::Shortcuts</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">colors</span>, <span class="ident">is_private</span>, <span class="ident">App</span>, <span class="ident">Edits</span>, <span class="ident">NeighbourhoodID</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">is_private</span>, <span class="ident">App</span>, <span class="ident">Edits</span>, <span class="ident">NeighbourhoodID</span>};
 
 <span class="comment">// Once constructed, a Neighbourhood is immutable</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Neighbourhood</span> {
@@ -359,9 +331,6 @@
 
     <span class="kw">pub</span> <span class="ident">cells</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Cell</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">shortcuts</span>: <span class="ident">Shortcuts</span>,
-
-    <span class="kw">pub</span> <span class="ident">fade_irrelevant</span>: <span class="ident">Drawable</span>,
-    <span class="kw">pub</span> <span class="ident">labels</span>: <span class="ident">DrawSimpleRoadLabels</span>,
 }
 
 <span class="doccomment">/// A partitioning of the interior of a neighbourhood based on driving design_ltn</span>
@@ -442,7 +411,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Neighbourhood</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">NeighbourhoodID</span>) -&gt; <span class="ident">Neighbourhood</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">NeighbourhoodID</span>) -&gt; <span class="ident">Neighbourhood</span> {
         <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>;
         <span class="kw">let</span> <span class="ident">orig_perimeter</span> <span class="op">=</span> <span class="ident">app</span>
             .<span class="ident">per_map</span>
@@ -460,9 +429,6 @@
 
             <span class="ident">cells</span>: <span class="ident">Vec::new</span>(),
             <span class="ident">shortcuts</span>: <span class="ident">Shortcuts::empty</span>(),
-
-            <span class="ident">fade_irrelevant</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
-            <span class="ident">labels</span>: <span class="ident">DrawSimpleRoadLabels::empty</span>(<span class="ident">ctx</span>),
         };
 
         <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">n</span>.<span class="ident">orig_perimeter</span>.<span class="ident">roads</span> {
@@ -471,15 +437,6 @@
             <span class="ident">n</span>.<span class="ident">borders</span>.<span class="ident">insert</span>(<span class="ident">road</span>.<span class="ident">src_i</span>);
             <span class="ident">n</span>.<span class="ident">borders</span>.<span class="ident">insert</span>(<span class="ident">road</span>.<span class="ident">dst_i</span>);
         }
-        <span class="kw">let</span> <span class="ident">fade_area</span> <span class="op">=</span> <span class="ident">Polygon::with_holes</span>(
-            <span class="ident">map</span>.<span class="ident">get_boundary_polygon</span>().<span class="ident">get_outer_ring</span>().<span class="ident">clone</span>(),
-            <span class="macro">vec!</span>[<span class="ident">app</span>
-                .<span class="ident">per_map</span>
-                .<span class="ident">partitioning</span>
-                .<span class="ident">neighbourhood_boundary_polygon</span>(<span class="ident">app</span>, <span class="ident">id</span>)
-                .<span class="ident">into_outer_ring</span>()],
-        );
-        <span class="ident">n</span>.<span class="ident">fade_irrelevant</span> <span class="op">=</span> <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">fade_map_dark</span>, <span class="ident">fade_area</span>)]).<span class="ident">upload</span>(<span class="ident">ctx</span>);
 
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">n</span>.<span class="ident">orig_perimeter</span>.<span class="ident">interior</span> {
             <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
@@ -491,15 +448,6 @@
         }
 
         <span class="ident">n</span>.<span class="ident">cells</span> <span class="op">=</span> <span class="ident">find_cells</span>(<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">n</span>.<span class="ident">orig_perimeter</span>, <span class="kw-2">&amp;</span><span class="ident">n</span>.<span class="ident">borders</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">edits</span>);
-
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">label_roads</span> <span class="op">=</span> <span class="ident">n</span>.<span class="ident">perimeter</span>.<span class="ident">clone</span>();
-        <span class="ident">label_roads</span>.<span class="ident">extend</span>(<span class="ident">n</span>.<span class="ident">orig_perimeter</span>.<span class="ident">interior</span>.<span class="ident">clone</span>());
-        <span class="ident">n</span>.<span class="ident">labels</span> <span class="op">=</span> <span class="ident">DrawSimpleRoadLabels::new</span>(
-            <span class="ident">ctx</span>,
-            <span class="ident">app</span>,
-            <span class="ident">colors::ROAD_LABEL</span>,
-            <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">label_roads</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>.<span class="ident">id</span>)),
-        );
 
         <span class="comment">// TODO The timer could be nice for large areas. But plumbing through one everywhere is</span>
         <span class="comment">// tedious, and would hit a nested start_iter bug anyway.</span>

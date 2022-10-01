@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["handle_world_outcome",""],["make_world",""],["undo_proposal",""],["widget",""]]};
+window.SIDEBAR_ITEMS = {"fn":[["handle_world_outcome",""],["make_world",""],["undo_proposal",""]]};

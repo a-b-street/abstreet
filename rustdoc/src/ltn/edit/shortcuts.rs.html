@@ -140,8 +140,6 @@
 <span id="140">140</span>
 <span id="141">141</span>
 <span id="142">142</span>
-<span id="143">143</span>
-<span id="144">144</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom::Distance</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">PathV2</span>, <span class="ident">RoadID</span>};
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">World</span>, <span class="ident">WorldOutcome</span>};
@@ -186,9 +184,7 @@
                     .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;next shortcut&quot;</span>),
             ]),
         ]),
-        <span class="prelude-val">None</span> =&gt; <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="string">&quot;Click a road to view shortcuts through it&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
-        ]),
+        <span class="prelude-val">None</span> =&gt; <span class="ident">Widget::nothing</span>(),
     }
 }
 

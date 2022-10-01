@@ -750,6 +750,14 @@
 <span id="750">750</span>
 <span id="751">751</span>
 <span id="752">752</span>
+<span id="753">753</span>
+<span id="754">754</span>
+<span id="755">755</span>
+<span id="756">756</span>
+<span id="757">757</span>
+<span id="758">758</span>
+<span id="759">759</span>
+<span id="760">760</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom::Polygon</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -1235,6 +1243,14 @@
     <span class="doccomment">/// Like `disabled_tooltip`, but the tooltip may not exist.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_disabled_tooltip</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">tooltip</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Text</span><span class="op">&gt;</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">disabled_tooltip</span> <span class="op">=</span> <span class="ident">tooltip</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">into</span>());
+        <span class="self">self</span>
+    }
+
+    <span class="doccomment">/// Sets a tooltip to appear whether the button is disabled or not.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tooltip_and_disabled</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">tooltip</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Text</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
+        <span class="kw">let</span> <span class="ident">tooltip</span> <span class="op">=</span> <span class="ident">tooltip</span>.<span class="ident">into</span>();
+        <span class="self">self</span>.<span class="ident">tooltip</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">tooltip</span>.<span class="ident">clone</span>());
+        <span class="self">self</span>.<span class="ident">disabled_tooltip</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">tooltip</span>.<span class="ident">clone</span>());
         <span class="self">self</span>
     }
 

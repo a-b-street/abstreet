@@ -264,18 +264,6 @@
 <span id="264">264</span>
 <span id="265">265</span>
 <span id="266">266</span>
-<span id="267">267</span>
-<span id="268">268</span>
-<span id="269">269</span>
-<span id="270">270</span>
-<span id="271">271</span>
-<span id="272">272</span>
-<span id="273">273</span>
-<span id="274">274</span>
-<span id="275">275</span>
-<span id="276">276</span>
-<span id="277">277</span>
-<span id="278">278</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">synthpop::TripEndpoint</span>;
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ObjectID</span>, <span class="ident">World</span>, <span class="ident">WorldOutcome</span>};
@@ -394,24 +382,12 @@
             );
         }
 
-        <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">drag_drop</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">Widget::custom_col</span>(<span class="ident">delete_buttons</span>)
-                    .<span class="ident">evenly_spaced</span>()
-                    .<span class="ident">margin_above</span>(<span class="number">8</span>)
-                    .<span class="ident">margin_below</span>(<span class="number">8</span>),
-            ]),
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">Image::from_path</span>(<span class="string">&quot;system/assets/tools/mouse.svg&quot;</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Line</span>(<span class="string">&quot;Click&quot;</span>).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>),
-                    <span class="ident">Line</span>(<span class="string">&quot; to add a waypoint, &quot;</span>),
-                    <span class="ident">Line</span>(<span class="string">&quot;drag&quot;</span>).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>),
-                    <span class="ident">Line</span>(<span class="string">&quot; a waypoint to move it&quot;</span>),
-                ])
-                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            ]),
+        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+            <span class="ident">drag_drop</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+            <span class="ident">Widget::custom_col</span>(<span class="ident">delete_buttons</span>)
+                .<span class="ident">evenly_spaced</span>()
+                .<span class="ident">margin_above</span>(<span class="number">8</span>)
+                .<span class="ident">margin_below</span>(<span class="number">8</span>),
         ])
     }
 

@@ -112,28 +112,12 @@
 <span id="112">112</span>
 <span id="113">113</span>
 <span id="114">114</span>
-<span id="115">115</span>
-<span id="116">116</span>
-<span id="117">117</span>
-<span id="118">118</span>
-<span id="119">119</span>
-<span id="120">120</span>
-<span id="121">121</span>
-<span id="122">122</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">World</span>, <span class="ident">WorldOutcome</span>};
 <span class="kw">use</span> <span class="ident">widgetry::tools::open_browser</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">lctrl</span>, <span class="ident">EventCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Text</span>, <span class="ident">Transition</span>, <span class="ident">Widget</span>};
+<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">lctrl</span>, <span class="ident">EventCtx</span>, <span class="ident">Key</span>, <span class="ident">Text</span>, <span class="ident">Transition</span>};
 
 <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">road_name</span>, <span class="ident">EditOutcome</span>, <span class="ident">Obj</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">after_edit</span>, <span class="ident">colors</span>, <span class="ident">App</span>, <span class="ident">DiagonalFilter</span>, <span class="ident">FilterType</span>, <span class="ident">Neighbourhood</span>, <span class="ident">RoadFilter</span>};
-
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">widget</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">Widget</span> {
-    <span class="ident">Text::from</span>(<span class="ident">Line</span>(
-        <span class="string">&quot;Click a road or intersection to add or remove a modal filter&quot;</span>,
-    ))
-    .<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">15</span>)
-    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
-}
 
 <span class="doccomment">/// Creates clickable objects for managing filters on roads and intersections. Everything is</span>
 <span class="doccomment">/// invisible; the caller is responsible for drawing things.</span>

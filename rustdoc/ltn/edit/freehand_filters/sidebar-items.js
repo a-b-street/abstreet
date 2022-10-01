@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["event",""],["make_filters_along_path",""],["widget",""]]};
+window.SIDEBAR_ITEMS = {"fn":[["event",""],["make_filters_along_path",""]]};
