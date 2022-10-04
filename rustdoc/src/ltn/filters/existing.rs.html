@@ -160,7 +160,7 @@
                 <span class="ident">tags</span>.<span class="ident">insert</span>(<span class="string">&quot;lanes&quot;</span>, <span class="string">&quot;2&quot;</span>);
                 <span class="ident">tags</span>.<span class="ident">insert</span>(<span class="string">&quot;sidewalk&quot;</span>, <span class="string">&quot;both&quot;</span>);
                 <span class="ident">new</span>.<span class="ident">lanes_ltr</span> <span class="op">=</span>
-                    <span class="ident">street_network::get_lane_specs_ltr</span>(<span class="kw-2">&amp;</span><span class="ident">tags</span>, <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">get_config</span>());
+                    <span class="ident">osm2streets::get_lane_specs_ltr</span>(<span class="kw-2">&amp;</span><span class="ident">tags</span>, <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">get_config</span>());
             }));
         <span class="ident">filtered_roads</span>.<span class="ident">push</span>(<span class="ident">r</span>.<span class="ident">id</span>);
     }

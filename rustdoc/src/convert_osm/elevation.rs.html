@@ -173,8 +173,8 @@
 <span class="kw">use</span> <span class="ident">fs_err::File</span>;
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">PolyLine</span>};
+<span class="kw">use</span> <span class="ident">osm2streets::OriginalRoad</span>;
 <span class="kw">use</span> <span class="ident">raw_map::RawMap</span>;
-<span class="kw">use</span> <span class="ident">street_network::OriginalRoad</span>;
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_data</span>(<span class="ident">map</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RawMap</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;elevation_input_{}&quot;</span>, <span class="ident">map</span>.<span class="ident">name</span>.<span class="ident">as_filename</span>());

@@ -132,7 +132,7 @@
     };
 
     <span class="ident">convert_osm::Options</span> {
-        <span class="ident">map_config</span>: <span class="ident">street_network::MapConfig</span> {
+        <span class="ident">map_config</span>: <span class="ident">osm2streets::MapConfig</span> {
             <span class="ident">driving_side</span>: <span class="kw">match</span> <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">country</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;au&quot;</span> <span class="op">|</span> <span class="string">&quot;gb&quot;</span> <span class="op">|</span> <span class="string">&quot;in&quot;</span> <span class="op">|</span> <span class="string">&quot;jp&quot;</span> <span class="op">|</span> <span class="string">&quot;nz&quot;</span> <span class="op">|</span> <span class="string">&quot;sg&quot;</span> =&gt; <span class="ident">DrivingSide::Left</span>,
                 <span class="kw">_</span> =&gt; <span class="ident">DrivingSide::Right</span>,
@@ -159,7 +159,7 @@
                 <span class="ident">MapName::new</span>(<span class="string">&quot;pl&quot;</span>, <span class="string">&quot;krakow&quot;</span>, <span class="string">&quot;center&quot;</span>),
             ]
             .<span class="ident">contains</span>(<span class="ident">name</span>),
-            <span class="ident">merge_osm_ways</span>: <span class="ident">abstio::maybe_read_json</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">street_network::OriginalRoad</span><span class="op">&gt;</span><span class="op">&gt;</span>(
+            <span class="ident">merge_osm_ways</span>: <span class="ident">abstio::maybe_read_json</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">osm2streets::OriginalRoad</span><span class="op">&gt;</span><span class="op">&gt;</span>(
                 <span class="string">&quot;merge_osm_ways.json&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="kw-2">&amp;mut</span> <span class="ident">Timer::throwaway</span>(),
             )

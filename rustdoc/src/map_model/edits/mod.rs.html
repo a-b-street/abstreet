@@ -1013,7 +1013,7 @@
 
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">HashablePt2D</span>, <span class="ident">Line</span>, <span class="ident">Speed</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">street_network</span>::{<span class="ident">get_lane_specs_ltr</span>, <span class="ident">InputRoad</span>};
+<span class="kw">use</span> <span class="ident">osm2streets</span>::{<span class="ident">get_lane_specs_ltr</span>, <span class="ident">InputRoad</span>};
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::perma::PermanentMapEdits</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::make</span>::{<span class="ident">match_points_to_lanes</span>, <span class="ident">snap_driveway</span>, <span class="ident">trim_path</span>};
@@ -1639,7 +1639,7 @@
         });
     }
 
-    <span class="kw">let</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">street_network::intersection_polygon</span>(
+    <span class="kw">let</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">osm2streets::intersection_polygon</span>(
         <span class="ident">intersection</span>.<span class="ident">orig_id</span>,
         <span class="ident">input_roads</span>,
         <span class="comment">// For consolidated intersections, it appears we don&#39;t need to pass in</span>

@@ -372,12 +372,12 @@
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">MultiMap</span>, <span class="ident">Tags</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
+<span class="kw">use</span> <span class="ident">osm2streets</span>::{<span class="ident">osm</span>, <span class="ident">NamePerLanguage</span>};
 <span class="kw">use</span> <span class="ident">raw_map</span>::{<span class="ident">Amenity</span>, <span class="ident">AreaType</span>, <span class="ident">RawArea</span>, <span class="ident">RawBuilding</span>, <span class="ident">RawMap</span>, <span class="ident">RawParkingLot</span>};
-<span class="kw">use</span> <span class="ident">street_network</span>::{<span class="ident">osm</span>, <span class="ident">NamePerLanguage</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Options</span>;
-<span class="kw">use</span> <span class="ident">import_streets::osm_reader</span>::{<span class="ident">get_multipolygon_members</span>, <span class="ident">glue_multipolygon</span>, <span class="ident">multipoly_geometry</span>};
-<span class="kw">use</span> <span class="ident">import_streets::OsmExtract</span>;
+<span class="kw">use</span> <span class="ident">streets_reader::osm_reader</span>::{<span class="ident">get_multipolygon_members</span>, <span class="ident">glue_multipolygon</span>, <span class="ident">multipoly_geometry</span>};
+<span class="kw">use</span> <span class="ident">streets_reader::OsmExtract</span>;
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extract_osm</span>(
     <span class="ident">map</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RawMap</span>,
@@ -392,7 +392,7 @@
 ) {
     <span class="kw">let</span> <span class="ident">osm_xml</span> <span class="op">=</span> <span class="ident">fs_err::read_to_string</span>(<span class="ident">osm_input_path</span>).<span class="ident">unwrap</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">doc</span> <span class="op">=</span>
-        <span class="ident">import_streets::osm_reader::read</span>(<span class="kw-2">&amp;</span><span class="ident">osm_xml</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">gps_bounds</span>, <span class="ident">timer</span>).<span class="ident">unwrap</span>();
+        <span class="ident">streets_reader::osm_reader::read</span>(<span class="kw-2">&amp;</span><span class="ident">osm_xml</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">gps_bounds</span>, <span class="ident">timer</span>).<span class="ident">unwrap</span>();
 
     <span class="comment">// TODO Hacks to override OSM data. There&#39;s no problem upstream, but we want to accomplish</span>
     <span class="comment">// various things for A/B Street.</span>

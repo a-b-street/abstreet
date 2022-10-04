@@ -222,10 +222,8 @@
 <span id="222">222</span>
 <span id="223">223</span>
 <span id="224">224</span>
-<span id="225">225</span>
-<span id="226">226</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Distance</span>};
-<span class="kw">use</span> <span class="ident">street_network::OriginalRoad</span>;
+<span class="kw">use</span> <span class="ident">osm2streets::OriginalRoad</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>,
     <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">SimpleState</span>, <span class="ident">Spinner</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Transition</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
@@ -425,10 +423,8 @@
                     <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
                 }
 
-                <span class="ident">road</span>.<span class="ident">lane_specs_ltr</span> <span class="op">=</span> <span class="ident">street_network::get_lane_specs_ltr</span>(
-                    <span class="kw-2">&amp;</span><span class="ident">road</span>.<span class="ident">osm_tags</span>,
-                    <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">config</span>,
-                );
+                <span class="ident">road</span>.<span class="ident">lane_specs_ltr</span> <span class="op">=</span>
+                    <span class="ident">osm2streets::get_lane_specs_ltr</span>(<span class="kw-2">&amp;</span><span class="ident">road</span>.<span class="ident">osm_tags</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">config</span>);
 
                 <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">road_added</span>(<span class="ident">ctx</span>, <span class="self">self</span>.<span class="ident">r</span>);
                 <span class="ident">Transition::Pop</span>

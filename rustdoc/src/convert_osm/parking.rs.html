@@ -241,10 +241,10 @@
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Tags</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">PolyLine</span>};
 <span class="kw">use</span> <span class="ident">kml::ExtraShapes</span>;
+<span class="kw">use</span> <span class="ident">osm2streets</span>::{<span class="ident">osm</span>, <span class="ident">OriginalRoad</span>};
 <span class="kw">use</span> <span class="ident">raw_map::RawMap</span>;
-<span class="kw">use</span> <span class="ident">street_network</span>::{<span class="ident">osm</span>, <span class="ident">OriginalRoad</span>};
 
-<span class="kw">use</span> <span class="ident">import_streets</span>::{<span class="ident">OnstreetParking</span>, <span class="ident">Options</span>, <span class="ident">PrivateOffstreetParking</span>, <span class="ident">PublicOffstreetParking</span>};
+<span class="kw">use</span> <span class="ident">streets_reader</span>::{<span class="ident">OnstreetParking</span>, <span class="ident">Options</span>, <span class="ident">PrivateOffstreetParking</span>, <span class="ident">PublicOffstreetParking</span>};
 
 <span class="comment">// Just used for matching hints to different sides of a road.</span>
 <span class="kw">const</span> <span class="ident">DIRECTED_ROAD_THICKNESS</span>: <span class="ident">Distance</span> <span class="op">=</span> <span class="ident">Distance::const_meters</span>(<span class="number">2.5</span>);
@@ -274,7 +274,7 @@
                     }
 
                     <span class="ident">r</span>.<span class="ident">lane_specs_ltr</span> <span class="op">=</span>
-                        <span class="ident">street_network::get_lane_specs_ltr</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>.<span class="ident">osm_tags</span>, <span class="kw-2">&amp;</span><span class="ident">opts</span>.<span class="ident">map_config</span>);
+                        <span class="ident">osm2streets::get_lane_specs_ltr</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>.<span class="ident">osm_tags</span>, <span class="kw-2">&amp;</span><span class="ident">opts</span>.<span class="ident">map_config</span>);
                 }
             }
         }
@@ -394,7 +394,7 @@
             <span class="comment">// Remember that this isn&#39;t OSM data</span>
             <span class="ident">tags</span>.<span class="ident">insert</span>(<span class="string">&quot;abst:parking_source&quot;</span>, <span class="string">&quot;blockface&quot;</span>);
 
-            <span class="kw">let</span> <span class="ident">lane_specs_ltr</span> <span class="op">=</span> <span class="ident">street_network::get_lane_specs_ltr</span>(<span class="ident">tags</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">config</span>);
+            <span class="kw">let</span> <span class="ident">lane_specs_ltr</span> <span class="op">=</span> <span class="ident">osm2streets::get_lane_specs_ltr</span>(<span class="ident">tags</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">config</span>);
             <span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">roads</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>).<span class="ident">unwrap</span>().<span class="ident">lane_specs_ltr</span> <span class="op">=</span> <span class="ident">lane_specs_ltr</span>;
         }
     }

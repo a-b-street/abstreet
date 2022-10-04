@@ -147,14 +147,32 @@
 <span id="147">147</span>
 <span id="148">148</span>
 <span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
 </pre><pre class="rust"><code><span class="doccomment">//! The convert_osm crate produces a RawMap from OSM and other data. Storing this intermediate</span>
 <span class="doccomment">//! structure is useful to iterate quickly on parts of the map importing pipeline without having to</span>
 <span class="doccomment">//! constantly read .osm files, and to visualize the intermediate state with map_editor.</span>
 
 <span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
 
+<span class="kw">use</span> <span class="ident">osm2streets</span>::{<span class="ident">osm</span>, <span class="ident">StreetNetwork</span>};
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
-<span class="kw">use</span> <span class="ident">street_network</span>::{<span class="ident">osm</span>, <span class="ident">StreetNetwork</span>};
 
 <span class="kw">use</span> <span class="ident">abstio</span>::{<span class="ident">CityName</span>, <span class="ident">MapName</span>};
 <span class="kw">use</span> <span class="ident">abstutil</span>::{
@@ -233,6 +251,24 @@
                 <span class="ident">osm_way_id</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
             } <span class="kw">else</span> {
                 <span class="kw">return</span> <span class="ident">candidate</span>;
+            }
+        }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_osm_node_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">start</span>: <span class="ident">i64</span>) -&gt; <span class="ident">osm::NodeID</span> {
+        <span class="macro">assert!</span>(<span class="ident">start</span> <span class="op">&lt;</span> <span class="number">0</span>);
+        <span class="comment">// Slow, but deterministic.</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">osm_node_id</span> <span class="op">=</span> <span class="ident">start</span>;
+        <span class="kw">loop</span> {
+            <span class="kw">if</span> <span class="self">self</span>
+                .<span class="ident">streets</span>
+                .<span class="ident">intersections</span>
+                .<span class="ident">keys</span>()
+                .<span class="ident">any</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">i</span>.<span class="number">0</span> <span class="op">==</span> <span class="ident">osm_node_id</span>)
+            {
+                <span class="ident">osm_node_id</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
+            } <span class="kw">else</span> {
+                <span class="kw">return</span> <span class="ident">osm::NodeID</span>(<span class="ident">osm_node_id</span>);
             }
         }
     }
