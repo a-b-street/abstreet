@@ -233,12 +233,15 @@ fn load_objects(
             let shapes = ExtraShapes::load_csv(path.clone(), bounds, timer).unwrap();
             abstio::write_binary(path.replace(".csv", ".bin"), &shapes);
             shapes
-        } else if path.ends_with(".geojson") {
+        } else if path.ends_with(".geojson") || path.ends_with(".json") {
             let require_in_bounds = false;
             let shapes =
                 ExtraShapes::load_geojson_no_clipping(path.clone(), bounds, require_in_bounds)
                     .unwrap();
-            abstio::write_binary(path.replace(".geojson", ".bin"), &shapes);
+            abstio::write_binary(
+                path.replace(".geojson", ".bin").replace(".json", ".bin"),
+                &shapes,
+            );
             shapes
         } else if path.ends_with(".bin") {
             abstio::read_binary::<ExtraShapes>(path.to_string(), timer)

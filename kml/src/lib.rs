@@ -11,7 +11,7 @@ use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
 use abstutil::{prettyprint_usize, Timer};
-use geom::{GPSBounds, LonLat, Polygon};
+use geom::{GPSBounds, LonLat, PolyLine, Polygon};
 
 /// Some dataset imported from KML, CSV, or something else. If the dataset is large, converting to
 /// this format and serializing is faster than parsing the original again.
@@ -201,16 +201,24 @@ impl ExtraShapes {
         gps_bounds: &GPSBounds,
         require_in_bounds: bool,
     ) -> Result<ExtraShapes> {
+        let bytes = abstio::slurp_file(path)?;
         let mut shapes = Vec::new();
-        for (polygon, tags) in
-            Polygon::from_geojson_bytes(&abstio::slurp_file(path)?, gps_bounds, require_in_bounds)?
-        {
+
+        for (polygon, tags) in Polygon::from_geojson_bytes(&bytes, gps_bounds, require_in_bounds)? {
             shapes.push(ExtraShape {
                 // Awkward, but we have to convert back
                 points: gps_bounds.convert_back(polygon.get_outer_ring().points()),
                 attributes: tags.into_inner(),
             });
         }
+        for (pl, tags) in PolyLine::from_geojson_bytes(&bytes, gps_bounds, require_in_bounds)? {
+            shapes.push(ExtraShape {
+                // Awkward, but we have to convert back
+                points: gps_bounds.convert_back(pl.points()),
+                attributes: tags.into_inner(),
+            });
+        }
+
         Ok(ExtraShapes { shapes })
     }
 }

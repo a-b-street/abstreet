@@ -5,6 +5,8 @@ use anyhow::{Context, Result};
 use geo::prelude::ClosestPoint;
 use serde::{Deserialize, Serialize};
 
+use abstutil::Tags;
+
 use crate::{
     Angle, Bounds, Circle, Distance, GPSBounds, HashablePt2D, InfiniteLine, Line, LonLat, Polygon,
     Pt2D, Ring, Tessellation, EPSILON_DIST,
@@ -1082,6 +1084,54 @@ impl PolyLine {
     /// An arbitrary placeholder value, when Option types aren't worthwhile
     pub fn dummy() -> PolyLine {
         PolyLine::must_new(vec![Pt2D::new(0.0, 0.0), Pt2D::new(0.1, 0.1)])
+    }
+
+    /// Extracts all linestrings from raw bytes representing a GeoJSON file, along with the string
+    /// key/value properties. Uses `PolyLine::unchecked_new`, which doesn't dedupe or handle any
+    /// invalid cases.
+    pub fn from_geojson_bytes(
+        raw_bytes: &[u8],
+        gps_bounds: &GPSBounds,
+        require_in_bounds: bool,
+    ) -> Result<Vec<(Self, Tags)>> {
+        let raw_string = std::str::from_utf8(raw_bytes)?;
+        let geojson = raw_string.parse::<geojson::GeoJson>()?;
+        let features = match geojson {
+            geojson::GeoJson::Feature(feature) => vec![feature],
+            geojson::GeoJson::FeatureCollection(collection) => collection.features,
+            _ => anyhow::bail!("Unexpected geojson: {:?}", geojson),
+        };
+
+        let mut results = Vec::new();
+        for feature in features {
+            if let Some(geom) = &feature.geometry {
+                let raw_pts = match &geom.value {
+                    geojson::Value::LineString(pts) => pts,
+                    // If there are multiple, just use the first
+                    geojson::Value::MultiLineString(strings) => &strings[0],
+                    _ => {
+                        continue;
+                    }
+                };
+                let gps_pts: Vec<LonLat> =
+                    raw_pts.iter().map(|pt| LonLat::new(pt[0], pt[1])).collect();
+                let pts = if !require_in_bounds {
+                    gps_bounds.convert(&gps_pts)
+                } else if let Some(pts) = gps_bounds.try_convert(&gps_pts) {
+                    pts
+                } else {
+                    continue;
+                };
+                let mut tags = Tags::empty();
+                for (key, value) in feature.properties_iter() {
+                    if let Some(value) = value.as_str() {
+                        tags.insert(key, value);
+                    }
+                }
+                results.push((Self::unchecked_new(pts), tags));
+            }
+        }
+        Ok(results)
     }
 }
 
