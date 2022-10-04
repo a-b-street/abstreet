@@ -1157,12 +1157,64 @@
 <span id="1157">1157</span>
 <span id="1158">1158</span>
 <span id="1159">1159</span>
+<span id="1160">1160</span>
+<span id="1161">1161</span>
+<span id="1162">1162</span>
+<span id="1163">1163</span>
+<span id="1164">1164</span>
+<span id="1165">1165</span>
+<span id="1166">1166</span>
+<span id="1167">1167</span>
+<span id="1168">1168</span>
+<span id="1169">1169</span>
+<span id="1170">1170</span>
+<span id="1171">1171</span>
+<span id="1172">1172</span>
+<span id="1173">1173</span>
+<span id="1174">1174</span>
+<span id="1175">1175</span>
+<span id="1176">1176</span>
+<span id="1177">1177</span>
+<span id="1178">1178</span>
+<span id="1179">1179</span>
+<span id="1180">1180</span>
+<span id="1181">1181</span>
+<span id="1182">1182</span>
+<span id="1183">1183</span>
+<span id="1184">1184</span>
+<span id="1185">1185</span>
+<span id="1186">1186</span>
+<span id="1187">1187</span>
+<span id="1188">1188</span>
+<span id="1189">1189</span>
+<span id="1190">1190</span>
+<span id="1191">1191</span>
+<span id="1192">1192</span>
+<span id="1193">1193</span>
+<span id="1194">1194</span>
+<span id="1195">1195</span>
+<span id="1196">1196</span>
+<span id="1197">1197</span>
+<span id="1198">1198</span>
+<span id="1199">1199</span>
+<span id="1200">1200</span>
+<span id="1201">1201</span>
+<span id="1202">1202</span>
+<span id="1203">1203</span>
+<span id="1204">1204</span>
+<span id="1205">1205</span>
+<span id="1206">1206</span>
+<span id="1207">1207</span>
+<span id="1208">1208</span>
+<span id="1209">1209</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow</span>::{<span class="ident">Context</span>, <span class="prelude-ty">Result</span>};
 <span class="kw">use</span> <span class="ident">geo::prelude::ClosestPoint</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+
+<span class="kw">use</span> <span class="ident">abstutil::Tags</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">Angle</span>, <span class="ident">Bounds</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">GPSBounds</span>, <span class="ident">HashablePt2D</span>, <span class="ident">InfiniteLine</span>, <span class="ident">Line</span>, <span class="ident">LonLat</span>, <span class="ident">Polygon</span>,
@@ -2241,6 +2293,54 @@
     <span class="doccomment">/// An arbitrary placeholder value, when Option types aren&#39;t worthwhile</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dummy</span>() -&gt; <span class="ident">PolyLine</span> {
         <span class="ident">PolyLine::must_new</span>(<span class="macro">vec!</span>[<span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>), <span class="ident">Pt2D::new</span>(<span class="number">0.1</span>, <span class="number">0.1</span>)])
+    }
+
+    <span class="doccomment">/// Extracts all linestrings from raw bytes representing a GeoJSON file, along with the string</span>
+    <span class="doccomment">/// key/value properties. Uses `PolyLine::unchecked_new`, which doesn&#39;t dedupe or handle any</span>
+    <span class="doccomment">/// invalid cases.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_geojson_bytes</span>(
+        <span class="ident">raw_bytes</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
+        <span class="ident">gps_bounds</span>: <span class="kw-2">&amp;</span><span class="ident">GPSBounds</span>,
+        <span class="ident">require_in_bounds</span>: <span class="ident">bool</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span>(<span class="self">Self</span>, <span class="ident">Tags</span>)<span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">raw_string</span> <span class="op">=</span> <span class="ident">std::str::from_utf8</span>(<span class="ident">raw_bytes</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">geojson</span> <span class="op">=</span> <span class="ident">raw_string</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">geojson::GeoJson</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">features</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">geojson</span> {
+            <span class="ident">geojson::GeoJson::Feature</span>(<span class="ident">feature</span>) =&gt; <span class="macro">vec!</span>[<span class="ident">feature</span>],
+            <span class="ident">geojson::GeoJson::FeatureCollection</span>(<span class="ident">collection</span>) =&gt; <span class="ident">collection</span>.<span class="ident">features</span>,
+            <span class="kw">_</span> =&gt; <span class="macro">anyhow::bail!</span>(<span class="string">&quot;Unexpected geojson: {:?}&quot;</span>, <span class="ident">geojson</span>),
+        };
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">for</span> <span class="ident">feature</span> <span class="kw">in</span> <span class="ident">features</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">geom</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">feature</span>.<span class="ident">geometry</span> {
+                <span class="kw">let</span> <span class="ident">raw_pts</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">geom</span>.<span class="ident">value</span> {
+                    <span class="ident">geojson::Value::LineString</span>(<span class="ident">pts</span>) =&gt; <span class="ident">pts</span>,
+                    <span class="comment">// If there are multiple, just use the first</span>
+                    <span class="ident">geojson::Value::MultiLineString</span>(<span class="ident">strings</span>) =&gt; <span class="kw-2">&amp;</span><span class="ident">strings</span>[<span class="number">0</span>],
+                    <span class="kw">_</span> =&gt; {
+                        <span class="kw">continue</span>;
+                    }
+                };
+                <span class="kw">let</span> <span class="ident">gps_pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LonLat</span><span class="op">&gt;</span> <span class="op">=</span>
+                    <span class="ident">raw_pts</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">LonLat::new</span>(<span class="ident">pt</span>[<span class="number">0</span>], <span class="ident">pt</span>[<span class="number">1</span>])).<span class="ident">collect</span>();
+                <span class="kw">let</span> <span class="ident">pts</span> <span class="op">=</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">require_in_bounds</span> {
+                    <span class="ident">gps_bounds</span>.<span class="ident">convert</span>(<span class="kw-2">&amp;</span><span class="ident">gps_pts</span>)
+                } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pts</span>) <span class="op">=</span> <span class="ident">gps_bounds</span>.<span class="ident">try_convert</span>(<span class="kw-2">&amp;</span><span class="ident">gps_pts</span>) {
+                    <span class="ident">pts</span>
+                } <span class="kw">else</span> {
+                    <span class="kw">continue</span>;
+                };
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tags</span> <span class="op">=</span> <span class="ident">Tags::empty</span>();
+                <span class="kw">for</span> (<span class="ident">key</span>, <span class="ident">value</span>) <span class="kw">in</span> <span class="ident">feature</span>.<span class="ident">properties_iter</span>() {
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">value</span>) <span class="op">=</span> <span class="ident">value</span>.<span class="ident">as_str</span>() {
+                        <span class="ident">tags</span>.<span class="ident">insert</span>(<span class="ident">key</span>, <span class="ident">value</span>);
+                    }
+                }
+                <span class="ident">results</span>.<span class="ident">push</span>((<span class="ident"><span class="self">Self</span>::unchecked_new</span>(<span class="ident">pts</span>), <span class="ident">tags</span>));
+            }
+        }
+        <span class="prelude-val">Ok</span>(<span class="ident">results</span>)
     }
 }
 
