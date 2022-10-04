@@ -26,7 +26,7 @@ pub fn transform_existing_filters(ctx: &EventCtx, app: &mut App, timer: &mut Tim
                 tags.insert("lanes", "2");
                 tags.insert("sidewalk", "both");
                 new.lanes_ltr =
-                    street_network::get_lane_specs_ltr(&tags, app.per_map.map.get_config());
+                    osm2streets::get_lane_specs_ltr(&tags, app.per_map.map.get_config());
             }));
         filtered_roads.push(r.id);
     }

@@ -9,8 +9,8 @@ use abstutil::{MultiMap, Timer};
 use geom::{
     Distance, FindClosest, HashablePt2D, Line, PolyLine, Polygon, Pt2D, Speed, EPSILON_DIST,
 };
+use osm2streets::{initial, Transformation};
 use raw_map::RawMap;
-use street_network::{initial, Transformation};
 
 pub use self::parking_lots::snap_driveway;
 use crate::pathfind::{CreateEngine, Pathfinder};

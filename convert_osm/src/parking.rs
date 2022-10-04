@@ -1,10 +1,10 @@
 use abstutil::{Tags, Timer};
 use geom::{Distance, FindClosest, PolyLine};
 use kml::ExtraShapes;
+use osm2streets::{osm, OriginalRoad};
 use raw_map::RawMap;
-use street_network::{osm, OriginalRoad};
 
-use import_streets::{OnstreetParking, Options, PrivateOffstreetParking, PublicOffstreetParking};
+use streets_reader::{OnstreetParking, Options, PrivateOffstreetParking, PublicOffstreetParking};
 
 // Just used for matching hints to different sides of a road.
 const DIRECTED_ROAD_THICKNESS: Distance = Distance::const_meters(2.5);
@@ -34,7 +34,7 @@ pub fn apply_parking(map: &mut RawMap, opts: &Options, timer: &mut Timer) {
                     }
 
                     r.lane_specs_ltr =
-                        street_network::get_lane_specs_ltr(&r.osm_tags, &opts.map_config);
+                        osm2streets::get_lane_specs_ltr(&r.osm_tags, &opts.map_config);
                 }
             }
         }
@@ -154,7 +154,7 @@ fn use_parking_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
             // Remember that this isn't OSM data
             tags.insert("abst:parking_source", "blockface");
 
-            let lane_specs_ltr = street_network::get_lane_specs_ltr(tags, &map.streets.config);
+            let lane_specs_ltr = osm2streets::get_lane_specs_ltr(tags, &map.streets.config);
             map.streets.roads.get_mut(&r).unwrap().lane_specs_ltr = lane_specs_ltr;
         }
     }

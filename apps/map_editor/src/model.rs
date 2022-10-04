@@ -4,8 +4,8 @@ use std::io::Write;
 use abstio::{CityName, MapName};
 use abstutil::{Tags, Timer};
 use geom::{Bounds, Circle, Distance, FindClosest, GPSBounds, HashablePt2D, LonLat, Polygon, Pt2D};
+use osm2streets::{osm, ControlType, Intersection, IntersectionComplexity, OriginalRoad, Road};
 use raw_map::{RawBuilding, RawMap};
-use street_network::{osm, ControlType, Intersection, IntersectionComplexity, OriginalRoad, Road};
 use widgetry::mapspace::{ObjectID, World};
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, Key, Line, Text};
 
@@ -198,7 +198,7 @@ impl Model {
     }
 
     pub fn create_i(&mut self, ctx: &EventCtx, point: Pt2D) {
-        let id = self.map.streets.new_osm_node_id(time_to_id());
+        let id = self.map.new_osm_node_id(time_to_id());
         // The complexity will change as we connect things to this intersection
         self.map.streets.intersections.insert(
             id,
@@ -376,7 +376,7 @@ impl Model {
         self.world.delete_before_replacement(ID::Intersection(i1));
         self.world.delete_before_replacement(ID::Intersection(i2));
 
-        self.map.streets.roads.insert(id, road);
+        self.map.streets.insert_road(id, road);
         self.road_added(ctx, id);
 
         self.intersection_added(ctx, i1);
@@ -390,7 +390,7 @@ impl Model {
             .delete_before_replacement(ID::Intersection(id.i1));
         self.world
             .delete_before_replacement(ID::Intersection(id.i2));
-        self.map.streets.roads.remove(&id).unwrap();
+        self.map.streets.remove_road(&id);
 
         self.intersection_added(ctx, id.i1);
         self.intersection_added(ctx, id.i2);

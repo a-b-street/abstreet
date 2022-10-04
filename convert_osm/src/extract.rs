@@ -2,12 +2,12 @@ use osm::{OsmID, RelationID, WayID};
 
 use abstutil::{MultiMap, Tags, Timer};
 use geom::{Distance, FindClosest, Polygon, Pt2D, Ring};
+use osm2streets::{osm, NamePerLanguage};
 use raw_map::{Amenity, AreaType, RawArea, RawBuilding, RawMap, RawParkingLot};
-use street_network::{osm, NamePerLanguage};
 
 use crate::Options;
-use import_streets::osm_reader::{get_multipolygon_members, glue_multipolygon, multipoly_geometry};
-use import_streets::OsmExtract;
+use streets_reader::osm_reader::{get_multipolygon_members, glue_multipolygon, multipoly_geometry};
+use streets_reader::OsmExtract;
 
 pub fn extract_osm(
     map: &mut RawMap,
@@ -22,7 +22,7 @@ pub fn extract_osm(
 ) {
     let osm_xml = fs_err::read_to_string(osm_input_path).unwrap();
     let mut doc =
-        import_streets::osm_reader::read(&osm_xml, &map.streets.gps_bounds, timer).unwrap();
+        streets_reader::osm_reader::read(&osm_xml, &map.streets.gps_bounds, timer).unwrap();
 
     // TODO Hacks to override OSM data. There's no problem upstream, but we want to accomplish
     // various things for A/B Street.

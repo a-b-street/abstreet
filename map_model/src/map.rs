@@ -161,9 +161,9 @@ impl Map {
     /// A dummy map that won't crash UIs, but has almost nothing in it.
     pub fn almost_blank() -> Self {
         use geom::LonLat;
+        use osm2streets::ControlType;
+        use osm2streets::IntersectionComplexity;
         use raw_map::RawBuilding;
-        use street_network::ControlType;
-        use street_network::IntersectionComplexity;
 
         // Programatically creating a Map is very verbose. RawMap less so, but .osm could be even
         // better... but then we'd pull in dependencies for XML parsing everywhere.
@@ -181,7 +181,7 @@ impl Map {
         let i2 = osm::NodeID(1);
         raw.streets.intersections.insert(
             i1,
-            street_network::Intersection::new(
+            osm2streets::Intersection::new(
                 Pt2D::new(30.0, 30.0),
                 IntersectionComplexity::MapEdge,
                 ControlType::Border,
@@ -189,7 +189,7 @@ impl Map {
         );
         raw.streets.intersections.insert(
             i2,
-            street_network::Intersection::new(
+            osm2streets::Intersection::new(
                 Pt2D::new(70.0, 70.0),
                 IntersectionComplexity::MapEdge,
                 ControlType::Border,
@@ -200,7 +200,7 @@ impl Map {
         tags.insert("lanes", "2");
         raw.streets.roads.insert(
             OriginalRoad::new(2, (i1.0, i2.0)),
-            street_network::Road::new(
+            osm2streets::Road::new(
                 vec![Pt2D::new(30.0, 30.0), Pt2D::new(70.0, 70.0)],
                 tags,
                 &raw.streets.config,

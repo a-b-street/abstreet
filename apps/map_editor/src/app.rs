@@ -1,5 +1,5 @@
 use geom::{Distance, Line, Polygon, Pt2D};
-use street_network::{osm, Transformation};
+use osm2streets::{osm, Transformation};
 use widgetry::mapspace::WorldOutcome;
 use widgetry::tools::{open_browser, URLManager};
 use widgetry::{

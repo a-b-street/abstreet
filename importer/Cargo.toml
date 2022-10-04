@@ -30,7 +30,7 @@ raw_map = { path = "../raw_map" }
 serde = { workspace = true }
 serde_json = { workspace = true }
 sim = { path = "../sim" }
-street_network = { git = "https://github.com/a-b-street/osm2streets" }
+osm2streets = { git = "https://github.com/a-b-street/osm2streets" }
 synthpop = { path = "../synthpop" }
 structopt = { workspace = true }
 

@@ -8,10 +8,10 @@ use anyhow::Result;
 use abstio::MapName;
 use abstutil::{Tags, Timer};
 use geom::{Distance, FindClosest, GPSBounds, LonLat, Polygon, Pt2D, Ring};
+use osm2streets::{osm, OriginalRoad, Road};
 use raw_map::{Amenity, RawMap};
-use street_network::{osm, OriginalRoad, Road};
 
-pub use import_streets::{
+pub use streets_reader::{
     OnstreetParking, Options, PrivateOffstreetParking, PublicOffstreetParking,
 };
 
@@ -42,7 +42,7 @@ pub fn convert(
     let (extract, amenity_points, bus_routes_on_roads) =
         extract::extract_osm(&mut map, &osm_input_path, clip_path, &opts, timer);
     map.bus_routes_on_roads = bus_routes_on_roads;
-    let split_output = import_streets::split_ways::split_up_roads(&mut map.streets, extract, timer);
+    let split_output = streets_reader::split_ways::split_up_roads(&mut map.streets, extract, timer);
     clip_map(&mut map, timer);
 
     // Need to do a first pass of removing cul-de-sacs here, or we wind up with loop PolyLines when
@@ -53,7 +53,7 @@ pub fn convert(
 
     parking::apply_parking(&mut map, &opts, timer);
 
-    import_streets::use_barrier_nodes(
+    streets_reader::use_barrier_nodes(
         &mut map.streets,
         split_output.barrier_nodes,
         &split_output.pt_to_road,
@@ -71,7 +71,7 @@ pub fn convert(
     }
 
     if opts.filter_crosswalks {
-        import_streets::filter_crosswalks(
+        streets_reader::filter_crosswalks(
             &mut map.streets,
             split_output.crosswalks,
             split_output.pt_to_road,
@@ -153,7 +153,7 @@ fn bristol_hack(map: &mut RawMap) {
     tags.insert("maxspeed", "1 mph");
     tags.insert("bicycle", "no");
 
-    map.streets.roads.insert(
+    map.streets.insert_road(
         id,
         Road::new(
             vec![
@@ -168,7 +168,7 @@ fn bristol_hack(map: &mut RawMap) {
 }
 
 fn clip_map(map: &mut RawMap, timer: &mut Timer) {
-    import_streets::clip::clip_map(&mut map.streets, timer).unwrap();
+    streets_reader::clip::clip_map(&mut map.streets, timer).unwrap();
 
     let boundary_polygon = map.streets.boundary_polygon.clone();
 

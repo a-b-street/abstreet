@@ -630,12 +630,12 @@ dependencies = [
  "csv",
  "fs-err",
  "geom",
- "import_streets",
  "kml",
  "log",
+ "osm2streets",
  "raw_map",
  "serde",
- "street_network",
+ "streets_reader",
 ]
 
 [[package]]
@@ -2003,19 +2003,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "import_streets"
-version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2streets#322044d26785d92f328931b610ae923ec1389161"
-dependencies = [
- "abstutil",
- "anyhow",
- "geom",
- "log",
- "roxmltree",
- "street_network",
-]
-
-[[package]]
 name = "importer"
 version = "0.1.0"
 dependencies = [
@@ -2037,6 +2024,7 @@ dependencies = [
  "log",
  "map_model",
  "num-integer",
+ "osm2streets",
  "popdat",
  "rand",
  "rand_xorshift",
@@ -2044,7 +2032,6 @@ dependencies = [
  "serde",
  "serde_json",
  "sim",
- "street_network",
  "structopt",
  "synthpop",
 ]
@@ -2326,13 +2313,13 @@ dependencies = [
  "map_model",
  "maplit",
  "md5",
+ "osm2streets",
  "rand",
  "rand_xorshift",
  "regex",
  "serde",
  "serde_json",
  "sim",
- "street_network",
  "structopt",
  "synthpop",
  "wasm-bindgen",
@@ -2423,9 +2410,9 @@ dependencies = [
  "geom",
  "getrandom",
  "log",
+ "osm2streets",
  "raw_map",
  "serde",
- "street_network",
  "structopt",
  "wasm-bindgen",
  "widgetry",
@@ -2480,13 +2467,13 @@ dependencies = [
  "log",
  "lyon",
  "md5",
+ "osm2streets",
  "petgraph",
  "rand",
  "rand_xorshift",
  "raw_map",
  "serde",
  "serde_json",
- "street_network",
  "structopt",
  "thread_local",
  "traffic_signal_data",
@@ -2952,6 +2939,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "osm2streets"
+version = "0.1.0"
+source = "git+https://github.com/a-b-street/osm2streets#a55aef7bee047886cfdddb3ad53a67773c188207"
+dependencies = [
+ "aabb-quadtree",
+ "abstutil",
+ "anyhow",
+ "geom",
+ "log",
+ "osm-tag-schemes",
+ "osm-tags",
+ "osm2lanes",
+ "petgraph",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "osm_viewer"
 version = "0.1.0"
 dependencies = [
@@ -3355,8 +3360,8 @@ dependencies = [
  "abstio",
  "abstutil",
  "geom",
+ "osm2streets",
  "serde",
- "street_network",
  "strum 0.21.0",
  "strum_macros 0.21.1",
 ]
@@ -3957,21 +3962,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ef5430c8e36b713e13b48a9f709cc21e046723fe44ce34587b73a830203b533e"
 
 [[package]]
-name = "street_network"
+name = "streets_reader"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2streets#322044d26785d92f328931b610ae923ec1389161"
+source = "git+https://github.com/a-b-street/osm2streets#a55aef7bee047886cfdddb3ad53a67773c188207"
 dependencies = [
- "aabb-quadtree",
  "abstutil",
  "anyhow",
  "geom",
  "log",
- "osm-tag-schemes",
- "osm-tags",
- "osm2lanes",
- "petgraph",
- "serde",
- "serde_json",
+ "osm2streets",
+ "roxmltree",
 ]
 
 [[package]]

@@ -4,8 +4,8 @@
 
 use std::collections::BTreeMap;
 
+use osm2streets::{osm, StreetNetwork};
 use serde::{Deserialize, Serialize};
-use street_network::{osm, StreetNetwork};
 
 use abstio::{CityName, MapName};
 use abstutil::{
@@ -84,6 +84,24 @@ impl RawMap {
                 osm_way_id -= 1;
             } else {
                 return candidate;
+            }
+        }
+    }
+
+    pub fn new_osm_node_id(&self, start: i64) -> osm::NodeID {
+        assert!(start < 0);
+        // Slow, but deterministic.
+        let mut osm_node_id = start;
+        loop {
+            if self
+                .streets
+                .intersections
+                .keys()
+                .any(|i| i.0 == osm_node_id)
+            {
+                osm_node_id -= 1;
+            } else {
+                return osm::NodeID(osm_node_id);
             }
         }
     }

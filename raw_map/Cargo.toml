@@ -9,6 +9,6 @@ abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
 geom = { path = "../geom" }
 serde = { workspace = true }
-street_network = { git = "https://github.com/a-b-street/osm2streets" }
+osm2streets = { git = "https://github.com/a-b-street/osm2streets" }
 strum = "0.21"
 strum_macros = "0.21"

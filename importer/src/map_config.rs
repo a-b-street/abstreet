@@ -20,7 +20,7 @@ pub fn config_for_map(name: &MapName) -> convert_osm::Options {
     };
 
     convert_osm::Options {
-        map_config: street_network::MapConfig {
+        map_config: osm2streets::MapConfig {
             driving_side: match name.city.country.as_ref() {
                 "au" | "gb" | "in" | "jp" | "nz" | "sg" => DrivingSide::Left,
                 _ => DrivingSide::Right,
@@ -47,7 +47,7 @@ pub fn config_for_map(name: &MapName) -> convert_osm::Options {
                 MapName::new("pl", "krakow", "center"),
             ]
             .contains(name),
-            merge_osm_ways: abstio::maybe_read_json::<Vec<street_network::OriginalRoad>>(
+            merge_osm_ways: abstio::maybe_read_json::<Vec<osm2streets::OriginalRoad>>(
                 "merge_osm_ways.json".to_string(),
                 &mut Timer::throwaway(),
             )

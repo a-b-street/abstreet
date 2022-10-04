@@ -1,5 +1,5 @@
 use map_model::EditRoad;
-use street_network::LaneSpec;
+use osm2streets::LaneSpec;
 use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::{EventCtx, Text, Transition};
 

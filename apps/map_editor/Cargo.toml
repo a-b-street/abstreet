@@ -21,7 +21,7 @@ getrandom = { version = "0.2.3", optional = true }
 log = { workspace = true }
 raw_map = { path = "../../raw_map" }
 serde = { workspace = true }
-street_network = { git = "https://github.com/a-b-street/osm2streets" }
+osm2streets = { git = "https://github.com/a-b-street/osm2streets" }
 structopt = { workspace = true }
 wasm-bindgen = { version = "0.2.70", optional = true }
 widgetry = { path = "../../widgetry" }

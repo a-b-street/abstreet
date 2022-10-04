@@ -1,6 +1,6 @@
 use geom::{ArrowCap, Distance, PolyLine, Polygon};
 use map_gui::tools::DrawSimpleRoadLabels;
-use street_network::Direction;
+use osm2streets::Direction;
 use widgetry::mapspace::{DummyID, World};
 use widgetry::tools::{ChooseSomething, PopupMsg};
 use widgetry::{

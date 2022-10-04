@@ -8,7 +8,7 @@ use std::collections::BTreeSet;
 use geom::Distance;
 use map_gui::tools::grey_out_map;
 use map_model::{EditRoad, IntersectionID, Road, RoadID};
-use street_network::{Direction, LaneSpec};
+use osm2streets::{Direction, LaneSpec};
 use widgetry::mapspace::{ObjectID, World};
 use widgetry::tools::{PolyLineLasso, PopupMsg};
 use widgetry::{DrawBaselayer, EventCtx, GfxCtx, Line, Outcome, Panel, State, Text, Widget};

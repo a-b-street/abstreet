@@ -5,8 +5,8 @@ use anyhow::Result;
 use fs_err::File;
 
 use geom::{Distance, PolyLine};
+use osm2streets::OriginalRoad;
 use raw_map::RawMap;
-use street_network::OriginalRoad;
 
 pub fn add_data(map: &mut RawMap) -> Result<()> {
     let input = format!("elevation_input_{}", map.name.as_filename());

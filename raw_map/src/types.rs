@@ -3,7 +3,7 @@ use strum::IntoEnumIterator;
 use strum_macros::{Display, EnumIter, EnumString};
 
 use abstutil::Tags;
-use street_network::NamePerLanguage;
+use osm2streets::NamePerLanguage;
 
 /// A business located inside a building.
 #[derive(Serialize, Deserialize, Debug, Clone)]
