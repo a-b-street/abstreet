@@ -1,8 +1,8 @@
 use widgetry::tools::ChooseSomething;
 use widgetry::tools::PopupMsg;
 use widgetry::{
-    lctrl, Choice, Color, CornerRounding, EventCtx, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Panel, PanelDims, VerticalAlignment, Widget,
+    lctrl, Choice, CornerRounding, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+    Panel, PanelDims, VerticalAlignment, Widget,
 };
 
 use crate::components::Mode;
@@ -119,53 +119,59 @@ fn launch_impact(ctx: &mut EventCtx, app: &mut App) -> Transition {
 fn make_top_panel(ctx: &mut EventCtx, app: &App, mode: Mode) -> Panel {
     let consultation = app.per_map.consultation.is_some();
 
+    fn current_mode(ctx: &mut EventCtx, name: &str) -> Widget {
+        ctx.style()
+            .btn_solid_primary
+            .text(name)
+            .disabled(true)
+            .build_def(ctx)
+    }
+
     // While we're adjusting a boundary, it's weird to navigate away without explicitly confirming
     // or reverting the edits. Just remove the nav bar entirely.
     let navbar = if mode != Mode::SelectBoundary {
         Widget::row(vec![
-            ctx.style()
-                .btn_outline
-                .text("Pick area")
-                .disabled(mode == Mode::PickArea || app.per_map.consultation.is_some())
-                .maybe_disabled_tooltip(if mode == Mode::PickArea {
-                    None
-                } else {
-                    Some("This consultation is only about the current area")
-                })
-                .build_def(ctx),
-            ctx.style()
-                .btn_outline
-                .text("Design LTN")
-                .disabled(
-                    mode == Mode::ModifyNeighbourhood
-                        || app.per_map.current_neighbourhood.is_none(),
-                )
-                .maybe_disabled_tooltip(if mode == Mode::ModifyNeighbourhood {
-                    None
-                } else {
-                    Some("Pick an area first")
-                })
-                .build_def(ctx),
-            ctx.style()
-                .btn_outline
-                .text("Plan route")
-                .hotkey(Key::R)
-                .disabled(mode == Mode::RoutePlanner)
-                .build_def(ctx),
-            ctx.style()
-                .btn_outline
-                .text("Predict impact")
-                .disabled(mode == Mode::Impact || app.per_map.consultation.is_some())
-                .maybe_disabled_tooltip(if mode == Mode::Impact {
-                    None
-                } else {
-                    Some("Not supported here yet")
-                })
-                .build_def(ctx),
+            if mode == Mode::PickArea {
+                current_mode(ctx, "Pick area")
+            } else {
+                ctx.style()
+                    .btn_outline
+                    .text("Pick area")
+                    .disabled(app.per_map.consultation.is_some())
+                    .disabled_tooltip("This consultation is only about the current area")
+                    .build_def(ctx)
+            },
+            if mode == Mode::ModifyNeighbourhood {
+                current_mode(ctx, "Design LTN")
+            } else {
+                ctx.style()
+                    .btn_outline
+                    .text("Design LTN")
+                    .disabled(app.per_map.current_neighbourhood.is_none())
+                    .disabled_tooltip("Pick an area first")
+                    .build_def(ctx)
+            },
+            if mode == Mode::RoutePlanner {
+                current_mode(ctx, "Plan route")
+            } else {
+                ctx.style()
+                    .btn_outline
+                    .text("Plan route")
+                    .hotkey(Key::R)
+                    .build_def(ctx)
+            },
+            if mode == Mode::Impact {
+                current_mode(ctx, "Predict impact")
+            } else {
+                ctx.style()
+                    .btn_outline
+                    .text("Predict impact")
+                    .disabled(app.per_map.consultation.is_some())
+                    .disabled_tooltip("Not supported here yet")
+                    .build_def(ctx)
+            },
         ])
         .centered_vert()
-        .padding(16)
-        .outline((5.0, Color::BLACK))
     } else {
         Widget::nothing()
     };
