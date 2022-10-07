@@ -3,8 +3,7 @@
 use structopt::StructOpt;
 
 use abstio::MapName;
-use abstutil::Timer;
-use map_model::{Map, PathConstraints, Road, RoutingParams};
+use map_model::{Map, PathConstraints, Road};
 use widgetry::tools::FutureLoader;
 use widgetry::{EventCtx, Settings, State};
 
@@ -89,8 +88,6 @@ fn run(mut settings: Settings) {
                     .layers
                     .event(ctx, &app.cs, components::Mode::PickArea, None);
 
-                // Load a proposal first? Make sure to restore the partitioning from a file before
-                // calling PickArea
                 if let Some(ref name) = args.proposal {
                     // Remote edits require another intermediate state to load
                     if let Some(id) = name.strip_prefix("remote/") {
@@ -111,7 +108,7 @@ fn run(mut settings: Settings) {
     });
 }
 
-// Proposal should already be loaded by now
+// A Proposal should already be loaded by now, unless consultation is set
 fn setup_initial_states(
     ctx: &mut EventCtx,
     app: &mut App,
@@ -124,11 +121,13 @@ fn setup_initial_states(
             panic!("Consultation mode not supported on this map");
         }
 
+        let mut consultation_proposal_path = None;
+
         let focus_on_street = match consultation.as_ref() {
             "pt1" => "Gregory Street",
             "pt2" => {
                 // Start from a baked-in proposal with special boundaries
-                app.per_map.consultation_proposal_path = Some(abstio::path(
+                consultation_proposal_path = Some(abstio::path(
                     "system/ltn_proposals/bristol_beaufort_road.json.gz",
                 ));
                 "Jubilee Road"
@@ -137,11 +136,11 @@ fn setup_initial_states(
         };
 
         // If we already loaded something from a saved proposal, then don't clear anything
-        if &app.partitioning().map != app.per_map.map.get_name() {
-            app.per_map.alt_proposals = crate::save::AltProposals::new(&app.per_map.map);
-            ctx.loading_screen("initialize", |ctx, timer| {
-                crate::clear_current_proposal(ctx, app, timer);
-            });
+        if let Some(path) = consultation_proposal_path {
+            if crate::save::Proposal::load_from_path(ctx, app, path.clone()).is_some() {
+                panic!("Consultation mode broken; go fix {path} manually");
+            }
+            app.per_map.alt_proposals.clear_all_but_current();
         }
 
         // Look for the neighbourhood containing one small street
@@ -231,25 +230,6 @@ pub fn run_wasm(root_dom_id: String, assets_base_url: String, assets_are_gzipped
 }
 
 pub fn after_edit(ctx: &EventCtx, app: &mut App) {
-    app.per_map.draw_all_filters = app.edits().draw(ctx, &app.per_map.map);
-}
-
-pub fn clear_current_proposal(ctx: &mut EventCtx, app: &mut App, timer: &mut Timer) {
-    if let Some(path) = app.per_map.consultation_proposal_path.clone() {
-        if crate::save::Proposal::load_from_path(ctx, app, path.clone()).is_some() {
-            panic!("Consultation mode broken; go fix {path} manually");
-        }
-        return;
-    }
-
-    // TODO How much of this can go to PerMap? Maybe we need to explicitly store the original
-    // detected filters as an immutable proposal, calculated in PerMap::new
-
-    // Reset this first. transform_existing_filters will fill some out.
-    app.per_map.routing_params_before_changes = RoutingParams::default();
-    mut_edits!(app) = Edits::default();
-    crate::filters::transform_existing_filters(ctx, app, timer);
-    mut_partitioning!(app) = Partitioning::seed_using_heuristics(app, timer);
     app.per_map.draw_all_filters = app.edits().draw(ctx, &app.per_map.map);
 }
 

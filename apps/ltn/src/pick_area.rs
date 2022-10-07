@@ -33,14 +33,7 @@ impl PickArea {
             app.session.edit_mode = EditMode::Filters;
         }
 
-        let (world, draw_over_roads) =
-            ctx.loading_screen("calculate neighbourhoods", |ctx, timer| {
-                if &app.partitioning().map != app.per_map.map.get_name() {
-                    app.per_map.alt_proposals = crate::save::AltProposals::new(&app.per_map.map);
-                    crate::clear_current_proposal(ctx, app, timer);
-                }
-                (make_world(ctx, app), draw_over_roads(ctx, app))
-            });
+        let (world, draw_over_roads) = (make_world(ctx, app), draw_over_roads(ctx, app));
 
         let appwide_panel = AppwidePanel::new(ctx, app, Mode::PickArea);
         let bottom_panel = BottomPanel::new(

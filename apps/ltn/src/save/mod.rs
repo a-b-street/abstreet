@@ -229,8 +229,7 @@ pub struct AltProposals {
 }
 
 impl AltProposals {
-    // TODO The result is invalid; partitioning is temporary
-    pub fn new(map: &Map) -> Self {
+    pub fn new(map: &Map, timer: &mut Timer) -> Self {
         Self {
             list: vec![None],
             current: 0,
@@ -239,10 +238,16 @@ impl AltProposals {
                 map: map.get_name().clone(),
                 name: "existing LTNs".to_string(),
                 abst_version: map_gui::tools::version().to_string(),
-                partitioning: Partitioning::empty(),
+                partitioning: Partitioning::seed_using_heuristics(map, timer),
                 edits: Edits::default(),
             },
         }
+    }
+
+    // Special case for locking into a consultation mode
+    pub fn clear_all_but_current(&mut self) {
+        self.list = vec![None];
+        self.current = 0;
     }
 
     pub fn to_widget_expanded(&self, ctx: &EventCtx, app: &App) -> Widget {
@@ -322,11 +327,17 @@ impl AltProposals {
     ) -> Option<Transition> {
         match action {
             "New" => {
+                // TODO Hack. We want to lock people into a special base proposal. This "New"
+                // button will go away entirely soon, fixing this properly
+                if app.per_map.consultation_id == Some("pt2".to_string()) {
+                    return None;
+                }
+
                 stash_current_proposal(app);
 
                 // This is expensive -- maybe we should just calculate this once and keep a copy
                 // forever
-                ctx.loading_screen("create new proposal", |ctx, timer| {
+                ctx.loading_screen("create new proposal", |_, timer| {
                     // First undo any one-way changes. This is messy to repeat here, but it's not
                     // straightforward to use make_active.
                     let mut edits = app.per_map.map.new_edits();
@@ -340,7 +351,8 @@ impl AltProposals {
                     }
                     app.per_map.map.must_apply_edits(edits, timer);
 
-                    crate::clear_current_proposal(ctx, app, timer);
+                    app.per_map.alt_proposals.current_proposal =
+                        AltProposals::new(&app.per_map.map, timer).current_proposal;
                 });
 
                 // Start a new proposal
