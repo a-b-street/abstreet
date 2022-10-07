@@ -126,6 +126,6 @@ pub fn undo_proposal(ctx: &mut EventCtx, app: &mut App) {
         });
     }
 
-    app.per_map.alt_proposals.edits = prev;
+    mut_edits!(app) = prev;
     crate::after_edit(ctx, app);
 }
