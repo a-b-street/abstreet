@@ -5,7 +5,7 @@ use widgetry::{
     Widget,
 };
 
-use crate::{App, NeighbourhoodID, Transition};
+use crate::{mut_partitioning, App, NeighbourhoodID, Transition};
 
 pub struct CustomizeBoundary {
     panel: Panel,
@@ -16,8 +16,7 @@ pub struct CustomizeBoundary {
 impl CustomizeBoundary {
     pub fn new_state(ctx: &mut EventCtx, app: &App, id: NeighbourhoodID) -> Box<dyn State<App>> {
         let points = app
-            .per_map
-            .partitioning
+            .partitioning()
             .neighbourhood_boundary_polygon(app, id)
             .into_outer_ring()
             .into_points();
@@ -52,8 +51,7 @@ impl State<App> for CustomizeBoundary {
                     let mut pts = self.edit.get_points().to_vec();
                     pts.push(pts[0]);
                     if let Ok(ring) = Ring::new(pts) {
-                        app.per_map
-                            .partitioning
+                        mut_partitioning!(app)
                             .override_neighbourhood_boundary_polygon(self.id, ring.into_polygon());
                         return Transition::Multi(vec![Transition::Pop, Transition::Recreate]);
                     }

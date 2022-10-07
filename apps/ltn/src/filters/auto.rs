@@ -7,7 +7,7 @@ use abstutil::Timer;
 use map_model::RoadID;
 use widgetry::{Choice, EventCtx};
 
-use crate::{after_edit, App, Neighbourhood, RoadFilter};
+use crate::{after_edit, mut_edits, App, Neighbourhood, RoadFilter};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Heuristic {
@@ -62,7 +62,7 @@ impl Heuristic {
 
         // TODO If we already have no shortcuts, stop
 
-        app.per_map.edits.before_edit();
+        mut_edits!(app).before_edit();
 
         match self {
             Heuristic::Greedy => greedy(app, neighbourhood),
@@ -71,7 +71,7 @@ impl Heuristic {
             Heuristic::OnlyOneBorder => only_one_border(app, neighbourhood),
         }
 
-        let empty = app.per_map.edits.cancel_empty_edit();
+        let empty = mut_edits!(app).cancel_empty_edit();
         after_edit(ctx, app);
         if empty {
             bail!("No new filters created");
@@ -103,14 +103,14 @@ fn brute_force(app: &mut App, neighbourhood: &Neighbourhood, timer: &mut Timer) 
     // Which road leads to the fewest shortcuts?
     let mut best: Option<(RoadID, usize)> = None;
 
-    let orig_filters = app.per_map.edits.roads.len();
+    let orig_filters = app.edits().roads.len();
     timer.start_iter(
         "evaluate candidate filters",
         neighbourhood.orig_perimeter.interior.len(),
     );
     for r in &neighbourhood.orig_perimeter.interior {
         timer.next();
-        if app.per_map.edits.roads.contains_key(r) {
+        if app.edits().roads.contains_key(r) {
             continue;
         }
         if let Some(new) = try_to_filter_road(app, neighbourhood, *r) {
@@ -120,10 +120,10 @@ fn brute_force(app: &mut App, neighbourhood: &Neighbourhood, timer: &mut Timer) 
                 best = Some((*r, num_shortcuts));
             }
             // Always undo the new filter between each test
-            app.per_map.edits.roads.remove(r).unwrap();
+            mut_edits!(app).roads.remove(r).unwrap();
         }
 
-        assert_eq!(orig_filters, app.per_map.edits.roads.len());
+        assert_eq!(orig_filters, app.edits().roads.len());
     }
 
     if let Some((r, _)) = best {
@@ -135,14 +135,14 @@ fn split_cells(app: &mut App, neighbourhood: &Neighbourhood, timer: &mut Timer) 
     // Filtering which road leads to new cells with the MOST streets in the smaller cell?
     let mut best: Option<(RoadID, usize)> = None;
 
-    let orig_filters = app.per_map.edits.roads.len();
+    let orig_filters = app.edits().roads.len();
     timer.start_iter(
         "evaluate candidate filters",
         neighbourhood.orig_perimeter.interior.len(),
     );
     for r in &neighbourhood.orig_perimeter.interior {
         timer.next();
-        if app.per_map.edits.roads.contains_key(r) {
+        if app.edits().roads.contains_key(r) {
             continue;
         }
         if let Some(new) = try_to_filter_road(app, neighbourhood, *r) {
@@ -166,10 +166,10 @@ fn split_cells(app: &mut App, neighbourhood: &Neighbourhood, timer: &mut Timer) 
                 }
             }
             // Always undo the new filter between each test
-            app.per_map.edits.roads.remove(r).unwrap();
+            mut_edits!(app).roads.remove(r).unwrap();
         }
 
-        assert_eq!(orig_filters, app.per_map.edits.roads.len());
+        assert_eq!(orig_filters, app.edits().roads.len());
     }
 
     if let Some((r, _)) = best {
@@ -186,13 +186,13 @@ fn only_one_border(app: &mut App, neighbourhood: &Neighbourhood) {
                 for r in cell.roads.keys() {
                     let road = app.per_map.map.get_r(*r);
                     if road.src_i == *i {
-                        app.per_map.edits.roads.insert(
+                        mut_edits!(app).roads.insert(
                             road.id,
                             RoadFilter::new_by_user(0.1 * road.length(), app.session.filter_type),
                         );
                         break;
                     } else if road.dst_i == *i {
-                        app.per_map.edits.roads.insert(
+                        mut_edits!(app).roads.insert(
                             road.id,
                             RoadFilter::new_by_user(0.9 * road.length(), app.session.filter_type),
                         );
@@ -212,13 +212,13 @@ fn try_to_filter_road(
     r: RoadID,
 ) -> Option<Neighbourhood> {
     let road = app.per_map.map.get_r(r);
-    app.per_map.edits.roads.insert(
+    mut_edits!(app).roads.insert(
         r,
         RoadFilter::new_by_user(road.length() / 2.0, app.session.filter_type),
     );
     let new_neighbourhood = Neighbourhood::new(app, neighbourhood.id);
     if new_neighbourhood.cells.iter().any(|c| c.is_disconnected()) {
-        app.per_map.edits.roads.remove(&r).unwrap();
+        mut_edits!(app).roads.remove(&r).unwrap();
         None
     } else {
         Some(new_neighbourhood)

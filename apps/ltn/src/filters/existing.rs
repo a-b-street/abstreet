@@ -4,7 +4,7 @@ use map_gui::render::DrawMap;
 use map_model::{osm, Map, Road};
 use widgetry::EventCtx;
 
-use crate::{App, FilterType, RoadFilter};
+use crate::{mut_edits, App, FilterType, RoadFilter};
 
 /// Detect roads that're modelled in OSM as cycleways, but really are regular roads with modal
 /// filters. Transform them into normal roads, and instead use this tool's explicit representation
@@ -45,7 +45,7 @@ pub fn transform_existing_filters(ctx: &EventCtx, app: &mut App, timer: &mut Tim
         // (And don't call before_edit; this transformation happens before the user starts editing
         // anything)
         for r in filtered_roads {
-            app.per_map.edits.roads.insert(
+            mut_edits!(app).roads.insert(
                 r,
                 RoadFilter {
                     dist: app.per_map.map.get_r(r).length() / 2.0,
@@ -65,7 +65,7 @@ pub fn transform_existing_filters(ctx: &EventCtx, app: &mut App, timer: &mut Tim
         for dist in &r.barrier_nodes {
             // The road might also be marked as non-driving. This'll move the filter position from
             // the center.
-            app.per_map.edits.roads.insert(
+            mut_edits!(app).roads.insert(
                 r.id,
                 RoadFilter {
                     dist: *dist,
@@ -82,7 +82,7 @@ pub fn transform_existing_filters(ctx: &EventCtx, app: &mut App, timer: &mut Tim
 
     // Now that we've applied all pre-existing filters, calculate the RoutingParams.
     let mut params = app.per_map.map.routing_params().clone();
-    app.per_map.edits.update_routing_params(&mut params);
+    app.edits().update_routing_params(&mut params);
     app.per_map.routing_params_before_changes = params;
 
     // Do not call map.keep_pathfinder_despite_edits or recalculate_pathfinding_after_edits. We

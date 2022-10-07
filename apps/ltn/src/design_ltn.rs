@@ -47,8 +47,7 @@ impl DesignLTN {
                 .get_outer_ring()
                 .clone(),
             vec![app
-                .per_map
-                .partitioning
+                .partitioning()
                 .neighbourhood_boundary_polygon(app, id)
                 .into_outer_ring()],
         );
@@ -74,7 +73,7 @@ impl DesignLTN {
             highlight_cell: World::unbounded(),
             edit: EditNeighbourhood::temporary(),
             preserve_state: crate::save::PreserveState::DesignLTN(
-                app.per_map.partitioning.all_blocks_in_neighbourhood(id),
+                app.partitioning().all_blocks_in_neighbourhood(id),
             ),
 
             show_error: Drawable::empty(ctx),
@@ -127,8 +126,7 @@ impl DesignLTN {
             Widget::col(vec![
                 format!(
                     "Area: {}",
-                    app.per_map
-                        .partitioning
+                    app.partitioning()
                         .neighbourhood_area_km2(self.neighbourhood.id)
                 )
                 .text_widget(ctx),
@@ -421,21 +419,17 @@ fn make_bottom_panel(
             ctx.style()
                 .btn_plain
                 .icon("system/assets/tools/undo.svg")
-                .disabled(app.per_map.edits.previous_version.is_none())
+                .disabled(app.edits().previous_version.is_none())
                 .hotkey(lctrl(Key::Z))
                 .build_widget(ctx, "undo"),
             Widget::col(vec![
                 // TODO Only count new filters, not existing
                 format!(
                     "{} filters added",
-                    app.per_map.edits.roads.len() + app.per_map.edits.intersections.len()
+                    app.edits().roads.len() + app.edits().intersections.len()
                 )
                 .text_widget(ctx),
-                format!(
-                    "{} road directions changed",
-                    app.per_map.edits.one_ways.len()
-                )
-                .text_widget(ctx),
+                format!("{} road directions changed", app.edits().one_ways.len()).text_widget(ctx),
             ]),
         ]),
         per_tab_contents,

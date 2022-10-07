@@ -49,7 +49,7 @@ impl Cell {
                 // Design choice: when we have a filter right at the entrance of a neighbourhood, it
                 // creates its own little cell allowing access to just the very beginning of the
                 // road. Let's not draw anything for that.
-                if app.per_map.edits.roads.contains_key(r) {
+                if app.edits().roads.contains_key(r) {
                     continue;
                 }
 
@@ -101,12 +101,7 @@ pub struct DistanceInterval {
 impl Neighbourhood {
     pub fn new(app: &App, id: NeighbourhoodID) -> Neighbourhood {
         let map = &app.per_map.map;
-        let orig_perimeter = app
-            .per_map
-            .partitioning
-            .neighbourhood_block(id)
-            .perimeter
-            .clone();
+        let orig_perimeter = app.partitioning().neighbourhood_block(id).perimeter.clone();
 
         let mut n = Neighbourhood {
             id,
@@ -135,7 +130,7 @@ impl Neighbourhood {
             }
         }
 
-        n.cells = find_cells(map, &n.orig_perimeter, &n.borders, &app.per_map.edits);
+        n.cells = find_cells(map, &n.orig_perimeter, &n.borders, &app.edits());
 
         // TODO The timer could be nice for large areas. But plumbing through one everywhere is
         // tedious, and would hit a nested start_iter bug anyway.

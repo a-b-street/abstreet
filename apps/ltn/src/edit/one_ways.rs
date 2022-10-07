@@ -4,7 +4,7 @@ use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::{EventCtx, Text, Transition};
 
 use super::{road_name, EditOutcome, Obj};
-use crate::{colors, App, Neighbourhood};
+use crate::{colors, mut_edits, App, Neighbourhood};
 
 pub fn make_world(ctx: &mut EventCtx, app: &App, neighbourhood: &Neighbourhood) -> World<Obj> {
     let map = &app.per_map.map;
@@ -36,7 +36,7 @@ pub fn handle_world_outcome(
 ) -> EditOutcome {
     match outcome {
         WorldOutcome::ClickedObject(Obj::InteriorRoad(r)) => {
-            if app.per_map.edits.roads.contains_key(&r) {
+            if app.edits().roads.contains_key(&r) {
                 return EditOutcome::error(ctx, "A one-way street can't have a filter");
             }
             if app
@@ -63,7 +63,7 @@ pub fn handle_world_outcome(
                 // We always create it from-scratch when needed.
             });
 
-            app.per_map.edits.before_edit();
+            mut_edits!(app).before_edit();
 
             let r_edit = app.per_map.map.get_r_edit(r);
             // Was the road originally like this? Use the original OSM tags to decide.
@@ -75,9 +75,9 @@ pub fn handle_world_outcome(
                     app.per_map.map.get_config(),
                 )
             {
-                app.per_map.edits.one_ways.remove(&r);
+                mut_edits!(app).one_ways.remove(&r);
             } else {
-                app.per_map.edits.one_ways.insert(r, r_edit);
+                mut_edits!(app).one_ways.insert(r, r_edit);
             }
 
             // We don't need to call after_edit; no filter icons have changed
@@ -91,15 +91,15 @@ pub fn handle_world_outcome(
 // This is defined here because some of the heavy lifting deals with one-ways, but it might not
 // even undo that kind of change
 pub fn undo_proposal(ctx: &mut EventCtx, app: &mut App) {
-    let prev = app.per_map.edits.previous_version.take().unwrap();
+    let prev = mut_edits!(app).previous_version.take().unwrap();
 
     // Generate edits to undo possible changes to a one-way. Note there may be multiple in one
     // batch, from the freehand tool
-    if prev.one_ways != app.per_map.edits.one_ways {
+    if prev.one_ways != app.edits().one_ways {
         let mut edits = app.per_map.map.get_edits().clone();
 
         for (r, r_edit1) in &prev.one_ways {
-            if Some(r_edit1) != app.per_map.edits.one_ways.get(r) {
+            if Some(r_edit1) != app.edits().one_ways.get(r) {
                 edits
                     .commands
                     .push(app.per_map.map.edit_road_cmd(*r, |new| {
@@ -108,7 +108,7 @@ pub fn undo_proposal(ctx: &mut EventCtx, app: &mut App) {
             }
         }
         // Also look for newly introduced one-ways
-        for r in app.per_map.edits.one_ways.keys() {
+        for r in app.edits().one_ways.keys() {
             if !prev.one_ways.contains_key(r) {
                 edits
                     .commands
@@ -126,6 +126,6 @@ pub fn undo_proposal(ctx: &mut EventCtx, app: &mut App) {
         });
     }
 
-    app.per_map.edits = prev;
+    app.per_map.alt_proposals.edits = prev;
     crate::after_edit(ctx, app);
 }

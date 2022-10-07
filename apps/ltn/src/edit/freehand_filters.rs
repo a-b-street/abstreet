@@ -2,7 +2,9 @@ use geom::PolyLine;
 use widgetry::EventCtx;
 
 use crate::edit::{EditMode, EditOutcome};
-use crate::{after_edit, App, DiagonalFilter, FilterType, Neighbourhood, RoadFilter, Transition};
+use crate::{
+    after_edit, mut_edits, App, DiagonalFilter, FilterType, Neighbourhood, RoadFilter, Transition,
+};
 
 pub fn event(ctx: &mut EventCtx, app: &mut App, neighbourhood: &Neighbourhood) -> EditOutcome {
     if let EditMode::FreehandFilters(ref mut lasso) = app.session.edit_mode {
@@ -28,9 +30,9 @@ fn make_filters_along_path(
     let mut oneways = Vec::new();
     let mut bus_roads = Vec::new();
 
-    app.per_map.edits.before_edit();
+    mut_edits!(app).before_edit();
     for r in &neighbourhood.orig_perimeter.interior {
-        if app.per_map.edits.roads.contains_key(r) {
+        if app.edits().roads.contains_key(r) {
             continue;
         }
         let road = app.per_map.map.get_r(*r);
@@ -57,8 +59,7 @@ fn make_filters_along_path(
                 continue;
             }
 
-            app.per_map
-                .edits
+            mut_edits!(app)
                 .roads
                 .insert(*r, RoadFilter::new_by_user(dist, app.session.filter_type));
         }

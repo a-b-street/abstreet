@@ -3,7 +3,9 @@ use widgetry::tools::open_browser;
 use widgetry::{lctrl, EventCtx, Key, Text, Transition};
 
 use super::{road_name, EditOutcome, Obj};
-use crate::{after_edit, colors, App, DiagonalFilter, FilterType, Neighbourhood, RoadFilter};
+use crate::{
+    after_edit, colors, mut_edits, App, DiagonalFilter, FilterType, Neighbourhood, RoadFilter,
+};
 
 /// Creates clickable objects for managing filters on roads and intersections. Everything is
 /// invisible; the caller is responsible for drawing things.
@@ -66,8 +68,8 @@ pub fn handle_world_outcome(
                 return EditOutcome::error(ctx, "You can't filter a dead-end");
             }
 
-            app.per_map.edits.before_edit();
-            if app.per_map.edits.roads.remove(&r).is_none() {
+            mut_edits!(app).before_edit();
+            if mut_edits!(app).roads.remove(&r).is_none() {
                 // Place the filter on the part of the road that was clicked
                 // These calls shouldn't fail -- since we clicked a road, the cursor must be in
                 // map-space. And project_pt returns a point that's guaranteed to be on the
@@ -81,13 +83,13 @@ pub fn handle_world_outcome(
                 if app.session.filter_type != FilterType::BusGate
                     && !app.per_map.map.get_bus_routes_on_road(r).is_empty()
                 {
-                    app.per_map.edits.cancel_empty_edit();
+                    mut_edits!(app).cancel_empty_edit();
                     return EditOutcome::Transition(Transition::Push(
                         super::ResolveBusGate::new_state(ctx, app, vec![(r, distance)]),
                     ));
                 }
 
-                app.per_map.edits.roads.insert(
+                mut_edits!(app).roads.insert(
                     r,
                     RoadFilter::new_by_user(distance, app.session.filter_type),
                 );
@@ -96,7 +98,7 @@ pub fn handle_world_outcome(
             EditOutcome::Transition(Transition::Recreate)
         }
         WorldOutcome::ClickedObject(Obj::InteriorIntersection(i)) => {
-            app.per_map.edits.before_edit();
+            mut_edits!(app).before_edit();
             DiagonalFilter::cycle_through_alternatives(app, i);
             after_edit(ctx, app);
             EditOutcome::Transition(Transition::Recreate)
